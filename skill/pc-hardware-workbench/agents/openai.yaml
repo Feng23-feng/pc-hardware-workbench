@@ -1,0 +1,7 @@
+interface:
+  display_name: "电脑硬件工作台"
+  short_description: "用一个入口完成排障、配置采集、升级判断与手动超频指导"
+  default_prompt: "使用 $pc-hardware-workbench 判断我要排障、读取配置、调校还是升级；如果我不知道怎么选，就先用白话带我一步步开始。"
+
+policy:
+  allow_implicit_invocation: true
