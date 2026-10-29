@@ -48,3 +48,13 @@ jobs:
           powershell.exe -NoProfile -ExecutionPolicy Bypass `
             -File .\portable\start.ps1 -SelfTest
           exit $LASTEXITCODE
+
+      - name: Reject trailing whitespace in shipped trees
+        shell: pwsh
+        run: |
+          $hits = git grep -nIE '[[:blank:]]+$' -- skill portable tools
+          if ($LASTEXITCODE -eq 0) {
+            $hits
+            throw 'Trailing whitespace found in shipped trees.'
+          }
+          'OK: no trailing whitespace in skill/, portable/, tools/'
