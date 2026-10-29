@@ -17,6 +17,29 @@ the user's control.
 - Broad release sign-off: pending
 - Repository license: **MIT**
 
+## Collaboration model
+
+This is an AI-assisted, human-controlled project:
+
+- Codex may inspect evidence, explain tradeoffs, and propose bounded experiments.
+- The user authorizes data collection, applies every hardware change manually,
+  and owns rollback and recovery.
+- The project never bypasses permissions, anti-cheat, vendor locks, or safety
+  limits.
+- Automated tests and AI reviews support quality checks but do not replace
+  independent human acceptance or real-hardware judgment.
+
+## How this project is built
+
+This project combines human hardware experience with AI-assisted engineering:
+
+- The maintainer contributes hands-on testing, real failure cases, safety rules,
+  interpretation of results, and final product decisions.
+- Codex and DeepSeek Harness assist with implementation, documentation, test
+  design, code review, packaging, and CI maintenance.
+- AI can propose changes, but the human owner decides what is accepted and
+  released.
+
 ## Why this project exists
 
 Hardware advice often fails in three ways: it skips the actual machine state,
