@@ -77,6 +77,29 @@ Battery collection preserves three outcomes: `available`, `not-present`, and
 misreported as a machine without a battery. `BatteryStatusReason` identifies the
 failing stage and `BatteryCimStatus` records the independent CIM result.
 
+### Use with DeepSeek Harness
+
+The same Skill tree loads in DeepSeek Harness. The installation directory and
+the invocation syntax differ from Codex:
+
+```text
+<dsh-home>/skills/pc-hardware-workbench
+```
+
+`<dsh-home>` is `%USERPROFILE%\.dsh` unless `DSH_HOME` is set. Invoke from the
+chat input with a leading slash:
+
+```text
+/pc-hardware-workbench
+```
+
+`SKILL.md` may add `disable-model-invocation: true` when the Skill should stay
+explicit-only, and `user-invocable: false` when it should never be slash-invoked.
+Those visibility fields are optional and do not change the scripts, references,
+tests, or safety boundaries, which are the same files as the Codex copy. A
+Harness-specific distribution package can be provided separately from this
+repository.
+
 ## Portable Windows tool
 
 Run:
@@ -155,8 +178,10 @@ and `-Fix` is rejected when `CI=true` or `GITHUB_ACTIONS=true`.
 
 Real hardware smoke tests remain opt-in and are not run by CI.
 
-The validation wrapper uses a persistent, non-repository Python environment at
-`Documents\Codex\.validation-venv`. Create it once:
+The validation wrapper uses a persistent Python environment outside this
+repository. By default it is created at `%USERPROFILE%\Documents\Codex\.validation-venv`;
+override the location with `-VenvPath <path>` or the `CODEX_VALIDATION_VENV`
+environment variable if you prefer somewhere else. Create it once:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass `
