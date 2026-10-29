@@ -73,16 +73,16 @@ if ([string]::IsNullOrWhiteSpace($VenvPath)) {
         $VenvPath = $env:CODEX_VALIDATION_VENV
     }
     else {
-        $documentsPath = if (-not [string]::IsNullOrWhiteSpace($env:USERPROFILE)) {
-            Join-Path $env:USERPROFILE "Documents"
+        $localAppData = if (-not [string]::IsNullOrWhiteSpace($env:LOCALAPPDATA)) {
+            $env:LOCALAPPDATA
         }
         else {
-            [Environment]::GetFolderPath("MyDocuments")
+            [Environment]::GetFolderPath("LocalApplicationData")
         }
-        if ([string]::IsNullOrWhiteSpace($documentsPath)) {
-            throw "Cannot resolve the user's Documents directory. Set CODEX_VALIDATION_VENV or pass -VenvPath."
+        if ([string]::IsNullOrWhiteSpace($localAppData)) {
+            throw "Cannot resolve the user's LocalAppData directory. Set CODEX_VALIDATION_VENV or pass -VenvPath."
         }
-        $VenvPath = Join-Path $documentsPath "Codex\.validation-venv"
+        $VenvPath = Join-Path $localAppData "pc-hardware-workbench\.validation-venv"
     }
 }
 $VenvPath = [IO.Path]::GetFullPath($VenvPath)
