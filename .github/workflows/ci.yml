@@ -52,9 +52,14 @@ jobs:
       - name: Reject trailing whitespace in shipped trees
         shell: pwsh
         run: |
+          $PSNativeCommandUseErrorActionPreference = $false
           $hits = git grep -nIE '[[:blank:]]+$' -- skill portable tools
-          if ($LASTEXITCODE -eq 0) {
+          $exitCode = $LASTEXITCODE
+          if ($exitCode -eq 0) {
             $hits
             throw 'Trailing whitespace found in shipped trees.'
+          }
+          if ($exitCode -ne 1) {
+            throw "git grep failed with exit code $exitCode."
           }
           'OK: no trailing whitespace in skill/, portable/, tools/'
