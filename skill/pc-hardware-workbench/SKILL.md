@@ -1,4 +1,4 @@
-﻿---
+---
 name: pc-hardware-workbench
 description: Integrate Windows-focused read-only hardware inventory, evidence-gated troubleshooting, guided overclocking, and upgrade-purchase decisions through one routed workflow. Other operating systems receive manual guidance only. Keep tuning-only requests free of unsolicited purchase advice; never modify hardware settings automatically and never bypass permissions or anti-cheat.
 metadata:
