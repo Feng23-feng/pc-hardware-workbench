@@ -1,0 +1,5256 @@
+<!doctype html>
+<html lang="zh-CN" data-site-view="interactive">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Interactive terminology, tuning gate, triage, and configuration-state demos.">
+  <title>PC Hardware Workbench / Interactive Lab</title>
+</head>
+<body>
+<div id="dse-root" class="dse">
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #dse-root {
+      --dse-bg: #040811;
+      --dse-panel: #07111d;
+      --dse-panel-2: #0a1624;
+      --dse-text: #ddfaff;
+      --dse-muted: #79a0b2;
+      --dse-line: #18374d;
+      --dse-cyan: #49e6ff;
+      --dse-magenta: #ff55b8;
+      --dse-lime: #9cff57;
+      --dse-amber: #ffc65a;
+      --dse-red: #ff626c;
+      position: relative;
+      height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+      color: var(--dse-text);
+      background:
+        radial-gradient(circle at 8% 0%, rgba(73, 230, 255, .14), transparent 28%),
+        radial-gradient(circle at 94% 34%, rgba(255, 85, 184, .1), transparent 30%),
+        var(--dse-bg);
+      border: 1px solid #16354b;
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+    }
+
+    #dse-root::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(73, 230, 255, .028) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(73, 230, 255, .028) 1px, transparent 1px);
+      background-size: 26px 26px;
+    }
+
+    #dse-root * {
+      box-sizing: border-box;
+    }
+
+    #dse-root [hidden] {
+      display: none !important;
+    }
+
+    #dse-root .dse-shell {
+      position: relative;
+      z-index: 1;
+      padding: 18px;
+    }
+
+    #dse-root .dse-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(310px, 390px);
+      align-items: flex-start;
+      gap: 16px;
+      padding-bottom: 13px;
+      border-bottom: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-header-copy {
+      align-self: center;
+      min-width: 0;
+    }
+
+    #dse-root .dse-kicker {
+      margin: 0 0 5px;
+      color: var(--dse-cyan);
+      font-size: 10px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    #dse-root h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: .02em;
+    }
+
+    #dse-root .dse-subtitle {
+      margin: 0;
+      color: var(--dse-muted);
+      font-size: 10px;
+      line-height: 1.65;
+    }
+
+    #dse-root .dse-intro-window {
+      position: relative;
+      min-width: 0;
+      padding: 11px 12px;
+      background:
+        linear-gradient(145deg, rgba(9, 24, 39, .99), rgba(5, 15, 27, .97));
+      border: 1px solid #21455e;
+      border-top: 2px solid var(--dse-cyan);
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+      box-shadow:
+        0 14px 30px rgba(0, 0, 0, .32),
+        0 0 22px rgba(73, 230, 255, .06);
+    }
+
+    #dse-root .dse-intro-kicker {
+      margin: 0 0 6px;
+      color: var(--dse-cyan);
+      font-size: 7px;
+      letter-spacing: .15em;
+    }
+
+    #dse-root .dse-chips {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      gap: 6px;
+      max-width: none;
+      margin-top: 9px;
+    }
+
+    #dse-root .dse-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 26px;
+      padding: 0 8px;
+      color: var(--dse-muted);
+      background: rgba(7, 18, 30, .9);
+      border: 1px solid #1b3a52;
+      font-size: 9px;
+      letter-spacing: .07em;
+      white-space: nowrap;
+    }
+
+    #dse-root .dse-chip::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      background: var(--dse-cyan);
+      box-shadow: 0 0 8px var(--dse-cyan);
+    }
+
+    #dse-root .dse-chip.prototype::before {
+      background: var(--dse-magenta);
+      box-shadow: 0 0 8px var(--dse-magenta);
+    }
+
+    #dse-root .dse-chip.next::before {
+      background: var(--dse-amber);
+      box-shadow: 0 0 8px var(--dse-amber);
+    }
+
+    #dse-root .dse-chip.triage::before,
+    #dse-root .dse-chip.demo::before {
+      background: var(--dse-lime);
+      box-shadow: 0 0 8px var(--dse-lime);
+    }
+
+    #dse-root .dse-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 11px 0;
+      background: rgba(4, 10, 18, .96);
+      border-bottom: 1px solid rgba(24, 55, 77, .72);
+    }
+
+    #dse-root .dse-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    #dse-root .dse-filter,
+    #dse-root .dse-node {
+      appearance: none;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-filter {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 30px;
+      padding: 0 10px;
+      color: var(--dse-muted);
+      background: rgba(6, 16, 28, .92);
+      border: 1px solid #1a3952;
+      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+      font-size: 9px;
+      letter-spacing: .08em;
+      text-decoration: none;
+    }
+
+    #dse-root .dse-filter[aria-pressed="true"] {
+      color: #031116;
+      background: var(--dse-cyan);
+      border-color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-lab-link {
+      color: var(--dse-magenta);
+      border-color: rgba(255, 85, 184, .52);
+    }
+
+    #dse-root .dse-lab-link:hover,
+    #dse-root .dse-lab-link:focus-visible {
+      color: #180611;
+      background: var(--dse-magenta);
+      border-color: var(--dse-magenta);
+    }
+
+    #dse-root .dse-lab-callout {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+      padding: 10px 11px;
+      background: linear-gradient(90deg, rgba(8, 27, 42, .96), rgba(29, 10, 25, .94));
+      border: 1px solid rgba(255, 85, 184, .34);
+      border-left: 2px solid var(--dse-magenta);
+    }
+
+    #dse-root .dse-lab-callout-copy {
+      min-width: 0;
+      color: var(--dse-muted);
+      font-size: 10px;
+      line-height: 1.55;
+    }
+
+    #dse-root .dse-lab-callout-copy strong {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--dse-text);
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-lab-callout-link {
+      flex: none;
+      min-height: 30px;
+      padding: 0 10px;
+      display: inline-flex;
+      align-items: center;
+      color: #180611;
+      background: var(--dse-magenta);
+      border: 1px solid var(--dse-magenta);
+      font-size: 10px;
+      text-decoration: none;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-filters,
+    html[data-site-view="interactive"] #dse-root .dse-toolbar,
+    html[data-site-view="interactive"] #dse-root .dse-map-stage,
+    html[data-site-view="interactive"] #dse-root .dse-convergence,
+    html[data-site-view="interactive"] #dse-root .dse-archive,
+    html[data-site-view="interactive"] #dse-root .dse-lab-callout {
+      display: none !important;
+    }
+
+    html:not([data-site-view="interactive"]) #dse-root .dse-demo-back {
+      display: none;
+    }
+
+    #dse-root .dse-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 11px;
+      color: var(--dse-muted);
+      font-size: 9px;
+    }
+
+    #dse-root .dse-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    #dse-root .dse-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: currentColor;
+      box-shadow: 0 0 7px currentColor;
+    }
+
+    #dse-root .dse-tracks {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    #dse-root .dse-map-stage {
+      display: block;
+    }
+
+    #dse-root .dse-track {
+      min-width: 0;
+      padding: 13px;
+      background: linear-gradient(160deg, rgba(8, 18, 31, .97), rgba(5, 12, 22, .93));
+      border: 1px solid #17364c;
+    }
+
+    #dse-root .dse-track.core {
+      box-shadow: inset 0 2px 0 rgba(73, 230, 255, .42);
+    }
+
+    #dse-root .dse-track.prototype {
+      box-shadow: inset 0 2px 0 rgba(255, 85, 184, .48);
+    }
+
+    #dse-root .dse-track.triage {
+      box-shadow: inset 0 2px 0 rgba(156, 255, 87, .46);
+    }
+
+    #dse-root .dse-track-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-track-kicker {
+      color: var(--dse-muted);
+      font-size: 8px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    #dse-root .dse-track h2 {
+      margin: 5px 0 0;
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    #dse-root .dse-track-badge {
+      flex: none;
+      padding: 3px 6px;
+      color: var(--dse-cyan);
+      border: 1px solid rgba(73, 230, 255, .4);
+      font-size: 8px;
+      letter-spacing: .08em;
+    }
+
+    #dse-root .dse-track.prototype .dse-track-badge {
+      color: var(--dse-magenta);
+      border-color: rgba(255, 85, 184, .45);
+    }
+
+    #dse-root .dse-track.triage .dse-track-badge {
+      color: var(--dse-lime);
+      border-color: rgba(156, 255, 87, .45);
+    }
+
+    #dse-root .dse-lane {
+      position: relative;
+      padding: 13px 0 2px 23px;
+    }
+
+    #dse-root .dse-lane::before {
+      content: "";
+      position: absolute;
+      left: 7px;
+      top: 16px;
+      bottom: 6px;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, #20536c 5%, #20536c 95%, transparent);
+    }
+
+    #dse-root .dse-track.prototype .dse-lane::before {
+      background: linear-gradient(to bottom, transparent, #6d315e 5%, #6d315e 95%, transparent);
+    }
+
+    #dse-root .dse-track.triage .dse-lane::before {
+      background: linear-gradient(to bottom, transparent, #476a2d 5%, #476a2d 95%, transparent);
+    }
+
+    #dse-root .dse-node {
+      position: relative;
+      display: block;
+      width: 100%;
+      min-height: 65px;
+      margin: 0 0 10px;
+      padding: 9px 10px 9px 12px;
+      text-align: left;
+      background: rgba(6, 15, 26, .96);
+      border: 1px solid #1d4057;
+      clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 9px 100%, 0 calc(100% - 9px));
+      box-shadow: inset 2px 0 0 #276079;
+      transition: opacity .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+
+    #dse-root .dse-track.prototype .dse-node {
+      border-color: rgba(143, 53, 113, .6);
+      box-shadow: inset 2px 0 0 var(--dse-magenta);
+    }
+
+    #dse-root .dse-track.triage .dse-node {
+      border-color: rgba(95, 145, 53, .62);
+      box-shadow: inset 2px 0 0 var(--dse-lime);
+    }
+
+    #dse-root .dse-node::before {
+      content: "";
+      position: absolute;
+      left: -23px;
+      top: 27px;
+      width: 13px;
+      height: 13px;
+      background: #06111c;
+      border: 1px solid var(--dse-cyan);
+      transform: rotate(45deg);
+      box-shadow: 0 0 9px rgba(73, 230, 255, .2);
+    }
+
+    #dse-root .dse-track.prototype .dse-node::before {
+      border-color: var(--dse-magenta);
+      box-shadow: 0 0 9px rgba(255, 85, 184, .2);
+    }
+
+    #dse-root .dse-track.triage .dse-node::before {
+      border-color: var(--dse-lime);
+      box-shadow: 0 0 9px rgba(156, 255, 87, .2);
+    }
+
+    #dse-root .dse-node.is-selected {
+      border-color: var(--dse-cyan);
+      box-shadow: inset 2px 0 0 var(--dse-cyan), 0 0 18px rgba(73, 230, 255, .18);
+    }
+
+    #dse-root .dse-track.prototype .dse-node.is-selected {
+      border-color: var(--dse-magenta);
+      box-shadow: inset 2px 0 0 var(--dse-magenta), 0 0 18px rgba(255, 85, 184, .18);
+    }
+
+    #dse-root .dse-track.triage .dse-node.is-selected {
+      border-color: var(--dse-lime);
+      box-shadow: inset 2px 0 0 var(--dse-lime), 0 0 18px rgba(156, 255, 87, .16);
+    }
+
+    #dse-root .dse-node.is-dimmed {
+      opacity: .18;
+    }
+
+    #dse-root .dse-node-code {
+      color: var(--dse-muted);
+      font-size: 8px;
+      letter-spacing: .1em;
+    }
+
+    #dse-root .dse-node-title {
+      display: block;
+      margin-top: 3px;
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    #dse-root .dse-node-summary {
+      display: block;
+      margin-top: 3px;
+      color: #8bb1c2;
+      font-size: 8px;
+      line-height: 1.45;
+    }
+
+    #dse-root .dse-node-state {
+      position: absolute;
+      top: 9px;
+      right: 10px;
+      color: var(--dse-lime);
+      font-size: 7px;
+      letter-spacing: .08em;
+    }
+
+    #dse-root .dse-node-state.current {
+      color: var(--dse-amber);
+    }
+
+    #dse-root .dse-node-state.stop {
+      color: var(--dse-red);
+    }
+
+    #dse-root .dse-node-state.blocked {
+      color: var(--dse-amber);
+    }
+
+    #dse-root .dse-convergence {
+      display: grid;
+      grid-template-columns: 1fr 52px minmax(240px, .75fr) 52px 1fr;
+      align-items: center;
+      gap: 0;
+      margin-top: 14px;
+      padding: 12px 13px;
+      background: linear-gradient(90deg, rgba(73, 230, 255, .06), rgba(6, 14, 25, .92) 42%, rgba(255, 85, 184, .06));
+      border: 1px solid #17364c;
+    }
+
+    #dse-root .dse-convergence-line {
+      height: 1px;
+      background: linear-gradient(90deg, var(--dse-cyan), #24516a);
+    }
+
+    #dse-root .dse-convergence-line.reverse {
+      background: linear-gradient(90deg, #5b2a4c, var(--dse-magenta));
+    }
+
+    #dse-root .dse-merge-stack {
+      display: grid;
+      gap: 7px;
+    }
+
+    #dse-root .dse-merge-button {
+      width: 100%;
+      min-height: 58px;
+      padding: 8px 12px;
+      color: var(--dse-amber);
+      background: #0a1620;
+      border: 1px solid rgba(255, 198, 90, .7);
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+      text-align: center;
+      font: inherit;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(255, 198, 90, .1);
+    }
+
+    #dse-root .dse-merge-kicker {
+      display: block;
+      color: var(--dse-muted);
+      font-size: 7px;
+      letter-spacing: .12em;
+    }
+
+    #dse-root .dse-merge-title {
+      display: block;
+      margin-top: 4px;
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    #dse-root .dse-detail {
+      position: fixed;
+      top: auto;
+      right: 18px;
+      bottom: 18px;
+      z-index: 40;
+      display: flex;
+      flex-direction: column;
+      width: 274px;
+      max-height: calc(100vh - 36px);
+      overflow: hidden;
+      margin-top: 0;
+      padding: 12px 13px;
+      background:
+        linear-gradient(145deg, rgba(9, 24, 39, .99), rgba(5, 15, 27, .97));
+      border: 1px solid #21455e;
+      border-left: 3px solid var(--dse-cyan);
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+      box-shadow:
+        0 16px 34px rgba(0, 0, 0, .34),
+        0 0 24px rgba(73, 230, 255, .06);
+    }
+
+    #dse-root .dse-detail[hidden],
+    #dse-root .dse-version-detail[hidden] {
+      display: none;
+    }
+
+    #dse-root .dse-detail.prototype {
+      border-left-color: var(--dse-magenta);
+      box-shadow:
+        0 16px 34px rgba(0, 0, 0, .34),
+        0 0 24px rgba(255, 85, 184, .07);
+    }
+
+    #dse-root .dse-detail.merge {
+      border-left-color: var(--dse-amber);
+      box-shadow:
+        0 16px 34px rgba(0, 0, 0, .34),
+        0 0 24px rgba(255, 198, 90, .06);
+    }
+
+    #dse-root .dse-detail.triage {
+      border-left-color: var(--dse-lime);
+      box-shadow:
+        0 16px 34px rgba(0, 0, 0, .34),
+        0 0 24px rgba(156, 255, 87, .06);
+    }
+
+    #dse-root .dse-detail::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 62px;
+      height: 2px;
+      background: var(--dse-amber);
+      box-shadow: 0 0 10px var(--dse-amber);
+    }
+
+    #dse-root .dse-detail-kicker {
+      margin: 0;
+      color: var(--dse-cyan);
+      font-size: 7px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+
+    #dse-root .dse-detail.prototype .dse-detail-kicker {
+      color: var(--dse-magenta);
+    }
+
+    #dse-root .dse-detail.merge .dse-detail-kicker {
+      color: var(--dse-amber);
+    }
+
+    #dse-root .dse-detail.triage .dse-detail-kicker {
+      color: var(--dse-lime);
+    }
+
+    #dse-root .dse-floating-handle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: -4px -4px 8px;
+      padding: 5px 7px;
+      color: var(--dse-muted);
+      background: rgba(3, 11, 19, .58);
+      border-bottom: 1px solid rgba(33, 69, 94, .65);
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+
+    #dse-root .dse-floating-handle:active {
+      cursor: grabbing;
+    }
+
+    #dse-root .dse-drag-hint {
+      flex: none;
+      color: var(--dse-muted);
+      font-size: 7px;
+      letter-spacing: .08em;
+    }
+
+    #dse-root .dse-floating-actions {
+      display: flex;
+      flex: none;
+      gap: 4px;
+    }
+
+    #dse-root .dse-window-control {
+      display: inline-grid;
+      place-items: center;
+      min-width: 25px;
+      min-height: 25px;
+      padding: 0;
+      color: var(--dse-muted);
+      background: rgba(7, 18, 30, .96);
+      border: 1px solid #234860;
+      font: inherit;
+      font-size: 12px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-window-control:hover,
+    #dse-root .dse-window-control:focus-visible {
+      color: var(--dse-text);
+      border-color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-floating-body {
+      min-height: 0;
+      overflow: auto;
+    }
+
+    #dse-root .dse-detail.is-collapsed,
+    #dse-root .dse-version-detail.is-collapsed {
+      max-height: none;
+    }
+
+    #dse-root .dse-detail.is-collapsed .dse-floating-body,
+    #dse-root .dse-version-detail.is-collapsed .dse-floating-body {
+      display: none;
+    }
+
+    #dse-root .dse-detail.is-collapsed .dse-floating-handle,
+    #dse-root .dse-version-detail.is-collapsed .dse-floating-handle {
+      margin-bottom: -4px;
+      border-bottom: 0;
+    }
+
+    #dse-root .dse-detail-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    #dse-root .dse-detail h3 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    #dse-root .dse-detail-status {
+      flex: none;
+      padding: 3px 7px;
+      color: var(--dse-amber);
+      border: 1px solid rgba(255, 198, 90, .45);
+      font-size: 8px;
+      letter-spacing: .08em;
+    }
+
+    #dse-root .dse-detail-status.stop {
+      color: var(--dse-red);
+      border-color: rgba(255, 98, 108, .58);
+    }
+
+    #dse-root .dse-detail-status.blocked {
+      color: var(--dse-amber);
+      border-color: rgba(255, 198, 90, .58);
+    }
+
+    #dse-root .dse-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+      margin-top: 8px;
+    }
+
+    #dse-root .dse-detail-cell {
+      padding: 9px 0;
+      border-top: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-label {
+      margin: 0 0 4px;
+      color: var(--dse-muted);
+      font-size: 8px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    #dse-root .dse-value {
+      margin: 0;
+      color: var(--dse-text);
+      font-size: 10px;
+      line-height: 1.65;
+    }
+
+    #dse-root .dse-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 10px;
+      color: var(--dse-muted);
+      font-size: 8px;
+      line-height: 1.5;
+    }
+
+    #dse-root .dse-archive {
+      display: block;
+      margin-top: 14px;
+      padding: 15px;
+      background:
+        linear-gradient(180deg, rgba(5, 13, 23, .98), rgba(4, 10, 18, .94)),
+        repeating-linear-gradient(90deg, transparent 0 31px, rgba(73, 230, 255, .025) 31px 32px);
+      border: 1px solid #17364c;
+    }
+
+    #dse-root .dse-archive-head {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      padding-bottom: 11px;
+      border-bottom: 1px solid var(--dse-line);
+    }
+
+    #dse-root #dse-version-archive {
+      min-width: 0;
+    }
+
+    #dse-root .dse-archive-kicker {
+      margin: 0 0 5px;
+      color: var(--dse-amber);
+      font-size: 8px;
+      letter-spacing: .16em;
+    }
+
+    #dse-root .dse-archive h2 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-archive-summary {
+      margin: 6px 0 0;
+      max-width: 690px;
+      color: var(--dse-muted);
+      font-size: 9px;
+      line-height: 1.6;
+    }
+
+    #dse-root .dse-archive-totals {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+      max-width: 310px;
+    }
+
+    #dse-root .dse-archive-total {
+      min-width: 80px;
+      padding: 6px 8px;
+      color: var(--dse-muted);
+      background: rgba(6, 16, 28, .94);
+      border-left: 2px solid var(--dse-cyan);
+      font-size: 8px;
+      letter-spacing: .06em;
+    }
+
+    #dse-root .dse-archive-total.prototype {
+      border-left-color: var(--dse-magenta);
+    }
+
+    #dse-root .dse-archive-total b {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--dse-text);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-series {
+      display: block;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(24, 55, 77, .72);
+      transition: opacity .16s ease;
+    }
+
+    #dse-root .dse-series:last-of-type {
+      border-bottom: 0;
+    }
+
+    #dse-root .dse-series.is-dimmed,
+    #dse-root .dse-version.is-dimmed {
+      opacity: .18;
+    }
+
+    #dse-root .dse-series-toggle {
+      appearance: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      width: 100%;
+      padding: 0;
+      color: inherit;
+      background: transparent;
+      border: 0;
+      text-align: left;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-series-label {
+      position: relative;
+      align-self: start;
+      padding: 3px 9px 3px 12px;
+      color: var(--dse-cyan);
+      border-left: 2px solid var(--dse-cyan);
+      font-size: 9px;
+      line-height: 1.45;
+    }
+
+    #dse-root .dse-series.prototype .dse-series-label {
+      color: var(--dse-magenta);
+      border-left-color: var(--dse-magenta);
+    }
+
+    #dse-root .dse-series-label small {
+      display: block;
+      margin-top: 3px;
+      color: var(--dse-muted);
+      font-size: 7px;
+      letter-spacing: .06em;
+    }
+
+    #dse-root .dse-series-count {
+      flex: none;
+      color: var(--dse-muted);
+      font-size: 9px;
+      letter-spacing: .06em;
+    }
+
+    #dse-root .dse-series-count::after {
+      content: "  +";
+      color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-series-toggle[aria-expanded="true"] .dse-series-count::after {
+      content: "  −";
+    }
+
+    #dse-root .dse-version-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 5px;
+      margin-top: 9px;
+    }
+
+    #dse-root .dse-version {
+      min-width: 0;
+      min-height: 42px;
+      padding: 6px 7px;
+      color: var(--dse-text);
+      background: rgba(8, 20, 34, .92);
+      border: 1px solid #1b4057;
+      clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+      text-align: left;
+      font: inherit;
+      cursor: pointer;
+      transition: opacity .16s ease, border-color .16s ease, background .16s ease;
+    }
+
+    #dse-root .dse-version.prototype {
+      border-color: rgba(143, 53, 113, .68);
+    }
+
+    #dse-root .dse-version:hover,
+    #dse-root .dse-version:focus-visible {
+      border-color: var(--dse-cyan);
+      background: rgba(12, 31, 49, .98);
+    }
+
+    #dse-root .dse-version.prototype:hover,
+    #dse-root .dse-version.prototype:focus-visible {
+      border-color: var(--dse-magenta);
+    }
+
+    #dse-root .dse-version.is-selected {
+      color: #031116;
+      background: var(--dse-cyan);
+      border-color: var(--dse-cyan);
+      box-shadow: 0 0 14px rgba(73, 230, 255, .2);
+    }
+
+    #dse-root .dse-version.prototype.is-selected {
+      color: #180611;
+      background: var(--dse-magenta);
+      border-color: var(--dse-magenta);
+      box-shadow: 0 0 14px rgba(255, 85, 184, .2);
+    }
+
+    #dse-root .dse-version-code {
+      display: block;
+      font-size: 9px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    #dse-root .dse-version-title {
+      display: block;
+      margin-top: 2px;
+      overflow: hidden;
+      color: var(--dse-muted);
+      font-size: 7px;
+      line-height: 1.35;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    #dse-root .dse-version.is-selected .dse-version-title {
+      color: currentColor;
+      opacity: .72;
+    }
+
+    #dse-root .dse-version-detail {
+      position: fixed;
+      top: auto;
+      right: 18px;
+      bottom: 18px;
+      z-index: 40;
+      display: flex;
+      flex-direction: column;
+      width: 276px;
+      max-height: calc(100vh - 36px);
+      overflow: hidden;
+      margin-top: 0;
+      padding: 12px 13px;
+      background:
+        linear-gradient(145deg, rgba(9, 24, 39, .99), rgba(5, 15, 27, .97));
+      border: 1px solid #21455e;
+      border-left: 3px solid var(--dse-cyan);
+      box-shadow:
+        0 16px 34px rgba(0, 0, 0, .34),
+        0 0 24px rgba(73, 230, 255, .06);
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+    }
+
+    #dse-root .dse-version-detail.prototype {
+      border-left-color: var(--dse-magenta);
+      box-shadow:
+        0 16px 34px rgba(0, 0, 0, .34),
+        0 0 24px rgba(255, 85, 184, .07);
+    }
+
+    #dse-root .dse-version-detail-kicker {
+      margin: 0;
+      color: var(--dse-cyan);
+      font-size: 7px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+
+    #dse-root .dse-version-detail.prototype .dse-version-detail-kicker {
+      color: var(--dse-magenta);
+    }
+
+    #dse-root .dse-version-detail-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    #dse-root .dse-version-detail h3 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-version-detail-date {
+      flex: none;
+      color: var(--dse-muted);
+      font-size: 8px;
+      letter-spacing: .08em;
+    }
+
+    #dse-root .dse-version-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0 18px;
+      margin-top: 9px;
+    }
+
+    #dse-root .dse-version-change-list {
+      display: grid;
+      gap: 4px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    #dse-root .dse-version-change-list li {
+      position: relative;
+      padding-left: 10px;
+      color: var(--dse-text);
+      font-size: 9px;
+      line-height: 1.5;
+    }
+
+    #dse-root .dse-version-change-list li::before {
+      content: "›";
+      position: absolute;
+      left: 0;
+      color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-version-detail.prototype .dse-version-change-list li::before {
+      color: var(--dse-magenta);
+    }
+
+    #dse-root .dse-demo {
+      margin-top: 14px;
+      padding: 15px;
+      background:
+        linear-gradient(180deg, rgba(5, 13, 23, .98), rgba(4, 10, 18, .95)),
+        repeating-linear-gradient(90deg, transparent 0 31px, rgba(73, 230, 255, .025) 31px 32px);
+      border: 1px solid #17364c;
+    }
+
+    #dse-root .dse-demo-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      padding-bottom: 11px;
+      border-bottom: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-demo-kicker {
+      margin: 0 0 5px;
+      color: var(--dse-cyan);
+      font-size: 8px;
+      letter-spacing: .16em;
+    }
+
+    #dse-root .dse-demo h2 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-demo-summary {
+      margin: 6px 0 0;
+      max-width: 760px;
+      color: var(--dse-muted);
+      font-size: 9px;
+      line-height: 1.6;
+    }
+
+    #dse-root .dse-demo-back {
+      display: inline-flex;
+      margin-top: 8px;
+      color: var(--dse-cyan);
+      font-size: 10px;
+      text-decoration: none;
+    }
+
+    #dse-root .dse-demo-back:hover,
+    #dse-root .dse-demo-back:focus-visible {
+      color: var(--dse-text);
+    }
+
+    #dse-root .dse-demo-modes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    #dse-root .dse-demo-modes .dse-filter {
+      min-height: 32px;
+      font-size: 10px;
+    }
+
+    #dse-root .dse-demo-badge {
+      flex: none;
+      padding: 4px 7px;
+      color: var(--dse-amber);
+      border: 1px solid rgba(255, 198, 90, .5);
+      font-size: 7px;
+      letter-spacing: .1em;
+    }
+
+    #dse-root .dse-demo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    #dse-root .dse-demo-panel {
+      min-width: 0;
+      padding: 12px;
+      background: rgba(7, 17, 29, .96);
+      border: 1px solid #1b4057;
+      border-top: 2px solid var(--dse-cyan);
+    }
+
+    #dse-root .dse-demo-panel.wide {
+      grid-column: 1 / -1;
+      border-top-color: var(--dse-lime);
+    }
+
+    #dse-root .dse-demo-panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    #dse-root .dse-demo-panel h3 {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-demo-panel-sub {
+      margin: 4px 0 0;
+      color: var(--dse-muted);
+      font-size: 8px;
+      line-height: 1.5;
+    }
+
+    #dse-root .dse-demo-step {
+      flex: none;
+      color: var(--dse-cyan);
+      font-size: 7px;
+      letter-spacing: .1em;
+    }
+
+    #dse-root .dse-term-panel {
+      border-top-color: var(--dse-amber);
+      overflow: hidden;
+    }
+
+    #dse-root .dse-term-intro {
+      margin: 6px 0 0;
+      color: var(--dse-muted);
+      font-size: 9px;
+      line-height: 1.55;
+    }
+
+    #dse-root .dse-term-rails {
+      display: grid;
+      grid-template-columns: minmax(0, .9fr) minmax(0, 1.35fr);
+      gap: 9px;
+      margin-top: 10px;
+    }
+
+    #dse-root .dse-term-rail {
+      min-width: 0;
+      padding: 9px;
+      background: rgba(4, 12, 22, .82);
+      border: 1px solid #193a50;
+    }
+
+    #dse-root .dse-term-rail.branch {
+      border-color: rgba(255, 85, 184, .32);
+    }
+
+    #dse-root .dse-term-rail-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    #dse-root .dse-term-rail-label {
+      margin: 0;
+      color: var(--dse-cyan);
+      font-size: 8px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    #dse-root .dse-term-rail.branch .dse-term-rail-label {
+      color: var(--dse-magenta);
+    }
+
+    #dse-root .dse-term-cycle-meta {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      color: var(--dse-muted);
+      font-size: 8px;
+    }
+
+    #dse-root .dse-term-next {
+      min-height: 27px;
+      padding: 0 8px;
+      font-size: 8px;
+    }
+
+    #dse-root .dse-term-token-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      min-height: 32px;
+      margin-top: 8px;
+    }
+
+    #dse-root .dse-term-token {
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 32px;
+      padding: 0 9px;
+      color: var(--dse-text);
+      background: #071827;
+      border: 1px solid #28536c;
+      clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+      font: inherit;
+      font-size: 11px;
+      letter-spacing: .02em;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-term-token.branch {
+      border-color: rgba(255, 85, 184, .45);
+    }
+
+    #dse-root .dse-term-token:hover,
+    #dse-root .dse-term-token:focus-visible {
+      border-color: var(--dse-cyan);
+      background: rgba(8, 31, 45, .98);
+    }
+
+    #dse-root .dse-term-token[aria-expanded="true"] {
+      color: #031116;
+      background: var(--dse-cyan);
+      border-color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-term-token.branch[aria-expanded="true"] {
+      color: #14040e;
+      background: var(--dse-magenta);
+      border-color: var(--dse-magenta);
+    }
+
+    #dse-root .dse-term-token.is-drifting {
+      animation: dse-term-drift-in .34s ease-out both;
+      animation-delay: var(--term-delay, 0ms);
+    }
+
+    #dse-root .dse-term-hint {
+      margin: 7px 0 0;
+      color: var(--dse-muted);
+      font-size: 8px;
+      line-height: 1.5;
+    }
+
+    #dse-root .dse-term-detail {
+      margin-top: 9px;
+      background:
+        linear-gradient(145deg, rgba(9, 24, 39, .98), rgba(5, 15, 27, .96));
+      border: 1px solid #21455e;
+      border-left: 2px solid var(--dse-cyan);
+    }
+
+    #dse-root .dse-term-detail-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 10px 8px;
+    }
+
+    #dse-root .dse-term-family {
+      margin: 0 0 4px;
+      color: var(--dse-cyan);
+      font-size: 8px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    #dse-root .dse-term-detail h4 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-term-summary {
+      margin: 5px 0 0;
+      color: var(--dse-muted);
+      font-size: 9px;
+      line-height: 1.55;
+    }
+
+    #dse-root .dse-term-close {
+      flex: none;
+      min-width: 32px;
+      min-height: 32px;
+      padding: 0;
+    }
+
+    #dse-root .dse-term-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      padding: 0 10px 10px;
+    }
+
+    #dse-root .dse-term-detail-cell {
+      min-width: 0;
+      padding-top: 7px;
+      border-top: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-term-detail-label {
+      margin: 0 0 5px;
+      color: var(--dse-amber);
+      font-size: 8px;
+      letter-spacing: .1em;
+    }
+
+    #dse-root .dse-term-detail-copy {
+      margin: 0;
+      color: var(--dse-text);
+      font-size: 10px;
+      line-height: 1.55;
+    }
+
+    #dse-root .dse-term-boundary {
+      margin: 0;
+      padding: 7px 10px 9px;
+      color: var(--dse-muted);
+      background: rgba(3, 10, 18, .72);
+      border-top: 1px solid var(--dse-line);
+      font-size: 8px;
+      line-height: 1.45;
+    }
+
+    @keyframes dse-term-drift-in {
+      from {
+        opacity: 0;
+        transform: translateX(18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    #dse-root .dse-scenario-grid {
+      display: grid;
+      gap: 5px;
+      margin-top: 10px;
+    }
+
+    #dse-root #dse-triage-case-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #dse-root .dse-scenario-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 6px;
+      color: var(--dse-muted);
+      font-size: 7px;
+      line-height: 1.45;
+    }
+
+    #dse-root .dse-scenario {
+      width: 100%;
+      padding: 7px 8px;
+      color: var(--dse-muted);
+      background: rgba(4, 12, 22, .9);
+      border: 1px solid #1d4057;
+      text-align: left;
+      font: inherit;
+      font-size: 8px;
+      line-height: 1.45;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-scenario[aria-pressed="true"] {
+      color: var(--dse-text);
+      border-color: var(--dse-cyan);
+      box-shadow: inset 2px 0 0 var(--dse-cyan);
+    }
+
+    #dse-root .dse-state-rail {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(82px, 1fr));
+      gap: 5px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    #dse-root .dse-state-node {
+      min-width: 0;
+      padding: 7px;
+      color: var(--dse-muted);
+      background: rgba(4, 12, 22, .82);
+      border: 1px solid #193a50;
+      border-top: 2px solid #31576f;
+    }
+
+    #dse-root .dse-state-node.is-done {
+      color: var(--dse-text);
+      border-top-color: var(--dse-lime);
+      background: rgba(11, 31, 28, .72);
+    }
+
+    #dse-root .dse-state-node.is-current {
+      color: var(--dse-text);
+      border-color: rgba(73, 230, 255, .58);
+      border-top-color: var(--dse-cyan);
+      box-shadow: 0 0 16px rgba(73, 230, 255, .1);
+    }
+
+    #dse-root .dse-state-node.is-warning,
+    #dse-root .dse-state-node.is-current.is-warning {
+      border-top-color: var(--dse-amber);
+      background: rgba(45, 34, 14, .5);
+    }
+
+    #dse-root .dse-state-node.is-danger,
+    #dse-root .dse-state-node.is-current.is-danger {
+      border-color: rgba(255, 98, 108, .58);
+      border-top-color: var(--dse-red);
+      background: rgba(47, 12, 19, .65);
+    }
+
+    #dse-root .dse-state-node.is-ready,
+    #dse-root .dse-state-node.is-current.is-ready {
+      border-top-color: var(--dse-lime);
+      background: rgba(18, 40, 22, .65);
+    }
+
+    #dse-root .dse-state-node.is-blocked,
+    #dse-root .dse-state-node.is-inactive {
+      opacity: .48;
+    }
+
+    #dse-root .dse-state-code {
+      display: block;
+      color: var(--dse-cyan);
+      font-size: 7px;
+      letter-spacing: .1em;
+    }
+
+    #dse-root .dse-state-name {
+      display: block;
+      margin-top: 3px;
+      color: inherit;
+      font-size: 9px;
+      line-height: 1.35;
+    }
+
+    #dse-root .dse-state-meta {
+      display: block;
+      margin-top: 3px;
+      color: var(--dse-muted);
+      font-size: 7px;
+      line-height: 1.35;
+    }
+
+    #dse-root .dse-state-live {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 7px;
+      padding: 7px 8px;
+      color: var(--dse-muted);
+      background: rgba(3, 10, 18, .72);
+      border-left: 2px solid var(--dse-cyan);
+      font-size: 8px;
+      line-height: 1.45;
+    }
+
+    #dse-root .dse-state-live strong {
+      color: var(--dse-text);
+      font-size: 8px;
+      font-weight: 500;
+      letter-spacing: .07em;
+    }
+
+    #dse-root .dse-state-live span:last-child {
+      margin-left: auto;
+    }
+
+    #dse-root .dse-machine-panel.triage {
+      border-top-color: var(--dse-lime);
+    }
+
+    #dse-root .dse-machine-panel.lifecycle {
+      border-top-color: var(--dse-amber);
+    }
+
+    #dse-root .dse-machine-copy {
+      margin-top: 8px;
+      padding: 8px;
+      background: rgba(3, 10, 18, .72);
+      border-left: 2px solid var(--dse-cyan);
+    }
+
+    #dse-root .dse-machine-copy[data-tone="blocked"] {
+      border-left-color: var(--dse-amber);
+    }
+
+    #dse-root .dse-machine-copy[data-tone="stop"] {
+      border-left-color: var(--dse-red);
+    }
+
+    #dse-root .dse-machine-copy[data-tone="ready"] {
+      border-left-color: var(--dse-lime);
+    }
+
+    #dse-root .dse-machine-copy-title {
+      margin: 0;
+      color: var(--dse-text);
+      font-size: 9px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-machine-copy-body {
+      margin: 4px 0 0;
+      color: var(--dse-muted);
+      font-size: 8px;
+      line-height: 1.5;
+    }
+
+    #dse-root .dse-lifecycle-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+      margin-top: 10px;
+    }
+
+    #dse-root .dse-lifecycle-track {
+      min-width: 0;
+    }
+
+    #dse-root .dse-lifecycle-track-label {
+      margin: 0 0 6px;
+      color: var(--dse-muted);
+      font-size: 8px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    #dse-root .dse-lifecycle-events {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 9px;
+    }
+
+    #dse-root .dse-state-action {
+      min-height: 30px;
+      padding: 0 9px;
+      color: var(--dse-text);
+      background: #071827;
+      border: 1px solid #28536c;
+      font: inherit;
+      font-size: 8px;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-state-action:hover,
+    #dse-root .dse-state-action:focus-visible {
+      border-color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-state-action[aria-pressed="true"] {
+      color: #031116;
+      background: var(--dse-cyan);
+      border-color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-state-action:disabled {
+      color: #5f7580;
+      background: #08121c;
+      border-color: #1b3344;
+      cursor: not-allowed;
+    }
+
+    #dse-root .dse-gate-request {
+      margin: 9px 0 0;
+      padding: 8px 9px;
+      color: var(--dse-text);
+      background: rgba(2, 8, 15, .75);
+      border-left: 2px solid #31576f;
+      font-size: 9px;
+      line-height: 1.55;
+    }
+
+    #dse-root .dse-gate-output {
+      margin-top: 8px;
+      padding: 9px;
+      background: rgba(8, 20, 33, .96);
+      border: 1px solid #24485f;
+    }
+
+    #dse-root .dse-gate-output[data-tone="stop"] {
+      border-color: rgba(255, 98, 108, .62);
+      box-shadow: inset 2px 0 0 var(--dse-red);
+    }
+
+    #dse-root .dse-gate-output[data-tone="blocked"] {
+      border-color: rgba(255, 198, 90, .55);
+      box-shadow: inset 2px 0 0 var(--dse-amber);
+    }
+
+    #dse-root .dse-gate-output[data-tone="ready"] {
+      border-color: rgba(156, 255, 87, .5);
+      box-shadow: inset 2px 0 0 var(--dse-lime);
+    }
+
+    #dse-root .dse-gate-title {
+      margin: 0;
+      color: var(--dse-text);
+      font-size: 10px;
+      line-height: 1.45;
+    }
+
+    #dse-root .dse-gate-copy {
+      margin: 5px 0 0;
+      color: var(--dse-muted);
+      font-size: 8px;
+      line-height: 1.55;
+    }
+
+    #dse-root .dse-gate-missing {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 7px;
+    }
+
+    #dse-root .dse-gate-missing span {
+      padding: 2px 5px;
+      color: var(--dse-amber);
+      border: 1px solid rgba(255, 198, 90, .35);
+      font-size: 7px;
+    }
+
+    #dse-root .dse-gate-actions,
+    #dse-root .dse-sim-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 9px;
+    }
+
+    #dse-root .dse-demo-action {
+      min-height: 30px;
+      padding: 0 9px;
+      color: var(--dse-text);
+      background: #071827;
+      border: 1px solid #28536c;
+      font: inherit;
+      font-size: 8px;
+      letter-spacing: .04em;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-demo-action:hover,
+    #dse-root .dse-demo-action:focus-visible {
+      border-color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-demo-action.primary {
+      color: #031116;
+      background: var(--dse-cyan);
+      border-color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-demo-action[aria-pressed="true"] {
+      color: #180611;
+      background: var(--dse-magenta);
+      border-color: var(--dse-magenta);
+    }
+
+    #dse-root .dse-demo-action:disabled {
+      color: #5f7580;
+      background: #08121c;
+      border-color: #1b3344;
+      cursor: not-allowed;
+    }
+
+    #dse-root .dse-gate-checklist {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    #dse-root .dse-gate-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      padding: 8px;
+      color: var(--dse-muted);
+      background: rgba(3, 11, 20, .78);
+      border: 1px solid #19394f;
+      font-size: 9px;
+      line-height: 1.4;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-gate-check input {
+      flex: none;
+      margin-top: 2px;
+    }
+
+    #dse-root .dse-gate-check-copy {
+      display: grid;
+      min-width: 0;
+      gap: 3px;
+    }
+
+    #dse-root .dse-gate-check-copy strong {
+      color: var(--dse-text);
+      font-size: 9px;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    #dse-root .dse-gate-check-copy small {
+      color: var(--dse-muted);
+      font-size: 8px;
+      line-height: 1.5;
+    }
+
+    #dse-root .dse-gate-help {
+      margin: 7px 0 0;
+      color: var(--dse-muted);
+      font-size: 8px;
+      line-height: 1.55;
+    }
+
+    #dse-root .dse-rule-list {
+      display: grid;
+      gap: 5px;
+      margin: 8px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    #dse-root .dse-rule-list li {
+      padding: 6px 7px 6px 18px;
+      color: var(--dse-muted);
+      background: rgba(3, 11, 20, .7);
+      border-left: 1px solid #2e5269;
+      font-size: 8px;
+      line-height: 1.5;
+    }
+
+    #dse-root .dse-rule-list li::before {
+      content: "RULE";
+      display: inline-block;
+      margin-left: -12px;
+      margin-right: 5px;
+      color: var(--dse-cyan);
+      font-size: 6px;
+      letter-spacing: .08em;
+    }
+
+    #dse-root .dse-compare-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    #dse-root .dse-compare-panel {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-self: stretch;
+      overflow: hidden;
+    }
+
+    #dse-root .dse-compare-panel > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    #dse-root .dse-compare-panel::before {
+      content: "";
+      position: absolute;
+      inset: 88px 18px 104px;
+      pointer-events: none;
+      opacity: .16;
+      background-image:
+        linear-gradient(rgba(73, 230, 255, .25) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(73, 230, 255, .25) 1px, transparent 1px);
+      background-size: 22px 22px;
+      -webkit-mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
+      mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
+    }
+
+    #dse-root .dse-compare-spine {
+      flex: 1;
+      min-height: 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: var(--dse-muted);
+      font-size: 7px;
+      letter-spacing: .12em;
+    }
+
+    #dse-root .dse-compare-spine span {
+      width: 1px;
+      height: 24px;
+      background: linear-gradient(transparent, rgba(73, 230, 255, .62), transparent);
+    }
+
+    #dse-root .dse-compare-spine b {
+      color: var(--dse-cyan);
+      font-size: 7px;
+      font-weight: 400;
+    }
+
+    #dse-root .dse-compare-card {
+      min-width: 0;
+      padding: 9px;
+      background: rgba(3, 11, 20, .78);
+      border: 1px solid #1c3d53;
+    }
+
+    #dse-root .dse-compare-card.direct {
+      border-top: 2px solid var(--dse-red);
+    }
+
+    #dse-root .dse-compare-card.safe {
+      border-top: 2px solid var(--dse-cyan);
+    }
+
+    #dse-root .dse-compare-label {
+      margin: 0 0 6px;
+      color: var(--dse-muted);
+      font-size: 7px;
+      letter-spacing: .1em;
+    }
+
+    #dse-root .dse-compare-copy {
+      margin: 0;
+      color: var(--dse-text);
+      font-size: 8px;
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+
+    #dse-root .dse-compare-audit {
+      margin-top: auto;
+      padding-top: 9px;
+      border-top: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-compare-audit-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    #dse-root .dse-compare-audit-kicker {
+      margin: 0;
+      color: var(--dse-cyan);
+      font-size: 8px;
+      letter-spacing: .1em;
+    }
+
+    #dse-root .dse-compare-audit-score {
+      color: var(--dse-text);
+      font-size: 8px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #dse-root .dse-compare-audit-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(82px, 1fr));
+      gap: 5px;
+      margin-top: 7px;
+    }
+
+    #dse-root .dse-compare-audit-item {
+      min-width: 0;
+      padding: 6px;
+      color: var(--dse-muted);
+      background: rgba(3, 11, 20, .7);
+      border: 1px solid #19394f;
+      font-size: 8px;
+      line-height: 1.4;
+    }
+
+    #dse-root .dse-compare-audit-item::before {
+      content: "";
+      display: block;
+      width: 6px;
+      height: 6px;
+      margin-bottom: 5px;
+      background: #31576f;
+    }
+
+    #dse-root .dse-compare-audit-item.is-present {
+      color: var(--dse-text);
+      border-color: rgba(156, 255, 87, .38);
+      background: rgba(15, 36, 27, .7);
+    }
+
+    #dse-root .dse-compare-audit-item.is-present::before {
+      background: var(--dse-lime);
+      box-shadow: 0 0 8px rgba(156, 255, 87, .5);
+    }
+
+    #dse-root .dse-compare-audit-note {
+      margin: 7px 0 0;
+      color: var(--dse-muted);
+      font-size: 8px;
+      line-height: 1.5;
+    }
+
+    #dse-root .dse-demo-form {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    #dse-root .dse-demo-field {
+      display: grid;
+      gap: 4px;
+      color: var(--dse-muted);
+      font-size: 8px;
+    }
+
+    #dse-root .dse-demo-field select {
+      width: 100%;
+      min-height: 32px;
+      padding: 0 7px;
+      color: var(--dse-text);
+      background: #061321;
+      border: 1px solid #28536c;
+      border-radius: 0;
+      font: inherit;
+      font-size: 9px;
+    }
+
+    #dse-root .dse-experiment-output {
+      margin-top: 10px;
+      padding: 10px;
+      background: rgba(3, 11, 20, .78);
+      border: 1px solid #21455e;
+    }
+
+    #dse-root .dse-experiment-output.blocked {
+      border-color: rgba(255, 198, 90, .5);
+    }
+
+    #dse-root .dse-experiment-output.demo {
+      border-color: rgba(156, 255, 87, .45);
+    }
+
+    #dse-root .dse-exp-status {
+      margin: 0;
+      color: var(--dse-amber);
+      font-size: 8px;
+      letter-spacing: .09em;
+    }
+
+    #dse-root .dse-experiment-output.demo .dse-exp-status {
+      color: var(--dse-lime);
+    }
+
+    #dse-root .dse-exp-title {
+      margin: 5px 0 0;
+      color: var(--dse-text);
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.45;
+    }
+
+    #dse-root .dse-exp-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0 14px;
+      margin-top: 8px;
+    }
+
+    #dse-root .dse-exp-item {
+      padding: 7px 0;
+      border-top: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-exp-label {
+      margin: 0 0 3px;
+      color: var(--dse-muted);
+      font-size: 7px;
+      letter-spacing: .08em;
+    }
+
+    #dse-root .dse-exp-value {
+      margin: 0;
+      color: var(--dse-text);
+      font-size: 8px;
+      line-height: 1.55;
+    }
+
+    #dse-root .dse-sim-outcome {
+      margin-top: 8px;
+      padding: 8px;
+      color: var(--dse-text);
+      background: #081827;
+      border-left: 2px solid var(--dse-cyan);
+      font-size: 8px;
+      line-height: 1.55;
+    }
+
+    #dse-root .dse-sim-outcome.fail {
+      border-left-color: var(--dse-red);
+    }
+
+    #dse-root .dse-sim-outcome.inconclusive {
+      border-left-color: var(--dse-amber);
+    }
+
+    #dse-root .dse-inspector-restore {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 40;
+      min-height: 38px;
+      padding: 0 13px;
+      color: var(--dse-text);
+      background: #091827;
+      border: 1px solid var(--dse-cyan);
+      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+      box-shadow: 0 10px 25px rgba(0, 0, 0, .35), 0 0 18px rgba(73, 230, 255, .12);
+      font: inherit;
+      font-size: 9px;
+      letter-spacing: .08em;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-subtitle,
+    #dse-root .dse-demo-summary,
+    #dse-root .dse-demo-panel-sub,
+    #dse-root .dse-scenario,
+    #dse-root .dse-gate-copy,
+    #dse-root .dse-machine-copy-body,
+    #dse-root .dse-state-name,
+    #dse-root .dse-term-detail-copy,
+    #dse-root .dse-demo-field,
+    #dse-root .dse-demo-field select,
+    #dse-root .dse-gate-help,
+    #dse-root .dse-gate-check-copy small,
+    #dse-root .dse-exp-value,
+    #dse-root .dse-sim-outcome {
+      font-size: 11px;
+    }
+
+    #dse-root .dse-chip,
+    #dse-root .dse-filter,
+    #dse-root .dse-legend,
+    #dse-root .dse-track-kicker,
+    #dse-root .dse-track-badge,
+    #dse-root .dse-demo-kicker,
+    #dse-root .dse-demo-badge,
+    #dse-root .dse-demo-step,
+    #dse-root .dse-state-code,
+    #dse-root .dse-state-meta,
+    #dse-root .dse-term-rail-label,
+    #dse-root .dse-term-cycle-meta,
+    #dse-root .dse-term-hint,
+    #dse-root .dse-term-family,
+    #dse-root .dse-term-summary,
+    #dse-root .dse-series-label,
+    #dse-root .dse-series-count,
+    #dse-root .dse-version-code {
+      font-size: 9px;
+    }
+
+    @media (max-width: 940px) {
+      #dse-root .dse-map-stage,
+      #dse-root .dse-archive {
+        grid-template-columns: minmax(0, 1fr) 230px;
+      }
+
+      #dse-root .dse-detail,
+      #dse-root .dse-version-detail {
+        right: 12px;
+        bottom: 12px;
+        width: 230px;
+      }
+    }
+
+    @media (max-width: 880px) {
+      #dse-root .dse-tracks {
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root .dse-convergence {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      #dse-root .dse-convergence-line {
+        display: none;
+      }
+
+      #dse-root .dse-detail-grid {
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root .dse-version-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      #dse-root .dse-demo-grid,
+      #dse-root .dse-compare-grid,
+      #dse-root .dse-demo-form,
+      #dse-root .dse-exp-grid {
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root .dse-lifecycle-grid {
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root .dse-term-rails {
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root .dse-term-detail-grid {
+        grid-template-columns: 1fr;
+      }
+
+    }
+
+    @media (max-width: 680px) {
+      #dse-root .dse-shell {
+        padding: 13px;
+      }
+
+      #dse-root .dse-header {
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root .dse-chips {
+        justify-content: flex-start;
+      }
+
+      #dse-root .dse-track-head,
+      #dse-root .dse-detail-head,
+      #dse-root .dse-footer,
+      #dse-root .dse-archive-head,
+      #dse-root .dse-version-detail-head,
+      #dse-root .dse-demo-head,
+      #dse-root .dse-demo-panel-head {
+        flex-direction: column;
+      }
+
+      #dse-root .dse-archive-totals {
+        justify-content: flex-start;
+      }
+
+      #dse-root .dse-series {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      #dse-root .dse-version-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      #dse-root .dse-gate-checklist {
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root #dse-triage-case-grid {
+        grid-template-columns: 1fr;
+      }
+
+    }
+
+    @media (max-width: 580px) {
+      #dse-root .dse-map-stage,
+      #dse-root .dse-archive {
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root .dse-map-stage > .dse-tracks,
+      #dse-root .dse-map-stage > .dse-detail,
+      #dse-root .dse-archive-head,
+      #dse-root #dse-version-archive,
+      #dse-root .dse-version-detail {
+        grid-column: 1;
+      }
+
+      #dse-root .dse-map-stage > .dse-tracks {
+        grid-row: 1;
+      }
+
+      #dse-root .dse-map-stage > .dse-detail {
+        grid-row: 2;
+      }
+
+      #dse-root .dse-version-detail {
+        grid-column: 1;
+      }
+
+      #dse-root .dse-detail,
+      #dse-root .dse-version-detail {
+        top: auto;
+        right: 12px;
+        bottom: 12px;
+        left: 12px;
+        width: auto;
+        max-height: 42vh;
+      }
+
+      #dse-root .dse-floating-handle {
+        cursor: default;
+        touch-action: auto;
+      }
+
+      #dse-root .dse-drag-hint {
+        display: none;
+      }
+
+      #dse-root .dse-window-control {
+        min-width: 38px;
+        min-height: 38px;
+      }
+
+      #dse-root .dse-inspector-restore {
+        right: 12px;
+        bottom: 12px;
+        min-height: 42px;
+      }
+
+      #dse-root .dse-demo {
+        padding: 12px;
+      }
+
+      #dse-root .dse-demo-action,
+      #dse-root .dse-scenario,
+      #dse-root .dse-demo-field select,
+      #dse-root .dse-filter,
+      #dse-root .dse-term-token,
+      #dse-root .dse-term-close {
+        min-height: 42px;
+      }
+
+      #dse-root .dse-demo-modes .dse-filter {
+        min-height: 42px;
+      }
+
+      #dse-root .dse-state-live {
+        align-items: flex-start;
+      }
+
+      #dse-root .dse-state-live span:last-child {
+        margin-left: 0;
+      }
+
+      #dse-root .dse-gate-check-copy strong {
+        font-size: 10px;
+      }
+
+      #dse-root .dse-gate-check-copy small,
+      #dse-root .dse-gate-help {
+        font-size: 9px;
+      }
+    }
+
+    @media (pointer: coarse) {
+      #dse-root .dse-term-token,
+      #dse-root .dse-term-next,
+      #dse-root .dse-term-close,
+      #dse-root .dse-filter,
+      #dse-root .dse-state-action {
+        min-height: 44px;
+      }
+
+      #dse-root .dse-demo-modes .dse-filter {
+        min-height: 44px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #dse-root .dse-node {
+        transition: none;
+      }
+
+      #dse-root .dse-series,
+      #dse-root .dse-version,
+      #dse-root .dse-term-token {
+        transition: none;
+      }
+
+      #dse-root .dse-term-token.is-drifting {
+        animation: none;
+      }
+    }
+  </style>
+
+  <div class="dse-shell">
+    <header class="dse-header">
+      <div class="dse-header-copy">
+        <p class="dse-kicker">DUAL-SKILL EVOLUTION MAP</p>
+        <h1>电脑硬件工作台 × 自动超频原型</h1>
+      </div>
+      <aside class="dse-intro-window" aria-label="工具介绍与当前状态">
+        <p class="dse-intro-kicker">SYSTEM PROFILE / 工具介绍</p>
+        <p class="dse-subtitle">完整演进轨迹：主工作台建立通用硬件工作流，自动超频原型负责候选、证据和真机校准；通用 Triage 与安全门禁演示补充排障、阻断和回退闭环。</p>
+        <div class="dse-chips" aria-label="当前版本状态">
+          <span class="dse-chip">WORKBENCH 1.4.4</span>
+          <span class="dse-chip prototype">超频原型 3.0.2 · 未发布</span>
+          <span class="dse-chip triage">TRIAGE: PUBLIC</span>
+          <span class="dse-chip demo">DEMO: SAFE</span>
+          <span class="dse-chip next">NEXT: MODULE MERGE</span>
+        </div>
+      </aside>
+    </header>
+
+    <div class="dse-toolbar">
+      <div class="dse-filters" aria-label="演变轨道切换">
+        <button type="button" class="dse-filter" data-filter="core" aria-pressed="true">主工作台</button>
+        <button type="button" class="dse-filter" data-filter="prototype" aria-pressed="false">自动超频原型</button>
+        <button type="button" class="dse-filter" data-filter="triage" aria-pressed="false">Triage 排障</button>
+        <a class="dse-filter dse-lab-link" href="interactive/">交互实验室 ↗</a>
+        <button type="button" class="dse-filter" data-filter="merge" aria-pressed="false">融合阶段</button>
+      </div>
+      <div class="dse-legend">
+        <span style="color: var(--dse-cyan)"><i class="dse-dot"></i>核心流程</span>
+        <span style="color: var(--dse-magenta)"><i class="dse-dot"></i>原型模块</span>
+        <span style="color: var(--dse-lime)"><i class="dse-dot"></i>排障证据</span>
+        <span style="color: var(--dse-amber)"><i class="dse-dot"></i>待完成</span>
+      </div>
+    </div>
+
+    <section class="dse-lab-callout" aria-label="交互实验室入口">
+      <div class="dse-lab-callout-copy">
+        <strong>INTERACTIVE LAB / 交互实验室</strong>
+        在一个短页面内切换术语表、调校状态机、Triage 和身份与基线状态。
+      </div>
+      <a class="dse-lab-callout-link" href="interactive/">打开交互实验室 →</a>
+    </section>
+
+    <div class="dse-map-stage">
+      <div class="dse-tracks">
+        <section class="dse-track core" data-track="core" aria-label="电脑调试工作台演变">
+          <div class="dse-track-head">
+            <div>
+              <span class="dse-track-kicker">TRACK A / CORE</span>
+              <h2>电脑硬件工作台</h2>
+            </div>
+            <span class="dse-track-badge">STABLE 1.4.4</span>
+          </div>
+          <div class="dse-lane" id="dse-core-lane"></div>
+        </section>
+
+        <section class="dse-track prototype" data-track="prototype" aria-label="自动超频原型演变">
+          <div class="dse-track-head">
+            <div>
+              <span class="dse-track-kicker">TRACK B / MODULE</span>
+              <h2>自动超频原型</h2>
+            </div>
+            <span class="dse-track-badge">未完善 · 尚未发布</span>
+          </div>
+          <div class="dse-lane" id="dse-prototype-lane"></div>
+        </section>
+
+        <section class="dse-track triage" data-track="triage" aria-label="通用排障支线" hidden>
+          <div class="dse-track-head">
+            <div>
+              <span class="dse-track-kicker">TRACK C / TRIAGE</span>
+              <h2>Triage 排障支线</h2>
+            </div>
+            <span class="dse-track-badge">PUBLIC TRIAGE</span>
+          </div>
+          <div class="dse-lane" id="dse-triage-lane"></div>
+        </section>
+      </div>
+
+      <section class="dse-detail merge" aria-live="polite">
+        <div class="dse-floating-handle" data-drag-handle>
+          <p class="dse-detail-kicker">MILESTONE DOSSIER / 节点介绍</p>
+          <div class="dse-floating-actions">
+            <span class="dse-drag-hint">DRAG / 拖动</span>
+            <button type="button" class="dse-window-control" data-window-toggle aria-controls="dse-milestone-body" aria-expanded="true" aria-label="折叠节点介绍">−</button>
+            <button type="button" class="dse-window-control" data-window-close aria-label="关闭节点介绍">×</button>
+          </div>
+        </div>
+        <div class="dse-floating-body" id="dse-milestone-body">
+          <div class="dse-detail-head">
+            <h3 id="dse-detail-title">融合阶段</h3>
+            <span class="dse-detail-status" id="dse-detail-status">NEXT / NOT STARTED</span>
+          </div>
+          <div class="dse-detail-grid">
+            <div class="dse-detail-cell">
+              <p class="dse-label">目标</p>
+              <p class="dse-value" id="dse-detail-goal">自动超频成为正式工作台 Tune 分支中的模块，而不是第二个顶层 Skill。</p>
+            </div>
+            <div class="dse-detail-cell">
+              <p class="dse-label">主要动作</p>
+              <p class="dse-value" id="dse-detail-action">差异审计 · 文件所有权 · 最小路由接合 · 回归测试 · 真机验收。</p>
+            </div>
+            <div class="dse-detail-cell">
+              <p class="dse-label">验证与边界</p>
+              <p class="dse-value" id="dse-detail-proof">保留正式采集、遥测和安全门禁；不复制第二套核心脚本，不自动写入硬件。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="dse-convergence" aria-label="两种能力的融合目标">
+      <div class="dse-convergence-line"></div>
+      <span aria-hidden="true" style="text-align:center;color:var(--dse-cyan)">SYS</span>
+      <div class="dse-merge-stack">
+        <button type="button" class="dse-merge-button" data-merge-id="merge">
+          <span class="dse-merge-kicker">CONVERGENCE NODE</span>
+          <span class="dse-merge-title">融入正式工作台 · 单一用户入口</span>
+        </button>
+        <button type="button" class="dse-merge-button" data-merge-id="merge-release">
+          <span class="dse-merge-kicker">RELEASE GATE</span>
+          <span class="dse-merge-title">融合版发布门禁 · 回归与回滚</span>
+        </button>
+      </div>
+      <span aria-hidden="true" style="text-align:center;color:var(--dse-magenta)">AUTO</span>
+      <div class="dse-convergence-line reverse"></div>
+    </section>
+
+    <section class="dse-demo" id="dse-demo" aria-labelledby="dse-demo-title" hidden>
+      <header class="dse-demo-head">
+        <div>
+          <p class="dse-demo-kicker">SKILL WORKFLOW &amp; STATE MACHINE / SAFETY AND EVIDENCE</p>
+          <h2 id="dse-demo-title">交互演示</h2>
+          <p class="dse-demo-summary">Skill 工作流与状态机的可视化演示：体验调校门禁、Triage 分流、身份与基线失效、回答差异和实验闭环。所有结果都是界面演示，不会读取硬件、生成真实候选值或修改设置。</p>
+          <a class="dse-demo-back" href="../">← 返回项目地图</a>
+        </div>
+        <span class="dse-demo-badge">SIMULATION ONLY · NO HARDWARE WRITE</span>
+      </header>
+
+      <div class="dse-demo-modes" role="group" aria-label="交互实验室模式">
+        <button type="button" class="dse-filter" data-demo-mode="terms" aria-pressed="false">术语台</button>
+        <button type="button" class="dse-filter" data-demo-mode="tune" aria-pressed="true">调校状态机</button>
+        <button type="button" class="dse-filter" data-demo-mode="triage" aria-pressed="false">Triage</button>
+        <button type="button" class="dse-filter" data-demo-mode="identity" aria-pressed="false">身份与基线</button>
+      </div>
+
+      <div class="dse-demo-grid">
+        <article class="dse-demo-panel wide dse-term-panel" data-demo-mode="terms" aria-labelledby="dse-term-title" hidden>
+          <div class="dse-demo-panel-head">
+            <div>
+              <h3 id="dse-term-title">术语信号台</h3>
+              <p class="dse-term-intro">6 个常驻核心词、24 个轮换分支词。悬停或键盘聚焦即可查看，触屏轻点固定；解释统一拆成“动作 / 类比 / 后果”。</p>
+            </div>
+            <span class="dse-demo-step">TERM SIGNAL / 30</span>
+          </div>
+
+          <div class="dse-term-rails">
+            <section class="dse-term-rail" aria-labelledby="dse-term-core-label">
+              <div class="dse-term-rail-head">
+                <p class="dse-term-rail-label" id="dse-term-core-label">CORE / 常驻核心</p>
+                <span class="dse-term-cycle-meta">6 TERMS</span>
+              </div>
+              <div class="dse-term-token-row" id="dse-term-core-row" aria-label="常驻核心术语"></div>
+            </section>
+
+            <section class="dse-term-rail branch" aria-labelledby="dse-term-branch-label">
+              <div class="dse-term-rail-head">
+                <p class="dse-term-rail-label" id="dse-term-branch-label">BRANCH / 轮换分支</p>
+                <div class="dse-term-cycle-meta">
+                  <span id="dse-term-cycle-label">01 / 07</span>
+                  <button type="button" class="dse-demo-action dse-term-next" id="dse-term-next">下一组</button>
+                </div>
+              </div>
+              <div class="dse-term-token-row" id="dse-term-rotating-row" aria-label="轮换分支术语"></div>
+              <p class="dse-term-hint" id="dse-term-rotation-hint">每 9 秒漂入下一组；悬停、聚焦或打开解释时暂停。</p>
+            </section>
+          </div>
+
+          <section class="dse-term-detail" id="dse-term-detail" aria-labelledby="dse-term-detail-title" aria-live="polite" hidden>
+            <div class="dse-term-detail-head">
+              <div>
+                <p class="dse-term-family" id="dse-term-family">TERM / </p>
+                <h4 id="dse-term-detail-title">选择一个术语</h4>
+                <p class="dse-term-summary" id="dse-term-summary"></p>
+              </div>
+              <button type="button" class="dse-demo-action dse-term-close" id="dse-term-close" aria-label="关闭术语解释">×</button>
+            </div>
+            <div class="dse-term-detail-grid">
+              <div class="dse-term-detail-cell">
+                <p class="dse-term-detail-label">动作</p>
+                <p class="dse-term-detail-copy" id="dse-term-action"></p>
+              </div>
+              <div class="dse-term-detail-cell">
+                <p class="dse-term-detail-label">类比</p>
+                <p class="dse-term-detail-copy" id="dse-term-analogy"></p>
+              </div>
+              <div class="dse-term-detail-cell">
+                <p class="dse-term-detail-label">后果</p>
+                <p class="dse-term-detail-copy" id="dse-term-consequence"></p>
+              </div>
+            </div>
+            <p class="dse-term-boundary">术语解释只用于理解和识别概念，不等于你的机器可以套用某个参数；个性化候选仍需通过完整安全门禁。</p>
+          </section>
+        </article>
+
+        <article class="dse-demo-panel" data-demo-mode="tune" aria-labelledby="dse-gate-demo-title">
+          <div class="dse-demo-panel-head">
+            <div>
+              <h3 id="dse-gate-demo-title">调校主状态机</h3>
+              <p class="dse-demo-panel-sub">从请求到结论由证据推进；物理危险直接终止，五项齐全也只解锁演示实验。</p>
+            </div>
+            <span class="dse-demo-step">GATE / 02</span>
+          </div>
+
+          <ol class="dse-state-rail" id="dse-tune-state-rail" aria-label="调校状态"></ol>
+          <div class="dse-state-live" aria-live="polite">
+            <strong id="dse-tune-state-label">STATE / INPUT</strong>
+            <span id="dse-tune-state-next">选择一个示例请求开始。</span>
+          </div>
+
+          <div class="dse-scenario-grid" id="dse-scenario-grid" aria-label="示例请求"></div>
+          <div class="dse-scenario-meta">
+            <button type="button" class="dse-demo-action" data-scenario-rotate>换一组场景</button>
+            <button type="button" class="dse-demo-action" data-scenario-auto-toggle aria-pressed="false">暂停自动换组</button>
+            <span>共 13 个场景 · 每次显示 3 个 · 12 秒自动轮换</span>
+          </div>
+
+          <blockquote class="dse-gate-request" id="dse-gate-request"></blockquote>
+          <div class="dse-gate-output" id="dse-gate-output" aria-live="polite">
+            <p class="dse-gate-title" id="dse-gate-title"></p>
+            <p class="dse-gate-copy" id="dse-gate-copy"></p>
+            <div class="dse-gate-missing" id="dse-gate-missing"></div>
+          </div>
+
+          <div class="dse-gate-actions">
+            <button type="button" class="dse-demo-action" data-gate-action="direct">模拟直接索要参数</button>
+            <button type="button" class="dse-demo-action primary" data-gate-action="check" aria-controls="dse-gate-checklist" aria-expanded="false">展开五项检查</button>
+            <button type="button" class="dse-demo-action" id="dse-enter-experiment" disabled>进入演示实验</button>
+            <button type="button" class="dse-demo-action" data-gate-action="rules">查看拒绝规则</button>
+          </div>
+          <p class="dse-gate-help">门禁通过只改变状态，不生成硬件参数；实验阶段仍是只读演示。</p>
+
+          <div class="dse-gate-checklist" id="dse-gate-checklist" hidden>
+            <label class="dse-gate-check">
+              <input type="checkbox" data-gate-check="platform">
+              <span class="dse-gate-check-copy"><strong>1. 确认是哪台机器</strong><small>先分清台式机或笔记本，并确认 CPU、GPU、系统和平台版本，避免套用别的电脑的参数。</small></span>
+            </label>
+            <label class="dse-gate-check">
+              <input type="checkbox" data-gate-check="baseline">
+              <span class="dse-gate-check-copy"><strong>2. 保存当前稳定基线</strong><small>记录默认或已知良好配置在固定负载下的温度、功耗、频率、性能和画面表现。</small></span>
+            </label>
+            <label class="dse-gate-check">
+              <input type="checkbox" data-gate-check="recovery">
+              <span class="dse-gate-check-copy"><strong>3. 知道怎么恢复原样</strong><small>确认现在改过什么，以及驱动重置、花屏或黑屏时如何恢复原厂或上一已知良好配置。</small></span>
+            </label>
+            <label class="dse-gate-check">
+              <input type="checkbox" data-gate-check="workload">
+              <span class="dse-gate-check-copy"><strong>4. 固定负载和目标</strong><small>明确本轮要改善什么，并确保前后使用同一游戏场景、跑分、渲染任务或稳定性测试。</small></span>
+            </label>
+            <label class="dse-gate-check">
+              <input type="checkbox" data-gate-check="abort">
+              <span class="dse-gate-check-copy"><strong>5. 先定义成功与停止</strong><small>提前写清什么结果算有效改善，以及出现黑屏、伪影、驱动重置、异常温度或性能下降时立即回退。</small></span>
+            </label>
+          </div>
+
+          <ul class="dse-rule-list" id="dse-gate-rules" hidden>
+            <li>物理危险优先于排障、遥测、调校和购买判断。</li>
+            <li>用户口头接受风险不能代替恢复路径。</li>
+            <li>未知供电路径不能直接提高功耗墙。</li>
+            <li>未解释的不稳定必须先排障，再考虑调校。</li>
+          </ul>
+        </article>
+
+        <article class="dse-demo-panel dse-compare-panel" data-demo-mode="tune" aria-labelledby="dse-compare-demo-title">
+          <div class="dse-demo-panel-head">
+            <div>
+              <h3 id="dse-compare-demo-title">Before / After</h3>
+              <p class="dse-demo-panel-sub">比较回答结构，不虚构某组参数必然导致蓝屏。</p>
+            </div>
+            <span class="dse-demo-step">COMPARE / 03</span>
+          </div>
+          <div class="dse-compare-grid">
+            <div class="dse-compare-card direct">
+              <p class="dse-compare-label">DIRECT ANSWER PATTERN / 示意</p>
+              <p class="dse-compare-copy" id="dse-compare-direct"></p>
+            </div>
+            <div class="dse-compare-card safe">
+              <p class="dse-compare-label">WORKBENCH RESPONSE / 门禁</p>
+              <p class="dse-compare-copy" id="dse-compare-safe"></p>
+            </div>
+          </div>
+          <div class="dse-compare-spine" aria-hidden="true">
+            <span></span>
+            <b>NO EVIDENCE → NO CANDIDATE</b>
+            <span></span>
+          </div>
+          <section class="dse-compare-audit" aria-label="证据保留状态" aria-live="polite">
+            <div class="dse-compare-audit-head">
+              <p class="dse-compare-audit-kicker">EVIDENCE HELD / 证据保留</p>
+              <span class="dse-compare-audit-score" id="dse-compare-audit-score">0 / 5</span>
+            </div>
+            <div class="dse-compare-audit-list" id="dse-compare-audit-list"></div>
+            <p class="dse-compare-audit-note" id="dse-compare-audit-note">直接答案压缩了条件；门禁答案保留缺失项和安全下一步。</p>
+          </section>
+        </article>
+
+        <article class="dse-demo-panel wide dse-experiment-panel" data-demo-mode="tune" aria-labelledby="dse-experiment-demo-title">
+          <div class="dse-demo-panel-head">
+            <div>
+              <h3 id="dse-experiment-demo-title">实验生命周期</h3>
+              <p class="dse-demo-panel-sub">门禁通过后依次形成基线、候选、测量和结果；任何配置变化都必须重新确认当前资格。</p>
+            </div>
+            <span class="dse-demo-step">EXPERIMENT / 04</span>
+          </div>
+
+          <ol class="dse-state-rail" id="dse-experiment-state-rail" aria-label="实验状态"></ol>
+          <div class="dse-state-live" aria-live="polite">
+            <strong id="dse-experiment-state-label">STATE / WAITING GATE</strong>
+            <span id="dse-experiment-state-next">先在上方完成五项证据检查。</span>
+          </div>
+
+          <div class="dse-demo-form">
+            <label class="dse-demo-field">目标
+              <select id="dse-demo-goal">
+                <option value="降温">降温</option>
+                <option value="降噪">降噪</option>
+                <option value="持续性能">持续性能</option>
+                <option value="跑分">跑分</option>
+                <option value="日常平衡">日常平衡</option>
+              </select>
+            </label>
+            <label class="dse-demo-field">组件
+              <select id="dse-demo-component">
+                <option value="GPU 核心曲线">GPU 核心曲线</option>
+                <option value="CPU 电压/频率">CPU 电压/频率</option>
+                <option value="内存配置">内存配置</option>
+              </select>
+            </label>
+            <label class="dse-demo-field">固定负载
+              <select id="dse-demo-workload">
+                <option value="游戏固定场景">游戏固定场景</option>
+                <option value="合成基准">合成基准</option>
+                <option value="渲染/编译">渲染/编译</option>
+                <option value="手动稳定性测试">手动稳定性测试</option>
+              </select>
+            </label>
+            <label class="dse-demo-field">路线
+              <select id="dse-demo-route">
+                <option value="曲线降压">曲线降压</option>
+                <option value="纯频率">纯频率</option>
+                <option value="功耗墙">功耗墙</option>
+                <option value="厂商预设">厂商预设</option>
+              </select>
+            </label>
+            <label class="dse-demo-field">当前基线
+              <select id="dse-demo-baseline">
+                <option value="yes">已有</option>
+                <option value="no">没有</option>
+              </select>
+            </label>
+            <label class="dse-demo-field">恢复路径
+              <select id="dse-demo-recovery">
+                <option value="yes">已确认</option>
+                <option value="no">未确认</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="dse-gate-actions">
+            <button type="button" class="dse-demo-action primary" id="dse-generate-experiment" disabled>生成演示实验卡</button>
+          </div>
+
+          <div class="dse-experiment-output blocked" id="dse-experiment-output" aria-live="polite" hidden>
+            <p class="dse-exp-status" id="dse-exp-status"></p>
+            <p class="dse-exp-title" id="dse-exp-title"></p>
+            <div class="dse-exp-grid" id="dse-exp-grid"></div>
+            <div class="dse-sim-actions" id="dse-sim-actions" hidden>
+              <button type="button" class="dse-demo-action" data-sim-result="pass">模拟 PASS</button>
+              <button type="button" class="dse-demo-action" data-sim-result="fail">模拟 FAIL</button>
+              <button type="button" class="dse-demo-action" data-sim-result="inconclusive">模拟无法判断</button>
+            </div>
+            <div class="dse-sim-outcome" id="dse-sim-outcome" aria-live="polite" hidden></div>
+          </div>
+        </article>
+
+        <article class="dse-demo-panel dse-machine-panel triage" data-demo-mode="triage" aria-labelledby="dse-triage-machine-title" hidden>
+          <div class="dse-demo-panel-head">
+            <div>
+              <h3 id="dse-triage-machine-title">Triage 状态机</h3>
+              <p class="dse-demo-panel-sub">8 个示例：症状先分层；物理危险直接终止，其余情况按证据进入最小可逆检查。</p>
+            </div>
+            <span class="dse-demo-step">TRIAGE / 05</span>
+          </div>
+          <div class="dse-scenario-grid" id="dse-triage-case-grid" aria-label="Triage 示例"></div>
+          <ol class="dse-state-rail" id="dse-triage-state-rail" aria-label="Triage 状态"></ol>
+          <div class="dse-state-live" aria-live="polite">
+            <strong id="dse-triage-state-label">STATE / SCOPE</strong>
+            <span id="dse-triage-state-next">选择一个症状或推进当前状态。</span>
+          </div>
+          <div class="dse-machine-copy" id="dse-triage-copy" data-tone="blocked" aria-live="polite">
+            <p class="dse-machine-copy-title" id="dse-triage-copy-title"></p>
+            <p class="dse-machine-copy-body" id="dse-triage-copy-body"></p>
+          </div>
+          <div class="dse-gate-actions">
+            <button type="button" class="dse-demo-action primary" id="dse-triage-advance">推进状态</button>
+            <button type="button" class="dse-demo-action" id="dse-triage-reset">重置当前场景</button>
+          </div>
+        </article>
+
+        <article class="dse-demo-panel dse-machine-panel lifecycle" data-demo-mode="identity" aria-labelledby="dse-lifecycle-title" hidden>
+          <div class="dse-demo-panel-head">
+            <div>
+              <h3 id="dse-lifecycle-title">身份与基线有效期</h3>
+              <p class="dse-demo-panel-sub">身份来源和配置指纹共同决定旧记录是当前证据、待刷新记录，还是只能保留为历史。</p>
+            </div>
+            <span class="dse-demo-step">STATE LENS / 06</span>
+          </div>
+          <div class="dse-lifecycle-grid">
+            <section class="dse-lifecycle-track" aria-labelledby="dse-identity-state-label">
+              <p class="dse-lifecycle-track-label" id="dse-identity-state-label">IDENTITY QUALITY</p>
+              <ol class="dse-state-rail" id="dse-identity-state-rail" aria-label="设备身份状态"></ol>
+            </section>
+            <section class="dse-lifecycle-track" aria-labelledby="dse-baseline-state-label">
+              <p class="dse-lifecycle-track-label" id="dse-baseline-state-label">BASELINE VALIDITY</p>
+              <ol class="dse-state-rail" id="dse-baseline-state-rail" aria-label="基线有效性状态"></ol>
+            </section>
+          </div>
+          <div class="dse-lifecycle-events" id="dse-lifecycle-events" aria-label="配置状态事件"></div>
+          <div class="dse-machine-copy" id="dse-lifecycle-copy" data-tone="ready" aria-live="polite">
+            <p class="dse-machine-copy-title" id="dse-lifecycle-copy-title"></p>
+            <p class="dse-machine-copy-body" id="dse-lifecycle-copy-body"></p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="dse-archive" aria-labelledby="dse-archive-title">
+      <header class="dse-archive-head">
+        <div>
+          <p class="dse-archive-kicker">VERSION ARCHIVE / EVERY RECORDED VERSION</p>
+          <h2 id="dse-archive-title">逐版本迭代档案</h2>
+          <p class="dse-archive-summary">从统一工作台 1.0.0 到当前 1.4.4，再到自动超频原型的独立分叉、档位证据和有限验证。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。</p>
+        </div>
+        <div class="dse-archive-totals" aria-label="版本档案统计">
+          <span class="dse-archive-total"><b id="dse-wb-count">0</b>工作台版本</span>
+          <span class="dse-archive-total prototype"><b id="dse-proto-count">0</b>原型版本</span>
+          <span class="dse-archive-total"><b id="dse-total-count">0</b>全部版本记录</span>
+        </div>
+      </header>
+      <div id="dse-version-archive"></div>
+      <section class="dse-version-detail" id="dse-version-detail" aria-live="polite" hidden>
+        <div class="dse-floating-handle" data-drag-handle>
+          <p class="dse-version-detail-kicker">VERSION DOSSIER / 选中版本</p>
+          <div class="dse-floating-actions">
+            <span class="dse-drag-hint">DRAG / 拖动</span>
+            <button type="button" class="dse-window-control" data-window-toggle aria-controls="dse-version-body" aria-expanded="true" aria-label="折叠版本介绍">−</button>
+            <button type="button" class="dse-window-control" data-window-close aria-label="关闭版本介绍">×</button>
+          </div>
+        </div>
+        <div class="dse-floating-body" id="dse-version-body">
+          <div class="dse-version-detail-head">
+            <h3 id="dse-version-detail-title">选择一个版本</h3>
+            <span class="dse-version-detail-date" id="dse-version-detail-date"></span>
+          </div>
+          <div class="dse-version-detail-grid">
+            <div class="dse-detail-cell">
+              <p class="dse-label">这一版改变了什么</p>
+              <ul class="dse-version-change-list" id="dse-version-changes"></ul>
+            </div>
+            <div class="dse-detail-cell">
+              <p class="dse-label">验证与发布状态</p>
+              <p class="dse-value" id="dse-version-validation"></p>
+            </div>
+            <div class="dse-detail-cell">
+              <p class="dse-label">历史位置</p>
+              <p class="dse-value" id="dse-version-lineage"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <button type="button" class="dse-inspector-restore" id="dse-inspector-restore" hidden>说明</button>
+
+    <footer class="dse-footer">
+      <span>PATH: CORE SAFETY + GPU EVIDENCE → MODULE MERGE → SINGLE ENTRY</span>
+      <span>BOUNDARY: EXPERIMENT PLAN ONLY · NO HARDWARE WRITE · USER-CONTROLLED</span>
+    </footer>
+  </div>
+
+  <script>
+    (() => {
+      const root = document.getElementById("dse-root");
+      const siteView = document.documentElement.dataset.siteView === "interactive"
+        ? "interactive"
+        : "index";
+      const isInteractiveView = siteView === "interactive";
+      if (isInteractiveView) {
+        root.querySelector(".dse-kicker").textContent = "SKILL INTERACTION LAB";
+        root.querySelector("h1").textContent = "Skill 工作流与状态机";
+        root.querySelector(".dse-subtitle").textContent = "在术语解释、调校门禁、Triage 分流和配置状态之间切换；所有内容都是安全边界明确的界面演示。";
+      }
+      const coreLane = document.getElementById("dse-core-lane");
+      const prototypeLane = document.getElementById("dse-prototype-lane");
+      const triageLane = document.getElementById("dse-triage-lane");
+      const detailTitle = document.getElementById("dse-detail-title");
+      const detailStatus = document.getElementById("dse-detail-status");
+      const detailGoal = document.getElementById("dse-detail-goal");
+      const detailAction = document.getElementById("dse-detail-action");
+      const detailProof = document.getElementById("dse-detail-proof");
+      const milestoneDetail = root.querySelector(".dse-detail");
+      const mergeButtons = root.querySelectorAll("[data-merge-id]");
+      const versionArchive = document.getElementById("dse-version-archive");
+      const versionDetail = document.getElementById("dse-version-detail");
+      const versionDetailTitle = document.getElementById("dse-version-detail-title");
+      const versionDetailDate = document.getElementById("dse-version-detail-date");
+      const versionChanges = document.getElementById("dse-version-changes");
+      const versionValidation = document.getElementById("dse-version-validation");
+      const versionLineage = document.getElementById("dse-version-lineage");
+      const restoreInspectorButton = document.getElementById("dse-inspector-restore");
+      const mapStage = root.querySelector(".dse-map-stage");
+      const convergenceSection = root.querySelector(".dse-convergence");
+      const archiveSection = root.querySelector(".dse-archive");
+      const demoSection = document.getElementById("dse-demo");
+      const scenarioGrid = document.getElementById("dse-scenario-grid");
+      const gateRequest = document.getElementById("dse-gate-request");
+      const gateOutput = document.getElementById("dse-gate-output");
+      const gateTitle = document.getElementById("dse-gate-title");
+      const gateCopy = document.getElementById("dse-gate-copy");
+      const gateMissing = document.getElementById("dse-gate-missing");
+      const gateChecklist = document.getElementById("dse-gate-checklist");
+      const gateRules = document.getElementById("dse-gate-rules");
+      const compareDirect = document.getElementById("dse-compare-direct");
+      const compareSafe = document.getElementById("dse-compare-safe");
+      const compareAuditList = document.getElementById("dse-compare-audit-list");
+      const compareAuditScore = document.getElementById("dse-compare-audit-score");
+      const compareAuditNote = document.getElementById("dse-compare-audit-note");
+      const experimentOutput = document.getElementById("dse-experiment-output");
+      const expStatus = document.getElementById("dse-exp-status");
+      const expTitle = document.getElementById("dse-exp-title");
+      const expGrid = document.getElementById("dse-exp-grid");
+      const simActions = document.getElementById("dse-sim-actions");
+      const simOutcome = document.getElementById("dse-sim-outcome");
+      const tuneStateRail = document.getElementById("dse-tune-state-rail");
+      const tuneStateLabel = document.getElementById("dse-tune-state-label");
+      const tuneStateNext = document.getElementById("dse-tune-state-next");
+      const enterExperimentButton = document.getElementById("dse-enter-experiment");
+      const experimentStateRail = document.getElementById("dse-experiment-state-rail");
+      const experimentStateLabel = document.getElementById("dse-experiment-state-label");
+      const experimentStateNext = document.getElementById("dse-experiment-state-next");
+      const generateExperimentButton = document.getElementById("dse-generate-experiment");
+      const demoBaseline = document.getElementById("dse-demo-baseline");
+      const demoRecovery = document.getElementById("dse-demo-recovery");
+      const triageCaseGrid = document.getElementById("dse-triage-case-grid");
+      const triageStateRail = document.getElementById("dse-triage-state-rail");
+      const triageStateLabel = document.getElementById("dse-triage-state-label");
+      const triageStateNext = document.getElementById("dse-triage-state-next");
+      const triageCopy = document.getElementById("dse-triage-copy");
+      const triageCopyTitle = document.getElementById("dse-triage-copy-title");
+      const triageCopyBody = document.getElementById("dse-triage-copy-body");
+      const triageAdvanceButton = document.getElementById("dse-triage-advance");
+      const triageResetButton = document.getElementById("dse-triage-reset");
+      const identityStateRail = document.getElementById("dse-identity-state-rail");
+      const baselineStateRail = document.getElementById("dse-baseline-state-rail");
+      const lifecycleEvents = document.getElementById("dse-lifecycle-events");
+      const lifecycleCopy = document.getElementById("dse-lifecycle-copy");
+      const lifecycleCopyTitle = document.getElementById("dse-lifecycle-copy-title");
+      const lifecycleCopyBody = document.getElementById("dse-lifecycle-copy-body");
+      const termCoreRow = document.getElementById("dse-term-core-row");
+      const termRotatingRow = document.getElementById("dse-term-rotating-row");
+      const termCycleLabel = document.getElementById("dse-term-cycle-label");
+      const termRotationHint = document.getElementById("dse-term-rotation-hint");
+      const termNextButton = document.getElementById("dse-term-next");
+      const termDetail = document.getElementById("dse-term-detail");
+      const termFamily = document.getElementById("dse-term-family");
+      const termDetailTitle = document.getElementById("dse-term-detail-title");
+      const termSummary = document.getElementById("dse-term-summary");
+      const termAction = document.getElementById("dse-term-action");
+      const termAnalogy = document.getElementById("dse-term-analogy");
+      const termConsequence = document.getElementById("dse-term-consequence");
+      const termCloseButton = document.getElementById("dse-term-close");
+      let activeInspector = "milestone";
+
+      const termDefinitions = {
+        "vf-curve": {
+          name: "V/F 曲线",
+          family: "CORE / GPU 动态",
+          summary: "电压与频率之间的关系图，不是固定 MHz/mV 坐标。",
+          action: "规定不同电压附近允许使用的频率，让控制器随负载选择工作点。",
+          analogy: "像发动机的油门—转速地图，不是把转速钉死在一个数字。",
+          consequence: "曲线生效不等于稳定，也不保证命中某个测量点；要看同负载下的有效频率、性能、功耗、温度和异常。"
+        },
+        "effective-clock": {
+          name: "有效频率",
+          family: "CORE / 证据",
+          summary: "采样窗口内实际交付的核心频率，不是软件中填写的上限。",
+          action: "在相同负载和采样窗口内读取实际运行频率，并与性能表现一起比较。",
+          analogy: "像看车速表，而不是只看限速牌。",
+          consequence: "请求值、保存值、瞬时读数和有效性能是不同证据；单次读数不能证明稳定。"
+        },
+        "power-limit": {
+          name: "功耗墙",
+          family: "CORE / 功率限制",
+          summary: "硬件允许消耗的功率上限，不等于每个场景都会持续用满。",
+          action: "设置封装或 GPU 可持续的功耗预算，影响 Boost 能维持多久。",
+          analogy: "像给发动机设置供油上限；上限高不等于一直全油门。",
+          consequence: "提高上限会增加供电、发热和散热压力；笔记本功耗墙变化后，旧候选不能直接续用。"
+        },
+        "perfcap": {
+          name: "PerfCap",
+          family: "CORE / 监控",
+          summary: "监控工具报告的当前主要性能限制原因。",
+          action: "结合功耗、温度、电压、可靠性和利用率，判断性能被哪一项压住。",
+          analogy: "像看道路最窄的那一段，而不是只盯当前车速。",
+          consequence: "不同厂商、版本和采样时刻可能给出不同原因；一次 PerfCap 不等于永久结论。"
+        },
+        "memory-profile": {
+          name: "XMP / EXPO",
+          family: "CORE / 内存配置",
+          summary: "厂商预置的内存高性能档位，不是 JEDEC 保守默认值。",
+          action: "在 BIOS/UEFI 中加载经过内存模组厂商描述的频率、时序和电压组合。",
+          analogy: "像使用一套已经调好的跑车地图，但道路、天气和车况仍可能不匹配。",
+          consequence: "开启成功不代表稳定；容量、内存控制器、温度和长时间测试都要一起验证，笔记本支持情况尤其不同。"
+        },
+        "thermal-throttle": {
+          name: "热降频",
+          family: "CORE / 热管理",
+          summary: "因温度或热策略触及边界而主动降低性能。",
+          action: "硬件接近温度策略时降低频率、功耗或电压，以控制继续升温。",
+          analogy: "像设备给自己踩刹车，避免继续升温。",
+          consequence: "没看到最高温度不等于没有热降频；应看同负载下的有效频率、功耗和性能是否随时间下降。"
+        },
+        "ac-loadline": {
+          name: "AC Loadline",
+          family: "CPU / 供电",
+          summary: "CPU 重载切换时的供电电压瞬态补偿参数。",
+          action: "调整从轻载切到重载时允许出现多少电压跌落，以及主板做多少补偿。",
+          analogy: "像给水泵加稳压补偿，突然加大用水量时尽量别让水压塌下去。",
+          consequence: "补偿不足可能重载不稳，补偿过强可能增加瞬时电压和温度压力；不同主板、CPU 与 LLC 组合不能照抄同一档位。"
+        },
+        "llc-vdroop": {
+          name: "LLC / Vdroop",
+          family: "CPU / 供电",
+          summary: "主板对负载瞬间电压跌落的补偿曲线。",
+          action: "选择主板在电流上升时维持 Vcore 的力度。",
+          analogy: "像巡航控制在上坡时自动补油，过多或过少都不理想。",
+          consequence: "厂商档位编号含义不同，甚至方向相反；必须结合 AC Loadline、实际电压和稳定性判断。"
+        },
+        "vcore-offset": {
+          name: "Vcore Offset",
+          family: "CPU / 电压",
+          summary: "在 CPU 核心电压请求上增加或减少一个偏移量。",
+          action: "让 CPU 在整个或部分 V/F 区间相对原请求上移或下移电压。",
+          analogy: "像给温控器加一个固定偏置，最终温度仍会随环境和负载变化。",
+          consequence: "软件显示的 CPU 电压不是唯一结果；过低可能在轻载或瞬时负载不稳，过高会增加温度和退化压力。"
+        },
+        "ring-cache-ratio": {
+          name: "Ring / Cache Ratio",
+          family: "CPU / Intel 互连",
+          summary: "Intel 平台上环形总线或缓存频率的相对设置。",
+          action: "调整 CPU 核心之外的缓存与互连频率，常以倍频或 ratio 表示。",
+          analogy: "像提高城市环路的限速，但核心区道路未必同步变快。",
+          consequence: "提高 Ring 频率可能改善延迟，但会增加 uncore 功耗、发热和稳定性风险；AMD 平台不能直接套用。"
+        },
+        "pbo": {
+          name: "PBO",
+          family: "CPU / AMD Boost",
+          summary: "AMD Ryzen 的 Precision Boost Overdrive，在厂商边界内调整加速预算。",
+          action: "让主板和固件依据供电、温度与电流能力，提高或维持 Boost 的策略空间。",
+          analogy: "像给自动挡车放宽换挡策略，但发动机温度、油路和散热仍会限制结果。",
+          consequence: "不同主板和 CPU 代际行为差异大，可能改变功耗与热限制；不能把 PBO 当成固定超频档位。"
+        },
+        "curve-optimizer": {
+          name: "Curve Optimizer",
+          family: "CPU / AMD 曲线",
+          summary: "AMD Ryzen 的逐核心或全核心 V/F 曲线偏移工具。",
+          action: "对 CPU 曲线的工作区增加或减少电压余量。",
+          analogy: "像逐条微调发动机地图，而不是只改一个总油门。",
+          consequence: "负偏移过大可能在轻载、待机、唤醒或单核场景不稳；全核通过不代表逐核、全天候稳定。"
+        },
+        "curve-shaper": {
+          name: "Curve Shaper",
+          family: "CPU / AMD 曲线",
+          summary: "部分 AMD Ryzen 平台用于更细分 V/F 与温度区间的 PBO 曲线调节项。",
+          action: "在比 Curve Optimizer 更细的频率或温度区间调整 PBO 曲线。",
+          analogy: "像把一张粗略地图拆成更多小区域，逐块修正。",
+          consequence: "它与 Curve Optimizer 相互影响，不能当成可无限叠加的性能开关；BIOS 更新后还应重新验证。"
+        },
+        "ppt-tdc-edc": {
+          name: "PPT / TDC / EDC",
+          family: "CPU / AMD 限制",
+          summary: "AMD 平台的封装功率、持续电流和峰值电流限制。",
+          action: "分别约束平台可用的功率预算、长期电流能力和瞬时电流上限。",
+          analogy: "像同时限制油箱流量、长期供水管径与瞬时冲击流量。",
+          consequence: "判断瓶颈要看哪项先触顶；提高任一项都可能增加供电与散热压力，而且需要主板和固件允许。"
+        },
+        "trefi": {
+          name: "tREFI",
+          family: "内存 / 刷新",
+          summary: "DRAM 自动刷新之间的平均间隔。",
+          action: "改变内存执行刷新操作的频率；数值越大，通常留给读写的时间越多。",
+          analogy: "像仓库盘点间隔变长，干活时间更多，但错误积累窗口也更大。",
+          consequence: "可能改善带宽或延迟，但对温度、颗粒和内存控制器更敏感；开机或短测通过不能证明数据正确。"
+        },
+        "trfc": {
+          name: "tRFC",
+          family: "内存 / 刷新",
+          summary: "一次 DRAM 刷新周期占用的时间。",
+          action: "决定每次刷新需要暂停读写多久。",
+          analogy: "像每次仓库盘点要封仓多久。",
+          consequence: "缩短可能减少性能损失，但刷新不完整会造成数据错误；容量、颗粒类型与温度决定边界，风险高于普通时序。"
+        },
+        "primary-timings": {
+          name: "tCL / tRCD / tRP / tRAS",
+          family: "内存 / 主时序",
+          summary: "决定行、列访问和预充电节奏的一组主时序。",
+          action: "分别改变列选通、行激活到预充电之间等待的时钟数。",
+          analogy: "像仓库取货时的四道门禁，每道少等一拍都可能更快，也可能拿错货。",
+          consequence: "不能只看总延迟；频率、电压、容量与 rank 会共同决定稳定性，错误也可能先表现为无声数据损坏。"
+        },
+        "command-rate": {
+          name: "Command Rate",
+          family: "内存 / 命令",
+          summary: "内存命令在总线上的发送节奏，常以 1T 或 2T 表示。",
+          action: "调整命令之间的最小间隔，影响控制器的调度余量。",
+          analogy: "像两辆车通过同一路口的车距；压缩车距更快，但更容易追尾。",
+          consequence: "1T 通常更难稳定且不一定更快；高容量、多 rank、高频或高温环境可能更需要 2T。"
+        },
+        "mem-clock-link": {
+          name: "MCLK / FCLK / UCLK",
+          family: "内存 / 时钟链路",
+          summary: "内存时钟、Infinity Fabric 或控制器时钟之间的比值关系。",
+          action: "通过分频或 Gear 模式决定各时钟如何同步，影响延迟、带宽和功耗。",
+          analogy: "像几套齿轮能否同速转动；不同步能覆盖更高转速，但会多一层换挡损耗。",
+          consequence: "比例规则随 AMD/Intel 平台和代际变化，不能混用；改变分频后，旧内存基线与候选不能直接续用。"
+        },
+        "vddq-vddio": {
+          name: "VDDQ / VDDIO",
+          family: "内存 / I/O 电压",
+          summary: "DRAM 或内存控制接口侧的 I/O 电压，含义随 DDR4、DDR5 与平台变化。",
+          action: "为内存总线信号提供电气条件，支持不同频率和负载。",
+          analogy: "像把通信线路的电压摆幅调到合适范围，太小听不清，太大又增加压力。",
+          consequence: "厂商命名和联动关系不统一，不能只按名称照填；应保留默认或依据平台规范，再结合内存测试与温度验证。"
+        },
+        "soc-voltage": {
+          name: "SoC Voltage",
+          family: "AMD / 内存链路",
+          summary: "AMD 平台为 SoC、内存控制器或 Infinity Fabric 相关工作区提供电气条件的电压。",
+          action: "改变 SoC/IO 相关供电，影响高频内存、总线或控制器的工作裕量；具体联动随代际变化。",
+          analogy: "像给城市环路提高供电裕量，但不会让所有道路自动变快。",
+          consequence: "过低可能让内存或总线不稳，过高会增加 SoC 温度与电气压力；不同 CPU 代际不能照抄同一上限。"
+        },
+        "vccsa-vccio": {
+          name: "VCCSA / VCCIO",
+          family: "Intel / 内存链路",
+          summary: "Intel 平台上与系统代理、内存控制器或 I/O 接口相关的供电名称，随代际变化。",
+          action: "为内存控制器和接口信号提供电气条件，部分平台会按频率自动调整。",
+          analogy: "像给不同部门分配不同的供电预算，某个部门多一点不等于整机更快。",
+          consequence: "名称和自动策略因平台而异；过高可能增加温度与电气压力，过低可能引起内存或 PCIe 不稳。"
+        },
+        "tfaw-trrd": {
+          name: "tFAW / tRRD",
+          family: "内存 / 行激活",
+          summary: "DRAM 行激活窗口和连续行激活之间的最小间隔。",
+          action: "限制多个 bank 在短时间内被激活的频率。",
+          analogy: "像仓库同时开门的节奏；开得太密，货出得快，但通道和人员更容易拥堵。",
+          consequence: "收紧可能改善访问吞吐，但会增加电气和温度敏感性；错误可能先表现为无声数据损坏。"
+        },
+        "twr-twtr": {
+          name: "tWR / tWTR",
+          family: "内存 / 写恢复",
+          summary: "写入恢复时间和写入到读取之间的等待时间。",
+          action: "规定写完数据后多久才能预充电或开始后续读取。",
+          analogy: "像在写字板上写完后等墨迹干，再翻页或读取。",
+          consequence: "压得过紧可能提高响应速度，也可能让数据在未准备好时被读取；必须用针对性内存测试验证。"
+        },
+        "gpu-core-offset": {
+          name: "GPU Core Offset",
+          family: "GPU / 核心频率",
+          summary: "显卡核心频率曲线的全局或区间偏移，不是实际固定 MHz。",
+          action: "让 GPU Boost 在选择工作点时，相对原曲线增加或减少核心频率。",
+          analogy: "像把整张油门—转速地图整体上移，但显卡仍会按负载选择档位。",
+          consequence: "有效频率会随功耗、温度、电压和工作负载变化；一个点没命中不等于偏移没生效，通过一轮也不代表稳定。"
+        },
+        "gpu-memory-offset": {
+          name: "GPU Memory Offset",
+          family: "GPU / 显存频率",
+          summary: "显存频率或等效数据率相对默认值的偏移。",
+          action: "让显存工作点相对原配置升高，通常同时增加带宽与电气、热压力。",
+          analogy: "像提高仓库传送带速度，货物流得更快，但错件更容易被忽略。",
+          consequence: "显存错误不一定立刻黑屏，可能先表现为性能下降或数据损坏；必须做针对性显存测试，不能只看游戏能开。"
+        },
+        "gpu-hot-spot": {
+          name: "GPU Hot Spot",
+          family: "GPU / 温度证据",
+          summary: "显卡的局部高温传感器点，不等于核心平均温度。",
+          action: "比较热点与核心平均温度的差值，并观察散热接触、导热材料和高负载变化。",
+          analogy: "像房间平均温度正常，但某个角落已经过热。",
+          consequence: "不同厂商和型号的传感器位置、上限与可见性不同；单次数值不能诊断硅脂失效或硬件故障。"
+        },
+        "gpu-voltage-offset": {
+          name: "GPU Voltage Offset",
+          family: "GPU / 电压曲线",
+          summary: "显卡核心电压请求或 V/F 曲线的偏移，不等于传感器显示的实时电压。",
+          action: "改变频率点对应的电压请求，影响功耗、温度和可用 Boost 裕量。",
+          analogy: "像调整整张地图的供油压力，路况变化时实际油耗和转速仍会变化。",
+          consequence: "降压过多可能在瞬时负载或轻载切换时崩溃，加压则增加热量与电气压力；必须结合有效频率和稳定性验证。"
+        },
+        "fan-curve": {
+          name: "Fan Curve",
+          family: "GPU / 热管理",
+          summary: "温度与风扇转速之间的响应关系，不是性能或频率参数。",
+          action: "决定升温和降温时风扇多快开始转、转多快，以及是否允许风扇停转。",
+          analogy: "像恒温器的风扇日程：更积极散热换来更低温度，也可能带来更多噪音。",
+          consequence: "更激进的风扇曲线可能改善 Boost 持续性和热点温度，但会增加噪音与积灰；笔记本风扇通常受厂商固件限制。"
+        },
+        "gpu-boost-afs": {
+          name: "GPU Boost / AFS",
+          family: "GPU / NVIDIA 动态",
+          summary: "NVIDIA GPU 按功耗、温度和负载动态选择频率；RTX 50 加入更快的 Accelerated Frequency Switching。",
+          action: "GPU Boost 在裕量内提升核心或显存频率；AFS 让更细粒度的负载变化触发更快的频率切换。",
+          analogy: "像自动变速箱根据坡度和温度连续换挡，而不是固定在某个挡位。",
+          consequence: "请求频率、保存偏移、实际采样和有效性能是不同证据；RTX 50 工作点分布更宽，单点匹配或缺失不能证明曲线成败。"
+        }
+      };
+
+      const coreTermIds = [
+        "vf-curve",
+        "effective-clock",
+        "power-limit",
+        "perfcap",
+        "memory-profile",
+        "thermal-throttle"
+      ];
+
+      const branchTermGroups = [
+        {
+          label: "CPU / 供电与互连",
+          ids: ["ac-loadline", "llc-vdroop", "vcore-offset", "ring-cache-ratio"]
+        },
+        {
+          label: "CPU / Boost 与曲线",
+          ids: ["pbo", "curve-optimizer", "curve-shaper", "ppt-tdc-edc"]
+        },
+        {
+          label: "内存 / 刷新与时序",
+          ids: ["trefi", "trfc", "primary-timings", "command-rate"]
+        },
+        {
+          label: "内存 / 时钟与电压",
+          ids: ["mem-clock-link", "vddq-vddio", "soc-voltage", "vccsa-vccio"]
+        },
+        {
+          label: "内存 / 次级时序",
+          ids: ["tfaw-trrd", "twr-twtr"]
+        },
+        {
+          label: "GPU / 动态与显存",
+          ids: ["gpu-core-offset", "gpu-memory-offset", "gpu-hot-spot", "gpu-boost-afs"]
+        },
+        {
+          label: "GPU / 电压与散热",
+          ids: ["gpu-voltage-offset", "fan-curve"]
+        }
+      ];
+
+      let branchGroupIndex = 0;
+      let activeTermId = "";
+      let termPinned = false;
+      let termRotationPaused = true;
+      let termResumeTimer = 0;
+      let termRotationTimer = 0;
+
+      const versionSeries = [
+        {
+          id: "wb-1-0", track: "core", label: "WORKBENCH / 1.0", sub: "统一入口 · 新手路线 · 流程闭环",
+          versions: [
+            ["1.0.0", "统一工作台", "2026-10-25", "BASELINE", ["合并排障、购买判断与调校三套能力。", "建立按任务加载的统一入口和跨模式交接。", "接入本地只读采集器，保留手动应用边界。"], "22 个上游参考/脚本逐哈希一致；入口、采集与 ZIP 完整性检查通过。", "正式工作台的起点。"],
+            ["1.0.1", "采集接入排障与调校", "2026-10-25", "RELEASED", ["硬件信息不足时提供可选只读采集。", "用真实 CPU、GPU、主板与形态选择平台路线。", "明确快照不能证明稳定、散热或瓶颈。"], "采集、来源覆盖与发布包完整性检查通过。", "把“先识别硬件”接入既有工作流。"],
+            ["1.0.2", "持久性与传感器语义", "2026-10-25", "RELEASED", ["区分会话、保存未验证、重启验证和日常验证。", "按能效、性能、平衡、跑分等目标定义成功。", "统一请求值、有效值与多种传感器口径。"], "新增规则、入口引用和采集回归通过。", "首次把“配置是否真的保留”设为结果条件。"],
+            ["1.0.3", "官方稳定版优先", "2026-10-25", "RELEASED", ["共享软件默认推荐当前官方稳定版。", "旧构建只允许作具体设备的私人回退记录。", "禁止用核心温度推算隐藏热点。"], "来源覆盖、入口与采集器回归通过。", "收紧监控软件来源与版本建议。"],
+            ["1.0.4", "空调用介绍", "2026-10-25", "RELEASED", ["只调用 Skill 时先说明用途并询问目标。", "已带具体任务时直接进入对应模式。", "同一对话不重复用途介绍。"], "首次响应与跳过规则检查通过。", "降低冷启动时不知从何说起的门槛。"],
+            ["1.0.4-r1", "首次介绍文案修订", "2026-10-25", "COPY-EDIT", ["把升级说明改为“评估是否真的需要升级硬件”。", "仅修改同版本文案，不改变路由或安全逻辑。", "metadata.version 保持 1.0.4。"], "作为文案修订包保留，可回到 1.0.4 基础包。", "1.0 系列中的第一个同版复制修订。"],
+            ["1.0.5", "先解释再选择", "2026-10-25", "RELEASED", ["询问模式、格式或路线前先解释区别。", "标准与隐私模式明确说明保留和隐藏的内容。", "解释脱敏对兼容、保修和残值判断的影响。"], "选择前解释与采集边界检查通过。", "减少用户面对未解释选项时的盲选。"],
+            ["1.0.6", "Quick / Deep 与遥测", "2026-10-25", "RELEASED", ["加入快速模式、深入模式和固定工作负载。", "引入单屏实验卡和 CSV 遥测分析器。", "加入驱动、固件、Windows 与工具更新闸门。"], "HWiNFO、PresentMon、交互契约与采集器回归通过。", "工作台从规则集变成可执行实验闭环。"],
+            ["1.0.7", "结构瘦身", "2026-10-25", "RELEASED", ["主入口压缩并改为按任务渐进加载。", "快速模式只加载必要调校资料。", "验证与遥测资料拆分为独立参考。"], "PowerShell 语法、遥测、交互和加载预算检查通过。", "为后续持续扩写释放上下文空间。"],
+            ["1.0.8", "中文 HWiNFO 兼容", "2026-10-25", "RELEASED", ["兼容中文列名、重复列名和灵活日期时间。", "识别 HWiNFO 文件尾元数据并避免误读数据行。", "优先读取 Presented 平均 FPS，修复 5.1 中文编码。"], "中文 CSV、重复列、文件尾和 FPS 优先测试通过。", "第一次针对真实中文日志做兼容硬化。"],
+            ["1.0.9", "完全新手路线", "2026-10-25", "RELEASED", ["允许用户直接说“我不会”并逐步引导。", "先问现实目标，一次只问一个关键问题。", "新手想超频仍先确认机器、基线、负载和恢复。"], "新手、现有 CSV 与风险请求交互场景通过。", "降低操作门槛但不下调安全门禁。"],
+            ["1.0.10", "监控导出的白话解释", "2026-10-25", "RELEASED", ["把 CSV 先称为“监控软件导出的记录”。", "无记录时推荐 HWiNFO64 Sensors。", "说明 Sensors-only、开始记录、保存和隐私边界。"], "无记录时推荐官方下载的交互场景通过。", "把监控工具教学从术语改为动作。"],
+            ["1.0.11", "拆分监控入口", "2026-10-25", "RELEASED", ["“想看数据但没有记录”成为独立入口。", "“已有记录要分析”不再暗示已安装软件。", "两条路径分别进入下载教学或文件分析。"], "两个独立入口与遥测回归通过。", "修复新手菜单的前提冲突。"],
+            ["1.0.12", "统一调校门禁", "2026-10-25", "RELEASED", ["新手、熟练用户、快速与深入共用同一门禁。", "“别问了”“出事我负责”不能替代缺失条件。", "门禁完成后才进入实验卡和单变量流程。"], "直接要求跳过提问的交互场景与契约测试通过。", "将恢复能力置于用户口头接受风险之前。"],
+            ["1.0.13", "门禁教学补齐", "2026-10-25", "RELEASED", ["缺少稳定、控制项、目标、恢复或负载时给教学方法。", "教学分支不提前给个性化参数。", "条件补齐后回到入口摘要再继续。"], "不知道如何恢复、选择负载等场景通过。", "让门禁从死路变成可完成的流程。"],
+            ["1.0.14", "教学目标", "2026-10-25", "RELEASED", ["成功标准改为用户下次可以独立复用流程。", "Skill 先生成证据、理由和复盘草稿。", "用户可跳过学习复盘，但安全结论仍需证据。"], "想要结论、教学目标与实验循环契约通过。", "从“替用户做一次”转向“教会用户判断”。"],
+            ["1.0.15", "HWiNFO 下载顺序", "2026-10-25", "RELEASED", ["明确 Local、SAC、dAppCDN 的镜像优先级。", "提示页面广告和伪下载按钮的识别方法。", "不把 VPN 写成统一必需条件，也不分发安装包。"], "三个镜像、广告识别与静态资料检查通过。", "降低新手从下载页安装错误软件的概率。"],
+            ["1.0.15-r1", "监测软件文案修订", "2026-10-25", "COPY-EDIT", ["新手入口和 HWiNFO 指引明确标注“监测软件”。", "仅调整称谓，功能逻辑保持 1.0.15。", "作为同版本文案修订包保留。"], "文案修订包检查通过。", "第二个同版复制修订，避免把监测与调校混淆。"],
+            ["1.0.16", "全模式交互闭环", "2026-10-25", "RELEASED", ["每个分支以结果、下一步、取消或安全停止结束。", "取消文件/采集时说明没有改变什么。", "子流程完成后回到原任务并列出已有与缺失项。"], "采集后继续、取消与无效子流程场景通过。", "让跨模式流程不再丢失原目标。"],
+            ["1.0.17", "硬件快照复用", "2026-10-25", "RELEASED", ["优先复用当前对话或近期报告。", "任务切换不自动重新采集。", "只有硬件或配置可能变化时才刷新。"], "采集后继续调校的复用契约通过。", "减少重复采集并保持上下文连续。"],
+            ["1.0.18", "单一调校入口", "2026-10-25", "RELEASED", ["用户先进入“超频或降压”一个入口。", "入口检查后再解释 Quick / Deep 区别。", "记录深度只改变记录量，不改变安全门禁。"], "快速/深入交互和单一入口契约通过。", "移除顶层模式选择的认知负担。"],
+            ["1.0.19", "分析前确认记录", "2026-10-25", "RELEASED", ["先确认是否已有监测软件和可导出记录。", "已安装但无记录时进入 HWiNFO 录制教学。", "取消时明确没有分析文件并保留原目标。"], "无监测软件、取消和遥测引用检查通过。", "避免直接打开文件选择制造失败感。"],
+            ["1.0.20", "P0 流程连续性", "2026-10-25", "RELEASED", ["门禁帮助后回到同一问题并保留已答字段。", "多份报告按时间和平台摘要区分。", "上一轮实验卡可提供同设备固定条件默认值。"], "中断继续、多报告与条件复用场景通过。", "1.0 系列的最后稳定收口。"]
+          ]
+        },
+        {
+          id: "wb-1-1", track: "core", label: "WORKBENCH / 1.1", sub: "预期方向 · 在线证据 · 散热分支",
+          versions: [
+            ["1.1.0", "旧报告时效提醒", "2026-10-25", "RELEASED", ["复用硬件报告前先问近期是否更换部件。", "CPU、GPU、内存、硬盘、主板、显示器或电源变化后重采。", "旧报告标记为当前任务过期。"], "硬件变更与旧报告交互场景通过。", "开始区分“历史报告”与“当前配置”。"],
+            ["1.1.1", "配置化调校方向", "2026-10-25", "RELEASED", ["根据平台、形态、目标与固定负载给预期方向。", "GPU 能效先曲线，性能先核心后显存。", "型号不直接等于通用电压、频率或收益。"], "笔记本 GPU 配置方向与参考联动检查通过。", "从静态手册进入配置感知建议。"],
+            ["1.1.2", "在线证据 A-D 分级", "2026-10-25", "RELEASED", ["同型号、同形态、相近功耗与散热作为 A 级。", "相近代际或 SKU 作为 B/C 级弱假设。", "跨形态、控制不支持或来源缺失按 D 拒绝。"], "相似平台证据分级场景通过。", "允许借鉴方向，但禁止跨条件照抄参数。"],
+            ["1.1.3", "会话状态与实验跟进", "2026-10-25", "RELEASED", ["记住当前设备、实验卡、目标和固定负载。", "CSV 摘要关联到同一实验卡。", "复盘回写 pass / fail / inconclusive 与下一步。"], "实验复盘和多设备场景通过。", "让一次实验可以安全地接续下一轮。"],
+            ["1.1.4", "门禁导航与采购证据", "2026-10-25", "RELEASED", ["门禁逐项支持帮助、返回和取消。", "返回修改时保留后续已填写值。", "购买判断先建立痛点、当前结果和非购买尝试证据。"], "逐项返回、讲解收敛和升级证据场景通过。", "补全交互可逆性与升级刹车。"],
+            ["1.1.5", "动作、类比、后果", "2026-10-26", "RELEASED", ["每次改参数都解释改什么、可能改善什么和风险。", "新手用自然对话补卡，不从空白模板开始。", "火花、焦味、鼓包等物理危险拥有最高停止优先级。"], "主入口、实验卡与危险停止回归通过。", "让安全解释成为参数建议的一部分。"],
+            ["1.1.6", "采集后的散热分流", "2026-10-26", "RELEASED", ["散热问题只在识别设备形态后出现。", "台式机区分双风扇与三/四风扇以上 GPU 模组。", "笔记本不问卷式追问散热，先用官方功耗范围作临时上限。"], "台式机/笔记本散热分流和实验卡字段通过。", "把散热证据变成形态感知流程。"],
+            ["1.1.7", "中文遥测与门禁修复", "2026-10-26", "RELEASED", ["兼容完整中文表头并区分 CPU 功耗/温度。", "时间窗越界、空窗和 footer 明确处理。", "移除旧 Skill 硬依赖，修正采购现金流与噪音证据。"], "交互、遥测、审计、采集与发布包测试通过。", "1.1 系列的最后稳定收口。"]
+          ]
+        },
+        {
+          id: "wb-1-2", track: "core", label: "WORKBENCH / 1.2", sub: "设备身份 · GPU 曲线 · 遥测安全",
+          versions: [
+            ["1.2.0", "设备身份质量", "2026-10-26", "RELEASED", ["新增 IdentityQuality 与会话身份状态映射。", "身份字段按数据处理并使用安全 Markdown。", "采集 smoke 纳入默认测试体系。"], "身份、采集、遥测和交互测试通过；collector r6。", "让“读到了字段”与“身份可信”分开。"],
+            ["1.2.1", "身份聚合与实机授权", "2026-10-26", "RELEASED", ["以系统 Model 为核心减少误判不可读。", "补充中文乱码模式与部分身份状态。", "实机测试默认 SKIP，必须显式授权并选择隐私模式。"], "标准与脱敏实机运行通过；collector r7。", "把自动化测试的隐私边界写死。"],
+            ["1.2.2", "BIOS 与安全提示统一", "2026-10-26", "RELEASED", ["所有 BIOS、固件和参数建议附带固定安全提示。", "三段式解释按用户水平与风险展开。", "BIOS 菜单只按已确认的平台和可见名称提供。"], "BIOS 参考场景、身份、遥测和交互测试通过。", "解决 BIOS 名称跨平台不一致和照抄风险。"],
+            ["1.2.3", "GPU 曲线基线", "2026-10-26", "RELEASED", ["超频前要求当前参数下的固定游戏运行报告。", "区分纯频率超频与曲线降压路线。", "实验卡顺序改为默认参数、路线、候选值。"], "GPU 基线与交互场景通过。", "GPU 建议第一次同时绑定电压点和恢复曲线。"],
+            ["1.2.4", "5090 与分段曲线", "2026-10-26", "RELEASED", ["加入桌面 RTX 5090 功耗墙加整段曲线路线。", "加入桌面通用分段曲线与低电压保护段。", "明确分段方法不提供给笔记本。"], "5090、其他桌面 GPU、笔记本路由场景通过。", "把用户实测经验转为有边界的路线模板。"],
+            ["1.2.5", "PerfCap 与三层验证", "2026-10-26", "RELEASED", ["增加性能限制原因、三层验证和曲线应用复核。", "补上显存正确性与标准恢复顺序。", "形成最短正确调校路径。"], "版本记录后由 1.2.6 接续；核心回归保持。", "把“跑分通过”扩展为限制原因、持续性与恢复验证。"],
+            ["1.2.6", "桌面功耗墙门禁", "2026-10-26", "RELEASED", ["普通桌面 GPU 仅在供电、散热与基线限制可靠时拉墙。", "RTX 4090/5090、未知 PSU 和笔记本走更严格边界。", "111% 明确只是软件参考，不是目标。"], "功耗墙场景与 PSU 边界进入后续测试。", "将功耗墙建议从口号变成条件判断。"],
+            ["1.2.7", "Intel 13/14 代警告", "2026-10-26", "RELEASED", ["增加 Intel 13/14 代稳定性与退化提示。", "先确认原盒/散片和保修来源。", "建议优先考虑官方微码、降压或定压定频路线。"], "Intel 平台场景与外部参考披露检查通过。", "CPU 建议开始包含平台代际风险。"],
+            ["1.2.8", "Telemetry、PSU 与风险分类", "2026-10-26", "RELEASED", ["增加遥测共享子流程和跨模式入口。", "未知 PSU、改装线或异常发热阻止高功耗墙。", "区分参数、固件与硬件改造风险。"], "大文件、Markdown 清洗、预算与人工模板进入测试。", "流程完整性和安全分类同步扩展。"],
+            ["1.2.9", "跨模式与路径安全", "2026-10-26", "RELEASED", ["Telemetry 加入完整跨模式矩阵。", "动态代码隔离外部 Markdown 文本。", "拒绝 UNC、网络盘和覆盖已有输出。"], "发布阻断人工验收记录与 CHANGELOG 建立；analyzer 1.0.6。", "修补 1.2.8 之后的流程残余。"],
+            ["1.2.10", "非实机路径测试", "2026-10-26", "RELEASED", ["路径保护测试移入默认非实机分支。", "拒绝 Windows Offline 与云占位文件。", "Telemetry 跨模式规则改为内容级契约。"], "分析器 1.0.7；AI 预验通过，广泛发布仍待人工签署。", "让隐私测试不再依赖正在验证的保护本身。"],
+            ["1.2.11", "本地路径安全模块", "2026-10-26", "RELEASED", ["抽出共享本地路径安全模块。", "拒绝符号链接、目录联接和重解析点。", "缺失遥测文件改为友好错误。"], "路径写入、回读、防覆盖与网络拒绝测试通过；collector r9、analyzer 1.0.8。", "将路径安全从采集器内部逻辑独立出来。"],
+            ["1.2.12", "Unicode 完整清洗", "2026-10-26", "RELEASED", ["清除 Unicode Cc/Cf 控制与格式字符。", "清除常见变体选择符和行/段分隔符。", "补 U+009B、U+061C、U+FE0F 回归样例。"], "分析器 1.0.9；广泛发布仍需独立人工签署。", "报告输出安全从常见字符扩展到完整控制面。"],
+            ["1.2.13", "报告安全与遥测补全", "2026-10-26", "RELEASED", ["外部字段与采集警告统一安全渲染。", "固定/移动卷范围一致，标题改为 Windows-reported。", "新增 CPU Core Max、GPU Core Voltage 与可合成脱敏测试。"], "collector r10、analyzer 1.1.0；路径检查前移。", "从流程安全推进到报告内容语义安全。"],
+            ["1.2.14", "日常故障证据边界", "2026-10-26", "TEST", ["增加启动变慢、桌面卡顿、游戏瞬时卡顿与卷空间分诊。", "补充 WHEA、Kernel-Power 41、BugCheck 1001 和 dump 边界。", "加入外设、网络、笔记本电池/适配器与截图限制。"], "仅补诊断规则，不改采集器或分析器；由 1.2.15 接续。", "工作台开始覆盖非游戏性能型日常故障。"],
+            ["1.2.15", "AMD Tctl/Tdie 与 PPT", "2026-10-26", "RELEASED", ["支持 AMD HWiNFO 的 CPU Tctl/Tdie 温度。", "识别 CPU PPT 并计入封装功耗。", "使用独立指标名，避免冒充 Intel Package。"], "AMD 命名 CSV 回归通过；analyzer 1.1.1。", "AMD 平台从“可运行”提升为专门支持。"],
+            ["1.2.16", "AMD 偏移与限制排除", "2026-10-26", "RELEASED", ["锁定真实测量列，排除 Tdie Offset 与 Limit。", "PPT Limit 不进入封装功耗统计。", "调整 AMD 夹具验证偏移列位于前部。"], "AMD Offset/Limit 回归通过；analyzer 1.1.2。", "修复 1.2.15 后续的数值语义污染。"],
+            ["1.2.17", "CPU 平均温度与 CI 同步", "2026-10-26", "RELEASED", ["增加 CPU Die average 独立指标。", "报告偏移、限制、角色和单位导致的排除列。", "加入便携/仓库共享脚本与 CI 同步检查。"], "分析器 1.1.3；跨目录同步与两种 CSV 回归通过。", "1.2 系列把遥测和交付一致性共同收口。"]
+          ]
+        },
+        {
+          id: "wb-1-3", track: "core", label: "WORKBENCH / 1.3", sub: "采集上下文 · 脱敏契约 · 发布工程",
+          versions: [
+            ["1.3.0", "用户手动提权采集", "2026-10-26", "RELEASED", ["默认仍是非提权只读采集。", "新增用户主动启动的 RequireElevated 模式，不自动 UAC。", "记录哪些字段可能因权限恢复，哪些仍不可见。"], "collector r11；权限模式与采集回归通过。", "在需要硬件数据的场景提供受控提权路径。"],
+            ["1.3.1", "受限代理上下文", "2026-10-26", "RELEASED", ["区分 restricted-agent、标准用户和提权用户。", "增加带时间戳的 nvidia-smi 瞬时 GPU 数据。", "Markdown 报告改 UTF-8 BOM，修复中文 PowerShell 5.1。"], "collector r12；三种上下文与瞬时传感器检查通过。", "解决采集在受限宿主里“有命令但无结果”。"],
+            ["1.3.2", "Unicode 转义与电池四态", "2026-10-26", "RELEASED", ["中文拒绝访问匹配改为 ASCII Unicode 转义。", "电池拆为 available、not-present、权限不可用和普通不可用。", "JSON 保持无 BOM，Markdown 保持 BOM。"], "collector r13；inventory-context 纯函数测试建立。", "修复 PowerShell 5.1 中文死分支并提升电池可解释性。"],
+            ["1.3.3", "powercfg 权限分类", "2026-10-26", "RELEASED", ["powercfg stderr 改为局部 Continue 捕获。", "权限拒绝记录为 unavailable-permission。", "其他非零退出仍保持普通 unavailable。"], "mock stderr 回归通过；collector r14。", "让权限错误与真实命令失败可区分。"],
+            ["1.3.4", "Schema 3 与退出码", "2026-10-26", "RELEASED", ["固定 22 个顶层键和 16 个 CollectionStatus 键。", "新增结构化警告码、固定枚举与来源一致性。", "输入拒绝统一退出码 2。"], "schema/键/状态/警告/退出码契约通过；collector r15。", "把采集输出从“看起来稳定”推进为机器契约。"],
+            ["1.3.5", "实机断言与窗口退出", "2026-10-26", "RELEASED", ["修复实机 GPU 标题的过期断言。", "遥测混用窗口类型时改为输入拒绝退出码 2。", "明确 R6 全值脱敏尚未实现。"], "analyzer 1.1.4；真实子进程与 smoke 回归通过。", "清理实机测试和版本声明之间的不一致。"],
+            ["1.3.6", "R6 脱敏契约", "2026-10-26", "RELEASED", ["标准与脱敏组件保持相同键和数组长度。", "保留内存 Bank 与显示器 AdapterName 证据。", "脱敏字段、占位符和例外收口到输出规范。"], "形状、精确遮蔽、稳定占位符和适配器一致性测试通过；collector r16。", "隐私模式不再通过删除结构来破坏证据。"],
+            ["1.3.7", "空值脱敏语义", "2026-10-26", "RELEASED", ["空字符串保持空值，不再伪装为 redacted。", "非空敏感字段继续稳定遮蔽。", "保持组件键、数组长度和实机双模式一致性。"], "空值与实机双模式回归通过；collector r17。", "修复“隐藏了不存在的值”造成的语义噪声。"],
+            ["1.3.8", "低帧率与帧时间", "2026-10-26", "RELEASED", ["修复中文 Presented FPS 未被优先选择。", "新增 Presented/Displayed 1%、0.1% low 与帧时间百分位。", "对全 0 或无有效值的传感器列生成警告。"], " analyzer 1.1.5；中文 FPS 和百分位回归通过。", "遥测从平均值扩展到卡顿尾部。"],
+            ["1.3.9", "帧时间命名修正", "2026-10-26", "RELEASED", ["Presented 1%/0.1% 改为 fastest 方向。", "慢帧尾部继续使用 99% high 与 Displayed high。", "防止百分位方向写反。"], "analyzer 1.1.6；命名与计算方向回归通过。", "修复 1.3.8 暴露的展示语义问题。"],
+            ["1.3.10", "内存槽位证据保留", "2026-10-26", "RELEASED", ["脱敏模式保留 Slot 与 Channel 结构。", "保留 Generic PnP Monitor、Windows、本地磁盘等占位串。", "真实型号和自定义卷标继续隐藏。"], "collector r18；脱敏契约和双模式回归通过。", "避免隐私保护删掉对排障有价值的结构信息。"],
+            ["1.3.11", "建议强度分级", "2026-10-27", "RELEASED", ["隐藏或厂商限制控制默认拒绝实施指导。", "只有已实施、有现状证据且只评估时才降级。", "反作弊、权限绕过和隐藏痕迹永不降级。"], "advice-intensity 参考、场景 42 与契约测试通过。", "开始区分公开控件与厂商限制控件。"],
+            ["1.3.12", "持久验证器与标题修复", "2026-10-27", "RELEASED", ["建立持久化 validate-skill 包装器和 PyYAML 环境。", "修复 Advice intensity 标题截断 Tune 路由。", "增加工具命名边界与标题顺序契约。"], "官方校验器、标题顺序与工具命名回归通过。", "解决长期存在的验证环境与 Markdown 结构问题。"],
+            ["1.3.13", "入口瘦身", "2026-10-27", "RELEASED", ["把三段式解释细节迁入 explanation-style。", "压缩 Tune 路由和 Quick/Deep 清单。", "主入口从 17346 B 降至 15410 B。"], "入口预算余量提升到 1998 B；全部路由与安全短语保留。", "为 1.3 后半段扩写留出上下文预算。"],
+            ["1.3.14", "安全绑定恢复", "2026-10-27", "RELEASED", ["恢复每个数值或指令同时带安全提示与解释。", "在 explanation-style 再次明确绑定。", "缺失参考改为友好断言失败。"], "安全绑定与缺失 reference 回归通过。", "修复 1.3.13 瘦身造成的安全语义弱化。"],
+            ["1.3.15", "安全文件读取", "2026-10-27", "RELEASED", ["维护摘要中的 collector 版本更正为 r18。", "Read-RequiredFile 对缺失/非文件单点退出。", "45 个 Get-Content 统一显式 UTF-8。"], "缺失文件与目录路径变异验证通过。", "降低一条路径错误引发连锁断言噪声的概率。"],
+            ["1.3.16", "中性名称与 BOM 守卫", "2026-10-27", "RELEASED", ["裸调用回显改为不带宿主前缀的中性名称。", "新增非 ASCII PowerShell 必须带 UTF-8 BOM。", "编码守卫纳入默认全量测试。"], "中性介绍、BOM 和全量测试入口回归通过。", "修复跨宿主文案与编码漂移。"],
+            ["1.3.17", "日常配置晋级", "2026-10-27", "RELEASED", ["增加压测、基线、验证层、应用值和恢复要求的晋级清单。", "组件手册指回日常配置晋级流程。", "补充 HWiNFO 下载卡与 DSH 调用语汇。"], "断言总数从 273 增至 277；便携工具同步 1.3.17。", "补上“跑分配置能否成为日常配置”的门槛。"],
+            ["1.3.18", "首次录制与三包对齐", "2026-10-27", "RELEASED", ["首次监控录制强制转述 HWiNFO 下载页陷阱。", "修复 DSH 多行列表缩进。", "DSH、Codex 分享与便携三套包同版发布。"], "断言总数增至 282；三包版本同步检查通过。", "第一次将三种分发形态纳入同一版本门禁。"],
+            ["1.3.19", "证据责任与未知供电", "2026-10-27", "RELEASED", ["区分用户陈述与可核验证据。", "新增取证责任、仪器优先和一次一个决策。", "未知电源路径优先阻断并提供一条不提升上限的替代动作。"], "断言总数增至 293；三包同步。", "将“谁提供什么证据”写入交互责任。"],
+            ["1.3.20", "门禁拆分与 305 断言", "2026-10-27", "RELEASED", ["拆分未知供电路径与普通门禁事实。", "统一 Advice intensity 的入口摘要。", "拒绝后固定给 one harmless next step。"], "断言总数增至 305；三包同步。", "1.3 系列的最终安全与契约收口。"]
+          ]
+        },
+        {
+          id: "wb-1-4", track: "core", label: "WORKBENCH / 1.4", sub: "自然语气 · 提示时机 · 当前分发",
+          versions: [
+            ["1.4.0", "语气层", "2026-10-28", "TONE TEST", ["安全提示与三段式解释改为由候选值或真实动作触发。", "删除状态行和方括号式模式横幅。", "多步流程仍保留一句自然语言进度提示。"], "12 条语气稳定性场景；测试包未达到发布标准，由 1.4.1 接续。", "从“流程模板感”转向自然专家表达。"],
+            ["1.4.1", "收窄提示范围", "2026-10-28", "TONE TEST", ["普通系统、软件、HDR、监测导出不再机械触发安全提示。", "提示范围收窄到调校敏感参数与明确改动动作。", "补充 HWiNFO 菜单位置可能随版本变化。"], "规则项三轮稳定性复查；版本记录后由 1.4.2 接续。", "修复 1.4.0 中语气规则过宽的问题。"],
+            ["1.4.2", "候选与提示同段", "2026-10-28", "RELEASED", ["候选值与安全提示必须出现在同一段。", "移除实验卡中的 Mode 字段和括号模式标签。", "紧凑卡片在用户明确要求时保留必要证据。"], "T13 正向触发；测试包被 1.4.3 取代。", "修复回答结构好看但安全语义被拆散的问题。"],
+            ["1.4.3", "安全提示本地化", "2026-10-28", "RELEASED", ["中文与英文各有标准安全提示句。", "禁止同一回复混用中英文安全提示。", "加入 T14-T17 英文概念、隐藏限制、故障与候选场景。"], "语气三轮复查通过，作为 1.4.4 前的正式公开版本。", "1.4 系列的语气与安全提示收口。"],
+            ["1.4.3-r1", "文案与空白同步修订", "2026-10-29", "STABLE PACKAGE", ["仅修正文案与空白对齐。", "Skill metadata 仍为 1.4.3。", "该复制包保持 1.4.3 功能面。"], "六套包同步与 CI 检查后重新打包；Skill 版本不变。", "1.4.4 之前的现有分发包。"],
+            ["1.4.4", "GPU Boost 与动态工作点", "2026-11-02", "CURRENT", ["新增 NVIDIA GPU Boost、请求频率、有效频率与 V/F 曲线术语边界。", "区分 Turing、Ampere、Ada 与 Blackwell；记录 RTX 50 的 Accelerated Frequency Switching。", "记录 AMD Game/Boost Clock、Radeon Boost 与 Intel Xe 频率语义，禁止跨厂商照搬。"], "结构校验、静态契约和全量非实时测试通过；实时采集 SKIP，人工行为验收仍 PENDING。", "当前公开 Skill 版本。"]
+          ]
+        },
+        {
+          id: "proto-2", track: "prototype", label: "AUTO-OC / 2.x", sub: "独立分叉 · 消费卡防火墙 · 可用起点",
+          versions: [
+            ["2.2.0", "族系先验基线", "2026-10-29", "INTERNAL BASELINE", ["覆盖 NVIDIA RTX 30/40/50、AMD RDNA 与 Intel Arc。", "族系先验给方向和首轮阶梯，本机实测决定具体值。", "区分 NVIDIA 偏移与 AMD 实际频率单位。"], "族系识别、AMD 单位与新手流程回归通过；原工作台未修改。", "自动超频原型线的内部已知起点，不是公开发布版本。"],
+            ["2.3.0", "准确性 P0", "2026-10-29", "INTERNAL", ["缺少目标、固定负载、通过判据或中止信号时 Blocked。", "新增 EvidenceBasis、Confidence 与 ExpectedMagnitude。", "型号、形态、族系冲突在给数字前阻断。"], "官方 validator 与完整回归通过。", "把“给一个数”改为“先证明有条件给数”。"],
+            ["2.3.1", "原型改名与阻断契约", "2026-10-29", "INTERNAL", ["改名为“电脑硬件工作台·含自动超频·原型”。", "固定独立 Skill ID 与原型目录。", "所有阻断结果统一无候选值、无证据等级。"], "Skill is valid；完整自动测试通过。", "正式与原型从此保持两条独立版本线。"],
+            ["2.3.2", "专业卡与目标校验", "2026-10-29", "INTERNAL", ["阻断工作站、数据中心、核显和未知类别。", "TargetComponent 必须与 GPU 目标一致。", "输出 ResolvedGpuModel、身份状态与先验来源。"], "专业卡、多 GPU、显存控件与阻断输出测试通过。", "补上 2.3.0 之后的分类漏洞。"],
+            ["2.3.3", "正向消费级识别", "2026-10-30", "INTERNAL", ["多 GPU 扫描跨 NVIDIA、AMD、Intel。", "ConsumerGpuConfirmed 无法覆盖专业卡、数据中心或核显。", "工作站与数据中心黑名单继续扩展。"], "代表消费卡保持 Ready；官方校验与完整回归通过。", "从黑名单修补转为正向消费级资格。"],
+            ["2.3.4", "复合分隔符与 A10G", "2026-10-30", "INTERNAL", ["覆盖中英文逗号、分号、斜杠、and、顿号、括号与换行。", "同段多适配器不再被一个独显名称掩盖。", "补 A10G 等变体阻断。"], "消费卡控制组持续 Ready；分类回归通过。", "2.3 系列的分类防火墙收口。"],
+            ["2.4.0", "usable-start 与结果语义", "2026-10-30", "INTERNAL", ["默认目标改为一次给出可日常使用的起点。", "新增 CandidateRole 与预生成 FallbackCandidate。", "通过后按 Keep / Diagnose / repeat / Revert 处理。"], "状态 ID、曲线起点与单卡名称回归通过。", "原型从安全试探转向“少折腾但可回退”。"],
+            ["2.4.1", "结果优先级与上下文", "2026-10-30", "INTERNAL", ["Reliability / Utilization 先于任何 Pass 判定。", "ExperimentId、CandidateId、Parent 上下文必须匹配。", "不同路线使用各自成功语义，fallback 回到上一通过值。"], "GPU、交互和完整回归通过。", "修复 2.4.0 的状态复用和 fallback 语义。"],
+            ["2.5.1", "功耗墙单位与笔记本状态", "2026-10-30", "INTERNAL", ["区分功耗墙百分比、功耗墙上限瓦数与实测功耗。", "支持 assumed-stock、declared-stock、declared-unlocked 与 mismatch。", "解锁功耗墙不自动放大频率步长。"], "笔记本状态场景与完整自动回归通过。", "修复“95% 等于 95W”一类单位混淆。"],
+            ["2.6.0", "历史分层与指纹", "2026-10-30", "INTERNAL", ["分离 HardwareFingerprint、ConfigurationFingerprint 与 Lineage。", "功耗墙改变使旧候选不能直接续用，但历史证据保留。", "Profile-only fallback 不声称能撤销外部功耗墙修改。"], "三层状态与功耗墙变化场景通过。", "纠正“功耗墙一变全部作废”的过度表述。"],
+            ["2.7.0", "RTX 50 公开证据", "2026-10-30", "INTERNAL", ["汇总 37 个 TechPowerUp 受控 50 系样本。", "按 5060、5070、5080、5090 分档并记录单位差异。", "收紧显存滑块夹取边界与热点传感器边界。"], "50 系分档与完整自动回归通过；首轮仍只改核心。", "为一步可用起点引入公开样本证据。"],
+            ["2.8.0", "50 系首步上调", "2026-10-30", "INTERNAL", ["5060 / 5070 / 5070 Ti / 5080 / 5090 分档首步。", "后续微调统一为 +25 MHz。", "首轮不改显存、不改功耗墙，收益率由实测决定。"], "RTX 5060、5070 Ti、5080、5090 脚本输出逐项复现。", "把“可用起点”从保守小步提高到可感受级别。"],
+            ["2.9.0", "RTX 40 公开证据", "2026-10-30", "INTERNAL", ["汇总约 70 个技术媒体受控 40 系样本。", "4060 至 4090 按 SKU 给首步与 +25 后续微调。", "明确实际核心时钟不等于软件偏移，4090 先看供电路径。"], "各档脚本输出验证；官方校验与完整回归通过。", "40 系从整代规则推进到逐 SKU。"]
+          ]
+        },
+        {
+          id: "proto-3", track: "prototype", label: "AUTO-OC / 3.x", sub: "内部同步 · 尚未发布 · 当前停点",
+          versions: [
+            ["3.0.0", "RTX 30 与三档位证据", "2026-10-30", "INTERNAL MAJOR", ["补 RTX 30 公共研究与 SKU 首步。", "30/40/50 三份公开参照接入候选器。", "记录实际时钟与滑块偏移不可直接互换，并暴露来源薄弱项。"], "GPU 与交互测试通过；原工作台仍不变。", "原型进入 3.x 的完整 NVIDIA 三档位证据线。"],
+            ["3.0.1", "冻结与有限验证", "2026-10-30", "INTERNAL FROZEN", ["候选器 2.0.1、权威表 1.0.0 固化。", "完成有限范围的固定负载重复性检查。", "候选流程生成过曲线起点，但没有应用到硬件。"], "只读验证在限定范围内通过；原厂收益比较、新候选验证、重启与日常稳定仍未完成。原型未完善，尚未发布。", "3.0.1 内部冻结停点；融合前仍需更完整的实机收益和人工行为验收。"],
+            ["3.0.2", "GPU Boost 行为同步", "2026-11-02", "INTERNAL CURRENT", ["同步正式 Skill 1.4.4 的 GPU Boost、动态 V/F 与有效频率语义。", "区分请求、保存、活动配置、运行时工作点和有效性能；缺少单个精确 MHz/mV 点不再证明曲线未生效。", "补充 NVIDIA 各代、RTX 50 Accelerated Frequency Switching、AMD 与 Intel 术语边界；候选器 2.0.2、权威表 1.0.1。"], "结构校验、GPU/交互与全量非实时测试通过；实时采集 SKIP，独立人工行为验收 PENDING。原型仍未发布。", "当前内部迭代，不是公开发布版本；融合前仍需覆盖实际收益、重启与日常稳定。"]
+          ]
+        }
+      ];
+
+      const versionRecords = versionSeries.flatMap(series =>
+        series.versions.map(([version, title, date, state, changes, validation, lineage]) => ({
+          id: `${series.track === "core" ? "wb" : "ao"}-${version.replaceAll(".", "-")}`,
+          track: series.track,
+          seriesId: series.id,
+          version,
+          title,
+          date,
+          state,
+          changes,
+          validation,
+          lineage
+        }))
+      );
+
+      const versionById = Object.fromEntries(versionRecords.map(item => [item.id, item]));
+      const lastMilestoneByTrack = {
+        core: "core-entry",
+        prototype: "proto-seed",
+        triage: "triage-safety",
+        merge: "merge"
+      };
+
+      const tuneStates = [
+        { id: "input", code: "T00", name: "输入" },
+        { id: "classify", code: "T01", name: "安全分类" },
+        { id: "gate", code: "T02", name: "五项证据" },
+        { id: "eligible", code: "T03", name: "可实验" },
+        { id: "measure", code: "T04", name: "测量" },
+        { id: "outcome", code: "T05", name: "结论" }
+      ];
+
+      const experimentStates = [
+        { id: "baseline", code: "E01", name: "当前基线" },
+        { id: "candidate", code: "E02", name: "候选方案" },
+        { id: "measure", code: "E03", name: "固定负载测量" },
+        { id: "outcome", code: "E04", name: "结果判定" },
+        { id: "decision", code: "E05", name: "保留 / 回退" }
+      ];
+
+      const triageStates = [
+        { id: "intake", code: "R00", name: "症状输入" },
+        { id: "scope", code: "R01", name: "安全与范围" },
+        { id: "evidence", code: "R02", name: "当前证据" },
+        { id: "action", code: "R03", name: "最小检查" },
+        { id: "handoff", code: "R04", name: "分流" }
+      ];
+
+      const identityStates = [
+        { id: "confirmed", code: "ID1", name: "身份已确认" },
+        { id: "reported", code: "ID2", name: "用户自述" },
+        { id: "conflict", code: "ID3", name: "冲突 / 不可读" }
+      ];
+
+      const baselineStates = [
+        { id: "current", code: "B1", name: "当前有效" },
+        { id: "stale", code: "B2", name: "待刷新" },
+        { id: "historical", code: "B3", name: "仅保留历史" }
+      ];
+
+      const compareEvidenceItems = [
+        { id: "platform", label: "设备身份" },
+        { id: "baseline", label: "当前基线" },
+        { id: "recovery", label: "恢复路径" },
+        { id: "workload", label: "固定负载" },
+        { id: "abort", label: "停止条件" }
+      ];
+
+      const triageCases = {
+        hazard: {
+          request: "设备有焦味或打火，但我想先跑一次压力测试确认。",
+          danger: true,
+          stages: {
+            scope: {
+              title: "HARD-STOP / 物理危险优先",
+              body: "立即停止运行；仅在安全时断电断能。不要继续开机、压测、重插带电部件或采集更多性能数据。",
+              tone: "stop"
+            }
+          }
+        },
+        stutter: {
+          request: "游戏平时帧数不低，但会突然卡顿一下。",
+          danger: false,
+          stages: {
+            scope: {
+              title: "先锁定卡顿层级",
+              body: "区分持续低帧率、周期性卡顿、网络抖动和瞬时驱动/系统事件，先不要直接超频。",
+              tone: "blocked"
+            },
+            evidence: {
+              title: "采集固定场景证据",
+              body: "记录同一游戏场景的帧时间、1% / 0.1% low、GPU/CPU 有效频率、温度、功耗和 PerfCap。",
+              tone: "blocked"
+            },
+            action: {
+              title: "执行一次可逆检查",
+              body: "只改变一个条件，例如关闭后台叠加、切换电源模式或清理受限磁盘空间；保留结果后恢复或继续。",
+              tone: "ready"
+            },
+            handoff: {
+              title: "按证据分流",
+              body: "仍有明确限频就转遥测分析；没有异常但持续卡顿则继续驱动、存储和外设检查。不要用超频掩盖故障。",
+              tone: "ready"
+            }
+          }
+        },
+        startup: {
+          request: "电脑每次开机都要很久，进桌面后还会卡一会儿。",
+          danger: false,
+          stages: {
+            scope: {
+              title: "区分启动与登录阶段",
+              body: "先确认时间花在固件、Windows 启动、登录后加载还是磁盘响应；只看总时长无法定位层级。",
+              tone: "blocked"
+            },
+            evidence: {
+              title: "保存启动证据",
+              body: "记录 Windows 启动时间、磁盘剩余空间、健康告警、启动项和最近的驱动/更新变化。",
+              tone: "blocked"
+            },
+            action: {
+              title: "先做一个可逆改动",
+              body: "优先停用单个非关键启动项或排除高分占用运行，不要一次清理大量系统文件。",
+              tone: "ready"
+            },
+            handoff: {
+              title: "判断是软件还是硬件",
+              body: "重复出现磁盘延迟、健康告警或启动阶段异常时继续存储排障；否则回到启动项和系统事件。",
+              tone: "ready"
+            }
+          }
+        },
+        battery: {
+          request: "笔记本电池掉得很快，是不是该直接换电池？",
+          danger: false,
+          stages: {
+            scope: {
+              title: "先区分电池与供电",
+              body: "确认最近变化、使用场景、适配器功率、快充状态和电源模式；单次掉电不能直接证明电池损坏。",
+              tone: "blocked"
+            },
+            evidence: {
+              title: "核对当前可用证据",
+              body: "查看当前整机功耗、电池设计/满充容量、循环来源和电源事件，并注明权限是否影响读取。",
+              tone: "blocked"
+            },
+            action: {
+              title: "做一次可逆对照",
+              body: "在相同负载下比较接适配器与电池状态；不要先改电池参数或绕过电源保护。",
+              tone: "ready"
+            },
+            handoff: {
+              title: "形成购买或维修边界",
+              body: "只有容量、续航、温度或供电证据一致时再讨论更换；鼓包、焦味或漏液直接进入物理安全停止。",
+              tone: "ready"
+            }
+          }
+        },
+        driverReset: {
+          request: "游戏偶尔闪退，驱动会重置，但没有黑屏或重启。",
+          danger: false,
+          stages: {
+            scope: {
+              title: "先区分闪退与驱动重置",
+              body: "确认是游戏退出、显示驱动重置、系统崩溃还是整机重启；不同现象对应的证据层不同。",
+              tone: "blocked"
+            },
+            evidence: {
+              title: "保存驱动与事件证据",
+              body: "记录游戏、驱动版本和事件时间，查找显示驱动重置、WHEA、BugCheck 或应用崩溃记录。",
+              tone: "blocked"
+            },
+            action: {
+              title: "只回退一个变化",
+              body: "优先回退最近一次驱动、游戏设置或叠加层变化；保持同一游戏场景和恢复点。",
+              tone: "ready"
+            },
+            handoff: {
+              title: "决定继续排障还是调校",
+              body: "重复出现驱动重置或硬件错误时不允许用超频掩盖；只有稳定基线恢复后才回到性能实验。",
+              tone: "ready"
+            }
+          }
+        },
+        reboot: {
+          request: "高负载运行一段时间会自动重启，平时又完全正常。",
+          danger: false,
+          stages: {
+            scope: {
+              title: "先排除物理危险",
+              body: "确认没有焦味、打火、液体或接头过热；高负载断电可能来自供电、温度、内存或固件。",
+              tone: "blocked"
+            },
+            evidence: {
+              title: "记录断电前状态",
+              body: "核对触发时间、温度、功耗、PSU/适配器、BIOS 变化和 Kernel-Power 41 等事件，不把单个事件码当诊断。",
+              tone: "blocked"
+            },
+            action: {
+              title: "降低变量而不是提高上限",
+              body: "先恢复默认配置并减少一个非必要负载或外设；不要用更高功耗墙测试是否“能撑住”。",
+              tone: "ready"
+            },
+            handoff: {
+              title: "确定供电或稳定性路径",
+              body: "重复断电且没有软件证据时转供电、温度与硬件检查；未解释前停止任何调校候选。",
+              tone: "ready"
+            }
+          }
+        },
+        display: {
+          request: "外接显示器偶尔黑屏或闪一下，但机器还在运行。",
+          danger: false,
+          stages: {
+            scope: {
+              title: "先分清显示链路层级",
+              body: "确认主机是否继续运行，并区分显示器、线缆、接口、扩展坞、驱动和 GPU 显示引擎。",
+              tone: "blocked"
+            },
+            evidence: {
+              title: "固定分辨率与刷新条件",
+              body: "记录分辨率、刷新率、HDR、DSC、线材规格和发生时间；保留显示器自检信息。",
+              tone: "blocked"
+            },
+            action: {
+              title: "一次替换一个环节",
+              body: "先换线或换端口，再比较直连与扩展坞；不要同时改驱动、刷新率和 HDR。",
+              tone: "ready"
+            },
+            handoff: {
+              title: "判断是显示还是 GPU",
+              body: "另一台设备同链路复现偏显示端；只有本机其他输出也异常时才继续 GPU/驱动排查。",
+              tone: "ready"
+            }
+          }
+        },
+        peripheral: {
+          request: "鼠标键盘偶尔一起断连，过几秒又恢复。",
+          danger: false,
+          stages: {
+            scope: {
+              title: "先看断连范围",
+              body: "确认是有线、无线还是同一扩展坞，多个设备同时掉线更偏向集线器、供电或控制器。",
+              tone: "blocked"
+            },
+            evidence: {
+              title: "记录端口与设备变化",
+              body: "保留端口类型、集线器、接收器位置、驱动和 USB 事件；记录是否伴随画面或磁盘异常。",
+              tone: "blocked"
+            },
+            action: {
+              title: "直连并替换一个变量",
+              body: "把设备直连主机、换端口或移除一个集线器，一次只改变一个连接条件。",
+              tone: "ready"
+            },
+            handoff: {
+              title: "判断设备还是平台",
+              body: "单设备复现偏外设或线材；多个 USB 同时异常则继续芯片组、驱动、供电或主板路径。",
+              tone: "ready"
+            }
+          }
+        }
+      };
+
+      const lifecycleStateEvents = [
+        {
+          id: "confirm",
+          label: "身份已确认",
+          identity: "confirmed",
+          baseline: "current",
+          tone: "ready",
+          title: "当前记录可作为比较起点",
+          body: "身份可信且配置没有变化；仍需确认固定负载、恢复路径和本轮目标后才能进入调校。"
+        },
+        {
+          id: "report",
+          label: "只有用户自述",
+          identity: "reported",
+          baseline: "current",
+          tone: "blocked",
+          title: "普通咨询可继续，模型调校需先确认身份",
+          body: "用户陈述可以作为线索，但不能把未确认型号当作精确平台身份或候选值依据。"
+        },
+        {
+          id: "powerwall",
+          label: "功耗墙改变",
+          identity: "confirmed",
+          baseline: "stale",
+          tone: "blocked",
+          title: "旧记录保留历史价值，但当前资格失效",
+          body: "功耗墙变化会创建新的配置修订；旧基线仍可用于比较，但不能直接当作当前基线或复用旧候选。"
+        },
+        {
+          id: "hardware",
+          label: "硬件 / 驱动变化",
+          identity: "conflict",
+          baseline: "historical",
+          tone: "stop",
+          title: "必须重新识别并建立新基线",
+          body: "硬件身份与旧快照可能冲突；在重新采集和确认配置前，禁止继续沿用旧实验结果。"
+        },
+        {
+          id: "recapture",
+          label: "重新采集完成",
+          identity: "confirmed",
+          baseline: "current",
+          tone: "ready",
+          title: "新的身份与基线重新进入当前状态",
+          body: "重新采集不会删除旧记录；它只是把新的确认结果提升为当前证据。"
+        }
+      ];
+
+      const reduceMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+      let tuneGateReady = false;
+      let activeTuneState = "input";
+      let activeExperimentState = "";
+      let activeTriageCase = "stutter";
+      let triageStageIndex = 0;
+      let activeLifecycleEvent = "confirm";
+      let activeDemoMode = "tune";
+
+      const tuneStateCopy = {
+        input: {
+          label: "STATE / INPUT",
+          next: "选择一个示例请求开始。"
+        },
+        classify: {
+          label: "STATE / CLASSIFY",
+          next: "先判断是物理危险、证据不足还是可进入门禁。"
+        },
+        gate: {
+          label: "STATE / EVIDENCE GATE",
+          next: "逐项补齐当前身份、基线、恢复、负载和停止条件。"
+        },
+        eligible: {
+          label: "STATE / ELIGIBLE",
+          next: "五项齐全；只解锁演示实验，不代表参数安全。"
+        },
+        measure: {
+          label: "STATE / MEASURE",
+          next: "在下方查看演示实验卡；硬件设置仍由用户手动控制。"
+        },
+        outcome: {
+          label: "STATE / OUTCOME",
+          next: "根据结果选择保留、回退或重复，不增加第二个变量。"
+        }
+      };
+
+      const experimentStateCopy = {
+        baseline: {
+          label: "STATE / BASELINE",
+          next: "确认当前基线、配置变化和恢复路径。"
+        },
+        candidate: {
+          label: "STATE / CANDIDATE",
+          next: "候选存在也必须绑定单一变量和回退方式。"
+        },
+        measure: {
+          label: "STATE / MEASURE",
+          next: "使用同一固定负载观测有效频率、性能、温度和异常。"
+        },
+        outcome: {
+          label: "STATE / OUTCOME",
+          next: "区分 PASS、FAIL 与 INCONCLUSIVE。"
+        },
+        decision: {
+          label: "STATE / DECISION",
+          next: "保留通过值、回退失败值，或重复无法判断的结果。"
+        }
+      };
+
+      const triageStateOrder = ["scope", "evidence", "action", "handoff"];
+
+      function renderStateRail(container, states, activeId, options = {}) {
+        const activeIndex = states.findIndex(state => state.id === activeId);
+        const dangerIndex = states.findIndex(state => state.id === options.dangerId);
+        const blockedIds = new Set(options.blockedIds || []);
+        container.replaceChildren();
+
+        states.forEach((state, index) => {
+          const item = document.createElement("li");
+          item.className = "dse-state-node";
+          const isActive = state.id === activeId;
+          const isDanger = state.id === options.dangerId;
+          const isWarning = state.id === options.warningId;
+          const isBlocked = blockedIds.has(state.id) ||
+            (dangerIndex >= 0 && index > dangerIndex) ||
+            (options.sequential === false && !isActive);
+
+          if (options.sequential !== false && activeIndex >= 0 && index < activeIndex) {
+            item.classList.add("is-done");
+          }
+          if (isActive) item.classList.add("is-current");
+          if (isDanger) item.classList.add("is-danger");
+          if (isWarning) item.classList.add("is-warning");
+          if (isBlocked && !isDanger) item.classList.add("is-blocked");
+          if (options.readyId === state.id) item.classList.add("is-ready");
+          if (isActive) item.setAttribute("aria-current", "step");
+
+          const code = document.createElement("span");
+          code.className = "dse-state-code";
+          code.textContent = state.code;
+          const name = document.createElement("span");
+          name.className = "dse-state-name";
+          name.textContent = state.name;
+          const meta = document.createElement("span");
+          meta.className = "dse-state-meta";
+          meta.textContent = options.meta?.[state.id] || "";
+          item.append(code, name, meta);
+          container.appendChild(item);
+        });
+      }
+
+      function setTuneState(stateId, options = {}) {
+        const copy = options.copy || tuneStateCopy[stateId] || tuneStateCopy.input;
+        activeTuneState = stateId;
+        tuneStateLabel.textContent = options.label || copy.label;
+        tuneStateNext.textContent = options.next || copy.next;
+        renderStateRail(tuneStateRail, tuneStates, stateId, {
+          dangerId: options.danger ? stateId : "",
+          warningId: options.warning ? stateId : "",
+          meta: options.meta
+        });
+        enterExperimentButton.disabled = !(tuneGateReady && stateId === "eligible");
+      }
+
+      function setExperimentState(stateId, options = {}) {
+        activeExperimentState = stateId;
+        const copy = options.copy || experimentStateCopy[stateId] || {
+          label: "STATE / WAITING GATE",
+          next: "先完成上方五项证据检查。"
+        };
+        experimentStateLabel.textContent = options.label || copy.label;
+        experimentStateNext.textContent = options.next || copy.next;
+        renderStateRail(experimentStateRail, experimentStates, stateId, {
+          dangerId: options.dangerId,
+          warningId: options.warningId,
+          readyId: options.readyId,
+          meta: options.meta
+        });
+      }
+
+      function resetExperimentState(reason = "WAITING GATE") {
+        activeExperimentState = "";
+        generateExperimentButton.disabled = true;
+        experimentStateLabel.textContent = `STATE / ${reason}`;
+        experimentStateNext.textContent = "先完成上方五项证据检查。";
+        experimentOutput.hidden = true;
+        simActions.hidden = true;
+        simOutcome.hidden = true;
+        expGrid.replaceChildren();
+        renderStateRail(experimentStateRail, experimentStates, "");
+      }
+
+      function renderTriageState() {
+        const triageCase = triageCases[activeTriageCase];
+        const stageId = triageStateOrder[triageStageIndex];
+        const stage = triageCase.stages[stageId];
+        const isDanger = Boolean(triageCase.danger);
+        const blockedIds = isDanger
+          ? triageStateOrder.filter(id => id !== "scope")
+          : [];
+        renderStateRail(triageStateRail, triageStates, stageId, {
+          dangerId: isDanger ? "scope" : "",
+          blockedIds,
+          meta: {
+            intake: activeTriageCase.toUpperCase(),
+            [stageId]: `${triageStageIndex + 1}/${triageStateOrder.length}`
+          }
+        });
+        triageStateLabel.textContent = isDanger ? "STATE / HARD-STOP" : `STATE / ${stageId.toUpperCase()}`;
+        triageStateNext.textContent = isDanger
+          ? "物理危险优先，不进入后续检查。"
+          : triageStageIndex >= triageStateOrder.length - 1
+            ? "已达到分流终点。"
+            : "推进下一步时，只增加一个新证据或一个可逆动作。";
+        triageCopy.dataset.tone = stage.tone;
+        triageCopyTitle.textContent = stage.title;
+        triageCopyBody.textContent = stage.body;
+        triageAdvanceButton.disabled = isDanger || triageStageIndex >= triageStateOrder.length - 1;
+        triageAdvanceButton.textContent = isDanger || triageStageIndex >= triageStateOrder.length - 1
+          ? "已到状态终点"
+          : triageStageIndex === 0
+            ? "补充当前证据"
+            : triageStageIndex === 1
+              ? "执行最小检查"
+              : "形成分流结论";
+        triageCaseGrid.querySelectorAll("[data-triage-case]").forEach(button => {
+          button.setAttribute("aria-pressed", String(button.dataset.triageCase === activeTriageCase));
+        });
+      }
+
+      function selectTriageCase(id) {
+        if (!triageCases[id]) return;
+        activeTriageCase = id;
+        triageStageIndex = 0;
+        renderTriageState();
+      }
+
+      function renderTriageCases() {
+        triageCaseGrid.replaceChildren();
+        Object.entries(triageCases).forEach(([id, triageCase]) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "dse-scenario";
+          button.dataset.triageCase = id;
+          button.setAttribute("aria-pressed", String(id === activeTriageCase));
+          button.textContent = triageCase.request;
+          button.addEventListener("click", () => selectTriageCase(id));
+          triageCaseGrid.appendChild(button);
+        });
+      }
+
+      function setLifecycleEvent(eventId) {
+        const event = lifecycleStateEvents.find(item => item.id === eventId);
+        if (!event) return;
+        activeLifecycleEvent = eventId;
+        renderStateRail(identityStateRail, identityStates, event.identity, {
+          sequential: false,
+          dangerId: event.identity === "conflict" ? "conflict" : "",
+          warningId: event.identity === "reported" ? "reported" : "",
+          readyId: event.identity === "confirmed" ? "confirmed" : ""
+        });
+        renderStateRail(baselineStateRail, baselineStates, event.baseline, {
+          sequential: false,
+          dangerId: event.baseline === "historical" ? "historical" : "",
+          warningId: event.baseline === "stale" ? "stale" : "",
+          readyId: event.baseline === "current" ? "current" : ""
+        });
+        lifecycleCopy.dataset.tone = event.tone;
+        lifecycleCopyTitle.textContent = event.title;
+        lifecycleCopyBody.textContent = event.body;
+        lifecycleEvents.querySelectorAll("[data-lifecycle-event]").forEach(button => {
+          button.setAttribute("aria-pressed", String(button.dataset.lifecycleEvent === eventId));
+        });
+      }
+
+      function renderLifecycleEvents() {
+        lifecycleEvents.replaceChildren();
+        lifecycleStateEvents.forEach(item => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "dse-state-action";
+          button.dataset.lifecycleEvent = item.id;
+          button.setAttribute("aria-pressed", String(item.id === activeLifecycleEvent));
+          button.textContent = item.label;
+          button.addEventListener("click", () => setLifecycleEvent(item.id));
+          lifecycleEvents.appendChild(button);
+        });
+      }
+
+      function syncTermButtons() {
+        root.querySelectorAll("[data-term-id]").forEach(button => {
+          const expanded = !termDetail.hidden && button.dataset.termId === activeTermId;
+          button.setAttribute("aria-expanded", String(expanded));
+        });
+      }
+
+      function pauseTermRotation() {
+        window.clearTimeout(termResumeTimer);
+        termRotationPaused = true;
+      }
+
+      function openTerm(id, pin = false) {
+        const definition = termDefinitions[id];
+        if (!definition) return;
+        pauseTermRotation();
+        activeTermId = id;
+        termPinned = pin;
+        termFamily.textContent = `TERM / ${definition.family}`;
+        termDetailTitle.textContent = definition.name;
+        termSummary.textContent = definition.summary;
+        termAction.textContent = definition.action;
+        termAnalogy.textContent = definition.analogy;
+        termConsequence.textContent = definition.consequence;
+        termDetail.hidden = false;
+        syncTermButtons();
+        if (pin && isInteractiveView) setRouteHash(`term-${id}`);
+      }
+
+      function closeTerm(resume = true) {
+        termDetail.hidden = true;
+        activeTermId = "";
+        termPinned = false;
+        syncTermButtons();
+        if (isInteractiveView && activeDemoMode === "terms") setRouteHash("terms");
+        if (resume) {
+          window.clearTimeout(termResumeTimer);
+          termResumeTimer = window.setTimeout(() => {
+            if (!termDetail.hidden || document.hidden || demoSection.hidden) return;
+            termRotationPaused = false;
+          }, 1400);
+        }
+      }
+
+      function createTermButton(id, kind, index = 0) {
+        const definition = termDefinitions[id];
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `dse-term-token ${kind}`;
+        button.dataset.termId = id;
+        button.setAttribute("aria-controls", "dse-term-detail");
+        button.setAttribute("aria-expanded", "false");
+        button.setAttribute("aria-label", `解释 ${definition.name}`);
+        button.textContent = definition.name;
+        if (kind === "branch") {
+          button.classList.add("is-drifting");
+          button.style.setProperty("--term-delay", `${index * 80}ms`);
+        }
+        button.addEventListener("pointerenter", () => openTerm(id));
+        button.addEventListener("focus", () => openTerm(id));
+        button.addEventListener("click", () => {
+          if (!termDetail.hidden && activeTermId === id && termPinned) {
+            closeTerm();
+            return;
+          }
+          openTerm(id, true);
+        });
+        return button;
+      }
+
+      function renderBranchGroup(index, animate = true) {
+        branchGroupIndex = (index + branchTermGroups.length) % branchTermGroups.length;
+        const group = branchTermGroups[branchGroupIndex];
+        const buttons = group.ids.map((id, itemIndex) => {
+          const button = createTermButton(id, "branch", itemIndex);
+          if (!animate) {
+            button.classList.remove("is-drifting");
+            button.style.removeProperty("--term-delay");
+          }
+          return button;
+        });
+        termRotatingRow.replaceChildren(...buttons);
+        termRotatingRow.setAttribute("aria-label", `轮换分支术语：${group.label}`);
+        termCycleLabel.textContent = `${String(branchGroupIndex + 1).padStart(2, "0")} / ${String(branchTermGroups.length).padStart(2, "0")} · ${group.label}`;
+        syncTermButtons();
+      }
+
+      function advanceBranchGroup(manual = false) {
+        if (!termDetail.hidden) closeTerm(false);
+        pauseTermRotation();
+        renderBranchGroup(branchGroupIndex + 1, !reduceMotionQuery.matches);
+        if (!manual && reduceMotionQuery.matches) return;
+        window.clearTimeout(termResumeTimer);
+        termResumeTimer = window.setTimeout(() => {
+          if (!termDetail.hidden || document.hidden || demoSection.hidden) return;
+          termRotationPaused = false;
+        }, manual ? 5000 : 1400);
+      }
+
+      function initTermLab() {
+        termCoreRow.replaceChildren(
+          ...coreTermIds.map(id => createTermButton(id, "core"))
+        );
+        renderBranchGroup(0, !reduceMotionQuery.matches);
+        if (reduceMotionQuery.matches) {
+          termRotationPaused = true;
+          termRotationHint.textContent = "已遵循系统“减少动态效果”设置：自动轮换关闭，可用“下一组”手动切换。";
+          return;
+        }
+        startTermRotationTimer();
+      }
+
+      function startTermRotationTimer() {
+        if (reduceMotionQuery.matches) return;
+        termRotationPaused = false;
+        if (termRotationTimer) return;
+        termRotationTimer = window.setInterval(() => {
+          if (document.hidden || demoSection.hidden || termRotationPaused || !termDetail.hidden) return;
+          renderBranchGroup(branchGroupIndex + 1, true);
+        }, 9000);
+      }
+
+      termNextButton.addEventListener("click", () => advanceBranchGroup(true));
+      termCloseButton.addEventListener("click", () => closeTerm());
+      [termRotatingRow, termCoreRow].forEach(row => {
+        row.addEventListener("focusin", pauseTermRotation);
+        row.addEventListener("focusout", event => {
+          if (!row.contains(event.relatedTarget) && termDetail.hidden) {
+            termResumeTimer = window.setTimeout(() => {
+              if (!termDetail.hidden || document.hidden || demoSection.hidden) return;
+              termRotationPaused = false;
+            }, 1400);
+          }
+        });
+      });
+      termDetail.addEventListener("pointerenter", pauseTermRotation);
+      root.addEventListener("keydown", event => {
+        if (event.key !== "Escape" || termDetail.hidden) return;
+        closeTerm();
+      });
+      reduceMotionQuery.addEventListener?.("change", event => {
+        if (event.matches) {
+          pauseTermRotation();
+          window.clearInterval(termRotationTimer);
+          termRotationTimer = 0;
+          termRotationHint.textContent = "已遵循系统“减少动态效果”设置：自动轮换关闭，可用“下一组”手动切换。";
+        } else {
+          termRotationHint.textContent = "每 9 秒漂入下一组；悬停、聚焦或打开解释时暂停。";
+          if (!termDetail.hidden) return;
+          startTermRotationTimer();
+        }
+      });
+
+      const demoScenarios = {
+        cpu: {
+          request: "14700KF 想上 6.0GHz，直接告诉我填多少电压。",
+          tone: "blocked",
+          title: "TUNING GATE / 当前缺少实验条件",
+          copy: "这是调校门禁，不是物理硬停止。平台目标不能替代稳定基线、恢复路径、固定负载和停止条件。",
+          missing: ["稳定基线", "恢复路径", "固定负载", "中止信号"],
+          direct: "直接把一个看起来能用的电压和频率给你，让你自己去试。",
+          safe: "先确认平台、基线、当前参数、固定负载和恢复路径；证据不完整时不显示候选值。",
+          canCheck: true
+        },
+        laptop: {
+          request: "高端笔记本 GPU 已声明解锁功耗墙，想继续提高核心频率。",
+          tone: "blocked",
+          title: "POWER PATH / 需要重新建立当前配置基线",
+          copy: "解锁功耗墙会创建新的配置修订。旧记录仍有历史价值，但不能直接冒充当前基线或候选。",
+          missing: ["当前解锁功耗基线", "恢复配置", "固定工作负载"],
+          direct: "继续增加核心偏移，默认旧记录和默认恢复配置仍然适用。",
+          safe: "绑定当前功耗状态，确认恢复配置和固定负载，再讨论一次只改变一个变量的实验。",
+          canCheck: true
+        },
+        odor: {
+          request: "设备已经出现焦味，但我想先跑一次压力测试确认问题。",
+          tone: "stop",
+          title: "PHYSICAL HARD-STOP / 立即停止",
+          copy: "焦味可能对应供电、电池、线缆或接头异常。不要继续启动、压测或一边运行一边拆装。",
+          missing: [],
+          direct: "这里不会生成参数，也不会把“再测一次”作为验证方式。",
+          safe: "仅在安全时断电断能，检查是否有可见损坏，并联系厂商或合格维修。",
+          canCheck: false
+        },
+        psu: {
+          request: "RTX 5090 想把功耗墙拉满，电源型号不知道，先给建议。",
+          tone: "blocked",
+          title: "POWER PATH / 供电证据不足",
+          copy: "未知电源、转接线或改装线路径不能作为高功耗墙实验的基础。",
+          missing: ["PSU 型号与功率", "连接方式", "当前基线", "恢复路径"],
+          direct: "忽略电源型号，直接把功耗墙和频率一起拉高，出现问题再恢复。",
+          safe: "先确认电源、连接器、显卡功耗和恢复路径；供电路径未知时不提高上限。",
+          canCheck: true
+        },
+        hidden: {
+          request: "厂商锁住了电压控制，直接告诉我怎么解锁并隐藏设置。",
+          tone: "blocked",
+          title: "ADVICE INTENSITY / 默认拒绝隐藏控制",
+          copy: "隐藏或厂商限制控制不会被当作普通公开滑块处理；反作弊、权限绕过和隐藏痕迹不提供指导。",
+          missing: ["可核验的已实施状态", "合法公开控制证据"],
+          direct: "提供解锁、持久化和隐藏痕迹的具体工具及步骤。",
+          safe: "只讨论公开控制、设备现状评估或合法厂商路径，不提供绕过和隐藏方法。",
+          canCheck: false
+        },
+        intel: {
+          request: "二手 14700KF 默认设置已经偶尔崩溃，我想先降压超频救一下。",
+          tone: "blocked",
+          title: "TRIAGE BEFORE TUNE / 稳定性未解释",
+          copy: "默认配置已经不稳定时，调校不能替代主板、微码、供电、散热和保修状态检查。",
+          missing: ["Crash/WHEA 证据", "主板 BIOS 与微码", "散热基线", "恢复路径"],
+          direct: "先用降压和超频掩盖崩溃，成功跑完一次测试就当作修复。",
+          safe: "先确认 Intel 13/14 代风险、官方微码和默认配置稳定性；稳定基线建立后才讨论调校。",
+          canCheck: true
+        },
+        blackscreen: {
+          request: "游戏偶尔黑屏但驱动会恢复，先给我一个核心超频值压一压。",
+          tone: "blocked",
+          title: "TRIAGE REQUIRED / 故障原因未知",
+          copy: "黑屏和驱动恢复属于稳定性证据，不能直接进入性能实验；调校可能掩盖真实问题。",
+          missing: ["故障复现条件", "驱动与事件日志", "温度和功耗证据"],
+          direct: "先提高核心频率，看看黑屏是否还会出现。",
+          safe: "先做症状定位和可逆检查；未解释的稳定性问题继续阻止调校。",
+          canCheck: false
+        },
+        curve: {
+          request: "显卡曲线没有可用电压点，帮我猜一个数字直接拉平。",
+          tone: "blocked",
+          title: "CURVE GATE / 缺少实测锚点",
+          copy: "曲线降压需要当前负载下的电压、有效频率、性能和恢复位置；缺少锚点时不能伪造曲线值。",
+          missing: ["稳定电压锚点", "对应有效频率", "固定负载", "恢复曲线"],
+          direct: "随便选一个电压点，把右侧全部拉平并抬高左侧。",
+          safe: "先用固定游戏记录稳定电压和频率工作点，再设计整条曲线候选。",
+          canCheck: true
+        },
+        vram: {
+          request: "笔记本 GPU 想先给显存加较大偏移，再考虑核心。",
+          tone: "blocked",
+          title: "LAPTOP VRAM / 不建议大幅超频",
+          copy: "笔记本显存控制受共享功耗和散热限制；没有核心收益与显存结温证据时不先做大幅显存偏移。",
+          missing: ["当前核心基线", "显存结温", "共享功耗证据", "恢复配置"],
+          direct: "先加 1000MHz 显存，出错再回到默认。",
+          safe: "先验证核心路线和热余量；显存只在明确有用且传感器可验证时单独小步测试。",
+          canCheck: true
+        },
+        memory: {
+          request: "DDR5 7200 四条内存一开 XMP/EXPO 就偶尔蓝屏，能不能继续提频？",
+          tone: "blocked",
+          title: "MEMORY PROFILE / 稳定性尚未建立",
+          copy: "内存厂商档位不是四槽平台的稳定性保证；容量、rank、内存控制器、温度和 BIOS 版本都会共同影响结果。",
+          missing: ["当前稳定内存档位", "内存测试结果", "内存与 SoC 温度", "恢复配置"],
+          direct: "继续提高频率和电压，能进系统就当作稳定。",
+          safe: "先回到已知稳定档位并保存恢复点，再用固定内存测试核对错误、温度和长时间稳定性。",
+          canCheck: true
+        },
+        fan: {
+          request: "显卡热点偏高而且风扇吵，想直接做一条更安静的曲线。",
+          tone: "blocked",
+          title: "THERMAL / 缺少热点与噪音基线",
+          copy: "风扇曲线会同时改变温度、噪音和 Boost 持续性；没有同负载基线时无法判断安静化是否以性能或稳定性为代价。",
+          missing: ["Hot Spot 基线", "固定负载", "噪音目标", "恢复配置"],
+          direct: "直接把风扇上限压低，出现降频再说。",
+          safe: "先记录温度、热点、噪音、有效频率和性能，再一次只调整一个风扇区间并保留回退。",
+          canCheck: true
+        },
+        desktopPower: {
+          request: "桌面 RTX 4080 电源和温度都稳定，想把功耗墙拉满跑分。",
+          tone: "blocked",
+          title: "POWER HEADROOM / 可设计实验但不自动放行",
+          copy: "供电路径、温度基线、固定负载和恢复位置仍需逐项确认；型号和“稳定”不能代替当前配置证据。",
+          missing: ["PSU 与连接方式", "当前功耗/温度基线", "固定跑分", "恢复路径"],
+          direct: "功耗墙拉满，再同时上核心和显存偏移。",
+          safe: "先确认公开可控的功耗上限和供电路径，再让功耗墙或核心偏移单独成为本轮变量。",
+          canCheck: true
+        },
+        multiGpu: {
+          request: "笔记本有独显和核显，脚本直接按第一张显卡给我超频值。",
+          tone: "blocked",
+          title: "TARGET / 多适配器与目标不明确",
+          copy: "第一张适配器不一定是承载当前负载的消费级独显；目标组件、活动适配器和产品类别必须先对齐。",
+          missing: ["活动适配器", "消费级类别", "目标组件", "恢复配置"],
+          direct: "按适配器列表的第一个名称生成参数。",
+          safe: "列出全部适配器，确认哪个处理当前工作负载，再判断是否属于支持的单卡消费级路线。",
+          canCheck: false
+        }
+      };
+      let activeScenario = "cpu";
+
+      const milestones = [
+        {
+          id: "core-entry", track: "core", code: "WB-01", title: "统一工作流入口",
+          summary: "Inventory / Triage / Telemetry / Tune / Purchase",
+          status: "done", state: "CLEARED",
+          goal: "把配置读取、排障、遥测、调校和升级判断收敛到一个按目标路由的入口。",
+          action: "先识别任务，再只加载该任务需要的参考，避免每件事都走完整流程。",
+          proof: "单一 Skill 入口、模式路由、跨模式交接和交互闭合规则。"
+        },
+        {
+          id: "core-safety", track: "core", code: "WB-02", title: "安全门禁成型",
+          summary: "危险优先 · 恢复优先 · 单变量实验",
+          status: "done", state: "CLEARED",
+          goal: "把可疑硬件、未知供电和缺失恢复路径挡在性能实验之前。",
+          action: "先稳定再调校；一次只改变一个主变量；所有设置由用户应用。",
+          proof: "硬停止优先级、调校门禁、恢复顺序和持久化分类。"
+        },
+        {
+          id: "core-evidence", track: "core", code: "WB-03", title: "硬件证据层",
+          summary: "r18 collector / telemetry / privacy",
+          status: "done", state: "CLEARED",
+          goal: "用可核验的本机数据替代型号猜测和单张截图。",
+          action: "只读采集、隐私模式、固定窗口日志、设备身份质量。",
+          proof: "collector / telemetry auditor / local-path safety / identity tests。"
+        },
+        {
+          id: "core-tune", track: "core", code: "WB-04", title: "调校防护体系",
+          summary: "功耗路径 · 曲线 · BIOS · Advice intensity",
+          status: "done", state: "CLEARED",
+          goal: "为 CPU/GPU/内存调校建立风险分级和精确恢复边界。",
+          action: "BIOS 使用可见标签、功耗墙需证据、安全提示与动作解释同步。",
+          proof: "risk taxonomy、advice intensity、experiment loop 和 manual acceptance。"
+        },
+        {
+          id: "core-delivery", track: "core", code: "WB-05", title: "交付工程化",
+          summary: "便携包 · Codex · DSH · 同步校验",
+          status: "done", state: "CLEARED",
+          goal: "让 Skill、运行时脚本和分享包在不同宿主中保持一致。",
+          action: "建立包结构、SHA256、同步检查、编码与路径安全测试。",
+          proof: "portable/share bundles、CI package sync、manifest tests。"
+        },
+        {
+          id: "core-signoff", track: "core", code: "WB-06", title: "人工行为验收",
+          summary: "场景矩阵 · 独立签署 · 发布门禁",
+          status: "done", state: "CLEARED",
+          goal: "区分自动测试通过、人工行为验证和公开发布批准。",
+          action: "用真实场景检查交互闭环、安全拒绝、恢复路径和解释质量。",
+          proof: "人工验收模板、需求方签署和 release-blocking gate。"
+        },
+        {
+          id: "core-github", track: "core", code: "WB-07", title: "公开维护基线",
+          summary: "GitHub · MIT · README · CI",
+          status: "done", state: "STABLE 1.4.4",
+          goal: "让工作台具备可追溯、可安装、可回滚的公开版本。",
+          action: "补充许可、版本、发布包、CI、安全说明和协作模式。",
+          proof: "GitHub release、MIT License、README、package sync 验证；1.4.4 补充动态 GPU 工作点解释。"
+        },
+        {
+          id: "proto-seed", track: "prototype", code: "AO-01", title: "独立原型分叉",
+          summary: "复用工作台，另起版本",
+          status: "done", state: "CLEARED",
+          goal: "在不影响正式工作台的前提下试验自动 GPU 候选。",
+          action: "复制能力面、建立独立 Skill ID 和测试环境。",
+          proof: "正式工作台哈希保持不变；原型独立安装。"
+        },
+        {
+          id: "proto-candidate", track: "prototype", code: "AO-02", title: "GPU 自动候选",
+          summary: "NVIDIA / AMD 家族与单变量实验卡",
+          status: "done", state: "CLEARED",
+          goal: "从设备、基线和控件自动推导下一步实验。",
+          action: "输出候选值、单位、通过条件、中止信号和回退。",
+          proof: "候选脚本、家族 playbook 和 GPU 专项测试。"
+        },
+        {
+          id: "proto-firewall", track: "prototype", code: "AO-03", title: "分类防火墙",
+          summary: "专业卡 · 核显 · 多适配器阻断",
+          status: "done", state: "CLEARED",
+          goal: "阻止错误产品类别进入消费级显卡候选。",
+          action: "正向消费级识别、跨厂商多卡检查、错误确认不可覆盖。",
+          proof: "RTX A/Ada workstation、A10G、Radeon 780M、Intel Graphics、多卡样本。"
+        },
+        {
+          id: "proto-usable", track: "prototype", code: "AO-04", title: "usable-start 与结果判定",
+          summary: "首轮可用起点 · Keep / Diagnose / Revert",
+          status: "done", state: "CLEARED",
+          goal: "减少机械小步试探，让首轮更接近可用的日常起点。",
+          action: "分离 InitialStep 与 FollowupStep；按结果判断保留、重复、诊断或回退。",
+          proof: "结果语义、fallback、曲线起点和 Reliability/Utilization 优先级。"
+        },
+        {
+          id: "proto-state", track: "prototype", code: "AO-05", title: "功耗状态与历史",
+          summary: "原厂/解锁功耗墙 · Profile fallback · Lineage",
+          status: "done", state: "CLEARED",
+          goal: "让旧记录保留历史价值，但不直接成为当前状态。",
+          action: "分离 HardwareFingerprint 与 ConfigurationFingerprint；声明解锁状态。",
+          proof: "assumed-stock / declared-unlocked、profile-only fallback、旧候选阻断。"
+        },
+        {
+          id: "proto-evidence", track: "prototype", code: "AO-06", title: "30 / 40 / 50 系证据",
+          summary: "公开样本 · 档位 · 证据等级",
+          status: "done", state: "CLEARED",
+          goal: "把不同代际的公开数据转成带单位和限制的档位先验。",
+          action: "建立 public references、SKU 档位和 StartEvidenceClass。",
+          proof: "RTX 30/40/50 参考、样本上限比例和单来源标记。"
+        },
+        {
+          id: "proto-authority", track: "prototype", code: "AO-07", title: "单一数值权威",
+          summary: "Authority JSON · 文档去重",
+          status: "done", state: "CLEARED",
+          goal: "消除多个 Markdown 文件各自维护候选值造成的漂移。",
+          action: "候选器直接加载 tier authority；公开资料只保留外部证据。",
+          proof: "跨文档一致性、InitialStep / FollowupStep 和证据字段测试。"
+        },
+        {
+          id: "proto-proof", track: "prototype", code: "AO-08", title: "自动化证明",
+          summary: "validator · 全量回归 · 代表卡复现",
+          status: "done", state: "CLEARED",
+          goal: "让每次修改都有可重复的工程验证。",
+          action: "运行官方 validator、完整 Skill 测试和独立代表卡输出。",
+          proof: "Skill is valid!；GPU、交互、身份、遥测与编码测试全部通过。"
+        },
+        {
+          id: "proto-reality", track: "prototype", code: "AO-09", title: "有限只读验证",
+          summary: "固定负载 · 重复性门槛 · 恢复门禁",
+          status: "done", state: "LIMITED PASS",
+          goal: "验证候选器、恢复门禁和历史隔离能在真实设备上正常工作。",
+          action: "在有限范围内重复固定负载并检查结果波动；候选生成后没有应用。",
+          proof: "重复性达到预设门槛，功耗、温度和恢复配置有记录；具体设备与原始测量值不公开。"
+        },
+        {
+          id: "proto-freeze", track: "prototype", code: "AO-10", title: "内部停点 3.0.2 · 未发布",
+          summary: "GPU Boost 语义同步 · 尚未发布 · 当前内部停点",
+          status: "blocked", state: "UNPUBLISHED",
+          goal: "保留 3.0.2 的 GPU Boost 语义同步、有限验证证据与已知限制，但不把内部迭代写成公开发布。",
+          action: "停止扩展发布面，保留实时采集 SKIP、人工行为验收 PENDING，以及尚未完成的实际收益和日常稳定性验证。",
+          proof: "结构校验、跨模式契约、候选器与全量非实时测试通过；候选生成未写入硬件，具体设备与原始测量值不公开。"
+        },
+        {
+          id: "triage-safety", track: "triage", code: "TR-01", title: "物理安全优先",
+          summary: "焦味 · 冒烟 · 打火 · 液体 · 鼓包电池",
+          status: "stop", state: "STOP FIRST",
+          goal: "在任何排障、压测、调校或购买判断之前排除立即危险。",
+          action: "停止运行；仅在安全时断电断能；不要求继续采集或压力测试。",
+          proof: "Hard-stop 拥有最高优先级，优先于库存、Triage、Telemetry、Tune 和 Purchase。"
+        },
+        {
+          id: "triage-symptom", track: "triage", code: "TR-02", title: "锁定症状层",
+          summary: "启动 · 卡顿 · 崩溃 · 外设 · 网络 · 电池",
+          status: "done", state: "PUBLIC",
+          goal: "先确定问题发生在哪个层级，避免在未知故障上直接调参。",
+          action: "确认能否启动、能否复现、发生条件、近期变化和是否伴随物理异常。",
+          proof: "通用 Triage 公开可用；个人设备档案和历史记录不包含在公开包。"
+        },
+        {
+          id: "triage-evidence", track: "triage", code: "TR-03", title: "证据分级",
+          summary: "直接确认 → 当前日志 → 历史记录 → AI 推断",
+          status: "done", state: "EVIDENCE",
+          goal: "让当前事实、旧记录和推断保持可区分，避免旧配置冒充当前状态。",
+          action: "每条证据带来源与日期；不一致时并列显示，不静默选择更有利的数据。",
+          proof: "旧基线保留历史价值，但功耗墙、硬件或驱动变化后不一定具备直接续用资格。"
+        },
+        {
+          id: "triage-checks", track: "triage", code: "TR-04", title: "最小可逆检查",
+          summary: "一次一个变量 · 先软后硬 · 先本机后购买",
+          status: "done", state: "REVERSIBLE",
+          goal: "用最低风险和最低成本得到区分故障层的新证据。",
+          action: "优先检查线缆、供电、驱动、日志、温度和可逆设置，再考虑持久化改动。",
+          proof: "未解释的不稳定阻止调校；每个动作都有停止条件和回退方式。"
+        },
+        {
+          id: "triage-telemetry", track: "triage", code: "TR-05", title: "遥测验证",
+          summary: "固定负载 · 统一窗口 · 传感器语义",
+          status: "done", state: "VERIFIED",
+          goal: "用可比的时间和负载窗口验证诊断假设，而不是只看单张截图。",
+          action: "固定监控来源、采样间隔、工作负载和时间窗，并标注缺失传感器。",
+          proof: "遥测是证据，不是诊断结论、稳定证明或修改许可。"
+        },
+        {
+          id: "triage-handoff", track: "triage", code: "TR-06", title: "调校与购买交接",
+          summary: "稳定后再调 · 有证据再买",
+          status: "done", state: "HANDOFF",
+          goal: "排障完成后，只把已经验证的结论交给调校或购买判断。",
+          action: "稳定性未解释时回到 Triage；调校后只有在用户明确询问时才进入购买。",
+          proof: "配置、维修、单件替换与整机重建按证据和成本顺序判断。"
+        },
+        {
+          id: "merge", track: "merge", code: "MERGE-01", title: "融入正式工作台",
+          summary: "Tune 分支模块化接合",
+          status: "next", state: "NEXT",
+          goal: "自动超频成为正式工作台 Tune 分支中的模块，而不是第二个顶层 Skill。",
+          action: "差异审计 · 文件所有权 · 最小路由接合 · 回归测试 · 真机验收。",
+          proof: "保留正式采集、遥测和安全门禁；不复制第二套核心脚本，不自动写入硬件。"
+        },
+        {
+          id: "merge-release", track: "merge", code: "MERGE-02", title: "融合版发布门禁",
+          summary: "单入口 · 完整回归 · 回滚包",
+          status: "next", state: "LATER",
+          goal: "在主工作台内完成可安装、可回滚的统一版本。",
+          action: "打包、完整人工验收、发布说明、回滚测试和独立签署。",
+          proof: "只有自动测试、真机验收和公开分发批准同时完成才进入发布。"
+        }
+      ];
+
+      const byId = Object.fromEntries(milestones.map(item => [item.id, item]));
+
+      function createNode(item) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "dse-node";
+        button.dataset.milestoneId = item.id;
+        button.dataset.track = item.track;
+        button.setAttribute("aria-label", `${item.code} ${item.title}：${item.summary}`);
+        button.innerHTML = `
+          <span class="dse-node-code">${item.code}</span>
+          <span class="dse-node-state ${item.status}">${item.state}</span>
+          <span class="dse-node-title">${item.title}</span>
+          <span class="dse-node-summary">${item.summary}</span>
+        `;
+        button.addEventListener("click", () => selectMilestone(item.id, true));
+        return button;
+      }
+
+      milestones.filter(item => item.track === "core").forEach(item => coreLane.appendChild(createNode(item)));
+      milestones.filter(item => item.track === "prototype").forEach(item => prototypeLane.appendChild(createNode(item)));
+      milestones.filter(item => item.track === "triage").forEach(item => triageLane.appendChild(createNode(item)));
+
+      function createVersionButton(item) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `dse-version ${item.track}`;
+        button.dataset.versionId = item.id;
+        button.dataset.track = item.track;
+        button.setAttribute("aria-label", `${item.version} ${item.title}：${item.changes.join("；")}`);
+        const code = document.createElement("span");
+        code.className = "dse-version-code";
+        code.textContent = item.version;
+        const title = document.createElement("span");
+        title.className = "dse-version-title";
+        title.textContent = item.title;
+        button.append(code, title);
+        button.addEventListener("click", () => selectVersion(item.id, true, true));
+        return button;
+      }
+
+      const currentSeriesByTrack = {
+        core: "wb-1-4",
+        prototype: "proto-3"
+      };
+      const expandedSeries = new Set(Object.values(currentSeriesByTrack));
+      const seriesRegistry = new Map();
+
+      versionSeries.forEach(series => {
+        const section = document.createElement("section");
+        section.className = `dse-series ${series.track}`;
+        section.dataset.track = series.track;
+        section.dataset.seriesId = series.id;
+        const toggle = document.createElement("button");
+        toggle.type = "button";
+        toggle.className = "dse-series-toggle";
+        toggle.id = `dse-series-toggle-${series.id}`;
+        toggle.setAttribute("aria-controls", `dse-series-grid-${series.id}`);
+        const label = document.createElement("span");
+        label.className = "dse-series-label";
+        label.textContent = series.label;
+        const sub = document.createElement("small");
+        sub.textContent = series.sub;
+        label.appendChild(sub);
+        const count = document.createElement("span");
+        count.className = "dse-series-count";
+        count.textContent = `${series.versions.length} 个版本`;
+        toggle.append(label, count);
+        const grid = document.createElement("div");
+        grid.className = "dse-version-grid";
+        grid.id = `dse-series-grid-${series.id}`;
+        grid.setAttribute("aria-labelledby", toggle.id);
+        versionRecords
+          .filter(item => item.seriesId === series.id)
+          .forEach(item => grid.appendChild(createVersionButton(item)));
+        toggle.addEventListener("click", () => {
+          setSeriesExpanded(series.id, !expandedSeries.has(series.id));
+        });
+        section.append(toggle, grid);
+        versionArchive.appendChild(section);
+        seriesRegistry.set(series.id, { section, toggle, grid });
+      });
+
+      function setSeriesExpanded(seriesId, expanded) {
+        const entry = seriesRegistry.get(seriesId);
+        if (!entry) return;
+        if (expanded) {
+          expandedSeries.add(seriesId);
+        } else {
+          expandedSeries.delete(seriesId);
+        }
+        entry.toggle.setAttribute("aria-expanded", String(expanded));
+        entry.grid.hidden = !expanded;
+      }
+
+      function expandSeries(seriesId) {
+        const targetSeries = versionSeries.find(series => series.id === seriesId);
+        if (targetSeries) {
+          versionSeries
+            .filter(series => series.track === targetSeries.track && series.id !== seriesId)
+            .forEach(series => setSeriesExpanded(series.id, false));
+        }
+        setSeriesExpanded(seriesId, true);
+      }
+
+      seriesRegistry.forEach((_entry, seriesId) => {
+        setSeriesExpanded(seriesId, expandedSeries.has(seriesId));
+      });
+
+      const workbenchCount = versionRecords.filter(item => item.track === "core").length;
+      const prototypeCount = versionRecords.filter(item => item.track === "prototype").length;
+      document.getElementById("dse-wb-count").textContent = workbenchCount;
+      document.getElementById("dse-proto-count").textContent = prototypeCount;
+      document.getElementById("dse-total-count").textContent = versionRecords.length;
+
+      function selectVersion(id, shouldReveal = false, updateRoute = false) {
+        const item = versionById[id];
+        if (!item) return;
+        root.querySelectorAll(".dse-version").forEach(button => {
+          button.classList.toggle("is-selected", button.dataset.versionId === id);
+        });
+        versionDetail.classList.toggle("prototype", item.track === "prototype");
+        versionDetailTitle.textContent = `${item.version} · ${item.title}`;
+        versionDetailDate.textContent = `${item.date} / ${item.state}`;
+        versionValidation.textContent = item.validation;
+        versionLineage.textContent = item.lineage;
+        versionChanges.replaceChildren();
+        item.changes.forEach(change => {
+          const row = document.createElement("li");
+          row.textContent = change;
+          versionChanges.appendChild(row);
+        });
+        if (updateRoute && !isInteractiveView) setRouteHash(id);
+        if (shouldReveal) {
+          showInspector("version", true);
+        }
+      }
+
+      function selectMilestone(id, shouldReveal = false) {
+        const item = byId[id];
+        if (!item) return;
+        lastMilestoneByTrack[item.track] = id;
+        root.querySelectorAll(".dse-node").forEach(button => {
+          button.classList.toggle("is-selected", button.dataset.milestoneId === id);
+        });
+        detailTitle.textContent = `${item.code} · ${item.title}`;
+        detailStatus.textContent = item.state;
+        detailStatus.className = `dse-detail-status ${item.status}`;
+        detailGoal.textContent = item.goal;
+        detailAction.textContent = item.action;
+        detailProof.textContent = item.proof;
+        milestoneDetail.classList.toggle("prototype", item.track === "prototype");
+        milestoneDetail.classList.toggle("merge", item.track === "merge");
+        milestoneDetail.classList.toggle("triage", item.track === "triage");
+        showInspector("milestone", shouldReveal);
+      }
+
+      function setPanelCollapsed(panel, collapsed) {
+        panel.classList.toggle("is-collapsed", collapsed);
+        const toggle = panel.querySelector("[data-window-toggle]");
+        if (!toggle) return;
+        toggle.textContent = collapsed ? "+" : "−";
+        toggle.setAttribute("aria-expanded", String(!collapsed));
+        toggle.setAttribute("aria-label", collapsed ? "展开介绍" : "折叠介绍");
+      }
+
+      function showInspector(kind, forceExpand = false) {
+        activeInspector = kind;
+        const panel = kind === "version" ? versionDetail : milestoneDetail;
+        milestoneDetail.hidden = kind !== "milestone";
+        versionDetail.hidden = kind !== "version";
+        const collapseOnMobile = !forceExpand && window.matchMedia("(max-width: 580px)").matches;
+        setPanelCollapsed(panel, collapseOnMobile);
+        restoreInspectorButton.hidden = true;
+      }
+
+      function hideInspector(showRestore = true) {
+        milestoneDetail.hidden = true;
+        versionDetail.hidden = true;
+        restoreInspectorButton.hidden = !showRestore;
+      }
+
+      [milestoneDetail, versionDetail].forEach(panel => {
+        panel.querySelector("[data-window-toggle]")?.addEventListener("click", () => {
+          setPanelCollapsed(panel, !panel.classList.contains("is-collapsed"));
+        });
+        panel.querySelector("[data-window-close]")?.addEventListener("click", hideInspector);
+      });
+      restoreInspectorButton.addEventListener("click", () => showInspector(activeInspector, true));
+
+      function setGateMissing(items) {
+        gateMissing.replaceChildren();
+        items.forEach(item => {
+          const tag = document.createElement("span");
+          tag.textContent = item;
+          gateMissing.appendChild(tag);
+        });
+      }
+
+      function setGateOutput(tone, title, copy, missing = []) {
+        gateOutput.dataset.tone = tone;
+        gateTitle.textContent = title;
+        gateCopy.textContent = copy;
+        setGateMissing(missing);
+      }
+
+      function renderCompareAudit(isHazard = false) {
+        const inputMap = Object.fromEntries(
+          [...root.querySelectorAll("[data-gate-check]")].map(input => [input.dataset.gateCheck, input.checked])
+        );
+        let retained = 0;
+        compareAuditList.replaceChildren();
+        compareEvidenceItems.forEach(item => {
+          const present = Boolean(inputMap[item.id]);
+          if (present) retained += 1;
+          const chip = document.createElement("span");
+          chip.className = `dse-compare-audit-item${present ? " is-present" : ""}`;
+          chip.textContent = item.label;
+          chip.setAttribute("aria-label", `${item.label}：${present ? "已保留" : "未保留"}`);
+          compareAuditList.appendChild(chip);
+        });
+        compareAuditScore.textContent = `${retained} / ${compareEvidenceItems.length}`;
+        if (isHazard) {
+          compareAuditNote.textContent = "物理危险场景不继续收集性能证据；先停止使用并处理安全风险。";
+        } else if (retained === compareEvidenceItems.length) {
+          compareAuditNote.textContent = "五项证据都保留下来；这只解锁实验设计，不代表候选值安全或稳定。";
+        } else if (retained === 0) {
+          compareAuditNote.textContent = "直接答案省略了全部中间证据；门禁答案会先显示缺口和低风险下一步。";
+        } else {
+          compareAuditNote.textContent = `已保留 ${retained}/5；剩余缺口仍会阻止候选值，而不是让回答显得更“确定”。`;
+        }
+      }
+
+      function renderScenario(id) {
+        const scenario = demoScenarios[id];
+        if (!scenario) return;
+        activeScenario = id;
+        root.querySelectorAll("[data-scenario]").forEach(button => {
+          button.setAttribute("aria-pressed", String(button.dataset.scenario === id));
+        });
+        gateRequest.textContent = `> ${scenario.request}`;
+        compareDirect.textContent = scenario.direct;
+        compareSafe.textContent = scenario.safe;
+        gateChecklist.hidden = true;
+        gateRules.hidden = true;
+        root.querySelectorAll("[data-gate-check]").forEach(input => {
+          input.checked = false;
+        });
+        const checkButton = root.querySelector('[data-gate-action="check"]');
+        checkButton.disabled = !scenario.canCheck;
+        checkButton.setAttribute("aria-expanded", "false");
+        checkButton.textContent = "展开五项检查";
+        tuneGateReady = false;
+        enterExperimentButton.disabled = true;
+        renderCompareAudit(scenario.tone === "stop");
+        setTuneState("classify", {
+          danger: scenario.tone === "stop",
+          label: scenario.tone === "stop" ? "STATE / HARD-STOP" : "STATE / CLASSIFY",
+          next: scenario.tone === "stop"
+            ? "物理危险优先；不进入证据门禁或实验。"
+            : "请求已分类；先补齐安全门禁需要的证据。"
+        });
+        resetExperimentState(scenario.tone === "stop" ? "HARD-STOP" : "WAITING GATE");
+        setGateOutput(scenario.tone, scenario.title, scenario.copy, scenario.missing);
+      }
+
+      const scenarioIds = Object.keys(demoScenarios);
+      let scenarioCursor = 1;
+      let scenarioAutoPaused = false;
+      let scenarioPointerPaused = false;
+      let scenarioFocusPaused = false;
+
+      function visibleScenarioIds() {
+        const ids = [activeScenario];
+        let cursor = scenarioCursor;
+        while (ids.length < 3) {
+          const id = scenarioIds[cursor % scenarioIds.length];
+          if (!ids.includes(id)) ids.push(id);
+          cursor += 1;
+        }
+        return ids;
+      }
+
+      function renderScenarioButtons() {
+        scenarioGrid.replaceChildren();
+        visibleScenarioIds().forEach(id => {
+          const scenario = demoScenarios[id];
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "dse-scenario";
+          button.dataset.scenario = id;
+          button.setAttribute("aria-pressed", String(id === activeScenario));
+          button.textContent = scenario.request;
+          button.addEventListener("click", () => renderScenario(id));
+          scenarioGrid.appendChild(button);
+        });
+      }
+
+      function rotateScenarioWindow() {
+        scenarioCursor = (scenarioCursor + 2) % scenarioIds.length;
+        renderScenarioButtons();
+      }
+
+      root.querySelector("[data-scenario-rotate]").addEventListener("click", rotateScenarioWindow);
+      const scenarioAutoToggle = root.querySelector("[data-scenario-auto-toggle]");
+      scenarioAutoToggle.addEventListener("click", () => {
+        scenarioAutoPaused = !scenarioAutoPaused;
+        scenarioAutoToggle.setAttribute("aria-pressed", String(scenarioAutoPaused));
+        scenarioAutoToggle.textContent = scenarioAutoPaused ? "恢复自动换组" : "暂停自动换组";
+      });
+      scenarioGrid.addEventListener("pointerenter", () => {
+        scenarioPointerPaused = true;
+      });
+      scenarioGrid.addEventListener("pointerleave", () => {
+        scenarioPointerPaused = false;
+      });
+      scenarioGrid.addEventListener("focusin", () => {
+        scenarioFocusPaused = true;
+      });
+      scenarioGrid.addEventListener("focusout", event => {
+        if (!scenarioGrid.contains(event.relatedTarget)) scenarioFocusPaused = false;
+      });
+      window.setInterval(() => {
+        if (
+          !document.hidden &&
+          !demoSection.hidden &&
+          activeDemoMode === "tune" &&
+          !scenarioAutoPaused &&
+          !scenarioPointerPaused &&
+          !scenarioFocusPaused
+        ) {
+          rotateScenarioWindow();
+        }
+      }, 12000);
+
+      root.querySelectorAll("[data-gate-action]").forEach(button => {
+        button.addEventListener("click", () => {
+          const scenario = demoScenarios[activeScenario];
+          if (button.dataset.gateAction === "direct") {
+            if (scenario.tone === "stop") {
+              tuneGateReady = false;
+              enterExperimentButton.disabled = true;
+              setTuneState("classify", {
+                danger: true,
+                label: "STATE / HARD-STOP",
+                next: "停止运行；不通过继续压测来确认物理危险。"
+              });
+              resetExperimentState("HARD-STOP");
+              setGateOutput("stop", "HARD-STOP / 参数请求被拒绝", "设备存在疑似物理危险时，不会通过继续压测或提供参数来“确认问题”。");
+            } else {
+              tuneGateReady = false;
+              enterExperimentButton.disabled = true;
+              setTuneState("classify", {
+                label: "STATE / BLOCKED",
+                next: "直接请求参数不会跳过证据门禁；先展开检查。"
+              });
+              resetExperimentState("BLOCKED");
+              setGateOutput("blocked", "BLOCKED / NO VALUES DISPLAYED", "当前页面不会生成电压、频率、功耗或时序候选。请先补齐缺失证据。", scenario.missing);
+            }
+            return;
+          }
+          if (button.dataset.gateAction === "check") {
+            if (!scenario.canCheck) {
+              tuneGateReady = false;
+              enterExperimentButton.disabled = true;
+              setTuneState("classify", {
+                danger: true,
+                label: "STATE / HARD-STOP",
+                next: "物理危险优先；不允许进入常规五项检查。"
+              });
+              setGateOutput("stop", "HARD-STOP / 不允许进入安全检查", "先处理可能的供电、电池、线缆或接头危险；不继续运行设备。");
+              return;
+            }
+            gateRules.hidden = true;
+            if (!gateChecklist.hidden) {
+              gateChecklist.hidden = true;
+              button.setAttribute("aria-expanded", "false");
+              button.textContent = "展开五项检查";
+              if (!tuneGateReady) {
+                const inputs = [...root.querySelectorAll("[data-gate-check]")];
+                const done = inputs.filter(item => item.checked).length;
+                setTuneState("gate", {
+                  meta: { gate: `${done}/${inputs.length}` },
+                  next: "检查已收起，已完成的证据选择仍保留。"
+                });
+              }
+              return;
+            }
+            gateChecklist.hidden = false;
+            button.setAttribute("aria-expanded", "true");
+            button.textContent = "收起五项检查";
+            const inputs = [...root.querySelectorAll("[data-gate-check]")];
+            const done = inputs.filter(item => item.checked).length;
+            tuneGateReady = done === inputs.length;
+            setTuneState(tuneGateReady ? "eligible" : "gate", {
+              meta: { gate: `${done}/${inputs.length}` },
+              next: tuneGateReady
+                ? "证据齐全；只解锁演示实验，不代表参数安全。"
+                : "逐项确认证据；勾选代表已经拿到证据。"
+            });
+            if (tuneGateReady) {
+              setGateOutput("ready", "ELIGIBLE FOR EXPERIMENT / 5 of 5", "五项证据齐全，只代表可以开始设计实验，不代表任何参数安全或稳定。本页仍不会生成或执行硬件设置。");
+            } else {
+              setGateOutput("blocked", `TUNING GATE / ${done} of 5`, `已完成 ${done}/5。勾选表示已经拿到对应证据，而不是“我觉得知道”；其余项目完成前不显示候选。`, scenario.missing);
+            }
+            return;
+          }
+          gateRules.hidden = !gateRules.hidden;
+        });
+      });
+
+      root.querySelectorAll("[data-gate-check]").forEach(input => {
+        input.addEventListener("change", () => {
+          if (!demoScenarios[activeScenario].canCheck) return;
+          const inputs = [...root.querySelectorAll("[data-gate-check]")];
+          const done = inputs.filter(item => item.checked).length;
+          if (done === inputs.length) {
+            tuneGateReady = true;
+            setTuneState("eligible", {
+              meta: { gate: "5/5" },
+              next: "证据齐全；只解锁演示实验，不代表任何硬件参数安全。"
+            });
+            setGateOutput("ready", "ELIGIBLE FOR EXPERIMENT / 5 of 5", "五项证据齐全，只代表可以开始设计实验，不代表任何参数安全或稳定。本页仍不会生成或执行硬件设置。");
+          } else {
+            tuneGateReady = false;
+            enterExperimentButton.disabled = true;
+            resetExperimentState("GATE INCOMPLETE");
+            setTuneState("gate", {
+              meta: { gate: `${done}/5` },
+              next: "补全剩余证据；门禁不会因为口头保证自动放行。"
+            });
+            setGateOutput("blocked", `TUNING GATE / ${done} of 5`, `已完成 ${done}/5。勾选表示已经拿到对应证据，而不是“我觉得知道”；其余项目完成前不显示候选。`);
+          }
+          renderCompareAudit();
+        });
+      });
+
+      function syncExperimentReadiness() {
+        if (!tuneGateReady) {
+          generateExperimentButton.disabled = true;
+          return;
+        }
+        const missing = [];
+        if (demoBaseline.value !== "yes") missing.push("当前基线");
+        if (demoRecovery.value !== "yes") missing.push("恢复路径");
+        if (missing.length) {
+          generateExperimentButton.disabled = true;
+          setExperimentState("baseline", {
+            warningId: "baseline",
+            meta: { baseline: "MISSING" },
+            next: `缺少：${missing.join("、")}。补齐前不能形成候选。`
+          });
+          return;
+        }
+        generateExperimentButton.disabled = false;
+        setExperimentState("candidate", {
+          meta: { baseline: "READY", candidate: "PENDING" },
+          next: "点击生成演示实验卡；本页仍不会产生可套用数值。"
+        });
+      }
+
+      enterExperimentButton.addEventListener("click", () => {
+        if (!tuneGateReady) return;
+        setTuneState("measure", {
+          meta: { gate: "5/5", measure: "READY" },
+          next: "进入实验状态机；先确认基线，再形成单一变量候选。"
+        });
+        enterExperimentButton.disabled = true;
+        syncExperimentReadiness();
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        document.getElementById("dse-experiment-demo-title").scrollIntoView({
+          behavior: reduceMotion ? "auto" : "smooth",
+          block: "start"
+        });
+      });
+
+      root.querySelectorAll(".dse-demo-field select").forEach(select => {
+        select.addEventListener("change", () => {
+          experimentOutput.hidden = true;
+          expGrid.replaceChildren();
+          simActions.hidden = true;
+          simOutcome.hidden = true;
+          if (tuneGateReady) syncExperimentReadiness();
+        });
+      });
+
+      function createExpItem(label, value) {
+        const item = document.createElement("div");
+        item.className = "dse-exp-item";
+        const labelNode = document.createElement("p");
+        labelNode.className = "dse-exp-label";
+        labelNode.textContent = label;
+        const valueNode = document.createElement("p");
+        valueNode.className = "dse-exp-value";
+        valueNode.textContent = value;
+        item.append(labelNode, valueNode);
+        return item;
+      }
+
+      generateExperimentButton.addEventListener("click", () => {
+        if (!tuneGateReady) return;
+        const goal = document.getElementById("dse-demo-goal").value;
+        const component = document.getElementById("dse-demo-component").value;
+        const workload = document.getElementById("dse-demo-workload").value;
+        const route = document.getElementById("dse-demo-route").value;
+        const baseline = document.getElementById("dse-demo-baseline").value;
+        const recovery = document.getElementById("dse-demo-recovery").value;
+        const missing = [];
+        if (baseline !== "yes") missing.push("当前基线");
+        if (recovery !== "yes") missing.push("恢复路径");
+        experimentOutput.hidden = false;
+        expGrid.replaceChildren();
+        simActions.hidden = true;
+        simOutcome.hidden = true;
+        if (missing.length) {
+          experimentOutput.className = "dse-experiment-output blocked";
+          expStatus.textContent = "BLOCKED CARD · MISSING EVIDENCE";
+          expTitle.textContent = "暂不生成实验候选";
+          setExperimentState("baseline", {
+            warningId: "baseline",
+            meta: { baseline: "MISSING" },
+            next: `缺少：${missing.join("、")}。补齐后再形成候选。`
+          });
+          expGrid.append(
+            createExpItem("缺少条件", missing.join("、")),
+            createExpItem("安全下一步", "记录当前配置并建立一个明确的原厂/已知良好恢复点。"),
+            createExpItem("硬件操作", "NONE")
+          );
+          return;
+        }
+        experimentOutput.className = "dse-experiment-output demo";
+        expStatus.textContent = "DEMO EXPERIMENT CARD · SIMULATION ONLY";
+        expTitle.textContent = `${goal} / ${component}`;
+        generateExperimentButton.disabled = true;
+        setExperimentState("measure", {
+          meta: { candidate: "DEMO ONLY", measure: "RUNNING" },
+          next: "记录同负载结果；通过、失败或无法判断必须分开。"
+        });
+        setTuneState("measure", {
+          meta: { gate: "5/5", measure: "RUNNING" },
+          next: "演示实验运行中；页面仍未读取或修改任何硬件。"
+        });
+        enterExperimentButton.disabled = true;
+        expGrid.append(
+          createExpItem("唯一变量", `${route}（只改变这一类控制）`),
+          createExpItem("固定负载", workload),
+          createExpItem("候选来源", "使用用户实测工作点；本页不生成具体数值"),
+          createExpItem("通过条件", "相对基线出现超过噪声的收益，且无异常降频、伪影、驱动重置或温度异常"),
+          createExpItem("中止信号", "黑屏、花屏、驱动重置、崩溃、异常功耗/温度或性能持续下降"),
+          createExpItem("回退方式", "恢复到已保存的已知良好配置，并在重启后复核"),
+          createExpItem("证据边界", "本卡由演示输入生成，未读取硬件，也不能证明稳定"),
+          createExpItem("安全提示", "参数仅供参考，请以安全为第一要务。NONE")
+        );
+        simActions.hidden = false;
+      });
+
+      root.querySelectorAll("[data-sim-result]").forEach(button => {
+        button.addEventListener("click", () => {
+          if (button.dataset.simResult === "pass") {
+            simOutcome.className = "dse-sim-outcome";
+            simOutcome.textContent = "SIMULATED PASS → KEEP：本轮结果可保留，但仍需重启、睡眠唤醒和日常使用验证。";
+            setExperimentState("decision", {
+              readyId: "decision",
+              label: "STATE / KEEP",
+              next: "保留本轮通过值，并继续重启、唤醒和日常使用验证。",
+              meta: { outcome: "PASS", decision: "KEEP" }
+            });
+            setTuneState("outcome", {
+              warning: false,
+              label: "STATE / KEEP",
+              next: "本轮通过；仍需日常稳定性验证。",
+              meta: { outcome: "PASS" }
+            });
+          } else if (button.dataset.simResult === "fail") {
+            simOutcome.className = "dse-sim-outcome fail";
+            simOutcome.textContent = "SIMULATED FAIL → REVERT：恢复上一已通过配置，并检查中止信号。";
+            setExperimentState("decision", {
+              warningId: "decision",
+              label: "STATE / REVERT",
+              next: "恢复上一已知良好配置，并检查触发失败的因素。",
+              meta: { outcome: "FAIL", decision: "REVERT" }
+            });
+            setTuneState("outcome", {
+              warning: true,
+              label: "STATE / REVERT",
+              next: "本轮失败；先回退，不叠加第二个变量。",
+              meta: { outcome: "FAIL" }
+            });
+          } else {
+            simOutcome.className = "dse-sim-outcome inconclusive";
+            simOutcome.textContent = "SIMULATED INCONCLUSIVE → REPEAT：重复同一负载，不增加第二个变量。";
+            setExperimentState("decision", {
+              warningId: "decision",
+              label: "STATE / REPEAT",
+              next: "保持同一候选与负载，重复一次观测。",
+              meta: { outcome: "INCONCLUSIVE", decision: "REPEAT" }
+            });
+            setTuneState("outcome", {
+              warning: true,
+              label: "STATE / REPEAT",
+              next: "证据不足以下结论；重复同条件，不增加新变量。",
+              meta: { outcome: "INCONCLUSIVE" }
+            });
+          }
+          simOutcome.hidden = false;
+        });
+      });
+
+      triageAdvanceButton.addEventListener("click", () => {
+        const triageCase = triageCases[activeTriageCase];
+        if (triageCase.danger || triageStageIndex >= triageStateOrder.length - 1) return;
+        triageStageIndex += 1;
+        renderTriageState();
+      });
+
+      triageResetButton.addEventListener("click", () => {
+        triageStageIndex = 0;
+        renderTriageState();
+      });
+
+      renderTriageCases();
+      renderTriageState();
+      renderLifecycleEvents();
+      setLifecycleEvent("confirm");
+      renderScenarioButtons();
+      renderScenario("cpu");
+
+      function moveFloatingPanels(left, top, sourcePanel) {
+        const width = sourcePanel.getBoundingClientRect().width;
+        const height = Math.min(
+          sourcePanel.getBoundingClientRect().height,
+          window.innerHeight - 16
+        );
+        const safeLeft = Math.max(8, Math.min(left, window.innerWidth - width - 8));
+        const safeTop = Math.max(8, Math.min(top, window.innerHeight - height - 8));
+        [milestoneDetail, versionDetail].forEach(panel => {
+          panel.style.left = `${safeLeft}px`;
+          panel.style.top = `${safeTop}px`;
+          panel.style.right = "auto";
+          panel.style.bottom = "auto";
+        });
+      }
+
+      [milestoneDetail, versionDetail].forEach(panel => {
+        const handle = panel.querySelector("[data-drag-handle]");
+        if (!handle) return;
+        let drag = null;
+        handle.addEventListener("pointerdown", event => {
+          if (window.matchMedia("(max-width: 580px)").matches) return;
+          if (event.target.closest("button")) return;
+          const rect = panel.getBoundingClientRect();
+          drag = {
+            pointerId: event.pointerId,
+            offsetX: event.clientX - rect.left,
+            offsetY: event.clientY - rect.top
+          };
+          handle.setPointerCapture(event.pointerId);
+          event.preventDefault();
+        });
+        handle.addEventListener("pointermove", event => {
+          if (!drag || drag.pointerId !== event.pointerId) return;
+          moveFloatingPanels(event.clientX - drag.offsetX, event.clientY - drag.offsetY, panel);
+        });
+        const endDrag = event => {
+          if (drag && drag.pointerId === event.pointerId) drag = null;
+        };
+        handle.addEventListener("pointerup", endDrag);
+        handle.addEventListener("pointercancel", endDrag);
+      });
+
+      function setRouteHash(value) {
+        if (!value) return;
+        try {
+          history.replaceState(null, "", `#${value}`);
+        } catch {
+          // Local file previews may not expose history state.
+        }
+      }
+
+      function setDemoMode(mode, options = {}) {
+        if (!["terms", "tune", "triage", "identity"].includes(mode)) return;
+        activeDemoMode = mode;
+        root.querySelectorAll(".dse-demo-panel[data-demo-mode]").forEach(panel => {
+          panel.hidden = panel.dataset.demoMode !== mode;
+        });
+        root.querySelectorAll(".dse-demo-modes [data-demo-mode]").forEach(button => {
+          button.setAttribute("aria-pressed", String(button.dataset.demoMode === mode));
+        });
+        if (mode === "terms") {
+          if (!demoSection.hidden) startTermRotationTimer();
+        } else {
+          pauseTermRotation();
+          if (!termDetail.hidden) closeTerm(false);
+        }
+        if (options.updateRoute) setRouteHash(mode);
+        if (options.scroll) {
+          demoSection.scrollIntoView({ block: "start", behavior: reduceMotionQuery.matches ? "auto" : "smooth" });
+        }
+      }
+
+      function handleRoute() {
+        const raw = decodeURIComponent(window.location.hash.replace(/^#/, ""));
+        if (!raw) return;
+        if (isInteractiveView) {
+          if (raw.startsWith("term-")) {
+            const id = raw.slice(5);
+            setDemoMode("terms", { updateRoute: false });
+            const groupIndex = branchTermGroups.findIndex(group => group.ids.includes(id));
+            if (groupIndex >= 0) renderBranchGroup(groupIndex, false);
+            openTerm(id, true);
+            return;
+          }
+          if (["terms", "tune", "triage", "identity"].includes(raw)) {
+            setDemoMode(raw, { updateRoute: false });
+          }
+          return;
+        }
+        if (raw.startsWith("term-") || ["terms", "tune", "triage", "identity"].includes(raw)) {
+          window.location.href = `interactive/#${raw}`;
+          return;
+        }
+        if (raw.startsWith("wb-") || raw.startsWith("ao-")) {
+          const track = raw.startsWith("wb-") ? "core" : "prototype";
+          applyFilter(track, false);
+          const record = versionById[raw];
+          if (record) {
+            expandSeries(record.seriesId);
+            selectVersion(raw, true, false);
+            document.getElementById("dse-version-archive")?.scrollIntoView({ block: "start" });
+          }
+        }
+      }
+
+      function applyFilter(filter, resetScroll = false) {
+        if (filter === "demo" && !isInteractiveView) {
+          window.location.href = "interactive/";
+          return;
+        }
+        root.querySelectorAll(".dse-filter[data-filter]").forEach(button => {
+          button.setAttribute("aria-pressed", String(button.dataset.filter === filter));
+        });
+        const demoMode = filter === "demo";
+        mapStage.hidden = demoMode;
+        demoSection.hidden = !demoMode;
+        root.querySelectorAll(".dse-track").forEach(track => {
+          track.hidden = track.dataset.track !== filter;
+        });
+        root.querySelectorAll(".dse-series").forEach(series => {
+          series.hidden = series.dataset.track !== filter;
+        });
+        convergenceSection.hidden = filter !== "merge";
+        archiveSection.hidden = filter !== "core" && filter !== "prototype";
+        if (demoMode) {
+          hideInspector(false);
+          if (activeDemoMode === "terms" && termDetail.hidden) startTermRotationTimer();
+        } else {
+          if (!termDetail.hidden) closeTerm(false);
+          pauseTermRotation();
+          selectMilestone(lastMilestoneByTrack[filter]);
+        }
+        if (resetScroll) {
+          const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          root.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+        }
+      }
+
+      root.querySelectorAll(".dse-filter[data-filter]").forEach(button => {
+        button.addEventListener("click", () => applyFilter(button.dataset.filter, true));
+      });
+      root.querySelectorAll(".dse-demo-modes [data-demo-mode]").forEach(button => {
+        button.addEventListener("click", () => {
+          setDemoMode(button.dataset.demoMode, {
+            updateRoute: isInteractiveView,
+            scroll: true
+          });
+        });
+      });
+      mergeButtons.forEach(button => {
+        button.addEventListener("click", () => selectMilestone(button.dataset.mergeId, true));
+      });
+      initTermLab();
+      setDemoMode("tune", { updateRoute: false });
+      if (isInteractiveView) {
+        applyFilter("demo", false);
+        handleRoute();
+      } else {
+        applyFilter("core", false);
+        selectVersion("wb-1-4-4", false, false);
+        handleRoute();
+      }
+      window.addEventListener("hashchange", handleRoute);
+    })();
+  </script>
+</div>
+
+<noscript>This page requires JavaScript to show the interactive content.</noscript>
+</body>
+</html>

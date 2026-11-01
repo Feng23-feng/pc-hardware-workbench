@@ -26,6 +26,10 @@ changes under the user's control.
 Explore the complete Workbench and GPU auto-overclock prototype history, including
 92 recorded versions and their validation status.
 
+[打开 Skill 交互实验室](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/interactive/)
+
+交互实验室按模式展示术语解释、调校门禁、Triage 分流和配置状态失效。
+
 ## Why this project exists
 
 Hardware advice often fails in three ways: it skips the actual machine state,
