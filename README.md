@@ -17,12 +17,14 @@ changes under the user's control.
 - Broad release sign-off: pending
 - Repository license: **MIT**
 
-## Interactive project map
+## 在线交互式项目地图 / Interactive project map
+
+[打开《电脑硬件工作台 × 自动超频原型》完整迭代档案](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/)
+
+浏览工作台与 GPU 自动超频原型的完整演进记录，包括 90 个版本节点、每版改动、验证状态和历史位置。
 
 Explore the complete Workbench and GPU auto-overclock prototype history, including
-90 recorded versions and their validation status:
-
-<https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/>
+90 recorded versions and their validation status.
 
 ## Why this project exists
 
