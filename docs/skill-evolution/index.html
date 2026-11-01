@@ -3740,7 +3740,7 @@ html&gt;body{padding:0}&lt;/style&gt;
         &lt;div&gt;
           &lt;p class=&quot;dse-archive-kicker&quot;&gt;VERSION ARCHIVE / EVERY RECORDED RELEASE&lt;/p&gt;
           &lt;h2 id=&quot;dse-archive-title&quot;&gt;逐版本迭代档案&lt;/h2&gt;
-          &lt;p class=&quot;dse-archive-summary&quot;&gt;从统一工作台 1.0.0 到当前 1.4.3，再到自动超频原型的独立分叉、档位证据和真机验收。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。&lt;/p&gt;
+          &lt;p class=&quot;dse-archive-summary&quot;&gt;从统一工作台 1.0.0 到当前 1.4.3，再到自动超频原型的独立分叉、档位证据和有限验证。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。&lt;/p&gt;
         &lt;/div&gt;
         &lt;div class=&quot;dse-archive-totals&quot; aria-label=&quot;版本档案统计&quot;&gt;
           &lt;span class=&quot;dse-archive-total&quot;&gt;&lt;b id=&quot;dse-wb-count&quot;&gt;0&lt;/b&gt;工作台版本&lt;/span&gt;
@@ -3865,7 +3865,7 @@ html&gt;body{padding:0}&lt;/style&gt;
           id: &quot;wb-1-1&quot;, track: &quot;core&quot;, label: &quot;WORKBENCH / 1.1&quot;, sub: &quot;预期方向 · 在线证据 · 散热分支&quot;,
           versions: [
             [&quot;1.1.0&quot;, &quot;旧报告时效提醒&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;复用硬件报告前先问近期是否更换部件。&quot;, &quot;CPU、GPU、内存、硬盘、主板、显示器或电源变化后重采。&quot;, &quot;旧报告标记为当前任务过期。&quot;], &quot;硬件变更与旧报告交互场景通过。&quot;, &quot;开始区分“历史报告”与“当前配置”。&quot;],
-            [&quot;1.1.1&quot;, &quot;配置化调校方向&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;根据平台、形态、目标与固定负载给预期方向。&quot;, &quot;GPU 能效先曲线，性能先核心后显存。&quot;, &quot;型号不直接等于通用电压、频率或收益。&quot;], &quot;RTX 5070 Ti 笔记本方向与参考联动检查通过。&quot;, &quot;从静态手册进入配置感知建议。&quot;],
+            [&quot;1.1.1&quot;, &quot;配置化调校方向&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;根据平台、形态、目标与固定负载给预期方向。&quot;, &quot;GPU 能效先曲线，性能先核心后显存。&quot;, &quot;型号不直接等于通用电压、频率或收益。&quot;], &quot;笔记本 GPU 配置方向与参考联动检查通过。&quot;, &quot;从静态手册进入配置感知建议。&quot;],
             [&quot;1.1.2&quot;, &quot;在线证据 A-D 分级&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;同型号、同形态、相近功耗与散热作为 A 级。&quot;, &quot;相近代际或 SKU 作为 B/C 级弱假设。&quot;, &quot;跨形态、控制不支持或来源缺失按 D 拒绝。&quot;], &quot;相似平台证据分级场景通过。&quot;, &quot;允许借鉴方向，但禁止跨条件照抄参数。&quot;],
             [&quot;1.1.3&quot;, &quot;会话状态与实验跟进&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;记住当前设备、实验卡、目标和固定负载。&quot;, &quot;CSV 摘要关联到同一实验卡。&quot;, &quot;复盘回写 pass / fail / inconclusive 与下一步。&quot;], &quot;实验复盘和多设备场景通过。&quot;, &quot;让一次实验可以安全地接续下一轮。&quot;],
             [&quot;1.1.4&quot;, &quot;门禁导航与采购证据&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;门禁逐项支持帮助、返回和取消。&quot;, &quot;返回修改时保留后续已填写值。&quot;, &quot;购买判断先建立痛点、当前结果和非购买尝试证据。&quot;], &quot;逐项返回、讲解收敛和升级证据场景通过。&quot;, &quot;补全交互可逆性与升级刹车。&quot;],
@@ -3955,7 +3955,7 @@ html&gt;body{padding:0}&lt;/style&gt;
         {
           id: &quot;proto-3&quot;, track: &quot;prototype&quot;, label: &quot;AUTO-OC / 3.x&quot;, sub: &quot;当前停点 · 冻结而不是完成&quot;,
           versions: [
-            [&quot;3.0.1&quot;, &quot;冻结与真机验收&quot;, &quot;2026-10-30&quot;, &quot;UNPUBLISHED&quot;, [&quot;候选器 2.0.1、权威表 1.0.0 固化。&quot;, &quot;Steel Nomad 重复性 4425 / 4410，约 0.34% 波动。&quot;, &quot;新曲线候选 2505.9 MHz 生成但从未应用。&quot;], &quot;只读真机有限通过；当前 profile 重复性通过，原厂收益比较、新候选、重启与日常稳定 PENDING。原型未完善，尚未发布。&quot;, &quot;原型当前停点；融合前仍需真机收益和人工行为验收。&quot;]
+            [&quot;3.0.1&quot;, &quot;冻结与有限验证&quot;, &quot;2026-10-30&quot;, &quot;UNPUBLISHED&quot;, [&quot;候选器 2.0.1、权威表 1.0.0 固化。&quot;, &quot;完成有限范围的固定负载重复性检查。&quot;, &quot;候选流程生成过曲线起点，但没有应用到硬件。&quot;], &quot;只读验证在限定范围内通过；原厂收益比较、新候选验证、重启与日常稳定仍未完成。原型未完善，尚未发布。&quot;, &quot;原型当前停点；融合前仍需更完整的实机收益和人工行为验收。&quot;]
           ]
         }
       ];
@@ -3995,11 +3995,11 @@ html&gt;body{padding:0}&lt;/style&gt;
           canCheck: true
         },
         laptop: {
-          request: &quot;5070 Ti 笔记本已解锁 150W，想继续提高核心频率。&quot;,
+          request: &quot;高端笔记本 GPU 已声明解锁功耗墙，想继续提高核心频率。&quot;,
           tone: &quot;blocked&quot;,
           title: &quot;POWER PATH / 需要重新建立当前配置基线&quot;,
           copy: &quot;解锁功耗墙会创建新的配置修订。旧记录仍有历史价值，但不能直接冒充当前基线或候选。&quot;,
-          missing: [&quot;当前 150W 基线&quot;, &quot;恢复配置&quot;, &quot;固定工作负载&quot;],
+          missing: [&quot;当前解锁功耗基线&quot;, &quot;恢复配置&quot;, &quot;固定工作负载&quot;],
           direct: &quot;继续增加核心偏移，默认旧记录和默认恢复配置仍然适用。&quot;,
           safe: &quot;绑定当前功耗状态，确认恢复配置和固定负载，再讨论一次只改变一个变量的实验。&quot;,
           canCheck: true
@@ -4065,7 +4065,7 @@ html&gt;body{padding:0}&lt;/style&gt;
           canCheck: true
         },
         vram: {
-          request: &quot;5070 Ti 笔记本想先加 1000MHz 显存，再考虑核心。&quot;,
+          request: &quot;笔记本 GPU 想先给显存加较大偏移，再考虑核心。&quot;,
           tone: &quot;blocked&quot;,
           title: &quot;LAPTOP VRAM / 不建议大幅超频&quot;,
           copy: &quot;笔记本显存控制受共享功耗和散热限制；没有核心收益与显存结温证据时不先做大幅显存偏移。&quot;,
@@ -4168,7 +4168,7 @@ html&gt;body{padding:0}&lt;/style&gt;
         },
         {
           id: &quot;proto-state&quot;, track: &quot;prototype&quot;, code: &quot;AO-05&quot;, title: &quot;功耗状态与历史&quot;,
-          summary: &quot;140W / 150W · Profile fallback · Lineage&quot;,
+          summary: &quot;原厂/解锁功耗墙 · Profile fallback · Lineage&quot;,
           status: &quot;done&quot;, state: &quot;CLEARED&quot;,
           goal: &quot;让旧记录保留历史价值，但不直接成为当前状态。&quot;,
           action: &quot;分离 HardwareFingerprint 与 ConfigurationFingerprint；声明解锁状态。&quot;,
@@ -4199,20 +4199,20 @@ html&gt;body{padding:0}&lt;/style&gt;
           proof: &quot;Skill is valid!；GPU、交互、身份、遥测与编码测试全部通过。&quot;
         },
         {
-          id: &quot;proto-reality&quot;, track: &quot;prototype&quot;, code: &quot;AO-09&quot;, title: &quot;只读真机验收&quot;,
-          summary: &quot;5070 Ti Laptop · 150W · Steel Nomad&quot;,
+          id: &quot;proto-reality&quot;, track: &quot;prototype&quot;, code: &quot;AO-09&quot;, title: &quot;有限只读验证&quot;,
+          summary: &quot;固定负载 · 重复性门槛 · 恢复门禁&quot;,
           status: &quot;done&quot;, state: &quot;LIMITED PASS&quot;,
-          goal: &quot;验证候选器、恢复门禁和历史隔离能在真机上正常工作。&quot;,
-          action: &quot;两次 Steel Nomad 重复性筛选；生成但未应用新曲线候选。&quot;,
-          proof: &quot;4425 / 4410，重复性约 0.34%；功耗、温度和恢复配置均有记录。&quot;
+          goal: &quot;验证候选器、恢复门禁和历史隔离能在真实设备上正常工作。&quot;,
+          action: &quot;在有限范围内重复固定负载并检查结果波动；候选生成后没有应用。&quot;,
+          proof: &quot;重复性达到预设门槛，功耗、温度和恢复配置有记录；具体设备与原始测量值不公开。&quot;
         },
         {
           id: &quot;proto-freeze&quot;, track: &quot;prototype&quot;, code: &quot;AO-10&quot;, title: &quot;冻结 3.0.1 · 未发布&quot;,
           summary: &quot;未完善 · 尚未发布 · 仅保留原型停点&quot;,
           status: &quot;blocked&quot;, state: &quot;UNPUBLISHED&quot;,
-          goal: &quot;保留当前原型能力、真机证据与已知限制，但不把冻结误写成已发布。&quot;,
+          goal: &quot;保留当前原型能力、有限验证证据与已知限制，但不把冻结误写成已发布。&quot;,
           action: &quot;停止继续堆逻辑，保留未完成的收益比较、重启稳定性和人工行为验收。&quot;,
-          proof: &quot;自动测试、单一数值来源和有限只读真机通过；仍未完善，尚未发布。&quot;
+          proof: &quot;自动测试、单一数值来源和有限范围只读验证通过；具体设备与原始测量值不公开，原型仍未完善且尚未发布。&quot;
         },
         {
           id: &quot;triage-safety&quot;, track: &quot;triage&quot;, code: &quot;TR-01&quot;, title: &quot;物理安全优先&quot;,
