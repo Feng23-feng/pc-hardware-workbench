@@ -3040,25 +3040,53 @@ html&gt;body{padding:0}&lt;/style&gt;
 
     #dse-root .dse-gate-checklist {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 5px;
+      grid-template-columns: 1fr;
+      gap: 7px;
       margin-top: 8px;
     }
 
     #dse-root .dse-gate-check {
       display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px;
+      align-items: flex-start;
+      gap: 7px;
+      padding: 8px;
       color: var(--dse-muted);
       background: rgba(3, 11, 20, .78);
       border: 1px solid #19394f;
-      font-size: 8px;
+      font-size: 9px;
       line-height: 1.4;
+      cursor: pointer;
     }
 
     #dse-root .dse-gate-check input {
       flex: none;
+      margin-top: 2px;
+    }
+
+    #dse-root .dse-gate-check-copy {
+      display: grid;
+      min-width: 0;
+      gap: 3px;
+    }
+
+    #dse-root .dse-gate-check-copy strong {
+      color: var(--dse-text);
+      font-size: 9px;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    #dse-root .dse-gate-check-copy small {
+      color: var(--dse-muted);
+      font-size: 8px;
+      line-height: 1.5;
+    }
+
+    #dse-root .dse-gate-help {
+      margin: 7px 0 0;
+      color: var(--dse-muted);
+      font-size: 8px;
+      line-height: 1.55;
     }
 
     #dse-root .dse-rule-list {
@@ -3398,6 +3426,15 @@ html&gt;body{padding:0}&lt;/style&gt;
       #dse-root .dse-demo-field select {
         min-height: 42px;
       }
+
+      #dse-root .dse-gate-check-copy strong {
+        font-size: 10px;
+      }
+
+      #dse-root .dse-gate-check-copy small,
+      #dse-root .dse-gate-help {
+        font-size: 9px;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -3566,17 +3603,33 @@ html&gt;body{padding:0}&lt;/style&gt;
           &lt;/div&gt;
 
           &lt;div class=&quot;dse-gate-actions&quot;&gt;
-            &lt;button type=&quot;button&quot; class=&quot;dse-demo-action&quot; data-gate-action=&quot;direct&quot;&gt;直接索要参数&lt;/button&gt;
-            &lt;button type=&quot;button&quot; class=&quot;dse-demo-action primary&quot; data-gate-action=&quot;check&quot;&gt;开始安全检查&lt;/button&gt;
-            &lt;button type=&quot;button&quot; class=&quot;dse-demo-action&quot; data-gate-action=&quot;rules&quot;&gt;查看判定逻辑&lt;/button&gt;
+            &lt;button type=&quot;button&quot; class=&quot;dse-demo-action&quot; data-gate-action=&quot;direct&quot;&gt;模拟直接索要参数&lt;/button&gt;
+            &lt;button type=&quot;button&quot; class=&quot;dse-demo-action primary&quot; data-gate-action=&quot;check&quot;&gt;展开五项检查&lt;/button&gt;
+            &lt;button type=&quot;button&quot; class=&quot;dse-demo-action&quot; data-gate-action=&quot;rules&quot;&gt;查看拒绝规则&lt;/button&gt;
           &lt;/div&gt;
+          &lt;p class=&quot;dse-gate-help&quot;&gt;第一个按钮演示“为什么拿不到参数”；第二个按钮逐项说明需要准备什么；第三个按钮展示工作台的硬性安全规则。&lt;/p&gt;
 
           &lt;div class=&quot;dse-gate-checklist&quot; id=&quot;dse-gate-checklist&quot; hidden&gt;
-            &lt;label class=&quot;dse-gate-check&quot;&gt;&lt;input type=&quot;checkbox&quot; data-gate-check=&quot;platform&quot;&gt;平台和设备形态已确认&lt;/label&gt;
-            &lt;label class=&quot;dse-gate-check&quot;&gt;&lt;input type=&quot;checkbox&quot; data-gate-check=&quot;baseline&quot;&gt;当前稳定基线已记录&lt;/label&gt;
-            &lt;label class=&quot;dse-gate-check&quot;&gt;&lt;input type=&quot;checkbox&quot; data-gate-check=&quot;recovery&quot;&gt;当前参数与恢复路径已确认&lt;/label&gt;
-            &lt;label class=&quot;dse-gate-check&quot;&gt;&lt;input type=&quot;checkbox&quot; data-gate-check=&quot;workload&quot;&gt;固定负载与目标已确定&lt;/label&gt;
-            &lt;label class=&quot;dse-gate-check&quot;&gt;&lt;input type=&quot;checkbox&quot; data-gate-check=&quot;abort&quot;&gt;通过标准和中止信号已确定&lt;/label&gt;
+            &lt;label class=&quot;dse-gate-check&quot;&gt;
+              &lt;input type=&quot;checkbox&quot; data-gate-check=&quot;platform&quot;&gt;
+              &lt;span class=&quot;dse-gate-check-copy&quot;&gt;&lt;strong&gt;1. 确认是哪台机器&lt;/strong&gt;&lt;small&gt;先分清台式机或笔记本，并确认 CPU、GPU、系统和平台版本，避免套用别的电脑的参数。&lt;/small&gt;&lt;/span&gt;
+            &lt;/label&gt;
+            &lt;label class=&quot;dse-gate-check&quot;&gt;
+              &lt;input type=&quot;checkbox&quot; data-gate-check=&quot;baseline&quot;&gt;
+              &lt;span class=&quot;dse-gate-check-copy&quot;&gt;&lt;strong&gt;2. 保存当前稳定基线&lt;/strong&gt;&lt;small&gt;记录默认或已知良好配置在固定负载下的温度、功耗、频率、性能和画面表现。&lt;/small&gt;&lt;/span&gt;
+            &lt;/label&gt;
+            &lt;label class=&quot;dse-gate-check&quot;&gt;
+              &lt;input type=&quot;checkbox&quot; data-gate-check=&quot;recovery&quot;&gt;
+              &lt;span class=&quot;dse-gate-check-copy&quot;&gt;&lt;strong&gt;3. 知道怎么恢复原样&lt;/strong&gt;&lt;small&gt;确认现在改过什么，以及驱动重置、花屏或黑屏时如何恢复原厂或上一已知良好配置。&lt;/small&gt;&lt;/span&gt;
+            &lt;/label&gt;
+            &lt;label class=&quot;dse-gate-check&quot;&gt;
+              &lt;input type=&quot;checkbox&quot; data-gate-check=&quot;workload&quot;&gt;
+              &lt;span class=&quot;dse-gate-check-copy&quot;&gt;&lt;strong&gt;4. 固定负载和目标&lt;/strong&gt;&lt;small&gt;明确本轮要改善什么，并确保前后使用同一游戏场景、跑分、渲染任务或稳定性测试。&lt;/small&gt;&lt;/span&gt;
+            &lt;/label&gt;
+            &lt;label class=&quot;dse-gate-check&quot;&gt;
+              &lt;input type=&quot;checkbox&quot; data-gate-check=&quot;abort&quot;&gt;
+              &lt;span class=&quot;dse-gate-check-copy&quot;&gt;&lt;strong&gt;5. 先定义成功与停止&lt;/strong&gt;&lt;small&gt;提前写清什么结果算有效改善，以及出现黑屏、伪影、驱动重置、异常温度或性能下降时立即回退。&lt;/small&gt;&lt;/span&gt;
+            &lt;/label&gt;
           &lt;/div&gt;
 
           &lt;ul class=&quot;dse-rule-list&quot; id=&quot;dse-gate-rules&quot; hidden&gt;
@@ -4461,7 +4514,7 @@ html&gt;body{padding:0}&lt;/style&gt;
             }
             gateRules.hidden = true;
             gateChecklist.hidden = false;
-            setGateOutput(&quot;blocked&quot;, &quot;TUNING GATE / 0 of 5&quot;, &quot;逐项确认必要条件；全部完成前不生成个性化候选值。&quot;, scenario.missing);
+            setGateOutput(&quot;blocked&quot;, &quot;TUNING GATE / 0 of 5&quot;, &quot;这五项不是形式问卷：每一项都应有可核对的证据。全部完成前，不显示电压、频率或功耗候选。&quot;, scenario.missing);
             return;
           }
           gateRules.hidden = !gateRules.hidden;
@@ -4474,9 +4527,9 @@ html&gt;body{padding:0}&lt;/style&gt;
           const inputs = [...root.querySelectorAll(&quot;[data-gate-check]&quot;)];
           const done = inputs.filter(item =&gt; item.checked).length;
           if (done === inputs.length) {
-            setGateOutput(&quot;ready&quot;, &quot;ELIGIBLE FOR EXPERIMENT / 5 of 5&quot;, &quot;五项已完成，可以进入实验设计；本页仍不会生成或执行具体硬件设置。&quot;);
+            setGateOutput(&quot;ready&quot;, &quot;ELIGIBLE FOR EXPERIMENT / 5 of 5&quot;, &quot;五项证据齐全，只代表可以开始设计实验，不代表任何参数安全或稳定。本页仍不会生成或执行硬件设置。&quot;);
           } else {
-            setGateOutput(&quot;blocked&quot;, `TUNING GATE / ${done} of 5`, &quot;仍缺少必要条件。完成清单前不显示个性化候选。&quot;);
+            setGateOutput(&quot;blocked&quot;, `TUNING GATE / ${done} of 5`, `已完成 ${done}/5。勾选表示已经拿到对应证据，而不是“我觉得知道”；其余项目完成前不显示候选。`);
           }
         });
       });
