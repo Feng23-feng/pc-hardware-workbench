@@ -5236,9 +5236,9 @@
       mergeButtons.forEach(button => {
         button.addEventListener("click", () => selectMilestone(button.dataset.mergeId, true));
       });
-      initTermLab();
       setDemoMode("tune", { updateRoute: false });
       if (isInteractiveView) {
+        initTermLab();
         applyFilter("demo", false);
         handleRoute();
       } else {
