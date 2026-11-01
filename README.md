@@ -17,6 +17,13 @@ changes under the user's control.
 - Broad release sign-off: pending
 - Repository license: **MIT**
 
+## Interactive project map
+
+Explore the complete Workbench and GPU auto-overclock prototype history, including
+90 recorded versions and their validation status:
+
+<https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/>
+
 ## Why this project exists
 
 Hardware advice often fails in three ways: it skips the actual machine state,

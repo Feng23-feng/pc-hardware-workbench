@@ -1,0 +1,4314 @@
+<!doctype html>
+<html lang="en" data-visualize-standalone>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src 'unsafe-inline' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Dual Skill Evolution Map</title>
+<style>:root{color-scheme:light dark;background:light-dark(rgb(255 255 255), rgb(24 24 24))}html,body{margin:0}body{box-sizing:border-box;padding:1rem;background:inherit}iframe{display:block;width:100%;height:calc(100vh - 2rem);margin:0 auto;border:0}</style>
+
+</head>
+<body>
+<iframe id="codex-visualization" sandbox="allow-scripts" referrerpolicy="no-referrer" title="Dual Skill Evolution Map" data-srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot; data-visualize-standalone&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;meta name=&quot;referrer&quot; content=&quot;no-referrer&quot;&gt;
+&lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src &#x27;none&#x27;; script-src &#x27;unsafe-inline&#x27; &#x27;unsafe-eval&#x27; &#x27;wasm-unsafe-eval&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src &#x27;unsafe-inline&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src &#x27;none&#x27;; object-src &#x27;none&#x27;; base-uri &#x27;none&#x27;; form-action &#x27;none&#x27;&quot;&gt;
+&lt;title&gt;Dual Skill Evolution Map&lt;/title&gt;
+&lt;style&gt;:root {
+  color-scheme: light dark;
+  background-color: var(
+    --background,
+    var(--color-background-primary, light-dark(rgb(255 255 255), rgb(24 24 24)))
+  ) !important;
+
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: var(
+    --color-background-primary,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --card: color-mix(in oklab, var(--foreground) 5%, var(--background));
+  --card-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --popover: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255), rgb(45 45 45))
+  );
+  --popover-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --primary: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --primary-foreground: var(
+    --color-text-inverse,
+    light-dark(rgb(255 255 255), rgb(13 13 13))
+  );
+  --secondary: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%))
+  );
+  --secondary-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: var(
+    --color-text-secondary,
+    light-dark(rgb(26 28 31 / 49.4%), rgb(255 255 255 / 49.8%))
+  );
+  --accent: var(
+    --color-background-info,
+    light-dark(rgb(229 242 255), rgb(13 39 63))
+  );
+  --accent-foreground: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --destructive: var(
+    --color-text-warning,
+    light-dark(rgb(226 85 7), rgb(255 133 73))
+  );
+  --border: var(
+    --color-border-secondary,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+  --input: var(
+    --color-border-primary,
+    light-dark(
+      rgb(26 28 31 / 11.8%),
+      color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+    )
+  );
+  --ring: var(
+    --color-ring-primary,
+    light-dark(rgb(51 156 255), rgb(131 195 255 / 76%))
+  );
+  --font-size-base: var(--font-text-md-size, 16px);
+  --blue: light-dark(rgb(51 156 255), rgb(51 156 255));
+  --orange: light-dark(rgb(226 85 7), rgb(251 106 34));
+  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
+  --red: light-dark(rgb(224 46 42), rgb(255 103 100));
+  --purple: light-dark(rgb(146 79 247), rgb(173 123 249));
+  --yellow: light-dark(rgb(255 195 0), rgb(255 210 64));
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(rgb(243 136 59), rgb(245 154 86));
+  --viz-series-3: light-dark(rgb(93 201 119), rgb(116 213 139));
+  --viz-series-4: light-dark(rgb(235 119 177), rgb(240 143 192));
+  --viz-series-5: light-dark(rgb(155 121 236), rgb(170 145 239));
+  --viz-series-6: light-dark(rgb(58 185 177), rgb(90 203 194));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans:
+    -apple-system-body, ui-sans-serif, -apple-system, system-ui, &quot;Segoe UI&quot;,
+    Helvetica, &quot;Apple Color Emoji&quot;, Arial, sans-serif, &quot;Segoe UI Emoji&quot;,
+    &quot;Segoe UI Symbol&quot;;
+  --font-mono:
+    ui-monospace, SFMono-Regular, &quot;SF Mono&quot;, Menlo, Consolas, &quot;Liberation Mono&quot;,
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --icon-size: 16px;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --corner-shape: round;
+  --radius: var(--border-radius-lg, 8px);
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 2);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url(&quot;data:image/svg+xml,%3Csvg xmlns=&#x27;http://www.w3.org/2000/svg&#x27; viewBox=&#x27;0 0 17 17&#x27;%3E%3Cpath d=&#x27;M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z&#x27;/%3E%3C/svg%3E&quot;);
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+}
+
+:root[data-theme=&quot;light&quot;] {
+  color-scheme: light;
+}
+
+:root[data-theme=&quot;dark&quot;] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html &gt; body {
+  /* Preserve MCP aliases for older inline renderers without creating :root cycles. */
+  --color-background-primary: var(
+    --background,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --color-text-primary: var(
+    --foreground,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --color-border-secondary: var(
+    --border,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+
+  margin: 0;
+  padding: var(--visualize-paint-gutter, 0px);
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans) !important;
+  -webkit-font-smoothing: antialiased;
+  font-size: var(--font-size-base);
+  line-height: calc(var(--font-size-base) * 1.625);
+  font-weight: var(--font-weight-normal);
+}
+
+.cursor-interaction {
+  cursor: var(--cursor-interaction, pointer);
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: var(--cursor-interaction, pointer);
+  text-decoration: none;
+  text-underline-offset: 2px;
+  font-weight: inherit;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+li,
+.table {
+  font-family: var(--font-sans);
+}
+
+h1 {
+  font-size: calc(var(--font-size-base) * 1.5);
+  line-height: 1.3333333333;
+}
+
+h2 {
+  font-size: calc(var(--font-size-base) * 1.25);
+  line-height: 1.4;
+}
+h3 {
+  font-size: calc(var(--font-size-base) * 1.125);
+  line-height: 1.5555555556;
+}
+h4 {
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+}
+h5,
+h6 {
+  font-size: var(--font-size-base);
+  line-height: calc(var(--font-size-base) * 1.625);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+b,
+strong,
+th {
+  font-weight: 600;
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+pre,
+pre code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: calc(var(--font-size-base) * 0.875);
+  line-height: calc(var(--font-size-base) * 1.625);
+  font-family: var(--font-sans);
+}
+
+.table :is(th, td) {
+  padding-block: 10px;
+  padding-inline: 0 24px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+  border-bottom-color: color-mix(in srgb, var(--foreground) 5%, transparent);
+}
+.table :is(th, td):not(:last-child) {
+  padding-inline-end: calc(var(--font-size-base) * 1.5);
+}
+
+.table-responsive &gt; .table :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+.table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.table :is(caption, thead th) {
+  font-weight: 600;
+}
+
+.table thead :is(th, td) {
+  border-bottom-color: var(--border-strong, var(--input));
+  padding-block: calc(var(--font-size-base) / 2);
+  line-height: var(--font-size-base);
+}
+
+.table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+.table tbody :is(th, td) {
+  padding-block: calc(var(--font-size-base) * 0.625);
+}
+
+.table.table-sm :is(th, td) {
+  padding-block: 8px;
+}
+
+.table.table-sm :is(th, td):not(:last-child) {
+  padding-inline-end: 16px;
+}
+
+.table :is(.text-end, [align=&quot;right&quot;]) {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.table :is(.text-center, [align=&quot;center&quot;]) {
+  text-align: center;
+}
+
+.table .text-nowrap {
+  white-space: nowrap;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  corner-shape: var(--corner-shape);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+.widget {
+  min-width: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  box-shadow: 0 0 0 0.5px var(--border-strong, var(--border));
+  color: var(--foreground);
+  background: var(--background);
+}
+
+#widget &gt; :not(.card, .widget, .progress) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  border: 1px solid var(--border);
+  corner-shape: var(--corner-shape);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+  font-family: var(--font-sans);
+  padding: 5px 12px;
+  border-color: color-mix(
+    in oklab,
+    light-dark(var(--primary-foreground), var(--foreground)) 5%,
+    transparent
+  );
+  border-radius: var(--radius-2xl);
+  color: light-dark(var(--primary-foreground), var(--foreground));
+  background: light-dark(var(--foreground), var(--popover));
+  box-shadow: 0 8px 18px rgb(15 23 42 / 20%);
+  letter-spacing: -0.15px;
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+hr {
+  width: 100%;
+  height: 1px;
+  margin-block: 6px;
+  border: 0;
+  background: var(--border);
+}
+
+.nav {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+}
+
+.progress {
+  display: flex;
+  height: 8px;
+  margin-block: calc((var(--line-height-normal, 1.5em) - 8px) / 2);
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+}
+
+.progress-bar:only-child {
+  border-radius: var(--radius-full);
+}
+
+.progress-bar {
+  height: 100%;
+  flex-shrink: 0;
+  border: 0;
+  background: var(--viz-series-1);
+}
+
+.viz-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  color: color-mix(in srgb, var(--foreground) 40%, var(--muted-foreground));
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+  font-family: var(--font-sans);
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: var(--font-weight-normal);
+  line-height: 1;
+}
+
+small,
+.text-small {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls &gt; .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls &gt; .form-label &gt; :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.nav-link,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+/* Match inline alignment without overriding a containing flex or grid layout. */
+.btn,
+.nav-link,
+.form-control,
+.form-select,
+.form-range,
+.form-check {
+  vertical-align: middle;
+}
+
+.btn,
+.nav-link {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  corner-shape: var(--corner-shape);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: inherit;
+  font-family: var(--font-sans);
+  height: fit-content;
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  padding-inline: var(--control-spacing, 12px);
+  border-color: transparent;
+  border-radius: var(--radius-full);
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: var(--font-weight-normal);
+  line-height: 18px;
+}
+
+.btn {
+  border-color: var(--border);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: var(--cursor-interaction, pointer);
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover {
+  background: light-dark(
+    color-mix(in srgb, var(--foreground) 5.5%, transparent),
+    color-mix(in srgb, var(--foreground) 8%, transparent)
+  );
+}
+
+.nav-link:not(:disabled):not([aria-disabled=&quot;true&quot;]):hover {
+  background: color-mix(in srgb, var(--foreground) 10%, transparent);
+}
+
+.btn-primary {
+  border-color: var(--border);
+  color: var(--primary-foreground);
+  background: var(--foreground);
+  background-clip: border-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(in srgb, var(--primary-foreground) 50%, transparent);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: border-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--muted-foreground);
+  background: light-dark(
+    color-mix(in srgb, var(--foreground) 5.5%, transparent),
+    color-mix(in srgb, var(--foreground) 8%, transparent)
+  );
+}
+
+.nav-pills .nav-link {
+  min-width: 0;
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.nav-justified .nav-link {
+  flex: 1 1 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.nav-pills .nav-link.active {
+  color: var(--foreground);
+  background: var(--muted);
+}
+
+/* Shared preview chrome; product styles stay inside each variant. */
+.viz-dotted-background {
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--foreground) 14%, transparent) 0.8px,
+    transparent 0.8px
+  );
+  background-position: center;
+  background-size: 16px 16px;
+}
+
+.viz-carousel {
+  position: relative;
+  min-width: 0;
+}
+
+.viz-carousel:has(&gt; .viz-carousel-controls) {
+  min-height: calc(60px + var(--viz-carousel-picker-height, 0px));
+  padding-bottom: 60px;
+}
+
+.viz-carousel &gt; [data-variant][hidden] {
+  display: none !important;
+}
+
+.viz-carousel &gt; [data-variant] {
+  isolation: isolate;
+}
+
+.viz-carousel-controls {
+  --viz-carousel-hover: light-dark(
+    color-mix(in srgb, var(--foreground) 5.4%, transparent),
+    color-mix(in srgb, var(--foreground) 7.8%, transparent)
+  );
+  position: absolute;
+  z-index: 2;
+  bottom: 8px;
+  left: 50%;
+  display: flex;
+  width: max-content;
+  /* Leave room for the host&#x27;s design-controls launcher at the trailing edge. */
+  max-width: calc(100% - 96px);
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-sans);
+  /* Match the settings dropdown chrome independently of the content font size. */
+  font-size: 13px;
+  font-weight: var(--font-weight-normal);
+  line-height: 18px;
+  transform: translateX(-50%);
+  user-select: none;
+}
+
+/* Keep authored mockup button styles out of the shared carousel chrome. */
+.viz-carousel-controls button,
+.viz-carousel-picker &gt; summary {
+  display: flex !important;
+  height: auto !important;
+  min-height: 30px;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px;
+  padding: 0 6px !important;
+  -webkit-app-region: no-drag;
+  border: 0 !important;
+  border-radius: 14px !important;
+  color: inherit !important;
+  background: transparent !important;
+  font: inherit !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.viz-carousel-controls &gt; button,
+.viz-carousel-picker &gt; summary {
+  position: relative;
+  isolation: isolate;
+}
+
+.viz-carousel-controls &gt; button {
+  --icon-size: 16px;
+  width: 30px !important;
+  padding: 0 !important;
+}
+
+.viz-carousel-picker &gt; summary {
+  padding-inline: 12px !important;
+}
+
+.viz-carousel-controls .viz-carousel-caret {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  margin: 0;
+  color: inherit;
+  transform: rotate(180deg);
+}
+
+.viz-carousel-controls &gt; button &gt; svg,
+.viz-carousel-controls .viz-carousel-caret,
+.viz-carousel-count {
+  opacity: 0.5;
+}
+
+.viz-carousel-controls &gt; button::before,
+.viz-carousel-picker &gt; summary::before {
+  position: absolute;
+  z-index: -1;
+  inset: 3px;
+  border-radius: 12px;
+  content: &quot;&quot;;
+  pointer-events: none;
+}
+
+.viz-carousel-controls &gt; button:hover::before,
+.viz-carousel-picker &gt; summary:hover::before {
+  background: var(--viz-carousel-hover);
+}
+
+.viz-carousel-controls &gt; button,
+.viz-carousel-controls [data-lucide],
+.viz-carousel-controls .lucide {
+  flex-shrink: 0;
+}
+
+.viz-carousel-picker {
+  min-width: 0;
+}
+
+.viz-carousel-picker &gt; summary {
+  min-width: 0;
+  list-style: none;
+}
+
+.viz-carousel-picker &gt; summary::-webkit-details-marker {
+  display: none;
+}
+
+.viz-carousel-count {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.viz-carousel-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viz-carousel-options {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 4px);
+  left: 0;
+  display: flex;
+  max-height: 240px;
+  flex-direction: column;
+  gap: 2px;
+  overflow: auto;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--background);
+  box-shadow: 0 4px 12px light-dark(rgb(0 0 0 / 6%), rgb(0 0 0 / 25%));
+}
+
+.viz-carousel-options &gt; button {
+  border-radius: max(0px, calc(var(--radius-lg) - 5px)) !important;
+  width: 100% !important;
+  min-height: 28px;
+  justify-content: flex-start !important;
+  padding: 4px 8px !important;
+  font-size: var(--font-size-small) !important;
+  text-align: start;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.viz-carousel-options &gt; [aria-current=&quot;true&quot;],
+.viz-carousel-options &gt; button:hover {
+  background: var(--viz-carousel-hover) !important;
+}
+
+.btn:disabled,
+.nav-link:disabled,
+.nav-link[aria-disabled=&quot;true&quot;] {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  height: calc(12px + 2 * var(--control-spacing, 12px));
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  padding-inline: calc(4px + var(--control-spacing, 12px) / 2);
+  border-color: var(--input);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--popover) 96%, transparent);
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: var(--font-weight-normal);
+  line-height: 1.4285714286;
+}
+.form-control:is(
+  [type=&quot;file&quot;],
+  [type=&quot;date&quot;],
+  [type=&quot;datetime-local&quot;],
+  [type=&quot;month&quot;],
+  [type=&quot;week&quot;],
+  [type=&quot;color&quot;]
+) {
+  height: calc(12px + 2 * var(--control-spacing, 12px));
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  line-height: 18px;
+}
+.form-control:is(
+  [type=&quot;date&quot;],
+  [type=&quot;datetime-local&quot;],
+  [type=&quot;month&quot;],
+  [type=&quot;week&quot;]
+) {
+  padding-inline: var(--control-spacing, 12px);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type=&quot;file&quot;] {
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+  padding: 0;
+}
+
+.form-control[type=&quot;file&quot;]::file-selector-button {
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+  min-height: calc(10px + 2 * var(--control-spacing, 12px));
+  padding-inline: var(--control-spacing, 12px);
+  margin-inline-end: var(--control-spacing, 12px);
+}
+
+.form-control[type=&quot;file&quot;]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type=&quot;color&quot;] {
+  width: 40px;
+  height: calc(12px + 2 * var(--control-spacing, 12px));
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+  corner-shape: var(--corner-shape);
+}
+
+textarea.form-control {
+  height: auto;
+  resize: vertical;
+  min-height: 96px;
+  padding: 8px 10px;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: none;
+}
+.form-control:disabled {
+  color: var(--muted-foreground);
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+  opacity: 1;
+}
+.form-control[aria-invalid=&quot;true&quot;] {
+  border-color: var(--red);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--red) 20%, transparent);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: fit-content;
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  margin: 0;
+  /* The secondary icon role is 14px at compact density and 16px at web density. */
+  --icon-size: calc(10px + var(--control-spacing, 12px) / 2);
+  /* Settings dropdowns retain a 12px inset and a 4px text-to-chevron gap. */
+  padding: 0 calc(16px + var(--icon-size)) 0 12px;
+  outline: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(
+      45deg,
+      transparent calc(50% - 0.6px),
+      var(--muted-foreground) calc(50% - 0.6px) calc(50% + 0.6px),
+      transparent calc(50% + 0.6px)
+    ),
+    linear-gradient(
+      135deg,
+      transparent calc(50% - 0.6px),
+      var(--muted-foreground) calc(50% - 0.6px) calc(50% + 0.6px),
+      transparent calc(50% + 0.6px)
+    );
+  background-position:
+    calc(100% - 12px - var(--icon-size) / 2) 50%,
+    calc(100% - 12px - var(--icon-size) * 0.18) 50%;
+  background-repeat: no-repeat;
+  background-size: calc(var(--icon-size) * 0.32) calc(var(--icon-size) * 0.32);
+  cursor: var(--cursor-interaction, default);
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: var(--font-weight-normal);
+  line-height: 18px;
+}
+
+.form-select :is(option, optgroup) {
+  color: var(--popover-foreground);
+  background-color: var(--popover);
+}
+
+.form-select :is(option, optgroup):disabled {
+  color: var(--muted-foreground);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: light-dark(
+    color-mix(in srgb, var(--foreground) 5.5%, transparent),
+    color-mix(in srgb, var(--foreground) 8%, transparent)
+  );
+}
+
+.form-select:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+.form-select:disabled {
+  opacity: 0.4;
+}
+
+.form-check {
+  display: flex;
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;] {
+  corner-shape: round;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  width: calc(10px + var(--control-spacing, 12px) / 2);
+  height: calc(10px + var(--control-spacing, 12px) / 2);
+  border-color: var(--border-strong, var(--input));
+  border-radius: calc(var(--radius-sm) / 2);
+  background-color: transparent;
+  color: var(--foreground);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:is(:checked, :indeterminate) {
+  border-color: var(--border-strong, var(--input));
+  background-color: color-mix(in srgb, var(--popover) 96%, transparent);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: &quot;&quot;;
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+  background-color: var(--foreground);
+}
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:indeterminate::before {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 65%;
+  height: 6.65%;
+  margin: auto;
+  border-radius: var(--radius-full);
+  background: var(--foreground);
+  mask: none;
+  content: &quot;&quot;;
+}
+
+.form-check-input[type=&quot;radio&quot;] {
+  border-radius: var(--radius-full);
+  width: 16px;
+  height: 16px;
+  border: 0;
+  box-shadow: inset 0 0 0 1px var(--input);
+}
+
+.form-check-input[type=&quot;radio&quot;]:checked {
+  border: 0;
+  background: radial-gradient(
+    circle,
+    var(--primary-foreground) 0 3px,
+    var(--foreground) 3px
+  );
+  box-shadow: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;]:focus-visible {
+  border-color: var(--ring);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+.form-check:not(.form-switch) .form-check-input[type=&quot;radio&quot;]:disabled,
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;radio&quot;]:disabled
+  + .form-check-label {
+  opacity: 0.5;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-sm);
+  content: &quot;&quot;;
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+  border-color: #fff;
+  background: #fff;
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--blue);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+  outline: none;
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  accent-color: var(--primary);
+  height: calc(12px + 2 * var(--control-spacing, 12px));
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  outline: none;
+  border-radius: var(--radius-full);
+  color: var(--foreground);
+  background: transparent;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  background: var(--form-range-track, var(--border));
+  height: 2px;
+  border-radius: var(--radius-full);
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  margin-top: -9px;
+  border-color: transparent;
+  background: currentColor;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Outline the native track and thumb, preserving the larger input hit area. */
+.form-range:focus-visible::-webkit-slider-runnable-track {
+  outline: 2px auto Highlight;
+  outline-color: -webkit-focus-ring-color;
+}
+
+.form-range::-moz-range-track {
+  background: var(--form-range-track, var(--border));
+  height: 2px;
+  border-radius: var(--radius-full);
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  border-color: transparent;
+  background: currentColor;
+  box-shadow: var(--shadow-sm);
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  outline: 2px solid Highlight;
+  outline-offset: 2px;
+}
+
+.form-range:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+  [aria-pressed=&quot;true&quot;],
+  [aria-selected=&quot;true&quot;],
+  .is-selected
+) {
+  border-color: transparent;
+  color: var(--primary-foreground);
+  background: var(--blue);
+}
+
+.btn.viz-tile:is([aria-pressed=&quot;true&quot;], [aria-selected=&quot;true&quot;], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible,
+.nav-link:focus-visible {
+  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.viz-carousel-controls :is(button, summary):focus-visible {
+  outline: 2px solid var(--ring) !important;
+  outline-offset: 2px !important;
+}
+
+/* Web recipes are the default, including on renderers without inline style queries. */
+@supports (border-radius: if(style(--corner-shape: round): 1px; else: 2px)) {
+  /* Match the host&#x27;s proportional text-sm scale at every text preference. */
+  .tooltip,
+  .viz-badge,
+  .btn,
+  .nav-link,
+  .form-control,
+  .form-select {
+    font-size: if(
+      style(--corner-shape: round): round(
+          nearest,
+          calc(var(--font-size-base) * 14 / 16),
+          1px
+        );
+        else: round(nearest, calc(var(--font-size-base) * 13 / 14), 1px)
+    );
+  }
+
+  .btn,
+  .nav-link,
+  .form-select {
+    border-radius: if(
+      style(--corner-shape: round): var(--radius-full); else: var(--radius-lg)
+    );
+  }
+
+  .form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;] {
+    border-radius: if(
+      style(--corner-shape: round): calc(var(--radius-sm) / 2);
+        else: calc(var(--radius-lg) * 0.4)
+    );
+  }
+
+  .tooltip {
+    font-weight: if(
+      style(--corner-shape: round): 600; else: var(--font-weight-normal)
+    );
+  }
+}
+
+@media (pointer: coarse) {
+  .viz-carousel:has(&gt; .viz-carousel-controls) {
+    min-height: calc(76px + var(--viz-carousel-picker-height, 0px));
+    padding-bottom: 76px;
+  }
+
+  .btn,
+  .nav-link,
+  .viz-carousel-controls button,
+  .viz-carousel-picker &gt; summary,
+  .form-control,
+  .form-select {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Keep small-screen WebKit from zooming when a text field receives focus. */
+  .form-control,
+  .form-select {
+    font-size: max(16px, calc(var(--font-size-base) * 14 / 16));
+    font-size: max(
+      16px,
+      round(nearest, calc(var(--font-size-base) * 14 / 16), 1px)
+    );
+  }
+  .form-control:is(
+    [type=&quot;file&quot;],
+    [type=&quot;date&quot;],
+    [type=&quot;datetime-local&quot;],
+    [type=&quot;month&quot;],
+    [type=&quot;week&quot;],
+    [type=&quot;time&quot;],
+    [type=&quot;color&quot;]
+  ) {
+    height: 44px;
+    min-height: 44px;
+    font-size: max(16px, calc(var(--font-size-base) * 14 / 16));
+    font-size: max(
+      16px,
+      round(nearest, calc(var(--font-size-base) * 14 / 16), 1px)
+    );
+  }
+
+  .form-control[type=&quot;file&quot;]::file-selector-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .form-control-color[type=&quot;color&quot;] {
+    width: 44px;
+    height: 44px;
+  }
+
+  .form-control:is(
+    [type=&quot;date&quot;],
+    [type=&quot;datetime-local&quot;],
+    [type=&quot;month&quot;],
+    [type=&quot;time&quot;],
+    [type=&quot;week&quot;]
+  ) {
+    min-width: 0;
+    max-width: 100%;
+    padding-block: 8px;
+  }
+
+  .form-check {
+    min-height: 44px;
+    padding-inline: 15px;
+  }
+
+  .form-check-input {
+    position: relative;
+  }
+
+  .form-check-input::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    content: &quot;&quot;;
+    transform: translate(-50%, -50%);
+  }
+
+  .form-check-label {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .form-range {
+    height: 44px;
+    touch-action: pan-y;
+  }
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget &gt; svg {
+  width: 100%;
+}
+
+/* Model-authored chart rules can otherwise stretch icons after these styles load. */
+svg.lucide {
+  display: block;
+  width: var(--icon-size) !important;
+  height: var(--icon-size) !important;
+  flex: none;
+  margin: 0 !important;
+  stroke-width: 1.6;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+
+html&gt;body{padding:0}&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;script type=&quot;application/json&quot; id=&quot;codex-visualization-widget-state&quot;&gt;__CODEX_VISUALIZATION_WIDGET_STATE__&lt;/script&gt;
+&lt;script&gt;(() =&gt; {
+  const root = document.documentElement;
+  const mediaQuery = globalThis.matchMedia(&quot;(prefers-color-scheme: dark)&quot;);
+  const apply = Reflect.apply;
+  const isArray = Array.isArray;
+  const hasOwn = Object.hasOwn;
+  const parentWindow = globalThis.parent;
+  const stringify = JSON.stringify;
+  const parse = JSON.parse;
+  const encode = TextEncoder.prototype.encode.bind(new TextEncoder());
+  const initialStateElement = document.getElementById(
+    &quot;codex-visualization-widget-state&quot;,
+  );
+  const initialGlobals = parse(initialStateElement?.textContent ?? &quot;{}&quot;);
+  initialStateElement?.remove();
+  /** @type {Record&lt;string, unknown&gt; | null} */
+  let state = initialGlobals.widgetState ?? null;
+  const statePersistence = initialGlobals.statePersistence ?? &quot;none&quot;;
+  let nextStateRequestId = 0;
+  /** @type {Map&lt;number, { resolve: () =&gt; void; reject: (error: Error) =&gt; void; timeout: ReturnType&lt;typeof globalThis.setTimeout&gt;; serializedState: string }&gt;} */
+  const pendingStateWrites = new Map();
+  const persistenceError = () =&gt;
+    Object.assign(
+      new Error(&quot;The host could not persist the widget state update&quot;),
+      {
+        code: -32000,
+        data: { code: &quot;widget_state_persistence_failed&quot;, retryable: false },
+      },
+    );
+  /**
+   * @param {object} prototype
+   * @param {string} property
+   */
+  const getPrototypeGetter = (prototype, property) =&gt; {
+    // oxlint-disable-next-line typescript/unbound-method -- invoked through captured Reflect.apply
+    const getter = Object.getOwnPropertyDescriptor(prototype, property)?.get;
+    if (getter == null) {
+      throw new Error(`Missing ${property} getter`);
+    }
+    return getter;
+  };
+  const getMessageData = getPrototypeGetter(MessageEvent.prototype, &quot;data&quot;);
+  const getMessagePorts = getPrototypeGetter(MessageEvent.prototype, &quot;ports&quot;);
+  const getMessageSource = getPrototypeGetter(MessageEvent.prototype, &quot;source&quot;);
+  // oxlint-disable-next-line typescript/unbound-method -- captured before the untrusted fragment runs
+  const addHostMessageListener = MessagePort.prototype.addEventListener;
+  // oxlint-disable-next-line typescript/unbound-method -- captured before the untrusted fragment runs
+  const postHostMessage = MessagePort.prototype.postMessage;
+  // oxlint-disable-next-line typescript/unbound-method -- captured before the untrusted fragment runs
+  const startHostPort = MessagePort.prototype.start;
+  // oxlint-disable-next-line typescript/unbound-method -- captured before the untrusted fragment runs
+  const stopMessagePropagation = Event.prototype.stopImmediatePropagation;
+  /** @type {MessagePort | null} */
+  let hostPort = null;
+  const postToHost = (type, payload) =&gt; {
+    if (hostPort != null) {
+      apply(postHostMessage, hostPort, [{ type, ...payload }]);
+    }
+  };
+  const openExternal = ({ href }) =&gt; {
+    if (globalThis.navigator.userActivation?.isActive === true) {
+      postToHost(&quot;open-external&quot;, { href });
+    }
+  };
+  const sendFollowUpMessage = ({ context, prompt, title }) =&gt; {
+    if (globalThis.navigator.userActivation?.isActive === true) {
+      postToHost(&quot;follow-up&quot;, { context, prompt, title });
+    }
+    return Promise.resolve();
+  };
+  /**
+   * @param {Record&lt;string, unknown&gt; | ((previous: Record&lt;string, unknown&gt; | null) =&gt; Record&lt;string, unknown&gt;)} next
+   * @returns {Promise&lt;void&gt;}
+   */
+  const setWidgetState = async (next) =&gt; {
+    const nextState = typeof next === &quot;function&quot; ? next(state) : next;
+    if (
+      nextState == null ||
+      typeof nextState !== &quot;object&quot; ||
+      isArray(nextState)
+    ) {
+      throw new TypeError(&quot;Widget state must be a JSON object&quot;);
+    }
+    const inputState = stringify(
+      nextState,
+      (_key, /** @type {unknown} */ value) =&gt; {
+        if (
+          typeof value === &quot;undefined&quot; ||
+          typeof value === &quot;function&quot; ||
+          typeof value === &quot;symbol&quot; ||
+          (typeof value === &quot;number&quot; &amp;&amp; !Number.isFinite(value))
+        ) {
+          throw new TypeError(&quot;Widget state must be a JSON object&quot;);
+        }
+        return value;
+      },
+    );
+    const parsedState = parse(inputState);
+    if (
+      parsedState == null ||
+      typeof parsedState !== &quot;object&quot; ||
+      isArray(parsedState)
+    ) {
+      throw new TypeError(&quot;Widget state must be a JSON object&quot;);
+    }
+    const storedState = {
+      modelContent: null,
+      privateContent: null,
+      ...parsedState,
+    };
+    const serializedState = stringify(storedState);
+    if (encode(serializedState).length &gt; 16 * 1024) {
+      throw new TypeError(
+        &quot;Widget state must be a JSON object of at most 16 KiB&quot;,
+      );
+    }
+    if (
+      hasOwn(storedState, &quot;imageIds&quot;) &amp;&amp;
+      (!isArray(storedState.imageIds) ||
+        storedState.imageIds.some(
+          (/** @type {unknown} */ id) =&gt; typeof id !== &quot;string&quot;,
+        ))
+    ) {
+      throw new TypeError(&quot;Widget state imageIds must be an array of strings&quot;);
+    }
+    if (storedState.imageIds?.length &gt; 0) {
+      throw Object.assign(
+        new TypeError(&quot;Visualization state does not support image attachments&quot;),
+        { code: -32602, data: { code: &quot;images_unsupported&quot; } },
+      );
+    }
+    state = storedState;
+    globalThis.openai.widgetState = state;
+    globalThis.dispatchEvent(
+      new CustomEvent(&quot;openai:set_globals&quot;, {
+        detail: { globals: { widgetState: state } },
+      }),
+    );
+    if (statePersistence === &quot;none&quot;) {
+      throw persistenceError();
+    }
+    const id = ++nextStateRequestId;
+    return new Promise((resolve, reject) =&gt; {
+      const timeout = globalThis.setTimeout(() =&gt; {
+        pendingStateWrites.delete(id);
+        reject(persistenceError());
+      }, 30_000);
+      pendingStateWrites.set(id, { resolve, reject, timeout, serializedState });
+      postToHost(&quot;widget-state-write&quot;, { id, state: serializedState });
+    });
+  };
+  const syncTheme = () =&gt; {
+    const theme = mediaQuery.matches ? &quot;dark&quot; : &quot;light&quot;;
+    root.dataset.theme = theme;
+    globalThis.openai = {
+      ...globalThis.openai,
+      openExternal,
+      sendFollowUpMessage,
+      setWidgetState,
+      theme,
+      visualizationStyleVariables: {},
+      visualizationTheme: theme,
+      widgetState: state,
+      statePersistence,
+      stateModelContext: &quot;none&quot;,
+    };
+    globalThis.dispatchEvent(
+      new CustomEvent(&quot;openai:set_globals&quot;, {
+        detail: { globals: globalThis.openai },
+      }),
+    );
+  };
+  const sendHeight = () =&gt; {
+    postToHost(&quot;height&quot;, {
+      height: Math.ceil(
+        Math.max(
+          document.body.scrollHeight,
+          document.body.getBoundingClientRect().height,
+        ),
+      ),
+    });
+  };
+
+  globalThis.addEventListener(
+    &quot;message&quot;,
+    (event) =&gt; {
+      const data = apply(getMessageData, event, []);
+      const ports = apply(getMessagePorts, event, []);
+      const source = apply(getMessageSource, event, []);
+      if (
+        hostPort != null ||
+        source !== parentWindow ||
+        typeof data !== &quot;object&quot; ||
+        data?.type !== &quot;codex-visualization-initialize&quot; ||
+        !isArray(ports) ||
+        ports.length !== 1
+      ) {
+        return;
+      }
+      apply(stopMessagePropagation, event, []);
+      const nextHostPort = ports[0];
+      try {
+        apply(addHostMessageListener, nextHostPort, [
+          &quot;message&quot;,
+          (event) =&gt; {
+            const data = apply(getMessageData, event, []);
+            if (typeof data === &quot;object&quot; &amp;&amp; data?.type === &quot;measure&quot;) {
+              sendHeight();
+            } else if (
+              typeof data === &quot;object&quot; &amp;&amp;
+              data?.type === &quot;widget-state-result&quot;
+            ) {
+              /** @type {unknown} */
+              const id = data.id;
+              if (typeof id !== &quot;number&quot;) {
+                return;
+              }
+              const pending = pendingStateWrites.get(id);
+              if (pending != null) {
+                pendingStateWrites.delete(id);
+                globalThis.clearTimeout(pending.timeout);
+                if (data.ok === true) {
+                  pending.resolve();
+                } else {
+                  pending.reject(persistenceError());
+                }
+              }
+            }
+          },
+        ]);
+        apply(startHostPort, nextHostPort, []);
+      } catch {
+        return;
+      }
+      hostPort = nextHostPort;
+      for (const [id, { serializedState }] of pendingStateWrites) {
+        postToHost(&quot;widget-state-write&quot;, { id, state: serializedState });
+      }
+      sendHeight();
+    },
+    { capture: true },
+  );
+  document.currentScript?.remove();
+  mediaQuery.addEventListener(&quot;change&quot;, syncTheme);
+  globalThis.addEventListener(&quot;click&quot;, (event) =&gt; {
+    if (event.defaultPrevented) {
+      return;
+    }
+    let element = null;
+    if (event.target instanceof globalThis.Element) {
+      element = event.target;
+    } else if (event.target instanceof globalThis.Node) {
+      element = event.target.parentElement;
+    }
+    const link = element?.closest(&quot;a[href]&quot;);
+    const href = link?.getAttribute(&quot;href&quot;);
+    if (href == null) {
+      return;
+    }
+    if (href.startsWith(&quot;#&quot;)) {
+      let id;
+      try {
+        id = decodeURIComponent(href.slice(1));
+      } catch {
+        return;
+      }
+      const target = id.length === 0 ? root : document.getElementById(id);
+      if (
+        target == null ||
+        globalThis.navigator.userActivation?.isActive !== true
+      ) {
+        return;
+      }
+      event.preventDefault();
+      postToHost(&quot;scroll-to&quot;, {
+        top: target.getBoundingClientRect().top + globalThis.scrollY,
+      });
+      return;
+    }
+    event.preventDefault();
+    openExternal({ href });
+  });
+  new ResizeObserver(sendHeight).observe(document.body);
+  syncTheme();
+})();
+&lt;/script&gt;
+&lt;div id=&quot;dse-root&quot; class=&quot;dse&quot;&gt;
+  &lt;style&gt;
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #dse-root {
+      --dse-bg: #040811;
+      --dse-panel: #07111d;
+      --dse-panel-2: #0a1624;
+      --dse-text: #ddfaff;
+      --dse-muted: #79a0b2;
+      --dse-line: #18374d;
+      --dse-cyan: #49e6ff;
+      --dse-magenta: #ff55b8;
+      --dse-lime: #9cff57;
+      --dse-amber: #ffc65a;
+      position: relative;
+      height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+      color: var(--dse-text);
+      background:
+        radial-gradient(circle at 8% 0%, rgba(73, 230, 255, .14), transparent 28%),
+        radial-gradient(circle at 94% 34%, rgba(255, 85, 184, .1), transparent 30%),
+        var(--dse-bg);
+      border: 1px solid #16354b;
+      font-family: &quot;Cascadia Code&quot;, &quot;SFMono-Regular&quot;, Consolas, monospace;
+    }
+
+    #dse-root::before {
+      content: &quot;&quot;;
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(73, 230, 255, .028) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(73, 230, 255, .028) 1px, transparent 1px);
+      background-size: 26px 26px;
+    }
+
+    #dse-root * {
+      box-sizing: border-box;
+    }
+
+    #dse-root [hidden] {
+      display: none !important;
+    }
+
+    #dse-root .dse-shell {
+      position: relative;
+      z-index: 1;
+      padding: 18px;
+    }
+
+    #dse-root .dse-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(310px, 390px);
+      align-items: flex-start;
+      gap: 16px;
+      padding-bottom: 13px;
+      border-bottom: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-header-copy {
+      align-self: center;
+      min-width: 0;
+    }
+
+    #dse-root .dse-kicker {
+      margin: 0 0 5px;
+      color: var(--dse-cyan);
+      font-size: 10px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    #dse-root h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: .02em;
+    }
+
+    #dse-root .dse-subtitle {
+      margin: 0;
+      color: var(--dse-muted);
+      font-size: 10px;
+      line-height: 1.65;
+    }
+
+    #dse-root .dse-intro-window {
+      position: relative;
+      min-width: 0;
+      padding: 11px 12px;
+      background:
+        linear-gradient(145deg, rgba(9, 24, 39, .99), rgba(5, 15, 27, .97));
+      border: 1px solid #21455e;
+      border-top: 2px solid var(--dse-cyan);
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+      box-shadow:
+        0 14px 30px rgba(0, 0, 0, .32),
+        0 0 22px rgba(73, 230, 255, .06);
+    }
+
+    #dse-root .dse-intro-kicker {
+      margin: 0 0 6px;
+      color: var(--dse-cyan);
+      font-size: 7px;
+      letter-spacing: .15em;
+    }
+
+    #dse-root .dse-chips {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      gap: 6px;
+      max-width: none;
+      margin-top: 9px;
+    }
+
+    #dse-root .dse-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 26px;
+      padding: 0 8px;
+      color: var(--dse-muted);
+      background: rgba(7, 18, 30, .9);
+      border: 1px solid #1b3a52;
+      font-size: 9px;
+      letter-spacing: .07em;
+      white-space: nowrap;
+    }
+
+    #dse-root .dse-chip::before {
+      content: &quot;&quot;;
+      width: 5px;
+      height: 5px;
+      background: var(--dse-cyan);
+      box-shadow: 0 0 8px var(--dse-cyan);
+    }
+
+    #dse-root .dse-chip.prototype::before {
+      background: var(--dse-magenta);
+      box-shadow: 0 0 8px var(--dse-magenta);
+    }
+
+    #dse-root .dse-chip.next::before {
+      background: var(--dse-amber);
+      box-shadow: 0 0 8px var(--dse-amber);
+    }
+
+    #dse-root .dse-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 11px 0;
+      background: rgba(4, 10, 18, .96);
+      border-bottom: 1px solid rgba(24, 55, 77, .72);
+    }
+
+    #dse-root .dse-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    #dse-root .dse-filter,
+    #dse-root .dse-node {
+      appearance: none;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-filter {
+      min-height: 30px;
+      padding: 0 10px;
+      color: var(--dse-muted);
+      background: rgba(6, 16, 28, .92);
+      border: 1px solid #1a3952;
+      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+      font-size: 9px;
+      letter-spacing: .08em;
+    }
+
+    #dse-root .dse-filter[aria-pressed=&quot;true&quot;] {
+      color: #031116;
+      background: var(--dse-cyan);
+      border-color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 11px;
+      color: var(--dse-muted);
+      font-size: 9px;
+    }
+
+    #dse-root .dse-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    #dse-root .dse-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: currentColor;
+      box-shadow: 0 0 7px currentColor;
+    }
+
+    #dse-root .dse-tracks {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    #dse-root .dse-map-stage {
+      display: block;
+    }
+
+    #dse-root .dse-track {
+      min-width: 0;
+      padding: 13px;
+      background: linear-gradient(160deg, rgba(8, 18, 31, .97), rgba(5, 12, 22, .93));
+      border: 1px solid #17364c;
+    }
+
+    #dse-root .dse-track.core {
+      box-shadow: inset 0 2px 0 rgba(73, 230, 255, .42);
+    }
+
+    #dse-root .dse-track.prototype {
+      box-shadow: inset 0 2px 0 rgba(255, 85, 184, .48);
+    }
+
+    #dse-root .dse-track-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-track-kicker {
+      color: var(--dse-muted);
+      font-size: 8px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    #dse-root .dse-track h2 {
+      margin: 5px 0 0;
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    #dse-root .dse-track-badge {
+      flex: none;
+      padding: 3px 6px;
+      color: var(--dse-cyan);
+      border: 1px solid rgba(73, 230, 255, .4);
+      font-size: 8px;
+      letter-spacing: .08em;
+    }
+
+    #dse-root .dse-track.prototype .dse-track-badge {
+      color: var(--dse-magenta);
+      border-color: rgba(255, 85, 184, .45);
+    }
+
+    #dse-root .dse-lane {
+      position: relative;
+      padding: 13px 0 2px 23px;
+    }
+
+    #dse-root .dse-lane::before {
+      content: &quot;&quot;;
+      position: absolute;
+      left: 7px;
+      top: 16px;
+      bottom: 6px;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, #20536c 5%, #20536c 95%, transparent);
+    }
+
+    #dse-root .dse-track.prototype .dse-lane::before {
+      background: linear-gradient(to bottom, transparent, #6d315e 5%, #6d315e 95%, transparent);
+    }
+
+    #dse-root .dse-node {
+      position: relative;
+      display: block;
+      width: 100%;
+      min-height: 65px;
+      margin: 0 0 10px;
+      padding: 9px 10px 9px 12px;
+      text-align: left;
+      background: rgba(6, 15, 26, .96);
+      border: 1px solid #1d4057;
+      clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 9px 100%, 0 calc(100% - 9px));
+      box-shadow: inset 2px 0 0 #276079;
+      transition: opacity .16s ease, border-color .16s ease, box-shadow .16s ease;
+    }
+
+    #dse-root .dse-track.prototype .dse-node {
+      border-color: rgba(143, 53, 113, .6);
+      box-shadow: inset 2px 0 0 var(--dse-magenta);
+    }
+
+    #dse-root .dse-node::before {
+      content: &quot;&quot;;
+      position: absolute;
+      left: -23px;
+      top: 27px;
+      width: 13px;
+      height: 13px;
+      background: #06111c;
+      border: 1px solid var(--dse-cyan);
+      transform: rotate(45deg);
+      box-shadow: 0 0 9px rgba(73, 230, 255, .2);
+    }
+
+    #dse-root .dse-track.prototype .dse-node::before {
+      border-color: var(--dse-magenta);
+      box-shadow: 0 0 9px rgba(255, 85, 184, .2);
+    }
+
+    #dse-root .dse-node.is-selected {
+      border-color: var(--dse-cyan);
+      box-shadow: inset 2px 0 0 var(--dse-cyan), 0 0 18px rgba(73, 230, 255, .18);
+    }
+
+    #dse-root .dse-track.prototype .dse-node.is-selected {
+      border-color: var(--dse-magenta);
+      box-shadow: inset 2px 0 0 var(--dse-magenta), 0 0 18px rgba(255, 85, 184, .18);
+    }
+
+    #dse-root .dse-node.is-dimmed {
+      opacity: .18;
+    }
+
+    #dse-root .dse-node-code {
+      color: var(--dse-muted);
+      font-size: 8px;
+      letter-spacing: .1em;
+    }
+
+    #dse-root .dse-node-title {
+      display: block;
+      margin-top: 3px;
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    #dse-root .dse-node-summary {
+      display: block;
+      margin-top: 3px;
+      color: #8bb1c2;
+      font-size: 8px;
+      line-height: 1.45;
+    }
+
+    #dse-root .dse-node-state {
+      position: absolute;
+      top: 9px;
+      right: 10px;
+      color: var(--dse-lime);
+      font-size: 7px;
+      letter-spacing: .08em;
+    }
+
+    #dse-root .dse-node-state.current {
+      color: var(--dse-amber);
+    }
+
+    #dse-root .dse-convergence {
+      display: grid;
+      grid-template-columns: 1fr 52px minmax(240px, .75fr) 52px 1fr;
+      align-items: center;
+      gap: 0;
+      margin-top: 14px;
+      padding: 12px 13px;
+      background: linear-gradient(90deg, rgba(73, 230, 255, .06), rgba(6, 14, 25, .92) 42%, rgba(255, 85, 184, .06));
+      border: 1px solid #17364c;
+    }
+
+    #dse-root .dse-convergence-line {
+      height: 1px;
+      background: linear-gradient(90deg, var(--dse-cyan), #24516a);
+    }
+
+    #dse-root .dse-convergence-line.reverse {
+      background: linear-gradient(90deg, #5b2a4c, var(--dse-magenta));
+    }
+
+    #dse-root .dse-merge-stack {
+      display: grid;
+      gap: 7px;
+    }
+
+    #dse-root .dse-merge-button {
+      width: 100%;
+      min-height: 58px;
+      padding: 8px 12px;
+      color: var(--dse-amber);
+      background: #0a1620;
+      border: 1px solid rgba(255, 198, 90, .7);
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+      text-align: center;
+      font: inherit;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(255, 198, 90, .1);
+    }
+
+    #dse-root .dse-merge-kicker {
+      display: block;
+      color: var(--dse-muted);
+      font-size: 7px;
+      letter-spacing: .12em;
+    }
+
+    #dse-root .dse-merge-title {
+      display: block;
+      margin-top: 4px;
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    #dse-root .dse-detail {
+      position: fixed;
+      top: auto;
+      right: 18px;
+      bottom: 18px;
+      z-index: 40;
+      width: 274px;
+      max-height: calc(100vh - 36px);
+      overflow: auto;
+      margin-top: 0;
+      padding: 12px 13px;
+      background:
+        linear-gradient(145deg, rgba(9, 24, 39, .99), rgba(5, 15, 27, .97));
+      border: 1px solid #21455e;
+      border-left: 3px solid var(--dse-cyan);
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+      box-shadow:
+        0 16px 34px rgba(0, 0, 0, .34),
+        0 0 24px rgba(73, 230, 255, .06);
+    }
+
+    #dse-root .dse-detail[hidden],
+    #dse-root .dse-version-detail[hidden] {
+      display: none;
+    }
+
+    #dse-root .dse-detail.prototype {
+      border-left-color: var(--dse-magenta);
+      box-shadow:
+        0 16px 34px rgba(0, 0, 0, .34),
+        0 0 24px rgba(255, 85, 184, .07);
+    }
+
+    #dse-root .dse-detail.merge {
+      border-left-color: var(--dse-amber);
+      box-shadow:
+        0 16px 34px rgba(0, 0, 0, .34),
+        0 0 24px rgba(255, 198, 90, .06);
+    }
+
+    #dse-root .dse-detail::before {
+      content: &quot;&quot;;
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 62px;
+      height: 2px;
+      background: var(--dse-amber);
+      box-shadow: 0 0 10px var(--dse-amber);
+    }
+
+    #dse-root .dse-detail-kicker {
+      margin: 0;
+      color: var(--dse-cyan);
+      font-size: 7px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+
+    #dse-root .dse-detail.prototype .dse-detail-kicker {
+      color: var(--dse-magenta);
+    }
+
+    #dse-root .dse-detail.merge .dse-detail-kicker {
+      color: var(--dse-amber);
+    }
+
+    #dse-root .dse-floating-handle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: -4px -4px 8px;
+      padding: 5px 7px;
+      color: var(--dse-muted);
+      background: rgba(3, 11, 19, .58);
+      border-bottom: 1px solid rgba(33, 69, 94, .65);
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+
+    #dse-root .dse-floating-handle:active {
+      cursor: grabbing;
+    }
+
+    #dse-root .dse-drag-hint {
+      flex: none;
+      color: var(--dse-muted);
+      font-size: 7px;
+      letter-spacing: .08em;
+    }
+
+    #dse-root .dse-detail-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    #dse-root .dse-detail h3 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    #dse-root .dse-detail-status {
+      flex: none;
+      padding: 3px 7px;
+      color: var(--dse-amber);
+      border: 1px solid rgba(255, 198, 90, .45);
+      font-size: 8px;
+      letter-spacing: .08em;
+    }
+
+    #dse-root .dse-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+      margin-top: 8px;
+    }
+
+    #dse-root .dse-detail-cell {
+      padding: 9px 0;
+      border-top: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-label {
+      margin: 0 0 4px;
+      color: var(--dse-muted);
+      font-size: 8px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    #dse-root .dse-value {
+      margin: 0;
+      color: var(--dse-text);
+      font-size: 10px;
+      line-height: 1.65;
+    }
+
+    #dse-root .dse-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 10px;
+      color: var(--dse-muted);
+      font-size: 8px;
+      line-height: 1.5;
+    }
+
+    #dse-root .dse-archive {
+      display: block;
+      margin-top: 14px;
+      padding: 15px;
+      background:
+        linear-gradient(180deg, rgba(5, 13, 23, .98), rgba(4, 10, 18, .94)),
+        repeating-linear-gradient(90deg, transparent 0 31px, rgba(73, 230, 255, .025) 31px 32px);
+      border: 1px solid #17364c;
+    }
+
+    #dse-root .dse-archive-head {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      padding-bottom: 11px;
+      border-bottom: 1px solid var(--dse-line);
+    }
+
+    #dse-root #dse-version-archive {
+      min-width: 0;
+    }
+
+    #dse-root .dse-archive-kicker {
+      margin: 0 0 5px;
+      color: var(--dse-amber);
+      font-size: 8px;
+      letter-spacing: .16em;
+    }
+
+    #dse-root .dse-archive h2 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-archive-summary {
+      margin: 6px 0 0;
+      max-width: 690px;
+      color: var(--dse-muted);
+      font-size: 9px;
+      line-height: 1.6;
+    }
+
+    #dse-root .dse-archive-totals {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+      max-width: 310px;
+    }
+
+    #dse-root .dse-archive-total {
+      min-width: 80px;
+      padding: 6px 8px;
+      color: var(--dse-muted);
+      background: rgba(6, 16, 28, .94);
+      border-left: 2px solid var(--dse-cyan);
+      font-size: 8px;
+      letter-spacing: .06em;
+    }
+
+    #dse-root .dse-archive-total.prototype {
+      border-left-color: var(--dse-magenta);
+    }
+
+    #dse-root .dse-archive-total b {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--dse-text);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-series {
+      display: grid;
+      grid-template-columns: 112px minmax(0, 1fr);
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(24, 55, 77, .72);
+      transition: opacity .16s ease;
+    }
+
+    #dse-root .dse-series:last-of-type {
+      border-bottom: 0;
+    }
+
+    #dse-root .dse-series.is-dimmed,
+    #dse-root .dse-version.is-dimmed {
+      opacity: .18;
+    }
+
+    #dse-root .dse-series-label {
+      position: relative;
+      align-self: start;
+      padding: 3px 9px 3px 12px;
+      color: var(--dse-cyan);
+      border-left: 2px solid var(--dse-cyan);
+      font-size: 9px;
+      line-height: 1.45;
+    }
+
+    #dse-root .dse-series.prototype .dse-series-label {
+      color: var(--dse-magenta);
+      border-left-color: var(--dse-magenta);
+    }
+
+    #dse-root .dse-series-label small {
+      display: block;
+      margin-top: 3px;
+      color: var(--dse-muted);
+      font-size: 7px;
+      letter-spacing: .06em;
+    }
+
+    #dse-root .dse-version-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 5px;
+    }
+
+    #dse-root .dse-version {
+      min-width: 0;
+      min-height: 42px;
+      padding: 6px 7px;
+      color: var(--dse-text);
+      background: rgba(8, 20, 34, .92);
+      border: 1px solid #1b4057;
+      clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+      text-align: left;
+      font: inherit;
+      cursor: pointer;
+      transition: opacity .16s ease, border-color .16s ease, background .16s ease;
+    }
+
+    #dse-root .dse-version.prototype {
+      border-color: rgba(143, 53, 113, .68);
+    }
+
+    #dse-root .dse-version:hover,
+    #dse-root .dse-version:focus-visible {
+      border-color: var(--dse-cyan);
+      background: rgba(12, 31, 49, .98);
+    }
+
+    #dse-root .dse-version.prototype:hover,
+    #dse-root .dse-version.prototype:focus-visible {
+      border-color: var(--dse-magenta);
+    }
+
+    #dse-root .dse-version.is-selected {
+      color: #031116;
+      background: var(--dse-cyan);
+      border-color: var(--dse-cyan);
+      box-shadow: 0 0 14px rgba(73, 230, 255, .2);
+    }
+
+    #dse-root .dse-version.prototype.is-selected {
+      color: #180611;
+      background: var(--dse-magenta);
+      border-color: var(--dse-magenta);
+      box-shadow: 0 0 14px rgba(255, 85, 184, .2);
+    }
+
+    #dse-root .dse-version-code {
+      display: block;
+      font-size: 9px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    #dse-root .dse-version-title {
+      display: block;
+      margin-top: 2px;
+      overflow: hidden;
+      color: var(--dse-muted);
+      font-size: 7px;
+      line-height: 1.35;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    #dse-root .dse-version.is-selected .dse-version-title {
+      color: currentColor;
+      opacity: .72;
+    }
+
+    #dse-root .dse-version-detail {
+      position: fixed;
+      top: auto;
+      right: 18px;
+      bottom: 18px;
+      z-index: 40;
+      width: 276px;
+      max-height: calc(100vh - 36px);
+      overflow: auto;
+      margin-top: 0;
+      padding: 12px 13px;
+      background:
+        linear-gradient(145deg, rgba(9, 24, 39, .99), rgba(5, 15, 27, .97));
+      border: 1px solid #21455e;
+      border-left: 3px solid var(--dse-cyan);
+      box-shadow:
+        0 16px 34px rgba(0, 0, 0, .34),
+        0 0 24px rgba(73, 230, 255, .06);
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+    }
+
+    #dse-root .dse-version-detail.prototype {
+      border-left-color: var(--dse-magenta);
+      box-shadow:
+        0 16px 34px rgba(0, 0, 0, .34),
+        0 0 24px rgba(255, 85, 184, .07);
+    }
+
+    #dse-root .dse-version-detail-kicker {
+      margin: 0;
+      color: var(--dse-cyan);
+      font-size: 7px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+
+    #dse-root .dse-version-detail.prototype .dse-version-detail-kicker {
+      color: var(--dse-magenta);
+    }
+
+    #dse-root .dse-version-detail-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    #dse-root .dse-version-detail h3 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-version-detail-date {
+      flex: none;
+      color: var(--dse-muted);
+      font-size: 8px;
+      letter-spacing: .08em;
+    }
+
+    #dse-root .dse-version-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0 18px;
+      margin-top: 9px;
+    }
+
+    #dse-root .dse-version-change-list {
+      display: grid;
+      gap: 4px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    #dse-root .dse-version-change-list li {
+      position: relative;
+      padding-left: 10px;
+      color: var(--dse-text);
+      font-size: 9px;
+      line-height: 1.5;
+    }
+
+    #dse-root .dse-version-change-list li::before {
+      content: &quot;›&quot;;
+      position: absolute;
+      left: 0;
+      color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-version-detail.prototype .dse-version-change-list li::before {
+      color: var(--dse-magenta);
+    }
+
+    @media (max-width: 940px) {
+      #dse-root .dse-map-stage,
+      #dse-root .dse-archive {
+        grid-template-columns: minmax(0, 1fr) 230px;
+      }
+
+      #dse-root .dse-detail,
+      #dse-root .dse-version-detail {
+        right: 12px;
+        bottom: 12px;
+        width: 230px;
+      }
+    }
+
+    @media (max-width: 880px) {
+      #dse-root .dse-tracks {
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root .dse-convergence {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      #dse-root .dse-convergence-line {
+        display: none;
+      }
+
+      #dse-root .dse-detail-grid {
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root .dse-version-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+    }
+
+    @media (max-width: 680px) {
+      #dse-root .dse-shell {
+        padding: 13px;
+      }
+
+      #dse-root .dse-header {
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root .dse-chips {
+        justify-content: flex-start;
+      }
+
+      #dse-root .dse-track-head,
+      #dse-root .dse-detail-head,
+      #dse-root .dse-footer,
+      #dse-root .dse-archive-head,
+      #dse-root .dse-version-detail-head {
+        flex-direction: column;
+      }
+
+      #dse-root .dse-archive-totals {
+        justify-content: flex-start;
+      }
+
+      #dse-root .dse-series {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      #dse-root .dse-version-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 580px) {
+      #dse-root .dse-map-stage,
+      #dse-root .dse-archive {
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root .dse-map-stage &gt; .dse-tracks,
+      #dse-root .dse-map-stage &gt; .dse-detail,
+      #dse-root .dse-archive-head,
+      #dse-root #dse-version-archive,
+      #dse-root .dse-version-detail {
+        grid-column: 1;
+      }
+
+      #dse-root .dse-map-stage &gt; .dse-tracks {
+        grid-row: 1;
+      }
+
+      #dse-root .dse-map-stage &gt; .dse-detail {
+        grid-row: 2;
+      }
+
+      #dse-root .dse-version-detail {
+        grid-column: 1;
+      }
+
+      #dse-root .dse-detail,
+      #dse-root .dse-version-detail {
+        top: auto;
+        right: 12px;
+        bottom: 12px;
+        left: 12px;
+        width: auto;
+        max-height: 52vh;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #dse-root .dse-node {
+        transition: none;
+      }
+
+      #dse-root .dse-series,
+      #dse-root .dse-version {
+        transition: none;
+      }
+    }
+  &lt;/style&gt;
+
+  &lt;div class=&quot;dse-shell&quot;&gt;
+    &lt;header class=&quot;dse-header&quot;&gt;
+      &lt;div class=&quot;dse-header-copy&quot;&gt;
+        &lt;p class=&quot;dse-kicker&quot;&gt;DUAL-SKILL EVOLUTION MAP&lt;/p&gt;
+        &lt;h1&gt;电脑硬件工作台 × 自动超频原型&lt;/h1&gt;
+      &lt;/div&gt;
+      &lt;aside class=&quot;dse-intro-window&quot; aria-label=&quot;工具介绍与当前状态&quot;&gt;
+        &lt;p class=&quot;dse-intro-kicker&quot;&gt;SYSTEM PROFILE / 工具介绍&lt;/p&gt;
+        &lt;p class=&quot;dse-subtitle&quot;&gt;完整演进轨迹：主工作台建立通用硬件工作流，自动超频原型负责候选、证据、状态和真机校准；下一阶段将原型作为 Tune 模块融入主工作台。&lt;/p&gt;
+        &lt;div class=&quot;dse-chips&quot; aria-label=&quot;当前版本状态&quot;&gt;
+          &lt;span class=&quot;dse-chip&quot;&gt;WORKBENCH 1.4.3&lt;/span&gt;
+          &lt;span class=&quot;dse-chip prototype&quot;&gt;AUTO-OC 3.0.1&lt;/span&gt;
+          &lt;span class=&quot;dse-chip next&quot;&gt;NEXT: MODULE MERGE&lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/aside&gt;
+    &lt;/header&gt;
+
+    &lt;div class=&quot;dse-toolbar&quot;&gt;
+      &lt;div class=&quot;dse-filters&quot; aria-label=&quot;演变轨道切换&quot;&gt;
+        &lt;button type=&quot;button&quot; class=&quot;dse-filter&quot; data-filter=&quot;core&quot; aria-pressed=&quot;true&quot;&gt;主工作台&lt;/button&gt;
+        &lt;button type=&quot;button&quot; class=&quot;dse-filter&quot; data-filter=&quot;prototype&quot; aria-pressed=&quot;false&quot;&gt;自动超频原型&lt;/button&gt;
+        &lt;button type=&quot;button&quot; class=&quot;dse-filter&quot; data-filter=&quot;merge&quot; aria-pressed=&quot;false&quot;&gt;融合阶段&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;dse-legend&quot;&gt;
+        &lt;span style=&quot;color: var(--dse-cyan)&quot;&gt;&lt;i class=&quot;dse-dot&quot;&gt;&lt;/i&gt;核心流程&lt;/span&gt;
+        &lt;span style=&quot;color: var(--dse-magenta)&quot;&gt;&lt;i class=&quot;dse-dot&quot;&gt;&lt;/i&gt;原型模块&lt;/span&gt;
+        &lt;span style=&quot;color: var(--dse-amber)&quot;&gt;&lt;i class=&quot;dse-dot&quot;&gt;&lt;/i&gt;待完成&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;dse-map-stage&quot;&gt;
+      &lt;div class=&quot;dse-tracks&quot;&gt;
+        &lt;section class=&quot;dse-track core&quot; data-track=&quot;core&quot; aria-label=&quot;电脑调试工作台演变&quot;&gt;
+          &lt;div class=&quot;dse-track-head&quot;&gt;
+            &lt;div&gt;
+              &lt;span class=&quot;dse-track-kicker&quot;&gt;TRACK A / CORE&lt;/span&gt;
+              &lt;h2&gt;电脑硬件工作台&lt;/h2&gt;
+            &lt;/div&gt;
+            &lt;span class=&quot;dse-track-badge&quot;&gt;STABLE 1.4.3&lt;/span&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;dse-lane&quot; id=&quot;dse-core-lane&quot;&gt;&lt;/div&gt;
+        &lt;/section&gt;
+
+        &lt;section class=&quot;dse-track prototype&quot; data-track=&quot;prototype&quot; aria-label=&quot;自动超频原型演变&quot;&gt;
+          &lt;div class=&quot;dse-track-head&quot;&gt;
+            &lt;div&gt;
+              &lt;span class=&quot;dse-track-kicker&quot;&gt;TRACK B / MODULE&lt;/span&gt;
+              &lt;h2&gt;含自动超频原型&lt;/h2&gt;
+            &lt;/div&gt;
+            &lt;span class=&quot;dse-track-badge&quot;&gt;FROZEN 3.0.1&lt;/span&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;dse-lane&quot; id=&quot;dse-prototype-lane&quot;&gt;&lt;/div&gt;
+        &lt;/section&gt;
+      &lt;/div&gt;
+
+      &lt;section class=&quot;dse-detail merge&quot; aria-live=&quot;polite&quot;&gt;
+        &lt;div class=&quot;dse-floating-handle&quot; data-drag-handle&gt;
+          &lt;p class=&quot;dse-detail-kicker&quot;&gt;MILESTONE DOSSIER / 节点介绍&lt;/p&gt;
+          &lt;span class=&quot;dse-drag-hint&quot;&gt;DRAG / 拖动&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;dse-detail-head&quot;&gt;
+          &lt;h3 id=&quot;dse-detail-title&quot;&gt;融合阶段&lt;/h3&gt;
+          &lt;span class=&quot;dse-detail-status&quot; id=&quot;dse-detail-status&quot;&gt;NEXT / NOT STARTED&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;dse-detail-grid&quot;&gt;
+          &lt;div class=&quot;dse-detail-cell&quot;&gt;
+            &lt;p class=&quot;dse-label&quot;&gt;目标&lt;/p&gt;
+            &lt;p class=&quot;dse-value&quot; id=&quot;dse-detail-goal&quot;&gt;自动超频成为正式工作台 Tune 分支中的模块，而不是第二个顶层 Skill。&lt;/p&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;dse-detail-cell&quot;&gt;
+            &lt;p class=&quot;dse-label&quot;&gt;主要动作&lt;/p&gt;
+            &lt;p class=&quot;dse-value&quot; id=&quot;dse-detail-action&quot;&gt;差异审计 · 文件所有权 · 最小路由接合 · 回归测试 · 真机验收。&lt;/p&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;dse-detail-cell&quot;&gt;
+            &lt;p class=&quot;dse-label&quot;&gt;验证与边界&lt;/p&gt;
+            &lt;p class=&quot;dse-value&quot; id=&quot;dse-detail-proof&quot;&gt;保留正式采集、遥测和安全门禁；不复制第二套核心脚本，不自动写入硬件。&lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/div&gt;
+
+    &lt;section class=&quot;dse-convergence&quot; aria-label=&quot;两种能力的融合目标&quot;&gt;
+      &lt;div class=&quot;dse-convergence-line&quot;&gt;&lt;/div&gt;
+      &lt;span aria-hidden=&quot;true&quot; style=&quot;text-align:center;color:var(--dse-cyan)&quot;&gt;SYS&lt;/span&gt;
+      &lt;div class=&quot;dse-merge-stack&quot;&gt;
+        &lt;button type=&quot;button&quot; class=&quot;dse-merge-button&quot; data-merge-id=&quot;merge&quot;&gt;
+          &lt;span class=&quot;dse-merge-kicker&quot;&gt;CONVERGENCE NODE&lt;/span&gt;
+          &lt;span class=&quot;dse-merge-title&quot;&gt;融入正式工作台 · 单一用户入口&lt;/span&gt;
+        &lt;/button&gt;
+        &lt;button type=&quot;button&quot; class=&quot;dse-merge-button&quot; data-merge-id=&quot;merge-release&quot;&gt;
+          &lt;span class=&quot;dse-merge-kicker&quot;&gt;RELEASE GATE&lt;/span&gt;
+          &lt;span class=&quot;dse-merge-title&quot;&gt;融合版发布门禁 · 回归与回滚&lt;/span&gt;
+        &lt;/button&gt;
+      &lt;/div&gt;
+      &lt;span aria-hidden=&quot;true&quot; style=&quot;text-align:center;color:var(--dse-magenta)&quot;&gt;AUTO&lt;/span&gt;
+      &lt;div class=&quot;dse-convergence-line reverse&quot;&gt;&lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;section class=&quot;dse-archive&quot; aria-labelledby=&quot;dse-archive-title&quot;&gt;
+      &lt;header class=&quot;dse-archive-head&quot;&gt;
+        &lt;div&gt;
+          &lt;p class=&quot;dse-archive-kicker&quot;&gt;VERSION ARCHIVE / EVERY RECORDED RELEASE&lt;/p&gt;
+          &lt;h2 id=&quot;dse-archive-title&quot;&gt;逐版本迭代档案&lt;/h2&gt;
+          &lt;p class=&quot;dse-archive-summary&quot;&gt;从统一工作台 1.0.0 到当前 1.4.3，再到自动超频原型的独立分叉、档位证据和真机验收。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;dse-archive-totals&quot; aria-label=&quot;版本档案统计&quot;&gt;
+          &lt;span class=&quot;dse-archive-total&quot;&gt;&lt;b id=&quot;dse-wb-count&quot;&gt;0&lt;/b&gt;工作台版本&lt;/span&gt;
+          &lt;span class=&quot;dse-archive-total prototype&quot;&gt;&lt;b id=&quot;dse-proto-count&quot;&gt;0&lt;/b&gt;原型版本&lt;/span&gt;
+          &lt;span class=&quot;dse-archive-total&quot;&gt;&lt;b id=&quot;dse-total-count&quot;&gt;0&lt;/b&gt;全部版本记录&lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/header&gt;
+      &lt;div id=&quot;dse-version-archive&quot;&gt;&lt;/div&gt;
+      &lt;section class=&quot;dse-version-detail&quot; id=&quot;dse-version-detail&quot; aria-live=&quot;polite&quot; hidden&gt;
+        &lt;div class=&quot;dse-floating-handle&quot; data-drag-handle&gt;
+          &lt;p class=&quot;dse-version-detail-kicker&quot;&gt;VERSION DOSSIER / 选中版本&lt;/p&gt;
+          &lt;span class=&quot;dse-drag-hint&quot;&gt;DRAG / 拖动&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;dse-version-detail-head&quot;&gt;
+          &lt;h3 id=&quot;dse-version-detail-title&quot;&gt;选择一个版本&lt;/h3&gt;
+          &lt;span class=&quot;dse-version-detail-date&quot; id=&quot;dse-version-detail-date&quot;&gt;&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;dse-version-detail-grid&quot;&gt;
+          &lt;div class=&quot;dse-detail-cell&quot;&gt;
+            &lt;p class=&quot;dse-label&quot;&gt;这一版改变了什么&lt;/p&gt;
+            &lt;ul class=&quot;dse-version-change-list&quot; id=&quot;dse-version-changes&quot;&gt;&lt;/ul&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;dse-detail-cell&quot;&gt;
+            &lt;p class=&quot;dse-label&quot;&gt;验证与发布状态&lt;/p&gt;
+            &lt;p class=&quot;dse-value&quot; id=&quot;dse-version-validation&quot;&gt;&lt;/p&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;dse-detail-cell&quot;&gt;
+            &lt;p class=&quot;dse-label&quot;&gt;历史位置&lt;/p&gt;
+            &lt;p class=&quot;dse-value&quot; id=&quot;dse-version-lineage&quot;&gt;&lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/section&gt;
+
+    &lt;footer class=&quot;dse-footer&quot;&gt;
+      &lt;span&gt;PATH: CORE SAFETY + GPU EVIDENCE → MODULE MERGE → SINGLE ENTRY&lt;/span&gt;
+      &lt;span&gt;BOUNDARY: EXPERIMENT PLAN ONLY · NO HARDWARE WRITE · USER-CONTROLLED&lt;/span&gt;
+    &lt;/footer&gt;
+  &lt;/div&gt;
+
+  &lt;script&gt;
+    (() =&gt; {
+      const root = document.getElementById(&quot;dse-root&quot;);
+      const coreLane = document.getElementById(&quot;dse-core-lane&quot;);
+      const prototypeLane = document.getElementById(&quot;dse-prototype-lane&quot;);
+      const detailTitle = document.getElementById(&quot;dse-detail-title&quot;);
+      const detailStatus = document.getElementById(&quot;dse-detail-status&quot;);
+      const detailGoal = document.getElementById(&quot;dse-detail-goal&quot;);
+      const detailAction = document.getElementById(&quot;dse-detail-action&quot;);
+      const detailProof = document.getElementById(&quot;dse-detail-proof&quot;);
+      const milestoneDetail = root.querySelector(&quot;.dse-detail&quot;);
+      const mergeButtons = root.querySelectorAll(&quot;[data-merge-id]&quot;);
+      const versionArchive = document.getElementById(&quot;dse-version-archive&quot;);
+      const versionDetail = document.getElementById(&quot;dse-version-detail&quot;);
+      const versionDetailTitle = document.getElementById(&quot;dse-version-detail-title&quot;);
+      const versionDetailDate = document.getElementById(&quot;dse-version-detail-date&quot;);
+      const versionChanges = document.getElementById(&quot;dse-version-changes&quot;);
+      const versionValidation = document.getElementById(&quot;dse-version-validation&quot;);
+      const versionLineage = document.getElementById(&quot;dse-version-lineage&quot;);
+
+      const versionSeries = [
+        {
+          id: &quot;wb-1-0&quot;, track: &quot;core&quot;, label: &quot;WORKBENCH / 1.0&quot;, sub: &quot;统一入口 · 新手路线 · 流程闭环&quot;,
+          versions: [
+            [&quot;1.0.0&quot;, &quot;统一工作台&quot;, &quot;2026-10-25&quot;, &quot;BASELINE&quot;, [&quot;合并排障、购买判断与调校三套能力。&quot;, &quot;建立按任务加载的统一入口和跨模式交接。&quot;, &quot;接入本地只读采集器，保留手动应用边界。&quot;], &quot;22 个上游参考/脚本逐哈希一致；入口、采集与 ZIP 完整性检查通过。&quot;, &quot;正式工作台的起点。&quot;],
+            [&quot;1.0.1&quot;, &quot;采集接入排障与调校&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;硬件信息不足时提供可选只读采集。&quot;, &quot;用真实 CPU、GPU、主板与形态选择平台路线。&quot;, &quot;明确快照不能证明稳定、散热或瓶颈。&quot;], &quot;采集、来源覆盖与发布包完整性检查通过。&quot;, &quot;把“先识别硬件”接入既有工作流。&quot;],
+            [&quot;1.0.2&quot;, &quot;持久性与传感器语义&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;区分会话、保存未验证、重启验证和日常验证。&quot;, &quot;按能效、性能、平衡、跑分等目标定义成功。&quot;, &quot;统一请求值、有效值与多种传感器口径。&quot;], &quot;新增规则、入口引用和采集回归通过。&quot;, &quot;首次把“配置是否真的保留”设为结果条件。&quot;],
+            [&quot;1.0.3&quot;, &quot;官方稳定版优先&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;共享软件默认推荐当前官方稳定版。&quot;, &quot;旧构建只允许作具体设备的私人回退记录。&quot;, &quot;禁止用核心温度推算隐藏热点。&quot;], &quot;来源覆盖、入口与采集器回归通过。&quot;, &quot;收紧监控软件来源与版本建议。&quot;],
+            [&quot;1.0.4&quot;, &quot;空调用介绍&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;只调用 Skill 时先说明用途并询问目标。&quot;, &quot;已带具体任务时直接进入对应模式。&quot;, &quot;同一对话不重复用途介绍。&quot;], &quot;首次响应与跳过规则检查通过。&quot;, &quot;降低冷启动时不知从何说起的门槛。&quot;],
+            [&quot;1.0.4-r1&quot;, &quot;首次介绍文案修订&quot;, &quot;2026-10-25&quot;, &quot;COPY-EDIT&quot;, [&quot;把升级说明改为“评估是否真的需要升级硬件”。&quot;, &quot;仅修改同版本文案，不改变路由或安全逻辑。&quot;, &quot;metadata.version 保持 1.0.4。&quot;], &quot;作为文案修订包保留，可回到 1.0.4 基础包。&quot;, &quot;1.0 系列中的第一个同版复制修订。&quot;],
+            [&quot;1.0.5&quot;, &quot;先解释再选择&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;询问模式、格式或路线前先解释区别。&quot;, &quot;标准与隐私模式明确说明保留和隐藏的内容。&quot;, &quot;解释脱敏对兼容、保修和残值判断的影响。&quot;], &quot;选择前解释与采集边界检查通过。&quot;, &quot;减少用户面对未解释选项时的盲选。&quot;],
+            [&quot;1.0.6&quot;, &quot;Quick / Deep 与遥测&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;加入快速模式、深入模式和固定工作负载。&quot;, &quot;引入单屏实验卡和 CSV 遥测分析器。&quot;, &quot;加入驱动、固件、Windows 与工具更新闸门。&quot;], &quot;HWiNFO、PresentMon、交互契约与采集器回归通过。&quot;, &quot;工作台从规则集变成可执行实验闭环。&quot;],
+            [&quot;1.0.7&quot;, &quot;结构瘦身&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;主入口压缩并改为按任务渐进加载。&quot;, &quot;快速模式只加载必要调校资料。&quot;, &quot;验证与遥测资料拆分为独立参考。&quot;], &quot;PowerShell 语法、遥测、交互和加载预算检查通过。&quot;, &quot;为后续持续扩写释放上下文空间。&quot;],
+            [&quot;1.0.8&quot;, &quot;中文 HWiNFO 兼容&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;兼容中文列名、重复列名和灵活日期时间。&quot;, &quot;识别 HWiNFO 文件尾元数据并避免误读数据行。&quot;, &quot;优先读取 Presented 平均 FPS，修复 5.1 中文编码。&quot;], &quot;中文 CSV、重复列、文件尾和 FPS 优先测试通过。&quot;, &quot;第一次针对真实中文日志做兼容硬化。&quot;],
+            [&quot;1.0.9&quot;, &quot;完全新手路线&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;允许用户直接说“我不会”并逐步引导。&quot;, &quot;先问现实目标，一次只问一个关键问题。&quot;, &quot;新手想超频仍先确认机器、基线、负载和恢复。&quot;], &quot;新手、现有 CSV 与风险请求交互场景通过。&quot;, &quot;降低操作门槛但不下调安全门禁。&quot;],
+            [&quot;1.0.10&quot;, &quot;监控导出的白话解释&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;把 CSV 先称为“监控软件导出的记录”。&quot;, &quot;无记录时推荐 HWiNFO64 Sensors。&quot;, &quot;说明 Sensors-only、开始记录、保存和隐私边界。&quot;], &quot;无记录时推荐官方下载的交互场景通过。&quot;, &quot;把监控工具教学从术语改为动作。&quot;],
+            [&quot;1.0.11&quot;, &quot;拆分监控入口&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;“想看数据但没有记录”成为独立入口。&quot;, &quot;“已有记录要分析”不再暗示已安装软件。&quot;, &quot;两条路径分别进入下载教学或文件分析。&quot;], &quot;两个独立入口与遥测回归通过。&quot;, &quot;修复新手菜单的前提冲突。&quot;],
+            [&quot;1.0.12&quot;, &quot;统一调校门禁&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;新手、熟练用户、快速与深入共用同一门禁。&quot;, &quot;“别问了”“出事我负责”不能替代缺失条件。&quot;, &quot;门禁完成后才进入实验卡和单变量流程。&quot;], &quot;直接要求跳过提问的交互场景与契约测试通过。&quot;, &quot;将恢复能力置于用户口头接受风险之前。&quot;],
+            [&quot;1.0.13&quot;, &quot;门禁教学补齐&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;缺少稳定、控制项、目标、恢复或负载时给教学方法。&quot;, &quot;教学分支不提前给个性化参数。&quot;, &quot;条件补齐后回到入口摘要再继续。&quot;], &quot;不知道如何恢复、选择负载等场景通过。&quot;, &quot;让门禁从死路变成可完成的流程。&quot;],
+            [&quot;1.0.14&quot;, &quot;教学目标&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;成功标准改为用户下次可以独立复用流程。&quot;, &quot;Skill 先生成证据、理由和复盘草稿。&quot;, &quot;用户可跳过学习复盘，但安全结论仍需证据。&quot;], &quot;想要结论、教学目标与实验循环契约通过。&quot;, &quot;从“替用户做一次”转向“教会用户判断”。&quot;],
+            [&quot;1.0.15&quot;, &quot;HWiNFO 下载顺序&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;明确 Local、SAC、dAppCDN 的镜像优先级。&quot;, &quot;提示页面广告和伪下载按钮的识别方法。&quot;, &quot;不把 VPN 写成统一必需条件，也不分发安装包。&quot;], &quot;三个镜像、广告识别与静态资料检查通过。&quot;, &quot;降低新手从下载页安装错误软件的概率。&quot;],
+            [&quot;1.0.15-r1&quot;, &quot;监测软件文案修订&quot;, &quot;2026-10-25&quot;, &quot;COPY-EDIT&quot;, [&quot;新手入口和 HWiNFO 指引明确标注“监测软件”。&quot;, &quot;仅调整称谓，功能逻辑保持 1.0.15。&quot;, &quot;作为同版本文案修订包保留。&quot;], &quot;文案修订包检查通过。&quot;, &quot;第二个同版复制修订，避免把监测与调校混淆。&quot;],
+            [&quot;1.0.16&quot;, &quot;全模式交互闭环&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;每个分支以结果、下一步、取消或安全停止结束。&quot;, &quot;取消文件/采集时说明没有改变什么。&quot;, &quot;子流程完成后回到原任务并列出已有与缺失项。&quot;], &quot;采集后继续、取消与无效子流程场景通过。&quot;, &quot;让跨模式流程不再丢失原目标。&quot;],
+            [&quot;1.0.17&quot;, &quot;硬件快照复用&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;优先复用当前对话或近期报告。&quot;, &quot;任务切换不自动重新采集。&quot;, &quot;只有硬件或配置可能变化时才刷新。&quot;], &quot;采集后继续调校的复用契约通过。&quot;, &quot;减少重复采集并保持上下文连续。&quot;],
+            [&quot;1.0.18&quot;, &quot;单一调校入口&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;用户先进入“超频或降压”一个入口。&quot;, &quot;入口检查后再解释 Quick / Deep 区别。&quot;, &quot;记录深度只改变记录量，不改变安全门禁。&quot;], &quot;快速/深入交互和单一入口契约通过。&quot;, &quot;移除顶层模式选择的认知负担。&quot;],
+            [&quot;1.0.19&quot;, &quot;分析前确认记录&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;先确认是否已有监测软件和可导出记录。&quot;, &quot;已安装但无记录时进入 HWiNFO 录制教学。&quot;, &quot;取消时明确没有分析文件并保留原目标。&quot;], &quot;无监测软件、取消和遥测引用检查通过。&quot;, &quot;避免直接打开文件选择制造失败感。&quot;],
+            [&quot;1.0.20&quot;, &quot;P0 流程连续性&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;门禁帮助后回到同一问题并保留已答字段。&quot;, &quot;多份报告按时间和平台摘要区分。&quot;, &quot;上一轮实验卡可提供同设备固定条件默认值。&quot;], &quot;中断继续、多报告与条件复用场景通过。&quot;, &quot;1.0 系列的最后稳定收口。&quot;]
+          ]
+        },
+        {
+          id: &quot;wb-1-1&quot;, track: &quot;core&quot;, label: &quot;WORKBENCH / 1.1&quot;, sub: &quot;预期方向 · 在线证据 · 散热分支&quot;,
+          versions: [
+            [&quot;1.1.0&quot;, &quot;旧报告时效提醒&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;复用硬件报告前先问近期是否更换部件。&quot;, &quot;CPU、GPU、内存、硬盘、主板、显示器或电源变化后重采。&quot;, &quot;旧报告标记为当前任务过期。&quot;], &quot;硬件变更与旧报告交互场景通过。&quot;, &quot;开始区分“历史报告”与“当前配置”。&quot;],
+            [&quot;1.1.1&quot;, &quot;配置化调校方向&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;根据平台、形态、目标与固定负载给预期方向。&quot;, &quot;GPU 能效先曲线，性能先核心后显存。&quot;, &quot;型号不直接等于通用电压、频率或收益。&quot;], &quot;RTX 5070 Ti 笔记本方向与参考联动检查通过。&quot;, &quot;从静态手册进入配置感知建议。&quot;],
+            [&quot;1.1.2&quot;, &quot;在线证据 A-D 分级&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;同型号、同形态、相近功耗与散热作为 A 级。&quot;, &quot;相近代际或 SKU 作为 B/C 级弱假设。&quot;, &quot;跨形态、控制不支持或来源缺失按 D 拒绝。&quot;], &quot;相似平台证据分级场景通过。&quot;, &quot;允许借鉴方向，但禁止跨条件照抄参数。&quot;],
+            [&quot;1.1.3&quot;, &quot;会话状态与实验跟进&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;记住当前设备、实验卡、目标和固定负载。&quot;, &quot;CSV 摘要关联到同一实验卡。&quot;, &quot;复盘回写 pass / fail / inconclusive 与下一步。&quot;], &quot;实验复盘和多设备场景通过。&quot;, &quot;让一次实验可以安全地接续下一轮。&quot;],
+            [&quot;1.1.4&quot;, &quot;门禁导航与采购证据&quot;, &quot;2026-10-25&quot;, &quot;RELEASED&quot;, [&quot;门禁逐项支持帮助、返回和取消。&quot;, &quot;返回修改时保留后续已填写值。&quot;, &quot;购买判断先建立痛点、当前结果和非购买尝试证据。&quot;], &quot;逐项返回、讲解收敛和升级证据场景通过。&quot;, &quot;补全交互可逆性与升级刹车。&quot;],
+            [&quot;1.1.5&quot;, &quot;动作、类比、后果&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;每次改参数都解释改什么、可能改善什么和风险。&quot;, &quot;新手用自然对话补卡，不从空白模板开始。&quot;, &quot;火花、焦味、鼓包等物理危险拥有最高停止优先级。&quot;], &quot;主入口、实验卡与危险停止回归通过。&quot;, &quot;让安全解释成为参数建议的一部分。&quot;],
+            [&quot;1.1.6&quot;, &quot;采集后的散热分流&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;散热问题只在识别设备形态后出现。&quot;, &quot;台式机区分双风扇与三/四风扇以上 GPU 模组。&quot;, &quot;笔记本不问卷式追问散热，先用官方功耗范围作临时上限。&quot;], &quot;台式机/笔记本散热分流和实验卡字段通过。&quot;, &quot;把散热证据变成形态感知流程。&quot;],
+            [&quot;1.1.7&quot;, &quot;中文遥测与门禁修复&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;兼容完整中文表头并区分 CPU 功耗/温度。&quot;, &quot;时间窗越界、空窗和 footer 明确处理。&quot;, &quot;移除旧 Skill 硬依赖，修正采购现金流与噪音证据。&quot;], &quot;交互、遥测、审计、采集与发布包测试通过。&quot;, &quot;1.1 系列的最后稳定收口。&quot;]
+          ]
+        },
+        {
+          id: &quot;wb-1-2&quot;, track: &quot;core&quot;, label: &quot;WORKBENCH / 1.2&quot;, sub: &quot;设备身份 · GPU 曲线 · 遥测安全&quot;,
+          versions: [
+            [&quot;1.2.0&quot;, &quot;设备身份质量&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;新增 IdentityQuality 与会话身份状态映射。&quot;, &quot;身份字段按数据处理并使用安全 Markdown。&quot;, &quot;采集 smoke 纳入默认测试体系。&quot;], &quot;身份、采集、遥测和交互测试通过；collector r6。&quot;, &quot;让“读到了字段”与“身份可信”分开。&quot;],
+            [&quot;1.2.1&quot;, &quot;身份聚合与实机授权&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;以系统 Model 为核心减少误判不可读。&quot;, &quot;补充中文乱码模式与部分身份状态。&quot;, &quot;实机测试默认 SKIP，必须显式授权并选择隐私模式。&quot;], &quot;标准与脱敏实机运行通过；collector r7。&quot;, &quot;把自动化测试的隐私边界写死。&quot;],
+            [&quot;1.2.2&quot;, &quot;BIOS 与安全提示统一&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;所有 BIOS、固件和参数建议附带固定安全提示。&quot;, &quot;三段式解释按用户水平与风险展开。&quot;, &quot;BIOS 菜单只按已确认的平台和可见名称提供。&quot;], &quot;BIOS 参考场景、身份、遥测和交互测试通过。&quot;, &quot;解决 BIOS 名称跨平台不一致和照抄风险。&quot;],
+            [&quot;1.2.3&quot;, &quot;GPU 曲线基线&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;超频前要求当前参数下的固定游戏运行报告。&quot;, &quot;区分纯频率超频与曲线降压路线。&quot;, &quot;实验卡顺序改为默认参数、路线、候选值。&quot;], &quot;GPU 基线与交互场景通过。&quot;, &quot;GPU 建议第一次同时绑定电压点和恢复曲线。&quot;],
+            [&quot;1.2.4&quot;, &quot;5090 与分段曲线&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;加入桌面 RTX 5090 功耗墙加整段曲线路线。&quot;, &quot;加入桌面通用分段曲线与低电压保护段。&quot;, &quot;明确分段方法不提供给笔记本。&quot;], &quot;5090、其他桌面 GPU、笔记本路由场景通过。&quot;, &quot;把用户实测经验转为有边界的路线模板。&quot;],
+            [&quot;1.2.5&quot;, &quot;PerfCap 与三层验证&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;增加性能限制原因、三层验证和曲线应用复核。&quot;, &quot;补上显存正确性与标准恢复顺序。&quot;, &quot;形成最短正确调校路径。&quot;], &quot;版本记录后由 1.2.6 接续；核心回归保持。&quot;, &quot;把“跑分通过”扩展为限制原因、持续性与恢复验证。&quot;],
+            [&quot;1.2.6&quot;, &quot;桌面功耗墙门禁&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;普通桌面 GPU 仅在供电、散热与基线限制可靠时拉墙。&quot;, &quot;RTX 4090/5090、未知 PSU 和笔记本走更严格边界。&quot;, &quot;111% 明确只是软件参考，不是目标。&quot;], &quot;功耗墙场景与 PSU 边界进入后续测试。&quot;, &quot;将功耗墙建议从口号变成条件判断。&quot;],
+            [&quot;1.2.7&quot;, &quot;Intel 13/14 代警告&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;增加 Intel 13/14 代稳定性与退化提示。&quot;, &quot;先确认原盒/散片和保修来源。&quot;, &quot;建议优先考虑官方微码、降压或定压定频路线。&quot;], &quot;Intel 平台场景与外部参考披露检查通过。&quot;, &quot;CPU 建议开始包含平台代际风险。&quot;],
+            [&quot;1.2.8&quot;, &quot;Telemetry、PSU 与风险分类&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;增加遥测共享子流程和跨模式入口。&quot;, &quot;未知 PSU、改装线或异常发热阻止高功耗墙。&quot;, &quot;区分参数、固件与硬件改造风险。&quot;], &quot;大文件、Markdown 清洗、预算与人工模板进入测试。&quot;, &quot;流程完整性和安全分类同步扩展。&quot;],
+            [&quot;1.2.9&quot;, &quot;跨模式与路径安全&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;Telemetry 加入完整跨模式矩阵。&quot;, &quot;动态代码隔离外部 Markdown 文本。&quot;, &quot;拒绝 UNC、网络盘和覆盖已有输出。&quot;], &quot;发布阻断人工验收记录与 CHANGELOG 建立；analyzer 1.0.6。&quot;, &quot;修补 1.2.8 之后的流程残余。&quot;],
+            [&quot;1.2.10&quot;, &quot;非实机路径测试&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;路径保护测试移入默认非实机分支。&quot;, &quot;拒绝 Windows Offline 与云占位文件。&quot;, &quot;Telemetry 跨模式规则改为内容级契约。&quot;], &quot;分析器 1.0.7；AI 预验通过，广泛发布仍待人工签署。&quot;, &quot;让隐私测试不再依赖正在验证的保护本身。&quot;],
+            [&quot;1.2.11&quot;, &quot;本地路径安全模块&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;抽出共享本地路径安全模块。&quot;, &quot;拒绝符号链接、目录联接和重解析点。&quot;, &quot;缺失遥测文件改为友好错误。&quot;], &quot;路径写入、回读、防覆盖与网络拒绝测试通过；collector r9、analyzer 1.0.8。&quot;, &quot;将路径安全从采集器内部逻辑独立出来。&quot;],
+            [&quot;1.2.12&quot;, &quot;Unicode 完整清洗&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;清除 Unicode Cc/Cf 控制与格式字符。&quot;, &quot;清除常见变体选择符和行/段分隔符。&quot;, &quot;补 U+009B、U+061C、U+FE0F 回归样例。&quot;], &quot;分析器 1.0.9；广泛发布仍需独立人工签署。&quot;, &quot;报告输出安全从常见字符扩展到完整控制面。&quot;],
+            [&quot;1.2.13&quot;, &quot;报告安全与遥测补全&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;外部字段与采集警告统一安全渲染。&quot;, &quot;固定/移动卷范围一致，标题改为 Windows-reported。&quot;, &quot;新增 CPU Core Max、GPU Core Voltage 与可合成脱敏测试。&quot;], &quot;collector r10、analyzer 1.1.0；路径检查前移。&quot;, &quot;从流程安全推进到报告内容语义安全。&quot;],
+            [&quot;1.2.14&quot;, &quot;日常故障证据边界&quot;, &quot;2026-10-26&quot;, &quot;TEST&quot;, [&quot;增加启动变慢、桌面卡顿、游戏瞬时卡顿与卷空间分诊。&quot;, &quot;补充 WHEA、Kernel-Power 41、BugCheck 1001 和 dump 边界。&quot;, &quot;加入外设、网络、笔记本电池/适配器与截图限制。&quot;], &quot;仅补诊断规则，不改采集器或分析器；由 1.2.15 接续。&quot;, &quot;工作台开始覆盖非游戏性能型日常故障。&quot;],
+            [&quot;1.2.15&quot;, &quot;AMD Tctl/Tdie 与 PPT&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;支持 AMD HWiNFO 的 CPU Tctl/Tdie 温度。&quot;, &quot;识别 CPU PPT 并计入封装功耗。&quot;, &quot;使用独立指标名，避免冒充 Intel Package。&quot;], &quot;AMD 命名 CSV 回归通过；analyzer 1.1.1。&quot;, &quot;AMD 平台从“可运行”提升为专门支持。&quot;],
+            [&quot;1.2.16&quot;, &quot;AMD 偏移与限制排除&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;锁定真实测量列，排除 Tdie Offset 与 Limit。&quot;, &quot;PPT Limit 不进入封装功耗统计。&quot;, &quot;调整 AMD 夹具验证偏移列位于前部。&quot;], &quot;AMD Offset/Limit 回归通过；analyzer 1.1.2。&quot;, &quot;修复 1.2.15 后续的数值语义污染。&quot;],
+            [&quot;1.2.17&quot;, &quot;CPU 平均温度与 CI 同步&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;增加 CPU Die average 独立指标。&quot;, &quot;报告偏移、限制、角色和单位导致的排除列。&quot;, &quot;加入便携/仓库共享脚本与 CI 同步检查。&quot;], &quot;分析器 1.1.3；跨目录同步与两种 CSV 回归通过。&quot;, &quot;1.2 系列把遥测和交付一致性共同收口。&quot;]
+          ]
+        },
+        {
+          id: &quot;wb-1-3&quot;, track: &quot;core&quot;, label: &quot;WORKBENCH / 1.3&quot;, sub: &quot;采集上下文 · 脱敏契约 · 发布工程&quot;,
+          versions: [
+            [&quot;1.3.0&quot;, &quot;用户手动提权采集&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;默认仍是非提权只读采集。&quot;, &quot;新增用户主动启动的 RequireElevated 模式，不自动 UAC。&quot;, &quot;记录哪些字段可能因权限恢复，哪些仍不可见。&quot;], &quot;collector r11；权限模式与采集回归通过。&quot;, &quot;在需要硬件数据的场景提供受控提权路径。&quot;],
+            [&quot;1.3.1&quot;, &quot;受限代理上下文&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;区分 restricted-agent、标准用户和提权用户。&quot;, &quot;增加带时间戳的 nvidia-smi 瞬时 GPU 数据。&quot;, &quot;Markdown 报告改 UTF-8 BOM，修复中文 PowerShell 5.1。&quot;], &quot;collector r12；三种上下文与瞬时传感器检查通过。&quot;, &quot;解决采集在受限宿主里“有命令但无结果”。&quot;],
+            [&quot;1.3.2&quot;, &quot;Unicode 转义与电池四态&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;中文拒绝访问匹配改为 ASCII Unicode 转义。&quot;, &quot;电池拆为 available、not-present、权限不可用和普通不可用。&quot;, &quot;JSON 保持无 BOM，Markdown 保持 BOM。&quot;], &quot;collector r13；inventory-context 纯函数测试建立。&quot;, &quot;修复 PowerShell 5.1 中文死分支并提升电池可解释性。&quot;],
+            [&quot;1.3.3&quot;, &quot;powercfg 权限分类&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;powercfg stderr 改为局部 Continue 捕获。&quot;, &quot;权限拒绝记录为 unavailable-permission。&quot;, &quot;其他非零退出仍保持普通 unavailable。&quot;], &quot;mock stderr 回归通过；collector r14。&quot;, &quot;让权限错误与真实命令失败可区分。&quot;],
+            [&quot;1.3.4&quot;, &quot;Schema 3 与退出码&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;固定 22 个顶层键和 16 个 CollectionStatus 键。&quot;, &quot;新增结构化警告码、固定枚举与来源一致性。&quot;, &quot;输入拒绝统一退出码 2。&quot;], &quot;schema/键/状态/警告/退出码契约通过；collector r15。&quot;, &quot;把采集输出从“看起来稳定”推进为机器契约。&quot;],
+            [&quot;1.3.5&quot;, &quot;实机断言与窗口退出&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;修复实机 GPU 标题的过期断言。&quot;, &quot;遥测混用窗口类型时改为输入拒绝退出码 2。&quot;, &quot;明确 R6 全值脱敏尚未实现。&quot;], &quot;analyzer 1.1.4；真实子进程与 smoke 回归通过。&quot;, &quot;清理实机测试和版本声明之间的不一致。&quot;],
+            [&quot;1.3.6&quot;, &quot;R6 脱敏契约&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;标准与脱敏组件保持相同键和数组长度。&quot;, &quot;保留内存 Bank 与显示器 AdapterName 证据。&quot;, &quot;脱敏字段、占位符和例外收口到输出规范。&quot;], &quot;形状、精确遮蔽、稳定占位符和适配器一致性测试通过；collector r16。&quot;, &quot;隐私模式不再通过删除结构来破坏证据。&quot;],
+            [&quot;1.3.7&quot;, &quot;空值脱敏语义&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;空字符串保持空值，不再伪装为 redacted。&quot;, &quot;非空敏感字段继续稳定遮蔽。&quot;, &quot;保持组件键、数组长度和实机双模式一致性。&quot;], &quot;空值与实机双模式回归通过；collector r17。&quot;, &quot;修复“隐藏了不存在的值”造成的语义噪声。&quot;],
+            [&quot;1.3.8&quot;, &quot;低帧率与帧时间&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;修复中文 Presented FPS 未被优先选择。&quot;, &quot;新增 Presented/Displayed 1%、0.1% low 与帧时间百分位。&quot;, &quot;对全 0 或无有效值的传感器列生成警告。&quot;], &quot; analyzer 1.1.5；中文 FPS 和百分位回归通过。&quot;, &quot;遥测从平均值扩展到卡顿尾部。&quot;],
+            [&quot;1.3.9&quot;, &quot;帧时间命名修正&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;Presented 1%/0.1% 改为 fastest 方向。&quot;, &quot;慢帧尾部继续使用 99% high 与 Displayed high。&quot;, &quot;防止百分位方向写反。&quot;], &quot;analyzer 1.1.6；命名与计算方向回归通过。&quot;, &quot;修复 1.3.8 暴露的展示语义问题。&quot;],
+            [&quot;1.3.10&quot;, &quot;内存槽位证据保留&quot;, &quot;2026-10-26&quot;, &quot;RELEASED&quot;, [&quot;脱敏模式保留 Slot 与 Channel 结构。&quot;, &quot;保留 Generic PnP Monitor、Windows、本地磁盘等占位串。&quot;, &quot;真实型号和自定义卷标继续隐藏。&quot;], &quot;collector r18；脱敏契约和双模式回归通过。&quot;, &quot;避免隐私保护删掉对排障有价值的结构信息。&quot;],
+            [&quot;1.3.11&quot;, &quot;建议强度分级&quot;, &quot;2026-10-27&quot;, &quot;RELEASED&quot;, [&quot;隐藏或厂商限制控制默认拒绝实施指导。&quot;, &quot;只有已实施、有现状证据且只评估时才降级。&quot;, &quot;反作弊、权限绕过和隐藏痕迹永不降级。&quot;], &quot;advice-intensity 参考、场景 42 与契约测试通过。&quot;, &quot;开始区分公开控件与厂商限制控件。&quot;],
+            [&quot;1.3.12&quot;, &quot;持久验证器与标题修复&quot;, &quot;2026-10-27&quot;, &quot;RELEASED&quot;, [&quot;建立持久化 validate-skill 包装器和 PyYAML 环境。&quot;, &quot;修复 Advice intensity 标题截断 Tune 路由。&quot;, &quot;增加工具命名边界与标题顺序契约。&quot;], &quot;官方校验器、标题顺序与工具命名回归通过。&quot;, &quot;解决长期存在的验证环境与 Markdown 结构问题。&quot;],
+            [&quot;1.3.13&quot;, &quot;入口瘦身&quot;, &quot;2026-10-27&quot;, &quot;RELEASED&quot;, [&quot;把三段式解释细节迁入 explanation-style。&quot;, &quot;压缩 Tune 路由和 Quick/Deep 清单。&quot;, &quot;主入口从 17346 B 降至 15410 B。&quot;], &quot;入口预算余量提升到 1998 B；全部路由与安全短语保留。&quot;, &quot;为 1.3 后半段扩写留出上下文预算。&quot;],
+            [&quot;1.3.14&quot;, &quot;安全绑定恢复&quot;, &quot;2026-10-27&quot;, &quot;RELEASED&quot;, [&quot;恢复每个数值或指令同时带安全提示与解释。&quot;, &quot;在 explanation-style 再次明确绑定。&quot;, &quot;缺失参考改为友好断言失败。&quot;], &quot;安全绑定与缺失 reference 回归通过。&quot;, &quot;修复 1.3.13 瘦身造成的安全语义弱化。&quot;],
+            [&quot;1.3.15&quot;, &quot;安全文件读取&quot;, &quot;2026-10-27&quot;, &quot;RELEASED&quot;, [&quot;维护摘要中的 collector 版本更正为 r18。&quot;, &quot;Read-RequiredFile 对缺失/非文件单点退出。&quot;, &quot;45 个 Get-Content 统一显式 UTF-8。&quot;], &quot;缺失文件与目录路径变异验证通过。&quot;, &quot;降低一条路径错误引发连锁断言噪声的概率。&quot;],
+            [&quot;1.3.16&quot;, &quot;中性名称与 BOM 守卫&quot;, &quot;2026-10-27&quot;, &quot;RELEASED&quot;, [&quot;裸调用回显改为不带宿主前缀的中性名称。&quot;, &quot;新增非 ASCII PowerShell 必须带 UTF-8 BOM。&quot;, &quot;编码守卫纳入默认全量测试。&quot;], &quot;中性介绍、BOM 和全量测试入口回归通过。&quot;, &quot;修复跨宿主文案与编码漂移。&quot;],
+            [&quot;1.3.17&quot;, &quot;日常配置晋级&quot;, &quot;2026-10-27&quot;, &quot;RELEASED&quot;, [&quot;增加压测、基线、验证层、应用值和恢复要求的晋级清单。&quot;, &quot;组件手册指回日常配置晋级流程。&quot;, &quot;补充 HWiNFO 下载卡与 DSH 调用语汇。&quot;], &quot;断言总数从 273 增至 277；便携工具同步 1.3.17。&quot;, &quot;补上“跑分配置能否成为日常配置”的门槛。&quot;],
+            [&quot;1.3.18&quot;, &quot;首次录制与三包对齐&quot;, &quot;2026-10-27&quot;, &quot;RELEASED&quot;, [&quot;首次监控录制强制转述 HWiNFO 下载页陷阱。&quot;, &quot;修复 DSH 多行列表缩进。&quot;, &quot;DSH、Codex 分享与便携三套包同版发布。&quot;], &quot;断言总数增至 282；三包版本同步检查通过。&quot;, &quot;第一次将三种分发形态纳入同一版本门禁。&quot;],
+            [&quot;1.3.19&quot;, &quot;证据责任与未知供电&quot;, &quot;2026-10-27&quot;, &quot;RELEASED&quot;, [&quot;区分用户陈述与可核验证据。&quot;, &quot;新增取证责任、仪器优先和一次一个决策。&quot;, &quot;未知电源路径优先阻断并提供一条不提升上限的替代动作。&quot;], &quot;断言总数增至 293；三包同步。&quot;, &quot;将“谁提供什么证据”写入交互责任。&quot;],
+            [&quot;1.3.20&quot;, &quot;门禁拆分与 305 断言&quot;, &quot;2026-10-27&quot;, &quot;RELEASED&quot;, [&quot;拆分未知供电路径与普通门禁事实。&quot;, &quot;统一 Advice intensity 的入口摘要。&quot;, &quot;拒绝后固定给 one harmless next step。&quot;], &quot;断言总数增至 305；三包同步。&quot;, &quot;1.3 系列的最终安全与契约收口。&quot;]
+          ]
+        },
+        {
+          id: &quot;wb-1-4&quot;, track: &quot;core&quot;, label: &quot;WORKBENCH / 1.4&quot;, sub: &quot;自然语气 · 提示时机 · 当前分发&quot;,
+          versions: [
+            [&quot;1.4.0&quot;, &quot;语气层&quot;, &quot;2026-10-28&quot;, &quot;TONE TEST&quot;, [&quot;安全提示与三段式解释改为由候选值或真实动作触发。&quot;, &quot;删除状态行和方括号式模式横幅。&quot;, &quot;多步流程仍保留一句自然语言进度提示。&quot;], &quot;12 条语气稳定性场景；测试包未达到发布标准，由 1.4.1 接续。&quot;, &quot;从“流程模板感”转向自然专家表达。&quot;],
+            [&quot;1.4.1&quot;, &quot;收窄提示范围&quot;, &quot;2026-10-28&quot;, &quot;TONE TEST&quot;, [&quot;普通系统、软件、HDR、监测导出不再机械触发安全提示。&quot;, &quot;提示范围收窄到调校敏感参数与明确改动动作。&quot;, &quot;补充 HWiNFO 菜单位置可能随版本变化。&quot;], &quot;规则项三轮稳定性复查；版本记录后由 1.4.2 接续。&quot;, &quot;修复 1.4.0 中语气规则过宽的问题。&quot;],
+            [&quot;1.4.2&quot;, &quot;候选与提示同段&quot;, &quot;2026-10-28&quot;, &quot;RELEASED&quot;, [&quot;候选值与安全提示必须出现在同一段。&quot;, &quot;移除实验卡中的 Mode 字段和括号模式标签。&quot;, &quot;紧凑卡片在用户明确要求时保留必要证据。&quot;], &quot;T13 正向触发；测试包被 1.4.3 取代。&quot;, &quot;修复回答结构好看但安全语义被拆散的问题。&quot;],
+            [&quot;1.4.3&quot;, &quot;安全提示本地化&quot;, &quot;2026-10-28&quot;, &quot;CURRENT&quot;, [&quot;中文与英文各有标准安全提示句。&quot;, &quot;禁止同一回复混用中英文安全提示。&quot;, &quot;加入 T14-T17 英文概念、隐藏限制、故障与候选场景。&quot;], &quot;语气三轮复查通过；作为当前正式公开版本。&quot;, &quot;当前工作台稳定版。&quot;],
+            [&quot;1.4.3-r1&quot;, &quot;文案与空白同步修订&quot;, &quot;2026-10-29&quot;, &quot;CURRENT PACKAGE&quot;, [&quot;仅修正文案与空白对齐。&quot;, &quot;Skill metadata 仍为 1.4.3。&quot;, &quot;当前分发目录使用 r1-test 复制包。&quot;], &quot;六套包同步与 CI 检查后重新打包；Skill 版本不变。&quot;, &quot;当前实际分发包，不构成新的功能版本。&quot;]
+          ]
+        },
+        {
+          id: &quot;proto-2&quot;, track: &quot;prototype&quot;, label: &quot;AUTO-OC / 2.x&quot;, sub: &quot;独立分叉 · 消费卡防火墙 · 可用起点&quot;,
+          versions: [
+            [&quot;2.2.0&quot;, &quot;族系先验基线&quot;, &quot;2026-10-29&quot;, &quot;BASELINE&quot;, [&quot;覆盖 NVIDIA RTX 30/40/50、AMD RDNA 与 Intel Arc。&quot;, &quot;族系先验给方向和首轮阶梯，本机实测决定具体值。&quot;, &quot;区分 NVIDIA 偏移与 AMD 实际频率单位。&quot;], &quot;族系识别、AMD 单位与新手流程回归通过；原工作台未修改。&quot;, &quot;自动超频原型的已知起点。&quot;],
+            [&quot;2.3.0&quot;, &quot;准确性 P0&quot;, &quot;2026-10-29&quot;, &quot;RELEASED&quot;, [&quot;缺少目标、固定负载、通过判据或中止信号时 Blocked。&quot;, &quot;新增 EvidenceBasis、Confidence 与 ExpectedMagnitude。&quot;, &quot;型号、形态、族系冲突在给数字前阻断。&quot;], &quot;官方 validator 与完整回归通过。&quot;, &quot;把“给一个数”改为“先证明有条件给数”。&quot;],
+            [&quot;2.3.1&quot;, &quot;原型改名与阻断契约&quot;, &quot;2026-10-29&quot;, &quot;RELEASED&quot;, [&quot;改名为“电脑硬件工作台·含自动超频·原型”。&quot;, &quot;固定独立 Skill ID 与原型目录。&quot;, &quot;所有阻断结果统一无候选值、无证据等级。&quot;], &quot;Skill is valid；完整自动测试通过。&quot;, &quot;正式与原型从此保持两条独立版本线。&quot;],
+            [&quot;2.3.2&quot;, &quot;专业卡与目标校验&quot;, &quot;2026-10-29&quot;, &quot;RELEASED&quot;, [&quot;阻断工作站、数据中心、核显和未知类别。&quot;, &quot;TargetComponent 必须与 GPU 目标一致。&quot;, &quot;输出 ResolvedGpuModel、身份状态与先验来源。&quot;], &quot;专业卡、多 GPU、显存控件与阻断输出测试通过。&quot;, &quot;补上 2.3.0 之后的分类漏洞。&quot;],
+            [&quot;2.3.3&quot;, &quot;正向消费级识别&quot;, &quot;2026-10-30&quot;, &quot;RELEASED&quot;, [&quot;多 GPU 扫描跨 NVIDIA、AMD、Intel。&quot;, &quot;ConsumerGpuConfirmed 无法覆盖专业卡、数据中心或核显。&quot;, &quot;工作站与数据中心黑名单继续扩展。&quot;], &quot;代表消费卡保持 Ready；官方校验与完整回归通过。&quot;, &quot;从黑名单修补转为正向消费级资格。&quot;],
+            [&quot;2.3.4&quot;, &quot;复合分隔符与 A10G&quot;, &quot;2026-10-30&quot;, &quot;RELEASED&quot;, [&quot;覆盖中英文逗号、分号、斜杠、and、顿号、括号与换行。&quot;, &quot;同段多适配器不再被一个独显名称掩盖。&quot;, &quot;补 A10G 等变体阻断。&quot;], &quot;消费卡控制组持续 Ready；分类回归通过。&quot;, &quot;2.3 系列的分类防火墙收口。&quot;],
+            [&quot;2.4.0&quot;, &quot;usable-start 与结果语义&quot;, &quot;2026-10-30&quot;, &quot;RELEASED&quot;, [&quot;默认目标改为一次给出可日常使用的起点。&quot;, &quot;新增 CandidateRole 与预生成 FallbackCandidate。&quot;, &quot;通过后按 Keep / Diagnose / repeat / Revert 处理。&quot;], &quot;状态 ID、曲线起点与单卡名称回归通过。&quot;, &quot;原型从安全试探转向“少折腾但可回退”。&quot;],
+            [&quot;2.4.1&quot;, &quot;结果优先级与上下文&quot;, &quot;2026-10-30&quot;, &quot;RELEASED&quot;, [&quot;Reliability / Utilization 先于任何 Pass 判定。&quot;, &quot;ExperimentId、CandidateId、Parent 上下文必须匹配。&quot;, &quot;不同路线使用各自成功语义，fallback 回到上一通过值。&quot;], &quot;GPU、交互和完整回归通过。&quot;, &quot;修复 2.4.0 的状态复用和 fallback 语义。&quot;],
+            [&quot;2.5.1&quot;, &quot;功耗墙单位与笔记本状态&quot;, &quot;2026-10-30&quot;, &quot;RELEASED&quot;, [&quot;区分功耗墙百分比、功耗墙上限瓦数与实测功耗。&quot;, &quot;支持 assumed-stock、declared-stock、declared-unlocked 与 mismatch。&quot;, &quot;解锁功耗墙不自动放大频率步长。&quot;], &quot;笔记本状态场景与完整自动回归通过。&quot;, &quot;修复“95% 等于 95W”一类单位混淆。&quot;],
+            [&quot;2.6.0&quot;, &quot;历史分层与指纹&quot;, &quot;2026-10-30&quot;, &quot;RELEASED&quot;, [&quot;分离 HardwareFingerprint、ConfigurationFingerprint 与 Lineage。&quot;, &quot;功耗墙改变使旧候选不能直接续用，但历史证据保留。&quot;, &quot;Profile-only fallback 不声称能撤销外部功耗墙修改。&quot;], &quot;三层状态与功耗墙变化场景通过。&quot;, &quot;纠正“功耗墙一变全部作废”的过度表述。&quot;],
+            [&quot;2.7.0&quot;, &quot;RTX 50 公开证据&quot;, &quot;2026-10-30&quot;, &quot;RELEASED&quot;, [&quot;汇总 37 个 TechPowerUp 受控 50 系样本。&quot;, &quot;按 5060、5070、5080、5090 分档并记录单位差异。&quot;, &quot;收紧显存滑块夹取边界与热点传感器边界。&quot;], &quot;50 系分档与完整自动回归通过；首轮仍只改核心。&quot;, &quot;为一步可用起点引入公开样本证据。&quot;],
+            [&quot;2.8.0&quot;, &quot;50 系首步上调&quot;, &quot;2026-10-30&quot;, &quot;RELEASED&quot;, [&quot;5060 / 5070 / 5070 Ti / 5080 / 5090 分档首步。&quot;, &quot;后续微调统一为 +25 MHz。&quot;, &quot;首轮不改显存、不改功耗墙，收益率由实测决定。&quot;], &quot;RTX 5060、5070 Ti、5080、5090 脚本输出逐项复现。&quot;, &quot;把“可用起点”从保守小步提高到可感受级别。&quot;],
+            [&quot;2.9.0&quot;, &quot;RTX 40 公开证据&quot;, &quot;2026-10-30&quot;, &quot;RELEASED&quot;, [&quot;汇总约 70 个技术媒体受控 40 系样本。&quot;, &quot;4060 至 4090 按 SKU 给首步与 +25 后续微调。&quot;, &quot;明确实际核心时钟不等于软件偏移，4090 先看供电路径。&quot;], &quot;各档脚本输出验证；官方校验与完整回归通过。&quot;, &quot;40 系从整代规则推进到逐 SKU。&quot;],
+            [&quot;3.0.0&quot;, &quot;RTX 30 与三档位证据&quot;, &quot;2026-10-30&quot;, &quot;MAJOR&quot;, [&quot;补 RTX 30 公共研究与 SKU 首步。&quot;, &quot;30/40/50 三份公开参照接入候选器。&quot;, &quot;记录实际时钟与滑块偏移不可直接互换，并暴露来源薄弱项。&quot;], &quot;GPU 与交互测试通过；原工作台仍不变。&quot;, &quot;原型进入 3.x 的完整 NVIDIA 三档位证据线。&quot;]
+          ]
+        },
+        {
+          id: &quot;proto-3&quot;, track: &quot;prototype&quot;, label: &quot;AUTO-OC / 3.x&quot;, sub: &quot;当前停点 · 冻结而不是完成&quot;,
+          versions: [
+            [&quot;3.0.1&quot;, &quot;冻结与真机验收&quot;, &quot;2026-10-30&quot;, &quot;FROZEN&quot;, [&quot;候选器 2.0.1、权威表 1.0.0 固化。&quot;, &quot;Steel Nomad 重复性 4425 / 4410，约 0.34% 波动。&quot;, &quot;新曲线候选 2505.9 MHz 生成但从未应用。&quot;], &quot;只读真机有限通过；当前 profile 重复性通过，原厂收益比较、新候选、重启与日常稳定 PENDING。&quot;, &quot;原型当前冻结；融合前仍需真机收益和人工行为验收。&quot;]
+          ]
+        }
+      ];
+
+      const versionRecords = versionSeries.flatMap(series =&gt;
+        series.versions.map(([version, title, date, state, changes, validation, lineage]) =&gt; ({
+          id: `${series.track === &quot;core&quot; ? &quot;wb&quot; : &quot;ao&quot;}-${version.replaceAll(&quot;.&quot;, &quot;-&quot;)}`,
+          track: series.track,
+          seriesId: series.id,
+          version,
+          title,
+          date,
+          state,
+          changes,
+          validation,
+          lineage
+        }))
+      );
+
+      const versionById = Object.fromEntries(versionRecords.map(item =&gt; [item.id, item]));
+      const lastMilestoneByTrack = {
+        core: &quot;core-entry&quot;,
+        prototype: &quot;proto-seed&quot;,
+        merge: &quot;merge&quot;
+      };
+
+      const milestones = [
+        {
+          id: &quot;core-entry&quot;, track: &quot;core&quot;, code: &quot;WB-01&quot;, title: &quot;统一工作流入口&quot;,
+          summary: &quot;Inventory / Triage / Telemetry / Tune / Purchase&quot;,
+          status: &quot;done&quot;, state: &quot;CLEARED&quot;,
+          goal: &quot;把配置读取、排障、遥测、调校和升级判断收敛到一个按目标路由的入口。&quot;,
+          action: &quot;先识别任务，再只加载该任务需要的参考，避免每件事都走完整流程。&quot;,
+          proof: &quot;单一 Skill 入口、模式路由、跨模式交接和交互闭合规则。&quot;
+        },
+        {
+          id: &quot;core-safety&quot;, track: &quot;core&quot;, code: &quot;WB-02&quot;, title: &quot;安全门禁成型&quot;,
+          summary: &quot;危险优先 · 恢复优先 · 单变量实验&quot;,
+          status: &quot;done&quot;, state: &quot;CLEARED&quot;,
+          goal: &quot;把可疑硬件、未知供电和缺失恢复路径挡在性能实验之前。&quot;,
+          action: &quot;先稳定再调校；一次只改变一个主变量；所有设置由用户应用。&quot;,
+          proof: &quot;硬停止优先级、调校门禁、恢复顺序和持久化分类。&quot;
+        },
+        {
+          id: &quot;core-evidence&quot;, track: &quot;core&quot;, code: &quot;WB-03&quot;, title: &quot;硬件证据层&quot;,
+          summary: &quot;r18 collector / telemetry / privacy&quot;,
+          status: &quot;done&quot;, state: &quot;CLEARED&quot;,
+          goal: &quot;用可核验的本机数据替代型号猜测和单张截图。&quot;,
+          action: &quot;只读采集、隐私模式、固定窗口日志、设备身份质量。&quot;,
+          proof: &quot;collector / telemetry auditor / local-path safety / identity tests。&quot;
+        },
+        {
+          id: &quot;core-tune&quot;, track: &quot;core&quot;, code: &quot;WB-04&quot;, title: &quot;调校防护体系&quot;,
+          summary: &quot;功耗路径 · 曲线 · BIOS · Advice intensity&quot;,
+          status: &quot;done&quot;, state: &quot;CLEARED&quot;,
+          goal: &quot;为 CPU/GPU/内存调校建立风险分级和精确恢复边界。&quot;,
+          action: &quot;BIOS 使用可见标签、功耗墙需证据、安全提示与动作解释同步。&quot;,
+          proof: &quot;risk taxonomy、advice intensity、experiment loop 和 manual acceptance。&quot;
+        },
+        {
+          id: &quot;core-delivery&quot;, track: &quot;core&quot;, code: &quot;WB-05&quot;, title: &quot;交付工程化&quot;,
+          summary: &quot;便携包 · Codex · DSH · 同步校验&quot;,
+          status: &quot;done&quot;, state: &quot;CLEARED&quot;,
+          goal: &quot;让 Skill、运行时脚本和分享包在不同宿主中保持一致。&quot;,
+          action: &quot;建立包结构、SHA256、同步检查、编码与路径安全测试。&quot;,
+          proof: &quot;portable/share bundles、CI package sync、manifest tests。&quot;
+        },
+        {
+          id: &quot;core-signoff&quot;, track: &quot;core&quot;, code: &quot;WB-06&quot;, title: &quot;人工行为验收&quot;,
+          summary: &quot;场景矩阵 · 独立签署 · 发布门禁&quot;,
+          status: &quot;done&quot;, state: &quot;CLEARED&quot;,
+          goal: &quot;区分自动测试通过、人工行为验证和公开发布批准。&quot;,
+          action: &quot;用真实场景检查交互闭环、安全拒绝、恢复路径和解释质量。&quot;,
+          proof: &quot;人工验收模板、需求方签署和 release-blocking gate。&quot;
+        },
+        {
+          id: &quot;core-github&quot;, track: &quot;core&quot;, code: &quot;WB-07&quot;, title: &quot;公开维护基线&quot;,
+          summary: &quot;GitHub · MIT · README · CI&quot;,
+          status: &quot;done&quot;, state: &quot;STABLE 1.4.3&quot;,
+          goal: &quot;让工作台具备可追溯、可安装、可回滚的公开版本。&quot;,
+          action: &quot;补充许可、版本、发布包、CI、安全说明和协作模式。&quot;,
+          proof: &quot;GitHub release、MIT License、README、package sync 验证。&quot;
+        },
+        {
+          id: &quot;proto-seed&quot;, track: &quot;prototype&quot;, code: &quot;AO-01&quot;, title: &quot;独立原型分叉&quot;,
+          summary: &quot;复用工作台，另起版本&quot;,
+          status: &quot;done&quot;, state: &quot;CLEARED&quot;,
+          goal: &quot;在不影响正式工作台的前提下试验自动 GPU 候选。&quot;,
+          action: &quot;复制能力面、建立独立 Skill ID 和测试环境。&quot;,
+          proof: &quot;正式工作台哈希保持不变；原型独立安装。&quot;
+        },
+        {
+          id: &quot;proto-candidate&quot;, track: &quot;prototype&quot;, code: &quot;AO-02&quot;, title: &quot;GPU 自动候选&quot;,
+          summary: &quot;NVIDIA / AMD 家族与单变量实验卡&quot;,
+          status: &quot;done&quot;, state: &quot;CLEARED&quot;,
+          goal: &quot;从设备、基线和控件自动推导下一步实验。&quot;,
+          action: &quot;输出候选值、单位、通过条件、中止信号和回退。&quot;,
+          proof: &quot;候选脚本、家族 playbook 和 GPU 专项测试。&quot;
+        },
+        {
+          id: &quot;proto-firewall&quot;, track: &quot;prototype&quot;, code: &quot;AO-03&quot;, title: &quot;分类防火墙&quot;,
+          summary: &quot;专业卡 · 核显 · 多适配器阻断&quot;,
+          status: &quot;done&quot;, state: &quot;CLEARED&quot;,
+          goal: &quot;阻止错误产品类别进入消费级显卡候选。&quot;,
+          action: &quot;正向消费级识别、跨厂商多卡检查、错误确认不可覆盖。&quot;,
+          proof: &quot;RTX A/Ada workstation、A10G、Radeon 780M、Intel Graphics、多卡样本。&quot;
+        },
+        {
+          id: &quot;proto-usable&quot;, track: &quot;prototype&quot;, code: &quot;AO-04&quot;, title: &quot;usable-start 与结果判定&quot;,
+          summary: &quot;首轮可用起点 · Keep / Diagnose / Revert&quot;,
+          status: &quot;done&quot;, state: &quot;CLEARED&quot;,
+          goal: &quot;减少机械小步试探，让首轮更接近可用的日常起点。&quot;,
+          action: &quot;分离 InitialStep 与 FollowupStep；按结果判断保留、重复、诊断或回退。&quot;,
+          proof: &quot;结果语义、fallback、曲线起点和 Reliability/Utilization 优先级。&quot;
+        },
+        {
+          id: &quot;proto-state&quot;, track: &quot;prototype&quot;, code: &quot;AO-05&quot;, title: &quot;功耗状态与历史&quot;,
+          summary: &quot;140W / 150W · Profile fallback · Lineage&quot;,
+          status: &quot;done&quot;, state: &quot;CLEARED&quot;,
+          goal: &quot;让旧记录保留历史价值，但不直接成为当前状态。&quot;,
+          action: &quot;分离 HardwareFingerprint 与 ConfigurationFingerprint；声明解锁状态。&quot;,
+          proof: &quot;assumed-stock / declared-unlocked、profile-only fallback、旧候选阻断。&quot;
+        },
+        {
+          id: &quot;proto-evidence&quot;, track: &quot;prototype&quot;, code: &quot;AO-06&quot;, title: &quot;30 / 40 / 50 系证据&quot;,
+          summary: &quot;公开样本 · 档位 · 证据等级&quot;,
+          status: &quot;done&quot;, state: &quot;CLEARED&quot;,
+          goal: &quot;把不同代际的公开数据转成带单位和限制的档位先验。&quot;,
+          action: &quot;建立 public references、SKU 档位和 StartEvidenceClass。&quot;,
+          proof: &quot;RTX 30/40/50 参考、样本上限比例和单来源标记。&quot;
+        },
+        {
+          id: &quot;proto-authority&quot;, track: &quot;prototype&quot;, code: &quot;AO-07&quot;, title: &quot;单一数值权威&quot;,
+          summary: &quot;Authority JSON · 文档去重&quot;,
+          status: &quot;done&quot;, state: &quot;CLEARED&quot;,
+          goal: &quot;消除多个 Markdown 文件各自维护候选值造成的漂移。&quot;,
+          action: &quot;候选器直接加载 tier authority；公开资料只保留外部证据。&quot;,
+          proof: &quot;跨文档一致性、InitialStep / FollowupStep 和证据字段测试。&quot;
+        },
+        {
+          id: &quot;proto-proof&quot;, track: &quot;prototype&quot;, code: &quot;AO-08&quot;, title: &quot;自动化证明&quot;,
+          summary: &quot;validator · 全量回归 · 代表卡复现&quot;,
+          status: &quot;done&quot;, state: &quot;CLEARED&quot;,
+          goal: &quot;让每次修改都有可重复的工程验证。&quot;,
+          action: &quot;运行官方 validator、完整 Skill 测试和独立代表卡输出。&quot;,
+          proof: &quot;Skill is valid!；GPU、交互、身份、遥测与编码测试全部通过。&quot;
+        },
+        {
+          id: &quot;proto-reality&quot;, track: &quot;prototype&quot;, code: &quot;AO-09&quot;, title: &quot;只读真机验收&quot;,
+          summary: &quot;5070 Ti Laptop · 150W · Steel Nomad&quot;,
+          status: &quot;done&quot;, state: &quot;LIMITED PASS&quot;,
+          goal: &quot;验证候选器、恢复门禁和历史隔离能在真机上正常工作。&quot;,
+          action: &quot;两次 Steel Nomad 重复性筛选；生成但未应用新曲线候选。&quot;,
+          proof: &quot;4425 / 4410，重复性约 0.34%；功耗、温度和恢复配置均有记录。&quot;
+        },
+        {
+          id: &quot;proto-freeze&quot;, track: &quot;prototype&quot;, code: &quot;AO-10&quot;, title: &quot;冻结 3.0.1&quot;,
+          summary: &quot;当前稳定停点 · 无待执行 P1&quot;,
+          status: &quot;done&quot;, state: &quot;FROZEN 3.0.1&quot;,
+          goal: &quot;停止继续堆逻辑，保留真实数据和待验证边界。&quot;,
+          action: &quot;冻结自动候选模块并关闭旧交接单。&quot;,
+          proof: &quot;自动测试、单一数值来源、只读真机和版本哈希均通过。&quot;
+        },
+        {
+          id: &quot;merge&quot;, track: &quot;merge&quot;, code: &quot;MERGE-01&quot;, title: &quot;融入正式工作台&quot;,
+          summary: &quot;Tune 分支模块化接合&quot;,
+          status: &quot;next&quot;, state: &quot;NEXT&quot;,
+          goal: &quot;自动超频成为正式工作台 Tune 分支中的模块，而不是第二个顶层 Skill。&quot;,
+          action: &quot;差异审计 · 文件所有权 · 最小路由接合 · 回归测试 · 真机验收。&quot;,
+          proof: &quot;保留正式采集、遥测和安全门禁；不复制第二套核心脚本，不自动写入硬件。&quot;
+        },
+        {
+          id: &quot;merge-release&quot;, track: &quot;merge&quot;, code: &quot;MERGE-02&quot;, title: &quot;融合版发布门禁&quot;,
+          summary: &quot;单入口 · 完整回归 · 回滚包&quot;,
+          status: &quot;next&quot;, state: &quot;LATER&quot;,
+          goal: &quot;在主工作台内完成可安装、可回滚的统一版本。&quot;,
+          action: &quot;打包、完整人工验收、发布说明、回滚测试和独立签署。&quot;,
+          proof: &quot;只有自动测试、真机验收和公开分发批准同时完成才进入发布。&quot;
+        }
+      ];
+
+      const byId = Object.fromEntries(milestones.map(item =&gt; [item.id, item]));
+
+      function createNode(item) {
+        const button = document.createElement(&quot;button&quot;);
+        button.type = &quot;button&quot;;
+        button.className = &quot;dse-node&quot;;
+        button.dataset.milestoneId = item.id;
+        button.dataset.track = item.track;
+        button.setAttribute(&quot;aria-label&quot;, `${item.code} ${item.title}：${item.summary}`);
+        button.innerHTML = `
+          &lt;span class=&quot;dse-node-code&quot;&gt;${item.code}&lt;/span&gt;
+          &lt;span class=&quot;dse-node-state ${item.status}&quot;&gt;${item.state}&lt;/span&gt;
+          &lt;span class=&quot;dse-node-title&quot;&gt;${item.title}&lt;/span&gt;
+          &lt;span class=&quot;dse-node-summary&quot;&gt;${item.summary}&lt;/span&gt;
+        `;
+        button.addEventListener(&quot;click&quot;, () =&gt; selectMilestone(item.id, true));
+        return button;
+      }
+
+      milestones.filter(item =&gt; item.track === &quot;core&quot;).forEach(item =&gt; coreLane.appendChild(createNode(item)));
+      milestones.filter(item =&gt; item.track === &quot;prototype&quot;).forEach(item =&gt; prototypeLane.appendChild(createNode(item)));
+
+      function createVersionButton(item) {
+        const button = document.createElement(&quot;button&quot;);
+        button.type = &quot;button&quot;;
+        button.className = `dse-version ${item.track}`;
+        button.dataset.versionId = item.id;
+        button.dataset.track = item.track;
+        button.setAttribute(&quot;aria-label&quot;, `${item.version} ${item.title}：${item.changes.join(&quot;；&quot;)}`);
+        const code = document.createElement(&quot;span&quot;);
+        code.className = &quot;dse-version-code&quot;;
+        code.textContent = item.version;
+        const title = document.createElement(&quot;span&quot;);
+        title.className = &quot;dse-version-title&quot;;
+        title.textContent = item.title;
+        button.append(code, title);
+        button.addEventListener(&quot;click&quot;, () =&gt; selectVersion(item.id, true));
+        return button;
+      }
+
+      versionSeries.forEach(series =&gt; {
+        const section = document.createElement(&quot;section&quot;);
+        section.className = `dse-series ${series.track}`;
+        section.dataset.track = series.track;
+        section.dataset.seriesId = series.id;
+        const label = document.createElement(&quot;div&quot;);
+        label.className = &quot;dse-series-label&quot;;
+        label.textContent = series.label;
+        const sub = document.createElement(&quot;small&quot;);
+        sub.textContent = series.sub;
+        label.appendChild(sub);
+        const grid = document.createElement(&quot;div&quot;);
+        grid.className = &quot;dse-version-grid&quot;;
+        versionRecords
+          .filter(item =&gt; item.seriesId === series.id)
+          .forEach(item =&gt; grid.appendChild(createVersionButton(item)));
+        section.append(label, grid);
+        versionArchive.appendChild(section);
+      });
+
+      const workbenchCount = versionRecords.filter(item =&gt; item.track === &quot;core&quot;).length;
+      const prototypeCount = versionRecords.filter(item =&gt; item.track === &quot;prototype&quot;).length;
+      document.getElementById(&quot;dse-wb-count&quot;).textContent = workbenchCount;
+      document.getElementById(&quot;dse-proto-count&quot;).textContent = prototypeCount;
+      document.getElementById(&quot;dse-total-count&quot;).textContent = versionRecords.length;
+
+      function selectVersion(id, shouldReveal = false) {
+        const item = versionById[id];
+        if (!item) return;
+        root.querySelectorAll(&quot;.dse-version&quot;).forEach(button =&gt; {
+          button.classList.toggle(&quot;is-selected&quot;, button.dataset.versionId === id);
+        });
+        versionDetail.classList.toggle(&quot;prototype&quot;, item.track === &quot;prototype&quot;);
+        versionDetailTitle.textContent = `${item.version} · ${item.title}`;
+        versionDetailDate.textContent = `${item.date} / ${item.state}`;
+        versionValidation.textContent = item.validation;
+        versionLineage.textContent = item.lineage;
+        versionChanges.replaceChildren();
+        item.changes.forEach(change =&gt; {
+          const row = document.createElement(&quot;li&quot;);
+          row.textContent = change;
+          versionChanges.appendChild(row);
+        });
+        if (shouldReveal) {
+          milestoneDetail.hidden = true;
+          versionDetail.hidden = false;
+        }
+      }
+
+      function selectMilestone(id, shouldReveal = false) {
+        const item = byId[id];
+        if (!item) return;
+        lastMilestoneByTrack[item.track] = id;
+        root.querySelectorAll(&quot;.dse-node&quot;).forEach(button =&gt; {
+          button.classList.toggle(&quot;is-selected&quot;, button.dataset.milestoneId === id);
+        });
+        detailTitle.textContent = `${item.code} · ${item.title}`;
+        detailStatus.textContent = item.state;
+        detailStatus.className = &quot;dse-detail-status&quot;;
+        detailGoal.textContent = item.goal;
+        detailAction.textContent = item.action;
+        detailProof.textContent = item.proof;
+        milestoneDetail.classList.toggle(&quot;prototype&quot;, item.track === &quot;prototype&quot;);
+        milestoneDetail.classList.toggle(&quot;merge&quot;, item.track === &quot;merge&quot;);
+        versionDetail.hidden = true;
+        milestoneDetail.hidden = false;
+      }
+
+      function moveFloatingPanels(left, top, sourcePanel) {
+        const width = sourcePanel.getBoundingClientRect().width;
+        const height = Math.min(
+          sourcePanel.getBoundingClientRect().height,
+          window.innerHeight - 16
+        );
+        const safeLeft = Math.max(8, Math.min(left, window.innerWidth - width - 8));
+        const safeTop = Math.max(8, Math.min(top, window.innerHeight - height - 8));
+        [milestoneDetail, versionDetail].forEach(panel =&gt; {
+          panel.style.left = `${safeLeft}px`;
+          panel.style.top = `${safeTop}px`;
+          panel.style.right = &quot;auto&quot;;
+          panel.style.bottom = &quot;auto&quot;;
+        });
+      }
+
+      [milestoneDetail, versionDetail].forEach(panel =&gt; {
+        const handle = panel.querySelector(&quot;[data-drag-handle]&quot;);
+        if (!handle) return;
+        let drag = null;
+        handle.addEventListener(&quot;pointerdown&quot;, event =&gt; {
+          const rect = panel.getBoundingClientRect();
+          drag = {
+            pointerId: event.pointerId,
+            offsetX: event.clientX - rect.left,
+            offsetY: event.clientY - rect.top
+          };
+          handle.setPointerCapture(event.pointerId);
+          event.preventDefault();
+        });
+        handle.addEventListener(&quot;pointermove&quot;, event =&gt; {
+          if (!drag || drag.pointerId !== event.pointerId) return;
+          moveFloatingPanels(event.clientX - drag.offsetX, event.clientY - drag.offsetY, panel);
+        });
+        const endDrag = event =&gt; {
+          if (drag &amp;&amp; drag.pointerId === event.pointerId) drag = null;
+        };
+        handle.addEventListener(&quot;pointerup&quot;, endDrag);
+        handle.addEventListener(&quot;pointercancel&quot;, endDrag);
+      });
+
+      function applyFilter(filter, resetScroll = false) {
+        root.querySelectorAll(&quot;.dse-filter&quot;).forEach(button =&gt; {
+          button.setAttribute(&quot;aria-pressed&quot;, String(button.dataset.filter === filter));
+        });
+        root.querySelectorAll(&quot;.dse-track&quot;).forEach(track =&gt; {
+          track.hidden = track.dataset.track !== filter;
+        });
+        root.querySelectorAll(&quot;.dse-series&quot;).forEach(series =&gt; {
+          series.hidden = series.dataset.track !== filter;
+        });
+        const convergence = root.querySelector(&quot;.dse-convergence&quot;);
+        const archive = root.querySelector(&quot;.dse-archive&quot;);
+        convergence.hidden = filter !== &quot;merge&quot;;
+        archive.hidden = filter === &quot;merge&quot;;
+        selectMilestone(lastMilestoneByTrack[filter]);
+        if (resetScroll) {
+          const reduceMotion = window.matchMedia(&quot;(prefers-reduced-motion: reduce)&quot;).matches;
+          root.scrollTo({ top: 0, behavior: reduceMotion ? &quot;auto&quot; : &quot;smooth&quot; });
+        }
+      }
+
+      root.querySelectorAll(&quot;.dse-filter&quot;).forEach(button =&gt; {
+        button.addEventListener(&quot;click&quot;, () =&gt; applyFilter(button.dataset.filter, true));
+      });
+      mergeButtons.forEach(button =&gt; {
+        button.addEventListener(&quot;click&quot;, () =&gt; selectMilestone(button.dataset.mergeId, true));
+      });
+      applyFilter(&quot;core&quot;);
+      selectVersion(&quot;wb-1-4-3&quot;);
+    })();
+  &lt;/script&gt;
+&lt;/div&gt;
+
+&lt;script src=&quot;https://unpkg.com/@floating-ui/core@1.7.3/dist/floating-ui.core.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;https://unpkg.com/@floating-ui/dom@1.7.4/dist/floating-ui.dom.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  if (window.FloatingUIDOM == null) {
+    return;
+  }
+  const { autoUpdate, computePosition, flip, offset, shift, size } =
+    window.FloatingUIDOM;
+  const tooltipPlacements = new Set([&quot;top&quot;, &quot;right&quot;, &quot;bottom&quot;, &quot;left&quot;]);
+  const tooltipId = `codex-visualization-tooltip-${
+    window.crypto?.randomUUID?.() ?? Date.now().toString(36)
+  }`;
+  const tooltipGap = 5;
+  const hoverDelay = 700;
+  const skipDelay = 300;
+  let activeTrigger = null;
+  let pendingTrigger = null;
+  let tooltip = null;
+  let openTimeout = null;
+  let autoUpdateCleanup = null;
+  let positionRequest = 0;
+  let skipDelayUntil = 0;
+  let lastPointerWasTouch = false;
+  let pinnedByTouch = false;
+
+  const getTrigger = (event) =&gt; {
+    for (const target of event.composedPath()) {
+      if (target?.nodeType === Node.ELEMENT_NODE) {
+        const trigger = target.closest(&quot;[data-tooltip]&quot;);
+        if (trigger) return trigger;
+      }
+    }
+    return null;
+  };
+  const containsTarget = (trigger, target) =&gt;
+    target?.nodeType != null &amp;&amp; trigger.contains(target);
+  const getContent = (trigger) =&gt;
+    trigger.getAttribute(&quot;data-tooltip&quot;)?.trim() ?? &quot;&quot;;
+  const getPlacement = (trigger) =&gt; {
+    const placement = trigger.getAttribute(&quot;data-tooltip-placement&quot;);
+    return tooltipPlacements.has(placement) ? placement : &quot;top&quot;;
+  };
+  const getTooltip = () =&gt; {
+    if (tooltip == null) {
+      tooltip = document.createElement(&quot;div&quot;);
+      tooltip.id = tooltipId;
+      tooltip.className = &quot;tooltip&quot;;
+      tooltip.setAttribute(&quot;role&quot;, &quot;tooltip&quot;);
+    }
+    return tooltip;
+  };
+  const setDescribedBy = (trigger, described) =&gt; {
+    const ids = new Set(
+      (trigger.getAttribute(&quot;aria-describedby&quot;) ?? &quot;&quot;)
+        .split(/\s+/)
+        .filter(Boolean),
+    );
+    if (described) {
+      ids.add(tooltipId);
+    } else {
+      ids.delete(tooltipId);
+    }
+    if (ids.size === 0) {
+      trigger.removeAttribute(&quot;aria-describedby&quot;);
+    } else {
+      trigger.setAttribute(&quot;aria-describedby&quot;, [...ids].join(&quot; &quot;));
+    }
+  };
+  const clearOpenTimeout = () =&gt; {
+    if (openTimeout != null) {
+      window.clearTimeout(openTimeout);
+      openTimeout = null;
+    }
+    pendingTrigger = null;
+  };
+  const closeTooltip = (activateSkipDelay = true) =&gt; {
+    clearOpenTimeout();
+    pinnedByTouch = false;
+    positionRequest += 1;
+    autoUpdateCleanup?.();
+    autoUpdateCleanup = null;
+    if (activeTrigger == null) {
+      return;
+    }
+    setDescribedBy(activeTrigger, false);
+    activeTrigger = null;
+    tooltip?.remove();
+    if (activateSkipDelay) {
+      skipDelayUntil = Date.now() + skipDelay;
+    }
+  };
+  const updatePosition = (trigger, floating) =&gt; {
+    const request = ++positionRequest;
+    void computePosition(trigger, floating, {
+      middleware: [
+        offset(tooltipGap),
+        flip({ padding: tooltipGap }),
+        shift({ padding: tooltipGap }),
+        size({
+          padding: tooltipGap,
+          apply({ availableHeight, availableWidth, elements }) {
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-width&quot;,
+              `${Math.max(0, availableWidth)}px`,
+            );
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-height&quot;,
+              `${Math.max(0, availableHeight)}px`,
+            );
+          },
+        }),
+      ],
+      placement: getPlacement(trigger),
+      strategy: &quot;fixed&quot;,
+    })
+      .then(({ x, y }) =&gt; {
+        if (activeTrigger !== trigger || request !== positionRequest) {
+          return;
+        }
+        const scale = window.devicePixelRatio || 1;
+        floating.style.transform = `translate(${Math.round(x * scale) / scale}px, ${Math.round(y * scale) / scale}px)`;
+        floating.style.visibility = &quot;visible&quot;;
+      })
+      .catch(() =&gt; {
+        if (activeTrigger === trigger &amp;&amp; request === positionRequest) {
+          closeTooltip(false);
+        }
+      });
+  };
+  const openTooltip = (trigger) =&gt; {
+    const content = getContent(trigger);
+    if (!trigger.isConnected || content.length === 0) {
+      return;
+    }
+    clearOpenTimeout();
+    if (activeTrigger === trigger) {
+      return;
+    }
+    closeTooltip();
+    const floating = getTooltip();
+    floating.textContent = content;
+    floating.style.visibility = &quot;hidden&quot;;
+    floating.style.transform = &quot;translate(0, 0)&quot;;
+    document.body.appendChild(floating);
+    activeTrigger = trigger;
+    setDescribedBy(trigger, true);
+    autoUpdateCleanup = autoUpdate(trigger, floating, () =&gt; {
+      updatePosition(trigger, floating);
+    });
+  };
+  const requestOpen = (trigger, immediate = false) =&gt; {
+    if (
+      getContent(trigger).length === 0 ||
+      activeTrigger === trigger ||
+      pendingTrigger === trigger
+    ) {
+      return;
+    }
+    clearOpenTimeout();
+    pendingTrigger = trigger;
+    const delay =
+      immediate || activeTrigger != null || Date.now() &lt; skipDelayUntil
+        ? 0
+        : hoverDelay;
+    if (delay === 0) {
+      openTooltip(trigger);
+      return;
+    }
+    openTimeout = window.setTimeout(() =&gt; {
+      openTimeout = null;
+      pendingTrigger = null;
+      openTooltip(trigger);
+    }, delay);
+  };
+  const handlePointerOpen = (event) =&gt; {
+    if (event.pointerType === &quot;touch&quot;) {
+      return;
+    }
+    const trigger = getTrigger(event);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    requestOpen(trigger);
+  };
+  const handlePointer = (event) =&gt; {
+    lastPointerWasTouch =
+      event.type === &quot;pointerdown&quot; &amp;&amp; event.pointerType === &quot;touch&quot;;
+  };
+  const handleTouchClick = (event) =&gt; {
+    const isTouch = event.pointerType === &quot;touch&quot; || lastPointerWasTouch;
+    lastPointerWasTouch = false;
+    if (!isTouch || event.detail === 0) {
+      return;
+    }
+    const trigger = getTrigger(event);
+    if (
+      trigger == null ||
+      !trigger.isConnected ||
+      getContent(trigger).length === 0 ||
+      (pinnedByTouch &amp;&amp; activeTrigger === trigger)
+    ) {
+      if (pinnedByTouch) {
+        closeTooltip();
+      }
+      return;
+    }
+    openTooltip(trigger);
+    pinnedByTouch = activeTrigger === trigger;
+    window.setTimeout(() =&gt; {
+      if (activeTrigger === trigger &amp;&amp; !trigger.isConnected) {
+        closeTooltip(false);
+      }
+    }, 0);
+  };
+  const handleLeave = (event) =&gt; {
+    if (pinnedByTouch) {
+      return;
+    }
+    const trigger = getTrigger(event);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const handleFocusIn = (event) =&gt; {
+    const trigger = getTrigger(event);
+    if (trigger?.matches(&quot;:focus-visible&quot;)) {
+      requestOpen(trigger, true);
+    }
+  };
+  const handleKeyDown = (event) =&gt; {
+    if (event.key === &quot;Escape&quot;) {
+      closeTooltip();
+    }
+  };
+  const handleContextMenu = (event) =&gt; {
+    lastPointerWasTouch = false;
+    const trigger = getTrigger(event);
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const handlers = {
+    pointerover: handlePointerOpen,
+    pointerdown: handlePointer,
+    pointercancel: handlePointer,
+    click: handleTouchClick,
+    pointerout: handleLeave,
+    focusin: handleFocusIn,
+    focusout: handleLeave,
+    keydown: handleKeyDown,
+    contextmenu: handleContextMenu,
+  };
+  const roots = new Map();
+  const handledEvents = new WeakSet();
+  const handleEvent = (event) =&gt; {
+    if (handledEvents.has(event)) return;
+    handledEvents.add(event);
+    handlers[event.type](event);
+  };
+  const discoverRoots = (node) =&gt; {
+    if (node.shadowRoot) listen(node.shadowRoot);
+    for (const element of node.querySelectorAll(&quot;*&quot;)) {
+      if (element.shadowRoot) listen(element.shadowRoot);
+    }
+  };
+  const listen = (root) =&gt; {
+    if (roots.has(root)) return;
+    for (const type of Object.keys(handlers)) root.addEventListener(type, handleEvent);
+    const observer = new window.MutationObserver((records) =&gt; {
+      for (const { addedNodes } of records) {
+        for (const node of addedNodes) {
+          if (node.nodeType === Node.ELEMENT_NODE) discoverRoots(node);
+        }
+      }
+      for (const [root, cleanup] of roots) {
+        if (root.host &amp;&amp; !root.host.isConnected) {
+          cleanup();
+          roots.delete(root);
+        }
+      }
+      if (activeTrigger &amp;&amp; !activeTrigger.isConnected) closeTooltip(false);
+    });
+    observer.observe(root, { childList: true, subtree: true });
+    roots.set(root, () =&gt; {
+      observer.disconnect();
+      for (const type of Object.keys(handlers)) root.removeEventListener(type, handleEvent);
+    });
+    discoverRoots(root);
+  };
+  const destroy = () =&gt; {
+    closeTooltip(false);
+    lastPointerWasTouch = false;
+    for (const cleanup of roots.values()) cleanup();
+    roots.clear();
+    tooltip = null;
+  };
+
+  // Events between children of one shadow root never reach the document.
+  listen(document);
+  window.addEventListener(&quot;pagehide&quot;, destroy, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-tabs&quot;&gt;
+(() =&gt; {
+  const selector = &#x27;.nav[role=&quot;tablist&quot;] [role=&quot;tab&quot;]&#x27;;
+  const disabled = &#x27;:disabled,[aria-disabled=&quot;true&quot;]&#x27;;
+  const selectTab = (selected) =&gt; {
+    const panelId = selected.getAttribute(&quot;aria-controls&quot;);
+    for (const tab of selected.closest(&#x27;[role=&quot;tablist&quot;]&#x27;).querySelectorAll(&#x27;[role=&quot;tab&quot;]&#x27;)) {
+      const active = tab === selected;
+      tab.classList.toggle(&quot;active&quot;, active);
+      tab.setAttribute(&quot;aria-selected&quot;, String(active));
+      const id = tab.getAttribute(&quot;aria-controls&quot;);
+      const panel = id &amp;&amp; document.getElementById(id);
+      if (panel != null) {
+        panel.hidden = id !== panelId;
+        if (!panel.hidden &amp;&amp; selected.id) {
+          panel.setAttribute(&quot;aria-labelledby&quot;, selected.id);
+        }
+      }
+    }
+  };
+  const interact = (event) =&gt; {
+    const tab = event.target?.closest?.(selector);
+    if (event.defaultPrevented || tab == null || tab.matches(disabled)) {
+      return;
+    }
+    if (event.type === &quot;click&quot;) {
+      selectTab(tab);
+      return;
+    }
+    const tabs = Array.from(
+      tab.closest(&#x27;[role=&quot;tablist&quot;]&#x27;).querySelectorAll(&#x27;[role=&quot;tab&quot;]&#x27;),
+    ).filter((candidate) =&gt; !candidate.matches(disabled));
+    const current = tabs.indexOf(tab);
+    let next;
+    if (event.key === &quot;ArrowRight&quot; || event.key === &quot;ArrowDown&quot;) {
+      next = (current + 1) % tabs.length;
+    } else if (event.key === &quot;ArrowLeft&quot; || event.key === &quot;ArrowUp&quot;) {
+      next = (current + tabs.length - 1) % tabs.length;
+    } else if (event.key === &quot;Home&quot;) {
+      next = 0;
+    } else if (event.key === &quot;End&quot;) {
+      next = tabs.length - 1;
+    } else {
+      return;
+    }
+    event.preventDefault();
+    tabs[next].focus();
+    selectTab(tabs[next]);
+  };
+
+  for (const list of document.querySelectorAll(&#x27;.nav[role=&quot;tablist&quot;]&#x27;)) {
+    const selected =
+      list.querySelector(&#x27;[role=&quot;tab&quot;][aria-selected=&quot;true&quot;]&#x27;) ??
+      list.querySelector(&#x27;[role=&quot;tab&quot;].active&#x27;) ??
+      list.querySelector(&#x27;[role=&quot;tab&quot;]&#x27;);
+    if (selected != null) {
+      selectTab(selected);
+    }
+  }
+  document.addEventListener(&quot;click&quot;, interact);
+  document.addEventListener(&quot;keydown&quot;, interact);
+  window.addEventListener(&quot;pagehide&quot;, () =&gt; {
+    document.removeEventListener(&quot;click&quot;, interact);
+    document.removeEventListener(&quot;keydown&quot;, interact);
+  }, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-carousel&quot;&gt;
+  (() =&gt; {
+    for (const root of document.querySelectorAll(&quot;.viz-carousel&quot;)) {
+      const panels = Array.from(
+        root.querySelectorAll(&quot;:scope &gt; [data-variant]&quot;),
+      );
+      if (panels.length === 0) {
+        continue;
+      }
+      root.setAttribute(&quot;role&quot;, &quot;group&quot;);
+      panels.forEach((panel, index) =&gt; {
+        panel.hidden = index !== 0;
+        panel.setAttribute(&quot;role&quot;, &quot;group&quot;);
+        if (!panel.hasAttribute(&quot;aria-label&quot;)) {
+          panel.setAttribute(&quot;aria-label&quot;, panel.dataset.variant);
+        }
+      });
+      root.dataset.activeVariant = panels[0].dataset.variant;
+      if (panels.length === 1) {
+        continue;
+      }
+
+      const controls = document.createElement(&quot;div&quot;);
+      controls.className = &quot;viz-carousel-controls&quot;;
+      // Portable copy of the settings dropdown&#x27;s legacy glyph; no 14px icon-package preset matches it.
+      // https://github.com/openai/openai/blob/master/codex/codex-apps/webview/src/icons/chevron.svg
+      controls.innerHTML = `
+      &lt;button type=&quot;button&quot; class=&quot;viz-carousel-previous cursor-interaction&quot;&gt;&lt;i data-lucide=&quot;chevron-left&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+      &lt;details class=&quot;viz-carousel-picker&quot;&gt;
+        &lt;summary class=&quot;cursor-interaction&quot;&gt;
+          &lt;span class=&quot;viz-carousel-count tabular-nums&quot;&gt;&lt;/span&gt;
+          &lt;span class=&quot;viz-carousel-name&quot;&gt;&lt;/span&gt;
+          &lt;svg class=&quot;viz-carousel-caret&quot; width=&quot;14&quot; height=&quot;14&quot; viewBox=&quot;0 0 20 21&quot; fill=&quot;none&quot; aria-hidden=&quot;true&quot; focusable=&quot;false&quot;&gt;
+            &lt;path d=&quot;M15.2793 7.71101C15.539 7.45131 15.961 7.45131 16.2207 7.71101C16.4804 7.97071 16.4804 8.39272 16.2207 8.65242L10.4707 14.4024C10.211 14.6621 9.78902 14.6621 9.52932 14.4024L3.77932 8.65242L3.69436 8.54792C3.52385 8.28979 3.55205 7.93828 3.77932 7.71101C4.00659 7.48374 4.3581 7.45554 4.61623 7.62605L4.72073 7.71101L10 12.9903L15.2793 7.71101Z&quot; fill=&quot;currentColor&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;0.6&quot; /&gt;
+          &lt;/svg&gt;
+        &lt;/summary&gt;
+        &lt;div class=&quot;viz-carousel-options&quot;&gt;&lt;/div&gt;
+      &lt;/details&gt;
+      &lt;button type=&quot;button&quot; class=&quot;viz-carousel-next cursor-interaction&quot;&gt;&lt;i data-lucide=&quot;chevron-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/button&gt;`;
+      const previous = controls.querySelector(&quot;.viz-carousel-previous&quot;);
+      const next = controls.querySelector(&quot;.viz-carousel-next&quot;);
+      const picker = controls.querySelector(&quot;.viz-carousel-picker&quot;);
+      const summary = picker.querySelector(&quot;summary&quot;);
+      const count = controls.querySelector(&quot;.viz-carousel-count&quot;);
+      const name = controls.querySelector(&quot;.viz-carousel-name&quot;);
+      const options = controls.querySelector(&quot;.viz-carousel-options&quot;);
+      const status = document.createElement(&quot;span&quot;);
+      status.className = &quot;sr-only&quot;;
+      status.setAttribute(&quot;role&quot;, &quot;status&quot;);
+      status.setAttribute(&quot;aria-live&quot;, &quot;polite&quot;);
+      status.setAttribute(&quot;aria-atomic&quot;, &quot;true&quot;);
+      previous.setAttribute(
+        &quot;aria-label&quot;,
+        root.dataset.previousLabel ?? &quot;Previous variant&quot;,
+      );
+      next.setAttribute(&quot;aria-label&quot;, root.dataset.nextLabel ?? &quot;Next variant&quot;);
+
+      let active = 0;
+      let mousePointerId = null;
+      let summaryPointerHandled = false;
+      summary.addEventListener(&quot;pointerdown&quot;, (event) =&gt; {
+        summaryPointerHandled =
+          event.pointerType === &quot;mouse&quot; &amp;&amp; event.button === 0 &amp;&amp; !event.ctrlKey;
+        if (!summaryPointerHandled) {
+          return;
+        }
+        event.preventDefault();
+        summary.focus({ preventScroll: true });
+        picker.open = !picker.open;
+        mousePointerId = picker.open ? event.pointerId : null;
+      });
+      summary.addEventListener(&quot;click&quot;, (event) =&gt; {
+        if (summaryPointerHandled &amp;&amp; event.detail &gt; 0) {
+          event.preventDefault();
+        }
+      });
+      const choices = panels.map((panel, index) =&gt; {
+        const choice = document.createElement(&quot;button&quot;);
+        choice.type = &quot;button&quot;;
+        choice.className = &quot;cursor-interaction&quot;;
+        choice.textContent = panel.dataset.variant;
+        choice.addEventListener(&quot;click&quot;, () =&gt; {
+          select(index);
+          summary.focus();
+        });
+        choice.addEventListener(&quot;pointerup&quot;, (event) =&gt; {
+          if (
+            picker.open &amp;&amp;
+            event.pointerType === &quot;mouse&quot; &amp;&amp;
+            event.button === 0 &amp;&amp;
+            event.pointerId === mousePointerId
+          ) {
+            choice.click();
+          }
+        });
+        options.appendChild(choice);
+        return choice;
+      });
+      const select = (index) =&gt; {
+        const changed = active !== index;
+        active = index;
+        panels.forEach((panel, position) =&gt; {
+          panel.hidden = position !== active;
+          choices[position].setAttribute(
+            &quot;aria-current&quot;,
+            String(position === active),
+          );
+        });
+        root.dataset.activeVariant = panels[active].dataset.variant;
+        count.textContent = `${active + 1} / ${panels.length}`;
+        name.textContent = panels[active].dataset.variant;
+        picker.open = false;
+        mousePointerId = null;
+        if (changed) {
+          status.textContent = `${count.textContent}: ${name.textContent}`;
+        }
+      };
+      previous.addEventListener(&quot;click&quot;, () =&gt;
+        select((active + panels.length - 1) % panels.length),
+      );
+      next.addEventListener(&quot;click&quot;, () =&gt;
+        select((active + 1) % panels.length),
+      );
+      picker.addEventListener(&quot;keydown&quot;, (event) =&gt; {
+        if (event.key === &quot;Escape&quot; &amp;&amp; picker.open) {
+          event.preventDefault();
+          picker.open = false;
+          mousePointerId = null;
+          summary.focus();
+          return;
+        }
+        if (event.altKey || event.ctrlKey || event.metaKey) {
+          return;
+        }
+        const index = choices.indexOf(document.activeElement);
+        let nextIndex;
+        if (event.key === &quot;ArrowDown&quot;) {
+          nextIndex = index &lt; 0 ? active : (index + 1) % choices.length;
+        } else if (event.key === &quot;ArrowUp&quot;) {
+          nextIndex = index &lt; 0 ? active : (index + choices.length - 1) % choices.length;
+        } else if (picker.open &amp;&amp; event.key === &quot;Home&quot;) {
+          nextIndex = 0;
+        } else if (picker.open &amp;&amp; event.key === &quot;End&quot;) {
+          nextIndex = choices.length - 1;
+        } else {
+          return;
+        }
+        event.preventDefault();
+        picker.open = true;
+        choices[nextIndex].focus();
+      });
+      picker.addEventListener(&quot;focusout&quot;, (event) =&gt; {
+        if (!picker.contains(event.relatedTarget)) {
+          picker.open = false;
+          mousePointerId = null;
+        }
+      });
+      const dismiss = (event) =&gt; {
+        if (!summary.contains(event.target)) {
+          mousePointerId = null;
+        }
+        if (!picker.contains(event.target)) {
+          picker.open = false;
+        }
+      };
+      const endPointerSelection = () =&gt; {
+        mousePointerId = null;
+      };
+      const sizePicker = () =&gt; {
+        root.style.setProperty(
+          &quot;--viz-carousel-picker-height&quot;,
+          `${picker.open ? options.offsetHeight : 0}px`,
+        );
+      };
+      picker.addEventListener(&quot;toggle&quot;, sizePicker);
+      window.addEventListener(&quot;resize&quot;, sizePicker);
+      document.addEventListener(&quot;pointerdown&quot;, dismiss);
+      document.addEventListener(&quot;pointerup&quot;, endPointerSelection);
+      document.addEventListener(&quot;pointercancel&quot;, endPointerSelection);
+      window.addEventListener(&quot;blur&quot;, endPointerSelection);
+      window.addEventListener(
+        &quot;pagehide&quot;,
+        () =&gt; {
+          document.removeEventListener(&quot;pointerdown&quot;, dismiss);
+          document.removeEventListener(&quot;pointerup&quot;, endPointerSelection);
+          document.removeEventListener(&quot;pointercancel&quot;, endPointerSelection);
+          window.removeEventListener(&quot;blur&quot;, endPointerSelection);
+          window.removeEventListener(&quot;resize&quot;, sizePicker);
+        },
+        { once: true },
+      );
+      root.append(controls, status);
+      select(0);
+    }
+  })();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-lucide&quot; async src=&quot;https://unpkg.com/lucide@1.17.0/dist/umd/lucide.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  const initialize = () =&gt; {
+    globalThis.lucide?.createIcons({ attrs: { width: 16, height: 16 } });
+  };
+  if (globalThis.lucide != null) {
+    initialize();
+    return;
+  }
+  document
+    .getElementById(&quot;codex-visualization-lucide&quot;)
+    ?.addEventListener(&quot;load&quot;, initialize, { once: true });
+})();
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+
+<script>(() => {
+  const frame = document.getElementById("codex-visualization");
+  if (!(frame instanceof HTMLIFrameElement)) {
+    return;
+  }
+  const isShare = document.documentElement.classList.contains(
+    "visualization-share-root",
+  );
+  let viewportHeight = globalThis.innerHeight;
+  let sizeFingerprint = null;
+  let sizeWriteTimeout;
+  let lastSize = null;
+  let pendingSize = null;
+  const storageKey = `codex:visualization-widget-state-v2:${JSON.stringify([
+    globalThis.location.pathname,
+    globalThis.location.search,
+  ])}`;
+  const sizeStorageKey = `${storageKey}:share-size-v1`;
+  const parseState = (serializedState) => {
+    if (
+      typeof serializedState !== "string" ||
+      new TextEncoder().encode(serializedState).length > 16 * 1024
+    ) {
+      throw new TypeError(
+        "Widget state must be a JSON object of at most 16 KiB",
+      );
+    }
+    /** @type {unknown} */
+    const state = JSON.parse(serializedState);
+    if (
+      state == null ||
+      typeof state !== "object" ||
+      Array.isArray(state) ||
+      ("imageIds" in state &&
+        (!Array.isArray(state.imageIds) || state.imageIds.length > 0))
+    ) {
+      throw new TypeError("Widget state must be a JSON object");
+    }
+    const storedState = { modelContent: null, privateContent: null, ...state };
+    const canonicalState = JSON.stringify(
+      storedState,
+      (_key, /** @type {unknown} */ value) => {
+        if (typeof value === "number" && !Number.isFinite(value)) {
+          throw new TypeError("Widget state must contain finite numbers");
+        }
+        return value;
+      },
+    );
+    if (new TextEncoder().encode(canonicalState).length > 16 * 1024) {
+      throw new TypeError(
+        "Widget state must be a JSON object of at most 16 KiB",
+      );
+    }
+    return storedState;
+  };
+  let storage = null;
+  let state = null;
+  try {
+    const localStorage = globalThis.localStorage;
+    const probeKey = `${storageKey}:probe`;
+    localStorage.setItem(probeKey, "1");
+    localStorage.removeItem(probeKey);
+    storage = localStorage;
+    const savedState = storage.getItem(storageKey);
+    if (savedState != null) {
+      try {
+        state = parseState(savedState);
+      } catch {
+        // Invalid saved state does not disable future writes.
+      }
+    }
+  } catch {
+    storage = null;
+  }
+  const persistSize = () => {
+    globalThis.clearTimeout(sizeWriteTimeout);
+    if (pendingSize == null) {
+      return;
+    }
+    try {
+      storage?.setItem(sizeStorageKey, pendingSize);
+    } catch {
+      // A denied or full cache must not affect the visualization.
+    }
+    pendingSize = null;
+  };
+  if (isShare) {
+    globalThis.addEventListener("pagehide", persistSize);
+  }
+  const initialGlobals = {
+    widgetState: state,
+    statePersistence: storage == null ? "none" : "local",
+  };
+
+  const channel = new MessageChannel();
+  channel.port1.addEventListener("message", (event) => {
+    const data = event.data;
+    if (typeof data !== "object" || data == null) {
+      return;
+    }
+    if (data.type === "widget-state-write") {
+      if (!Number.isSafeInteger(data.id) || data.id <= 0) {
+        return;
+      }
+      let ok = false;
+      try {
+        if (storage != null) {
+          const state = parseState(data.state);
+          storage.setItem(storageKey, JSON.stringify(state));
+          ok = true;
+        }
+      } catch {
+        // Storage denial, quota limits, and invalid state return a failed receipt.
+      }
+      channel.port1.postMessage({
+        type: "widget-state-result",
+        id: data.id,
+        ok,
+      });
+      return;
+    }
+    if (data.type === "height") {
+      const height = data.height;
+      if (
+        typeof height !== "number" ||
+        !Number.isFinite(height) ||
+        height < 0
+      ) {
+        return;
+      }
+      if (height <= 10_000) {
+        const width = isShare && storage != null ? frame.clientWidth : null;
+        frame.style.height = Math.ceil(height) + "px";
+        if (isShare && storage != null) {
+          const size = JSON.stringify({
+            fingerprint: sizeFingerprint,
+            width,
+            viewportHeight: globalThis.innerHeight,
+            dark: globalThis.matchMedia("(prefers-color-scheme: dark)").matches,
+            scale: globalThis.devicePixelRatio,
+            height: Math.ceil(height),
+          });
+          if (size !== lastSize) {
+            lastSize = size;
+            pendingSize = size;
+            globalThis.clearTimeout(sizeWriteTimeout);
+            sizeWriteTimeout = globalThis.setTimeout(persistSize, 100);
+          }
+        }
+      }
+      if (isShare) {
+        // Keep unusually tall content accessible without accepting an unbounded height.
+        if (height > 10_000 && Number.parseFloat(frame.style.height) === 0) {
+          frame.style.removeProperty("height");
+        }
+        frame.scrolling = height > 10_000 ? "auto" : "no";
+        document.documentElement.classList.add("visualization-share-ready");
+      }
+      return;
+    }
+    if (data.type === "scroll-to") {
+      const top = data.top;
+      if (
+        typeof top === "number" &&
+        Number.isFinite(top) &&
+        top >= 0 &&
+        globalThis.navigator.userActivation?.isActive === true
+      ) {
+        globalThis.scrollTo({
+          top: Math.ceil(
+            globalThis.scrollY + frame.getBoundingClientRect().top + top,
+          ),
+        });
+      }
+      return;
+    }
+    if (data.type === "open-external") {
+      const rawHref = data.href;
+      if (typeof rawHref !== "string") {
+        return;
+      }
+      let href;
+      try {
+        const url = new URL(rawHref, document.baseURI);
+        if (url.protocol !== "https:") {
+          return;
+        }
+        href = url.href;
+      } catch {
+        return;
+      }
+      if (globalThis.navigator.userActivation?.isActive === true) {
+        const anchor = document.createElement("a");
+        anchor.href = href;
+        anchor.rel = "noopener noreferrer";
+        anchor.target = "_blank";
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+      }
+      return;
+    }
+    if (data.type === "follow-up") {
+      const prompt = data.prompt;
+      if (
+        typeof prompt !== "string" ||
+        globalThis.navigator.userActivation?.isActive !== true
+      ) {
+        return;
+      }
+      const title = data.title;
+      globalThis.prompt(typeof title === "string" ? title : prompt, prompt);
+    }
+  });
+  channel.port1.start();
+  const srcdoc = frame.dataset.srcdoc;
+  if (srcdoc == null) {
+    return;
+  }
+  globalThis.addEventListener("resize", () => {
+    const height = Number.parseFloat(frame.style.height);
+    if (!isShare && (!Number.isFinite(height) || height <= viewportHeight)) {
+      frame.style.removeProperty("height");
+    }
+    viewportHeight = globalThis.innerHeight;
+    channel.port1.postMessage({ type: "measure" });
+  });
+  frame.addEventListener(
+    "load",
+    () => {
+      frame.contentWindow?.postMessage(
+        { type: "codex-visualization-initialize" },
+        "*",
+        [channel.port2],
+      );
+    },
+    { once: true },
+  );
+  // Match the trusted bootstrap element, not the same text in an authored title.
+  const frameHtml = srcdoc.replace(
+    '<script type="application/json" id="codex-visualization-widget-state">__CODEX_VISUALIZATION_WIDGET_STATE__<\/script>',
+    () =>
+      '<script type="application/json" id="codex-visualization-widget-state">' +
+      JSON.stringify(initialGlobals).replaceAll("<", "\\u003c") +
+      "<\/script>",
+  );
+  if (isShare && storage != null) {
+    // Fingerprint the rendered document, including restored widget state, without
+    // storing its content. This is a layout cache, not a security identity.
+    let hash = 5381;
+    for (let index = 0; index < frameHtml.length; index += 1) {
+      hash = (hash * 33 + frameHtml.charCodeAt(index)) % 4_294_967_296;
+    }
+    sizeFingerprint = hash.toString(36);
+    try {
+      const size = JSON.parse(storage.getItem(sizeStorageKey) ?? "null");
+      if (
+        size?.fingerprint === sizeFingerprint &&
+        size.width === frame.clientWidth &&
+        size.viewportHeight === globalThis.innerHeight &&
+        size.dark ===
+          globalThis.matchMedia("(prefers-color-scheme: dark)").matches &&
+        size.scale === globalThis.devicePixelRatio &&
+        typeof size.height === "number" &&
+        Number.isFinite(size.height) &&
+        size.height >= 0 &&
+        size.height <= 10_000
+      ) {
+        frame.style.height = size.height + "px";
+      }
+    } catch {
+      // Ignore missing or invalid cache entries and measure the live frame.
+    }
+  }
+  frame.srcdoc = frameHtml;
+  delete frame.dataset.srcdoc;
+})();
+</script>
+</body>
+</html>
