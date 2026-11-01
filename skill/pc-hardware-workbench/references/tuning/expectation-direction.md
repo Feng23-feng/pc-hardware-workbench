@@ -16,13 +16,13 @@ Use this after the tuning gate and before selecting a candidate increment. Deriv
 
 ### GPU efficiency, lower temperature, or lower noise
 
-Expected direction: a core voltage/frequency curve change should lower power and temperature while preserving frame time within the user's tolerance. First obtain the current game-load voltage/frequency point using [gpu-curve-baseline.md](gpu-curve-baseline.md).
+Expected direction: a core voltage/frequency curve change should lower power and temperature while preserving frame time within the user's tolerance. First obtain the current game-load voltage/frequency region using [gpu-curve-baseline.md](gpu-curve-baseline.md) and [gpu-clock-behavior.md](gpu-clock-behavior.md); do not require one exact point to recur.
 
 Start with one GPU core curve or voltage/frequency control. Do not stack memory offset in the same round. Follow-up evidence must include frame time or throughput, power, core temperature, memory junction when exposed, effective clock, and artifacts.
 
 ### GPU performance
 
-Expected direction: distinguish pure frequency overclocking from curve undervolt/overclocking. For curve work, use the measured baseline voltage point; for pure frequency work, keep the curve method unchanged. Validate core first, then memory separately.
+Expected direction: distinguish pure frequency overclocking from curve undervolt/overclocking. For curve work, use the measured baseline voltage/frequency region and its dominant samples; for pure frequency work, keep the curve method unchanged. Validate core first, then memory separately.
 
 Frame time repeatability and artifacts are stronger evidence than a one-run benchmark score. Laptop GPU changes must account for shared CPU/GPU power and thermal budgets.
 

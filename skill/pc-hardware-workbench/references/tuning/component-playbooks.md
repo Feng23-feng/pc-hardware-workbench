@@ -22,6 +22,7 @@ Clarify whether the goal is lower temperature/noise at similar performance, high
 ## GPU
 
 - Record the stock/known-good in-workload baseline and current curve before any candidate.
+- Read [gpu-clock-behavior.md](gpu-clock-behavior.md) before interpreting requested clocks, effective clocks, curve changes, or limit reasons.
 - Read [gpu-curve-baseline.md](gpu-curve-baseline.md) for curve-based undervolting, combined undervolt/overclock, or pure frequency overclocking.
 - Improve one of core voltage/frequency curve, core offset, memory offset, or power limit per round; do not stack control classes.
 - Inspect artifacts, resets, effective clocks, power, temperatures, fan behavior, and frame time, not only a benchmark score.

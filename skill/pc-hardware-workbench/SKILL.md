@@ -2,7 +2,7 @@
 name: pc-hardware-workbench
 description: Integrate Windows-focused read-only hardware inventory, evidence-gated troubleshooting, guided overclocking, and upgrade-purchase decisions through one routed workflow. Other operating systems receive manual guidance only. Keep tuning-only requests free of unsolicited purchase advice; never modify hardware settings automatically and never bypass permissions or anti-cheat.
 metadata:
-  version: "1.4.3"
+  version: "1.4.4"
   short-description: "One routed entry for hardware inventory, triage, tuning, and purchase decisions"
 ---
 
@@ -109,6 +109,8 @@ Analysis alone is read-only and does not require the tuning entry gate. Do not c
 Tuning is one route. Read [tuning-modes.md](references/integration/tuning-modes.md), complete the gate below, then explain quick vs deep and ask. Do not expose them as separate top-level modes.
 
 If inventory has established the device but cooling/power context is still missing, read [cooling-evidence.md](references/integration/cooling-evidence.md) before giving a thermal expectation. Do not ask cooling questions before the form factor is known.
+
+Before interpreting GPU core clocks, a voltage/frequency curve, an offset, or a performance-limit reason, read [gpu-clock-behavior.md](references/tuning/gpu-clock-behavior.md). Treat GPU Boost behavior as a dynamic operating range, not a fixed point. The absence of one exact target MHz/voltage sample does not prove a curve did not apply, and one matching sample does not prove stability.
 
 Apply this mandatory **tuning entry gate** to every tuning request, regardless of experience level or chosen depth:
 

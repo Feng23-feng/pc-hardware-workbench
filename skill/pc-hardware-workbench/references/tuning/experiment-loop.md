@@ -31,7 +31,10 @@ The user applies the change. Confirm:
 - the setting actually applied;
 - the tool or firmware did not reject it silently;
 - the machine remained bootable;
-- the expected voltage/clock/power value is visible in monitoring data.
+- the expected voltage/clock/power direction or relationship is visible in
+  repeated monitoring samples. For a dynamic-boost GPU, do not require one
+  exact MHz/voltage point to appear; compare the operating range, effective
+  clock, performance, power, temperature, and limit reason.
 
 Treat any uncertainty about whether the control exists or was accepted as a reason to stop this round. Do not invent a substitute setting from another firmware, board, laptop, or tuning utility.
 

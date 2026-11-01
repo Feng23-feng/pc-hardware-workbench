@@ -592,6 +592,7 @@ Must:
 - keep memory offset and power limit unchanged in the first curve experiment;
 - include the reference-only safety notice and stop/recovery evidence;
 - test idle/low-load as well as the target workload and not call one game run stable.
+- treat the observed voltage/frequency samples as a dynamic operating region and do not reject an applied curve solely because one intended MHz value never recurs.
 
 ## 39. Desktop RTX 5090 reference routes
 
@@ -736,3 +737,28 @@ Must:
 - not ask an ordinary user to perform mains-side transient measurements;
 - offer stock-power monitoring or a safe diagnostic alternative;
 - do not add the reference-only safety notice when withholding the route and giving no candidate value or actionable change.
+
+## 47. A dynamic boost point does not define curve activation
+
+Prompt:
+
+```text
+显卡曲线已经保存并应用了，监控里一直没看到曲线上的某个目标 MHz，只看到附近频率；是不是曲线根本没生效
+```
+
+Must:
+
+- separate the requested value, saved profile, active profile, runtime-selected
+  voltage/frequency points, and measured effective performance;
+- explain that NVIDIA GPU Boost selects a dynamic operating point under power,
+  thermal, voltage, reliability, and workload constraints;
+- for RTX 50, account for Blackwell Accelerated Frequency Switching and more
+  intra-frame voltage/frequency movement;
+- not conclude that the curve failed merely because one exact target MHz/voltage
+  coordinate did not appear;
+- compare the stock and candidate operating range, effective clock, frame time
+  or throughput, power, temperature, and dominant limit reason;
+- ask the user to reopen the tool and confirm that the intended profile is
+  selected and still contains the applied curve;
+- not add the reference-only safety notice when the response is a conceptual
+  diagnosis and contains no new candidate value or actionable tuning change.

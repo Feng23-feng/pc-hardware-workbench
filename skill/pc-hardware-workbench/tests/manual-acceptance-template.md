@@ -4,7 +4,7 @@ Use this record before a broad release. Run representative prompts from
 `interaction-scenarios.md` against the installed Skill and record observed
 behavior, not merely whether the rule exists in text.
 
-For the 1.4.3 tone layer, run every prompt in `tone-scenarios.md` three times in
+For the 1.4.3+ tone layer, run every prompt in `tone-scenarios.md` three times in
 independent sessions and record each answer verbatim.
 
 | Type | Decision | Basis |
@@ -34,6 +34,7 @@ result and evidence:
 | 42 | Power-ceiling advice must stop on unknown power-path evidence; the refusal/assessment tier must be observable or the release boundary cannot be audited |
 | 45 | Telemetry-only analysis must not be forced into tuning intake |
 | 46 | Unknown PSU must block a raised GPU power ceiling |
+| 47 | A dynamic GPU operating range must not be mistaken for a failed curve |
 
 | Area | Scenario IDs | Result | Evidence / notes |
 | --- | --- | --- | --- |
@@ -42,6 +43,7 @@ result and evidence:
 | Triage and physical safety |  |  |  |
 | Tuning gate and quick/deep routing |  |  |  |
 | GPU, CPU, BIOS, and Intel 13/14 caution |  |  |  |
+| GPU Boost and V/F operating-point interpretation |  |  |  |
 | Telemetry-only analysis and handoff |  |  |  |
 | Purchase and preference decisions |  |  |  |
 | Unreadable or conflicting identity |  |  |  |

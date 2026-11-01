@@ -1,5 +1,15 @@
 ﻿# 电脑硬件工作台版本记录
 
+## 1.4.4 — 2026-11-02
+
+- 新增 GPU Boost、动态电压/频率、有效频率和请求频率的术语边界；
+- 记录 Turing、Ampere、Ada、Blackwell 的已确认差异，明确 Blackwell 的 Accelerated Frequency Switching 和独立电压轨；
+- 记录 AMD RDNA1-4 的 Game Frequency、Boost Clock 与 Radeon Boost 区别；
+- 记录 Intel Arc A/B 系的验证边界，以及 Xe 请求频率、实际频率、PCODE 决策和节流原因的区别；
+- 明确曲线生效不等于某个目标 MHz/V 点必须在遥测中出现；
+- 曲线判断改为比较稳定工作区间、有效频率、性能、功耗、温度和限制原因；
+- 新增动态 Boost 曲线未命中目标点的交互场景和人工验收门禁。
+
 ## 1.4.3 — 2026-10-28
 
 - 安全提示改为按用户当前语言本地化，中文与英文各有标准句；

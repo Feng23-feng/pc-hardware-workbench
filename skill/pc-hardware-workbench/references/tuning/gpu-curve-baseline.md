@@ -33,8 +33,8 @@ current stock or known-good profile:
 
 - exact GPU, driver, tuning-tool version, and current profile;
 - game or benchmark, resolution, preset, frame cap, and sampling window;
-- representative sustained core voltage and core/effective clock at that
-  voltage, not one transient spike;
+- representative in-workload core-voltage and core/effective-clock range or
+  clusters, not one transient spike and not a demand that one exact point recur;
 - board power, core temperature, hotspot and memory-junction temperature when
   exposed, fan mode, and ambient conditions;
 - the dominant performance-limit reason when exposed, such as power, thermal,
@@ -44,9 +44,15 @@ current stock or known-good profile:
 - how to restore the current curve and the previous known-good profile.
 
 Use a CSV, monitoring summary, screenshot with stable values, or a manually
-recorded table. If core voltage is not exposed or no stable load point can be
-identified, do not invent a voltage-point procedure. Continue monitoring or
-use a supported offset-only route.
+recorded table. A changing voltage/frequency distribution is expected on
+dynamic-boost GPUs. Use the observed range, dominant samples, effective clock,
+performance, and limit reason instead of pretending there must be one fixed
+operating point.
+
+If core voltage is not exposed, do not invent a voltage-point procedure.
+Continue monitoring or use a supported offset-only route. Read
+[gpu-clock-behavior.md](gpu-clock-behavior.md) before deciding whether the
+reported values prove a setting applied.
 
 ## Distinguish the routes
 
@@ -65,10 +71,12 @@ unchanged, and compare against the same baseline report.
 
 This route changes several curve points as one coordinated profile:
 
-1. Record the representative voltage and frequency reached by the selected
-   game workload.
-2. In the supported tuning tool, identify that voltage point on the curve.
-3. Raise the target voltage point toward the chosen candidate frequency.
+1. Record the representative voltage/frequency region and dominant working
+   samples reached by the selected game workload.
+2. In the supported tuning tool, choose an anchor inside that observed region
+   using the tool's exposed voltage points. Do not require the exact MHz value
+   to recur in every telemetry sample.
+3. Raise the target curve region toward the chosen candidate frequency.
 4. Flatten the points to the right so higher voltage does not keep adding the
    same or a higher clock unintentionally.
 5. If raising lower-voltage points to the left, treat that as part of the same
@@ -79,10 +87,16 @@ This route changes several curve points as one coordinated profile:
 8. After applying the curve, reopen the editor and compare requested values
    with the values that remain after clamping, smoothing, or neighbour-point
    adjustment. Record the applied curve, not only the intended drag.
+9. Compare stock and candidate operating-point distributions under the same
+   workload. Do not say the curve failed solely because one intended
+   voltage/MHz coordinate never appeared; a nearby point, another voltage
+   anchor, or another power/thermal limit can be selected while the curve is
+   active.
 
-The observed baseline frequency is a starting reference, not proof that the
-same point is safe after flattening or lifting neighbours. Record the edited
-curve before saving it.
+The observed baseline region is a starting reference, not proof that the same
+area is safe after flattening or lifting neighbours. Record the edited curve
+before saving it. Conversely, one matching sample does not prove the curve is
+safe or that the active profile is the intended one.
 
 ## Desktop RTX 5090 reference route
 

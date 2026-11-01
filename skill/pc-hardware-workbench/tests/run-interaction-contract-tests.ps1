@@ -54,7 +54,7 @@ $skill = Get-Content -LiteralPath $skillPath -Raw -Encoding UTF8
 $referenceOnlyNotice = [regex]::Unescape('\u53C2\u6570\u4EC5\u4F9B\u53C2\u8003\uFF0C\u8BF7\u4EE5\u5B89\u5168\u4E3A\u7B2C\u4E00\u8981\u52A1\u3002')
 $englishReferenceOnlyNotice = "For reference only - put safety first."
 
-Assert-Contains $skill '(?m)^  version: "1\.4\.3"\r?$' "metadata.version should be 1.4.3."
+Assert-Contains $skill '(?m)^  version: "1\.4\.4"\r?$' "metadata.version should be 1.4.4."
 Assert-Contains $skill 'r18 collector' "The Skill maintenance summary collector revision disagrees with the collector code."
 Assert-Contains $skill 'while the power-path evidence is incomplete' "The Advice intensity route does not include incomplete power-path evidence."
 Assert-Contains $skill 'hidden or manufacturer-limited limit' "The Advice intensity summary is narrower than the hidden or manufacturer-limited scope."
@@ -104,6 +104,7 @@ Assert-Contains $skill '### Telemetry and logs' "Telemetry has no formal shared 
 Assert-Contains $skill 'does not require the tuning entry gate' "Telemetry-only analysis is still forced through tuning intake."
 Assert-Contains $skill 'collector is Windows-only' "Automatic collector scope is not limited to Windows."
 Assert-Contains $skill 'cooling-evidence\.md' "Cooling evidence route is missing."
+Assert-Contains $skill 'gpu-clock-behavior\.md' "GPU dynamic clock behavior reference is not linked from the entrypoint."
 Assert-Contains $skill 'tuning-modes\.md' "Quick/deep tuning route is missing."
 Assert-Contains $skill 'fixed-workloads\.md' "Fixed workload route is missing."
 Assert-Contains $skill 'telemetry-analysis\.md' "Telemetry analysis route is missing."
@@ -126,6 +127,7 @@ foreach ($relative in @(
     "references/integration/installation-coexistence.md",
     "references/integration/device-identity.md",
     "references/tuning/expectation-direction.md",
+    "references/tuning/gpu-clock-behavior.md",
     "references/tuning/gpu-curve-baseline.md",
     "references/tuning/intel-13-14-gen.md",
     "references/upgrade/upgrade-evidence.md",
@@ -192,7 +194,29 @@ Assert-Contains $gpuCurve 'Tune the core voltage/frequency curve first' "GPU com
 Assert-Contains $gpuCurve 'test memory as a separate round' "GPU compact route does not separate memory tuning."
 Assert-Contains $gpuCurve 'Repeat each retained profile at least twice' "GPU compact route does not require repeated validation."
 Assert-Contains $gpuCurve 'Keep only the winning daily profile and a separate benchmark profile' "GPU compact route does not separate daily and benchmark profiles."
-Assert-Contains $gpuCurve 'representative sustained core voltage' "GPU curve guidance does not require a stable voltage sample."
+Assert-Contains $gpuCurve 'representative in-workload core-voltage' "GPU curve guidance does not require a representative voltage region."
+$gpuClock = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/tuning/gpu-clock-behavior.md") -Raw -Encoding UTF8
+Assert-Contains $gpuClock 'GPU Boost' "GPU clock guidance omits the NVIDIA GPU Boost term."
+Assert-Contains $gpuClock 'Turing / RTX 20' "GPU clock guidance omits Turing."
+Assert-Contains $gpuClock 'Ampere / RTX 30' "GPU clock guidance omits Ampere."
+Assert-Contains $gpuClock 'Ada / RTX 40' "GPU clock guidance omits Ada."
+Assert-Contains $gpuClock 'Blackwell / RTX 50' "GPU clock guidance omits Blackwell."
+Assert-Contains $gpuClock 'Accelerated Frequency Switching' "GPU clock guidance omits the Blackwell-specific terminology."
+Assert-Contains $gpuClock 'Game Frequency' "GPU clock guidance omits AMD Game Frequency."
+Assert-Contains $gpuClock 'RDNA1 / RX 5000' "GPU clock guidance omits RDNA1."
+Assert-Contains $gpuClock 'RDNA2 / RX 6000' "GPU clock guidance omits RDNA2."
+Assert-Contains $gpuClock 'RDNA3 / RX 7000' "GPU clock guidance omits RDNA3."
+Assert-Contains $gpuClock 'RDNA4 / RX 9000' "GPU clock guidance omits RDNA4."
+Assert-Contains $gpuClock 'Radeon Boost is not core-clock boost' "GPU clock guidance confuses Radeon Boost with core-clock boost."
+Assert-Contains $gpuClock 'GuC SLPC' "GPU clock guidance omits Intel Xe frequency management."
+Assert-Contains $gpuClock 'Alchemist' "GPU clock guidance omits Intel Arc A-series."
+Assert-Contains $gpuClock 'Battlemage' "GPU clock guidance omits Intel Arc B-series."
+Assert-Contains $gpuClock 'absence of one intended point does \*\*not\*\* prove' "GPU clock guidance can still reject a curve solely because one point is absent."
+Assert-Contains $gpuClock 'presence of one intended point also does not prove' "GPU clock guidance can still treat one observed sample as proof."
+Assert-Contains $gpuClock 'operating-point distribution' "GPU clock guidance does not use the observed operating distribution."
+Assert-Contains $gpuCurve 'gpu-clock-behavior\.md' "GPU curve guidance does not link the dynamic clock behavior reference."
+Assert-Contains $gpuCurve 'do not require the exact MHz value\s+to recur' "GPU curve guidance still requires the exact target point."
+Assert-Contains $gpuCurve 'Do not say the curve failed solely because one intended\s+voltage/MHz coordinate never appeared' "GPU curve guidance can still infer curve failure from an absent point."
 Assert-Contains $gpuCurve 'Pure frequency overclock' "GPU guidance does not separate pure frequency overclocking."
 Assert-Contains $gpuCurve 'Curve undervolt and lift' "GPU guidance has no curve undervolt/overclock route."
 Assert-Contains $gpuCurve 'Flatten the points to the right' "GPU curve guidance omits the right-side curve flattening step."
@@ -528,6 +552,8 @@ Assert-Contains $scenarioDoc 'no larger than 17 KB' "Interaction scenario budget
 Assert-Contains $scenarioDoc 'no larger than 31 KB' "Interaction scenario budget does not match the 31 KB quick-mode budget."
 Assert-Contains $scenarioDoc 'Manual behavioral acceptance scenarios' "Interaction scenarios are still presented as automated behavior tests."
 Assert-Contains $scenarioDoc 'do not prove that every scenario behaves' "Interaction scenarios overstate static test coverage."
+Assert-Contains $scenarioDoc '(?m)^## 47\. A dynamic boost point does not define curve activation' "Interaction scenarios omit the dynamic GPU operating-point case."
+Assert-Contains $scenarioDoc 'not conclude that the curve failed merely because one exact target' "The dynamic GPU scenario can still infer curve failure from an absent point."
 
 $toneScenarios = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "tests/tone-scenarios.md") `
@@ -556,7 +582,7 @@ Assert-Contains $manualAcceptance 'Release-blocking scenarios' "Manual acceptanc
 Assert-Contains $manualAcceptance 'Approved for broad distribution: no' "Manual acceptance defaults to broad approval."
 Assert-Contains $manualAcceptance 'Any one round showing it means not fixed' "Manual acceptance omits the rule-driven any-round gate."
 Assert-Contains $manualAcceptance 'Fixed only when absent in all three rounds' "Manual acceptance omits the convention-driven three-round gate."
-Assert-Contains $manualAcceptance 'For the 1\.4\.3 tone layer' "Manual acceptance still points at the previous tone-layer version."
+Assert-Contains $manualAcceptance 'For the 1\.4\.3\+ tone layer' "Manual acceptance does not preserve the tone-layer acceptance baseline."
 
 $auditTest = Join-Path $resolvedRoot "tests/run-telemetry-audit-tests.ps1"
 if (-not (Test-Path -LiteralPath $auditTest -PathType Leaf)) {

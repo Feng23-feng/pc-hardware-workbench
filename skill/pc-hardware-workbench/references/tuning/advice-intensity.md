@@ -46,7 +46,7 @@ An already-applied change can be assessed only when all three conditions hold:
 Accept at least one relevant, verifiable item:
 
 - measured sustained power or a reported current/configured ceiling;
-- a sustained voltage/frequency point;
+- a sustained voltage/frequency range or representative operating points;
 - under-load core and hotspot or memory-junction temperatures;
 - a concrete route back to factory/default behavior.
 
