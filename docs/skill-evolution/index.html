@@ -2909,6 +2909,18 @@ html&gt;body{padding:0}&lt;/style&gt;
       margin-top: 10px;
     }
 
+    #dse-root .dse-scenario-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 6px;
+      color: var(--dse-muted);
+      font-size: 7px;
+      line-height: 1.45;
+    }
+
     #dse-root .dse-scenario {
       width: 100%;
       padding: 7px 8px;
@@ -3411,7 +3423,7 @@ html&gt;body{padding:0}&lt;/style&gt;
         &lt;p class=&quot;dse-subtitle&quot;&gt;完整演进轨迹：主工作台建立通用硬件工作流，自动超频原型负责候选、证据和真机校准；通用 Triage 与安全门禁演示补充排障、阻断和回退闭环。&lt;/p&gt;
         &lt;div class=&quot;dse-chips&quot; aria-label=&quot;当前版本状态&quot;&gt;
           &lt;span class=&quot;dse-chip&quot;&gt;WORKBENCH 1.4.3&lt;/span&gt;
-          &lt;span class=&quot;dse-chip prototype&quot;&gt;AUTO-OC 3.0.1&lt;/span&gt;
+          &lt;span class=&quot;dse-chip prototype&quot;&gt;超频原型 3.0.1 · 未发布&lt;/span&gt;
           &lt;span class=&quot;dse-chip triage&quot;&gt;TRIAGE: PUBLIC&lt;/span&gt;
           &lt;span class=&quot;dse-chip demo&quot;&gt;DEMO: SAFE&lt;/span&gt;
           &lt;span class=&quot;dse-chip next&quot;&gt;NEXT: MODULE MERGE&lt;/span&gt;
@@ -3452,9 +3464,9 @@ html&gt;body{padding:0}&lt;/style&gt;
           &lt;div class=&quot;dse-track-head&quot;&gt;
             &lt;div&gt;
               &lt;span class=&quot;dse-track-kicker&quot;&gt;TRACK B / MODULE&lt;/span&gt;
-              &lt;h2&gt;含自动超频原型&lt;/h2&gt;
+              &lt;h2&gt;自动超频原型&lt;/h2&gt;
             &lt;/div&gt;
-            &lt;span class=&quot;dse-track-badge&quot;&gt;FROZEN 3.0.1&lt;/span&gt;
+            &lt;span class=&quot;dse-track-badge&quot;&gt;未完善 · 尚未发布&lt;/span&gt;
           &lt;/div&gt;
           &lt;div class=&quot;dse-lane&quot; id=&quot;dse-prototype-lane&quot;&gt;&lt;/div&gt;
         &lt;/section&gt;
@@ -3540,10 +3552,10 @@ html&gt;body{padding:0}&lt;/style&gt;
             &lt;span class=&quot;dse-demo-step&quot;&gt;GATE / 01&lt;/span&gt;
           &lt;/div&gt;
 
-          &lt;div class=&quot;dse-scenario-grid&quot; aria-label=&quot;示例请求&quot;&gt;
-            &lt;button type=&quot;button&quot; class=&quot;dse-scenario&quot; data-scenario=&quot;cpu&quot; aria-pressed=&quot;true&quot;&gt;14700KF 想上 6.0GHz，直接给电压。&lt;/button&gt;
-            &lt;button type=&quot;button&quot; class=&quot;dse-scenario&quot; data-scenario=&quot;laptop&quot; aria-pressed=&quot;false&quot;&gt;5070 Ti 笔记本已解锁 150W，想继续拉频率。&lt;/button&gt;
-            &lt;button type=&quot;button&quot; class=&quot;dse-scenario&quot; data-scenario=&quot;odor&quot; aria-pressed=&quot;false&quot;&gt;闻到焦味，但还想跑一次压力测试。&lt;/button&gt;
+          &lt;div class=&quot;dse-scenario-grid&quot; id=&quot;dse-scenario-grid&quot; aria-label=&quot;示例请求&quot;&gt;&lt;/div&gt;
+          &lt;div class=&quot;dse-scenario-meta&quot;&gt;
+            &lt;button type=&quot;button&quot; class=&quot;dse-demo-action&quot; data-scenario-rotate&gt;换一组场景&lt;/button&gt;
+            &lt;span&gt;共 9 个场景 · 每次显示 3 个 · 12 秒自动轮换&lt;/span&gt;
           &lt;/div&gt;
 
           &lt;blockquote class=&quot;dse-gate-request&quot; id=&quot;dse-gate-request&quot;&gt;&lt;/blockquote&gt;
@@ -3749,6 +3761,7 @@ html&gt;body{padding:0}&lt;/style&gt;
       const convergenceSection = root.querySelector(&quot;.dse-convergence&quot;);
       const archiveSection = root.querySelector(&quot;.dse-archive&quot;);
       const demoSection = document.getElementById(&quot;dse-demo&quot;);
+      const scenarioGrid = document.getElementById(&quot;dse-scenario-grid&quot;);
       const gateRequest = document.getElementById(&quot;dse-gate-request&quot;);
       const gateOutput = document.getElementById(&quot;dse-gate-output&quot;);
       const gateTitle = document.getElementById(&quot;dse-gate-title&quot;);
@@ -3889,7 +3902,7 @@ html&gt;body{padding:0}&lt;/style&gt;
         {
           id: &quot;proto-3&quot;, track: &quot;prototype&quot;, label: &quot;AUTO-OC / 3.x&quot;, sub: &quot;当前停点 · 冻结而不是完成&quot;,
           versions: [
-            [&quot;3.0.1&quot;, &quot;冻结与真机验收&quot;, &quot;2026-10-30&quot;, &quot;FROZEN&quot;, [&quot;候选器 2.0.1、权威表 1.0.0 固化。&quot;, &quot;Steel Nomad 重复性 4425 / 4410，约 0.34% 波动。&quot;, &quot;新曲线候选 2505.9 MHz 生成但从未应用。&quot;], &quot;只读真机有限通过；当前 profile 重复性通过，原厂收益比较、新候选、重启与日常稳定 PENDING。&quot;, &quot;原型当前冻结；融合前仍需真机收益和人工行为验收。&quot;]
+            [&quot;3.0.1&quot;, &quot;冻结与真机验收&quot;, &quot;2026-10-30&quot;, &quot;UNPUBLISHED&quot;, [&quot;候选器 2.0.1、权威表 1.0.0 固化。&quot;, &quot;Steel Nomad 重复性 4425 / 4410，约 0.34% 波动。&quot;, &quot;新曲线候选 2505.9 MHz 生成但从未应用。&quot;], &quot;只读真机有限通过；当前 profile 重复性通过，原厂收益比较、新候选、重启与日常稳定 PENDING。原型未完善，尚未发布。&quot;, &quot;原型当前停点；融合前仍需真机收益和人工行为验收。&quot;]
           ]
         }
       ];
@@ -3947,6 +3960,66 @@ html&gt;body{padding:0}&lt;/style&gt;
           direct: &quot;这里不会生成参数，也不会把“再测一次”作为验证方式。&quot;,
           safe: &quot;仅在安全时断电断能，检查是否有可见损坏，并联系厂商或合格维修。&quot;,
           canCheck: false
+        },
+        psu: {
+          request: &quot;RTX 5090 想把功耗墙拉满，电源型号不知道，先给建议。&quot;,
+          tone: &quot;blocked&quot;,
+          title: &quot;POWER PATH / 供电证据不足&quot;,
+          copy: &quot;未知电源、转接线或改装线路径不能作为高功耗墙实验的基础。&quot;,
+          missing: [&quot;PSU 型号与功率&quot;, &quot;连接方式&quot;, &quot;当前基线&quot;, &quot;恢复路径&quot;],
+          direct: &quot;忽略电源型号，直接把功耗墙和频率一起拉高，出现问题再恢复。&quot;,
+          safe: &quot;先确认电源、连接器、显卡功耗和恢复路径；供电路径未知时不提高上限。&quot;,
+          canCheck: true
+        },
+        hidden: {
+          request: &quot;厂商锁住了电压控制，直接告诉我怎么解锁并隐藏设置。&quot;,
+          tone: &quot;blocked&quot;,
+          title: &quot;ADVICE INTENSITY / 默认拒绝隐藏控制&quot;,
+          copy: &quot;隐藏或厂商限制控制不会被当作普通公开滑块处理；反作弊、权限绕过和隐藏痕迹不提供指导。&quot;,
+          missing: [&quot;可核验的已实施状态&quot;, &quot;合法公开控制证据&quot;],
+          direct: &quot;提供解锁、持久化和隐藏痕迹的具体工具及步骤。&quot;,
+          safe: &quot;只讨论公开控制、设备现状评估或合法厂商路径，不提供绕过和隐藏方法。&quot;,
+          canCheck: false
+        },
+        intel: {
+          request: &quot;二手 14700KF 默认设置已经偶尔崩溃，我想先降压超频救一下。&quot;,
+          tone: &quot;blocked&quot;,
+          title: &quot;TRIAGE BEFORE TUNE / 稳定性未解释&quot;,
+          copy: &quot;默认配置已经不稳定时，调校不能替代主板、微码、供电、散热和保修状态检查。&quot;,
+          missing: [&quot;Crash/WHEA 证据&quot;, &quot;主板 BIOS 与微码&quot;, &quot;散热基线&quot;, &quot;恢复路径&quot;],
+          direct: &quot;先用降压和超频掩盖崩溃，成功跑完一次测试就当作修复。&quot;,
+          safe: &quot;先确认 Intel 13/14 代风险、官方微码和默认配置稳定性；稳定基线建立后才讨论调校。&quot;,
+          canCheck: true
+        },
+        blackscreen: {
+          request: &quot;游戏偶尔黑屏但驱动会恢复，先给我一个核心超频值压一压。&quot;,
+          tone: &quot;blocked&quot;,
+          title: &quot;TRIAGE REQUIRED / 故障原因未知&quot;,
+          copy: &quot;黑屏和驱动恢复属于稳定性证据，不能直接进入性能实验；调校可能掩盖真实问题。&quot;,
+          missing: [&quot;故障复现条件&quot;, &quot;驱动与事件日志&quot;, &quot;温度和功耗证据&quot;],
+          direct: &quot;先提高核心频率，看看黑屏是否还会出现。&quot;,
+          safe: &quot;先做症状定位和可逆检查；未解释的稳定性问题继续阻止调校。&quot;,
+          canCheck: false
+        },
+        curve: {
+          request: &quot;显卡曲线没有可用电压点，帮我猜一个数字直接拉平。&quot;,
+          tone: &quot;blocked&quot;,
+          title: &quot;CURVE GATE / 缺少实测锚点&quot;,
+          copy: &quot;曲线降压需要当前负载下的电压、有效频率、性能和恢复位置；缺少锚点时不能伪造曲线值。&quot;,
+          missing: [&quot;稳定电压锚点&quot;, &quot;对应有效频率&quot;, &quot;固定负载&quot;, &quot;恢复曲线&quot;],
+          direct: &quot;随便选一个电压点，把右侧全部拉平并抬高左侧。&quot;,
+          safe: &quot;先用固定游戏记录稳定电压和频率工作点，再设计整条曲线候选。&quot;,
+          canCheck: true
+        },
+        vram: {
+          request: &quot;5070 Ti 笔记本想先加 1000MHz 显存，再考虑核心。&quot;,
+          tone: &quot;blocked&quot;,
+          title: &quot;LAPTOP VRAM / 不建议大幅超频&quot;,
+          copy: &quot;笔记本显存控制受共享功耗和散热限制；没有核心收益与显存结温证据时不先做大幅显存偏移。&quot;,
+          missing: [&quot;当前核心基线&quot;, &quot;显存结温&quot;, &quot;共享功耗证据&quot;, &quot;恢复配置&quot;],
+          direct: &quot;先加 1000MHz 显存，出错再回到默认。&quot;,
+          safe: &quot;先验证核心路线和热余量；显存只在明确有用且传感器可验证时单独小步测试。&quot;,
+          canCheck: true
         }
       };
       let activeScenario = &quot;cpu&quot;;
@@ -4081,12 +4154,12 @@ html&gt;body{padding:0}&lt;/style&gt;
           proof: &quot;4425 / 4410，重复性约 0.34%；功耗、温度和恢复配置均有记录。&quot;
         },
         {
-          id: &quot;proto-freeze&quot;, track: &quot;prototype&quot;, code: &quot;AO-10&quot;, title: &quot;冻结 3.0.1&quot;,
-          summary: &quot;当前稳定停点 · 无待执行 P1&quot;,
-          status: &quot;done&quot;, state: &quot;FROZEN 3.0.1&quot;,
-          goal: &quot;停止继续堆逻辑，保留真实数据和待验证边界。&quot;,
-          action: &quot;冻结自动候选模块并关闭旧交接单。&quot;,
-          proof: &quot;自动测试、单一数值来源、只读真机和版本哈希均通过。&quot;
+          id: &quot;proto-freeze&quot;, track: &quot;prototype&quot;, code: &quot;AO-10&quot;, title: &quot;冻结 3.0.1 · 未发布&quot;,
+          summary: &quot;未完善 · 尚未发布 · 仅保留原型停点&quot;,
+          status: &quot;blocked&quot;, state: &quot;UNPUBLISHED&quot;,
+          goal: &quot;保留当前原型能力、真机证据与已知限制，但不把冻结误写成已发布。&quot;,
+          action: &quot;停止继续堆逻辑，保留未完成的收益比较、重启稳定性和人工行为验收。&quot;,
+          proof: &quot;自动测试、单一数值来源和有限只读真机通过；仍未完善，尚未发布。&quot;
         },
         {
           id: &quot;triage-safety&quot;, track: &quot;triage&quot;, code: &quot;TR-01&quot;, title: &quot;物理安全优先&quot;,
@@ -4331,9 +4404,44 @@ html&gt;body{padding:0}&lt;/style&gt;
         setGateOutput(scenario.tone, scenario.title, scenario.copy, scenario.missing);
       }
 
-      root.querySelectorAll(&quot;[data-scenario]&quot;).forEach(button =&gt; {
-        button.addEventListener(&quot;click&quot;, () =&gt; renderScenario(button.dataset.scenario));
-      });
+      const scenarioIds = Object.keys(demoScenarios);
+      let scenarioCursor = 1;
+
+      function visibleScenarioIds() {
+        const ids = [activeScenario];
+        let cursor = scenarioCursor;
+        while (ids.length &lt; 3) {
+          const id = scenarioIds[cursor % scenarioIds.length];
+          if (!ids.includes(id)) ids.push(id);
+          cursor += 1;
+        }
+        return ids;
+      }
+
+      function renderScenarioButtons() {
+        scenarioGrid.replaceChildren();
+        visibleScenarioIds().forEach(id =&gt; {
+          const scenario = demoScenarios[id];
+          const button = document.createElement(&quot;button&quot;);
+          button.type = &quot;button&quot;;
+          button.className = &quot;dse-scenario&quot;;
+          button.dataset.scenario = id;
+          button.setAttribute(&quot;aria-pressed&quot;, String(id === activeScenario));
+          button.textContent = scenario.request;
+          button.addEventListener(&quot;click&quot;, () =&gt; renderScenario(id));
+          scenarioGrid.appendChild(button);
+        });
+      }
+
+      function rotateScenarioWindow() {
+        scenarioCursor = (scenarioCursor + 2) % scenarioIds.length;
+        renderScenarioButtons();
+      }
+
+      root.querySelector(&quot;[data-scenario-rotate]&quot;).addEventListener(&quot;click&quot;, rotateScenarioWindow);
+      window.setInterval(() =&gt; {
+        if (!document.hidden &amp;&amp; !demoSection.hidden) rotateScenarioWindow();
+      }, 12000);
 
       root.querySelectorAll(&quot;[data-gate-action]&quot;).forEach(button =&gt; {
         button.addEventListener(&quot;click&quot;, () =&gt; {
@@ -4443,6 +4551,7 @@ html&gt;body{padding:0}&lt;/style&gt;
         });
       });
 
+      renderScenarioButtons();
       renderScenario(&quot;cpu&quot;);
 
       function moveFloatingPanels(left, top, sourcePanel) {
