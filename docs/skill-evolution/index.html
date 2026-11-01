@@ -2241,9 +2241,11 @@ html&gt;body{padding:0}&lt;/style&gt;
       right: 18px;
       bottom: 18px;
       z-index: 40;
+      display: flex;
+      flex-direction: column;
       width: 274px;
       max-height: calc(100vh - 36px);
-      overflow: auto;
+      overflow: hidden;
       margin-top: 0;
       padding: 12px 13px;
       background:
@@ -2326,6 +2328,54 @@ html&gt;body{padding:0}&lt;/style&gt;
       color: var(--dse-muted);
       font-size: 7px;
       letter-spacing: .08em;
+    }
+
+    #dse-root .dse-floating-actions {
+      display: flex;
+      flex: none;
+      gap: 4px;
+    }
+
+    #dse-root .dse-window-control {
+      display: inline-grid;
+      place-items: center;
+      min-width: 25px;
+      min-height: 25px;
+      padding: 0;
+      color: var(--dse-muted);
+      background: rgba(7, 18, 30, .96);
+      border: 1px solid #234860;
+      font: inherit;
+      font-size: 12px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-window-control:hover,
+    #dse-root .dse-window-control:focus-visible {
+      color: var(--dse-text);
+      border-color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-floating-body {
+      min-height: 0;
+      overflow: auto;
+    }
+
+    #dse-root .dse-detail.is-collapsed,
+    #dse-root .dse-version-detail.is-collapsed {
+      max-height: none;
+    }
+
+    #dse-root .dse-detail.is-collapsed .dse-floating-body,
+    #dse-root .dse-version-detail.is-collapsed .dse-floating-body {
+      display: none;
+    }
+
+    #dse-root .dse-detail.is-collapsed .dse-floating-handle,
+    #dse-root .dse-version-detail.is-collapsed .dse-floating-handle {
+      margin-bottom: -4px;
+      border-bottom: 0;
     }
 
     #dse-root .dse-detail-head {
@@ -2582,9 +2632,11 @@ html&gt;body{padding:0}&lt;/style&gt;
       right: 18px;
       bottom: 18px;
       z-index: 40;
+      display: flex;
+      flex-direction: column;
       width: 276px;
       max-height: calc(100vh - 36px);
-      overflow: auto;
+      overflow: hidden;
       margin-top: 0;
       padding: 12px 13px;
       background:
@@ -2668,6 +2720,24 @@ html&gt;body{padding:0}&lt;/style&gt;
 
     #dse-root .dse-version-detail.prototype .dse-version-change-list li::before {
       color: var(--dse-magenta);
+    }
+
+    #dse-root .dse-inspector-restore {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 40;
+      min-height: 38px;
+      padding: 0 13px;
+      color: var(--dse-text);
+      background: #091827;
+      border: 1px solid var(--dse-cyan);
+      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+      box-shadow: 0 10px 25px rgba(0, 0, 0, .35), 0 0 18px rgba(73, 230, 255, .12);
+      font: inherit;
+      font-size: 9px;
+      letter-spacing: .08em;
+      cursor: pointer;
     }
 
     @media (max-width: 940px) {
@@ -2776,7 +2846,27 @@ html&gt;body{padding:0}&lt;/style&gt;
         bottom: 12px;
         left: 12px;
         width: auto;
-        max-height: 52vh;
+        max-height: 42vh;
+      }
+
+      #dse-root .dse-floating-handle {
+        cursor: default;
+        touch-action: auto;
+      }
+
+      #dse-root .dse-drag-hint {
+        display: none;
+      }
+
+      #dse-root .dse-window-control {
+        min-width: 38px;
+        min-height: 38px;
+      }
+
+      #dse-root .dse-inspector-restore {
+        right: 12px;
+        bottom: 12px;
+        min-height: 42px;
       }
     }
 
@@ -2850,24 +2940,30 @@ html&gt;body{padding:0}&lt;/style&gt;
       &lt;section class=&quot;dse-detail merge&quot; aria-live=&quot;polite&quot;&gt;
         &lt;div class=&quot;dse-floating-handle&quot; data-drag-handle&gt;
           &lt;p class=&quot;dse-detail-kicker&quot;&gt;MILESTONE DOSSIER / 节点介绍&lt;/p&gt;
-          &lt;span class=&quot;dse-drag-hint&quot;&gt;DRAG / 拖动&lt;/span&gt;
-        &lt;/div&gt;
-        &lt;div class=&quot;dse-detail-head&quot;&gt;
-          &lt;h3 id=&quot;dse-detail-title&quot;&gt;融合阶段&lt;/h3&gt;
-          &lt;span class=&quot;dse-detail-status&quot; id=&quot;dse-detail-status&quot;&gt;NEXT / NOT STARTED&lt;/span&gt;
-        &lt;/div&gt;
-        &lt;div class=&quot;dse-detail-grid&quot;&gt;
-          &lt;div class=&quot;dse-detail-cell&quot;&gt;
-            &lt;p class=&quot;dse-label&quot;&gt;目标&lt;/p&gt;
-            &lt;p class=&quot;dse-value&quot; id=&quot;dse-detail-goal&quot;&gt;自动超频成为正式工作台 Tune 分支中的模块，而不是第二个顶层 Skill。&lt;/p&gt;
+          &lt;div class=&quot;dse-floating-actions&quot;&gt;
+            &lt;span class=&quot;dse-drag-hint&quot;&gt;DRAG / 拖动&lt;/span&gt;
+            &lt;button type=&quot;button&quot; class=&quot;dse-window-control&quot; data-window-toggle aria-controls=&quot;dse-milestone-body&quot; aria-expanded=&quot;true&quot; aria-label=&quot;折叠节点介绍&quot;&gt;−&lt;/button&gt;
+            &lt;button type=&quot;button&quot; class=&quot;dse-window-control&quot; data-window-close aria-label=&quot;关闭节点介绍&quot;&gt;×&lt;/button&gt;
           &lt;/div&gt;
-          &lt;div class=&quot;dse-detail-cell&quot;&gt;
-            &lt;p class=&quot;dse-label&quot;&gt;主要动作&lt;/p&gt;
-            &lt;p class=&quot;dse-value&quot; id=&quot;dse-detail-action&quot;&gt;差异审计 · 文件所有权 · 最小路由接合 · 回归测试 · 真机验收。&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;dse-floating-body&quot; id=&quot;dse-milestone-body&quot;&gt;
+          &lt;div class=&quot;dse-detail-head&quot;&gt;
+            &lt;h3 id=&quot;dse-detail-title&quot;&gt;融合阶段&lt;/h3&gt;
+            &lt;span class=&quot;dse-detail-status&quot; id=&quot;dse-detail-status&quot;&gt;NEXT / NOT STARTED&lt;/span&gt;
           &lt;/div&gt;
-          &lt;div class=&quot;dse-detail-cell&quot;&gt;
-            &lt;p class=&quot;dse-label&quot;&gt;验证与边界&lt;/p&gt;
-            &lt;p class=&quot;dse-value&quot; id=&quot;dse-detail-proof&quot;&gt;保留正式采集、遥测和安全门禁；不复制第二套核心脚本，不自动写入硬件。&lt;/p&gt;
+          &lt;div class=&quot;dse-detail-grid&quot;&gt;
+            &lt;div class=&quot;dse-detail-cell&quot;&gt;
+              &lt;p class=&quot;dse-label&quot;&gt;目标&lt;/p&gt;
+              &lt;p class=&quot;dse-value&quot; id=&quot;dse-detail-goal&quot;&gt;自动超频成为正式工作台 Tune 分支中的模块，而不是第二个顶层 Skill。&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div class=&quot;dse-detail-cell&quot;&gt;
+              &lt;p class=&quot;dse-label&quot;&gt;主要动作&lt;/p&gt;
+              &lt;p class=&quot;dse-value&quot; id=&quot;dse-detail-action&quot;&gt;差异审计 · 文件所有权 · 最小路由接合 · 回归测试 · 真机验收。&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div class=&quot;dse-detail-cell&quot;&gt;
+              &lt;p class=&quot;dse-label&quot;&gt;验证与边界&lt;/p&gt;
+              &lt;p class=&quot;dse-value&quot; id=&quot;dse-detail-proof&quot;&gt;保留正式采集、遥测和安全门禁；不复制第二套核心脚本，不自动写入硬件。&lt;/p&gt;
+            &lt;/div&gt;
           &lt;/div&gt;
         &lt;/div&gt;
       &lt;/section&gt;
@@ -2907,28 +3003,36 @@ html&gt;body{padding:0}&lt;/style&gt;
       &lt;section class=&quot;dse-version-detail&quot; id=&quot;dse-version-detail&quot; aria-live=&quot;polite&quot; hidden&gt;
         &lt;div class=&quot;dse-floating-handle&quot; data-drag-handle&gt;
           &lt;p class=&quot;dse-version-detail-kicker&quot;&gt;VERSION DOSSIER / 选中版本&lt;/p&gt;
-          &lt;span class=&quot;dse-drag-hint&quot;&gt;DRAG / 拖动&lt;/span&gt;
-        &lt;/div&gt;
-        &lt;div class=&quot;dse-version-detail-head&quot;&gt;
-          &lt;h3 id=&quot;dse-version-detail-title&quot;&gt;选择一个版本&lt;/h3&gt;
-          &lt;span class=&quot;dse-version-detail-date&quot; id=&quot;dse-version-detail-date&quot;&gt;&lt;/span&gt;
-        &lt;/div&gt;
-        &lt;div class=&quot;dse-version-detail-grid&quot;&gt;
-          &lt;div class=&quot;dse-detail-cell&quot;&gt;
-            &lt;p class=&quot;dse-label&quot;&gt;这一版改变了什么&lt;/p&gt;
-            &lt;ul class=&quot;dse-version-change-list&quot; id=&quot;dse-version-changes&quot;&gt;&lt;/ul&gt;
+          &lt;div class=&quot;dse-floating-actions&quot;&gt;
+            &lt;span class=&quot;dse-drag-hint&quot;&gt;DRAG / 拖动&lt;/span&gt;
+            &lt;button type=&quot;button&quot; class=&quot;dse-window-control&quot; data-window-toggle aria-controls=&quot;dse-version-body&quot; aria-expanded=&quot;true&quot; aria-label=&quot;折叠版本介绍&quot;&gt;−&lt;/button&gt;
+            &lt;button type=&quot;button&quot; class=&quot;dse-window-control&quot; data-window-close aria-label=&quot;关闭版本介绍&quot;&gt;×&lt;/button&gt;
           &lt;/div&gt;
-          &lt;div class=&quot;dse-detail-cell&quot;&gt;
-            &lt;p class=&quot;dse-label&quot;&gt;验证与发布状态&lt;/p&gt;
-            &lt;p class=&quot;dse-value&quot; id=&quot;dse-version-validation&quot;&gt;&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;dse-floating-body&quot; id=&quot;dse-version-body&quot;&gt;
+          &lt;div class=&quot;dse-version-detail-head&quot;&gt;
+            &lt;h3 id=&quot;dse-version-detail-title&quot;&gt;选择一个版本&lt;/h3&gt;
+            &lt;span class=&quot;dse-version-detail-date&quot; id=&quot;dse-version-detail-date&quot;&gt;&lt;/span&gt;
           &lt;/div&gt;
-          &lt;div class=&quot;dse-detail-cell&quot;&gt;
-            &lt;p class=&quot;dse-label&quot;&gt;历史位置&lt;/p&gt;
-            &lt;p class=&quot;dse-value&quot; id=&quot;dse-version-lineage&quot;&gt;&lt;/p&gt;
+          &lt;div class=&quot;dse-version-detail-grid&quot;&gt;
+            &lt;div class=&quot;dse-detail-cell&quot;&gt;
+              &lt;p class=&quot;dse-label&quot;&gt;这一版改变了什么&lt;/p&gt;
+              &lt;ul class=&quot;dse-version-change-list&quot; id=&quot;dse-version-changes&quot;&gt;&lt;/ul&gt;
+            &lt;/div&gt;
+            &lt;div class=&quot;dse-detail-cell&quot;&gt;
+              &lt;p class=&quot;dse-label&quot;&gt;验证与发布状态&lt;/p&gt;
+              &lt;p class=&quot;dse-value&quot; id=&quot;dse-version-validation&quot;&gt;&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div class=&quot;dse-detail-cell&quot;&gt;
+              &lt;p class=&quot;dse-label&quot;&gt;历史位置&lt;/p&gt;
+              &lt;p class=&quot;dse-value&quot; id=&quot;dse-version-lineage&quot;&gt;&lt;/p&gt;
+            &lt;/div&gt;
           &lt;/div&gt;
         &lt;/div&gt;
       &lt;/section&gt;
     &lt;/section&gt;
+
+    &lt;button type=&quot;button&quot; class=&quot;dse-inspector-restore&quot; id=&quot;dse-inspector-restore&quot; hidden&gt;说明&lt;/button&gt;
 
     &lt;footer class=&quot;dse-footer&quot;&gt;
       &lt;span&gt;PATH: CORE SAFETY + GPU EVIDENCE → MODULE MERGE → SINGLE ENTRY&lt;/span&gt;
@@ -2955,6 +3059,8 @@ html&gt;body{padding:0}&lt;/style&gt;
       const versionChanges = document.getElementById(&quot;dse-version-changes&quot;);
       const versionValidation = document.getElementById(&quot;dse-version-validation&quot;);
       const versionLineage = document.getElementById(&quot;dse-version-lineage&quot;);
+      const restoreInspectorButton = document.getElementById(&quot;dse-inspector-restore&quot;);
+      let activeInspector = &quot;milestone&quot;;
 
       const versionSeries = [
         {
@@ -3345,8 +3451,7 @@ html&gt;body{padding:0}&lt;/style&gt;
           versionChanges.appendChild(row);
         });
         if (shouldReveal) {
-          milestoneDetail.hidden = true;
-          versionDetail.hidden = false;
+          showInspector(&quot;version&quot;, true);
         }
       }
 
@@ -3365,9 +3470,41 @@ html&gt;body{padding:0}&lt;/style&gt;
         detailProof.textContent = item.proof;
         milestoneDetail.classList.toggle(&quot;prototype&quot;, item.track === &quot;prototype&quot;);
         milestoneDetail.classList.toggle(&quot;merge&quot;, item.track === &quot;merge&quot;);
-        versionDetail.hidden = true;
-        milestoneDetail.hidden = false;
+        showInspector(&quot;milestone&quot;, shouldReveal);
       }
+
+      function setPanelCollapsed(panel, collapsed) {
+        panel.classList.toggle(&quot;is-collapsed&quot;, collapsed);
+        const toggle = panel.querySelector(&quot;[data-window-toggle]&quot;);
+        if (!toggle) return;
+        toggle.textContent = collapsed ? &quot;+&quot; : &quot;−&quot;;
+        toggle.setAttribute(&quot;aria-expanded&quot;, String(!collapsed));
+        toggle.setAttribute(&quot;aria-label&quot;, collapsed ? &quot;展开介绍&quot; : &quot;折叠介绍&quot;);
+      }
+
+      function showInspector(kind, forceExpand = false) {
+        activeInspector = kind;
+        const panel = kind === &quot;version&quot; ? versionDetail : milestoneDetail;
+        milestoneDetail.hidden = kind !== &quot;milestone&quot;;
+        versionDetail.hidden = kind !== &quot;version&quot;;
+        const collapseOnMobile = !forceExpand &amp;&amp; window.matchMedia(&quot;(max-width: 580px)&quot;).matches;
+        setPanelCollapsed(panel, collapseOnMobile);
+        restoreInspectorButton.hidden = true;
+      }
+
+      function hideInspector() {
+        milestoneDetail.hidden = true;
+        versionDetail.hidden = true;
+        restoreInspectorButton.hidden = false;
+      }
+
+      [milestoneDetail, versionDetail].forEach(panel =&gt; {
+        panel.querySelector(&quot;[data-window-toggle]&quot;)?.addEventListener(&quot;click&quot;, () =&gt; {
+          setPanelCollapsed(panel, !panel.classList.contains(&quot;is-collapsed&quot;));
+        });
+        panel.querySelector(&quot;[data-window-close]&quot;)?.addEventListener(&quot;click&quot;, hideInspector);
+      });
+      restoreInspectorButton.addEventListener(&quot;click&quot;, () =&gt; showInspector(activeInspector, true));
 
       function moveFloatingPanels(left, top, sourcePanel) {
         const width = sourcePanel.getBoundingClientRect().width;
@@ -3390,6 +3527,8 @@ html&gt;body{padding:0}&lt;/style&gt;
         if (!handle) return;
         let drag = null;
         handle.addEventListener(&quot;pointerdown&quot;, event =&gt; {
+          if (window.matchMedia(&quot;(max-width: 580px)&quot;).matches) return;
+          if (event.target.closest(&quot;button&quot;)) return;
           const rect = panel.getBoundingClientRect();
           drag = {
             pointerId: event.pointerId,
@@ -3424,7 +3563,7 @@ html&gt;body{padding:0}&lt;/style&gt;
         const archive = root.querySelector(&quot;.dse-archive&quot;);
         convergence.hidden = filter !== &quot;merge&quot;;
         archive.hidden = filter === &quot;merge&quot;;
-        selectMilestone(lastMilestoneByTrack[filter]);
+        selectMilestone(lastMilestoneByTrack[filter], resetScroll);
         if (resetScroll) {
           const reduceMotion = window.matchMedia(&quot;(prefers-reduced-motion: reduce)&quot;).matches;
           root.scrollTo({ top: 0, behavior: reduceMotion ? &quot;auto&quot; : &quot;smooth&quot; });
