@@ -3461,7 +3461,7 @@ html&gt;body{padding:0}&lt;/style&gt;
         &lt;p class=&quot;dse-subtitle&quot;&gt;完整演进轨迹：主工作台建立通用硬件工作流，自动超频原型负责候选、证据和真机校准；通用 Triage 与安全门禁演示补充排障、阻断和回退闭环。&lt;/p&gt;
         &lt;div class=&quot;dse-chips&quot; aria-label=&quot;当前版本状态&quot;&gt;
           &lt;span class=&quot;dse-chip&quot;&gt;WORKBENCH 1.4.4&lt;/span&gt;
-          &lt;span class=&quot;dse-chip prototype&quot;&gt;超频原型 3.0.1 · 未发布&lt;/span&gt;
+          &lt;span class=&quot;dse-chip prototype&quot;&gt;超频原型 3.0.2 · 未发布&lt;/span&gt;
           &lt;span class=&quot;dse-chip triage&quot;&gt;TRIAGE: PUBLIC&lt;/span&gt;
           &lt;span class=&quot;dse-chip demo&quot;&gt;DEMO: SAFE&lt;/span&gt;
           &lt;span class=&quot;dse-chip next&quot;&gt;NEXT: MODULE MERGE&lt;/span&gt;
@@ -3739,7 +3739,7 @@ html&gt;body{padding:0}&lt;/style&gt;
     &lt;section class=&quot;dse-archive&quot; aria-labelledby=&quot;dse-archive-title&quot;&gt;
       &lt;header class=&quot;dse-archive-head&quot;&gt;
         &lt;div&gt;
-          &lt;p class=&quot;dse-archive-kicker&quot;&gt;VERSION ARCHIVE / EVERY RECORDED RELEASE&lt;/p&gt;
+          &lt;p class=&quot;dse-archive-kicker&quot;&gt;VERSION ARCHIVE / EVERY RECORDED VERSION&lt;/p&gt;
           &lt;h2 id=&quot;dse-archive-title&quot;&gt;逐版本迭代档案&lt;/h2&gt;
           &lt;p class=&quot;dse-archive-summary&quot;&gt;从统一工作台 1.0.0 到当前 1.4.4，再到自动超频原型的独立分叉、档位证据和有限验证。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。&lt;/p&gt;
         &lt;/div&gt;
@@ -3938,26 +3938,27 @@ html&gt;body{padding:0}&lt;/style&gt;
         {
           id: &quot;proto-2&quot;, track: &quot;prototype&quot;, label: &quot;AUTO-OC / 2.x&quot;, sub: &quot;独立分叉 · 消费卡防火墙 · 可用起点&quot;,
           versions: [
-            [&quot;2.2.0&quot;, &quot;族系先验基线&quot;, &quot;2026-10-29&quot;, &quot;BASELINE&quot;, [&quot;覆盖 NVIDIA RTX 30/40/50、AMD RDNA 与 Intel Arc。&quot;, &quot;族系先验给方向和首轮阶梯，本机实测决定具体值。&quot;, &quot;区分 NVIDIA 偏移与 AMD 实际频率单位。&quot;], &quot;族系识别、AMD 单位与新手流程回归通过；原工作台未修改。&quot;, &quot;自动超频原型的已知起点。&quot;],
-            [&quot;2.3.0&quot;, &quot;准确性 P0&quot;, &quot;2026-10-29&quot;, &quot;RELEASED&quot;, [&quot;缺少目标、固定负载、通过判据或中止信号时 Blocked。&quot;, &quot;新增 EvidenceBasis、Confidence 与 ExpectedMagnitude。&quot;, &quot;型号、形态、族系冲突在给数字前阻断。&quot;], &quot;官方 validator 与完整回归通过。&quot;, &quot;把“给一个数”改为“先证明有条件给数”。&quot;],
-            [&quot;2.3.1&quot;, &quot;原型改名与阻断契约&quot;, &quot;2026-10-29&quot;, &quot;RELEASED&quot;, [&quot;改名为“电脑硬件工作台·含自动超频·原型”。&quot;, &quot;固定独立 Skill ID 与原型目录。&quot;, &quot;所有阻断结果统一无候选值、无证据等级。&quot;], &quot;Skill is valid；完整自动测试通过。&quot;, &quot;正式与原型从此保持两条独立版本线。&quot;],
-            [&quot;2.3.2&quot;, &quot;专业卡与目标校验&quot;, &quot;2026-10-29&quot;, &quot;RELEASED&quot;, [&quot;阻断工作站、数据中心、核显和未知类别。&quot;, &quot;TargetComponent 必须与 GPU 目标一致。&quot;, &quot;输出 ResolvedGpuModel、身份状态与先验来源。&quot;], &quot;专业卡、多 GPU、显存控件与阻断输出测试通过。&quot;, &quot;补上 2.3.0 之后的分类漏洞。&quot;],
-            [&quot;2.3.3&quot;, &quot;正向消费级识别&quot;, &quot;2026-10-30&quot;, &quot;RELEASED&quot;, [&quot;多 GPU 扫描跨 NVIDIA、AMD、Intel。&quot;, &quot;ConsumerGpuConfirmed 无法覆盖专业卡、数据中心或核显。&quot;, &quot;工作站与数据中心黑名单继续扩展。&quot;], &quot;代表消费卡保持 Ready；官方校验与完整回归通过。&quot;, &quot;从黑名单修补转为正向消费级资格。&quot;],
-            [&quot;2.3.4&quot;, &quot;复合分隔符与 A10G&quot;, &quot;2026-10-30&quot;, &quot;RELEASED&quot;, [&quot;覆盖中英文逗号、分号、斜杠、and、顿号、括号与换行。&quot;, &quot;同段多适配器不再被一个独显名称掩盖。&quot;, &quot;补 A10G 等变体阻断。&quot;], &quot;消费卡控制组持续 Ready；分类回归通过。&quot;, &quot;2.3 系列的分类防火墙收口。&quot;],
-            [&quot;2.4.0&quot;, &quot;usable-start 与结果语义&quot;, &quot;2026-10-30&quot;, &quot;RELEASED&quot;, [&quot;默认目标改为一次给出可日常使用的起点。&quot;, &quot;新增 CandidateRole 与预生成 FallbackCandidate。&quot;, &quot;通过后按 Keep / Diagnose / repeat / Revert 处理。&quot;], &quot;状态 ID、曲线起点与单卡名称回归通过。&quot;, &quot;原型从安全试探转向“少折腾但可回退”。&quot;],
-            [&quot;2.4.1&quot;, &quot;结果优先级与上下文&quot;, &quot;2026-10-30&quot;, &quot;RELEASED&quot;, [&quot;Reliability / Utilization 先于任何 Pass 判定。&quot;, &quot;ExperimentId、CandidateId、Parent 上下文必须匹配。&quot;, &quot;不同路线使用各自成功语义，fallback 回到上一通过值。&quot;], &quot;GPU、交互和完整回归通过。&quot;, &quot;修复 2.4.0 的状态复用和 fallback 语义。&quot;],
-            [&quot;2.5.1&quot;, &quot;功耗墙单位与笔记本状态&quot;, &quot;2026-10-30&quot;, &quot;RELEASED&quot;, [&quot;区分功耗墙百分比、功耗墙上限瓦数与实测功耗。&quot;, &quot;支持 assumed-stock、declared-stock、declared-unlocked 与 mismatch。&quot;, &quot;解锁功耗墙不自动放大频率步长。&quot;], &quot;笔记本状态场景与完整自动回归通过。&quot;, &quot;修复“95% 等于 95W”一类单位混淆。&quot;],
-            [&quot;2.6.0&quot;, &quot;历史分层与指纹&quot;, &quot;2026-10-30&quot;, &quot;RELEASED&quot;, [&quot;分离 HardwareFingerprint、ConfigurationFingerprint 与 Lineage。&quot;, &quot;功耗墙改变使旧候选不能直接续用，但历史证据保留。&quot;, &quot;Profile-only fallback 不声称能撤销外部功耗墙修改。&quot;], &quot;三层状态与功耗墙变化场景通过。&quot;, &quot;纠正“功耗墙一变全部作废”的过度表述。&quot;],
-            [&quot;2.7.0&quot;, &quot;RTX 50 公开证据&quot;, &quot;2026-10-30&quot;, &quot;RELEASED&quot;, [&quot;汇总 37 个 TechPowerUp 受控 50 系样本。&quot;, &quot;按 5060、5070、5080、5090 分档并记录单位差异。&quot;, &quot;收紧显存滑块夹取边界与热点传感器边界。&quot;], &quot;50 系分档与完整自动回归通过；首轮仍只改核心。&quot;, &quot;为一步可用起点引入公开样本证据。&quot;],
-            [&quot;2.8.0&quot;, &quot;50 系首步上调&quot;, &quot;2026-10-30&quot;, &quot;RELEASED&quot;, [&quot;5060 / 5070 / 5070 Ti / 5080 / 5090 分档首步。&quot;, &quot;后续微调统一为 +25 MHz。&quot;, &quot;首轮不改显存、不改功耗墙，收益率由实测决定。&quot;], &quot;RTX 5060、5070 Ti、5080、5090 脚本输出逐项复现。&quot;, &quot;把“可用起点”从保守小步提高到可感受级别。&quot;],
-            [&quot;2.9.0&quot;, &quot;RTX 40 公开证据&quot;, &quot;2026-10-30&quot;, &quot;RELEASED&quot;, [&quot;汇总约 70 个技术媒体受控 40 系样本。&quot;, &quot;4060 至 4090 按 SKU 给首步与 +25 后续微调。&quot;, &quot;明确实际核心时钟不等于软件偏移，4090 先看供电路径。&quot;], &quot;各档脚本输出验证；官方校验与完整回归通过。&quot;, &quot;40 系从整代规则推进到逐 SKU。&quot;],
-            [&quot;3.0.0&quot;, &quot;RTX 30 与三档位证据&quot;, &quot;2026-10-30&quot;, &quot;MAJOR&quot;, [&quot;补 RTX 30 公共研究与 SKU 首步。&quot;, &quot;30/40/50 三份公开参照接入候选器。&quot;, &quot;记录实际时钟与滑块偏移不可直接互换，并暴露来源薄弱项。&quot;], &quot;GPU 与交互测试通过；原工作台仍不变。&quot;, &quot;原型进入 3.x 的完整 NVIDIA 三档位证据线。&quot;]
+            [&quot;2.2.0&quot;, &quot;族系先验基线&quot;, &quot;2026-10-29&quot;, &quot;INTERNAL BASELINE&quot;, [&quot;覆盖 NVIDIA RTX 30/40/50、AMD RDNA 与 Intel Arc。&quot;, &quot;族系先验给方向和首轮阶梯，本机实测决定具体值。&quot;, &quot;区分 NVIDIA 偏移与 AMD 实际频率单位。&quot;], &quot;族系识别、AMD 单位与新手流程回归通过；原工作台未修改。&quot;, &quot;自动超频原型线的内部已知起点，不是公开发布版本。&quot;],
+            [&quot;2.3.0&quot;, &quot;准确性 P0&quot;, &quot;2026-10-29&quot;, &quot;INTERNAL&quot;, [&quot;缺少目标、固定负载、通过判据或中止信号时 Blocked。&quot;, &quot;新增 EvidenceBasis、Confidence 与 ExpectedMagnitude。&quot;, &quot;型号、形态、族系冲突在给数字前阻断。&quot;], &quot;官方 validator 与完整回归通过。&quot;, &quot;把“给一个数”改为“先证明有条件给数”。&quot;],
+            [&quot;2.3.1&quot;, &quot;原型改名与阻断契约&quot;, &quot;2026-10-29&quot;, &quot;INTERNAL&quot;, [&quot;改名为“电脑硬件工作台·含自动超频·原型”。&quot;, &quot;固定独立 Skill ID 与原型目录。&quot;, &quot;所有阻断结果统一无候选值、无证据等级。&quot;], &quot;Skill is valid；完整自动测试通过。&quot;, &quot;正式与原型从此保持两条独立版本线。&quot;],
+            [&quot;2.3.2&quot;, &quot;专业卡与目标校验&quot;, &quot;2026-10-29&quot;, &quot;INTERNAL&quot;, [&quot;阻断工作站、数据中心、核显和未知类别。&quot;, &quot;TargetComponent 必须与 GPU 目标一致。&quot;, &quot;输出 ResolvedGpuModel、身份状态与先验来源。&quot;], &quot;专业卡、多 GPU、显存控件与阻断输出测试通过。&quot;, &quot;补上 2.3.0 之后的分类漏洞。&quot;],
+            [&quot;2.3.3&quot;, &quot;正向消费级识别&quot;, &quot;2026-10-30&quot;, &quot;INTERNAL&quot;, [&quot;多 GPU 扫描跨 NVIDIA、AMD、Intel。&quot;, &quot;ConsumerGpuConfirmed 无法覆盖专业卡、数据中心或核显。&quot;, &quot;工作站与数据中心黑名单继续扩展。&quot;], &quot;代表消费卡保持 Ready；官方校验与完整回归通过。&quot;, &quot;从黑名单修补转为正向消费级资格。&quot;],
+            [&quot;2.3.4&quot;, &quot;复合分隔符与 A10G&quot;, &quot;2026-10-30&quot;, &quot;INTERNAL&quot;, [&quot;覆盖中英文逗号、分号、斜杠、and、顿号、括号与换行。&quot;, &quot;同段多适配器不再被一个独显名称掩盖。&quot;, &quot;补 A10G 等变体阻断。&quot;], &quot;消费卡控制组持续 Ready；分类回归通过。&quot;, &quot;2.3 系列的分类防火墙收口。&quot;],
+            [&quot;2.4.0&quot;, &quot;usable-start 与结果语义&quot;, &quot;2026-10-30&quot;, &quot;INTERNAL&quot;, [&quot;默认目标改为一次给出可日常使用的起点。&quot;, &quot;新增 CandidateRole 与预生成 FallbackCandidate。&quot;, &quot;通过后按 Keep / Diagnose / repeat / Revert 处理。&quot;], &quot;状态 ID、曲线起点与单卡名称回归通过。&quot;, &quot;原型从安全试探转向“少折腾但可回退”。&quot;],
+            [&quot;2.4.1&quot;, &quot;结果优先级与上下文&quot;, &quot;2026-10-30&quot;, &quot;INTERNAL&quot;, [&quot;Reliability / Utilization 先于任何 Pass 判定。&quot;, &quot;ExperimentId、CandidateId、Parent 上下文必须匹配。&quot;, &quot;不同路线使用各自成功语义，fallback 回到上一通过值。&quot;], &quot;GPU、交互和完整回归通过。&quot;, &quot;修复 2.4.0 的状态复用和 fallback 语义。&quot;],
+            [&quot;2.5.1&quot;, &quot;功耗墙单位与笔记本状态&quot;, &quot;2026-10-30&quot;, &quot;INTERNAL&quot;, [&quot;区分功耗墙百分比、功耗墙上限瓦数与实测功耗。&quot;, &quot;支持 assumed-stock、declared-stock、declared-unlocked 与 mismatch。&quot;, &quot;解锁功耗墙不自动放大频率步长。&quot;], &quot;笔记本状态场景与完整自动回归通过。&quot;, &quot;修复“95% 等于 95W”一类单位混淆。&quot;],
+            [&quot;2.6.0&quot;, &quot;历史分层与指纹&quot;, &quot;2026-10-30&quot;, &quot;INTERNAL&quot;, [&quot;分离 HardwareFingerprint、ConfigurationFingerprint 与 Lineage。&quot;, &quot;功耗墙改变使旧候选不能直接续用，但历史证据保留。&quot;, &quot;Profile-only fallback 不声称能撤销外部功耗墙修改。&quot;], &quot;三层状态与功耗墙变化场景通过。&quot;, &quot;纠正“功耗墙一变全部作废”的过度表述。&quot;],
+            [&quot;2.7.0&quot;, &quot;RTX 50 公开证据&quot;, &quot;2026-10-30&quot;, &quot;INTERNAL&quot;, [&quot;汇总 37 个 TechPowerUp 受控 50 系样本。&quot;, &quot;按 5060、5070、5080、5090 分档并记录单位差异。&quot;, &quot;收紧显存滑块夹取边界与热点传感器边界。&quot;], &quot;50 系分档与完整自动回归通过；首轮仍只改核心。&quot;, &quot;为一步可用起点引入公开样本证据。&quot;],
+            [&quot;2.8.0&quot;, &quot;50 系首步上调&quot;, &quot;2026-10-30&quot;, &quot;INTERNAL&quot;, [&quot;5060 / 5070 / 5070 Ti / 5080 / 5090 分档首步。&quot;, &quot;后续微调统一为 +25 MHz。&quot;, &quot;首轮不改显存、不改功耗墙，收益率由实测决定。&quot;], &quot;RTX 5060、5070 Ti、5080、5090 脚本输出逐项复现。&quot;, &quot;把“可用起点”从保守小步提高到可感受级别。&quot;],
+            [&quot;2.9.0&quot;, &quot;RTX 40 公开证据&quot;, &quot;2026-10-30&quot;, &quot;INTERNAL&quot;, [&quot;汇总约 70 个技术媒体受控 40 系样本。&quot;, &quot;4060 至 4090 按 SKU 给首步与 +25 后续微调。&quot;, &quot;明确实际核心时钟不等于软件偏移，4090 先看供电路径。&quot;], &quot;各档脚本输出验证；官方校验与完整回归通过。&quot;, &quot;40 系从整代规则推进到逐 SKU。&quot;]
           ]
         },
         {
-          id: &quot;proto-3&quot;, track: &quot;prototype&quot;, label: &quot;AUTO-OC / 3.x&quot;, sub: &quot;当前停点 · 冻结而不是完成&quot;,
+          id: &quot;proto-3&quot;, track: &quot;prototype&quot;, label: &quot;AUTO-OC / 3.x&quot;, sub: &quot;内部同步 · 尚未发布 · 当前停点&quot;,
           versions: [
-            [&quot;3.0.1&quot;, &quot;冻结与有限验证&quot;, &quot;2026-10-30&quot;, &quot;UNPUBLISHED&quot;, [&quot;候选器 2.0.1、权威表 1.0.0 固化。&quot;, &quot;完成有限范围的固定负载重复性检查。&quot;, &quot;候选流程生成过曲线起点，但没有应用到硬件。&quot;], &quot;只读验证在限定范围内通过；原厂收益比较、新候选验证、重启与日常稳定仍未完成。原型未完善，尚未发布。&quot;, &quot;原型当前停点；融合前仍需更完整的实机收益和人工行为验收。&quot;]
+            [&quot;3.0.0&quot;, &quot;RTX 30 与三档位证据&quot;, &quot;2026-10-30&quot;, &quot;INTERNAL MAJOR&quot;, [&quot;补 RTX 30 公共研究与 SKU 首步。&quot;, &quot;30/40/50 三份公开参照接入候选器。&quot;, &quot;记录实际时钟与滑块偏移不可直接互换，并暴露来源薄弱项。&quot;], &quot;GPU 与交互测试通过；原工作台仍不变。&quot;, &quot;原型进入 3.x 的完整 NVIDIA 三档位证据线。&quot;],
+            [&quot;3.0.1&quot;, &quot;冻结与有限验证&quot;, &quot;2026-10-30&quot;, &quot;INTERNAL FROZEN&quot;, [&quot;候选器 2.0.1、权威表 1.0.0 固化。&quot;, &quot;完成有限范围的固定负载重复性检查。&quot;, &quot;候选流程生成过曲线起点，但没有应用到硬件。&quot;], &quot;只读验证在限定范围内通过；原厂收益比较、新候选验证、重启与日常稳定仍未完成。原型未完善，尚未发布。&quot;, &quot;3.0.1 内部冻结停点；融合前仍需更完整的实机收益和人工行为验收。&quot;],
+            [&quot;3.0.2&quot;, &quot;GPU Boost 行为同步&quot;, &quot;2026-11-02&quot;, &quot;INTERNAL CURRENT&quot;, [&quot;同步正式 Skill 1.4.4 的 GPU Boost、动态 V/F 与有效频率语义。&quot;, &quot;区分请求、保存、活动配置、运行时工作点和有效性能；缺少单个精确 MHz/mV 点不再证明曲线未生效。&quot;, &quot;补充 NVIDIA 各代、RTX 50 Accelerated Frequency Switching、AMD 与 Intel 术语边界；候选器 2.0.2、权威表 1.0.1。&quot;], &quot;结构校验、GPU/交互与全量非实时测试通过；实时采集 SKIP，独立人工行为验收 PENDING。原型仍未发布。&quot;, &quot;当前内部迭代，不是公开发布版本；融合前仍需覆盖实际收益、重启与日常稳定。&quot;]
           ]
         }
       ];
@@ -4209,12 +4210,12 @@ html&gt;body{padding:0}&lt;/style&gt;
           proof: &quot;重复性达到预设门槛，功耗、温度和恢复配置有记录；具体设备与原始测量值不公开。&quot;
         },
         {
-          id: &quot;proto-freeze&quot;, track: &quot;prototype&quot;, code: &quot;AO-10&quot;, title: &quot;冻结 3.0.1 · 未发布&quot;,
-          summary: &quot;未完善 · 尚未发布 · 仅保留原型停点&quot;,
+          id: &quot;proto-freeze&quot;, track: &quot;prototype&quot;, code: &quot;AO-10&quot;, title: &quot;内部停点 3.0.2 · 未发布&quot;,
+          summary: &quot;GPU Boost 语义同步 · 尚未发布 · 当前内部停点&quot;,
           status: &quot;blocked&quot;, state: &quot;UNPUBLISHED&quot;,
-          goal: &quot;保留当前原型能力、有限验证证据与已知限制，但不把冻结误写成已发布。&quot;,
-          action: &quot;停止继续堆逻辑，保留未完成的收益比较、重启稳定性和人工行为验收。&quot;,
-          proof: &quot;自动测试、单一数值来源和有限范围只读验证通过；具体设备与原始测量值不公开，原型仍未完善且尚未发布。&quot;
+          goal: &quot;保留 3.0.2 的 GPU Boost 语义同步、有限验证证据与已知限制，但不把内部迭代写成公开发布。&quot;,
+          action: &quot;停止扩展发布面，保留实时采集 SKIP、人工行为验收 PENDING，以及尚未完成的实际收益和日常稳定性验证。&quot;,
+          proof: &quot;结构校验、跨模式契约、候选器与全量非实时测试通过；候选生成未写入硬件，具体设备与原始测量值不公开。&quot;
         },
         {
           id: &quot;triage-safety&quot;, track: &quot;triage&quot;, code: &quot;TR-01&quot;, title: &quot;物理安全优先&quot;,
@@ -4685,7 +4686,7 @@ html&gt;body{padding:0}&lt;/style&gt;
         button.addEventListener(&quot;click&quot;, () =&gt; selectMilestone(button.dataset.mergeId, true));
       });
       applyFilter(&quot;core&quot;);
-      selectVersion(&quot;wb-1-4-3&quot;);
+      selectVersion(&quot;wb-1-4-4&quot;);
     })();
   &lt;/script&gt;
 &lt;/div&gt;
