@@ -2859,6 +2859,7 @@ html&gt;body{padding:0}&lt;/style&gt;
     #dse-root .dse-demo-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
       gap: 12px;
       margin-top: 12px;
     }
@@ -3156,6 +3157,205 @@ html&gt;body{padding:0}&lt;/style&gt;
       color: var(--dse-text);
       border-color: var(--dse-cyan);
       box-shadow: inset 2px 0 0 var(--dse-cyan);
+    }
+
+    #dse-root .dse-state-rail {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(82px, 1fr));
+      gap: 5px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    #dse-root .dse-state-node {
+      min-width: 0;
+      padding: 7px;
+      color: var(--dse-muted);
+      background: rgba(4, 12, 22, .82);
+      border: 1px solid #193a50;
+      border-top: 2px solid #31576f;
+    }
+
+    #dse-root .dse-state-node.is-done {
+      color: var(--dse-text);
+      border-top-color: var(--dse-lime);
+      background: rgba(11, 31, 28, .72);
+    }
+
+    #dse-root .dse-state-node.is-current {
+      color: var(--dse-text);
+      border-color: rgba(73, 230, 255, .58);
+      border-top-color: var(--dse-cyan);
+      box-shadow: 0 0 16px rgba(73, 230, 255, .1);
+    }
+
+    #dse-root .dse-state-node.is-warning,
+    #dse-root .dse-state-node.is-current.is-warning {
+      border-top-color: var(--dse-amber);
+      background: rgba(45, 34, 14, .5);
+    }
+
+    #dse-root .dse-state-node.is-danger,
+    #dse-root .dse-state-node.is-current.is-danger {
+      border-color: rgba(255, 98, 108, .58);
+      border-top-color: var(--dse-red);
+      background: rgba(47, 12, 19, .65);
+    }
+
+    #dse-root .dse-state-node.is-ready,
+    #dse-root .dse-state-node.is-current.is-ready {
+      border-top-color: var(--dse-lime);
+      background: rgba(18, 40, 22, .65);
+    }
+
+    #dse-root .dse-state-node.is-blocked,
+    #dse-root .dse-state-node.is-inactive {
+      opacity: .48;
+    }
+
+    #dse-root .dse-state-code {
+      display: block;
+      color: var(--dse-cyan);
+      font-size: 7px;
+      letter-spacing: .1em;
+    }
+
+    #dse-root .dse-state-name {
+      display: block;
+      margin-top: 3px;
+      color: inherit;
+      font-size: 9px;
+      line-height: 1.35;
+    }
+
+    #dse-root .dse-state-meta {
+      display: block;
+      margin-top: 3px;
+      color: var(--dse-muted);
+      font-size: 7px;
+      line-height: 1.35;
+    }
+
+    #dse-root .dse-state-live {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 7px;
+      padding: 7px 8px;
+      color: var(--dse-muted);
+      background: rgba(3, 10, 18, .72);
+      border-left: 2px solid var(--dse-cyan);
+      font-size: 8px;
+      line-height: 1.45;
+    }
+
+    #dse-root .dse-state-live strong {
+      color: var(--dse-text);
+      font-size: 8px;
+      font-weight: 500;
+      letter-spacing: .07em;
+    }
+
+    #dse-root .dse-state-live span:last-child {
+      margin-left: auto;
+    }
+
+    #dse-root .dse-machine-panel.triage {
+      border-top-color: var(--dse-lime);
+    }
+
+    #dse-root .dse-machine-panel.lifecycle {
+      border-top-color: var(--dse-amber);
+    }
+
+    #dse-root .dse-machine-copy {
+      margin-top: 8px;
+      padding: 8px;
+      background: rgba(3, 10, 18, .72);
+      border-left: 2px solid var(--dse-cyan);
+    }
+
+    #dse-root .dse-machine-copy[data-tone=&quot;blocked&quot;] {
+      border-left-color: var(--dse-amber);
+    }
+
+    #dse-root .dse-machine-copy[data-tone=&quot;stop&quot;] {
+      border-left-color: var(--dse-red);
+    }
+
+    #dse-root .dse-machine-copy[data-tone=&quot;ready&quot;] {
+      border-left-color: var(--dse-lime);
+    }
+
+    #dse-root .dse-machine-copy-title {
+      margin: 0;
+      color: var(--dse-text);
+      font-size: 9px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-machine-copy-body {
+      margin: 4px 0 0;
+      color: var(--dse-muted);
+      font-size: 8px;
+      line-height: 1.5;
+    }
+
+    #dse-root .dse-lifecycle-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+      margin-top: 10px;
+    }
+
+    #dse-root .dse-lifecycle-track {
+      min-width: 0;
+    }
+
+    #dse-root .dse-lifecycle-track-label {
+      margin: 0 0 6px;
+      color: var(--dse-muted);
+      font-size: 8px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    #dse-root .dse-lifecycle-events {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 9px;
+    }
+
+    #dse-root .dse-state-action {
+      min-height: 30px;
+      padding: 0 9px;
+      color: var(--dse-text);
+      background: #071827;
+      border: 1px solid #28536c;
+      font: inherit;
+      font-size: 8px;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-state-action:hover,
+    #dse-root .dse-state-action:focus-visible {
+      border-color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-state-action[aria-pressed=&quot;true&quot;] {
+      color: #031116;
+      background: var(--dse-cyan);
+      border-color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-state-action:disabled {
+      color: #5f7580;
+      background: #08121c;
+      border-color: #1b3344;
+      cursor: not-allowed;
     }
 
     #dse-root .dse-gate-request {
@@ -3536,6 +3736,10 @@ html&gt;body{padding:0}&lt;/style&gt;
         grid-template-columns: 1fr;
       }
 
+      #dse-root .dse-lifecycle-grid {
+        grid-template-columns: 1fr;
+      }
+
       #dse-root .dse-term-rails {
         grid-template-columns: 1fr;
       }
@@ -3656,6 +3860,14 @@ html&gt;body{padding:0}&lt;/style&gt;
         min-height: 42px;
       }
 
+      #dse-root .dse-state-live {
+        align-items: flex-start;
+      }
+
+      #dse-root .dse-state-live span:last-child {
+        margin-left: 0;
+      }
+
       #dse-root .dse-gate-check-copy strong {
         font-size: 10px;
       }
@@ -3669,7 +3881,8 @@ html&gt;body{padding:0}&lt;/style&gt;
     @media (pointer: coarse) {
       #dse-root .dse-term-token,
       #dse-root .dse-term-next,
-      #dse-root .dse-term-close {
+      #dse-root .dse-term-close,
+      #dse-root .dse-state-action {
         min-height: 44px;
       }
     }
@@ -3816,7 +4029,7 @@ html&gt;body{padding:0}&lt;/style&gt;
         &lt;div&gt;
           &lt;p class=&quot;dse-demo-kicker&quot;&gt;INTERACTIVE DEMO / SAFETY AND EVIDENCE&lt;/p&gt;
           &lt;h2 id=&quot;dse-demo-title&quot;&gt;交互演示&lt;/h2&gt;
-          &lt;p class=&quot;dse-demo-summary&quot;&gt;用示例请求体验安全门禁、回答差异和实验卡闭环。所有结果都是界面演示，不会读取硬件、生成真实候选值或修改设置。&lt;/p&gt;
+          &lt;p class=&quot;dse-demo-summary&quot;&gt;用示例请求体验调校状态机、Triage 分流、身份与基线失效、回答差异和实验闭环。所有结果都是界面演示，不会读取硬件、生成真实候选值或修改设置。&lt;/p&gt;
         &lt;/div&gt;
         &lt;span class=&quot;dse-demo-badge&quot;&gt;SIMULATION ONLY · NO HARDWARE WRITE&lt;/span&gt;
       &lt;/header&gt;
@@ -3826,9 +4039,9 @@ html&gt;body{padding:0}&lt;/style&gt;
           &lt;div class=&quot;dse-demo-panel-head&quot;&gt;
             &lt;div&gt;
               &lt;h3 id=&quot;dse-term-title&quot;&gt;术语信号台&lt;/h3&gt;
-              &lt;p class=&quot;dse-term-intro&quot;&gt;6 个常驻核心词、18 个轮换分支词。悬停或键盘聚焦即可查看，触屏轻点固定；解释统一拆成“动作 / 类比 / 后果”。&lt;/p&gt;
+              &lt;p class=&quot;dse-term-intro&quot;&gt;6 个常驻核心词、24 个轮换分支词。悬停或键盘聚焦即可查看，触屏轻点固定；解释统一拆成“动作 / 类比 / 后果”。&lt;/p&gt;
             &lt;/div&gt;
-            &lt;span class=&quot;dse-demo-step&quot;&gt;TERM SIGNAL / 24&lt;/span&gt;
+            &lt;span class=&quot;dse-demo-step&quot;&gt;TERM SIGNAL / 30&lt;/span&gt;
           &lt;/div&gt;
 
           &lt;div class=&quot;dse-term-rails&quot;&gt;
@@ -3844,7 +4057,7 @@ html&gt;body{padding:0}&lt;/style&gt;
               &lt;div class=&quot;dse-term-rail-head&quot;&gt;
                 &lt;p class=&quot;dse-term-rail-label&quot; id=&quot;dse-term-branch-label&quot;&gt;BRANCH / 轮换分支&lt;/p&gt;
                 &lt;div class=&quot;dse-term-cycle-meta&quot;&gt;
-                  &lt;span id=&quot;dse-term-cycle-label&quot;&gt;01 / 05&lt;/span&gt;
+                  &lt;span id=&quot;dse-term-cycle-label&quot;&gt;01 / 07&lt;/span&gt;
                   &lt;button type=&quot;button&quot; class=&quot;dse-demo-action dse-term-next&quot; id=&quot;dse-term-next&quot;&gt;下一组&lt;/button&gt;
                 &lt;/div&gt;
               &lt;/div&gt;
@@ -3883,10 +4096,16 @@ html&gt;body{padding:0}&lt;/style&gt;
         &lt;article class=&quot;dse-demo-panel&quot; aria-labelledby=&quot;dse-gate-demo-title&quot;&gt;
           &lt;div class=&quot;dse-demo-panel-head&quot;&gt;
             &lt;div&gt;
-              &lt;h3 id=&quot;dse-gate-demo-title&quot;&gt;安全门禁模拟器&lt;/h3&gt;
-              &lt;p class=&quot;dse-demo-panel-sub&quot;&gt;先区分物理硬停止与调校证据不足，再决定是否允许进入实验。&lt;/p&gt;
+              &lt;h3 id=&quot;dse-gate-demo-title&quot;&gt;调校主状态机&lt;/h3&gt;
+              &lt;p class=&quot;dse-demo-panel-sub&quot;&gt;从请求到结论由证据推进；物理危险直接终止，五项齐全也只解锁演示实验。&lt;/p&gt;
             &lt;/div&gt;
             &lt;span class=&quot;dse-demo-step&quot;&gt;GATE / 02&lt;/span&gt;
+          &lt;/div&gt;
+
+          &lt;ol class=&quot;dse-state-rail&quot; id=&quot;dse-tune-state-rail&quot; aria-label=&quot;调校状态&quot;&gt;&lt;/ol&gt;
+          &lt;div class=&quot;dse-state-live&quot; aria-live=&quot;polite&quot;&gt;
+            &lt;strong id=&quot;dse-tune-state-label&quot;&gt;STATE / INPUT&lt;/strong&gt;
+            &lt;span id=&quot;dse-tune-state-next&quot;&gt;选择一个示例请求开始。&lt;/span&gt;
           &lt;/div&gt;
 
           &lt;div class=&quot;dse-scenario-grid&quot; id=&quot;dse-scenario-grid&quot; aria-label=&quot;示例请求&quot;&gt;&lt;/div&gt;
@@ -3904,10 +4123,11 @@ html&gt;body{padding:0}&lt;/style&gt;
 
           &lt;div class=&quot;dse-gate-actions&quot;&gt;
             &lt;button type=&quot;button&quot; class=&quot;dse-demo-action&quot; data-gate-action=&quot;direct&quot;&gt;模拟直接索要参数&lt;/button&gt;
-            &lt;button type=&quot;button&quot; class=&quot;dse-demo-action primary&quot; data-gate-action=&quot;check&quot;&gt;展开五项检查&lt;/button&gt;
+            &lt;button type=&quot;button&quot; class=&quot;dse-demo-action primary&quot; data-gate-action=&quot;check&quot; aria-controls=&quot;dse-gate-checklist&quot; aria-expanded=&quot;false&quot;&gt;展开五项检查&lt;/button&gt;
+            &lt;button type=&quot;button&quot; class=&quot;dse-demo-action&quot; id=&quot;dse-enter-experiment&quot; disabled&gt;进入演示实验&lt;/button&gt;
             &lt;button type=&quot;button&quot; class=&quot;dse-demo-action&quot; data-gate-action=&quot;rules&quot;&gt;查看拒绝规则&lt;/button&gt;
           &lt;/div&gt;
-          &lt;p class=&quot;dse-gate-help&quot;&gt;第一个按钮演示“为什么拿不到参数”；第二个按钮逐项说明需要准备什么；第三个按钮展示工作台的硬性安全规则。&lt;/p&gt;
+          &lt;p class=&quot;dse-gate-help&quot;&gt;门禁通过只改变状态，不生成硬件参数；实验阶段仍是只读演示。&lt;/p&gt;
 
           &lt;div class=&quot;dse-gate-checklist&quot; id=&quot;dse-gate-checklist&quot; hidden&gt;
             &lt;label class=&quot;dse-gate-check&quot;&gt;
@@ -3960,13 +4180,19 @@ html&gt;body{padding:0}&lt;/style&gt;
           &lt;/div&gt;
         &lt;/article&gt;
 
-        &lt;article class=&quot;dse-demo-panel wide&quot; aria-labelledby=&quot;dse-experiment-demo-title&quot;&gt;
+        &lt;article class=&quot;dse-demo-panel wide dse-experiment-panel&quot; aria-labelledby=&quot;dse-experiment-demo-title&quot;&gt;
           &lt;div class=&quot;dse-demo-panel-head&quot;&gt;
             &lt;div&gt;
-              &lt;h3 id=&quot;dse-experiment-demo-title&quot;&gt;实验卡生成器&lt;/h3&gt;
-              &lt;p class=&quot;dse-demo-panel-sub&quot;&gt;缺少基线或恢复路径时只生成阻断卡；条件完整时生成明确标注的演示实验卡。&lt;/p&gt;
+              &lt;h3 id=&quot;dse-experiment-demo-title&quot;&gt;实验生命周期&lt;/h3&gt;
+              &lt;p class=&quot;dse-demo-panel-sub&quot;&gt;门禁通过后依次形成基线、候选、测量和结果；任何配置变化都必须重新确认当前资格。&lt;/p&gt;
             &lt;/div&gt;
             &lt;span class=&quot;dse-demo-step&quot;&gt;EXPERIMENT / 04&lt;/span&gt;
+          &lt;/div&gt;
+
+          &lt;ol class=&quot;dse-state-rail&quot; id=&quot;dse-experiment-state-rail&quot; aria-label=&quot;实验状态&quot;&gt;&lt;/ol&gt;
+          &lt;div class=&quot;dse-state-live&quot; aria-live=&quot;polite&quot;&gt;
+            &lt;strong id=&quot;dse-experiment-state-label&quot;&gt;STATE / WAITING GATE&lt;/strong&gt;
+            &lt;span id=&quot;dse-experiment-state-next&quot;&gt;先在上方完成五项证据检查。&lt;/span&gt;
           &lt;/div&gt;
 
           &lt;div class=&quot;dse-demo-form&quot;&gt;
@@ -4017,7 +4243,7 @@ html&gt;body{padding:0}&lt;/style&gt;
           &lt;/div&gt;
 
           &lt;div class=&quot;dse-gate-actions&quot;&gt;
-            &lt;button type=&quot;button&quot; class=&quot;dse-demo-action primary&quot; id=&quot;dse-generate-experiment&quot;&gt;生成演示实验卡&lt;/button&gt;
+            &lt;button type=&quot;button&quot; class=&quot;dse-demo-action primary&quot; id=&quot;dse-generate-experiment&quot; disabled&gt;生成演示实验卡&lt;/button&gt;
           &lt;/div&gt;
 
           &lt;div class=&quot;dse-experiment-output blocked&quot; id=&quot;dse-experiment-output&quot; aria-live=&quot;polite&quot; hidden&gt;
@@ -4030,6 +4256,55 @@ html&gt;body{padding:0}&lt;/style&gt;
               &lt;button type=&quot;button&quot; class=&quot;dse-demo-action&quot; data-sim-result=&quot;inconclusive&quot;&gt;模拟无法判断&lt;/button&gt;
             &lt;/div&gt;
             &lt;div class=&quot;dse-sim-outcome&quot; id=&quot;dse-sim-outcome&quot; aria-live=&quot;polite&quot; hidden&gt;&lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/article&gt;
+
+        &lt;article class=&quot;dse-demo-panel dse-machine-panel triage&quot; aria-labelledby=&quot;dse-triage-machine-title&quot;&gt;
+          &lt;div class=&quot;dse-demo-panel-head&quot;&gt;
+            &lt;div&gt;
+              &lt;h3 id=&quot;dse-triage-machine-title&quot;&gt;Triage 状态机&lt;/h3&gt;
+              &lt;p class=&quot;dse-demo-panel-sub&quot;&gt;症状先分层；物理危险直接终止，其余情况按证据进入最小可逆检查。&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;span class=&quot;dse-demo-step&quot;&gt;TRIAGE / 05&lt;/span&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;dse-scenario-grid&quot; id=&quot;dse-triage-case-grid&quot; aria-label=&quot;Triage 示例&quot;&gt;&lt;/div&gt;
+          &lt;ol class=&quot;dse-state-rail&quot; id=&quot;dse-triage-state-rail&quot; aria-label=&quot;Triage 状态&quot;&gt;&lt;/ol&gt;
+          &lt;div class=&quot;dse-state-live&quot; aria-live=&quot;polite&quot;&gt;
+            &lt;strong id=&quot;dse-triage-state-label&quot;&gt;STATE / SCOPE&lt;/strong&gt;
+            &lt;span id=&quot;dse-triage-state-next&quot;&gt;选择一个症状或推进当前状态。&lt;/span&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;dse-machine-copy&quot; id=&quot;dse-triage-copy&quot; data-tone=&quot;blocked&quot; aria-live=&quot;polite&quot;&gt;
+            &lt;p class=&quot;dse-machine-copy-title&quot; id=&quot;dse-triage-copy-title&quot;&gt;&lt;/p&gt;
+            &lt;p class=&quot;dse-machine-copy-body&quot; id=&quot;dse-triage-copy-body&quot;&gt;&lt;/p&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;dse-gate-actions&quot;&gt;
+            &lt;button type=&quot;button&quot; class=&quot;dse-demo-action primary&quot; id=&quot;dse-triage-advance&quot;&gt;推进状态&lt;/button&gt;
+            &lt;button type=&quot;button&quot; class=&quot;dse-demo-action&quot; id=&quot;dse-triage-reset&quot;&gt;重置当前场景&lt;/button&gt;
+          &lt;/div&gt;
+        &lt;/article&gt;
+
+        &lt;article class=&quot;dse-demo-panel dse-machine-panel lifecycle&quot; aria-labelledby=&quot;dse-lifecycle-title&quot;&gt;
+          &lt;div class=&quot;dse-demo-panel-head&quot;&gt;
+            &lt;div&gt;
+              &lt;h3 id=&quot;dse-lifecycle-title&quot;&gt;身份与基线有效期&lt;/h3&gt;
+              &lt;p class=&quot;dse-demo-panel-sub&quot;&gt;身份来源和配置指纹共同决定旧记录是当前证据、待刷新记录，还是只能保留为历史。&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;span class=&quot;dse-demo-step&quot;&gt;STATE LENS / 06&lt;/span&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;dse-lifecycle-grid&quot;&gt;
+            &lt;section class=&quot;dse-lifecycle-track&quot; aria-labelledby=&quot;dse-identity-state-label&quot;&gt;
+              &lt;p class=&quot;dse-lifecycle-track-label&quot; id=&quot;dse-identity-state-label&quot;&gt;IDENTITY QUALITY&lt;/p&gt;
+              &lt;ol class=&quot;dse-state-rail&quot; id=&quot;dse-identity-state-rail&quot; aria-label=&quot;设备身份状态&quot;&gt;&lt;/ol&gt;
+            &lt;/section&gt;
+            &lt;section class=&quot;dse-lifecycle-track&quot; aria-labelledby=&quot;dse-baseline-state-label&quot;&gt;
+              &lt;p class=&quot;dse-lifecycle-track-label&quot; id=&quot;dse-baseline-state-label&quot;&gt;BASELINE VALIDITY&lt;/p&gt;
+              &lt;ol class=&quot;dse-state-rail&quot; id=&quot;dse-baseline-state-rail&quot; aria-label=&quot;基线有效性状态&quot;&gt;&lt;/ol&gt;
+            &lt;/section&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;dse-lifecycle-events&quot; id=&quot;dse-lifecycle-events&quot; aria-label=&quot;配置状态事件&quot;&gt;&lt;/div&gt;
+          &lt;div class=&quot;dse-machine-copy&quot; id=&quot;dse-lifecycle-copy&quot; data-tone=&quot;ready&quot; aria-live=&quot;polite&quot;&gt;
+            &lt;p class=&quot;dse-machine-copy-title&quot; id=&quot;dse-lifecycle-copy-title&quot;&gt;&lt;/p&gt;
+            &lt;p class=&quot;dse-machine-copy-body&quot; id=&quot;dse-lifecycle-copy-body&quot;&gt;&lt;/p&gt;
           &lt;/div&gt;
         &lt;/article&gt;
       &lt;/div&gt;
@@ -4130,6 +4405,31 @@ html&gt;body{padding:0}&lt;/style&gt;
       const expGrid = document.getElementById(&quot;dse-exp-grid&quot;);
       const simActions = document.getElementById(&quot;dse-sim-actions&quot;);
       const simOutcome = document.getElementById(&quot;dse-sim-outcome&quot;);
+      const tuneStateRail = document.getElementById(&quot;dse-tune-state-rail&quot;);
+      const tuneStateLabel = document.getElementById(&quot;dse-tune-state-label&quot;);
+      const tuneStateNext = document.getElementById(&quot;dse-tune-state-next&quot;);
+      const enterExperimentButton = document.getElementById(&quot;dse-enter-experiment&quot;);
+      const experimentStateRail = document.getElementById(&quot;dse-experiment-state-rail&quot;);
+      const experimentStateLabel = document.getElementById(&quot;dse-experiment-state-label&quot;);
+      const experimentStateNext = document.getElementById(&quot;dse-experiment-state-next&quot;);
+      const generateExperimentButton = document.getElementById(&quot;dse-generate-experiment&quot;);
+      const demoBaseline = document.getElementById(&quot;dse-demo-baseline&quot;);
+      const demoRecovery = document.getElementById(&quot;dse-demo-recovery&quot;);
+      const triageCaseGrid = document.getElementById(&quot;dse-triage-case-grid&quot;);
+      const triageStateRail = document.getElementById(&quot;dse-triage-state-rail&quot;);
+      const triageStateLabel = document.getElementById(&quot;dse-triage-state-label&quot;);
+      const triageStateNext = document.getElementById(&quot;dse-triage-state-next&quot;);
+      const triageCopy = document.getElementById(&quot;dse-triage-copy&quot;);
+      const triageCopyTitle = document.getElementById(&quot;dse-triage-copy-title&quot;);
+      const triageCopyBody = document.getElementById(&quot;dse-triage-copy-body&quot;);
+      const triageAdvanceButton = document.getElementById(&quot;dse-triage-advance&quot;);
+      const triageResetButton = document.getElementById(&quot;dse-triage-reset&quot;);
+      const identityStateRail = document.getElementById(&quot;dse-identity-state-rail&quot;);
+      const baselineStateRail = document.getElementById(&quot;dse-baseline-state-rail&quot;);
+      const lifecycleEvents = document.getElementById(&quot;dse-lifecycle-events&quot;);
+      const lifecycleCopy = document.getElementById(&quot;dse-lifecycle-copy&quot;);
+      const lifecycleCopyTitle = document.getElementById(&quot;dse-lifecycle-copy-title&quot;);
+      const lifecycleCopyBody = document.getElementById(&quot;dse-lifecycle-copy-body&quot;);
       const termCoreRow = document.getElementById(&quot;dse-term-core-row&quot;);
       const termRotatingRow = document.getElementById(&quot;dse-term-rotating-row&quot;);
       const termCycleLabel = document.getElementById(&quot;dse-term-cycle-label&quot;);
@@ -4306,6 +4606,38 @@ html&gt;body{padding:0}&lt;/style&gt;
           analogy: &quot;像把通信线路的电压摆幅调到合适范围，太小听不清，太大又增加压力。&quot;,
           consequence: &quot;厂商命名和联动关系不统一，不能只按名称照填；应保留默认或依据平台规范，再结合内存测试与温度验证。&quot;
         },
+        &quot;soc-voltage&quot;: {
+          name: &quot;SoC Voltage&quot;,
+          family: &quot;AMD / 内存链路&quot;,
+          summary: &quot;AMD 平台为 SoC、内存控制器或 Infinity Fabric 相关工作区提供电气条件的电压。&quot;,
+          action: &quot;改变 SoC/IO 相关供电，影响高频内存、总线或控制器的工作裕量；具体联动随代际变化。&quot;,
+          analogy: &quot;像给城市环路提高供电裕量，但不会让所有道路自动变快。&quot;,
+          consequence: &quot;过低可能让内存或总线不稳，过高会增加 SoC 温度与电气压力；不同 CPU 代际不能照抄同一上限。&quot;
+        },
+        &quot;vccsa-vccio&quot;: {
+          name: &quot;VCCSA / VCCIO&quot;,
+          family: &quot;Intel / 内存链路&quot;,
+          summary: &quot;Intel 平台上与系统代理、内存控制器或 I/O 接口相关的供电名称，随代际变化。&quot;,
+          action: &quot;为内存控制器和接口信号提供电气条件，部分平台会按频率自动调整。&quot;,
+          analogy: &quot;像给不同部门分配不同的供电预算，某个部门多一点不等于整机更快。&quot;,
+          consequence: &quot;名称和自动策略因平台而异；过高可能增加温度与电气压力，过低可能引起内存或 PCIe 不稳。&quot;
+        },
+        &quot;tfaw-trrd&quot;: {
+          name: &quot;tFAW / tRRD&quot;,
+          family: &quot;内存 / 行激活&quot;,
+          summary: &quot;DRAM 行激活窗口和连续行激活之间的最小间隔。&quot;,
+          action: &quot;限制多个 bank 在短时间内被激活的频率。&quot;,
+          analogy: &quot;像仓库同时开门的节奏；开得太密，货出得快，但通道和人员更容易拥堵。&quot;,
+          consequence: &quot;收紧可能改善访问吞吐，但会增加电气和温度敏感性；错误可能先表现为无声数据损坏。&quot;
+        },
+        &quot;twr-twtr&quot;: {
+          name: &quot;tWR / tWTR&quot;,
+          family: &quot;内存 / 写恢复&quot;,
+          summary: &quot;写入恢复时间和写入到读取之间的等待时间。&quot;,
+          action: &quot;规定写完数据后多久才能预充电或开始后续读取。&quot;,
+          analogy: &quot;像在写字板上写完后等墨迹干，再翻页或读取。&quot;,
+          consequence: &quot;压得过紧可能提高响应速度，也可能让数据在未准备好时被读取；必须用针对性内存测试验证。&quot;
+        },
         &quot;gpu-core-offset&quot;: {
           name: &quot;GPU Core Offset&quot;,
           family: &quot;GPU / 核心频率&quot;,
@@ -4329,6 +4661,22 @@ html&gt;body{padding:0}&lt;/style&gt;
           action: &quot;比较热点与核心平均温度的差值，并观察散热接触、导热材料和高负载变化。&quot;,
           analogy: &quot;像房间平均温度正常，但某个角落已经过热。&quot;,
           consequence: &quot;不同厂商和型号的传感器位置、上限与可见性不同；单次数值不能诊断硅脂失效或硬件故障。&quot;
+        },
+        &quot;gpu-voltage-offset&quot;: {
+          name: &quot;GPU Voltage Offset&quot;,
+          family: &quot;GPU / 电压曲线&quot;,
+          summary: &quot;显卡核心电压请求或 V/F 曲线的偏移，不等于传感器显示的实时电压。&quot;,
+          action: &quot;改变频率点对应的电压请求，影响功耗、温度和可用 Boost 裕量。&quot;,
+          analogy: &quot;像调整整张地图的供油压力，路况变化时实际油耗和转速仍会变化。&quot;,
+          consequence: &quot;降压过多可能在瞬时负载或轻载切换时崩溃，加压则增加热量与电气压力；必须结合有效频率和稳定性验证。&quot;
+        },
+        &quot;fan-curve&quot;: {
+          name: &quot;Fan Curve&quot;,
+          family: &quot;GPU / 热管理&quot;,
+          summary: &quot;温度与风扇转速之间的响应关系，不是性能或频率参数。&quot;,
+          action: &quot;决定升温和降温时风扇多快开始转、转多快，以及是否允许风扇停转。&quot;,
+          analogy: &quot;像恒温器的风扇日程：更积极散热换来更低温度，也可能带来更多噪音。&quot;,
+          consequence: &quot;更激进的风扇曲线可能改善 Boost 持续性和热点温度，但会增加噪音与积灰；笔记本风扇通常受厂商固件限制。&quot;
         },
         &quot;gpu-boost-afs&quot;: {
           name: &quot;GPU Boost / AFS&quot;,
@@ -4364,11 +4712,19 @@ html&gt;body{padding:0}&lt;/style&gt;
         },
         {
           label: &quot;内存 / 时钟与电压&quot;,
-          ids: [&quot;mem-clock-link&quot;, &quot;vddq-vddio&quot;]
+          ids: [&quot;mem-clock-link&quot;, &quot;vddq-vddio&quot;, &quot;soc-voltage&quot;, &quot;vccsa-vccio&quot;]
+        },
+        {
+          label: &quot;内存 / 次级时序&quot;,
+          ids: [&quot;tfaw-trrd&quot;, &quot;twr-twtr&quot;]
         },
         {
           label: &quot;GPU / 动态与显存&quot;,
           ids: [&quot;gpu-core-offset&quot;, &quot;gpu-memory-offset&quot;, &quot;gpu-hot-spot&quot;, &quot;gpu-boost-afs&quot;]
+        },
+        {
+          label: &quot;GPU / 电压与散热&quot;,
+          ids: [&quot;gpu-voltage-offset&quot;, &quot;fan-curve&quot;]
         }
       ];
 
@@ -4532,7 +4888,420 @@ html&gt;body{padding:0}&lt;/style&gt;
         merge: &quot;merge&quot;
       };
 
+      const tuneStates = [
+        { id: &quot;input&quot;, code: &quot;T00&quot;, name: &quot;输入&quot; },
+        { id: &quot;classify&quot;, code: &quot;T01&quot;, name: &quot;安全分类&quot; },
+        { id: &quot;gate&quot;, code: &quot;T02&quot;, name: &quot;五项证据&quot; },
+        { id: &quot;eligible&quot;, code: &quot;T03&quot;, name: &quot;可实验&quot; },
+        { id: &quot;measure&quot;, code: &quot;T04&quot;, name: &quot;测量&quot; },
+        { id: &quot;outcome&quot;, code: &quot;T05&quot;, name: &quot;结论&quot; }
+      ];
+
+      const experimentStates = [
+        { id: &quot;baseline&quot;, code: &quot;E01&quot;, name: &quot;当前基线&quot; },
+        { id: &quot;candidate&quot;, code: &quot;E02&quot;, name: &quot;候选方案&quot; },
+        { id: &quot;measure&quot;, code: &quot;E03&quot;, name: &quot;固定负载测量&quot; },
+        { id: &quot;outcome&quot;, code: &quot;E04&quot;, name: &quot;结果判定&quot; },
+        { id: &quot;decision&quot;, code: &quot;E05&quot;, name: &quot;保留 / 回退&quot; }
+      ];
+
+      const triageStates = [
+        { id: &quot;intake&quot;, code: &quot;R00&quot;, name: &quot;症状输入&quot; },
+        { id: &quot;scope&quot;, code: &quot;R01&quot;, name: &quot;安全与范围&quot; },
+        { id: &quot;evidence&quot;, code: &quot;R02&quot;, name: &quot;当前证据&quot; },
+        { id: &quot;action&quot;, code: &quot;R03&quot;, name: &quot;最小检查&quot; },
+        { id: &quot;handoff&quot;, code: &quot;R04&quot;, name: &quot;分流&quot; }
+      ];
+
+      const identityStates = [
+        { id: &quot;confirmed&quot;, code: &quot;ID1&quot;, name: &quot;身份已确认&quot; },
+        { id: &quot;reported&quot;, code: &quot;ID2&quot;, name: &quot;用户自述&quot; },
+        { id: &quot;conflict&quot;, code: &quot;ID3&quot;, name: &quot;冲突 / 不可读&quot; }
+      ];
+
+      const baselineStates = [
+        { id: &quot;current&quot;, code: &quot;B1&quot;, name: &quot;当前有效&quot; },
+        { id: &quot;stale&quot;, code: &quot;B2&quot;, name: &quot;待刷新&quot; },
+        { id: &quot;historical&quot;, code: &quot;B3&quot;, name: &quot;仅保留历史&quot; }
+      ];
+
+      const triageCases = {
+        hazard: {
+          request: &quot;设备有焦味或打火，但我想先跑一次压力测试确认。&quot;,
+          danger: true,
+          stages: {
+            scope: {
+              title: &quot;HARD-STOP / 物理危险优先&quot;,
+              body: &quot;立即停止运行；仅在安全时断电断能。不要继续开机、压测、重插带电部件或采集更多性能数据。&quot;,
+              tone: &quot;stop&quot;
+            }
+          }
+        },
+        stutter: {
+          request: &quot;游戏平时帧数不低，但会突然卡顿一下。&quot;,
+          danger: false,
+          stages: {
+            scope: {
+              title: &quot;先锁定卡顿层级&quot;,
+              body: &quot;区分持续低帧率、周期性卡顿、网络抖动和瞬时驱动/系统事件，先不要直接超频。&quot;,
+              tone: &quot;blocked&quot;
+            },
+            evidence: {
+              title: &quot;采集固定场景证据&quot;,
+              body: &quot;记录同一游戏场景的帧时间、1% / 0.1% low、GPU/CPU 有效频率、温度、功耗和 PerfCap。&quot;,
+              tone: &quot;blocked&quot;
+            },
+            action: {
+              title: &quot;执行一次可逆检查&quot;,
+              body: &quot;只改变一个条件，例如关闭后台叠加、切换电源模式或清理受限磁盘空间；保留结果后恢复或继续。&quot;,
+              tone: &quot;ready&quot;
+            },
+            handoff: {
+              title: &quot;按证据分流&quot;,
+              body: &quot;仍有明确限频就转遥测分析；没有异常但持续卡顿则继续驱动、存储和外设检查。不要用超频掩盖故障。&quot;,
+              tone: &quot;ready&quot;
+            }
+          }
+        },
+        startup: {
+          request: &quot;电脑每次开机都要很久，进桌面后还会卡一会儿。&quot;,
+          danger: false,
+          stages: {
+            scope: {
+              title: &quot;区分启动与登录阶段&quot;,
+              body: &quot;先确认时间花在固件、Windows 启动、登录后加载还是磁盘响应；只看总时长无法定位层级。&quot;,
+              tone: &quot;blocked&quot;
+            },
+            evidence: {
+              title: &quot;保存启动证据&quot;,
+              body: &quot;记录 Windows 启动时间、磁盘剩余空间、健康告警、启动项和最近的驱动/更新变化。&quot;,
+              tone: &quot;blocked&quot;
+            },
+            action: {
+              title: &quot;先做一个可逆改动&quot;,
+              body: &quot;优先停用单个非关键启动项或排除高分占用运行，不要一次清理大量系统文件。&quot;,
+              tone: &quot;ready&quot;
+            },
+            handoff: {
+              title: &quot;判断是软件还是硬件&quot;,
+              body: &quot;重复出现磁盘延迟、健康告警或启动阶段异常时继续存储排障；否则回到启动项和系统事件。&quot;,
+              tone: &quot;ready&quot;
+            }
+          }
+        },
+        battery: {
+          request: &quot;笔记本电池掉得很快，是不是该直接换电池？&quot;,
+          danger: false,
+          stages: {
+            scope: {
+              title: &quot;先区分电池与供电&quot;,
+              body: &quot;确认最近变化、使用场景、适配器功率、快充状态和电源模式；单次掉电不能直接证明电池损坏。&quot;,
+              tone: &quot;blocked&quot;
+            },
+            evidence: {
+              title: &quot;核对当前可用证据&quot;,
+              body: &quot;查看当前整机功耗、电池设计/满充容量、循环来源和电源事件，并注明权限是否影响读取。&quot;,
+              tone: &quot;blocked&quot;
+            },
+            action: {
+              title: &quot;做一次可逆对照&quot;,
+              body: &quot;在相同负载下比较接适配器与电池状态；不要先改电池参数或绕过电源保护。&quot;,
+              tone: &quot;ready&quot;
+            },
+            handoff: {
+              title: &quot;形成购买或维修边界&quot;,
+              body: &quot;只有容量、续航、温度或供电证据一致时再讨论更换；鼓包、焦味或漏液直接进入物理安全停止。&quot;,
+              tone: &quot;ready&quot;
+            }
+          }
+        }
+      };
+
+      const lifecycleStateEvents = [
+        {
+          id: &quot;confirm&quot;,
+          label: &quot;身份已确认&quot;,
+          identity: &quot;confirmed&quot;,
+          baseline: &quot;current&quot;,
+          tone: &quot;ready&quot;,
+          title: &quot;当前记录可作为比较起点&quot;,
+          body: &quot;身份可信且配置没有变化；仍需确认固定负载、恢复路径和本轮目标后才能进入调校。&quot;
+        },
+        {
+          id: &quot;report&quot;,
+          label: &quot;只有用户自述&quot;,
+          identity: &quot;reported&quot;,
+          baseline: &quot;current&quot;,
+          tone: &quot;blocked&quot;,
+          title: &quot;普通咨询可继续，模型调校需先确认身份&quot;,
+          body: &quot;用户陈述可以作为线索，但不能把未确认型号当作精确平台身份或候选值依据。&quot;
+        },
+        {
+          id: &quot;powerwall&quot;,
+          label: &quot;功耗墙改变&quot;,
+          identity: &quot;confirmed&quot;,
+          baseline: &quot;stale&quot;,
+          tone: &quot;blocked&quot;,
+          title: &quot;旧记录保留历史价值，但当前资格失效&quot;,
+          body: &quot;功耗墙变化会创建新的配置修订；旧基线仍可用于比较，但不能直接当作当前基线或复用旧候选。&quot;
+        },
+        {
+          id: &quot;hardware&quot;,
+          label: &quot;硬件 / 驱动变化&quot;,
+          identity: &quot;conflict&quot;,
+          baseline: &quot;historical&quot;,
+          tone: &quot;stop&quot;,
+          title: &quot;必须重新识别并建立新基线&quot;,
+          body: &quot;硬件身份与旧快照可能冲突；在重新采集和确认配置前，禁止继续沿用旧实验结果。&quot;
+        },
+        {
+          id: &quot;recapture&quot;,
+          label: &quot;重新采集完成&quot;,
+          identity: &quot;confirmed&quot;,
+          baseline: &quot;current&quot;,
+          tone: &quot;ready&quot;,
+          title: &quot;新的身份与基线重新进入当前状态&quot;,
+          body: &quot;重新采集不会删除旧记录；它只是把新的确认结果提升为当前证据。&quot;
+        }
+      ];
+
       const reduceMotionQuery = window.matchMedia(&quot;(prefers-reduced-motion: reduce)&quot;);
+      let tuneGateReady = false;
+      let activeTuneState = &quot;input&quot;;
+      let activeExperimentState = &quot;&quot;;
+      let activeTriageCase = &quot;stutter&quot;;
+      let triageStageIndex = 0;
+      let activeLifecycleEvent = &quot;confirm&quot;;
+
+      const tuneStateCopy = {
+        input: {
+          label: &quot;STATE / INPUT&quot;,
+          next: &quot;选择一个示例请求开始。&quot;
+        },
+        classify: {
+          label: &quot;STATE / CLASSIFY&quot;,
+          next: &quot;先判断是物理危险、证据不足还是可进入门禁。&quot;
+        },
+        gate: {
+          label: &quot;STATE / EVIDENCE GATE&quot;,
+          next: &quot;逐项补齐当前身份、基线、恢复、负载和停止条件。&quot;
+        },
+        eligible: {
+          label: &quot;STATE / ELIGIBLE&quot;,
+          next: &quot;五项齐全；只解锁演示实验，不代表参数安全。&quot;
+        },
+        measure: {
+          label: &quot;STATE / MEASURE&quot;,
+          next: &quot;在下方查看演示实验卡；硬件设置仍由用户手动控制。&quot;
+        },
+        outcome: {
+          label: &quot;STATE / OUTCOME&quot;,
+          next: &quot;根据结果选择保留、回退或重复，不增加第二个变量。&quot;
+        }
+      };
+
+      const experimentStateCopy = {
+        baseline: {
+          label: &quot;STATE / BASELINE&quot;,
+          next: &quot;确认当前基线、配置变化和恢复路径。&quot;
+        },
+        candidate: {
+          label: &quot;STATE / CANDIDATE&quot;,
+          next: &quot;候选存在也必须绑定单一变量和回退方式。&quot;
+        },
+        measure: {
+          label: &quot;STATE / MEASURE&quot;,
+          next: &quot;使用同一固定负载观测有效频率、性能、温度和异常。&quot;
+        },
+        outcome: {
+          label: &quot;STATE / OUTCOME&quot;,
+          next: &quot;区分 PASS、FAIL 与 INCONCLUSIVE。&quot;
+        },
+        decision: {
+          label: &quot;STATE / DECISION&quot;,
+          next: &quot;保留通过值、回退失败值，或重复无法判断的结果。&quot;
+        }
+      };
+
+      const triageStateOrder = [&quot;scope&quot;, &quot;evidence&quot;, &quot;action&quot;, &quot;handoff&quot;];
+
+      function renderStateRail(container, states, activeId, options = {}) {
+        const activeIndex = states.findIndex(state =&gt; state.id === activeId);
+        const dangerIndex = states.findIndex(state =&gt; state.id === options.dangerId);
+        const blockedIds = new Set(options.blockedIds || []);
+        container.replaceChildren();
+
+        states.forEach((state, index) =&gt; {
+          const item = document.createElement(&quot;li&quot;);
+          item.className = &quot;dse-state-node&quot;;
+          const isActive = state.id === activeId;
+          const isDanger = state.id === options.dangerId;
+          const isWarning = state.id === options.warningId;
+          const isBlocked = blockedIds.has(state.id) ||
+            (dangerIndex &gt;= 0 &amp;&amp; index &gt; dangerIndex) ||
+            (options.sequential === false &amp;&amp; !isActive);
+
+          if (options.sequential !== false &amp;&amp; activeIndex &gt;= 0 &amp;&amp; index &lt; activeIndex) {
+            item.classList.add(&quot;is-done&quot;);
+          }
+          if (isActive) item.classList.add(&quot;is-current&quot;);
+          if (isDanger) item.classList.add(&quot;is-danger&quot;);
+          if (isWarning) item.classList.add(&quot;is-warning&quot;);
+          if (isBlocked &amp;&amp; !isDanger) item.classList.add(&quot;is-blocked&quot;);
+          if (options.readyId === state.id) item.classList.add(&quot;is-ready&quot;);
+          if (isActive) item.setAttribute(&quot;aria-current&quot;, &quot;step&quot;);
+
+          const code = document.createElement(&quot;span&quot;);
+          code.className = &quot;dse-state-code&quot;;
+          code.textContent = state.code;
+          const name = document.createElement(&quot;span&quot;);
+          name.className = &quot;dse-state-name&quot;;
+          name.textContent = state.name;
+          const meta = document.createElement(&quot;span&quot;);
+          meta.className = &quot;dse-state-meta&quot;;
+          meta.textContent = options.meta?.[state.id] || &quot;&quot;;
+          item.append(code, name, meta);
+          container.appendChild(item);
+        });
+      }
+
+      function setTuneState(stateId, options = {}) {
+        const copy = options.copy || tuneStateCopy[stateId] || tuneStateCopy.input;
+        activeTuneState = stateId;
+        tuneStateLabel.textContent = options.label || copy.label;
+        tuneStateNext.textContent = options.next || copy.next;
+        renderStateRail(tuneStateRail, tuneStates, stateId, {
+          dangerId: options.danger ? stateId : &quot;&quot;,
+          warningId: options.warning ? stateId : &quot;&quot;,
+          meta: options.meta
+        });
+        enterExperimentButton.disabled = !(tuneGateReady &amp;&amp; stateId === &quot;eligible&quot;);
+      }
+
+      function setExperimentState(stateId, options = {}) {
+        activeExperimentState = stateId;
+        const copy = options.copy || experimentStateCopy[stateId] || {
+          label: &quot;STATE / WAITING GATE&quot;,
+          next: &quot;先完成上方五项证据检查。&quot;
+        };
+        experimentStateLabel.textContent = options.label || copy.label;
+        experimentStateNext.textContent = options.next || copy.next;
+        renderStateRail(experimentStateRail, experimentStates, stateId, {
+          dangerId: options.dangerId,
+          warningId: options.warningId,
+          readyId: options.readyId,
+          meta: options.meta
+        });
+      }
+
+      function resetExperimentState(reason = &quot;WAITING GATE&quot;) {
+        activeExperimentState = &quot;&quot;;
+        generateExperimentButton.disabled = true;
+        experimentStateLabel.textContent = `STATE / ${reason}`;
+        experimentStateNext.textContent = &quot;先完成上方五项证据检查。&quot;;
+        experimentOutput.hidden = true;
+        simActions.hidden = true;
+        simOutcome.hidden = true;
+        expGrid.replaceChildren();
+        renderStateRail(experimentStateRail, experimentStates, &quot;&quot;);
+      }
+
+      function renderTriageState() {
+        const triageCase = triageCases[activeTriageCase];
+        const stageId = triageStateOrder[triageStageIndex];
+        const stage = triageCase.stages[stageId];
+        const isDanger = Boolean(triageCase.danger);
+        const blockedIds = isDanger
+          ? triageStateOrder.filter(id =&gt; id !== &quot;scope&quot;)
+          : [];
+        renderStateRail(triageStateRail, triageStates, stageId, {
+          dangerId: isDanger ? &quot;scope&quot; : &quot;&quot;,
+          blockedIds,
+          meta: {
+            intake: activeTriageCase.toUpperCase(),
+            [stageId]: `${triageStageIndex + 1}/${triageStateOrder.length}`
+          }
+        });
+        triageStateLabel.textContent = isDanger ? &quot;STATE / HARD-STOP&quot; : `STATE / ${stageId.toUpperCase()}`;
+        triageStateNext.textContent = isDanger
+          ? &quot;物理危险优先，不进入后续检查。&quot;
+          : triageStageIndex &gt;= triageStateOrder.length - 1
+            ? &quot;已达到分流终点。&quot;
+            : &quot;推进下一步时，只增加一个新证据或一个可逆动作。&quot;;
+        triageCopy.dataset.tone = stage.tone;
+        triageCopyTitle.textContent = stage.title;
+        triageCopyBody.textContent = stage.body;
+        triageAdvanceButton.disabled = isDanger || triageStageIndex &gt;= triageStateOrder.length - 1;
+        triageAdvanceButton.textContent = isDanger || triageStageIndex &gt;= triageStateOrder.length - 1
+          ? &quot;已到状态终点&quot;
+          : triageStageIndex === 0
+            ? &quot;补充当前证据&quot;
+            : triageStageIndex === 1
+              ? &quot;执行最小检查&quot;
+              : &quot;形成分流结论&quot;;
+        triageCaseGrid.querySelectorAll(&quot;[data-triage-case]&quot;).forEach(button =&gt; {
+          button.setAttribute(&quot;aria-pressed&quot;, String(button.dataset.triageCase === activeTriageCase));
+        });
+      }
+
+      function selectTriageCase(id) {
+        if (!triageCases[id]) return;
+        activeTriageCase = id;
+        triageStageIndex = 0;
+        renderTriageState();
+      }
+
+      function renderTriageCases() {
+        triageCaseGrid.replaceChildren();
+        Object.entries(triageCases).forEach(([id, triageCase]) =&gt; {
+          const button = document.createElement(&quot;button&quot;);
+          button.type = &quot;button&quot;;
+          button.className = &quot;dse-scenario&quot;;
+          button.dataset.triageCase = id;
+          button.setAttribute(&quot;aria-pressed&quot;, String(id === activeTriageCase));
+          button.textContent = triageCase.request;
+          button.addEventListener(&quot;click&quot;, () =&gt; selectTriageCase(id));
+          triageCaseGrid.appendChild(button);
+        });
+      }
+
+      function setLifecycleEvent(eventId) {
+        const event = lifecycleStateEvents.find(item =&gt; item.id === eventId);
+        if (!event) return;
+        activeLifecycleEvent = eventId;
+        renderStateRail(identityStateRail, identityStates, event.identity, {
+          sequential: false,
+          dangerId: event.identity === &quot;conflict&quot; ? &quot;conflict&quot; : &quot;&quot;,
+          warningId: event.identity === &quot;reported&quot; ? &quot;reported&quot; : &quot;&quot;,
+          readyId: event.identity === &quot;confirmed&quot; ? &quot;confirmed&quot; : &quot;&quot;
+        });
+        renderStateRail(baselineStateRail, baselineStates, event.baseline, {
+          sequential: false,
+          dangerId: event.baseline === &quot;historical&quot; ? &quot;historical&quot; : &quot;&quot;,
+          warningId: event.baseline === &quot;stale&quot; ? &quot;stale&quot; : &quot;&quot;,
+          readyId: event.baseline === &quot;current&quot; ? &quot;current&quot; : &quot;&quot;
+        });
+        lifecycleCopy.dataset.tone = event.tone;
+        lifecycleCopyTitle.textContent = event.title;
+        lifecycleCopyBody.textContent = event.body;
+        lifecycleEvents.querySelectorAll(&quot;[data-lifecycle-event]&quot;).forEach(button =&gt; {
+          button.setAttribute(&quot;aria-pressed&quot;, String(button.dataset.lifecycleEvent === eventId));
+        });
+      }
+
+      function renderLifecycleEvents() {
+        lifecycleEvents.replaceChildren();
+        lifecycleStateEvents.forEach(item =&gt; {
+          const button = document.createElement(&quot;button&quot;);
+          button.type = &quot;button&quot;;
+          button.className = &quot;dse-state-action&quot;;
+          button.dataset.lifecycleEvent = item.id;
+          button.setAttribute(&quot;aria-pressed&quot;, String(item.id === activeLifecycleEvent));
+          button.textContent = item.label;
+          button.addEventListener(&quot;click&quot;, () =&gt; setLifecycleEvent(item.id));
+          lifecycleEvents.appendChild(button);
+        });
+      }
 
       function syncTermButtons() {
         root.querySelectorAll(&quot;[data-term-id]&quot;).forEach(button =&gt; {
@@ -5156,6 +5925,18 @@ html&gt;body{padding:0}&lt;/style&gt;
         });
         const checkButton = root.querySelector(&#x27;[data-gate-action=&quot;check&quot;]&#x27;);
         checkButton.disabled = !scenario.canCheck;
+        checkButton.setAttribute(&quot;aria-expanded&quot;, &quot;false&quot;);
+        checkButton.textContent = &quot;展开五项检查&quot;;
+        tuneGateReady = false;
+        enterExperimentButton.disabled = true;
+        setTuneState(&quot;classify&quot;, {
+          danger: scenario.tone === &quot;stop&quot;,
+          label: scenario.tone === &quot;stop&quot; ? &quot;STATE / HARD-STOP&quot; : &quot;STATE / CLASSIFY&quot;,
+          next: scenario.tone === &quot;stop&quot;
+            ? &quot;物理危险优先；不进入证据门禁或实验。&quot;
+            : &quot;请求已分类；先补齐安全门禁需要的证据。&quot;
+        });
+        resetExperimentState(scenario.tone === &quot;stop&quot; ? &quot;HARD-STOP&quot; : &quot;WAITING GATE&quot;);
         setGateOutput(scenario.tone, scenario.title, scenario.copy, scenario.missing);
       }
 
@@ -5203,20 +5984,71 @@ html&gt;body{padding:0}&lt;/style&gt;
           const scenario = demoScenarios[activeScenario];
           if (button.dataset.gateAction === &quot;direct&quot;) {
             if (scenario.tone === &quot;stop&quot;) {
+              tuneGateReady = false;
+              enterExperimentButton.disabled = true;
+              setTuneState(&quot;classify&quot;, {
+                danger: true,
+                label: &quot;STATE / HARD-STOP&quot;,
+                next: &quot;停止运行；不通过继续压测来确认物理危险。&quot;
+              });
+              resetExperimentState(&quot;HARD-STOP&quot;);
               setGateOutput(&quot;stop&quot;, &quot;HARD-STOP / 参数请求被拒绝&quot;, &quot;设备存在疑似物理危险时，不会通过继续压测或提供参数来“确认问题”。&quot;);
             } else {
+              tuneGateReady = false;
+              enterExperimentButton.disabled = true;
+              setTuneState(&quot;classify&quot;, {
+                label: &quot;STATE / BLOCKED&quot;,
+                next: &quot;直接请求参数不会跳过证据门禁；先展开检查。&quot;
+              });
+              resetExperimentState(&quot;BLOCKED&quot;);
               setGateOutput(&quot;blocked&quot;, &quot;BLOCKED / NO VALUES DISPLAYED&quot;, &quot;当前页面不会生成电压、频率、功耗或时序候选。请先补齐缺失证据。&quot;, scenario.missing);
             }
             return;
           }
           if (button.dataset.gateAction === &quot;check&quot;) {
             if (!scenario.canCheck) {
+              tuneGateReady = false;
+              enterExperimentButton.disabled = true;
+              setTuneState(&quot;classify&quot;, {
+                danger: true,
+                label: &quot;STATE / HARD-STOP&quot;,
+                next: &quot;物理危险优先；不允许进入常规五项检查。&quot;
+              });
               setGateOutput(&quot;stop&quot;, &quot;HARD-STOP / 不允许进入安全检查&quot;, &quot;先处理可能的供电、电池、线缆或接头危险；不继续运行设备。&quot;);
               return;
             }
             gateRules.hidden = true;
+            if (!gateChecklist.hidden) {
+              gateChecklist.hidden = true;
+              button.setAttribute(&quot;aria-expanded&quot;, &quot;false&quot;);
+              button.textContent = &quot;展开五项检查&quot;;
+              if (!tuneGateReady) {
+                const inputs = [...root.querySelectorAll(&quot;[data-gate-check]&quot;)];
+                const done = inputs.filter(item =&gt; item.checked).length;
+                setTuneState(&quot;gate&quot;, {
+                  meta: { gate: `${done}/${inputs.length}` },
+                  next: &quot;检查已收起，已完成的证据选择仍保留。&quot;
+                });
+              }
+              return;
+            }
             gateChecklist.hidden = false;
-            setGateOutput(&quot;blocked&quot;, &quot;TUNING GATE / 0 of 5&quot;, &quot;这五项不是形式问卷：每一项都应有可核对的证据。全部完成前，不显示电压、频率或功耗候选。&quot;, scenario.missing);
+            button.setAttribute(&quot;aria-expanded&quot;, &quot;true&quot;);
+            button.textContent = &quot;收起五项检查&quot;;
+            const inputs = [...root.querySelectorAll(&quot;[data-gate-check]&quot;)];
+            const done = inputs.filter(item =&gt; item.checked).length;
+            tuneGateReady = done === inputs.length;
+            setTuneState(tuneGateReady ? &quot;eligible&quot; : &quot;gate&quot;, {
+              meta: { gate: `${done}/${inputs.length}` },
+              next: tuneGateReady
+                ? &quot;证据齐全；只解锁演示实验，不代表参数安全。&quot;
+                : &quot;逐项确认证据；勾选代表已经拿到证据。&quot;
+            });
+            if (tuneGateReady) {
+              setGateOutput(&quot;ready&quot;, &quot;ELIGIBLE FOR EXPERIMENT / 5 of 5&quot;, &quot;五项证据齐全，只代表可以开始设计实验，不代表任何参数安全或稳定。本页仍不会生成或执行硬件设置。&quot;);
+            } else {
+              setGateOutput(&quot;blocked&quot;, `TUNING GATE / ${done} of 5`, `已完成 ${done}/5。勾选表示已经拿到对应证据，而不是“我觉得知道”；其余项目完成前不显示候选。`, scenario.missing);
+            }
             return;
           }
           gateRules.hidden = !gateRules.hidden;
@@ -5229,10 +6061,71 @@ html&gt;body{padding:0}&lt;/style&gt;
           const inputs = [...root.querySelectorAll(&quot;[data-gate-check]&quot;)];
           const done = inputs.filter(item =&gt; item.checked).length;
           if (done === inputs.length) {
+            tuneGateReady = true;
+            setTuneState(&quot;eligible&quot;, {
+              meta: { gate: &quot;5/5&quot; },
+              next: &quot;证据齐全；只解锁演示实验，不代表任何硬件参数安全。&quot;
+            });
             setGateOutput(&quot;ready&quot;, &quot;ELIGIBLE FOR EXPERIMENT / 5 of 5&quot;, &quot;五项证据齐全，只代表可以开始设计实验，不代表任何参数安全或稳定。本页仍不会生成或执行硬件设置。&quot;);
           } else {
+            tuneGateReady = false;
+            enterExperimentButton.disabled = true;
+            resetExperimentState(&quot;GATE INCOMPLETE&quot;);
+            setTuneState(&quot;gate&quot;, {
+              meta: { gate: `${done}/5` },
+              next: &quot;补全剩余证据；门禁不会因为口头保证自动放行。&quot;
+            });
             setGateOutput(&quot;blocked&quot;, `TUNING GATE / ${done} of 5`, `已完成 ${done}/5。勾选表示已经拿到对应证据，而不是“我觉得知道”；其余项目完成前不显示候选。`);
           }
+        });
+      });
+
+      function syncExperimentReadiness() {
+        if (!tuneGateReady) {
+          generateExperimentButton.disabled = true;
+          return;
+        }
+        const missing = [];
+        if (demoBaseline.value !== &quot;yes&quot;) missing.push(&quot;当前基线&quot;);
+        if (demoRecovery.value !== &quot;yes&quot;) missing.push(&quot;恢复路径&quot;);
+        if (missing.length) {
+          generateExperimentButton.disabled = true;
+          setExperimentState(&quot;baseline&quot;, {
+            warningId: &quot;baseline&quot;,
+            meta: { baseline: &quot;MISSING&quot; },
+            next: `缺少：${missing.join(&quot;、&quot;)}。补齐前不能形成候选。`
+          });
+          return;
+        }
+        generateExperimentButton.disabled = false;
+        setExperimentState(&quot;candidate&quot;, {
+          meta: { baseline: &quot;READY&quot;, candidate: &quot;PENDING&quot; },
+          next: &quot;点击生成演示实验卡；本页仍不会产生可套用数值。&quot;
+        });
+      }
+
+      enterExperimentButton.addEventListener(&quot;click&quot;, () =&gt; {
+        if (!tuneGateReady) return;
+        setTuneState(&quot;measure&quot;, {
+          meta: { gate: &quot;5/5&quot;, measure: &quot;READY&quot; },
+          next: &quot;进入实验状态机；先确认基线，再形成单一变量候选。&quot;
+        });
+        enterExperimentButton.disabled = true;
+        syncExperimentReadiness();
+        const reduceMotion = window.matchMedia(&quot;(prefers-reduced-motion: reduce)&quot;).matches;
+        document.getElementById(&quot;dse-experiment-demo-title&quot;).scrollIntoView({
+          behavior: reduceMotion ? &quot;auto&quot; : &quot;smooth&quot;,
+          block: &quot;start&quot;
+        });
+      });
+
+      root.querySelectorAll(&quot;.dse-demo-field select&quot;).forEach(select =&gt; {
+        select.addEventListener(&quot;change&quot;, () =&gt; {
+          experimentOutput.hidden = true;
+          expGrid.replaceChildren();
+          simActions.hidden = true;
+          simOutcome.hidden = true;
+          if (tuneGateReady) syncExperimentReadiness();
         });
       });
 
@@ -5249,7 +6142,8 @@ html&gt;body{padding:0}&lt;/style&gt;
         return item;
       }
 
-      document.getElementById(&quot;dse-generate-experiment&quot;).addEventListener(&quot;click&quot;, () =&gt; {
+      generateExperimentButton.addEventListener(&quot;click&quot;, () =&gt; {
+        if (!tuneGateReady) return;
         const goal = document.getElementById(&quot;dse-demo-goal&quot;).value;
         const component = document.getElementById(&quot;dse-demo-component&quot;).value;
         const workload = document.getElementById(&quot;dse-demo-workload&quot;).value;
@@ -5267,6 +6161,11 @@ html&gt;body{padding:0}&lt;/style&gt;
           experimentOutput.className = &quot;dse-experiment-output blocked&quot;;
           expStatus.textContent = &quot;BLOCKED CARD · MISSING EVIDENCE&quot;;
           expTitle.textContent = &quot;暂不生成实验候选&quot;;
+          setExperimentState(&quot;baseline&quot;, {
+            warningId: &quot;baseline&quot;,
+            meta: { baseline: &quot;MISSING&quot; },
+            next: `缺少：${missing.join(&quot;、&quot;)}。补齐后再形成候选。`
+          });
           expGrid.append(
             createExpItem(&quot;缺少条件&quot;, missing.join(&quot;、&quot;)),
             createExpItem(&quot;安全下一步&quot;, &quot;记录当前配置并建立一个明确的原厂/已知良好恢复点。&quot;),
@@ -5277,6 +6176,16 @@ html&gt;body{padding:0}&lt;/style&gt;
         experimentOutput.className = &quot;dse-experiment-output demo&quot;;
         expStatus.textContent = &quot;DEMO EXPERIMENT CARD · SIMULATION ONLY&quot;;
         expTitle.textContent = `${goal} / ${component}`;
+        generateExperimentButton.disabled = true;
+        setExperimentState(&quot;measure&quot;, {
+          meta: { candidate: &quot;DEMO ONLY&quot;, measure: &quot;RUNNING&quot; },
+          next: &quot;记录同负载结果；通过、失败或无法判断必须分开。&quot;
+        });
+        setTuneState(&quot;measure&quot;, {
+          meta: { gate: &quot;5/5&quot;, measure: &quot;RUNNING&quot; },
+          next: &quot;演示实验运行中；页面仍未读取或修改任何硬件。&quot;
+        });
+        enterExperimentButton.disabled = true;
         expGrid.append(
           createExpItem(&quot;唯一变量&quot;, `${route}（只改变这一类控制）`),
           createExpItem(&quot;固定负载&quot;, workload),
@@ -5295,17 +6204,69 @@ html&gt;body{padding:0}&lt;/style&gt;
           if (button.dataset.simResult === &quot;pass&quot;) {
             simOutcome.className = &quot;dse-sim-outcome&quot;;
             simOutcome.textContent = &quot;SIMULATED PASS → KEEP：本轮结果可保留，但仍需重启、睡眠唤醒和日常使用验证。&quot;;
+            setExperimentState(&quot;decision&quot;, {
+              readyId: &quot;decision&quot;,
+              label: &quot;STATE / KEEP&quot;,
+              next: &quot;保留本轮通过值，并继续重启、唤醒和日常使用验证。&quot;,
+              meta: { outcome: &quot;PASS&quot;, decision: &quot;KEEP&quot; }
+            });
+            setTuneState(&quot;outcome&quot;, {
+              warning: false,
+              label: &quot;STATE / KEEP&quot;,
+              next: &quot;本轮通过；仍需日常稳定性验证。&quot;,
+              meta: { outcome: &quot;PASS&quot; }
+            });
           } else if (button.dataset.simResult === &quot;fail&quot;) {
             simOutcome.className = &quot;dse-sim-outcome fail&quot;;
             simOutcome.textContent = &quot;SIMULATED FAIL → REVERT：恢复上一已通过配置，并检查中止信号。&quot;;
+            setExperimentState(&quot;decision&quot;, {
+              warningId: &quot;decision&quot;,
+              label: &quot;STATE / REVERT&quot;,
+              next: &quot;恢复上一已知良好配置，并检查触发失败的因素。&quot;,
+              meta: { outcome: &quot;FAIL&quot;, decision: &quot;REVERT&quot; }
+            });
+            setTuneState(&quot;outcome&quot;, {
+              warning: true,
+              label: &quot;STATE / REVERT&quot;,
+              next: &quot;本轮失败；先回退，不叠加第二个变量。&quot;,
+              meta: { outcome: &quot;FAIL&quot; }
+            });
           } else {
             simOutcome.className = &quot;dse-sim-outcome inconclusive&quot;;
             simOutcome.textContent = &quot;SIMULATED INCONCLUSIVE → REPEAT：重复同一负载，不增加第二个变量。&quot;;
+            setExperimentState(&quot;decision&quot;, {
+              warningId: &quot;decision&quot;,
+              label: &quot;STATE / REPEAT&quot;,
+              next: &quot;保持同一候选与负载，重复一次观测。&quot;,
+              meta: { outcome: &quot;INCONCLUSIVE&quot;, decision: &quot;REPEAT&quot; }
+            });
+            setTuneState(&quot;outcome&quot;, {
+              warning: true,
+              label: &quot;STATE / REPEAT&quot;,
+              next: &quot;证据不足以下结论；重复同条件，不增加新变量。&quot;,
+              meta: { outcome: &quot;INCONCLUSIVE&quot; }
+            });
           }
           simOutcome.hidden = false;
         });
       });
 
+      triageAdvanceButton.addEventListener(&quot;click&quot;, () =&gt; {
+        const triageCase = triageCases[activeTriageCase];
+        if (triageCase.danger || triageStageIndex &gt;= triageStateOrder.length - 1) return;
+        triageStageIndex += 1;
+        renderTriageState();
+      });
+
+      triageResetButton.addEventListener(&quot;click&quot;, () =&gt; {
+        triageStageIndex = 0;
+        renderTriageState();
+      });
+
+      renderTriageCases();
+      renderTriageState();
+      renderLifecycleEvents();
+      setLifecycleEvent(&quot;confirm&quot;);
       renderScenarioButtons();
       renderScenario(&quot;cpu&quot;);
 
