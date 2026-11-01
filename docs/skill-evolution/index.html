@@ -2903,6 +2903,224 @@ html&gt;body{padding:0}&lt;/style&gt;
       letter-spacing: .1em;
     }
 
+    #dse-root .dse-term-panel {
+      border-top-color: var(--dse-amber);
+      overflow: hidden;
+    }
+
+    #dse-root .dse-term-intro {
+      margin: 6px 0 0;
+      color: var(--dse-muted);
+      font-size: 9px;
+      line-height: 1.55;
+    }
+
+    #dse-root .dse-term-rails {
+      display: grid;
+      grid-template-columns: minmax(0, .9fr) minmax(0, 1.35fr);
+      gap: 9px;
+      margin-top: 10px;
+    }
+
+    #dse-root .dse-term-rail {
+      min-width: 0;
+      padding: 9px;
+      background: rgba(4, 12, 22, .82);
+      border: 1px solid #193a50;
+    }
+
+    #dse-root .dse-term-rail.branch {
+      border-color: rgba(255, 85, 184, .32);
+    }
+
+    #dse-root .dse-term-rail-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    #dse-root .dse-term-rail-label {
+      margin: 0;
+      color: var(--dse-cyan);
+      font-size: 8px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    #dse-root .dse-term-rail.branch .dse-term-rail-label {
+      color: var(--dse-magenta);
+    }
+
+    #dse-root .dse-term-cycle-meta {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      color: var(--dse-muted);
+      font-size: 8px;
+    }
+
+    #dse-root .dse-term-next {
+      min-height: 27px;
+      padding: 0 8px;
+      font-size: 8px;
+    }
+
+    #dse-root .dse-term-token-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      min-height: 32px;
+      margin-top: 8px;
+    }
+
+    #dse-root .dse-term-token {
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 32px;
+      padding: 0 9px;
+      color: var(--dse-text);
+      background: #071827;
+      border: 1px solid #28536c;
+      clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+      font: inherit;
+      font-size: 11px;
+      letter-spacing: .02em;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-term-token.branch {
+      border-color: rgba(255, 85, 184, .45);
+    }
+
+    #dse-root .dse-term-token:hover,
+    #dse-root .dse-term-token:focus-visible {
+      border-color: var(--dse-cyan);
+      background: rgba(8, 31, 45, .98);
+    }
+
+    #dse-root .dse-term-token[aria-expanded=&quot;true&quot;] {
+      color: #031116;
+      background: var(--dse-cyan);
+      border-color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-term-token.branch[aria-expanded=&quot;true&quot;] {
+      color: #14040e;
+      background: var(--dse-magenta);
+      border-color: var(--dse-magenta);
+    }
+
+    #dse-root .dse-term-token.is-drifting {
+      animation: dse-term-drift-in .34s ease-out both;
+      animation-delay: var(--term-delay, 0ms);
+    }
+
+    #dse-root .dse-term-hint {
+      margin: 7px 0 0;
+      color: var(--dse-muted);
+      font-size: 8px;
+      line-height: 1.5;
+    }
+
+    #dse-root .dse-term-detail {
+      margin-top: 9px;
+      background:
+        linear-gradient(145deg, rgba(9, 24, 39, .98), rgba(5, 15, 27, .96));
+      border: 1px solid #21455e;
+      border-left: 2px solid var(--dse-cyan);
+    }
+
+    #dse-root .dse-term-detail-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 10px 8px;
+    }
+
+    #dse-root .dse-term-family {
+      margin: 0 0 4px;
+      color: var(--dse-cyan);
+      font-size: 8px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    #dse-root .dse-term-detail h4 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-term-summary {
+      margin: 5px 0 0;
+      color: var(--dse-muted);
+      font-size: 9px;
+      line-height: 1.55;
+    }
+
+    #dse-root .dse-term-close {
+      flex: none;
+      min-width: 32px;
+      min-height: 32px;
+      padding: 0;
+    }
+
+    #dse-root .dse-term-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      padding: 0 10px 10px;
+    }
+
+    #dse-root .dse-term-detail-cell {
+      min-width: 0;
+      padding-top: 7px;
+      border-top: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-term-detail-label {
+      margin: 0 0 5px;
+      color: var(--dse-amber);
+      font-size: 8px;
+      letter-spacing: .1em;
+    }
+
+    #dse-root .dse-term-detail-copy {
+      margin: 0;
+      color: var(--dse-text);
+      font-size: 10px;
+      line-height: 1.55;
+    }
+
+    #dse-root .dse-term-boundary {
+      margin: 0;
+      padding: 7px 10px 9px;
+      color: var(--dse-muted);
+      background: rgba(3, 10, 18, .72);
+      border-top: 1px solid var(--dse-line);
+      font-size: 8px;
+      line-height: 1.45;
+    }
+
+    @keyframes dse-term-drift-in {
+      from {
+        opacity: 0;
+        transform: translateX(18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
     #dse-root .dse-scenario-grid {
       display: grid;
       gap: 5px;
@@ -3318,6 +3536,14 @@ html&gt;body{padding:0}&lt;/style&gt;
         grid-template-columns: 1fr;
       }
 
+      #dse-root .dse-term-rails {
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root .dse-term-detail-grid {
+        grid-template-columns: 1fr;
+      }
+
     }
 
     @media (max-width: 680px) {
@@ -3424,7 +3650,9 @@ html&gt;body{padding:0}&lt;/style&gt;
 
       #dse-root .dse-demo-action,
       #dse-root .dse-scenario,
-      #dse-root .dse-demo-field select {
+      #dse-root .dse-demo-field select,
+      #dse-root .dse-term-token,
+      #dse-root .dse-term-close {
         min-height: 42px;
       }
 
@@ -3438,14 +3666,27 @@ html&gt;body{padding:0}&lt;/style&gt;
       }
     }
 
+    @media (pointer: coarse) {
+      #dse-root .dse-term-token,
+      #dse-root .dse-term-next,
+      #dse-root .dse-term-close {
+        min-height: 44px;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       #dse-root .dse-node {
         transition: none;
       }
 
       #dse-root .dse-series,
-      #dse-root .dse-version {
+      #dse-root .dse-version,
+      #dse-root .dse-term-token {
         transition: none;
+      }
+
+      #dse-root .dse-term-token.is-drifting {
+        animation: none;
       }
     }
   &lt;/style&gt;
@@ -3581,13 +3822,71 @@ html&gt;body{padding:0}&lt;/style&gt;
       &lt;/header&gt;
 
       &lt;div class=&quot;dse-demo-grid&quot;&gt;
+        &lt;article class=&quot;dse-demo-panel wide dse-term-panel&quot; aria-labelledby=&quot;dse-term-title&quot;&gt;
+          &lt;div class=&quot;dse-demo-panel-head&quot;&gt;
+            &lt;div&gt;
+              &lt;h3 id=&quot;dse-term-title&quot;&gt;术语信号台&lt;/h3&gt;
+              &lt;p class=&quot;dse-term-intro&quot;&gt;6 个常驻核心词、18 个轮换分支词。悬停或键盘聚焦即可查看，触屏轻点固定；解释统一拆成“动作 / 类比 / 后果”。&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;span class=&quot;dse-demo-step&quot;&gt;TERM SIGNAL / 24&lt;/span&gt;
+          &lt;/div&gt;
+
+          &lt;div class=&quot;dse-term-rails&quot;&gt;
+            &lt;section class=&quot;dse-term-rail&quot; aria-labelledby=&quot;dse-term-core-label&quot;&gt;
+              &lt;div class=&quot;dse-term-rail-head&quot;&gt;
+                &lt;p class=&quot;dse-term-rail-label&quot; id=&quot;dse-term-core-label&quot;&gt;CORE / 常驻核心&lt;/p&gt;
+                &lt;span class=&quot;dse-term-cycle-meta&quot;&gt;6 TERMS&lt;/span&gt;
+              &lt;/div&gt;
+              &lt;div class=&quot;dse-term-token-row&quot; id=&quot;dse-term-core-row&quot; aria-label=&quot;常驻核心术语&quot;&gt;&lt;/div&gt;
+            &lt;/section&gt;
+
+            &lt;section class=&quot;dse-term-rail branch&quot; aria-labelledby=&quot;dse-term-branch-label&quot;&gt;
+              &lt;div class=&quot;dse-term-rail-head&quot;&gt;
+                &lt;p class=&quot;dse-term-rail-label&quot; id=&quot;dse-term-branch-label&quot;&gt;BRANCH / 轮换分支&lt;/p&gt;
+                &lt;div class=&quot;dse-term-cycle-meta&quot;&gt;
+                  &lt;span id=&quot;dse-term-cycle-label&quot;&gt;01 / 05&lt;/span&gt;
+                  &lt;button type=&quot;button&quot; class=&quot;dse-demo-action dse-term-next&quot; id=&quot;dse-term-next&quot;&gt;下一组&lt;/button&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+              &lt;div class=&quot;dse-term-token-row&quot; id=&quot;dse-term-rotating-row&quot; aria-label=&quot;轮换分支术语&quot;&gt;&lt;/div&gt;
+              &lt;p class=&quot;dse-term-hint&quot; id=&quot;dse-term-rotation-hint&quot;&gt;每 9 秒漂入下一组；悬停、聚焦或打开解释时暂停。&lt;/p&gt;
+            &lt;/section&gt;
+          &lt;/div&gt;
+
+          &lt;section class=&quot;dse-term-detail&quot; id=&quot;dse-term-detail&quot; aria-labelledby=&quot;dse-term-detail-title&quot; aria-live=&quot;polite&quot; hidden&gt;
+            &lt;div class=&quot;dse-term-detail-head&quot;&gt;
+              &lt;div&gt;
+                &lt;p class=&quot;dse-term-family&quot; id=&quot;dse-term-family&quot;&gt;TERM / &lt;/p&gt;
+                &lt;h4 id=&quot;dse-term-detail-title&quot;&gt;选择一个术语&lt;/h4&gt;
+                &lt;p class=&quot;dse-term-summary&quot; id=&quot;dse-term-summary&quot;&gt;&lt;/p&gt;
+              &lt;/div&gt;
+              &lt;button type=&quot;button&quot; class=&quot;dse-demo-action dse-term-close&quot; id=&quot;dse-term-close&quot; aria-label=&quot;关闭术语解释&quot;&gt;×&lt;/button&gt;
+            &lt;/div&gt;
+            &lt;div class=&quot;dse-term-detail-grid&quot;&gt;
+              &lt;div class=&quot;dse-term-detail-cell&quot;&gt;
+                &lt;p class=&quot;dse-term-detail-label&quot;&gt;动作&lt;/p&gt;
+                &lt;p class=&quot;dse-term-detail-copy&quot; id=&quot;dse-term-action&quot;&gt;&lt;/p&gt;
+              &lt;/div&gt;
+              &lt;div class=&quot;dse-term-detail-cell&quot;&gt;
+                &lt;p class=&quot;dse-term-detail-label&quot;&gt;类比&lt;/p&gt;
+                &lt;p class=&quot;dse-term-detail-copy&quot; id=&quot;dse-term-analogy&quot;&gt;&lt;/p&gt;
+              &lt;/div&gt;
+              &lt;div class=&quot;dse-term-detail-cell&quot;&gt;
+                &lt;p class=&quot;dse-term-detail-label&quot;&gt;后果&lt;/p&gt;
+                &lt;p class=&quot;dse-term-detail-copy&quot; id=&quot;dse-term-consequence&quot;&gt;&lt;/p&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;p class=&quot;dse-term-boundary&quot;&gt;术语解释只用于理解和识别概念，不等于你的机器可以套用某个参数；个性化候选仍需通过完整安全门禁。&lt;/p&gt;
+          &lt;/section&gt;
+        &lt;/article&gt;
+
         &lt;article class=&quot;dse-demo-panel&quot; aria-labelledby=&quot;dse-gate-demo-title&quot;&gt;
           &lt;div class=&quot;dse-demo-panel-head&quot;&gt;
             &lt;div&gt;
               &lt;h3 id=&quot;dse-gate-demo-title&quot;&gt;安全门禁模拟器&lt;/h3&gt;
               &lt;p class=&quot;dse-demo-panel-sub&quot;&gt;先区分物理硬停止与调校证据不足，再决定是否允许进入实验。&lt;/p&gt;
             &lt;/div&gt;
-            &lt;span class=&quot;dse-demo-step&quot;&gt;GATE / 01&lt;/span&gt;
+            &lt;span class=&quot;dse-demo-step&quot;&gt;GATE / 02&lt;/span&gt;
           &lt;/div&gt;
 
           &lt;div class=&quot;dse-scenario-grid&quot; id=&quot;dse-scenario-grid&quot; aria-label=&quot;示例请求&quot;&gt;&lt;/div&gt;
@@ -3647,7 +3946,7 @@ html&gt;body{padding:0}&lt;/style&gt;
               &lt;h3 id=&quot;dse-compare-demo-title&quot;&gt;Before / After&lt;/h3&gt;
               &lt;p class=&quot;dse-demo-panel-sub&quot;&gt;比较回答结构，不虚构某组参数必然导致蓝屏。&lt;/p&gt;
             &lt;/div&gt;
-            &lt;span class=&quot;dse-demo-step&quot;&gt;COMPARE / 02&lt;/span&gt;
+            &lt;span class=&quot;dse-demo-step&quot;&gt;COMPARE / 03&lt;/span&gt;
           &lt;/div&gt;
           &lt;div class=&quot;dse-compare-grid&quot;&gt;
             &lt;div class=&quot;dse-compare-card direct&quot;&gt;
@@ -3667,7 +3966,7 @@ html&gt;body{padding:0}&lt;/style&gt;
               &lt;h3 id=&quot;dse-experiment-demo-title&quot;&gt;实验卡生成器&lt;/h3&gt;
               &lt;p class=&quot;dse-demo-panel-sub&quot;&gt;缺少基线或恢复路径时只生成阻断卡；条件完整时生成明确标注的演示实验卡。&lt;/p&gt;
             &lt;/div&gt;
-            &lt;span class=&quot;dse-demo-step&quot;&gt;EXPERIMENT / 03&lt;/span&gt;
+            &lt;span class=&quot;dse-demo-step&quot;&gt;EXPERIMENT / 04&lt;/span&gt;
           &lt;/div&gt;
 
           &lt;div class=&quot;dse-demo-form&quot;&gt;
@@ -3831,7 +4130,254 @@ html&gt;body{padding:0}&lt;/style&gt;
       const expGrid = document.getElementById(&quot;dse-exp-grid&quot;);
       const simActions = document.getElementById(&quot;dse-sim-actions&quot;);
       const simOutcome = document.getElementById(&quot;dse-sim-outcome&quot;);
+      const termCoreRow = document.getElementById(&quot;dse-term-core-row&quot;);
+      const termRotatingRow = document.getElementById(&quot;dse-term-rotating-row&quot;);
+      const termCycleLabel = document.getElementById(&quot;dse-term-cycle-label&quot;);
+      const termRotationHint = document.getElementById(&quot;dse-term-rotation-hint&quot;);
+      const termNextButton = document.getElementById(&quot;dse-term-next&quot;);
+      const termDetail = document.getElementById(&quot;dse-term-detail&quot;);
+      const termFamily = document.getElementById(&quot;dse-term-family&quot;);
+      const termDetailTitle = document.getElementById(&quot;dse-term-detail-title&quot;);
+      const termSummary = document.getElementById(&quot;dse-term-summary&quot;);
+      const termAction = document.getElementById(&quot;dse-term-action&quot;);
+      const termAnalogy = document.getElementById(&quot;dse-term-analogy&quot;);
+      const termConsequence = document.getElementById(&quot;dse-term-consequence&quot;);
+      const termCloseButton = document.getElementById(&quot;dse-term-close&quot;);
       let activeInspector = &quot;milestone&quot;;
+
+      const termDefinitions = {
+        &quot;vf-curve&quot;: {
+          name: &quot;V/F 曲线&quot;,
+          family: &quot;CORE / GPU 动态&quot;,
+          summary: &quot;电压与频率之间的关系图，不是固定 MHz/mV 坐标。&quot;,
+          action: &quot;规定不同电压附近允许使用的频率，让控制器随负载选择工作点。&quot;,
+          analogy: &quot;像发动机的油门—转速地图，不是把转速钉死在一个数字。&quot;,
+          consequence: &quot;曲线生效不等于稳定，也不保证命中某个测量点；要看同负载下的有效频率、性能、功耗、温度和异常。&quot;
+        },
+        &quot;effective-clock&quot;: {
+          name: &quot;有效频率&quot;,
+          family: &quot;CORE / 证据&quot;,
+          summary: &quot;采样窗口内实际交付的核心频率，不是软件中填写的上限。&quot;,
+          action: &quot;在相同负载和采样窗口内读取实际运行频率，并与性能表现一起比较。&quot;,
+          analogy: &quot;像看车速表，而不是只看限速牌。&quot;,
+          consequence: &quot;请求值、保存值、瞬时读数和有效性能是不同证据；单次读数不能证明稳定。&quot;
+        },
+        &quot;power-limit&quot;: {
+          name: &quot;功耗墙&quot;,
+          family: &quot;CORE / 功率限制&quot;,
+          summary: &quot;硬件允许消耗的功率上限，不等于每个场景都会持续用满。&quot;,
+          action: &quot;设置封装或 GPU 可持续的功耗预算，影响 Boost 能维持多久。&quot;,
+          analogy: &quot;像给发动机设置供油上限；上限高不等于一直全油门。&quot;,
+          consequence: &quot;提高上限会增加供电、发热和散热压力；笔记本功耗墙变化后，旧候选不能直接续用。&quot;
+        },
+        &quot;perfcap&quot;: {
+          name: &quot;PerfCap&quot;,
+          family: &quot;CORE / 监控&quot;,
+          summary: &quot;监控工具报告的当前主要性能限制原因。&quot;,
+          action: &quot;结合功耗、温度、电压、可靠性和利用率，判断性能被哪一项压住。&quot;,
+          analogy: &quot;像看道路最窄的那一段，而不是只盯当前车速。&quot;,
+          consequence: &quot;不同厂商、版本和采样时刻可能给出不同原因；一次 PerfCap 不等于永久结论。&quot;
+        },
+        &quot;memory-profile&quot;: {
+          name: &quot;XMP / EXPO&quot;,
+          family: &quot;CORE / 内存配置&quot;,
+          summary: &quot;厂商预置的内存高性能档位，不是 JEDEC 保守默认值。&quot;,
+          action: &quot;在 BIOS/UEFI 中加载经过内存模组厂商描述的频率、时序和电压组合。&quot;,
+          analogy: &quot;像使用一套已经调好的跑车地图，但道路、天气和车况仍可能不匹配。&quot;,
+          consequence: &quot;开启成功不代表稳定；容量、内存控制器、温度和长时间测试都要一起验证，笔记本支持情况尤其不同。&quot;
+        },
+        &quot;thermal-throttle&quot;: {
+          name: &quot;热降频&quot;,
+          family: &quot;CORE / 热管理&quot;,
+          summary: &quot;因温度或热策略触及边界而主动降低性能。&quot;,
+          action: &quot;硬件接近温度策略时降低频率、功耗或电压，以控制继续升温。&quot;,
+          analogy: &quot;像设备给自己踩刹车，避免继续升温。&quot;,
+          consequence: &quot;没看到最高温度不等于没有热降频；应看同负载下的有效频率、功耗和性能是否随时间下降。&quot;
+        },
+        &quot;ac-loadline&quot;: {
+          name: &quot;AC Loadline&quot;,
+          family: &quot;CPU / 供电&quot;,
+          summary: &quot;CPU 重载切换时的供电电压瞬态补偿参数。&quot;,
+          action: &quot;调整从轻载切到重载时允许出现多少电压跌落，以及主板做多少补偿。&quot;,
+          analogy: &quot;像给水泵加稳压补偿，突然加大用水量时尽量别让水压塌下去。&quot;,
+          consequence: &quot;补偿不足可能重载不稳，补偿过强可能增加瞬时电压和温度压力；不同主板、CPU 与 LLC 组合不能照抄同一档位。&quot;
+        },
+        &quot;llc-vdroop&quot;: {
+          name: &quot;LLC / Vdroop&quot;,
+          family: &quot;CPU / 供电&quot;,
+          summary: &quot;主板对负载瞬间电压跌落的补偿曲线。&quot;,
+          action: &quot;选择主板在电流上升时维持 Vcore 的力度。&quot;,
+          analogy: &quot;像巡航控制在上坡时自动补油，过多或过少都不理想。&quot;,
+          consequence: &quot;厂商档位编号含义不同，甚至方向相反；必须结合 AC Loadline、实际电压和稳定性判断。&quot;
+        },
+        &quot;vcore-offset&quot;: {
+          name: &quot;Vcore Offset&quot;,
+          family: &quot;CPU / 电压&quot;,
+          summary: &quot;在 CPU 核心电压请求上增加或减少一个偏移量。&quot;,
+          action: &quot;让 CPU 在整个或部分 V/F 区间相对原请求上移或下移电压。&quot;,
+          analogy: &quot;像给温控器加一个固定偏置，最终温度仍会随环境和负载变化。&quot;,
+          consequence: &quot;软件显示的 CPU 电压不是唯一结果；过低可能在轻载或瞬时负载不稳，过高会增加温度和退化压力。&quot;
+        },
+        &quot;ring-cache-ratio&quot;: {
+          name: &quot;Ring / Cache Ratio&quot;,
+          family: &quot;CPU / Intel 互连&quot;,
+          summary: &quot;Intel 平台上环形总线或缓存频率的相对设置。&quot;,
+          action: &quot;调整 CPU 核心之外的缓存与互连频率，常以倍频或 ratio 表示。&quot;,
+          analogy: &quot;像提高城市环路的限速，但核心区道路未必同步变快。&quot;,
+          consequence: &quot;提高 Ring 频率可能改善延迟，但会增加 uncore 功耗、发热和稳定性风险；AMD 平台不能直接套用。&quot;
+        },
+        &quot;pbo&quot;: {
+          name: &quot;PBO&quot;,
+          family: &quot;CPU / AMD Boost&quot;,
+          summary: &quot;AMD Ryzen 的 Precision Boost Overdrive，在厂商边界内调整加速预算。&quot;,
+          action: &quot;让主板和固件依据供电、温度与电流能力，提高或维持 Boost 的策略空间。&quot;,
+          analogy: &quot;像给自动挡车放宽换挡策略，但发动机温度、油路和散热仍会限制结果。&quot;,
+          consequence: &quot;不同主板和 CPU 代际行为差异大，可能改变功耗与热限制；不能把 PBO 当成固定超频档位。&quot;
+        },
+        &quot;curve-optimizer&quot;: {
+          name: &quot;Curve Optimizer&quot;,
+          family: &quot;CPU / AMD 曲线&quot;,
+          summary: &quot;AMD Ryzen 的逐核心或全核心 V/F 曲线偏移工具。&quot;,
+          action: &quot;对 CPU 曲线的工作区增加或减少电压余量。&quot;,
+          analogy: &quot;像逐条微调发动机地图，而不是只改一个总油门。&quot;,
+          consequence: &quot;负偏移过大可能在轻载、待机、唤醒或单核场景不稳；全核通过不代表逐核、全天候稳定。&quot;
+        },
+        &quot;curve-shaper&quot;: {
+          name: &quot;Curve Shaper&quot;,
+          family: &quot;CPU / AMD 曲线&quot;,
+          summary: &quot;部分 AMD Ryzen 平台用于更细分 V/F 与温度区间的 PBO 曲线调节项。&quot;,
+          action: &quot;在比 Curve Optimizer 更细的频率或温度区间调整 PBO 曲线。&quot;,
+          analogy: &quot;像把一张粗略地图拆成更多小区域，逐块修正。&quot;,
+          consequence: &quot;它与 Curve Optimizer 相互影响，不能当成可无限叠加的性能开关；BIOS 更新后还应重新验证。&quot;
+        },
+        &quot;ppt-tdc-edc&quot;: {
+          name: &quot;PPT / TDC / EDC&quot;,
+          family: &quot;CPU / AMD 限制&quot;,
+          summary: &quot;AMD 平台的封装功率、持续电流和峰值电流限制。&quot;,
+          action: &quot;分别约束平台可用的功率预算、长期电流能力和瞬时电流上限。&quot;,
+          analogy: &quot;像同时限制油箱流量、长期供水管径与瞬时冲击流量。&quot;,
+          consequence: &quot;判断瓶颈要看哪项先触顶；提高任一项都可能增加供电与散热压力，而且需要主板和固件允许。&quot;
+        },
+        &quot;trefi&quot;: {
+          name: &quot;tREFI&quot;,
+          family: &quot;内存 / 刷新&quot;,
+          summary: &quot;DRAM 自动刷新之间的平均间隔。&quot;,
+          action: &quot;改变内存执行刷新操作的频率；数值越大，通常留给读写的时间越多。&quot;,
+          analogy: &quot;像仓库盘点间隔变长，干活时间更多，但错误积累窗口也更大。&quot;,
+          consequence: &quot;可能改善带宽或延迟，但对温度、颗粒和内存控制器更敏感；开机或短测通过不能证明数据正确。&quot;
+        },
+        &quot;trfc&quot;: {
+          name: &quot;tRFC&quot;,
+          family: &quot;内存 / 刷新&quot;,
+          summary: &quot;一次 DRAM 刷新周期占用的时间。&quot;,
+          action: &quot;决定每次刷新需要暂停读写多久。&quot;,
+          analogy: &quot;像每次仓库盘点要封仓多久。&quot;,
+          consequence: &quot;缩短可能减少性能损失，但刷新不完整会造成数据错误；容量、颗粒类型与温度决定边界，风险高于普通时序。&quot;
+        },
+        &quot;primary-timings&quot;: {
+          name: &quot;tCL / tRCD / tRP / tRAS&quot;,
+          family: &quot;内存 / 主时序&quot;,
+          summary: &quot;决定行、列访问和预充电节奏的一组主时序。&quot;,
+          action: &quot;分别改变列选通、行激活到预充电之间等待的时钟数。&quot;,
+          analogy: &quot;像仓库取货时的四道门禁，每道少等一拍都可能更快，也可能拿错货。&quot;,
+          consequence: &quot;不能只看总延迟；频率、电压、容量与 rank 会共同决定稳定性，错误也可能先表现为无声数据损坏。&quot;
+        },
+        &quot;command-rate&quot;: {
+          name: &quot;Command Rate&quot;,
+          family: &quot;内存 / 命令&quot;,
+          summary: &quot;内存命令在总线上的发送节奏，常以 1T 或 2T 表示。&quot;,
+          action: &quot;调整命令之间的最小间隔，影响控制器的调度余量。&quot;,
+          analogy: &quot;像两辆车通过同一路口的车距；压缩车距更快，但更容易追尾。&quot;,
+          consequence: &quot;1T 通常更难稳定且不一定更快；高容量、多 rank、高频或高温环境可能更需要 2T。&quot;
+        },
+        &quot;mem-clock-link&quot;: {
+          name: &quot;MCLK / FCLK / UCLK&quot;,
+          family: &quot;内存 / 时钟链路&quot;,
+          summary: &quot;内存时钟、Infinity Fabric 或控制器时钟之间的比值关系。&quot;,
+          action: &quot;通过分频或 Gear 模式决定各时钟如何同步，影响延迟、带宽和功耗。&quot;,
+          analogy: &quot;像几套齿轮能否同速转动；不同步能覆盖更高转速，但会多一层换挡损耗。&quot;,
+          consequence: &quot;比例规则随 AMD/Intel 平台和代际变化，不能混用；改变分频后，旧内存基线与候选不能直接续用。&quot;
+        },
+        &quot;vddq-vddio&quot;: {
+          name: &quot;VDDQ / VDDIO&quot;,
+          family: &quot;内存 / I/O 电压&quot;,
+          summary: &quot;DRAM 或内存控制接口侧的 I/O 电压，含义随 DDR4、DDR5 与平台变化。&quot;,
+          action: &quot;为内存总线信号提供电气条件，支持不同频率和负载。&quot;,
+          analogy: &quot;像把通信线路的电压摆幅调到合适范围，太小听不清，太大又增加压力。&quot;,
+          consequence: &quot;厂商命名和联动关系不统一，不能只按名称照填；应保留默认或依据平台规范，再结合内存测试与温度验证。&quot;
+        },
+        &quot;gpu-core-offset&quot;: {
+          name: &quot;GPU Core Offset&quot;,
+          family: &quot;GPU / 核心频率&quot;,
+          summary: &quot;显卡核心频率曲线的全局或区间偏移，不是实际固定 MHz。&quot;,
+          action: &quot;让 GPU Boost 在选择工作点时，相对原曲线增加或减少核心频率。&quot;,
+          analogy: &quot;像把整张油门—转速地图整体上移，但显卡仍会按负载选择档位。&quot;,
+          consequence: &quot;有效频率会随功耗、温度、电压和工作负载变化；一个点没命中不等于偏移没生效，通过一轮也不代表稳定。&quot;
+        },
+        &quot;gpu-memory-offset&quot;: {
+          name: &quot;GPU Memory Offset&quot;,
+          family: &quot;GPU / 显存频率&quot;,
+          summary: &quot;显存频率或等效数据率相对默认值的偏移。&quot;,
+          action: &quot;让显存工作点相对原配置升高，通常同时增加带宽与电气、热压力。&quot;,
+          analogy: &quot;像提高仓库传送带速度，货物流得更快，但错件更容易被忽略。&quot;,
+          consequence: &quot;显存错误不一定立刻黑屏，可能先表现为性能下降或数据损坏；必须做针对性显存测试，不能只看游戏能开。&quot;
+        },
+        &quot;gpu-hot-spot&quot;: {
+          name: &quot;GPU Hot Spot&quot;,
+          family: &quot;GPU / 温度证据&quot;,
+          summary: &quot;显卡的局部高温传感器点，不等于核心平均温度。&quot;,
+          action: &quot;比较热点与核心平均温度的差值，并观察散热接触、导热材料和高负载变化。&quot;,
+          analogy: &quot;像房间平均温度正常，但某个角落已经过热。&quot;,
+          consequence: &quot;不同厂商和型号的传感器位置、上限与可见性不同；单次数值不能诊断硅脂失效或硬件故障。&quot;
+        },
+        &quot;gpu-boost-afs&quot;: {
+          name: &quot;GPU Boost / AFS&quot;,
+          family: &quot;GPU / NVIDIA 动态&quot;,
+          summary: &quot;NVIDIA GPU 按功耗、温度和负载动态选择频率；RTX 50 加入更快的 Accelerated Frequency Switching。&quot;,
+          action: &quot;GPU Boost 在裕量内提升核心或显存频率；AFS 让更细粒度的负载变化触发更快的频率切换。&quot;,
+          analogy: &quot;像自动变速箱根据坡度和温度连续换挡，而不是固定在某个挡位。&quot;,
+          consequence: &quot;请求频率、保存偏移、实际采样和有效性能是不同证据；RTX 50 工作点分布更宽，单点匹配或缺失不能证明曲线成败。&quot;
+        }
+      };
+
+      const coreTermIds = [
+        &quot;vf-curve&quot;,
+        &quot;effective-clock&quot;,
+        &quot;power-limit&quot;,
+        &quot;perfcap&quot;,
+        &quot;memory-profile&quot;,
+        &quot;thermal-throttle&quot;
+      ];
+
+      const branchTermGroups = [
+        {
+          label: &quot;CPU / 供电与互连&quot;,
+          ids: [&quot;ac-loadline&quot;, &quot;llc-vdroop&quot;, &quot;vcore-offset&quot;, &quot;ring-cache-ratio&quot;]
+        },
+        {
+          label: &quot;CPU / Boost 与曲线&quot;,
+          ids: [&quot;pbo&quot;, &quot;curve-optimizer&quot;, &quot;curve-shaper&quot;, &quot;ppt-tdc-edc&quot;]
+        },
+        {
+          label: &quot;内存 / 刷新与时序&quot;,
+          ids: [&quot;trefi&quot;, &quot;trfc&quot;, &quot;primary-timings&quot;, &quot;command-rate&quot;]
+        },
+        {
+          label: &quot;内存 / 时钟与电压&quot;,
+          ids: [&quot;mem-clock-link&quot;, &quot;vddq-vddio&quot;]
+        },
+        {
+          label: &quot;GPU / 动态与显存&quot;,
+          ids: [&quot;gpu-core-offset&quot;, &quot;gpu-memory-offset&quot;, &quot;gpu-hot-spot&quot;, &quot;gpu-boost-afs&quot;]
+        }
+      ];
+
+      let branchGroupIndex = 0;
+      let activeTermId = &quot;&quot;;
+      let termPinned = false;
+      let termRotationPaused = true;
+      let termResumeTimer = 0;
+      let termRotationTimer = 0;
 
       const versionSeries = [
         {
@@ -3985,6 +4531,159 @@ html&gt;body{padding:0}&lt;/style&gt;
         triage: &quot;triage-safety&quot;,
         merge: &quot;merge&quot;
       };
+
+      const reduceMotionQuery = window.matchMedia(&quot;(prefers-reduced-motion: reduce)&quot;);
+
+      function syncTermButtons() {
+        root.querySelectorAll(&quot;[data-term-id]&quot;).forEach(button =&gt; {
+          const expanded = !termDetail.hidden &amp;&amp; button.dataset.termId === activeTermId;
+          button.setAttribute(&quot;aria-expanded&quot;, String(expanded));
+        });
+      }
+
+      function pauseTermRotation() {
+        window.clearTimeout(termResumeTimer);
+        termRotationPaused = true;
+      }
+
+      function openTerm(id, pin = false) {
+        const definition = termDefinitions[id];
+        if (!definition) return;
+        pauseTermRotation();
+        activeTermId = id;
+        termPinned = pin;
+        termFamily.textContent = `TERM / ${definition.family}`;
+        termDetailTitle.textContent = definition.name;
+        termSummary.textContent = definition.summary;
+        termAction.textContent = definition.action;
+        termAnalogy.textContent = definition.analogy;
+        termConsequence.textContent = definition.consequence;
+        termDetail.hidden = false;
+        syncTermButtons();
+      }
+
+      function closeTerm(resume = true) {
+        termDetail.hidden = true;
+        activeTermId = &quot;&quot;;
+        termPinned = false;
+        syncTermButtons();
+        if (resume) {
+          window.clearTimeout(termResumeTimer);
+          termResumeTimer = window.setTimeout(() =&gt; {
+            if (!termDetail.hidden || document.hidden || demoSection.hidden) return;
+            termRotationPaused = false;
+          }, 1400);
+        }
+      }
+
+      function createTermButton(id, kind, index = 0) {
+        const definition = termDefinitions[id];
+        const button = document.createElement(&quot;button&quot;);
+        button.type = &quot;button&quot;;
+        button.className = `dse-term-token ${kind}`;
+        button.dataset.termId = id;
+        button.setAttribute(&quot;aria-controls&quot;, &quot;dse-term-detail&quot;);
+        button.setAttribute(&quot;aria-expanded&quot;, &quot;false&quot;);
+        button.setAttribute(&quot;aria-label&quot;, `解释 ${definition.name}`);
+        button.textContent = definition.name;
+        if (kind === &quot;branch&quot;) {
+          button.classList.add(&quot;is-drifting&quot;);
+          button.style.setProperty(&quot;--term-delay&quot;, `${index * 80}ms`);
+        }
+        button.addEventListener(&quot;pointerenter&quot;, () =&gt; openTerm(id));
+        button.addEventListener(&quot;focus&quot;, () =&gt; openTerm(id));
+        button.addEventListener(&quot;click&quot;, () =&gt; {
+          if (!termDetail.hidden &amp;&amp; activeTermId === id &amp;&amp; termPinned) {
+            closeTerm();
+            return;
+          }
+          openTerm(id, true);
+        });
+        return button;
+      }
+
+      function renderBranchGroup(index, animate = true) {
+        branchGroupIndex = (index + branchTermGroups.length) % branchTermGroups.length;
+        const group = branchTermGroups[branchGroupIndex];
+        const buttons = group.ids.map((id, itemIndex) =&gt; {
+          const button = createTermButton(id, &quot;branch&quot;, itemIndex);
+          if (!animate) {
+            button.classList.remove(&quot;is-drifting&quot;);
+            button.style.removeProperty(&quot;--term-delay&quot;);
+          }
+          return button;
+        });
+        termRotatingRow.replaceChildren(...buttons);
+        termRotatingRow.setAttribute(&quot;aria-label&quot;, `轮换分支术语：${group.label}`);
+        termCycleLabel.textContent = `${String(branchGroupIndex + 1).padStart(2, &quot;0&quot;)} / ${String(branchTermGroups.length).padStart(2, &quot;0&quot;)} · ${group.label}`;
+        syncTermButtons();
+      }
+
+      function advanceBranchGroup(manual = false) {
+        if (!termDetail.hidden) closeTerm(false);
+        pauseTermRotation();
+        renderBranchGroup(branchGroupIndex + 1, !reduceMotionQuery.matches);
+        if (!manual &amp;&amp; reduceMotionQuery.matches) return;
+        window.clearTimeout(termResumeTimer);
+        termResumeTimer = window.setTimeout(() =&gt; {
+          if (!termDetail.hidden || document.hidden || demoSection.hidden) return;
+          termRotationPaused = false;
+        }, manual ? 5000 : 1400);
+      }
+
+      function initTermLab() {
+        termCoreRow.replaceChildren(
+          ...coreTermIds.map(id =&gt; createTermButton(id, &quot;core&quot;))
+        );
+        renderBranchGroup(0, !reduceMotionQuery.matches);
+        if (reduceMotionQuery.matches) {
+          termRotationPaused = true;
+          termRotationHint.textContent = &quot;已遵循系统“减少动态效果”设置：自动轮换关闭，可用“下一组”手动切换。&quot;;
+          return;
+        }
+        startTermRotationTimer();
+      }
+
+      function startTermRotationTimer() {
+        if (reduceMotionQuery.matches) return;
+        termRotationPaused = false;
+        if (termRotationTimer) return;
+        termRotationTimer = window.setInterval(() =&gt; {
+          if (document.hidden || demoSection.hidden || termRotationPaused || !termDetail.hidden) return;
+          renderBranchGroup(branchGroupIndex + 1, true);
+        }, 9000);
+      }
+
+      termNextButton.addEventListener(&quot;click&quot;, () =&gt; advanceBranchGroup(true));
+      termCloseButton.addEventListener(&quot;click&quot;, () =&gt; closeTerm());
+      [termRotatingRow, termCoreRow].forEach(row =&gt; {
+        row.addEventListener(&quot;focusin&quot;, pauseTermRotation);
+        row.addEventListener(&quot;focusout&quot;, event =&gt; {
+          if (!row.contains(event.relatedTarget) &amp;&amp; termDetail.hidden) {
+            termResumeTimer = window.setTimeout(() =&gt; {
+              if (!termDetail.hidden || document.hidden || demoSection.hidden) return;
+              termRotationPaused = false;
+            }, 1400);
+          }
+        });
+      });
+      termDetail.addEventListener(&quot;pointerenter&quot;, pauseTermRotation);
+      root.addEventListener(&quot;keydown&quot;, event =&gt; {
+        if (event.key !== &quot;Escape&quot; || termDetail.hidden) return;
+        closeTerm();
+      });
+      reduceMotionQuery.addEventListener?.(&quot;change&quot;, event =&gt; {
+        if (event.matches) {
+          pauseTermRotation();
+          window.clearInterval(termRotationTimer);
+          termRotationTimer = 0;
+          termRotationHint.textContent = &quot;已遵循系统“减少动态效果”设置：自动轮换关闭，可用“下一组”手动切换。&quot;;
+        } else {
+          termRotationHint.textContent = &quot;每 9 秒漂入下一组；悬停、聚焦或打开解释时暂停。&quot;;
+          if (!termDetail.hidden) return;
+          startTermRotationTimer();
+        }
+      });
 
       const demoScenarios = {
         cpu: {
@@ -4670,7 +5369,10 @@ html&gt;body{padding:0}&lt;/style&gt;
         archiveSection.hidden = filter !== &quot;core&quot; &amp;&amp; filter !== &quot;prototype&quot;;
         if (demoMode) {
           hideInspector(false);
+          if (termDetail.hidden) startTermRotationTimer();
         } else {
+          if (!termDetail.hidden) closeTerm(false);
+          pauseTermRotation();
           selectMilestone(lastMilestoneByTrack[filter]);
         }
         if (resetScroll) {
@@ -4685,6 +5387,7 @@ html&gt;body{padding:0}&lt;/style&gt;
       mergeButtons.forEach(button =&gt; {
         button.addEventListener(&quot;click&quot;, () =&gt; selectMilestone(button.dataset.mergeId, true));
       });
+      initTermLab();
       applyFilter(&quot;core&quot;);
       selectVersion(&quot;wb-1-4-4&quot;);
     })();
