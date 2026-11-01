@@ -3128,6 +3128,10 @@ html&gt;body{padding:0}&lt;/style&gt;
       margin-top: 10px;
     }
 
+    #dse-root #dse-triage-case-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     #dse-root .dse-scenario-meta {
       display: flex;
       align-items: center;
@@ -3541,6 +3545,58 @@ html&gt;body{padding:0}&lt;/style&gt;
       margin-top: 10px;
     }
 
+    #dse-root .dse-compare-panel {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-self: stretch;
+      overflow: hidden;
+    }
+
+    #dse-root .dse-compare-panel &gt; * {
+      position: relative;
+      z-index: 1;
+    }
+
+    #dse-root .dse-compare-panel::before {
+      content: &quot;&quot;;
+      position: absolute;
+      inset: 88px 18px 104px;
+      pointer-events: none;
+      opacity: .16;
+      background-image:
+        linear-gradient(rgba(73, 230, 255, .25) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(73, 230, 255, .25) 1px, transparent 1px);
+      background-size: 22px 22px;
+      -webkit-mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
+      mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
+    }
+
+    #dse-root .dse-compare-spine {
+      flex: 1;
+      min-height: 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: var(--dse-muted);
+      font-size: 7px;
+      letter-spacing: .12em;
+    }
+
+    #dse-root .dse-compare-spine span {
+      width: 1px;
+      height: 24px;
+      background: linear-gradient(transparent, rgba(73, 230, 255, .62), transparent);
+    }
+
+    #dse-root .dse-compare-spine b {
+      color: var(--dse-cyan);
+      font-size: 7px;
+      font-weight: 400;
+    }
+
     #dse-root .dse-compare-card {
       min-width: 0;
       padding: 9px;
@@ -3569,6 +3625,77 @@ html&gt;body{padding:0}&lt;/style&gt;
       font-size: 8px;
       line-height: 1.6;
       white-space: pre-line;
+    }
+
+    #dse-root .dse-compare-audit {
+      margin-top: auto;
+      padding-top: 9px;
+      border-top: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-compare-audit-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    #dse-root .dse-compare-audit-kicker {
+      margin: 0;
+      color: var(--dse-cyan);
+      font-size: 8px;
+      letter-spacing: .1em;
+    }
+
+    #dse-root .dse-compare-audit-score {
+      color: var(--dse-text);
+      font-size: 8px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #dse-root .dse-compare-audit-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(82px, 1fr));
+      gap: 5px;
+      margin-top: 7px;
+    }
+
+    #dse-root .dse-compare-audit-item {
+      min-width: 0;
+      padding: 6px;
+      color: var(--dse-muted);
+      background: rgba(3, 11, 20, .7);
+      border: 1px solid #19394f;
+      font-size: 8px;
+      line-height: 1.4;
+    }
+
+    #dse-root .dse-compare-audit-item::before {
+      content: &quot;&quot;;
+      display: block;
+      width: 6px;
+      height: 6px;
+      margin-bottom: 5px;
+      background: #31576f;
+    }
+
+    #dse-root .dse-compare-audit-item.is-present {
+      color: var(--dse-text);
+      border-color: rgba(156, 255, 87, .38);
+      background: rgba(15, 36, 27, .7);
+    }
+
+    #dse-root .dse-compare-audit-item.is-present::before {
+      background: var(--dse-lime);
+      box-shadow: 0 0 8px rgba(156, 255, 87, .5);
+    }
+
+    #dse-root .dse-compare-audit-note {
+      margin: 7px 0 0;
+      color: var(--dse-muted);
+      font-size: 8px;
+      line-height: 1.5;
     }
 
     #dse-root .dse-demo-form {
@@ -3787,6 +3914,10 @@ html&gt;body{padding:0}&lt;/style&gt;
       }
 
       #dse-root .dse-gate-checklist {
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root #dse-triage-case-grid {
         grid-template-columns: 1fr;
       }
 
@@ -4027,9 +4158,9 @@ html&gt;body{padding:0}&lt;/style&gt;
     &lt;section class=&quot;dse-demo&quot; id=&quot;dse-demo&quot; aria-labelledby=&quot;dse-demo-title&quot; hidden&gt;
       &lt;header class=&quot;dse-demo-head&quot;&gt;
         &lt;div&gt;
-          &lt;p class=&quot;dse-demo-kicker&quot;&gt;INTERACTIVE DEMO / SAFETY AND EVIDENCE&lt;/p&gt;
+          &lt;p class=&quot;dse-demo-kicker&quot;&gt;SKILL WORKFLOW &amp;amp; STATE MACHINE / SAFETY AND EVIDENCE&lt;/p&gt;
           &lt;h2 id=&quot;dse-demo-title&quot;&gt;交互演示&lt;/h2&gt;
-          &lt;p class=&quot;dse-demo-summary&quot;&gt;用示例请求体验调校状态机、Triage 分流、身份与基线失效、回答差异和实验闭环。所有结果都是界面演示，不会读取硬件、生成真实候选值或修改设置。&lt;/p&gt;
+          &lt;p class=&quot;dse-demo-summary&quot;&gt;Skill 工作流与状态机的可视化演示：体验调校门禁、Triage 分流、身份与基线失效、回答差异和实验闭环。所有结果都是界面演示，不会读取硬件、生成真实候选值或修改设置。&lt;/p&gt;
         &lt;/div&gt;
         &lt;span class=&quot;dse-demo-badge&quot;&gt;SIMULATION ONLY · NO HARDWARE WRITE&lt;/span&gt;
       &lt;/header&gt;
@@ -4111,7 +4242,7 @@ html&gt;body{padding:0}&lt;/style&gt;
           &lt;div class=&quot;dse-scenario-grid&quot; id=&quot;dse-scenario-grid&quot; aria-label=&quot;示例请求&quot;&gt;&lt;/div&gt;
           &lt;div class=&quot;dse-scenario-meta&quot;&gt;
             &lt;button type=&quot;button&quot; class=&quot;dse-demo-action&quot; data-scenario-rotate&gt;换一组场景&lt;/button&gt;
-            &lt;span&gt;共 9 个场景 · 每次显示 3 个 · 12 秒自动轮换&lt;/span&gt;
+            &lt;span&gt;共 13 个场景 · 每次显示 3 个 · 12 秒自动轮换&lt;/span&gt;
           &lt;/div&gt;
 
           &lt;blockquote class=&quot;dse-gate-request&quot; id=&quot;dse-gate-request&quot;&gt;&lt;/blockquote&gt;
@@ -4160,7 +4291,7 @@ html&gt;body{padding:0}&lt;/style&gt;
           &lt;/ul&gt;
         &lt;/article&gt;
 
-        &lt;article class=&quot;dse-demo-panel&quot; aria-labelledby=&quot;dse-compare-demo-title&quot;&gt;
+        &lt;article class=&quot;dse-demo-panel dse-compare-panel&quot; aria-labelledby=&quot;dse-compare-demo-title&quot;&gt;
           &lt;div class=&quot;dse-demo-panel-head&quot;&gt;
             &lt;div&gt;
               &lt;h3 id=&quot;dse-compare-demo-title&quot;&gt;Before / After&lt;/h3&gt;
@@ -4178,6 +4309,19 @@ html&gt;body{padding:0}&lt;/style&gt;
               &lt;p class=&quot;dse-compare-copy&quot; id=&quot;dse-compare-safe&quot;&gt;&lt;/p&gt;
             &lt;/div&gt;
           &lt;/div&gt;
+          &lt;div class=&quot;dse-compare-spine&quot; aria-hidden=&quot;true&quot;&gt;
+            &lt;span&gt;&lt;/span&gt;
+            &lt;b&gt;NO EVIDENCE → NO CANDIDATE&lt;/b&gt;
+            &lt;span&gt;&lt;/span&gt;
+          &lt;/div&gt;
+          &lt;section class=&quot;dse-compare-audit&quot; aria-label=&quot;证据保留状态&quot; aria-live=&quot;polite&quot;&gt;
+            &lt;div class=&quot;dse-compare-audit-head&quot;&gt;
+              &lt;p class=&quot;dse-compare-audit-kicker&quot;&gt;EVIDENCE HELD / 证据保留&lt;/p&gt;
+              &lt;span class=&quot;dse-compare-audit-score&quot; id=&quot;dse-compare-audit-score&quot;&gt;0 / 5&lt;/span&gt;
+            &lt;/div&gt;
+            &lt;div class=&quot;dse-compare-audit-list&quot; id=&quot;dse-compare-audit-list&quot;&gt;&lt;/div&gt;
+            &lt;p class=&quot;dse-compare-audit-note&quot; id=&quot;dse-compare-audit-note&quot;&gt;直接答案压缩了条件；门禁答案保留缺失项和安全下一步。&lt;/p&gt;
+          &lt;/section&gt;
         &lt;/article&gt;
 
         &lt;article class=&quot;dse-demo-panel wide dse-experiment-panel&quot; aria-labelledby=&quot;dse-experiment-demo-title&quot;&gt;
@@ -4263,7 +4407,7 @@ html&gt;body{padding:0}&lt;/style&gt;
           &lt;div class=&quot;dse-demo-panel-head&quot;&gt;
             &lt;div&gt;
               &lt;h3 id=&quot;dse-triage-machine-title&quot;&gt;Triage 状态机&lt;/h3&gt;
-              &lt;p class=&quot;dse-demo-panel-sub&quot;&gt;症状先分层；物理危险直接终止，其余情况按证据进入最小可逆检查。&lt;/p&gt;
+              &lt;p class=&quot;dse-demo-panel-sub&quot;&gt;8 个示例：症状先分层；物理危险直接终止，其余情况按证据进入最小可逆检查。&lt;/p&gt;
             &lt;/div&gt;
             &lt;span class=&quot;dse-demo-step&quot;&gt;TRIAGE / 05&lt;/span&gt;
           &lt;/div&gt;
@@ -4399,6 +4543,9 @@ html&gt;body{padding:0}&lt;/style&gt;
       const gateRules = document.getElementById(&quot;dse-gate-rules&quot;);
       const compareDirect = document.getElementById(&quot;dse-compare-direct&quot;);
       const compareSafe = document.getElementById(&quot;dse-compare-safe&quot;);
+      const compareAuditList = document.getElementById(&quot;dse-compare-audit-list&quot;);
+      const compareAuditScore = document.getElementById(&quot;dse-compare-audit-score&quot;);
+      const compareAuditNote = document.getElementById(&quot;dse-compare-audit-note&quot;);
       const experimentOutput = document.getElementById(&quot;dse-experiment-output&quot;);
       const expStatus = document.getElementById(&quot;dse-exp-status&quot;);
       const expTitle = document.getElementById(&quot;dse-exp-title&quot;);
@@ -4925,6 +5072,14 @@ html&gt;body{padding:0}&lt;/style&gt;
         { id: &quot;historical&quot;, code: &quot;B3&quot;, name: &quot;仅保留历史&quot; }
       ];
 
+      const compareEvidenceItems = [
+        { id: &quot;platform&quot;, label: &quot;设备身份&quot; },
+        { id: &quot;baseline&quot;, label: &quot;当前基线&quot; },
+        { id: &quot;recovery&quot;, label: &quot;恢复路径&quot; },
+        { id: &quot;workload&quot;, label: &quot;固定负载&quot; },
+        { id: &quot;abort&quot;, label: &quot;停止条件&quot; }
+      ];
+
       const triageCases = {
         hazard: {
           request: &quot;设备有焦味或打火，但我想先跑一次压力测试确认。&quot;,
@@ -5011,6 +5166,110 @@ html&gt;body{padding:0}&lt;/style&gt;
             handoff: {
               title: &quot;形成购买或维修边界&quot;,
               body: &quot;只有容量、续航、温度或供电证据一致时再讨论更换；鼓包、焦味或漏液直接进入物理安全停止。&quot;,
+              tone: &quot;ready&quot;
+            }
+          }
+        },
+        driverReset: {
+          request: &quot;游戏偶尔闪退，驱动会重置，但没有黑屏或重启。&quot;,
+          danger: false,
+          stages: {
+            scope: {
+              title: &quot;先区分闪退与驱动重置&quot;,
+              body: &quot;确认是游戏退出、显示驱动重置、系统崩溃还是整机重启；不同现象对应的证据层不同。&quot;,
+              tone: &quot;blocked&quot;
+            },
+            evidence: {
+              title: &quot;保存驱动与事件证据&quot;,
+              body: &quot;记录游戏、驱动版本和事件时间，查找显示驱动重置、WHEA、BugCheck 或应用崩溃记录。&quot;,
+              tone: &quot;blocked&quot;
+            },
+            action: {
+              title: &quot;只回退一个变化&quot;,
+              body: &quot;优先回退最近一次驱动、游戏设置或叠加层变化；保持同一游戏场景和恢复点。&quot;,
+              tone: &quot;ready&quot;
+            },
+            handoff: {
+              title: &quot;决定继续排障还是调校&quot;,
+              body: &quot;重复出现驱动重置或硬件错误时不允许用超频掩盖；只有稳定基线恢复后才回到性能实验。&quot;,
+              tone: &quot;ready&quot;
+            }
+          }
+        },
+        reboot: {
+          request: &quot;高负载运行一段时间会自动重启，平时又完全正常。&quot;,
+          danger: false,
+          stages: {
+            scope: {
+              title: &quot;先排除物理危险&quot;,
+              body: &quot;确认没有焦味、打火、液体或接头过热；高负载断电可能来自供电、温度、内存或固件。&quot;,
+              tone: &quot;blocked&quot;
+            },
+            evidence: {
+              title: &quot;记录断电前状态&quot;,
+              body: &quot;核对触发时间、温度、功耗、PSU/适配器、BIOS 变化和 Kernel-Power 41 等事件，不把单个事件码当诊断。&quot;,
+              tone: &quot;blocked&quot;
+            },
+            action: {
+              title: &quot;降低变量而不是提高上限&quot;,
+              body: &quot;先恢复默认配置并减少一个非必要负载或外设；不要用更高功耗墙测试是否“能撑住”。&quot;,
+              tone: &quot;ready&quot;
+            },
+            handoff: {
+              title: &quot;确定供电或稳定性路径&quot;,
+              body: &quot;重复断电且没有软件证据时转供电、温度与硬件检查；未解释前停止任何调校候选。&quot;,
+              tone: &quot;ready&quot;
+            }
+          }
+        },
+        display: {
+          request: &quot;外接显示器偶尔黑屏或闪一下，但机器还在运行。&quot;,
+          danger: false,
+          stages: {
+            scope: {
+              title: &quot;先分清显示链路层级&quot;,
+              body: &quot;确认主机是否继续运行，并区分显示器、线缆、接口、扩展坞、驱动和 GPU 显示引擎。&quot;,
+              tone: &quot;blocked&quot;
+            },
+            evidence: {
+              title: &quot;固定分辨率与刷新条件&quot;,
+              body: &quot;记录分辨率、刷新率、HDR、DSC、线材规格和发生时间；保留显示器自检信息。&quot;,
+              tone: &quot;blocked&quot;
+            },
+            action: {
+              title: &quot;一次替换一个环节&quot;,
+              body: &quot;先换线或换端口，再比较直连与扩展坞；不要同时改驱动、刷新率和 HDR。&quot;,
+              tone: &quot;ready&quot;
+            },
+            handoff: {
+              title: &quot;判断是显示还是 GPU&quot;,
+              body: &quot;另一台设备同链路复现偏显示端；只有本机其他输出也异常时才继续 GPU/驱动排查。&quot;,
+              tone: &quot;ready&quot;
+            }
+          }
+        },
+        peripheral: {
+          request: &quot;鼠标键盘偶尔一起断连，过几秒又恢复。&quot;,
+          danger: false,
+          stages: {
+            scope: {
+              title: &quot;先看断连范围&quot;,
+              body: &quot;确认是有线、无线还是同一扩展坞，多个设备同时掉线更偏向集线器、供电或控制器。&quot;,
+              tone: &quot;blocked&quot;
+            },
+            evidence: {
+              title: &quot;记录端口与设备变化&quot;,
+              body: &quot;保留端口类型、集线器、接收器位置、驱动和 USB 事件；记录是否伴随画面或磁盘异常。&quot;,
+              tone: &quot;blocked&quot;
+            },
+            action: {
+              title: &quot;直连并替换一个变量&quot;,
+              body: &quot;把设备直连主机、换端口或移除一个集线器，一次只改变一个连接条件。&quot;,
+              tone: &quot;ready&quot;
+            },
+            handoff: {
+              title: &quot;判断设备还是平台&quot;,
+              body: &quot;单设备复现偏外设或线材；多个 USB 同时异常则继续芯片组、驱动、供电或主板路径。&quot;,
               tone: &quot;ready&quot;
             }
           }
@@ -5544,6 +5803,46 @@ html&gt;body{padding:0}&lt;/style&gt;
           direct: &quot;先加 1000MHz 显存，出错再回到默认。&quot;,
           safe: &quot;先验证核心路线和热余量；显存只在明确有用且传感器可验证时单独小步测试。&quot;,
           canCheck: true
+        },
+        memory: {
+          request: &quot;DDR5 7200 四条内存一开 XMP/EXPO 就偶尔蓝屏，能不能继续提频？&quot;,
+          tone: &quot;blocked&quot;,
+          title: &quot;MEMORY PROFILE / 稳定性尚未建立&quot;,
+          copy: &quot;内存厂商档位不是四槽平台的稳定性保证；容量、rank、内存控制器、温度和 BIOS 版本都会共同影响结果。&quot;,
+          missing: [&quot;当前稳定内存档位&quot;, &quot;内存测试结果&quot;, &quot;内存与 SoC 温度&quot;, &quot;恢复配置&quot;],
+          direct: &quot;继续提高频率和电压，能进系统就当作稳定。&quot;,
+          safe: &quot;先回到已知稳定档位并保存恢复点，再用固定内存测试核对错误、温度和长时间稳定性。&quot;,
+          canCheck: true
+        },
+        fan: {
+          request: &quot;显卡热点偏高而且风扇吵，想直接做一条更安静的曲线。&quot;,
+          tone: &quot;blocked&quot;,
+          title: &quot;THERMAL / 缺少热点与噪音基线&quot;,
+          copy: &quot;风扇曲线会同时改变温度、噪音和 Boost 持续性；没有同负载基线时无法判断安静化是否以性能或稳定性为代价。&quot;,
+          missing: [&quot;Hot Spot 基线&quot;, &quot;固定负载&quot;, &quot;噪音目标&quot;, &quot;恢复配置&quot;],
+          direct: &quot;直接把风扇上限压低，出现降频再说。&quot;,
+          safe: &quot;先记录温度、热点、噪音、有效频率和性能，再一次只调整一个风扇区间并保留回退。&quot;,
+          canCheck: true
+        },
+        desktopPower: {
+          request: &quot;桌面 RTX 4080 电源和温度都稳定，想把功耗墙拉满跑分。&quot;,
+          tone: &quot;blocked&quot;,
+          title: &quot;POWER HEADROOM / 可设计实验但不自动放行&quot;,
+          copy: &quot;供电路径、温度基线、固定负载和恢复位置仍需逐项确认；型号和“稳定”不能代替当前配置证据。&quot;,
+          missing: [&quot;PSU 与连接方式&quot;, &quot;当前功耗/温度基线&quot;, &quot;固定跑分&quot;, &quot;恢复路径&quot;],
+          direct: &quot;功耗墙拉满，再同时上核心和显存偏移。&quot;,
+          safe: &quot;先确认公开可控的功耗上限和供电路径，再让功耗墙或核心偏移单独成为本轮变量。&quot;,
+          canCheck: true
+        },
+        multiGpu: {
+          request: &quot;笔记本有独显和核显，脚本直接按第一张显卡给我超频值。&quot;,
+          tone: &quot;blocked&quot;,
+          title: &quot;TARGET / 多适配器与目标不明确&quot;,
+          copy: &quot;第一张适配器不一定是承载当前负载的消费级独显；目标组件、活动适配器和产品类别必须先对齐。&quot;,
+          missing: [&quot;活动适配器&quot;, &quot;消费级类别&quot;, &quot;目标组件&quot;, &quot;恢复配置&quot;],
+          direct: &quot;按适配器列表的第一个名称生成参数。&quot;,
+          safe: &quot;列出全部适配器，确认哪个处理当前工作负载，再判断是否属于支持的单卡消费级路线。&quot;,
+          canCheck: false
         }
       };
       let activeScenario = &quot;cpu&quot;;
@@ -5908,6 +6207,33 @@ html&gt;body{padding:0}&lt;/style&gt;
         setGateMissing(missing);
       }
 
+      function renderCompareAudit(isHazard = false) {
+        const inputMap = Object.fromEntries(
+          [...root.querySelectorAll(&quot;[data-gate-check]&quot;)].map(input =&gt; [input.dataset.gateCheck, input.checked])
+        );
+        let retained = 0;
+        compareAuditList.replaceChildren();
+        compareEvidenceItems.forEach(item =&gt; {
+          const present = Boolean(inputMap[item.id]);
+          if (present) retained += 1;
+          const chip = document.createElement(&quot;span&quot;);
+          chip.className = `dse-compare-audit-item${present ? &quot; is-present&quot; : &quot;&quot;}`;
+          chip.textContent = item.label;
+          chip.setAttribute(&quot;aria-label&quot;, `${item.label}：${present ? &quot;已保留&quot; : &quot;未保留&quot;}`);
+          compareAuditList.appendChild(chip);
+        });
+        compareAuditScore.textContent = `${retained} / ${compareEvidenceItems.length}`;
+        if (isHazard) {
+          compareAuditNote.textContent = &quot;物理危险场景不继续收集性能证据；先停止使用并处理安全风险。&quot;;
+        } else if (retained === compareEvidenceItems.length) {
+          compareAuditNote.textContent = &quot;五项证据都保留下来；这只解锁实验设计，不代表候选值安全或稳定。&quot;;
+        } else if (retained === 0) {
+          compareAuditNote.textContent = &quot;直接答案省略了全部中间证据；门禁答案会先显示缺口和低风险下一步。&quot;;
+        } else {
+          compareAuditNote.textContent = `已保留 ${retained}/5；剩余缺口仍会阻止候选值，而不是让回答显得更“确定”。`;
+        }
+      }
+
       function renderScenario(id) {
         const scenario = demoScenarios[id];
         if (!scenario) return;
@@ -5929,6 +6255,7 @@ html&gt;body{padding:0}&lt;/style&gt;
         checkButton.textContent = &quot;展开五项检查&quot;;
         tuneGateReady = false;
         enterExperimentButton.disabled = true;
+        renderCompareAudit(scenario.tone === &quot;stop&quot;);
         setTuneState(&quot;classify&quot;, {
           danger: scenario.tone === &quot;stop&quot;,
           label: scenario.tone === &quot;stop&quot; ? &quot;STATE / HARD-STOP&quot; : &quot;STATE / CLASSIFY&quot;,
@@ -6077,6 +6404,7 @@ html&gt;body{padding:0}&lt;/style&gt;
             });
             setGateOutput(&quot;blocked&quot;, `TUNING GATE / ${done} of 5`, `已完成 ${done}/5。勾选表示已经拿到对应证据，而不是“我觉得知道”；其余项目完成前不显示候选。`);
           }
+          renderCompareAudit();
         });
       });
 
