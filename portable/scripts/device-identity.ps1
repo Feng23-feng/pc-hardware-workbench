@@ -100,11 +100,22 @@ function Test-GenericDisplayModel {
 
 function Get-RedactedInventoryData {
     param(
+        [object[]]$GPU,
         [object[]]$MemoryModules,
         [object[]]$PhysicalDisks,
         [object[]]$Volumes,
         [object[]]$Monitors,
         [object]$Battery
+    )
+
+    $redactedGpu = @(
+        foreach ($gpuItem in @($GPU)) {
+            $copy = $gpuItem | Select-Object *
+            if ($copy.PSObject.Properties.Name -contains "PnpDeviceId") {
+                $copy.PnpDeviceId = Get-RedactedTextValue -Value $copy.PnpDeviceId
+            }
+            $copy
+        }
     )
 
     $redactedMemory = @(
@@ -188,6 +199,7 @@ function Get-RedactedInventoryData {
     }
 
     return [pscustomobject]@{
+        GPU = @($redactedGpu)
         MemoryModules = @($redactedMemory)
         PhysicalDisks = @($redactedDisks)
         Volumes = @($redactedVolumes)

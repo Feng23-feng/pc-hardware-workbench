@@ -218,8 +218,8 @@ try {
     if ($runStandard) {
         $standardJsonText = Invoke-Collector -CollectorArguments @("-Format", "Json")
         $standard = $standardJsonText | ConvertFrom-Json
-        Assert-True ($standard.SchemaVersion -eq 3) "The standard JSON snapshot has an unexpected schema version."
-        Assert-True ($standard.CollectorVersion -eq "1.0.1-r18") "The standard JSON snapshot reports an unexpected collector version."
+        Assert-True ($standard.SchemaVersion -eq 4) "The standard JSON snapshot has an unexpected schema version."
+        Assert-True ($standard.CollectorVersion -eq "1.0.1-r23") "The standard JSON snapshot reports an unexpected collector version."
         Assert-True ($standard.PrivacyMode -eq "Standard") "Standard collection did not report Standard privacy mode."
         Assert-True ($null -ne $standard.IdentityQuality) "The standard JSON snapshot omits IdentityQuality."
         Assert-True ($null -ne $standard.CollectionContext) "The standard JSON snapshot omits CollectionContext."
@@ -233,6 +233,15 @@ try {
         Assert-True ($standard.OperatingSystem.Caption -match "Windows 1[01]") "The standard JSON snapshot has no credible Windows caption."
         Assert-True ($null -ne $standard.PSObject.Properties["CPU"]) "The standard JSON snapshot omits the CPU field."
         Assert-True ($null -ne $standard.PSObject.Properties["GPU"]) "The standard JSON snapshot omits the GPU field."
+        Assert-True ($null -ne $standard.PSObject.Properties["MemorySlotSummary"]) "The standard JSON snapshot omits the memory-slot summary."
+        Assert-True ($standard.MemorySlotSummary.DataQuality -in @("reported", "partial", "unreliable", "unavailable")) "The memory-slot summary has an unsupported data-quality state."
+        Assert-True ($standard.CollectionStatus.MemorySlots -in @("available", "partial", "unavailable in current environment")) "The standard JSON snapshot has an invalid memory-slot status."
+        foreach ($gpuItem in @($standard.GPU)) {
+            foreach ($gpuProperty in @("Present", "Status", "ConfigManagerErrorCode", "AdapterKind", "StateSource")) {
+                Assert-True ($null -ne $gpuItem.PSObject.Properties[$gpuProperty]) "A standard GPU item omits $gpuProperty."
+            }
+            Assert-True ($gpuItem.AdapterKind -in @("physical", "virtual", "unknown")) "A standard GPU item has an invalid adapter kind."
+        }
         Assert-True ($null -ne $standard.PSObject.Properties["PhysicalDisks"]) "The standard JSON snapshot omits physical disks."
         Assert-True ($null -ne $standard.PSObject.Properties["Volumes"]) "The standard JSON snapshot omits volumes."
 
@@ -253,8 +262,8 @@ try {
     if ($runRedacted) {
         $redactedJsonText = Invoke-Collector -CollectorArguments @("-Format", "Json", "-RedactIdentifiers")
         $redacted = $redactedJsonText | ConvertFrom-Json
-        Assert-True ($redacted.SchemaVersion -eq 3) "The redacted JSON snapshot has an unexpected schema version."
-        Assert-True ($redacted.CollectorVersion -eq "1.0.1-r18") "The redacted JSON snapshot reports an unexpected collector version."
+        Assert-True ($redacted.SchemaVersion -eq 4) "The redacted JSON snapshot has an unexpected schema version."
+        Assert-True ($redacted.CollectorVersion -eq "1.0.1-r23") "The redacted JSON snapshot reports an unexpected collector version."
         Assert-True ($redacted.PrivacyMode -eq "Redacted identifiers") "Redacted collection did not report Redacted identifiers."
         Assert-True ($redacted.IdentityQuality.Status -eq "redacted") "Redacted collection did not mark IdentityQuality as redacted."
         Assert-True ($null -ne $redacted.CollectionContext) "The redacted JSON snapshot omits CollectionContext."
@@ -281,6 +290,7 @@ try {
                 "CPU",
                 "GPU",
                 "MemoryModules",
+                "MemorySlotSummary",
                 "PhysicalDisks",
                 "Volumes",
                 "Monitors",

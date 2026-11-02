@@ -155,25 +155,6 @@ function Get-RegistryData {
     }
 }
 
-function Format-Capacity {
-    param([Nullable[double]]$Bytes)
-
-    if ($null -eq $Bytes -or $Bytes -le 0) {
-        return $null
-    }
-
-    $units = @("B", "KB", "MB", "GB", "TB")
-    $value = [double]$Bytes
-    $index = 0
-
-    while ($value -ge 1024 -and $index -lt ($units.Count - 1)) {
-        $value /= 1024
-        $index++
-    }
-
-    return "{0:N2} {1}" -f $value, $units[$index]
-}
-
 function Resolve-WindowsOperatingSystemCaption {
     param(
         [string]$Caption,
@@ -296,6 +277,28 @@ function Get-SmbiosMemoryFallback {
             -Code "smbios-memory-failed" `
             -Text "SMBIOS memory fallback failed: $($_.Exception.Message)"
         @()
+    }
+}
+
+function Get-SmbiosMemorySlotCount {
+    try {
+
+        $count = [CodexSmbiosMemoryReader]::ReadMemoryDeviceCount()
+        if ($count -gt 0 -and $count -le 256) {
+            return $count
+        }
+        if ($count -gt 256) {
+            Add-CollectionWarning `
+                -Code "smbios-memory-layout-invalid" `
+                -Text "SMBIOS type 16 reported an implausible memory-device count and was ignored."
+        }
+        return $null
+    }
+    catch {
+        Add-CollectionWarning `
+            -Code "smbios-memory-layout-failed" `
+            -Text "SMBIOS memory-layout fallback failed: $($_.Exception.Message)"
+        return $null
     }
 }
 
@@ -809,10 +812,41 @@ $gpu = @(
             CurrentHorizontalResolution = $_.CurrentHorizontalResolution
             CurrentVerticalResolution = $_.CurrentVerticalResolution
             CurrentRefreshRate = $_.CurrentRefreshRate
+            PnpDeviceId = $_.PNPDeviceID
+            Present = $null
+            Status = $_.Status
+            ConfigManagerErrorCode = $_.ConfigManagerErrorCode
+            Availability = $_.Availability
+            AdapterKind = Get-GpuAdapterKind -PnpDeviceId $_.PNPDeviceID
+            StateSource = "CIM/WMI video controller"
             Source = "CIM/WMI"
         }
     }
 )
+
+$displayPnpEntities = @(
+    Get-CimData -ClassName Win32_PnPEntity -Filter "PNPClass = 'Display'"
+)
+foreach ($item in $gpu) {
+    if ([string]::IsNullOrWhiteSpace([string]$item.PnpDeviceId)) {
+        continue
+    }
+    $matchingPnpEntity = $displayPnpEntities |
+        Where-Object { $_.PNPDeviceID -ieq $item.PnpDeviceId } |
+        Select-Object -First 1
+    if ($null -eq $matchingPnpEntity) {
+        continue
+    }
+    $item.Present = $true
+    if ($null -ne $matchingPnpEntity.Status) {
+        $item.Status = $matchingPnpEntity.Status
+    }
+    if ($null -ne $matchingPnpEntity.ConfigManagerErrorCode) {
+        $item.ConfigManagerErrorCode = $matchingPnpEntity.ConfigManagerErrorCode
+    }
+    $item.AdapterKind = Get-GpuAdapterKind -PnpDeviceId $matchingPnpEntity.PNPDeviceID
+    $item.StateSource = "CIM/WMI video controller + display PnP entity"
+}
 
 $hasNvidiaGpu = @($gpu | Where-Object { $_.Name -match "NVIDIA" }).Count -gt 0
 if (($gpu.Count -eq 0 -or $hasNvidiaGpu) -and (Get-Command nvidia-smi -ErrorAction SilentlyContinue)) {
@@ -845,6 +879,13 @@ if (($gpu.Count -eq 0 -or $hasNvidiaGpu) -and (Get-Command nvidia-smi -ErrorActi
                         CurrentHorizontalResolution = $null
                         CurrentVerticalResolution = $null
                         CurrentRefreshRate = $null
+                        PnpDeviceId = $null
+                        Present = $null
+                        Status = $null
+                        ConfigManagerErrorCode = $null
+                        Availability = $null
+                        AdapterKind = "unknown"
+                        StateSource = "nvidia-smi fallback; PnP state unavailable"
                         Source = "nvidia-smi fallback"
                     }
                 }
@@ -864,38 +905,22 @@ if (($gpu.Count -eq 0 -or $hasNvidiaGpu) -and (Get-Command nvidia-smi -ErrorActi
             }
         }
 
+        $nvidiaTelemetry = @()
         try {
-            $telemetryRows = & nvidia-smi --query-gpu=name,temperature.gpu,power.draw,clocks.gr,utilization.gpu,fan.speed,power.limit --format=csv,noheader,nounits 2>$null
+            $telemetryRows = & nvidia-smi --query-gpu=name,temperature.gpu,power.draw,clocks.gr,utilization.gpu,fan.speed --format=csv,noheader,nounits 2>$null
             $sampledAt = (Get-Date).ToString("o")
-            $convertNvidiaNumber = {
-                param([string]$Value)
-                if ([string]::IsNullOrWhiteSpace($Value) -or $Value -match '(?i)N/?A') {
-                    return $null
-                }
-                $normalized = $Value.Trim() -replace ',', '.'
-                $number = 0.0
-                if ([double]::TryParse(
-                    $normalized,
-                    [Globalization.NumberStyles]::Float,
-                    [Globalization.CultureInfo]::InvariantCulture,
-                    [ref]$number)) {
-                    return $number
-                }
-                return $null
-            }
             $nvidiaTelemetry = @(
                 foreach ($row in @($telemetryRows)) {
                     if ([string]::IsNullOrWhiteSpace($row)) { continue }
                     $parts = @($row -split "\s*,\s*")
-                    if ($parts.Count -lt 7) { continue }
+                    if ($parts.Count -lt 6) { continue }
                     [pscustomobject]@{
                         Name = $parts[0]
-                        TemperatureC = & $convertNvidiaNumber $parts[1]
-                        PowerW = & $convertNvidiaNumber $parts[2]
-                        CoreClockMHz = & $convertNvidiaNumber $parts[3]
-                        UtilizationPercent = & $convertNvidiaNumber $parts[4]
-                        FanPercent = & $convertNvidiaNumber $parts[5]
-                        PowerLimitW = & $convertNvidiaNumber $parts[6]
+                        TemperatureC = ConvertFrom-NvidiaNumericValue $parts[1]
+                        PowerW = ConvertFrom-NvidiaNumericValue $parts[2]
+                        CoreClockMHz = ConvertFrom-NvidiaNumericValue $parts[3]
+                        UtilizationPercent = ConvertFrom-NvidiaNumericValue $parts[4]
+                        FanPercent = ConvertFrom-NvidiaNumericValue $parts[5]
                         SampledAt = $sampledAt
                     }
                 }
@@ -910,7 +935,6 @@ if (($gpu.Count -eq 0 -or $hasNvidiaGpu) -and (Get-Command nvidia-smi -ErrorActi
                 $item | Add-Member -NotePropertyName NvidiaCoreClockMHz -NotePropertyValue $matchingTelemetry.CoreClockMHz -Force
                 $item | Add-Member -NotePropertyName NvidiaUtilizationPercent -NotePropertyValue $matchingTelemetry.UtilizationPercent -Force
                 $item | Add-Member -NotePropertyName NvidiaFanPercent -NotePropertyValue $matchingTelemetry.FanPercent -Force
-                $item | Add-Member -NotePropertyName NvidiaPowerLimitW -NotePropertyValue $matchingTelemetry.PowerLimitW -Force
                 $item | Add-Member -NotePropertyName NvidiaTelemetrySampledAt -NotePropertyValue $matchingTelemetry.SampledAt -Force
                 $item | Add-Member -NotePropertyName NvidiaTelemetrySource -NotePropertyValue "nvidia-smi instantaneous sample" -Force
             }
@@ -919,6 +943,166 @@ if (($gpu.Count -eq 0 -or $hasNvidiaGpu) -and (Get-Command nvidia-smi -ErrorActi
             Add-CollectionWarning `
                 -Code "nvidia-smi-telemetry-failed" `
                 -Text "nvidia-smi telemetry sample failed: $($_.Exception.Message)"
+        }
+
+        $nvidiaPowerLimitByGpu = @()
+        $powerLimitQueryStatus = "unavailable"
+        $powerLimitQueryReason = $null
+        try {
+            $powerLimitRows = & nvidia-smi --query-gpu=name,power.limit,power.default_limit,power.min_limit,power.max_limit --format=csv,noheader,nounits 2>$null
+            $powerLimitExitCode = $LASTEXITCODE
+            if ($powerLimitExitCode -ne 0) {
+                throw "nvidia-smi power-limit query exited with code $powerLimitExitCode"
+            }
+            $nvidiaPowerLimitByGpu = @(
+                foreach ($row in @($powerLimitRows)) {
+                    if ([string]::IsNullOrWhiteSpace($row)) { continue }
+                    $parts = @($row -split "\s*,\s*")
+                    if ($parts.Count -lt 5) { continue }
+                    $limits = Get-NvidiaPowerLimitFields `
+                        -Requested $parts[1] `
+                        -Effective "N/A" `
+                        -Default $parts[2] `
+                        -Minimum $parts[3] `
+                        -Maximum $parts[4] `
+                        -Source "nvidia-smi requested power fields"
+                    [pscustomobject]@{
+                        Name = $parts[0]
+                        RequestedLimitW = $limits.RequestedLimitW
+                        DefaultLimitW = $limits.DefaultLimitW
+                        MinLimitW = $limits.MinLimitW
+                        MaxLimitW = $limits.MaxLimitW
+                        Source = $limits.Source
+                    }
+                }
+            )
+            if ($nvidiaPowerLimitByGpu.Count -gt 0) {
+                $powerLimitQueryStatus = "available"
+            }
+            else {
+                $powerLimitQueryReason = "nvidia-smi returned no power-limit rows"
+            }
+        }
+        catch {
+            $powerLimitQueryReason = $_.Exception.Message
+            Add-CollectionWarning `
+                -Code "nvidia-smi-power-limit-failed" `
+                -Text "nvidia-smi power-limit fallback failed: $($_.Exception.Message)"
+        }
+
+        $nvidiaEffectivePowerLimitByGpu = @()
+        $effectivePowerLimitQueryStatus = "unavailable"
+        $effectivePowerLimitQueryReason = $null
+        try {
+            $effectivePowerLimitRows = & nvidia-smi --query-gpu=name,enforced.power.limit --format=csv,noheader,nounits 2>$null
+            $effectivePowerLimitExitCode = $LASTEXITCODE
+            if ($effectivePowerLimitExitCode -ne 0) {
+                throw "nvidia-smi enforced power-limit query exited with code $effectivePowerLimitExitCode"
+            }
+            $nvidiaEffectivePowerLimitByGpu = @(
+                foreach ($row in @($effectivePowerLimitRows)) {
+                    if ([string]::IsNullOrWhiteSpace($row)) { continue }
+                    $parts = @($row -split "\s*,\s*", 2)
+                    if ($parts.Count -lt 2) { continue }
+                    [pscustomobject]@{
+                        Name = $parts[0]
+                        EffectiveLimitW = ConvertFrom-NvidiaNumericValue $parts[1]
+                    }
+                }
+            )
+            if ($nvidiaEffectivePowerLimitByGpu.Count -gt 0) {
+                $effectivePowerLimitQueryStatus = "available"
+            }
+            else {
+                $effectivePowerLimitQueryReason = "nvidia-smi returned no enforced power-limit rows"
+            }
+        }
+        catch {
+            $effectivePowerLimitQueryReason = $_.Exception.Message
+            Add-CollectionWarning `
+                -Code "nvidia-smi-effective-power-limit-failed" `
+                -Text "nvidia-smi effective power-limit fallback failed: $($_.Exception.Message)"
+        }
+
+        foreach ($item in @($gpu | Where-Object { $_.Name -match "NVIDIA" })) {
+            $matchingTelemetry = $nvidiaTelemetry |
+                Where-Object { $_.Name.Trim() -eq $item.Name.Trim() } |
+                Select-Object -First 1
+            $matchingPowerLimit = $nvidiaPowerLimitByGpu |
+                Where-Object { $_.Name.Trim() -eq $item.Name.Trim() } |
+                Select-Object -First 1
+            $matchingEffectivePowerLimit = $nvidiaEffectivePowerLimitByGpu |
+                Where-Object { $_.Name.Trim() -eq $item.Name.Trim() } |
+                Select-Object -First 1
+            $itemPowerLimitStatus = if (
+                $null -ne $matchingPowerLimit -or
+                $null -ne $matchingEffectivePowerLimit
+            ) {
+                "available"
+            }
+            elseif (
+                $powerLimitQueryStatus -eq "available" -or
+                $effectivePowerLimitQueryStatus -eq "available"
+            ) {
+                "unavailable"
+            }
+            else {
+                $powerLimitQueryStatus
+            }
+            $itemPowerLimitReason = if ($null -eq $matchingPowerLimit -and
+                $powerLimitQueryStatus -eq "available") {
+                "nvidia-smi returned no power-limit row for this adapter"
+            }
+            else {
+                $powerLimitQueryReason
+            }
+            $effectivePowerLimit = $matchingEffectivePowerLimit.EffectiveLimitW
+            $currentPowerLimit = if ($null -ne $effectivePowerLimit) {
+                $effectivePowerLimit
+            }
+            else {
+                $matchingPowerLimit.RequestedLimitW
+            }
+            $itemEffectivePowerLimitStatus = if ($null -ne $matchingEffectivePowerLimit) {
+                "available"
+            }
+            elseif ($effectivePowerLimitQueryStatus -eq "available") {
+                "unavailable"
+            }
+            else {
+                $effectivePowerLimitQueryStatus
+            }
+            $itemEffectivePowerLimitReason = if (
+                $null -eq $matchingEffectivePowerLimit -and
+                $effectivePowerLimitQueryStatus -eq "available"
+            ) {
+                "nvidia-smi returned no enforced power-limit row for this adapter"
+            }
+            else {
+                $effectivePowerLimitQueryReason
+            }
+            $item | Add-Member -NotePropertyName NvidiaRequestedPowerLimitW -NotePropertyValue $matchingPowerLimit.RequestedLimitW -Force
+            $item | Add-Member -NotePropertyName NvidiaEffectivePowerLimitW -NotePropertyValue $effectivePowerLimit -Force
+            $item | Add-Member -NotePropertyName NvidiaPowerLimitW -NotePropertyValue $currentPowerLimit -Force
+            $item | Add-Member -NotePropertyName NvidiaDefaultPowerLimitW -NotePropertyValue $matchingPowerLimit.DefaultLimitW -Force
+            $item | Add-Member -NotePropertyName NvidiaMinPowerLimitW -NotePropertyValue $matchingPowerLimit.MinLimitW -Force
+            $item | Add-Member -NotePropertyName NvidiaMaxPowerLimitW -NotePropertyValue $matchingPowerLimit.MaxLimitW -Force
+            $item | Add-Member -NotePropertyName NvidiaPowerLimitQueryStatus -NotePropertyValue $itemPowerLimitStatus -Force
+            $item | Add-Member -NotePropertyName NvidiaPowerLimitQueryReason -NotePropertyValue $itemPowerLimitReason -Force
+            $item | Add-Member -NotePropertyName NvidiaEffectivePowerLimitQueryStatus -NotePropertyValue $itemEffectivePowerLimitStatus -Force
+            $item | Add-Member -NotePropertyName NvidiaEffectivePowerLimitQueryReason -NotePropertyValue $itemEffectivePowerLimitReason -Force
+            if ($null -ne $matchingPowerLimit -and $null -ne $matchingEffectivePowerLimit) {
+                $item | Add-Member -NotePropertyName NvidiaPowerLimitSource -NotePropertyValue "nvidia-smi requested/effective power fields" -Force
+            }
+            elseif ($null -ne $matchingPowerLimit) {
+                $item | Add-Member -NotePropertyName NvidiaPowerLimitSource -NotePropertyValue $matchingPowerLimit.Source -Force
+            }
+            elseif ($null -ne $matchingEffectivePowerLimit) {
+                $item | Add-Member -NotePropertyName NvidiaPowerLimitSource -NotePropertyValue "nvidia-smi enforced power field" -Force
+            }
+            else {
+                $item | Add-Member -NotePropertyName NvidiaPowerLimitSource -NotePropertyValue $null -Force
+            }
         }
     }
     catch {
@@ -949,6 +1133,60 @@ if ($memory.Count -eq 0) {
     if ($memory.Count -gt 0) {
         $memorySource = "SMBIOS fallback"
     }
+}
+
+$memoryArray = Get-CimData -ClassName Win32_PhysicalMemoryArray | Select-Object -First 1
+$cimMemorySlotCount = $null
+if ($null -ne $memoryArray -and $null -ne $memoryArray.MemoryDevices) {
+    $parsedMemorySlotCount = 0
+    if ([int]::TryParse([string]$memoryArray.MemoryDevices, [ref]$parsedMemorySlotCount) -and
+        $parsedMemorySlotCount -gt 0 -and
+        $parsedMemorySlotCount -le 256) {
+        $cimMemorySlotCount = $parsedMemorySlotCount
+    }
+}
+$reportedMemorySlotCount = $cimMemorySlotCount
+$memorySlotSource = if ($null -ne $reportedMemorySlotCount) {
+    "CIM/WMI PhysicalMemoryArray"
+}
+else {
+    $smbiosMemorySlotCount = Get-SmbiosMemorySlotCount
+    if ($null -ne $smbiosMemorySlotCount) {
+        $reportedMemorySlotCount = $smbiosMemorySlotCount
+        "SMBIOS type 16"
+    }
+    else {
+        $null
+    }
+}
+$knownPopulatedMemorySlots = if (-not [string]::IsNullOrWhiteSpace($memorySource)) {
+    $memory.Count
+}
+else {
+    $null
+}
+$memorySlotSummary = Get-MemorySlotSummary `
+    -ReportedTotalSlots $reportedMemorySlotCount `
+    -PopulatedSlots $knownPopulatedMemorySlots `
+    -SlotSource $memorySlotSource `
+    -ModuleSource $memorySource
+$memorySlotsStatus = switch ($memorySlotSummary.DataQuality) {
+    "reported" { "available" }
+    "partial" { "partial" }
+    "unreliable" { "partial" }
+    default { "unavailable in current environment" }
+}
+$memorySlotsSource = if (
+    $memorySlotsStatus -in @("available", "partial") -and
+    -not [string]::IsNullOrWhiteSpace($memorySlotSummary.Source)
+) {
+    $memorySlotSummary.Source
+}
+elseif ($memorySlotsStatus -in @("available", "partial")) {
+    "unspecified available source"
+}
+else {
+    $null
 }
 
 $physicalDisks = @(
@@ -1145,7 +1383,7 @@ if ($unmappedVolumes.Count -gt 0) {
         -Text "Volume-to-disk mapping unavailable for: $($unmappedVolumes -join ', ')"
 }
 
-$monitors = @(
+$monitorIdentities = @(
     Get-CimData -Namespace "root/wmi" -ClassName WmiMonitorID | ForEach-Object {
         [pscustomobject]@{
             Manufacturer = Convert-EdidText $_.ManufacturerName
@@ -1156,12 +1394,21 @@ $monitors = @(
     }
 )
 
-$monitorSource = if ($monitors.Count -gt 0) { "CIM/WMI" } else { $null }
-if ($monitors.Count -eq 0) {
-    $monitors = @(Get-ActiveMonitorFallback)
-    if ($monitors.Count -gt 0) {
-        $monitorSource = "EnumDisplayDevices active-display fallback"
-    }
+$activeDisplays = @(Get-ActiveMonitorFallback)
+$monitors = @(Merge-MonitorInventory `
+    -IdentityMonitors $monitorIdentities `
+    -ActiveDisplays $activeDisplays)
+$monitorSource = if ($monitorIdentities.Count -gt 0 -and $activeDisplays.Count -gt 0) {
+    "CIM/WMI identity + active-display capabilities"
+}
+elseif ($monitorIdentities.Count -gt 0) {
+    "CIM/WMI identity"
+}
+elseif ($activeDisplays.Count -gt 0) {
+    "EnumDisplayDevices active-display fallback"
+}
+else {
+    $null
 }
 
 $osBuildNumber = if ($operatingSystem.BuildNumber) {
@@ -1248,11 +1495,13 @@ else {
 
 if ($RedactIdentifiers) {
     $redactedInventory = Get-RedactedInventoryData `
+        -GPU $gpu `
         -MemoryModules $memory `
         -PhysicalDisks $physicalDisks `
         -Volumes $volumes `
         -Monitors $monitors `
         -Battery $battery
+    $gpu = $redactedInventory.GPU
     $memory = $redactedInventory.MemoryModules
     $physicalDisks = $redactedInventory.PhysicalDisks
     $volumes = $redactedInventory.Volumes
@@ -1309,7 +1558,7 @@ $seenWarningPairs = New-Object System.Collections.Generic.HashSet[string]
 for ($warningIndex = 0; $warningIndex -lt $script:CollectionWarnings.Count; $warningIndex++) {
     $warningText = $script:CollectionWarnings[$warningIndex]
     $warningCode = $script:CollectionWarningCodes[$warningIndex]
-    $warningPairKey = "$warningCode`u0000$warningText"
+    $warningPairKey = [string]$warningCode + [char]0 + [string]$warningText
     if ($seenWarningPairs.Add($warningPairKey)) {
         $uniqueWarningTexts.Add($warningText) | Out-Null
         $uniqueWarningCodes.Add($warningCode) | Out-Null
@@ -1363,8 +1612,8 @@ else {
 }
 
 $snapshot = [ordered]@{
-    SchemaVersion = 3
-    CollectorVersion = "1.0.1-r18"
+    SchemaVersion = 4
+    CollectorVersion = "1.0.1-r23"
     GeneratedAt = (Get-Date).ToString("o")
     PrivacyMode = if ($RedactIdentifiers) {
         "Redacted identifiers"
@@ -1439,12 +1688,24 @@ $snapshot = [ordered]@{
     CPU = $cpu
     GPU = $gpu
     MemoryModules = $memory
+    MemorySlotSummary = $memorySlotSummary
     PhysicalDisks = $physicalDisks
     Volumes = $volumes
     Monitors = $monitors
     CollectionStatus = [pscustomobject]@{
         MemoryModules = $memoryModulesStatus
         MemoryModulesSource = $memoryModulesSource
+        MemorySlots = $memorySlotsStatus
+        MemorySlotsSource = $memorySlotsSource
+        MemorySlotsScope = if ($memorySlotsStatus -eq "available") {
+            "firmware-reported slot count and populated module evidence; empty slots require consistent counts"
+        }
+        elseif ($memorySlotsStatus -eq "partial") {
+            "partial slot evidence; total or populated count is missing, inconsistent, or invalid"
+        }
+        else {
+            $null
+        }
         PhysicalDisks = $physicalDisksStatus
         PhysicalDisksSource = $physicalDisksSource
         PhysicalDisksScope = if ($physicalDisks.Count -gt 0) { "Windows-reported present devices; active/offline state is not inferred" } else { $null }
@@ -1581,6 +1842,29 @@ else {
         if ($item.CurrentHorizontalResolution -and $item.CurrentVerticalResolution) { $details += "current $($item.CurrentHorizontalResolution)x$($item.CurrentVerticalResolution)" }
         if ($item.CurrentRefreshRate) { $details += "$($item.CurrentRefreshRate) Hz" }
         $lines.Add("- $(ConvertTo-SafeMarkdownText -Value ($details -join ', '))")
+        $presentText = if ($item.Present -eq $true) {
+            "true"
+        }
+        elseif ($item.Present -eq $false) {
+            "false"
+        }
+        else {
+            "unknown"
+        }
+        $stateFlags = if ([string]::IsNullOrWhiteSpace([string]$item.Status)) {
+            "unknown"
+        }
+        else {
+            [string]$item.Status
+        }
+        if ($null -ne $item.ConfigManagerErrorCode) {
+            $stateFlags += ", config error $($item.ConfigManagerErrorCode)"
+        }
+        $stateText = "present $presentText; status $stateFlags; adapter kind $($item.AdapterKind)"
+        if ($item.StateSource) {
+            $stateText += "; source: $($item.StateSource)"
+        }
+        $lines.Add("  - Adapter state: $(ConvertTo-SafeMarkdownText -Value $stateText)")
         if ($item.PSObject.Properties.Name -contains "NvidiaTelemetrySampledAt" -and $item.NvidiaTelemetrySampledAt) {
             $telemetryDetails = New-Object System.Collections.Generic.List[string]
             if ($null -ne $item.NvidiaTemperatureC) { $telemetryDetails.Add("temperature $($item.NvidiaTemperatureC) C") | Out-Null }
@@ -1588,16 +1872,49 @@ else {
             if ($null -ne $item.NvidiaCoreClockMHz) { $telemetryDetails.Add("core clock $($item.NvidiaCoreClockMHz) MHz") | Out-Null }
             if ($null -ne $item.NvidiaUtilizationPercent) { $telemetryDetails.Add("utilization $($item.NvidiaUtilizationPercent)%") | Out-Null }
             if ($null -ne $item.NvidiaFanPercent) { $telemetryDetails.Add("fan $($item.NvidiaFanPercent)%") | Out-Null }
-            if ($null -ne $item.NvidiaPowerLimitW) { $telemetryDetails.Add("power limit $($item.NvidiaPowerLimitW) W") | Out-Null }
             if ($telemetryDetails.Count -gt 0) {
                 $lines.Add("  - nvidia-smi instantaneous sample at $($item.NvidiaTelemetrySampledAt): $($telemetryDetails -join '; '); not a stability measurement")
             }
             $unavailableTelemetry = New-Object System.Collections.Generic.List[string]
             if ($null -eq $item.NvidiaFanPercent) { $unavailableTelemetry.Add("fan") | Out-Null }
-            if ($null -eq $item.NvidiaPowerLimitW) { $unavailableTelemetry.Add("power limit") | Out-Null }
             if ($unavailableTelemetry.Count -gt 0) {
                 $lines.Add("  - nvidia-smi unavailable in this sample: $($unavailableTelemetry -join ', ')")
             }
+        }
+        if ($item.NvidiaPowerLimitQueryStatus -eq "available") {
+            $powerLimitDetails = New-Object System.Collections.Generic.List[string]
+            if ($null -ne $item.NvidiaRequestedPowerLimitW) {
+                $powerLimitDetails.Add("requested $($item.NvidiaRequestedPowerLimitW) W") | Out-Null
+            }
+            else {
+                $powerLimitDetails.Add("requested unavailable") | Out-Null
+            }
+            if ($null -ne $item.NvidiaEffectivePowerLimitW) {
+                $powerLimitDetails.Add("effective $($item.NvidiaEffectivePowerLimitW) W") | Out-Null
+            }
+            else {
+                $powerLimitDetails.Add("effective unavailable") | Out-Null
+            }
+            if ($null -ne $item.NvidiaDefaultPowerLimitW) {
+                $powerLimitDetails.Add("default $($item.NvidiaDefaultPowerLimitW) W") | Out-Null
+            }
+            if ($null -ne $item.NvidiaMinPowerLimitW -and $null -ne $item.NvidiaMaxPowerLimitW) {
+                $powerLimitDetails.Add("range $($item.NvidiaMinPowerLimitW)-$($item.NvidiaMaxPowerLimitW) W") | Out-Null
+            }
+            elseif ($null -ne $item.NvidiaMaxPowerLimitW) {
+                $powerLimitDetails.Add("maximum $($item.NvidiaMaxPowerLimitW) W") | Out-Null
+            }
+            $powerLimitSource = if ($item.NvidiaPowerLimitSource) {
+                "; source: $($item.NvidiaPowerLimitSource)"
+            }
+            else {
+                ""
+            }
+            $lines.Add("  - nvidia-smi power limits: $($powerLimitDetails -join '; ')$powerLimitSource")
+        }
+        elseif ($item.NvidiaPowerLimitQueryReason) {
+            $lines.Add(
+                "  - nvidia-smi power limits unavailable: $(ConvertTo-SafeMarkdownText -Value $item.NvidiaPowerLimitQueryReason)")
         }
     }
     if ($null -ne $snapshot.Battery) {
@@ -1653,6 +1970,29 @@ else {
     $lines.Add("")
     $lines.Add("## Memory modules")
     $lines.Add("")
+    $memorySlotDetails = New-Object System.Collections.Generic.List[string]
+    if ($null -ne $snapshot.MemorySlotSummary.TotalSlots) {
+        $memorySlotDetails.Add("$($snapshot.MemorySlotSummary.TotalSlots) total") | Out-Null
+    }
+    if ($null -ne $snapshot.MemorySlotSummary.PopulatedSlots) {
+        $memorySlotDetails.Add("$($snapshot.MemorySlotSummary.PopulatedSlots) populated") | Out-Null
+    }
+    if ($null -ne $snapshot.MemorySlotSummary.EmptySlots) {
+        $memorySlotDetails.Add("$($snapshot.MemorySlotSummary.EmptySlots) confirmed empty") | Out-Null
+    }
+    if ($memorySlotDetails.Count -gt 0) {
+        $slotSource = if ($snapshot.MemorySlotSummary.Source) {
+            "; source: $($snapshot.MemorySlotSummary.Source)"
+        }
+        else {
+            ""
+        }
+        $lines.Add(
+            "- Slot layout: $($memorySlotDetails -join '; '); data quality $($snapshot.MemorySlotSummary.DataQuality)$slotSource")
+    }
+    else {
+        $lines.Add("- Slot layout unavailable; empty slots are not inferred from the module count.")
+    }
     if ($snapshot.MemoryModules.Count -eq 0) {
         $lines.Add("- Module-level memory inventory unavailable in this environment.")
         if ($snapshot.Computer.TotalPhysicalMemory) {

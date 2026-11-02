@@ -1,5 +1,48 @@
 ﻿# 电脑硬件工作台版本记录
 
+## 1.5.2 — 2026-11-02
+
+- 将 NVIDIA 基础功耗字段与可选 `enforced.power.limit` 拆成两条查询，避免旧驱动不认识新字段时连默认值、最小值、最大值一起丢失；
+- 新增实际生效功耗墙查询状态和失败原因字段；
+- 实机继续正确读取 effective、default 和 range 功耗字段，公开记录不包含具体设备数值；
+- 采集器升级到 1.0.1-r23，JSON schema 保持 4。
+
+## 1.5.1 — 2026-11-02
+
+- 修复 collector 中仅 Windows PowerShell 5.1 可解析的 NUL 转义，恢复 PowerShell 7 兼容；
+- 新增 PowerShell 7 全脚本解析测试，标准与脱敏实机 smoke 均在 PS 5.1/7 下通过；
+- 隐私脱敏模式遮蔽 `GPU[].PnpDeviceId`，保留 GPU 名称、状态、分类和能力数据；
+- 增加 GPU PnP ID 脱敏与输出形状回归测试；
+- 采集器升级到 1.0.1-r22，JSON schema 保持 4。
+
+## 1.5.0 — 2026-11-02
+
+- 新增 GPU 的 PnP 状态证据：`Present`、`Status`、`ConfigManagerErrorCode`、`Availability`、`AdapterKind` 和 `StateSource`；
+- 隐私脱敏模式遮蔽 `GPU[].PnpDeviceId`，同时保留 GPU 名称、状态、分类和能力数据；
+- 仅将明确的 PCI/USB 设备标为物理显卡，将明确的 ROOT/SWD 显示设备标为虚拟；证据不足时保持 `unknown`；
+- 新增内存槽位摘要：固件报告的槽位总数、已识别模块数、可确认空槽数和数据质量；
+- 只有总槽位与已占用槽位都明确时计算空槽；冲突或缺失时保持 `partial`/`unreliable`，不猜空槽；
+- 增加 Win32_PhysicalMemoryArray 与 SMBIOS type 16 的只读回退；
+- 修复 PowerShell 7 无法解析旧版 NUL 转义的问题，并新增 PowerShell 7 全脚本解析测试；
+- JSON schema 升级到 4，采集器升级到 1.0.1-r21；
+- 网络硬件与 TPM 摘要仍保留为后续按需功能，不纳入本次默认库存。
+
+## 1.4.6 — 2026-11-02
+
+- 修复 NVIDIA 移动版驱动只返回 `enforced.power.limit`、而 `power.limit` 为 `[N/A]` 时误报当前功耗墙不可用的问题；
+- JSON 同时保留请求功耗墙、实际生效功耗墙，以及兼容字段当前功耗墙；
+- Markdown 分别显示 requested 与 effective，不再把默认值或最大值当作当前值；
+- 采集器升级到 1.0.1-r20，JSON schema 保持 3；
+- 增加“请求值不可用但实际生效值仍可读取”的合成回归测试。
+
+## 1.4.5 — 2026-11-02
+
+- 将 Windows 可见内存与存储容量统一标为 `GiB`/`TiB`，避免在二进制计算值上误用十进制容量单位；
+- 将 EDID/PnP 显示器身份与当前活动显示能力合并，保留准确型号，同时附上当前分辨率、刷新率、适配器、HDR 与色彩管线状态；
+- NVIDIA 采集增加独立的当前、默认、最小和最大功耗限制查询；瞬时功耗样本不再替代当前功耗墙；
+- 采集器升级到 1.0.1-r19，JSON schema 保持 3；
+- 增加 IEC 容量、功耗限制解析和显示器合并回退的合成回归测试。
+
 ## 1.4.4 — 2026-11-02
 
 - 新增 GPU Boost、动态电压/频率、有效频率和请求频率的术语边界；

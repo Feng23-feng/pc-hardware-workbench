@@ -80,13 +80,13 @@ When the user only asked to inspect the local hardware, use one consolidated res
 
 ```markdown
 ## System
-Computer model, OS and architecture, BIOS version/release date, firmware mode, Secure Boot state, motherboard, total and available memory.
+Computer model, OS and architecture, BIOS version/release date, firmware mode, Secure Boot state, motherboard, total and available memory. Report Windows-visible memory and storage capacities in IEC units (`GiB`, `TiB`) because they are calculated with 1024-byte steps. Keep vendor market capacities in `GB`/`TB` only when the source is explicitly a nominal product label.
 
 ## CPU
 Detected CPUs with physical core count and logical thread count. Keep any reported clock in JSON diagnostics rather than the default human-readable inventory.
 
 ## GPU
-Windows-reported GPUs, drivers, and reported memory only when the source is reliable. For NVIDIA adapters, an `nvidia-smi` instantaneous sample may include temperature, power, graphics clock, utilization, fan percentage, and power limit; timestamp it and label unavailable `[N/A]` fields. One sample does not prove sustained behavior or stability. The automatic list does not prove an adapter is active; if an expected adapter is missing, request the read-only PnP display-adapter check described in `hardware-detection.md`. Do not present CIM `AdapterRAM` as accurate VRAM capacity.
+Windows-reported GPUs, drivers, and reported memory only when the source is reliable. Keep the PnP present state, device status, configuration-manager error code, physical/virtual/unknown adapter kind, and state source. Name-based guesses are insufficient: use the PnP transport or explicit software device identifier, otherwise report `unknown`. For NVIDIA adapters, an `nvidia-smi` instantaneous sample may include temperature, power, graphics clock, utilization, and fan percentage; timestamp it and label unavailable `[N/A]` fields. Report the software-requested `power.limit` and the algorithm-enforced `enforced.power.limit` separately, together with default, minimum, and maximum values. Prefer the enforced value as the current effective ceiling, but never substitute the default or maximum for it. One sample does not prove sustained behavior or stability. The automatic list does not prove an adapter is active; if an expected adapter is missing, request the read-only PnP display-adapter check described in `hardware-detection.md`. Do not present CIM `AdapterRAM` as accurate VRAM capacity.
 
 ## Battery
 Only for devices with an actually detected system battery. Show design capacity,
@@ -96,13 +96,13 @@ If battery data are unavailable, state the status and reason: permission denial,
 section entirely only when the platform confirms that no system battery exists.
 
 ## Memory
-Module-level values if available. Otherwise say they are unavailable and still list total/available memory. When die, rank, PMIC, or live timings affect the answer but were not collected, name the missing HWiNFO Memory Timings fields instead of inferring them.
+Module-level values if available. Otherwise say they are unavailable and still list total/available memory. Report a firmware memory-slot summary separately: total slots, populated modules, and confirmed empty slots with a reported/partial/unreliable data-quality label and source. Calculate empty slots only when both total and populated counts are explicit and consistent; never infer them from the module count alone. When die, rank, PMIC, or live timings affect the answer but were not collected, name the missing HWiNFO Memory Timings fields instead of inferring them.
 
 ## Storage
 Windows-reported physical disk models and health if available. The list is not proof that every device is active or online. Map logical volumes to physical disk and partition numbers when readable. Always list fixed and removable local volumes with free space, even if physical disk details or mappings are unavailable; exclude network drives.
 
 ## Monitors
-EDID models if available. Otherwise, when the active-display fallback works, list active PnP identifiers and adapters while marking them as fallback data; exclude inactive and virtual displays. Present current resolution/refresh rate, framebuffer bits per pixel, HDR state, DXGI output color space, and advanced-color-pipeline state as separate lines. Explain that 32 bits per pixel is framebuffer formatting, not GPU precision or Windows architecture. HDR must be reported as On, Supported but off, Not supported, or Unavailable. Do not equate an enabled advanced-color pipeline with HDR. Current settings are not native panel maximums.
+Merge CIM/EDID identity with the active-display fallback by PnP identifier when both are available. Preserve the exact EDID model while attaching adapter, current resolution/refresh rate, framebuffer bits per pixel, HDR state, DXGI output color space, and advanced-color-pipeline state. If identity or capability data is unavailable, keep the readable side and mark the missing side explicitly; never discard known capabilities merely because EDID identity exists. The fallback excludes inactive and virtual displays. Explain that 32 bits per pixel is framebuffer formatting, not GPU precision or Windows architecture. HDR must be reported as On, Supported but off, Not supported, or Unavailable. Do not equate an enabled advanced-color pipeline with HDR. Current settings are not native panel maximums.
 
 ## Unavailable in this environment
 List fields that could not be collected and the minimum manual additions needed.
@@ -121,6 +121,7 @@ references should point here instead of maintaining a second list.
 | `Motherboard.Manufacturer`, `Product`, `Version`, and their `*Display` mirrors | `[redacted]` |
 | `Firmware.Manufacturer`, `Version`, `ReleaseDate` | `[redacted]` |
 | `MemoryModules[].Manufacturer`, `PartNumber` | `[redacted]` when non-empty; empty/null unchanged |
+| `GPU[].PnpDeviceId` | `[redacted]` when non-empty; null unchanged |
 | `PhysicalDisks[].Model` | `Physical disk <DeviceNumber> (redacted model)` when non-empty; empty/null unchanged |
 | `PhysicalDisks[].ProductRevision` | `[redacted]` when non-empty; empty/null unchanged |
 | `Volumes[].Label` | `[redacted]` for user-specific values; common defaults such as Windows, Local Disk, System Reserved, New Volume and their localized forms remain; empty/null unchanged |
@@ -138,6 +139,8 @@ redacted identity-quality state remains unambiguous.
 
 - `CPU.Name` and `GPU[].Name`, including explicitly declared integrated and discrete GPU identities;
 - CPU core/thread counts, memory capacity/speed/form factor/`Bank`, structural memory `Slot` locators such as `Controller0-ChannelA-DIMM1` or `DIMM_A1`, and other non-identifying capability fields;
+- memory-slot totals, populated/empty counts, data quality, and their source;
+- GPU PnP state, status/error code, physical/virtual classification, and state source;
 - disk `DeviceNumber`, interface, media type, status, mapping, and volume role;
 - volume drive letter, file system, `DiskNumber`, `PartitionNumber`, capacity, and free space;
 - monitor `AdapterName`, current mode, HDR state, color-space fields, luminance, and other capability data;

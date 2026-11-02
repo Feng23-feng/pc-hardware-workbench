@@ -153,7 +153,7 @@ public static class CodexSmbiosMemoryReader
         return string.Empty;
     }
 
-    public static List<CodexMemoryModuleInfo> Read()
+    private static byte[] ReadTableData()
     {
         const uint RSMB = 0x52534D42;
         uint size = GetSystemFirmwareTable(RSMB, 0, null, 0);
@@ -167,6 +167,48 @@ public static class CodexSmbiosMemoryReader
             throw new InvalidOperationException(
                 "SMBIOS firmware table could not be read.");
 
+        return data;
+    }
+
+    public static int ReadMemoryDeviceCount()
+    {
+        byte[] data = ReadTableData();
+        int rawLength = BitConverter.ToInt32(data, 4);
+        int tableEnd = Math.Min(data.Length, 8 + rawLength);
+        int structureStart = 8;
+
+        while (structureStart + 4 <= tableEnd)
+        {
+            byte type = data[structureStart];
+            byte length = data[structureStart + 1];
+            if (length < 4) break;
+
+            int formattedEnd = structureStart + length;
+            if (formattedEnd > tableEnd) break;
+
+            int stringEnd = formattedEnd;
+            while (stringEnd + 1 < tableEnd &&
+                   !(data[stringEnd] == 0 && data[stringEnd + 1] == 0))
+                stringEnd++;
+
+            if (type == 16 && length >= 0x0B)
+            {
+                ushort count =
+                    BitConverter.ToUInt16(data, structureStart + 0x0A);
+                return count == 0 || count == 0xFFFF ? -1 : count;
+            }
+
+            int nextStructure = Math.Min(tableEnd, stringEnd + 2);
+            if (nextStructure <= structureStart) break;
+            structureStart = nextStructure;
+        }
+
+        return -1;
+    }
+
+    public static List<CodexMemoryModuleInfo> Read()
+    {
+        byte[] data = ReadTableData();
         int rawLength = BitConverter.ToInt32(data, 4);
         int tableEnd = Math.Min(data.Length, 8 + rawLength);
         int structureStart = 8;

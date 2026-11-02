@@ -151,6 +151,17 @@ $memoryFixture = @(
         Capacity = "16 GB"
     }
 )
+$gpuFixture = @(
+    [pscustomobject]@{
+        Name = "NVIDIA GeForce RTX 5070 Ti Laptop GPU"
+        PnpDeviceId = "PCI\VEN_10DE&DEV_2C59&SUBSYS_15M31462&REV_A1"
+        Present = $true
+        Status = "OK"
+        ConfigManagerErrorCode = 0
+        AdapterKind = "physical"
+        StateSource = "CIM/WMI video controller + display PnP entity"
+    }
+)
 $diskFixture = @(
     [pscustomobject]@{
         Model = "Example NVMe"
@@ -210,6 +221,7 @@ $batteryFixture = [pscustomobject]@{
     HealthPercent = 91
 }
 $standardInventory = [pscustomobject]@{
+    GPU = @($gpuFixture)
     MemoryModules = @($memoryFixture)
     PhysicalDisks = @($diskFixture)
     Volumes = @($volumeFixture)
@@ -217,6 +229,7 @@ $standardInventory = [pscustomobject]@{
     Battery = $batteryFixture
 }
 $redactedInventory = Get-RedactedInventoryData `
+    -GPU $gpuFixture `
     -MemoryModules $memoryFixture `
     -PhysicalDisks $diskFixture `
     -Volumes $volumeFixture `
@@ -270,6 +283,10 @@ Assert-True ($redactedInventory.Monitors[0].AdapterName -eq $monitorFixture[0].A
 Assert-True ($redactedInventory.Monitors[0].CurrentWidth -eq 1920) "Redaction removed a non-identifying display capability."
 Assert-True ($redactedInventory.Battery.Manufacturer -eq "[redacted]") "Redacted battery retained its manufacturer."
 Assert-True ($redactedInventory.Battery.HealthPercent -eq 91) "Redaction removed non-identifying battery health."
+Assert-True ($redactedInventory.GPU[0].PnpDeviceId -eq "[redacted]") "Redacted GPU retained its PnP device instance ID."
+Assert-True ($redactedInventory.GPU[0].Name -eq $gpuFixture[0].Name) "Redaction removed the declared GPU model name."
+Assert-True ($redactedInventory.GPU[0].AdapterKind -eq "physical") "Redaction removed the GPU adapter kind."
+Assert-True ($redactedInventory.GPU[0].Present -eq $true) "Redaction removed the GPU PnP present state."
 
 $statusMappings = @{
     "readable" = "confirmed"

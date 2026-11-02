@@ -2,7 +2,7 @@
 name: pc-hardware-workbench
 description: Integrate Windows-focused read-only hardware inventory, evidence-gated troubleshooting, guided overclocking, and upgrade-purchase decisions through one routed workflow. Other operating systems receive manual guidance only. Keep tuning-only requests free of unsolicited purchase advice; never modify hardware settings automatically and never bypass permissions or anti-cheat.
 metadata:
-  version: "1.4.4"
+  version: "1.5.2"
   short-description: "One routed entry for hardware inventory, triage, tuning, and purchase decisions"
 ---
 
@@ -199,6 +199,6 @@ Tuning-only requests do not include upgrade advice. A combined workflow requires
 
 ## Maintenance
 
-The suite preserves the generic reference sets from hardware-triage-framework 1.1.1, upgrade-purchase-brake 1.0.0, and guided-overclocking 1.0.3 plus the r18 collector. Personal device histories are excluded.
+The suite preserves the generic reference sets from hardware-triage-framework 1.1.1, upgrade-purchase-brake 1.0.0, and guided-overclocking 1.0.3 plus the r23 collector. Personal device histories are excluded.
 
 Read [coverage-map.md](references/integration/coverage-map.md) when redistributing, and [installation-coexistence.md](references/integration/installation-coexistence.md) when multiple hardware Skills are installed.

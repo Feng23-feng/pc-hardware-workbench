@@ -34,7 +34,7 @@ try {
 function Write-Title {
     Clear-Host
     Write-Host "==============================================" -ForegroundColor Cyan
-    Write-Host "       电脑硬件便携工具包 1.4.3" -ForegroundColor Cyan
+    Write-Host "       电脑硬件便携工具包 1.5.2" -ForegroundColor Cyan
     Write-Host "==============================================" -ForegroundColor Cyan
     Write-Host "本地、只读、无网络；不会修改 BIOS、频率、电压、功耗或风扇。" -ForegroundColor DarkGray
     Write-Host "目标：教你识别、验证和恢复，让下次可以自己完成调校闭环。" -ForegroundColor DarkGray
@@ -335,11 +335,15 @@ function Get-HardwareReportContextFromLines {
         }
     }
     $cpu = $cpuLines | Where-Object { $_ -match '^-\s+' } | Select-Object -First 1
-    if ($cpu) { $cpu = ($cpu -replace '^-\s+', '').Trim() }
+    if ($cpu) {
+        $cpu = ConvertFrom-MarkdownIdentityValue -Value (($cpu -replace '^-\s+', '').Trim())
+    }
     $gpus = @(
         $gpuLines |
             Where-Object { $_ -match '^-\s+' } |
-            ForEach-Object { ($_ -replace '^-\s+', '').Trim() } |
+            ForEach-Object {
+                ConvertFrom-MarkdownIdentityValue -Value (($_ -replace '^-\s+', '').Trim())
+            } |
             Where-Object { $_ -notmatch 'Virtual|GameViewer|Remote' }
     )
 
@@ -2487,7 +2491,8 @@ function Invoke-PortableCollectorSmokeTest {
                 throw "实机采集没有生成 $mode 格式的 JSON。"
             }
             $snapshot = Get-Content -Raw -LiteralPath $jsonPath | ConvertFrom-Json
-            if ($snapshot.SchemaVersion -lt 2 -or $snapshot.CollectorVersion -ne "1.0.1-r10") {
+            if ($snapshot.SchemaVersion -lt 2 -or
+                [string]$snapshot.CollectorVersion -notmatch '^1\.0\.1-r[0-9]+$') {
                 throw "$mode 实机采集返回了不兼容的版本。"
             }
             if ($mode -eq "Redacted") {

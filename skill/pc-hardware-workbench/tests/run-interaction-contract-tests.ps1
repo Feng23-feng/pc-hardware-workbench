@@ -54,8 +54,8 @@ $skill = Get-Content -LiteralPath $skillPath -Raw -Encoding UTF8
 $referenceOnlyNotice = [regex]::Unescape('\u53C2\u6570\u4EC5\u4F9B\u53C2\u8003\uFF0C\u8BF7\u4EE5\u5B89\u5168\u4E3A\u7B2C\u4E00\u8981\u52A1\u3002')
 $englishReferenceOnlyNotice = "For reference only - put safety first."
 
-Assert-Contains $skill '(?m)^  version: "1\.4\.4"\r?$' "metadata.version should be 1.4.4."
-Assert-Contains $skill 'r18 collector' "The Skill maintenance summary collector revision disagrees with the collector code."
+Assert-Contains $skill '(?m)^  version: "1\.5\.2"\r?$' "metadata.version should be 1.5.2."
+Assert-Contains $skill 'r23 collector' "The Skill maintenance summary collector revision disagrees with the collector code."
 Assert-Contains $skill 'while the power-path evidence is incomplete' "The Advice intensity route does not include incomplete power-path evidence."
 Assert-Contains $skill 'hidden or manufacturer-limited limit' "The Advice intensity summary is narrower than the hidden or manufacturer-limited scope."
 Assert-Contains $skill 'power ceiling, voltage limit, fan policy, and firmware restriction' "The Advice intensity summary omits one or more controlled object types."
@@ -142,6 +142,7 @@ foreach ($relative in @(
     "tests/run-device-identity-tests.ps1",
     "tests/run-collector-smoke-tests.ps1",
     "tests/run-all-tests.ps1",
+    "tests/run-pwsh7-parse-tests.ps1",
     "tests/manual-acceptance-template.md",
     "scripts/analyze-telemetry.ps1"
 )) {
@@ -412,6 +413,7 @@ Assert-Contains $identityHelper 'function ConvertTo-DeviceIdentityDisplay' "The 
 Assert-Contains $identityHelper 'function ConvertTo-DeviceIdentityMarkdown' "The Markdown identity sanitizer is missing."
 Assert-Contains $identityHelper 'function ConvertTo-SafeMarkdownText' "The generic hardware Markdown sanitizer is missing."
 Assert-Contains $identityHelper 'function Get-RedactedInventoryData' "The synthetic-testable inventory redaction helper is missing."
+Assert-Contains $identityHelper 'PnpDeviceId' "The GPU PnP device identifier is not covered by redaction."
 Assert-Contains $identityHelper 'function Test-GenericVolumeLabel' "The generic volume-label allowlist is missing."
 Assert-Contains $identityHelper 'function Test-GenericDisplayModel' "The generic display-model allowlist is missing."
 Assert-True ($identityHelper -notmatch '\$copy\.Slot\s*=\s*"Memory module') "Redaction replaces structural memory slot evidence."
@@ -419,18 +421,31 @@ Assert-Contains $identityHelper 'function ConvertTo-DeviceIdentitySessionStatus'
 Assert-Contains $identityHelper 'possible mojibake' "The identity helper does not detect probable mojibake."
 
 $collectorScript = Get-Content -LiteralPath (Join-Path $resolvedRoot "scripts/collect-windows.ps1") -Raw -Encoding UTF8
+$legacyNulEscape = ([char]0x60).ToString() + "u0000"
+Assert-True (-not $collectorScript.Contains($legacyNulEscape)) "The collector contains a PowerShell 5-only numeric Unicode escape."
 Assert-Contains $collectorScript 'IdentityQuality = \$identityAssessment' "The collector snapshot does not expose IdentityQuality."
-Assert-Contains $collectorScript 'CollectorVersion = "1\.0\.1-r18"' "The collector behavior changed without a collector version bump."
+Assert-Contains $collectorScript 'CollectorVersion = "1\.0\.1-r23"' "The collector behavior changed without a collector version bump."
+Assert-Contains $collectorScript 'SchemaVersion = 4' "The collector topology contract was not advanced to schema 4."
+Assert-Contains $collectorScript 'MemorySlotSummary' "The collector does not expose the memory-slot summary."
+Assert-Contains $collectorScript 'ReadMemoryDeviceCount' "The collector has no SMBIOS memory-slot fallback."
+Assert-Contains $collectorScript 'AdapterKind' "The collector does not classify GPU adapter kind."
+Assert-Contains $collectorScript 'StateSource' "The collector does not preserve GPU state provenance."
 Assert-Contains $collectorScript 'ConvertTo-DeviceIdentityMarkdown' "The Markdown renderer does not isolate identity fields safely."
 Assert-Contains $collectorScript 'ConvertTo-SafeMarkdownText -Value \(\$details -join' "Hardware-derived detail lines are not passed through the generic Markdown sanitizer."
 Assert-Contains $collectorScript 'DriveType = 2 OR DriveType = 3' "CIM volume collection does not match the fixed/removable fallback scope."
 Assert-Contains $collectorScript '## Reported physical disks' "The physical-disk heading still claims unverified active status."
 Assert-Contains $collectorScript 'Get-RedactedInventoryData' "The collector does not use the tested inventory-redaction helper."
+Assert-Contains $collectorScript '-GPU \$gpu' "The collector does not pass GPU data through redaction."
 Assert-Contains $collectorScript 'inventory-context\.ps1' "The collector does not load the tested inventory-context helper."
 Assert-Contains $collectorScript '\[switch\]\$RequireElevated' "The collector has no explicit user-run elevated mode."
 Assert-Contains $collectorScript 'CollectionContext' "The collector does not record its privilege context."
 Assert-Contains $collectorScript 'restricted-agent' "The collector does not distinguish a restricted agent process from a normal user process."
 Assert-Contains $collectorScript 'nvidia-smi instantaneous sample' "The collector does not label nvidia-smi live values as instantaneous."
+Assert-Contains $collectorScript 'enforced\.power\.limit' "The collector does not query the effective NVIDIA power limit."
+Assert-Contains $collectorScript 'name,power\.limit,power\.default_limit' "The legacy NVIDIA power fields are not queried independently."
+Assert-Contains $collectorScript 'NvidiaEffectivePowerLimitQueryStatus' "The collector does not preserve enforced power-limit query state."
+Assert-Contains $collectorScript 'requested unavailable' "A missing requested NVIDIA power limit is not labeled unavailable."
+Assert-Contains $collectorScript 'effective unavailable' "A missing effective NVIDIA power limit is not labeled unavailable."
 Assert-Contains $collectorScript '\$env:DSH_SHELL' "The collector does not recognize a DeepSeek Harness sandbox hint."
 Assert-Contains $collectorScript 'AccessDeniedWarningCount' "The collector does not expose its access-denied evidence count."
 Assert-Contains $collectorScript 'BatteryStatusReason' "The collector does not explain why battery data are unavailable."

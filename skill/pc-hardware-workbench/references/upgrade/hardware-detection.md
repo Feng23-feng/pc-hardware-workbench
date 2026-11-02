@@ -90,14 +90,24 @@ Codex or another sandbox may deny WMI/CIM or storage access. The script records 
 For NVIDIA adapters, retain the Windows-reported driver version and add the public NVIDIA driver version emitted by `nvidia-smi`, for example: `driver 32.0.16.2101 (NVIDIA 621.01)`. Match `nvidia-smi` rows to NVIDIA display adapters by device name; never attach the NVIDIA version to a virtual display adapter or unrelated GPU.
 
 When `nvidia-smi` exposes them, also record a timestamped instantaneous sample of
-GPU temperature, board power, graphics clock, utilization, fan percentage, and
-power limit. This requires no elevation for the normal driver channel. Preserve
-`[N/A]` as unavailable rather than zero. One sample is not a sustained workload
-measurement and does not prove temperatures, clocks, or stability.
+GPU temperature, board power, graphics clock, utilization, and fan percentage.
+Query requested, enforced, default, minimum, and maximum power limits in a
+separate read-only query. The enforced limit is the current effective ceiling;
+the requested limit records what software asked for. This requires no elevation
+for the normal driver channel. Preserve `[N/A]` as unavailable rather than zero.
+One sample is not a sustained workload measurement and does not prove
+temperatures, clocks, or stability.
 
 `Win32_VideoController.AdapterRAM` is not a dependable modern VRAM capacity field. Some drivers cap or truncate it. Keep the raw value in JSON only if clearly named `CimAdapterRAMBytes`, mark it unreliable, and display VRAM only when it comes from a trustworthy vendor source such as `nvidia-smi`.
 
 The GPU section lists adapters currently exposed by CIM plus readable NVIDIA fallback data. It is not a complete installed-device inventory. If an expected integrated GPU, discrete GPU, or virtual adapter is absent, ask the user to run the read-only command `pnputil /enum-devices /class Display`. In that output, `Started` means active, `Disconnected` means installed or currently exposed by PnP but not active, and devices under `ROOT\DISPLAY` are often virtual display adapters. Do not count disconnected devices as active GPUs. Use `pnputil /enum-devices /class Display /drivers` when driver packages are relevant.
+
+For each reported GPU, preserve the `Win32_VideoController` PnP identifier and
+join it to a present display PnP entity when available. Report `Present`,
+`Status`, `ConfigManagerErrorCode`, `Availability`, `AdapterKind`, and
+`StateSource`. Classify a display adapter as physical only for an explicit PCI or
+USB transport, and as virtual only for an explicit ROOT display or SWD device.
+Keep every uncertain case `unknown`; a model or device name is not enough.
 
 Windows 11 installations can retain `ProductName = Windows 10...` in the registry for compatibility. The collector normalizes the displayed family from the actual build number: build 22000 and later is reported as Windows 11. Preserve the display version, build, update revision, and kernel version separately so the result remains auditable.
 
@@ -143,9 +153,20 @@ When monitor EDID data is unavailable, `EnumDisplayDevices` can enumerate active
 
 The script also uses `GlobalMemoryStatusEx` for total/available system memory and `DriveInfo` for logical volume capacity/free space when WMI or Storage cmdlets are denied. The Markdown report always emits an explicit unavailable line for failed CPU, GPU, memory-module, physical-disk, volume, and monitor sections instead of leaving them blank.
 
+Memory-slot totals come from `Win32_PhysicalMemoryArray.MemoryDevices`, with a
+read-only SMBIOS type 16 fallback when CIM is unavailable. Treat zero or
+`0xFFFF` as unknown, and reject implausible totals above 256 in this
+desktop/mobile PC scope. Populated slots come from readable memory-module
+records. Calculate empty slots only when both counts are explicit, valid, and
+`populated <= total`; otherwise keep the empty count null and mark the summary
+`partial` or `unreliable`.
+
 The raw CPU clock value is labeled as a reported clock, not a maximum turbo frequency. Markdown collapses repeated CIM-denial warnings into a short summary while JSON retains the per-class diagnostics.
 
-JSON snapshots include `SchemaVersion` and `CollectorVersion` at the top level. Increment the schema version when existing field meanings or types change incompatibly, not for every additive field.
+JSON snapshots include `SchemaVersion` and `CollectorVersion` at the top level.
+Increment the schema version when existing field meanings or types change
+incompatibly, or when the required top-level/status contract changes. Do not
+increment it for an unconstrained additive field inside an existing object.
 
 It can usually identify:
 

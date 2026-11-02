@@ -5371,7 +5371,7 @@
       <aside class="dse-intro-window" aria-label="工具介绍与当前状态">
         <p class="dse-intro-kicker">当前状态</p>
         <div class="dse-chips" aria-label="当前版本状态">
-          <span class="dse-chip">工作台 1.4.4</span>
+          <span class="dse-chip">工作台 1.5.2</span>
           <span class="dse-chip prototype">超频原型 3.0.2 · 未发布</span>
           <span class="dse-chip triage">故障排查：公开</span>
         </div>
@@ -5492,7 +5492,7 @@
               <span class="dse-track-kicker">主工作台</span>
               <h2 id="dse-map-title">电脑硬件工作台</h2>
             </div>
-            <span class="dse-track-badge">稳定 1.4.4</span>
+            <span class="dse-track-badge">稳定 1.5.2</span>
           </div>
           <div class="dse-lane" id="dse-core-lane"></div>
         </section>
@@ -5931,7 +5931,7 @@
         <div>
           <p class="dse-archive-kicker">版本档案 / 全部已记录版本</p>
           <h2 id="dse-archive-title">逐版本迭代档案</h2>
-          <p class="dse-archive-summary">从统一工作台 1.0.0 到当前 1.4.4，再到自动超频原型的独立分叉、档位证据和有限验证。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。</p>
+          <p class="dse-archive-summary">从统一工作台 1.0.0 到当前 1.5.2，再到自动超频原型的独立分叉、档位证据和有限验证。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。</p>
         </div>
         <div class="dse-archive-totals" aria-label="版本档案统计">
           <span class="dse-archive-total"><b id="dse-wb-count">0</b>工作台版本</span>
@@ -6474,7 +6474,12 @@
             ["1.4.2", "候选与提示同段", "2026-10-28", "RELEASED", ["候选值与安全提示必须出现在同一段。", "移除实验卡中的 Mode 字段和括号模式标签。", "紧凑卡片在用户明确要求时保留必要证据。"], "T13 正向触发；测试包被 1.4.3 取代。", "修复回答结构好看但安全语义被拆散的问题。"],
             ["1.4.3", "安全提示本地化", "2026-10-28", "RELEASED", ["中文与英文各有标准安全提示句。", "禁止同一回复混用中英文安全提示。", "加入 T14-T17 英文概念、隐藏限制、故障与候选场景。"], "语气三轮复查通过，作为 1.4.4 前的正式公开版本。", "1.4 系列的语气与安全提示收口。"],
             ["1.4.3-r1", "文案与空白同步修订", "2026-10-29", "STABLE PACKAGE", ["仅修正文案与空白对齐。", "Skill metadata 仍为 1.4.3。", "该复制包保持 1.4.3 功能面。"], "六套包同步与 CI 检查后重新打包；Skill 版本不变。", "1.4.4 之前的现有分发包。"],
-            ["1.4.4", "GPU Boost 与动态工作点", "2026-11-02", "CURRENT", ["新增 NVIDIA GPU Boost、请求频率、有效频率与 V/F 曲线术语边界。", "区分 Turing、Ampere、Ada 与 Blackwell；记录 RTX 50 的 Accelerated Frequency Switching。", "记录 AMD Game/Boost Clock、Radeon Boost 与 Intel Xe 频率语义，禁止跨厂商照搬。"], "结构校验、静态契约和全量非实时测试通过；实时采集 SKIP，人工行为验收仍 PENDING。", "当前公开 Skill 版本。"]
+            ["1.4.4", "GPU Boost 与动态工作点", "2026-11-02", "RELEASED", ["新增 NVIDIA GPU Boost、请求频率、有效频率与 V/F 曲线术语边界。", "区分 Turing、Ampere、Ada 与 Blackwell；记录 RTX 50 的 Accelerated Frequency Switching。", "记录 AMD Game/Boost Clock、Radeon Boost 与 Intel Xe 频率语义，禁止跨厂商照搬。"], "结构校验、静态契约和全量非实时测试通过。", "建立后续 1.4.x 的主要解释边界。"],
+            ["1.4.5", "容量、显示与功耗墙修正", "2026-11-02", "RELEASED", ["Windows 可见容量改用 GiB/TiB。", "EDID/PnP 显示器身份与当前显示能力合并。", "NVIDIA 增加默认、最小、最大功耗限制查询。"], "全量非实机测试、Skill 校验和标准模式实机采集通过；发现移动版驱动中 power.limit 与 enforced.power.limit 语义不同，由 1.4.6 接续。", "修正库存报告中的容量单位和显示器能力缺口。"],
+            ["1.4.6", "请求值与实际功耗墙分离", "2026-11-02", "RELEASED", ["同时查询 power.limit 与 enforced.power.limit。", "请求值 N/A 时仍保留实际生效的功耗墙。", "Markdown 分别显示 requested 与 effective，不再误报 current unavailable。"], "合成回归、全量测试、Skill 校验及实机标准采集通过。", "修复 r19 在移动版 NVIDIA 驱动上的功耗墙误报。"],
+            ["1.5.0", "GPU 状态与内存槽位", "2026-11-02", "RELEASED", ["新增 GPU 的 Present、Status、错误码、物理/虚拟分类和状态来源。", "新增固件内存槽位总数、已占用数、可确认空槽数与数据质量。", "只有总数与已占用数均明确且一致时才计算空槽；异常 SMBIOS 值会被拒绝。"], "全量非实机测试、标准/脱敏实机 smoke 和便携包双模式自检通过。", "正式引入 schema 4、collector 1.0.1-r21。"],
+            ["1.5.1", "PowerShell 7 与脱敏修复", "2026-11-02", "RELEASED", ["修复 PowerShell 7 无法解析旧版 NUL 转义的问题。", "新增 PowerShell 7 全脚本解析测试。", "隐私脱敏模式遮蔽 GPU PnP 设备实例 ID，保留 GPU 状态和能力数据。"], "全量非实机测试、Standard/Redacted 实机 smoke 与双壳便携包自检通过。", "修复兼容性与公开脱敏边界。"],
+            ["1.5.2", "跨驱动功耗查询", "2026-11-02", "CURRENT", ["基础功耗字段与可选 enforced.power.limit 分两条查询。", "旧驱动不支持实际生效字段时，仍保留默认值、最小值和最大值。", "实机继续读取驱动报告的 effective 功耗墙，并记录生效值查询状态。"], "Skill is valid；全量非实机测试、标准/脱敏实机 smoke、PowerShell 5.1/7 便携包双模式自检通过；人工行为验收仍 PENDING。", "当前公开 Skill 版本；schema 4、collector 1.0.1-r23。"]
           ]
         },
         {
@@ -7483,7 +7488,7 @@
         },
         {
           id: "core-evidence", track: "core", code: "WB-03", title: "硬件证据层",
-          summary: "r18 collector / telemetry / privacy",
+          summary: "r23 collector / telemetry / privacy",
           status: "done", state: "CLEARED",
           goal: "用可核验的本机数据替代型号猜测和单张截图。",
           action: "只读采集、隐私模式、固定窗口日志、设备身份质量。",
@@ -7516,10 +7521,10 @@
         {
           id: "core-github", track: "core", code: "WB-07", title: "公开维护基线",
           summary: "GitHub · MIT · README · CI",
-          status: "done", state: "STABLE 1.4.4",
+          status: "done", state: "STABLE 1.5.2",
           goal: "让工作台具备可追溯、可安装、可回滚的公开版本。",
           action: "补充许可、版本、发布包、CI、安全说明和协作模式。",
-          proof: "GitHub release、MIT License、README、package sync 验证；1.4.4 补充动态 GPU 工作点解释。"
+          proof: "GitHub release、MIT License、README、package sync 验证；1.5.2 增加独立功耗字段降级与双壳门禁。"
         },
         {
           id: "proto-seed", track: "prototype", code: "AO-01", title: "独立原型分叉",

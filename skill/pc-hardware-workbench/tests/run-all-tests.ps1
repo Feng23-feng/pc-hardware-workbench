@@ -33,6 +33,11 @@ $testCases = @(
         Arguments = @("-SkillRoot", $resolvedRoot)
     },
     @{
+        Name = "PowerShell 7 parse"
+        Script = Join-Path $resolvedRoot "tests/run-pwsh7-parse-tests.ps1"
+        Arguments = @("-SkillRoot", $resolvedRoot)
+    },
+    @{
         Name = "Device identity"
         Script = Join-Path $resolvedRoot "tests/run-device-identity-tests.ps1"
         Arguments = @("-HelperPath", (Join-Path $resolvedRoot "scripts/device-identity.ps1"))

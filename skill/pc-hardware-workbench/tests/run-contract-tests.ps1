@@ -56,6 +56,8 @@ try {
         "memory-status-fallback-failed",
         "smbios-memory-empty",
         "smbios-memory-failed",
+        "smbios-memory-layout-failed",
+        "smbios-memory-layout-invalid",
         "setupapi-disk-empty",
         "setupapi-disk-failed",
         "disk-descriptor-failed",
@@ -65,6 +67,8 @@ try {
         "display-fallback-empty",
         "display-fallback-failed",
         "nvidia-smi-telemetry-failed",
+        "nvidia-smi-power-limit-failed",
+        "nvidia-smi-effective-power-limit-failed",
         "nvidia-smi-identity-failed",
         "storage-health-unavailable",
         "storage-health-no-access",
@@ -121,16 +125,17 @@ try {
                 "SchemaVersion", "CollectorVersion", "GeneratedAt", "PrivacyMode",
                 "CollectionMode", "CollectionContext", "IdentityQuality", "Computer",
                 "OperatingSystem", "Firmware", "Motherboard", "Battery", "CPU", "GPU",
-                "MemoryModules", "PhysicalDisks", "Volumes", "Monitors",
+                "MemoryModules", "MemorySlotSummary", "PhysicalDisks", "Volumes", "Monitors",
                 "CollectionStatus", "CollectionWarnings", "CollectionWarningCodes",
                 "NotReliablyDetectable"
             )
             $actualTopLevel = @($snapshot.PSObject.Properties.Name)
             Assert-True (($actualTopLevel -join "|") -eq ($expectedTopLevel -join "|")) "Top-level JSON keys or their order changed."
-            Assert-True ($snapshot.SchemaVersion -eq 3) "SchemaVersion must be 3 for this top-level contract."
+            Assert-True ($snapshot.SchemaVersion -eq 4) "SchemaVersion must be 4 for this top-level contract."
 
             $expectedStatusKeys = @(
                 "MemoryModules", "MemoryModulesSource",
+                "MemorySlots", "MemorySlotsSource", "MemorySlotsScope",
                 "PhysicalDisks", "PhysicalDisksSource", "PhysicalDisksScope",
                 "Volumes", "VolumesScope", "VolumeDiskMapping", "VolumeDiskMappingSource",
                 "Battery", "BatterySource", "BatteryStatusReason", "BatteryCimStatus",
@@ -138,7 +143,7 @@ try {
             )
             $actualStatusKeys = @($snapshot.CollectionStatus.PSObject.Properties.Name)
             Assert-True (($actualStatusKeys -join "|") -eq ($expectedStatusKeys -join "|")) "CollectionStatus keys or their order changed."
-            Assert-True ($actualStatusKeys.Count -eq 16) "CollectionStatus must contain exactly 16 keys."
+            Assert-True ($actualStatusKeys.Count -eq 19) "CollectionStatus must contain exactly 19 keys."
 
             foreach ($property in $snapshot.CollectionStatus.PSObject.Properties) {
                 Assert-True ($property.Value -ne "") "CollectionStatus.$($property.Name) is an empty string."
@@ -151,6 +156,7 @@ try {
             )
             $statusSourcePairs = @(
                 @{ Status = "MemoryModules"; Source = "MemoryModulesSource"; Scope = $null },
+                @{ Status = "MemorySlots"; Source = "MemorySlotsSource"; Scope = "MemorySlotsScope" },
                 @{ Status = "PhysicalDisks"; Source = "PhysicalDisksSource"; Scope = "PhysicalDisksScope" },
                 @{ Status = "Volumes"; Source = $null; Scope = "VolumesScope" },
                 @{ Status = "VolumeDiskMapping"; Source = "VolumeDiskMappingSource"; Scope = $null },
