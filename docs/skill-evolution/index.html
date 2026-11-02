@@ -3414,7 +3414,7 @@
     }
 
     #dse-root .dse-demo-field-label small {
-      color: #646b75;
+      color: #8b929c;
       font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
       font-size: 8px;
       line-height: 1.4;
@@ -3487,7 +3487,7 @@
 
     #dse-root .dse-kicker {
       margin-bottom: 18px;
-      color: #626871;
+      color: #8b929c;
       font-size: 10px;
       letter-spacing: .12em;
     }
@@ -3533,7 +3533,7 @@
 
     #dse-root .dse-intro-kicker {
       margin-bottom: 12px;
-      color: #626871;
+      color: #8b929c;
       font-size: 9px;
     }
 
@@ -3582,7 +3582,7 @@
       grid-column: 1;
       margin: 0 0 8px;
       align-self: end;
-      color: #626871;
+      color: #8b929c;
       font-size: 9px;
     }
 
@@ -3638,7 +3638,7 @@
 
     #dse-root .dse-orientation-links .dse-orientation-index {
       display: block;
-      color: #555b64;
+      color: #8b929c;
       font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
       font-size: 9px;
       letter-spacing: .08em;
@@ -4264,7 +4264,7 @@
     }
 
     #dse-root .dse-demo-kicker {
-      color: #5d646e;
+      color: #8b929c;
       font-size: 9px;
     }
 
@@ -4302,7 +4302,7 @@
     #dse-root .dse-demo-badge {
       margin-left: auto;
       padding: 0;
-      color: #626973;
+      color: #8b929c;
       background: transparent;
       border: 0;
       border-radius: 0;
@@ -4332,7 +4332,7 @@
     }
 
     #dse-root .dse-mode-guide-kicker {
-      color: #646b75;
+      color: #8b929c;
     }
 
     #dse-root .dse-mode-guide-title {
@@ -4362,25 +4362,113 @@
       line-height: 1.65;
     }
 
+    #dse-root .dse-tune-steps {
+      position: sticky;
+      top: 8px;
+      z-index: 24;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin: 20px 0 0;
+      padding: 0;
+      overflow: hidden;
+      background: rgba(8, 10, 12, .93);
+      border: 1px solid var(--dse-line);
+      border-radius: 9px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    #dse-root .dse-tune-steps a {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      gap: 10px;
+      min-height: 52px;
+      padding: 8px 14px;
+      color: var(--dse-muted);
+      border-right: 1px solid var(--dse-line);
+      text-decoration: none;
+      transition: color .16s ease, background-color .16s ease;
+    }
+
+    #dse-root .dse-tune-steps a:last-child {
+      border-right: 0;
+    }
+
+    #dse-root .dse-tune-steps a:hover {
+      color: var(--dse-text);
+      background: rgba(255, 255, 255, .025);
+    }
+
+    #dse-root .dse-tune-steps a[aria-current="step"] {
+      color: var(--dse-text);
+      background: #10161a;
+      box-shadow: inset 0 -2px 0 var(--dse-cyan);
+    }
+
+    #dse-root .dse-tune-steps b {
+      display: grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      color: #8b929c;
+      border: 1px solid #343a41;
+      border-radius: 50%;
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 8px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-tune-steps a[aria-current="step"] b {
+      color: #071012;
+      background: var(--dse-cyan);
+      border-color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-tune-steps span {
+      display: flex;
+      min-width: 0;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    #dse-root .dse-tune-steps strong {
+      color: inherit;
+      font-size: 12px;
+      font-weight: 560;
+    }
+
+    #dse-root .dse-tune-steps small {
+      color: #8b929c;
+      font-size: 9px;
+    }
+
     #dse-root .dse-demo-grid {
       grid-template-columns: 1fr;
-      gap: 26px;
-      margin-top: 28px;
+      gap: 0;
+      margin-top: 20px;
+      overflow: hidden;
+      background: #080a0c;
+      border: 1px solid #20242a;
+      border-radius: 12px;
     }
 
     #dse-root .dse-demo-panel {
-      padding: 20px;
-      background: #0a0c0e;
-      border: 1px solid #20242a;
-      border-top-width: 1px;
-      border-radius: 8px;
-      scroll-margin-top: 76px;
+      padding: 26px;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      scroll-margin-top: 74px;
+    }
+
+    #dse-root .dse-demo-panel:not([hidden]) ~ .dse-demo-panel:not([hidden]) {
+      border-top: 1px solid var(--dse-line);
     }
 
     #dse-root .dse-demo-panel-head {
-      padding-bottom: 14px;
-      border-bottom: 1px solid var(--dse-line);
-      margin-bottom: 14px;
+      padding-bottom: 0;
+      border-bottom: 0;
+      margin-bottom: 18px;
     }
 
     #dse-root .dse-demo-panel h3 {
@@ -4416,7 +4504,7 @@
       position: absolute;
       top: 13px;
       left: 46px;
-      color: #606771;
+      color: #8b929c;
       font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
       font-size: 8px;
       letter-spacing: .06em;
@@ -4463,7 +4551,7 @@
       place-items: center;
       width: 22px;
       height: 22px;
-      color: #6a727c;
+      color: #8b929c;
       background: #080a0c;
       border: 1px solid #31373e;
       border-radius: 50%;
@@ -4882,6 +4970,28 @@
 
       #dse-root .dse-demo-panel {
         padding: 14px;
+      }
+
+      #dse-root .dse-tune-steps {
+        top: 4px;
+      }
+
+      #dse-root .dse-tune-steps a {
+        gap: 7px;
+        min-height: 48px;
+        padding: 7px 9px;
+      }
+
+      #dse-root .dse-tune-steps span {
+        display: block;
+      }
+
+      #dse-root .dse-tune-steps strong {
+        font-size: 11px;
+      }
+
+      #dse-root .dse-tune-steps small {
+        display: none;
       }
 
       #dse-root #dse-scenario-grid {
@@ -5308,6 +5418,21 @@
         </div>
       </section>
 
+      <nav class="dse-tune-steps" id="dse-tune-steps" aria-label="调校流程步骤">
+        <a href="#dse-tune-gate-panel" data-tune-step-link="gate" aria-current="step">
+          <b>01</b>
+          <span><strong>门禁</strong><small>选择与检查</small></span>
+        </a>
+        <a href="#dse-tune-compare-panel" data-tune-step-link="compare">
+          <b>02</b>
+          <span><strong>对照</strong><small>两种回答</small></span>
+        </a>
+        <a href="#dse-tune-experiment-panel" data-tune-step-link="experiment">
+          <b>03</b>
+          <span><strong>实验</strong><small>计划与结果</small></span>
+        </a>
+      </nav>
+
       <div class="dse-demo-grid">
         <article class="dse-demo-panel wide dse-term-panel" data-demo-mode="terms" aria-labelledby="dse-term-title" hidden>
           <div class="dse-demo-panel-head">
@@ -5367,7 +5492,7 @@
           </section>
         </article>
 
-        <article class="dse-demo-panel" data-demo-mode="tune" aria-labelledby="dse-gate-demo-title">
+        <article class="dse-demo-panel" id="dse-tune-gate-panel" data-demo-mode="tune" data-tune-step="gate" aria-labelledby="dse-gate-demo-title">
           <div class="dse-demo-panel-head">
             <div>
               <h3 id="dse-gate-demo-title">从请求走到证据门禁</h3>
@@ -5386,7 +5511,7 @@
           <div class="dse-scenario-meta">
             <button type="button" class="dse-demo-action" data-scenario-rotate>换一组场景</button>
             <button type="button" class="dse-demo-action" data-scenario-auto-toggle aria-pressed="false">暂停自动换组</button>
-            <span>共 13 个场景 · 每次显示 3 个 · 12 秒自动轮换</span>
+            <span>共 13 个场景 · 每次显示 3 个 · 8 秒自动轮换</span>
           </div>
 
           <blockquote class="dse-gate-request" id="dse-gate-request"></blockquote>
@@ -5437,7 +5562,7 @@
           </div>
         </article>
 
-        <article class="dse-demo-panel dse-compare-panel" data-demo-mode="tune" aria-labelledby="dse-compare-demo-title">
+        <article class="dse-demo-panel dse-compare-panel" id="dse-tune-compare-panel" data-demo-mode="tune" data-tune-step="compare" aria-labelledby="dse-compare-demo-title">
           <div class="dse-demo-panel-head">
             <div>
               <h3 id="dse-compare-demo-title">两种回答有什么不同</h3>
@@ -5470,7 +5595,7 @@
           </section>
         </article>
 
-        <article class="dse-demo-panel wide dse-experiment-panel" data-demo-mode="tune" aria-labelledby="dse-experiment-demo-title">
+        <article class="dse-demo-panel wide dse-experiment-panel" id="dse-tune-experiment-panel" data-demo-mode="tune" data-tune-step="experiment" aria-labelledby="dse-experiment-demo-title">
           <div class="dse-demo-panel-head">
             <div>
               <h3 id="dse-experiment-demo-title">通过门禁后怎么实验</h3>
@@ -5690,6 +5815,9 @@
       const convergenceSection = root.querySelector(".dse-convergence");
       const archiveSection = root.querySelector(".dse-archive");
       const demoSection = document.getElementById("dse-demo");
+      const tuneSteps = document.getElementById("dse-tune-steps");
+      const tuneStepLinks = [...root.querySelectorAll("[data-tune-step-link]")];
+      const tuneStepSections = [...root.querySelectorAll("[data-tune-step]")];
       const modeGuideKicker = document.getElementById("dse-mode-guide-kicker");
       const modeGuideTitle = document.getElementById("dse-mode-guide-title");
       const modeGuideSummary = document.getElementById("dse-mode-guide-summary");
@@ -7561,7 +7689,6 @@
       const scenarioIds = Object.keys(demoScenarios);
       let scenarioCursor = 1;
       let scenarioAutoPaused = false;
-      let scenarioPointerPaused = false;
       let scenarioFocusPaused = false;
 
       function visibleScenarioIds() {
@@ -7585,7 +7712,10 @@
           button.dataset.scenario = id;
           button.setAttribute("aria-pressed", String(id === activeScenario));
           button.textContent = scenario.request;
-          button.addEventListener("click", () => renderScenario(id));
+          button.addEventListener("click", () => {
+            setScenarioAutoPaused(true);
+            renderScenario(id);
+          });
           scenarioGrid.appendChild(button);
         });
       }
@@ -7595,18 +7725,18 @@
         renderScenarioButtons();
       }
 
-      root.querySelector("[data-scenario-rotate]").addEventListener("click", rotateScenarioWindow);
       const scenarioAutoToggle = root.querySelector("[data-scenario-auto-toggle]");
+      function setScenarioAutoPaused(paused) {
+        scenarioAutoPaused = paused;
+        scenarioAutoToggle.setAttribute("aria-pressed", String(paused));
+        scenarioAutoToggle.textContent = paused ? "恢复自动换组" : "暂停自动换组";
+      }
+      root.querySelector("[data-scenario-rotate]").addEventListener("click", () => {
+        setScenarioAutoPaused(true);
+        rotateScenarioWindow();
+      });
       scenarioAutoToggle.addEventListener("click", () => {
-        scenarioAutoPaused = !scenarioAutoPaused;
-        scenarioAutoToggle.setAttribute("aria-pressed", String(scenarioAutoPaused));
-        scenarioAutoToggle.textContent = scenarioAutoPaused ? "恢复自动换组" : "暂停自动换组";
-      });
-      scenarioGrid.addEventListener("pointerenter", () => {
-        scenarioPointerPaused = true;
-      });
-      scenarioGrid.addEventListener("pointerleave", () => {
-        scenarioPointerPaused = false;
+        setScenarioAutoPaused(!scenarioAutoPaused);
       });
       scenarioGrid.addEventListener("focusin", () => {
         scenarioFocusPaused = true;
@@ -7620,12 +7750,12 @@
           !demoSection.hidden &&
           activeDemoMode === "tune" &&
           !scenarioAutoPaused &&
-          !scenarioPointerPaused &&
           !scenarioFocusPaused
         ) {
           rotateScenarioWindow();
         }
-      }, 12000);
+      }, 8000);
+      setScenarioAutoPaused(reduceMotionQuery.matches);
 
       root.querySelectorAll("[data-gate-action]").forEach(button => {
         button.addEventListener("click", () => {
@@ -7941,7 +8071,13 @@
           const currentIndex = triageCaseIds.indexOf(activeTriageCase);
           selectTriageCase(triageCaseIds[(currentIndex + 1) % triageCaseIds.length]);
         }
-      }, 4800);
+      }, 8000);
+      setTriageAutoPaused(reduceMotionQuery.matches);
+      reduceMotionQuery.addEventListener("change", event => {
+        if (!event.matches) return;
+        setScenarioAutoPaused(true);
+        setTriageAutoPaused(true);
+      });
 
       triageAdvanceButton.addEventListener("click", () => {
         const triageCase = triageCases[activeTriageCase];
@@ -7996,10 +8132,46 @@
         });
       }
 
+      function setCurrentTuneStep(step) {
+        tuneStepLinks.forEach(link => {
+          if (link.dataset.tuneStepLink === step) {
+            link.setAttribute("aria-current", "step");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        });
+      }
+
+      function syncTuneStepNavigation() {
+        if (activeDemoMode !== "tune" || demoSection.hidden) return;
+        if (root.scrollTop + root.clientHeight >= root.scrollHeight - 4) {
+          setCurrentTuneStep(tuneStepSections.at(-1)?.dataset.tuneStep || "");
+          return;
+        }
+        const threshold = root.getBoundingClientRect().top + 150;
+        let currentStep = tuneStepSections[0]?.dataset.tuneStep || "";
+        tuneStepSections.forEach(section => {
+          if (section.getBoundingClientRect().top <= threshold) {
+            currentStep = section.dataset.tuneStep;
+          }
+        });
+        setCurrentTuneStep(currentStep);
+      }
+
+      let tuneStepScrollFrame = 0;
+      function scheduleTuneStepNavigation() {
+        if (tuneStepScrollFrame) return;
+        tuneStepScrollFrame = window.requestAnimationFrame(() => {
+          tuneStepScrollFrame = 0;
+          syncTuneStepNavigation();
+        });
+      }
+
       function setDemoMode(mode, options = {}) {
         if (!["terms", "tune", "triage", "identity"].includes(mode)) return;
         activeDemoMode = mode;
         renderModeGuide(mode);
+        tuneSteps.hidden = mode !== "tune";
         root.querySelectorAll(".dse-demo-panel[data-demo-mode]").forEach(panel => {
           panel.hidden = panel.dataset.demoMode !== mode;
         });
@@ -8012,6 +8184,7 @@
           pauseTermRotation();
           if (!termDetail.hidden) closeTerm(false);
         }
+        if (mode === "tune") window.requestAnimationFrame(syncTuneStepNavigation);
         if (options.updateRoute) setRouteHash(mode);
         if (options.scroll) {
           demoSection.scrollIntoView({ block: "start", behavior: reduceMotionQuery.matches ? "auto" : "smooth" });
@@ -8095,6 +8268,20 @@
           });
         });
       });
+      tuneStepLinks.forEach(link => {
+        link.addEventListener("click", event => {
+          event.preventDefault();
+          const target = tuneStepSections.find(section => section.dataset.tuneStep === link.dataset.tuneStepLink);
+          if (!target) return;
+          setCurrentTuneStep(link.dataset.tuneStepLink);
+          target.scrollIntoView({
+            behavior: reduceMotionQuery.matches ? "auto" : "smooth",
+            block: "start"
+          });
+        });
+      });
+      root.addEventListener("scroll", scheduleTuneStepNavigation, { passive: true });
+      window.addEventListener("resize", scheduleTuneStepNavigation);
       mergeButtons.forEach(button => {
         button.addEventListener("click", () => selectMilestone(button.dataset.mergeId, true));
       });
