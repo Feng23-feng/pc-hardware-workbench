@@ -3406,6 +3406,13 @@
       font-size: 10px;
     }
 
+    #dse-root .dse-demo-field-note {
+      color: #646b75;
+      font-size: 8px;
+      line-height: 1.4;
+      letter-spacing: .015em;
+    }
+
     #dse-root .dse-experiment-output,
     #dse-root .dse-gate-output {
       background: #0a0c0e;
@@ -3653,6 +3660,208 @@
       stroke: var(--dse-cyan);
       fill: var(--dse-cyan);
       opacity: .8;
+    }
+
+    #dse-root .dse-art-layer,
+    #dse-root .dse-art-version-plane,
+    #dse-root .dse-art-window,
+    #dse-root .dse-art-pulse,
+    #dse-root .dse-art-target-pulse,
+    #dse-root .dse-art-flow-dot {
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    #dse-root .dse-art-layer {
+      animation: dse-art-layer-float 7.2s ease-in-out infinite;
+    }
+
+    #dse-root .dse-art-layer-2 {
+      animation-delay: -.8s;
+    }
+
+    #dse-root .dse-art-layer-3 {
+      animation-delay: -1.6s;
+    }
+
+    #dse-root .dse-art-layer-4 {
+      animation-delay: -2.4s;
+    }
+
+    #dse-root .dse-art-chip,
+    #dse-root .dse-art-chip-detail {
+      animation: dse-art-chip-pulse 5.8s ease-in-out infinite;
+    }
+
+    #dse-root .dse-art-version-plane {
+      animation: dse-art-plane-drift 8.4s ease-in-out infinite;
+    }
+
+    #dse-root .dse-art-plane-2 {
+      animation-delay: -.7s;
+    }
+
+    #dse-root .dse-art-plane-3 {
+      animation-delay: -1.4s;
+    }
+
+    #dse-root .dse-art-plane-4 {
+      animation-delay: -2.1s;
+    }
+
+    #dse-root .dse-art-plane-5 {
+      animation-delay: -2.8s;
+    }
+
+    #dse-root .dse-art-pulse {
+      animation: dse-art-pulse 5.6s ease-in-out infinite;
+    }
+
+    #dse-root .dse-art-window {
+      animation: dse-art-window-float 9s ease-in-out infinite;
+    }
+
+    #dse-root .dse-art-window-right {
+      animation-direction: reverse;
+      animation-delay: -1.8s;
+    }
+
+    #dse-root .dse-art-flow-arrow {
+      animation: dse-art-flow-line 4.8s ease-in-out infinite;
+    }
+
+    #dse-root .dse-art-flow-dot {
+      fill: var(--dse-cyan);
+      stroke: none;
+      opacity: 0;
+      animation: dse-art-flow-dot 5.4s cubic-bezier(.22, 1, .36, 1) infinite;
+    }
+
+    #dse-root .dse-art-flow-lines {
+      animation: dse-art-flow-lines 6.6s ease-in-out infinite;
+    }
+
+    #dse-root .dse-art-flow-lines-right {
+      animation-delay: -1.3s;
+    }
+
+    #dse-root .dse-art-target-pulse {
+      animation: dse-art-target-pulse 5.6s ease-in-out -2.4s infinite;
+    }
+
+    @keyframes dse-art-layer-float {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-2.6px);
+      }
+    }
+
+    @keyframes dse-art-chip-pulse {
+      0%,
+      100% {
+        opacity: .67;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
+    @keyframes dse-art-plane-drift {
+      0%,
+      100% {
+        transform: translate(0, 0);
+      }
+
+      50% {
+        transform: translate(2.5px, -1.2px);
+      }
+    }
+
+    @keyframes dse-art-pulse {
+      0%,
+      100% {
+        opacity: .45;
+        transform: scale(.86);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.16);
+      }
+    }
+
+    @keyframes dse-art-window-float {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-1.5px);
+      }
+    }
+
+    @keyframes dse-art-flow-line {
+      0%,
+      100% {
+        opacity: .4;
+      }
+
+      50% {
+        opacity: .92;
+      }
+    }
+
+    @keyframes dse-art-flow-dot {
+      0%,
+      10% {
+        opacity: 0;
+        transform: translateX(0);
+      }
+
+      20% {
+        opacity: 1;
+      }
+
+      64% {
+        opacity: 1;
+        transform: translateX(17px);
+      }
+
+      76%,
+      100% {
+        opacity: 0;
+        transform: translateX(17px);
+      }
+    }
+
+    @keyframes dse-art-flow-lines {
+      0%,
+      100% {
+        opacity: .38;
+      }
+
+      50% {
+        opacity: .68;
+      }
+    }
+
+    @keyframes dse-art-target-pulse {
+      0%,
+      100% {
+        opacity: .3;
+        transform: scale(.82);
+      }
+
+      50% {
+        opacity: .85;
+        transform: scale(1.18);
+      }
     }
 
     #dse-root .dse-orientation-links .dse-orientation-link-copy {
@@ -4087,6 +4296,100 @@
     #dse-root .dse-demo-panel h3 {
       font-size: 15px;
       font-weight: 560;
+    }
+
+    #dse-root #dse-triage-case-grid {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-top: 14px;
+      padding: 28px 12px 12px;
+      background: #080a0c;
+      border: 1px solid var(--dse-line);
+      border-radius: 8px;
+    }
+
+    #dse-root #dse-triage-case-grid::before {
+      content: "CASE FILES / 选择一个症状";
+      position: absolute;
+      top: 9px;
+      left: 12px;
+      color: #606771;
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 8px;
+      letter-spacing: .06em;
+    }
+
+    #dse-root #dse-triage-case-grid .dse-scenario {
+      position: relative;
+      z-index: 1;
+      min-height: 42px;
+      margin-top: -4px;
+      padding: 11px 12px;
+      background: #0d1013;
+      border: 1px solid #292e34;
+      border-radius: 6px;
+      transform-origin: bottom center;
+      transition:
+        color .16s ease,
+        background-color .16s ease,
+        border-color .16s ease,
+        box-shadow .18s ease,
+        transform .18s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    #dse-root #dse-triage-case-grid .dse-scenario:first-child {
+      margin-top: 0;
+    }
+
+    #dse-root #dse-triage-case-grid .dse-scenario:nth-child(1) {
+      z-index: 1;
+    }
+
+    #dse-root #dse-triage-case-grid .dse-scenario:nth-child(2) {
+      z-index: 2;
+    }
+
+    #dse-root #dse-triage-case-grid .dse-scenario:nth-child(3) {
+      z-index: 3;
+    }
+
+    #dse-root #dse-triage-case-grid .dse-scenario:nth-child(4) {
+      z-index: 4;
+    }
+
+    #dse-root #dse-triage-case-grid .dse-scenario:nth-child(5) {
+      z-index: 5;
+    }
+
+    #dse-root #dse-triage-case-grid .dse-scenario:nth-child(6) {
+      z-index: 6;
+    }
+
+    #dse-root #dse-triage-case-grid .dse-scenario:nth-child(7) {
+      z-index: 7;
+    }
+
+    #dse-root #dse-triage-case-grid .dse-scenario:nth-child(8) {
+      z-index: 8;
+    }
+
+    #dse-root #dse-triage-case-grid .dse-scenario:hover {
+      background: #111519;
+      border-color: #373d45;
+      transform: translateY(-2px);
+    }
+
+    #dse-root #dse-triage-case-grid .dse-scenario[aria-pressed="true"] {
+      z-index: 20;
+      color: var(--dse-text);
+      background: #151a1e;
+      border-color: rgba(129, 207, 223, .68);
+      box-shadow:
+        inset 2px 0 0 var(--dse-cyan),
+        0 12px 24px rgba(0, 0, 0, .34);
+      transform: translateY(-14px);
     }
 
     @keyframes dse-page-enter {
@@ -4643,13 +4946,13 @@
           <span class="dse-orientation-art" aria-hidden="true">
             <svg viewBox="0 0 240 160">
               <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M120 18 210 58 120 98 30 58Z"/>
-                <path d="M30 74 120 114 210 74"/>
-                <path d="M30 90 120 130 210 90"/>
-                <path d="M30 106 120 146 210 106" opacity=".42"/>
-                <rect x="90" y="48" width="60" height="24" rx="2"/>
-                <path d="M100 60h40M120 48v24" opacity=".58"/>
-                <circle class="dse-art-accent" cx="120" cy="60" r="3"/>
+                <path class="dse-art-layer dse-art-layer-1" d="M120 18 210 58 120 98 30 58Z"/>
+                <path class="dse-art-layer dse-art-layer-2" d="M30 74 120 114 210 74"/>
+                <path class="dse-art-layer dse-art-layer-3" d="M30 90 120 130 210 90"/>
+                <path class="dse-art-layer dse-art-layer-4" d="M30 106 120 146 210 106" opacity=".42"/>
+                <rect class="dse-art-chip" x="90" y="48" width="60" height="24" rx="2"/>
+                <path class="dse-art-chip-detail" d="M100 60h40M120 48v24" opacity=".58"/>
+                <circle class="dse-art-accent dse-art-pulse" cx="120" cy="60" r="3"/>
                 <path d="M120 18v-9M210 58v9M30 58v9" stroke-dasharray="2 7" opacity=".4"/>
               </g>
             </svg>
@@ -4664,14 +4967,14 @@
           <span class="dse-orientation-art" aria-hidden="true">
             <svg viewBox="0 0 240 160">
               <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M48 132 143 94 194 114 99 152Z"/>
-                <path d="M57 119 152 81 203 101 108 139Z"/>
-                <path d="M66 106 161 68 212 88 117 126Z"/>
-                <path d="M75 93 170 55 221 75 126 113Z"/>
-                <path d="M84 80 179 42 230 62 135 100Z" opacity=".58"/>
-                <path d="M194 114 203 101M203 101 212 88M212 88 221 75M221 75 230 62" opacity=".5"/>
+                <path class="dse-art-version-plane dse-art-plane-1" d="M48 132 143 94 194 114 99 152Z"/>
+                <path class="dse-art-version-plane dse-art-plane-2" d="M57 119 152 81 203 101 108 139Z"/>
+                <path class="dse-art-version-plane dse-art-plane-3" d="M66 106 161 68 212 88 117 126Z"/>
+                <path class="dse-art-version-plane dse-art-plane-4" d="M75 93 170 55 221 75 126 113Z"/>
+                <path class="dse-art-version-plane dse-art-plane-5" d="M84 80 179 42 230 62 135 100Z" opacity=".58"/>
+                <path class="dse-art-version-links" d="M194 114 203 101M203 101 212 88M212 88 221 75M221 75 230 62" opacity=".5"/>
                 <path d="M84 80 84 64M135 100 135 84" stroke-dasharray="2 7" opacity=".45"/>
-                <circle class="dse-art-accent" cx="161" cy="68" r="2.5"/>
+                <circle class="dse-art-accent dse-art-pulse" cx="161" cy="68" r="2.5"/>
               </g>
             </svg>
           </span>
@@ -4685,13 +4988,14 @@
           <span class="dse-orientation-art" aria-hidden="true">
             <svg viewBox="0 0 240 160">
               <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="26" y="28" width="86" height="102" rx="2"/>
-                <rect x="128" y="50" width="86" height="102" rx="2"/>
-                <path d="M112 80h16M124 76l4 4-4 4"/>
-                <path d="M38 44h28M38 58h54M38 72h63M38 86h49M38 100h58M38 114h34" opacity=".54"/>
-                <path d="M140 66h28M140 80h54M140 94h44M140 108h57M140 122h38" opacity=".54"/>
-                <circle class="dse-art-accent" cx="84" cy="100" r="3"/>
-                <circle cx="176" cy="108" r="3"/>
+                <rect class="dse-art-window dse-art-window-left" x="26" y="28" width="86" height="102" rx="2"/>
+                <rect class="dse-art-window dse-art-window-right" x="128" y="50" width="86" height="102" rx="2"/>
+                <path class="dse-art-flow-arrow" d="M112 80h16M124 76l4 4-4 4"/>
+                <circle class="dse-art-flow-dot" cx="112" cy="80" r="1.8"/>
+                <path class="dse-art-flow-lines" d="M38 44h28M38 58h54M38 72h63M38 86h49M38 100h58M38 114h34" opacity=".54"/>
+                <path class="dse-art-flow-lines dse-art-flow-lines-right" d="M140 66h28M140 80h54M140 94h44M140 108h57M140 122h38" opacity=".54"/>
+                <circle class="dse-art-accent dse-art-pulse" cx="84" cy="100" r="3"/>
+                <circle class="dse-art-target-pulse" cx="176" cy="108" r="3"/>
               </g>
             </svg>
           </span>
@@ -5051,12 +5355,13 @@
               </select>
             </label>
             <label class="dse-demo-field">路线
-              <select id="dse-demo-route">
+              <select id="dse-demo-route" aria-describedby="dse-route-context">
                 <option value="曲线降压">曲线降压</option>
-                <option value="纯频率">纯频率</option>
-                <option value="功耗墙">功耗墙</option>
+                <option value="核心频率">核心频率</option>
+                <option value="功耗限制">功耗限制</option>
                 <option value="厂商预设">厂商预设</option>
               </select>
+              <small class="dse-demo-field-note" id="dse-route-context">当前显示 GPU 路线</small>
             </label>
             <label class="dse-demo-field">当前基线
               <select id="dse-demo-baseline">
@@ -5260,6 +5565,9 @@
       const experimentStateLabel = document.getElementById("dse-experiment-state-label");
       const experimentStateNext = document.getElementById("dse-experiment-state-next");
       const generateExperimentButton = document.getElementById("dse-generate-experiment");
+      const demoComponent = document.getElementById("dse-demo-component");
+      const demoRoute = document.getElementById("dse-demo-route");
+      const demoRouteContext = document.getElementById("dse-route-context");
       const demoBaseline = document.getElementById("dse-demo-baseline");
       const demoRecovery = document.getElementById("dse-demo-recovery");
       const triageCaseGrid = document.getElementById("dse-triage-case-grid");
@@ -6073,6 +6381,21 @@
             ["同时看两套状态", "左侧判断设备身份，右侧判断基线是否仍然有效。"],
             ["决定记录怎么用", "区分当前可用、需要刷新，或只能保留为历史。"]
           ]
+        }
+      };
+
+      const routeOptionsByComponent = {
+        "GPU 核心曲线": {
+          label: "GPU",
+          routes: ["曲线降压", "核心频率", "功耗限制", "厂商预设"]
+        },
+        "CPU 电压/频率": {
+          label: "CPU",
+          routes: ["电压偏移", "功耗限制", "固定频率/电压", "厂商预设"]
+        },
+        "内存配置": {
+          label: "内存",
+          routes: ["XMP / EXPO 档位", "频率与时序", "内存电压", "厂商预设"]
         }
       };
 
@@ -7266,6 +7589,22 @@
           next: "点击生成演示实验卡；本页仍不会产生可套用数值。"
         });
       }
+
+      function syncDemoRouteOptions() {
+        const spec = routeOptionsByComponent[demoComponent.value] || routeOptionsByComponent["GPU 核心曲线"];
+        const previousRoute = demoRoute.value;
+        demoRoute.replaceChildren(...spec.routes.map(route => {
+          const option = document.createElement("option");
+          option.value = route;
+          option.textContent = route;
+          return option;
+        }));
+        demoRoute.value = spec.routes.includes(previousRoute) ? previousRoute : spec.routes[0];
+        demoRouteContext.textContent = `当前显示 ${spec.label} 路线`;
+      }
+
+      syncDemoRouteOptions();
+      demoComponent.addEventListener("change", syncDemoRouteOptions);
 
       enterExperimentButton.addEventListener("click", () => {
         if (!tuneGateReady) return;
