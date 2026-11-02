@@ -29,6 +29,7 @@ function Write-SitePage {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <meta name="description" content="$Description">
+  <link rel="icon" href="data:,">
   <title>$Title</title>
 </head>
 <body>
