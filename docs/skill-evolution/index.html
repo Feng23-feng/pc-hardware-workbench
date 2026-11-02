@@ -3696,56 +3696,70 @@
     }
 
     #dse-root .dse-art-layer {
+      --dse-art-lift: -8px;
       stroke: currentColor;
       opacity: .42;
-      animation: dse-art-layer-light 4.6s ease-in-out infinite;
+      animation:
+        dse-art-layer-light 4.6s ease-in-out infinite,
+        dse-art-layer-float 5.2s ease-in-out infinite;
     }
 
     #dse-root .dse-art-layer-2 {
-      animation-delay: .55s;
+      --dse-art-lift: -5px;
+      animation-delay: .55s, -.7s;
     }
 
     #dse-root .dse-art-layer-3 {
-      animation-delay: 1.1s;
+      --dse-art-lift: -2px;
+      animation-delay: 1.1s, -1.4s;
     }
 
     #dse-root .dse-art-layer-4 {
-      animation-delay: 1.65s;
+      --dse-art-lift: 1.5px;
+      animation-delay: 1.65s, -2.1s;
     }
 
     #dse-root .dse-art-chip,
     #dse-root .dse-art-chip-detail {
-      opacity: .68;
+      animation: dse-art-chip-pulse 5.2s ease-in-out infinite;
     }
 
     #dse-root .dse-art-chip-group {
-      opacity: .9;
+      --dse-art-lift: -8px;
+      animation: dse-art-layer-float 5.2s ease-in-out infinite;
     }
 
     #dse-root .dse-art-version-plane {
+      --dse-art-drift: 6px;
       stroke: currentColor;
       opacity: .38;
-      animation: dse-art-version-plane-light 5.1s ease-in-out infinite;
+      animation:
+        dse-art-version-plane-light 5.1s ease-in-out infinite,
+        dse-art-plane-drift 6.2s ease-in-out infinite;
     }
 
     #dse-root .dse-art-plane-1 {
-      animation-delay: 0s;
+      animation-delay: 0s, 0s;
     }
 
     #dse-root .dse-art-plane-2 {
-      animation-delay: .58s;
+      --dse-art-drift: 8px;
+      animation-delay: .58s, -.55s;
     }
 
     #dse-root .dse-art-plane-3 {
-      animation-delay: 1.16s;
+      --dse-art-drift: 10px;
+      animation-delay: 1.16s, -1.1s;
     }
 
     #dse-root .dse-art-plane-4 {
-      animation-delay: 1.74s;
+      --dse-art-drift: 12px;
+      animation-delay: 1.74s, -1.65s;
     }
 
     #dse-root .dse-art-plane-5 {
-      animation-delay: 2.32s;
+      --dse-art-drift: 14px;
+      animation-delay: 2.32s, -2.2s;
     }
 
     #dse-root .dse-art-version-links {
@@ -3814,6 +3828,29 @@
       filter: drop-shadow(0 0 4px rgba(129, 207, 223, .48));
     }
 
+    #dse-root .dse-art-orbit-motion {
+      display: inline;
+    }
+
+    #dse-root .dse-art-orbit-static {
+      display: none;
+    }
+
+    #dse-root .dse-art-orbit-rays {
+      stroke: currentColor;
+      stroke-dasharray: 2 7;
+      opacity: .34;
+      animation: dse-art-orbit-rays 9s linear infinite;
+    }
+
+    #dse-root .dse-art-planet-halo {
+      stroke: var(--dse-cyan);
+      opacity: .22;
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: dse-art-planet-halo 4.8s ease-in-out infinite;
+    }
+
     #dse-root .dse-orientation-links a:hover .dse-art-flow-signal {
       stroke-width: 1.55;
       opacity: 1;
@@ -3839,6 +3876,52 @@
         stroke: var(--dse-cyan);
         stroke-width: 1.45;
         filter: drop-shadow(0 0 2.5px rgba(129, 207, 223, .5));
+      }
+    }
+
+    @keyframes dse-art-layer-float {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(var(--dse-art-lift));
+      }
+    }
+
+    @keyframes dse-art-chip-pulse {
+      0%,
+      100% {
+        opacity: .6;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
+    @keyframes dse-art-plane-drift {
+      0%,
+      100% {
+        transform: translate(0, 0);
+      }
+
+      50% {
+        transform: translate(var(--dse-art-drift), -3px);
+      }
+    }
+
+    @keyframes dse-art-pulse {
+      0%,
+      100% {
+        opacity: .38;
+        transform: scale(.82);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.24);
       }
     }
 
@@ -3888,6 +3971,35 @@
       50% {
         opacity: .62;
         transform: scale(1.08);
+      }
+    }
+
+    @keyframes dse-art-orbit-rays {
+      to {
+        stroke-dashoffset: -18;
+      }
+    }
+
+    @keyframes dse-art-planet-halo {
+      0%,
+      100% {
+        opacity: .16;
+        transform: scale(.88);
+      }
+
+      50% {
+        opacity: .48;
+        transform: scale(1.12);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #dse-root .dse-art-orbit-motion {
+        display: none;
+      }
+
+      #dse-root .dse-art-orbit-static {
+        display: inline;
       }
     }
 
@@ -5376,7 +5488,7 @@
                 <g class="dse-art-chip-group">
                   <rect class="dse-art-chip" x="90" y="48" width="60" height="24" rx="2"/>
                   <path class="dse-art-chip-detail" d="M100 60h40M120 48v24" opacity=".58"/>
-                  <circle class="dse-art-accent" cx="120" cy="60" r="3"/>
+                  <circle class="dse-art-accent dse-art-pulse" cx="120" cy="60" r="3"/>
                 </g>
                 <path d="M120 18v-9M210 58v9M30 58v9" stroke-dasharray="2 7" opacity=".4"/>
               </g>
@@ -5399,7 +5511,7 @@
                 <path class="dse-art-version-plane dse-art-plane-5" d="M84 80 179 42 230 62 135 100Z" opacity=".58"/>
                 <path class="dse-art-version-links" d="M194 114 203 101M203 101 212 88M212 88 221 75M221 75 230 62" opacity=".5"/>
                 <path d="M84 80 84 64M135 100 135 84" stroke-dasharray="2 7" opacity=".45"/>
-                <circle class="dse-art-accent" cx="161" cy="68" r="2.5"/>
+                <circle class="dse-art-accent dse-art-pulse" cx="161" cy="68" r="2.5"/>
               </g>
             </svg>
           </span>
@@ -5452,12 +5564,25 @@
                 <ellipse cx="120" cy="82" rx="94" ry="35" transform="rotate(-8 120 82)" opacity=".5"/>
                 <ellipse cx="120" cy="82" rx="72" ry="26" transform="rotate(10 120 82)" opacity=".4"/>
                 <ellipse cx="120" cy="82" rx="48" ry="18" transform="rotate(-15 120 82)" opacity=".34"/>
+                <circle class="dse-art-planet-halo" cx="120" cy="82" r="15"/>
                 <circle class="dse-art-accent" cx="120" cy="82" r="11"/>
-                <circle class="dse-art-node" cx="196" cy="57" r="4"/>
-                <circle class="dse-art-node" cx="58" cy="97" r="4"/>
-                <circle class="dse-art-node" cx="158" cy="112" r="3.5"/>
-                <circle class="dse-art-node" cx="77" cy="61" r="3.5"/>
-                <path d="M120 82 196 57M120 82 58 97M120 82 158 112M120 82 77 61" stroke-dasharray="2 7" opacity=".34"/>
+                <circle class="dse-art-orbit-motion dse-art-node" r="4">
+                  <animateMotion dur="24s" begin="-2s" repeatCount="indefinite" path="M213.1 68.9A94 35 -8 1 1 26.9 95.1A94 35 -8 1 1 213.1 68.9"/>
+                </circle>
+                <circle class="dse-art-orbit-motion dse-art-node" r="4">
+                  <animateMotion dur="24s" begin="-14s" repeatCount="indefinite" path="M213.1 68.9A94 35 -8 1 1 26.9 95.1A94 35 -8 1 1 213.1 68.9"/>
+                </circle>
+                <circle class="dse-art-orbit-motion dse-art-node" r="3.5">
+                  <animateMotion dur="18s" begin="-7s" repeatCount="indefinite" path="M190.9 94.5A72 26 10 1 1 49.1 69.5A72 26 10 1 1 190.9 94.5"/>
+                </circle>
+                <circle class="dse-art-orbit-motion dse-art-node" r="3.5">
+                  <animateMotion dur="12s" begin="-3s" repeatCount="indefinite" path="M166.4 69.6A48 18 -15 1 1 73.6 94.4A48 18 -15 1 1 166.4 69.6"/>
+                </circle>
+                <circle class="dse-art-orbit-static dse-art-node" cx="196" cy="57" r="4"/>
+                <circle class="dse-art-orbit-static dse-art-node" cx="58" cy="97" r="4"/>
+                <circle class="dse-art-orbit-static dse-art-node" cx="158" cy="112" r="3.5"/>
+                <circle class="dse-art-orbit-static dse-art-node" cx="77" cy="61" r="3.5"/>
+                <path class="dse-art-orbit-rays" d="M120 82 196 57M120 82 58 97M120 82 158 112M120 82 77 61"/>
               </g>
             </svg>
           </span>
