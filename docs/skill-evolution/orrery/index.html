@@ -325,6 +325,7 @@
     .stage {
       position: absolute;
       inset: 0;
+      isolation: isolate;
       overflow: hidden;
       touch-action: pan-y;
       cursor: grab;
@@ -340,6 +341,15 @@
     }
 
     .scene-lines {
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .scene-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
       overflow: visible;
       pointer-events: none;
     }
@@ -590,12 +600,12 @@
 
     .category-node.is-core {
       z-index: 6;
-      width: 48px;
+      width: 44px;
     }
 
     .category-node.is-core .category-sphere {
-      width: var(--diameter, 48px);
-      height: var(--diameter, 48px);
+      width: var(--diameter, 42px);
+      height: var(--diameter, 42px);
       color: var(--paper);
       background:
         radial-gradient(circle at 34% 28%, rgba(255, 255, 255, .78), transparent 13%),
@@ -607,7 +617,7 @@
     }
 
     .category-node.is-core .category-label {
-      top: calc(50% + var(--planet-span, var(--diameter, 48px)) / 2 + 12px);
+      top: calc(50% + var(--planet-span, var(--diameter, 42px)) / 2 + 12px);
       right: auto;
       left: 50%;
       justify-items: center;
@@ -684,8 +694,8 @@
       top: 50%;
       left: 50%;
       display: block;
-      width: 62px;
-      height: 62px;
+      width: 56px;
+      height: 56px;
       border-radius: 50%;
       box-shadow:
         0 0 0 5px color-mix(in srgb, var(--sector-color) 4%, transparent),
@@ -704,7 +714,7 @@
 
     .sector-title strong {
       position: absolute;
-      top: calc(50% + 45px);
+      top: calc(50% + 42px);
       left: 50%;
       font-size: 14px;
       font-weight: 500;
@@ -714,7 +724,7 @@
 
     .sector-title .sector-folder {
       position: absolute;
-      top: calc(50% + 63px);
+      top: calc(50% + 60px);
       left: 50%;
       color: var(--sector-color);
       font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
@@ -725,7 +735,7 @@
 
     .sector-title small {
       position: absolute;
-      top: calc(50% + 79px);
+      top: calc(50% + 76px);
       left: 50%;
       color: var(--muted);
       font-size: 10px;
@@ -758,9 +768,9 @@
 
     .file-sphere {
       position: relative;
-      flex: 0 0 var(--file-size, 15px);
-      width: var(--file-size, 15px);
-      height: var(--file-size, 15px);
+      flex: 0 0 var(--file-size, 12px);
+      width: var(--file-size, 12px);
+      height: var(--file-size, 12px);
       border: 1px solid color-mix(in srgb, var(--file-color) 75%, white 8%);
       border-radius: 50%;
       background: #091016;
@@ -789,7 +799,7 @@
 
     .file-name {
       position: absolute;
-      top: calc(50% + var(--planet-span, var(--file-size, 15px)) / 2 + 5px);
+      top: calc(50% + var(--planet-span, var(--file-size, 12px)) / 2 + 5px);
       left: 50%;
       width: max-content;
       max-width: 128px;
@@ -1377,7 +1387,7 @@
 
         <div class="stage" id="stage">
           <div class="core-aura" aria-hidden="true"></div>
-          <svg class="scene-lines" id="sceneLines" aria-hidden="true"></svg>
+          <div class="scene-lines" id="sceneLines" aria-hidden="true"></div>
           <div class="node-layer" id="orbitLayer"></div>
           <div class="sector-title" id="sectorTitle" aria-hidden="true"></div>
           <div class="node-layer" id="fileLayer"></div>
@@ -1417,7 +1427,7 @@
         folder: "integration/",
         root: "references/integration/",
         ring: 1,
-        orbitScale: .32,
+        orbitScale: .30,
         flatten: .866,
         focusSide: 0,
         tilt: -1.8,
@@ -1432,7 +1442,7 @@
         folder: "triage/",
         root: "references/triage/",
         ring: 1,
-        orbitScale: .43,
+        orbitScale: .42,
         flatten: .903,
         focusSide: 0,
         tilt: 0,
@@ -1447,7 +1457,7 @@
         folder: "tuning/",
         root: "references/tuning/",
         ring: 2,
-        orbitScale: .56,
+        orbitScale: .55,
         flatten: .929,
         focusSide: 0,
         tilt: 2.6,
@@ -1462,7 +1472,7 @@
         folder: "upgrade/",
         root: "references/upgrade/",
         ring: 2,
-        orbitScale: .66,
+        orbitScale: .67,
         flatten: .947,
         focusSide: 0,
         tilt: 0,
@@ -1477,7 +1487,7 @@
         folder: "scripts/",
         root: "scripts/",
         ring: 3,
-        orbitScale: .76,
+        orbitScale: .79,
         flatten: .963,
         focusSide: 0,
         tilt: -1.2,
@@ -1492,7 +1502,7 @@
         folder: "tests/",
         root: "tests/",
         ring: 4,
-        orbitScale: .84,
+        orbitScale: .90,
         flatten: .976,
         focusSide: 0,
         tilt: 2.2,
@@ -1605,6 +1615,8 @@
       .map(([, total]) => total);
     const GROUP_WEIGHT_MIN = Math.min(...GROUP_WEIGHTS);
     const GROUP_WEIGHT_MAX = Math.max(...GROUP_WEIGHTS);
+    const DEPTH_LAYER_COUNT = 13;
+    const DEPTH_Z_INDEX_BASE = 20;
     const state = {
       group: null,
       selected: null,
@@ -1634,6 +1646,9 @@
       dragMode: "orbit",
       layout: null,
       starGroup: null,
+      sceneLayers: [],
+      categoryOrbitPaths: new Map(),
+      localOrbitPaths: [],
       categoryNodes: new Map(),
       fileNodes: new Map(),
       localAngles: new Map()
@@ -1819,7 +1834,7 @@
       core.className = "category-node is-core";
       core.dataset.group = "core";
       core.style.setProperty("--group-color", GROUPS.core.color);
-      core.style.setProperty("--diameter", "48px");
+      core.style.setProperty("--diameter", "42px");
       core.innerHTML = `
         <span class="category-sphere"><canvas class="planet-canvas" width="192" height="192" aria-hidden="true"></canvas></span>
         <span class="category-label"><strong>契约核心</strong><small>SKILL.md · 2</small></span>
@@ -1848,8 +1863,8 @@
           GROUP_WEIGHT_TOTALS[id],
           GROUP_WEIGHT_MIN,
           GROUP_WEIGHT_MAX,
-          16,
-          28
+          14,
+          24
         );
         node.style.setProperty("--diameter", `${diameter.toFixed(1)}px`);
         node.innerHTML = `
@@ -1908,10 +1923,9 @@
     }
 
     function setOrbitHighlight(groupId, active) {
-      const orbit = sceneLines.querySelector(`[data-orbit="${groupId}"]`);
-      if (orbit) {
+      (state.categoryOrbitPaths.get(groupId) || []).forEach(orbit => {
         orbit.classList.toggle("is-hot", active || state.group === groupId);
-      }
+      });
     }
 
     function updateSectorRail() {
@@ -1947,6 +1961,69 @@
 
     function clamp(value, minimum, maximum) {
       return Math.min(maximum, Math.max(minimum, value));
+    }
+
+    function createSceneLayers(width, height) {
+      sceneLines.innerHTML = "";
+      state.categoryOrbitPaths.clear();
+      state.localOrbitPaths = [];
+      state.sceneLayers = Array.from({ length: DEPTH_LAYER_COUNT }, (_, index) => {
+        const layer = svgElement("svg", {
+          class: "scene-layer",
+          viewBox: `0 0 ${width} ${height}`,
+          "aria-hidden": "true",
+          "data-depth-layer": index
+        });
+        layer.style.zIndex = String(DEPTH_Z_INDEX_BASE + index);
+        sceneLines.appendChild(layer);
+        return layer;
+      });
+      return state.sceneLayers;
+    }
+
+    function sceneDepthRange(radius) {
+      return Math.max(radius * 1.45, 180);
+    }
+
+    function depthLayerIndex(z, range) {
+      const normalized = clamp((z + range) / (range * 2), 0, .999999);
+      return Math.floor((1 - normalized) * DEPTH_LAYER_COUNT);
+    }
+
+    function depthZIndex(z, range) {
+      return DEPTH_Z_INDEX_BASE + depthLayerIndex(z, range);
+    }
+
+    function createLayeredOrbitPaths(className, dataAttribute, dataValue, color) {
+      return state.sceneLayers.map((layer, index) => {
+        const path = svgElement("path", {
+          class: `orbit-line ${className}`,
+          [dataAttribute]: dataValue,
+          "data-depth-layer": index
+        });
+        path.style.stroke = color;
+        layer.appendChild(path);
+        return path;
+      });
+    }
+
+    function projectedLayeredPaths(sampler, startAngle, endAngle, steps, range) {
+      const commands = Array.from({ length: DEPTH_LAYER_COUNT }, () => []);
+      let previous = sampler(startAngle);
+      let previousLayer = -1;
+      for (let index = 1; index <= steps; index += 1) {
+        const angle = startAngle + (endAngle - startAngle) * index / steps;
+        const point = sampler(angle);
+        const layerIndex = depthLayerIndex((previous.z + point.z) * .5, range);
+        const start = `${previous.x.toFixed(2)} ${previous.y.toFixed(2)}`;
+        const end = `${point.x.toFixed(2)} ${point.y.toFixed(2)}`;
+        commands[layerIndex].push(
+          `${layerIndex === previousLayer ? "L" : `M${start} L`}${end}`
+        );
+        previous = point;
+        previousLayer = layerIndex;
+      }
+      return commands.map(bucket => bucket.join(" "));
     }
 
     function projectWorldPoint(x, y, z) {
@@ -1999,20 +2076,10 @@
       );
     }
 
-    function projectedPath(sampler, startAngle, endAngle, steps = 96) {
-      const commands = [];
-      for (let index = 0; index <= steps; index += 1) {
-        const angle = startAngle + (endAngle - startAngle) * index / steps;
-        const point = sampler(angle);
-        commands.push(`${index === 0 ? "M" : "L"}${point.x.toFixed(2)} ${point.y.toFixed(2)}`);
-      }
-      return commands.join(" ");
-    }
-
     function updateCategoryProjection() {
       if (!state.layout || state.group) return;
       const core = state.categoryNodes.get("core");
-      const depthOrder = [];
+      const depthRange = sceneDepthRange(state.layout.maxRadius);
       if (core) {
         const coreDiameter = Number.parseFloat(core.style.getPropertyValue("--diameter"));
         core.style.left = `${state.layout.centerX}px`;
@@ -2020,7 +2087,7 @@
         core.style.opacity = "1";
         core.style.setProperty("--planet-scale", state.cameraZoom.toFixed(3));
         core.style.setProperty("--planet-span", `${coreDiameter * state.cameraZoom}px`);
-        depthOrder.push({ node: core, depth: 0 });
+        core.style.zIndex = String(depthZIndex(0, depthRange));
       }
 
       Object.entries(GROUPS).filter(([id]) => id !== "core").forEach(([id, group]) => {
@@ -2038,27 +2105,25 @@
           planetScale.toFixed(3)
         );
         node.style.setProperty("--planet-span", `${planetDiameter * planetScale}px`);
-        const orbitPath = sceneLines.querySelector(`[data-orbit="${id}"]`);
-        if (orbitPath) {
-          orbitPath.setAttribute(
-            "d",
-            projectedPath(angle => orbitPoint(group, angle), 0, 360, 120)
+        node.style.zIndex = String(depthZIndex(point.z, depthRange));
+        const orbitPaths = state.categoryOrbitPaths.get(id) || [];
+        if (orbitPaths.length) {
+          const paths = projectedLayeredPaths(
+            angle => orbitPoint(group, angle),
+            0,
+            360,
+            140,
+            depthRange
           );
+          orbitPaths.forEach((path, index) => path.setAttribute("d", paths[index]));
         }
-        depthOrder.push({ node, depth: point.z });
       });
-      depthOrder
-        .sort((a, b) => b.depth - a.depth)
-        .forEach((item, index) => {
-          item.node.style.zIndex = String(20 + index);
-        });
     }
 
     function drawScene() {
       if (!state.layout) return;
       const { width, height } = state.layout;
-      sceneLines.setAttribute("viewBox", `0 0 ${width} ${height}`);
-      sceneLines.innerHTML = "";
+      const sceneLayers = createSceneLayers(width, height);
 
       const starGroup = svgElement("g");
       state.starGroup = starGroup;
@@ -2073,17 +2138,14 @@
           opacity: index % 17 === 0 ? .42 : (index % 7 === 0 ? .27 : .13)
         }));
       }
-      sceneLines.appendChild(starGroup);
+      sceneLayers[0].appendChild(starGroup);
 
       if (!state.group) {
         Object.entries(GROUPS).filter(([id]) => id !== "core").forEach(([id, group]) => {
-          const orbit = svgElement("path", {
-            stroke: group.color,
-            class: "orbit-line category-orbit",
-            "data-orbit": id
-          });
-          orbit.style.stroke = group.color;
-          sceneLines.appendChild(orbit);
+          state.categoryOrbitPaths.set(
+            id,
+            createLayeredOrbitPaths("category-orbit", "data-orbit", id, group.color)
+          );
         });
       }
       updateCategoryProjection();
@@ -2154,30 +2216,30 @@
       const localMax = Math.min(state.layout.width * .4, state.layout.height * .41);
       if (FILES_BY_GROUP[groupId].length > 7) {
         return [
-          { radius: localMax * .58, tilt: 0, inclination: 0, speed: .17, baseAngle: -82 },
+          { radius: localMax * .52, tilt: 0, inclination: 0, speed: .17, baseAngle: -82 },
           { radius: localMax, tilt: 0, inclination: 0, speed: -.12, baseAngle: -58 }
         ];
       }
       return [
-        { radius: localMax * .8, tilt: 0, inclination: 0, speed: .14, baseAngle: -84 }
+        { radius: localMax * .78, tilt: 0, inclination: 0, speed: .14, baseAngle: -84 }
       ];
     }
 
     function drawLocalOrbits(groupId) {
       if (!state.layout) return;
       drawScene();
-      getLocalOrbitSpecs(groupId).forEach((spec, index) => {
-        const orbit = svgElement("path", {
-          stroke: GROUPS[groupId].color,
-          opacity: index ? .24 : .4,
-          class: "orbit-line local-orbit",
-          "data-local-index": index
-        });
-        orbit.style.stroke = GROUPS[groupId].color;
-        sceneLines.appendChild(orbit);
+      state.localOrbitPaths = getLocalOrbitSpecs(groupId).map((spec, index) => {
+        const paths = createLayeredOrbitPaths(
+          "local-orbit",
+          "data-local-index",
+          String(index),
+          GROUPS[groupId].color
+        );
+        paths.forEach(path => path.setAttribute("opacity", index ? ".24" : ".4"));
+        return paths;
       });
       const linksGroup = svgElement("g", { id: "linksGroup" });
-      sceneLines.appendChild(linksGroup);
+      state.sceneLayers[0].appendChild(linksGroup);
     }
 
     function localOrbitPoint(groupId, orbitIndex, angleDegrees) {
@@ -2224,8 +2286,8 @@
           file.weight,
           FILE_WEIGHT_MIN,
           FILE_WEIGHT_MAX,
-          7,
-          14
+          6,
+          12
         );
         button.style.setProperty("--file-size", `${fileDiameter.toFixed(1)}px`);
         button.innerHTML = `
@@ -2273,13 +2335,18 @@
       if (!state.layout || !state.group) return;
       const localMax = Math.min(state.layout.width * .4, state.layout.height * .41);
       const files = FILES_BY_GROUP[state.group];
-      const depthOrder = [{ node: sectorTitle, depth: 0 }];
+      const depthRange = sceneDepthRange(localMax);
       sectorTitle.style.setProperty("--sector-scale", state.cameraZoom.toFixed(3));
-      sceneLines.querySelectorAll(".local-orbit").forEach((path, index) => {
-        path.setAttribute(
-          "d",
-          projectedPath(angle => localOrbitPoint(state.group, index, angle), 0, 360, 120)
+      sectorTitle.style.zIndex = String(depthZIndex(0, depthRange));
+      state.localOrbitPaths.forEach((orbitPaths, index) => {
+        const paths = projectedLayeredPaths(
+          angle => localOrbitPoint(state.group, index, angle),
+          0,
+          360,
+          140,
+          depthRange
         );
+        orbitPaths.forEach((path, layerIndex) => path.setAttribute("d", paths[layerIndex]));
       });
       files.forEach(file => {
         const node = state.fileNodes.get(file.path);
@@ -2298,13 +2365,8 @@
           planetScale.toFixed(3)
         );
         node.style.setProperty("--planet-span", `${planetDiameter * planetScale}px`);
-        depthOrder.push({ node, depth: point.z });
+        node.style.zIndex = String(depthZIndex(point.z, depthRange));
       });
-      depthOrder
-        .sort((a, b) => b.depth - a.depth)
-        .forEach((item, index) => {
-          item.node.style.zIndex = String(20 + index);
-        });
       updateLinks();
     }
 
