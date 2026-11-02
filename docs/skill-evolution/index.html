@@ -2964,6 +2964,111 @@
       border-radius: 999px;
     }
 
+    #dse-root .dse-mode-guide {
+      display: grid;
+      grid-template-columns: minmax(0, .9fr) minmax(0, 1.45fr);
+      gap: 22px;
+      margin-top: 14px;
+      padding: 16px 18px;
+      background: #0a0c0e;
+      border: 1px solid var(--dse-line);
+      border-left: 2px solid var(--dse-cyan);
+      border-radius: 10px;
+    }
+
+    #dse-root .dse-mode-guide-copy {
+      min-width: 0;
+    }
+
+    #dse-root .dse-mode-guide-kicker {
+      margin: 0 0 6px;
+      color: var(--dse-cyan);
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 9px;
+      letter-spacing: .065em;
+    }
+
+    #dse-root .dse-mode-guide-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 550;
+      line-height: 1.45;
+    }
+
+    #dse-root .dse-mode-guide-summary {
+      max-width: 560px;
+      margin: 6px 0 0;
+      color: var(--dse-muted);
+      font-size: 11px;
+      line-height: 1.65;
+    }
+
+    #dse-root .dse-mode-guide-route {
+      min-width: 0;
+      align-self: center;
+    }
+
+    #dse-root .dse-mode-guide-route-label {
+      margin: 0 0 9px;
+      color: var(--dse-muted);
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 9px;
+      letter-spacing: .06em;
+    }
+
+    #dse-root .dse-mode-guide-steps {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    #dse-root .dse-mode-guide-step {
+      position: relative;
+      min-width: 0;
+      padding-left: 29px;
+    }
+
+    #dse-root .dse-mode-guide-step b {
+      position: absolute;
+      left: 0;
+      top: 1px;
+      display: grid;
+      place-items: center;
+      width: 20px;
+      height: 20px;
+      color: var(--dse-cyan);
+      background: #101518;
+      border: 1px solid rgba(129, 207, 223, .38);
+      border-radius: 50%;
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 8px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-mode-guide-step span {
+      display: block;
+      min-width: 0;
+    }
+
+    #dse-root .dse-mode-guide-step strong {
+      display: block;
+      color: var(--dse-text);
+      font-size: 11px;
+      font-weight: 550;
+      line-height: 1.4;
+    }
+
+    #dse-root .dse-mode-guide-step small {
+      display: block;
+      margin-top: 4px;
+      color: var(--dse-muted);
+      font-size: 10px;
+      line-height: 1.55;
+    }
+
     #dse-root .dse-demo-grid {
       gap: 14px;
       margin-top: 14px;
@@ -3475,6 +3580,13 @@
       }
     }
 
+    @media (max-width: 1180px) {
+      #dse-root .dse-mode-guide {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+    }
+
     @media (max-width: 940px) {
       #dse-root .dse-map-stage.is-detail-open,
       #dse-root .dse-archive.is-detail-open {
@@ -3509,6 +3621,26 @@
 
       #dse-root .dse-version-grid {
         grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      #dse-root .dse-mode-guide {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      #dse-root .dse-mode-guide-steps {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      #dse-root .dse-mode-guide-step {
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--dse-line);
+      }
+
+      #dse-root .dse-mode-guide-step:last-child {
+        padding-bottom: 0;
+        border-bottom: 0;
       }
 
       #dse-root .dse-demo-grid,
@@ -3595,6 +3727,10 @@
 
       #dse-root .dse-orientation-links {
         grid-template-columns: 1fr;
+      }
+
+      #dse-root .dse-mode-guide {
+        padding: 14px;
       }
 
       #dse-root .dse-process-visual {
@@ -3933,6 +4069,18 @@
         <button type="button" class="dse-filter" data-demo-mode="identity" aria-pressed="false">配置有效性</button>
       </div>
 
+      <section class="dse-mode-guide" aria-labelledby="dse-mode-guide-title" aria-live="polite">
+        <div class="dse-mode-guide-copy">
+          <p class="dse-mode-guide-kicker" id="dse-mode-guide-kicker">当前模式 / 调校流程</p>
+          <h3 class="dse-mode-guide-title" id="dse-mode-guide-title">从一句需求，走到可回退的实验计划</h3>
+          <p class="dse-mode-guide-summary" id="dse-mode-guide-summary">先收集证据，再允许设计实验。这里会展示缺少基线、恢复路径或停止条件时，为什么不应直接给出超频参数。</p>
+        </div>
+        <div class="dse-mode-guide-route">
+          <p class="dse-mode-guide-route-label">建议操作</p>
+          <ol class="dse-mode-guide-steps" id="dse-mode-guide-steps"></ol>
+        </div>
+      </section>
+
       <div class="dse-demo-grid">
         <article class="dse-demo-panel wide dse-term-panel" data-demo-mode="terms" aria-labelledby="dse-term-title" hidden>
           <div class="dse-demo-panel-head">
@@ -3995,10 +4143,10 @@
         <article class="dse-demo-panel" data-demo-mode="tune" aria-labelledby="dse-gate-demo-title">
           <div class="dse-demo-panel-head">
             <div>
-              <h3 id="dse-gate-demo-title">调校主状态机</h3>
-              <p class="dse-demo-panel-sub">从请求到结论由证据推进；物理危险直接终止，五项齐全也只解锁演示实验。</p>
+              <h3 id="dse-gate-demo-title">从请求走到证据门禁</h3>
+              <p class="dse-demo-panel-sub">先选一个场景，再展开五项检查；你会看到系统为什么拒绝缺证据的直接参数请求。</p>
             </div>
-            <span class="dse-demo-step">GATE / 02</span>
+            <span class="dse-demo-step">01 · 门禁</span>
           </div>
 
           <ol class="dse-state-rail" id="dse-tune-state-rail" aria-label="调校状态"></ol>
@@ -4027,7 +4175,7 @@
             <button type="button" class="dse-demo-action" id="dse-enter-experiment" disabled>进入演示实验</button>
             <button type="button" class="dse-demo-action" data-gate-action="rules" aria-controls="dse-gate-rules" aria-expanded="false">查看拒绝规则</button>
           </div>
-          <p class="dse-gate-help">门禁通过只改变状态，不生成硬件参数；实验阶段仍是只读演示。</p>
+          <p class="dse-gate-help">第一次来：先选一个场景 → 展开五项检查 → 勾选确实已经拿到的证据。这里只演示判断流程，不生成真实参数。</p>
 
           <div class="dse-gate-details">
             <div class="dse-gate-checklist" id="dse-gate-checklist" hidden>
@@ -4065,10 +4213,10 @@
         <article class="dse-demo-panel dse-compare-panel" data-demo-mode="tune" aria-labelledby="dse-compare-demo-title">
           <div class="dse-demo-panel-head">
             <div>
-              <h3 id="dse-compare-demo-title">Before / After</h3>
-              <p class="dse-demo-panel-sub">比较回答结构，不虚构某组参数必然导致蓝屏。</p>
+              <h3 id="dse-compare-demo-title">两种回答有什么不同</h3>
+              <p class="dse-demo-panel-sub">左侧模拟直接索要参数的回答，右侧展示先补齐证据的做法；不虚构某组参数必然导致蓝屏。</p>
             </div>
-            <span class="dse-demo-step">COMPARE / 03</span>
+            <span class="dse-demo-step">02 · 对照</span>
           </div>
           <div class="dse-compare-grid">
             <div class="dse-compare-card direct">
@@ -4098,10 +4246,10 @@
         <article class="dse-demo-panel wide dse-experiment-panel" data-demo-mode="tune" aria-labelledby="dse-experiment-demo-title">
           <div class="dse-demo-panel-head">
             <div>
-              <h3 id="dse-experiment-demo-title">实验生命周期</h3>
-              <p class="dse-demo-panel-sub">门禁通过后依次形成基线、候选、测量和结果；任何配置变化都必须重新确认当前资格。</p>
+              <h3 id="dse-experiment-demo-title">通过门禁后怎么实验</h3>
+              <p class="dse-demo-panel-sub">只有五项证据齐全后才进入这条路径，依次形成基线、候选、测量和结果；任何配置变化都必须重新确认当前资格。</p>
             </div>
-            <span class="dse-demo-step">EXPERIMENT / 04</span>
+            <span class="dse-demo-step">03 · 实验</span>
           </div>
 
           <ol class="dse-state-rail" id="dse-experiment-state-rail" aria-label="实验状态"></ol>
@@ -4313,6 +4461,10 @@
       const convergenceSection = root.querySelector(".dse-convergence");
       const archiveSection = root.querySelector(".dse-archive");
       const demoSection = document.getElementById("dse-demo");
+      const modeGuideKicker = document.getElementById("dse-mode-guide-kicker");
+      const modeGuideTitle = document.getElementById("dse-mode-guide-title");
+      const modeGuideSummary = document.getElementById("dse-mode-guide-summary");
+      const modeGuideSteps = document.getElementById("dse-mode-guide-steps");
       const scenarioGrid = document.getElementById("dse-scenario-grid");
       const gateRequest = document.getElementById("dse-gate-request");
       const gateOutput = document.getElementById("dse-gate-output");
@@ -5113,6 +5265,49 @@
       let triageStageIndex = 0;
       let activeLifecycleEvent = "confirm";
       let activeDemoMode = "tune";
+
+      const modeGuideContent = {
+        terms: {
+          kicker: "当前模式 / 术语解释",
+          title: "先看懂词，再判断它和你的问题有没有关系",
+          summary: "选中术语后，会拆成动作、类比和后果。它帮助理解概念，但不会给出可以照抄到任何机器上的参数。",
+          steps: [
+            ["选中一个术语", "悬停、键盘聚焦或触屏轻点都可以。"],
+            ["读三段解释", "分别看它在做什么、像什么，以及判断错会怎样。"],
+            ["带着语境理解", "术语只是一层解释，不能代替设备身份、基线和恢复路径。"]
+          ]
+        },
+        tune: {
+          kicker: "当前模式 / 调校流程",
+          title: "从一句需求，走到可回退的实验计划",
+          summary: "先收集证据，再允许设计实验。这里会展示缺少基线、恢复路径或停止条件时，为什么不应直接给出超频参数。",
+          steps: [
+            ["选一个示例请求", "从下方场景里挑一个最像你当前问题的例子。"],
+            ["补五项证据", "展开检查并勾选已经拿到的证据，观察门禁何时放行。"],
+            ["依次看三个区域", "先看门禁状态，再对照两种回答，最后看通过后的实验步骤。"]
+          ]
+        },
+        triage: {
+          kicker: "当前模式 / 排障分流",
+          title: "先排除危险，再决定下一步查什么",
+          summary: "这里不替你猜故障，而是演示怎样按证据选择最小、可逆的检查，避免把卡顿或掉电直接归咎于性能设置。",
+          steps: [
+            ["选一个故障症状", "从下方 8 个实例里选择最接近的现象。"],
+            ["先确认安全范围", "出现焦味、打火、鼓包或液体时直接停止。"],
+            ["每次只推进一步", "每轮只增加一个证据或一个可逆动作。"]
+          ]
+        },
+        identity: {
+          kicker: "当前模式 / 配置有效性",
+          title: "判断旧记录还能不能继续使用",
+          summary: "硬件身份或配置发生变化后，旧记录仍有历史价值，但不一定能继续充当当前基线或复用旧候选。",
+          steps: [
+            ["选一个配置事件", "例如身份确认、只凭用户自述，或检测结果冲突。"],
+            ["同时看两套状态", "左侧判断设备身份，右侧判断基线是否仍然有效。"],
+            ["决定记录怎么用", "区分当前可用、需要刷新，或只能保留为历史。"]
+          ]
+        }
+      };
 
       const tuneStateCopy = {
         input: {
@@ -6480,9 +6675,33 @@
         }
       }
 
+      function renderModeGuide(mode) {
+        const content = modeGuideContent[mode];
+        if (!content) return;
+        modeGuideKicker.textContent = content.kicker;
+        modeGuideTitle.textContent = content.title;
+        modeGuideSummary.textContent = content.summary;
+        modeGuideSteps.replaceChildren();
+        content.steps.forEach(([title, copy], index) => {
+          const item = document.createElement("li");
+          item.className = "dse-mode-guide-step";
+          const number = document.createElement("b");
+          number.textContent = String(index + 1).padStart(2, "0");
+          const text = document.createElement("span");
+          const heading = document.createElement("strong");
+          heading.textContent = title;
+          const detail = document.createElement("small");
+          detail.textContent = copy;
+          text.append(heading, detail);
+          item.append(number, text);
+          modeGuideSteps.appendChild(item);
+        });
+      }
+
       function setDemoMode(mode, options = {}) {
         if (!["terms", "tune", "triage", "identity"].includes(mode)) return;
         activeDemoMode = mode;
+        renderModeGuide(mode);
         root.querySelectorAll(".dse-demo-panel[data-demo-mode]").forEach(panel => {
           panel.hidden = panel.dataset.demoMode !== mode;
         });
