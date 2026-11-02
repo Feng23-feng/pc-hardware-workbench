@@ -223,7 +223,13 @@
       border-radius: 7px;
       font-size: 10px;
       letter-spacing: .07em;
+      text-decoration: none;
       white-space: normal;
+    }
+
+    #dse-root .dse-chip:hover {
+      border-color: var(--dse-lime);
+      background: rgba(12, 24, 30, .96);
     }
 
     #dse-root .dse-chip::before {
@@ -5374,6 +5380,7 @@
           <span class="dse-chip">工作台 1.5.2</span>
           <span class="dse-chip prototype">超频原型 3.0.2 · 未发布</span>
           <span class="dse-chip triage">故障排查：公开</span>
+          <a class="dse-chip demo" href="orrery/">文件星系：在线</a>
         </div>
       </aside>
     </header>
@@ -5474,6 +5481,7 @@
         <button type="button" class="dse-filter" data-filter="prototype" aria-pressed="false">自动超频原型</button>
         <button type="button" class="dse-filter" data-filter="triage" aria-pressed="false">Triage 排障</button>
         <a class="dse-filter dse-lab-link" href="interactive/">交互实验室 ↗</a>
+        <a class="dse-filter dse-lab-link" href="orrery/">Skill 文件星系 ↗</a>
         <button type="button" class="dse-filter" data-filter="merge" aria-pressed="false">融合阶段</button>
       </div>
       <div class="dse-legend">

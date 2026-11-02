@@ -30,6 +30,10 @@ Explore the complete Workbench and GPU auto-overclock prototype history, includi
 
 交互实验室按模式展示术语解释、调校门禁、Triage 分流和配置状态失效。
 
+[打开 Skill 文件星系](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/orrery/)
+
+文件星系把 61 个 Skill 文件按契约核心、流程、排障、调校、升级、运行脚本和验证网络组织成可旋转、可缩放的三维式总览；文件大小按权重映射，不表示实际文件体积。
+
 ## Why this project exists
 
 Hardware advice often fails in three ways: it skips the actual machine state,
