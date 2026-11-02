@@ -35,8 +35,8 @@
       overflow-y: auto;
       color: var(--dse-text);
       background:
-        radial-gradient(circle at 8% 0%, rgba(73, 230, 255, .14), transparent 28%),
-        radial-gradient(circle at 94% 34%, rgba(255, 85, 184, .1), transparent 30%),
+        radial-gradient(circle at 8% 0%, rgba(73, 230, 255, .085), transparent 28%),
+        radial-gradient(circle at 94% 18%, rgba(255, 85, 184, .055), transparent 26%),
         var(--dse-bg);
       border: 1px solid #16354b;
       font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
@@ -48,8 +48,8 @@
       inset: 0;
       pointer-events: none;
       background-image:
-        linear-gradient(rgba(73, 230, 255, .028) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(73, 230, 255, .028) 1px, transparent 1px);
+        linear-gradient(rgba(73, 230, 255, .014) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(73, 230, 255, .014) 1px, transparent 1px);
       background-size: 26px 26px;
     }
 
@@ -64,87 +64,171 @@
     #dse-root .dse-shell {
       position: relative;
       z-index: 1;
-      padding: 18px;
+      padding: 24px;
     }
 
     #dse-root .dse-header {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(310px, 390px);
-      align-items: flex-start;
-      gap: 16px;
-      padding-bottom: 13px;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+      align-items: center;
+      gap: 28px;
+      padding-bottom: 24px;
       border-bottom: 1px solid var(--dse-line);
     }
 
     #dse-root .dse-header-copy {
-      align-self: center;
       min-width: 0;
     }
 
     #dse-root .dse-kicker {
-      margin: 0 0 5px;
+      margin: 0 0 9px;
       color: var(--dse-cyan);
-      font-size: 10px;
-      letter-spacing: .18em;
+      font-size: 11px;
+      letter-spacing: .14em;
       text-transform: uppercase;
     }
 
     #dse-root h1 {
       margin: 0;
-      font-size: 22px;
+      font-size: 34px;
       font-weight: 500;
-      letter-spacing: .02em;
+      line-height: 1.16;
+      letter-spacing: -.025em;
+    }
+
+    #dse-root .dse-title-sub {
+      display: block;
+      margin-top: 5px;
+      color: var(--dse-muted);
+      font-size: 17px;
+      font-weight: 400;
+      letter-spacing: .01em;
     }
 
     #dse-root .dse-subtitle {
-      margin: 0;
+      max-width: 720px;
+      margin: 12px 0 0;
       color: var(--dse-muted);
-      font-size: 10px;
-      line-height: 1.65;
+      font-size: 13px;
+      line-height: 1.7;
     }
 
     #dse-root .dse-intro-window {
       position: relative;
       min-width: 0;
-      padding: 11px 12px;
-      background:
-        linear-gradient(145deg, rgba(9, 24, 39, .99), rgba(5, 15, 27, .97));
-      border: 1px solid #21455e;
-      border-top: 2px solid var(--dse-cyan);
-      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
-      box-shadow:
-        0 14px 30px rgba(0, 0, 0, .32),
-        0 0 22px rgba(73, 230, 255, .06);
+      padding: 15px;
+      background: rgba(8, 16, 26, .88);
+      border: 1px solid #223142;
+      border-radius: 12px;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, .2);
     }
 
     #dse-root .dse-intro-kicker {
-      margin: 0 0 6px;
+      margin: 0 0 9px;
       color: var(--dse-cyan);
-      font-size: 7px;
+      font-size: 9px;
       letter-spacing: .15em;
     }
 
+    #dse-root .dse-orientation {
+      display: grid;
+      grid-template-columns: minmax(150px, .55fr) minmax(0, 1.65fr);
+      gap: 18px;
+      margin-top: 18px;
+      padding: 18px;
+      background: rgba(7, 14, 23, .84);
+      border: 1px solid #1c2b3b;
+      border-radius: 12px;
+    }
+
+    #dse-root .dse-orientation-copy {
+      min-width: 0;
+      align-self: center;
+    }
+
+    #dse-root .dse-orientation-kicker {
+      margin: 0 0 4px;
+      color: var(--dse-cyan);
+      font-size: 9px;
+      letter-spacing: .12em;
+    }
+
+    #dse-root .dse-orientation h2 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-orientation-links {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    #dse-root .dse-orientation-links a {
+      min-width: 0;
+      min-height: 58px;
+      padding: 12px;
+      color: var(--dse-text);
+      background: rgba(3, 11, 20, .76);
+      border: 1px solid #1d3346;
+      border-radius: 9px;
+      text-decoration: none;
+      transition: border-color .16s ease, background .16s ease;
+    }
+
+    #dse-root .dse-orientation-links a:hover,
+    #dse-root .dse-orientation-links a:focus-visible {
+      border-color: var(--dse-cyan);
+      background: rgba(9, 28, 43, .96);
+    }
+
+    #dse-root .dse-orientation-links span {
+      display: block;
+      color: var(--dse-cyan);
+      font-size: 9px;
+      letter-spacing: .1em;
+    }
+
+    #dse-root .dse-orientation-links strong {
+      display: block;
+      margin-top: 3px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-orientation-links small {
+      display: block;
+      margin-top: 3px;
+      color: var(--dse-muted);
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-orientation {
+      display: none;
+    }
+
     #dse-root .dse-chips {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-start;
+      display: grid;
       gap: 6px;
       max-width: none;
-      margin-top: 9px;
+      margin-top: 0;
     }
 
     #dse-root .dse-chip {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      min-height: 26px;
-      padding: 0 8px;
-      color: var(--dse-muted);
-      background: rgba(7, 18, 30, .9);
-      border: 1px solid #1b3a52;
-      font-size: 9px;
+      min-height: 31px;
+      padding: 0 9px;
+      color: var(--dse-text);
+      background: rgba(5, 13, 23, .78);
+      border: 1px solid #1d3144;
+      border-radius: 7px;
+      font-size: 10px;
       letter-spacing: .07em;
-      white-space: nowrap;
+      white-space: normal;
     }
 
     #dse-root .dse-chip::before {
@@ -208,16 +292,16 @@
       color: var(--dse-muted);
       background: rgba(6, 16, 28, .92);
       border: 1px solid #1a3952;
-      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
-      font-size: 9px;
+      border-radius: 8px;
+      font-size: 10px;
       letter-spacing: .08em;
       text-decoration: none;
     }
 
     #dse-root .dse-filter[aria-pressed="true"] {
-      color: #031116;
-      background: var(--dse-cyan);
-      border-color: var(--dse-cyan);
+      color: #070b10;
+      background: #f4f7fa;
+      border-color: #f4f7fa;
     }
 
     #dse-root .dse-lab-link {
@@ -232,53 +316,11 @@
       border-color: var(--dse-magenta);
     }
 
-    #dse-root .dse-lab-callout {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 12px;
-      padding: 10px 11px;
-      background: linear-gradient(90deg, rgba(8, 27, 42, .96), rgba(29, 10, 25, .94));
-      border: 1px solid rgba(255, 85, 184, .34);
-      border-left: 2px solid var(--dse-magenta);
-    }
-
-    #dse-root .dse-lab-callout-copy {
-      min-width: 0;
-      color: var(--dse-muted);
-      font-size: 10px;
-      line-height: 1.55;
-    }
-
-    #dse-root .dse-lab-callout-copy strong {
-      display: block;
-      margin-bottom: 3px;
-      color: var(--dse-text);
-      font-size: 11px;
-      font-weight: 500;
-    }
-
-    #dse-root .dse-lab-callout-link {
-      flex: none;
-      min-height: 30px;
-      padding: 0 10px;
-      display: inline-flex;
-      align-items: center;
-      color: #180611;
-      background: var(--dse-magenta);
-      border: 1px solid var(--dse-magenta);
-      font-size: 10px;
-      text-decoration: none;
-    }
-
     html[data-site-view="interactive"] #dse-root .dse-filters,
     html[data-site-view="interactive"] #dse-root .dse-toolbar,
     html[data-site-view="interactive"] #dse-root .dse-map-stage,
     html[data-site-view="interactive"] #dse-root .dse-convergence,
-    html[data-site-view="interactive"] #dse-root .dse-archive,
-    html[data-site-view="interactive"] #dse-root .dse-lab-callout {
+    html[data-site-view="interactive"] #dse-root .dse-archive {
       display: none !important;
     }
 
@@ -2242,6 +2284,10 @@
         grid-template-columns: 1fr;
       }
 
+      #dse-root .dse-orientation {
+        grid-template-columns: 1fr;
+      }
+
     }
 
     @media (max-width: 680px) {
@@ -2278,6 +2324,10 @@
 
       #dse-root .dse-version-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      #dse-root .dse-orientation-links {
+        grid-template-columns: 1fr;
       }
 
       #dse-root .dse-gate-checklist {
@@ -2415,21 +2465,43 @@
   <div class="dse-shell">
     <header class="dse-header">
       <div class="dse-header-copy">
-        <p class="dse-kicker">DUAL-SKILL EVOLUTION MAP</p>
-        <h1>电脑硬件工作台 × 自动超频原型</h1>
+        <p class="dse-kicker">PC HARDWARE WORKBENCH / PROJECT MAP</p>
+        <h1>电脑硬件工作台 <span class="dse-title-sub">含自动超频原型</span></h1>
+        <p class="dse-subtitle">这是一个只读的 Windows 电脑硬件工作台项目：读取配置、排查问题、分析性能记录并规划升级，不自动修改硬件。这里是能力地图、版本档案与交互实验室入口。</p>
       </div>
       <aside class="dse-intro-window" aria-label="工具介绍与当前状态">
-        <p class="dse-intro-kicker">SYSTEM PROFILE / 工具介绍</p>
-        <p class="dse-subtitle">完整演进轨迹：主工作台建立通用硬件工作流，自动超频原型负责候选、证据和真机校准；通用 Triage 与安全门禁演示补充排障、阻断和回退闭环。</p>
+        <p class="dse-intro-kicker">PROJECT STATUS / 当前状态</p>
         <div class="dse-chips" aria-label="当前版本状态">
           <span class="dse-chip">WORKBENCH 1.4.4</span>
           <span class="dse-chip prototype">超频原型 3.0.2 · 未发布</span>
           <span class="dse-chip triage">TRIAGE: PUBLIC</span>
-          <span class="dse-chip demo">DEMO: SAFE</span>
-          <span class="dse-chip next">NEXT: MODULE MERGE</span>
         </div>
       </aside>
     </header>
+
+    <section class="dse-orientation" aria-labelledby="dse-start-title">
+      <div class="dse-orientation-copy">
+        <p class="dse-orientation-kicker">START HERE / 第一次来</p>
+        <h2 id="dse-start-title">先选一个目标</h2>
+      </div>
+      <nav class="dse-orientation-links" aria-label="快速导览">
+        <a href="#dse-map-title">
+          <span>01</span>
+          <strong>看项目地图</strong>
+          <small>了解当前能力与主要流程</small>
+        </a>
+        <a href="#dse-archive-title">
+          <span>02</span>
+          <strong>查版本演进</strong>
+          <small>按系列展开历史记录</small>
+        </a>
+        <a href="interactive/">
+          <span>03</span>
+          <strong>体验 Skill 流程</strong>
+          <small>切换术语、调校与排障状态机</small>
+        </a>
+      </nav>
+    </section>
 
     <div class="dse-toolbar">
       <div class="dse-filters" aria-label="演变轨道切换">
@@ -2447,21 +2519,13 @@
       </div>
     </div>
 
-    <section class="dse-lab-callout" aria-label="交互实验室入口">
-      <div class="dse-lab-callout-copy">
-        <strong>INTERACTIVE LAB / 交互实验室</strong>
-        在一个短页面内切换术语表、调校状态机、Triage 和身份与基线状态。
-      </div>
-      <a class="dse-lab-callout-link" href="interactive/">打开交互实验室 →</a>
-    </section>
-
     <div class="dse-map-stage">
       <div class="dse-tracks">
         <section class="dse-track core" data-track="core" aria-label="电脑调试工作台演变">
           <div class="dse-track-head">
             <div>
               <span class="dse-track-kicker">TRACK A / CORE</span>
-              <h2>电脑硬件工作台</h2>
+              <h2 id="dse-map-title">电脑硬件工作台</h2>
             </div>
             <span class="dse-track-badge">STABLE 1.4.4</span>
           </div>
@@ -2544,18 +2608,18 @@
       <header class="dse-demo-head">
         <div>
           <p class="dse-demo-kicker">SKILL WORKFLOW &amp; STATE MACHINE / SAFETY AND EVIDENCE</p>
-          <h2 id="dse-demo-title">交互演示</h2>
-          <p class="dse-demo-summary">Skill 工作流与状态机的可视化演示：体验调校门禁、Triage 分流、身份与基线失效、回答差异和实验闭环。所有结果都是界面演示，不会读取硬件、生成真实候选值或修改设置。</p>
+          <h2 id="dse-demo-title">Skill 工作流与状态机</h2>
+          <p class="dse-demo-summary">先选一个模式，再按页面提示逐步操作。所有结果都是界面演示，不会读取硬件、生成真实候选值或修改设置。</p>
           <a class="dse-demo-back" href="../">← 返回项目地图</a>
         </div>
         <span class="dse-demo-badge">SIMULATION ONLY · NO HARDWARE WRITE</span>
       </header>
 
       <div class="dse-demo-modes" role="group" aria-label="交互实验室模式">
-        <button type="button" class="dse-filter" data-demo-mode="terms" aria-pressed="false">术语台</button>
-        <button type="button" class="dse-filter" data-demo-mode="tune" aria-pressed="true">调校状态机</button>
-        <button type="button" class="dse-filter" data-demo-mode="triage" aria-pressed="false">Triage</button>
-        <button type="button" class="dse-filter" data-demo-mode="identity" aria-pressed="false">身份与基线</button>
+        <button type="button" class="dse-filter" data-demo-mode="terms" aria-pressed="false">术语解释</button>
+        <button type="button" class="dse-filter" data-demo-mode="tune" aria-pressed="true">调校流程</button>
+        <button type="button" class="dse-filter" data-demo-mode="triage" aria-pressed="false">排障分流</button>
+        <button type="button" class="dse-filter" data-demo-mode="identity" aria-pressed="false">配置有效性</button>
       </div>
 
       <div class="dse-demo-grid">
@@ -2911,8 +2975,8 @@
       const isInteractiveView = siteView === "interactive";
       if (isInteractiveView) {
         root.querySelector(".dse-kicker").textContent = "SKILL INTERACTION LAB";
-        root.querySelector("h1").textContent = "Skill 工作流与状态机";
-        root.querySelector(".dse-subtitle").textContent = "在术语解释、调校门禁、Triage 分流和配置状态之间切换；所有内容都是安全边界明确的界面演示。";
+        root.querySelector("h1").textContent = "Skill 交互实验室";
+        root.querySelector(".dse-subtitle").textContent = "先选择一种模式，再按页面提示逐步操作。所有内容都是安全边界明确的界面演示。";
       }
       const coreLane = document.getElementById("dse-core-lane");
       const prototypeLane = document.getElementById("dse-prototype-lane");
@@ -5243,6 +5307,7 @@
         handleRoute();
       } else {
         applyFilter("core", false);
+        hideInspector(false);
         selectVersion("wb-1-4-4", false, false);
         handleRoute();
       }
