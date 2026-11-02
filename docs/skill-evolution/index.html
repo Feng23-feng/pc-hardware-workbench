@@ -3663,6 +3663,7 @@
     }
 
     #dse-root .dse-art-layer,
+    #dse-root .dse-art-chip-group,
     #dse-root .dse-art-version-plane,
     #dse-root .dse-art-window-group,
     #dse-root .dse-art-pulse,
@@ -3695,6 +3696,11 @@
     #dse-root .dse-art-chip,
     #dse-root .dse-art-chip-detail {
       animation: dse-art-chip-pulse 5.2s ease-in-out infinite;
+    }
+
+    #dse-root .dse-art-chip-group {
+      --dse-art-lift: -8px;
+      animation: dse-art-layer-float 5.2s ease-in-out infinite;
     }
 
     #dse-root .dse-art-version-plane {
@@ -3787,12 +3793,10 @@
       0%,
       100% {
         opacity: .6;
-        transform: translateY(0);
       }
 
       50% {
         opacity: 1;
-        transform: translateY(-8px);
       }
     }
 
@@ -4994,9 +4998,11 @@
                 <path class="dse-art-layer dse-art-layer-2" d="M30 74 120 114 210 74"/>
                 <path class="dse-art-layer dse-art-layer-3" d="M30 90 120 130 210 90"/>
                 <path class="dse-art-layer dse-art-layer-4" d="M30 106 120 146 210 106" opacity=".42"/>
-                <rect class="dse-art-chip" x="90" y="48" width="60" height="24" rx="2"/>
-                <path class="dse-art-chip-detail" d="M100 60h40M120 48v24" opacity=".58"/>
-                <circle class="dse-art-accent dse-art-pulse" cx="120" cy="60" r="3"/>
+                <g class="dse-art-chip-group">
+                  <rect class="dse-art-chip" x="90" y="48" width="60" height="24" rx="2"/>
+                  <path class="dse-art-chip-detail" d="M100 60h40M120 48v24" opacity=".58"/>
+                  <circle class="dse-art-accent dse-art-pulse" cx="120" cy="60" r="3"/>
+                </g>
                 <path d="M120 18v-9M210 58v9M30 58v9" stroke-dasharray="2 7" opacity=".4"/>
               </g>
             </svg>
