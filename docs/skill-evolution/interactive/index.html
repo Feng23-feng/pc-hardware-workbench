@@ -3678,10 +3678,7 @@
     #dse-root .dse-art-layer,
     #dse-root .dse-art-chip-group,
     #dse-root .dse-art-version-plane,
-    #dse-root .dse-art-window-group,
-    #dse-root .dse-art-pulse,
-    #dse-root .dse-art-target-pulse,
-    #dse-root .dse-art-flow-dot {
+    #dse-root .dse-art-pulse {
       transform-box: fill-box;
       transform-origin: center;
     }
@@ -3749,46 +3746,70 @@
       animation: dse-art-pulse 4.2s ease-in-out infinite;
     }
 
-    #dse-root .dse-art-window-group {
-      animation: dse-art-window-float 6.4s ease-in-out infinite;
+    #dse-root .dse-art-data-row {
+      stroke: currentColor;
+      opacity: .42;
     }
 
-    #dse-root .dse-art-window-right {
-      animation-direction: reverse;
-      animation-delay: -1.6s;
+    #dse-root .dse-art-data-row-focus {
+      stroke: currentColor;
+      opacity: .72;
     }
 
-    #dse-root .dse-art-flow-arrow {
-      stroke: var(--dse-cyan);
-      opacity: .55;
-      animation: dse-art-flow-line 3.8s ease-in-out infinite;
+    #dse-root .dse-art-flow-route {
+      stroke: currentColor;
+      opacity: .4;
     }
 
     #dse-root .dse-art-flow-signal {
       stroke: var(--dse-cyan);
-      stroke-dasharray: 2 5;
-      animation: dse-art-flow-signal 3.8s linear infinite;
+      stroke-width: 1.25;
+      stroke-dasharray: 1.5 7;
+      opacity: .88;
+      animation: dse-art-flow-signal 3.6s linear infinite;
+      filter: drop-shadow(0 0 2px rgba(129, 207, 223, .38));
     }
 
-    #dse-root .dse-art-flow-dot {
-      r: 2.4px;
+    #dse-root .dse-art-flow-lane-2 {
+      animation-delay: -1.2s;
+    }
+
+    #dse-root .dse-art-flow-lane-3 {
+      animation-delay: -2.4s;
+    }
+
+    #dse-root .dse-art-flow-port {
+      fill: currentColor;
+      stroke: none;
+      opacity: .9;
+    }
+
+    #dse-root .dse-art-flow-gate-ring,
+    #dse-root .dse-art-flow-gate {
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    #dse-root .dse-art-flow-gate-ring {
+      stroke: var(--dse-cyan);
+      opacity: .3;
+      animation: dse-art-flow-gate 3.6s ease-in-out infinite;
+    }
+
+    #dse-root .dse-art-flow-gate {
       fill: var(--dse-cyan);
       stroke: none;
-      opacity: 0;
-      animation: dse-art-flow-dot 3.8s cubic-bezier(.22, 1, .36, 1) infinite;
+      opacity: .9;
+      filter: drop-shadow(0 0 4px rgba(129, 207, 223, .48));
     }
 
-    #dse-root .dse-art-flow-lines {
-      animation: dse-art-flow-lines 4.6s ease-in-out infinite;
+    #dse-root .dse-orientation-links a:hover .dse-art-flow-signal {
+      stroke-width: 1.55;
+      opacity: 1;
     }
 
-    #dse-root .dse-art-flow-lines-right {
-      animation-delay: -1.1s;
-    }
-
-    #dse-root .dse-art-target-pulse {
-      stroke: var(--dse-cyan);
-      animation: dse-art-target-pulse 3.8s ease-in-out infinite;
+    #dse-root .dse-orientation-links a:hover .dse-art-flow-gate-ring {
+      opacity: .62;
     }
 
     @keyframes dse-art-layer-float {
@@ -3848,80 +3869,22 @@
       }
     }
 
-    @keyframes dse-art-window-float {
-      0%,
-      100% {
-        transform: translateY(0);
-      }
-
-      50% {
-        transform: translateY(-4px);
-      }
-    }
-
-    @keyframes dse-art-flow-line {
-      0%,
-      100% {
-        opacity: .28;
-      }
-
-      50% {
-        opacity: .96;
-      }
-    }
-
     @keyframes dse-art-flow-signal {
       to {
-        stroke-dashoffset: -14;
+        stroke-dashoffset: -34;
       }
     }
 
-    @keyframes dse-art-flow-dot {
-      0%,
-      8% {
-        opacity: 0;
-        transform: translateX(0);
-      }
-
-      16% {
-        opacity: 1;
-      }
-
-      64% {
-        opacity: 1;
-        transform: translateX(18px);
-      }
-
-      74%,
-      100% {
-        opacity: 0;
-        transform: translateX(18px);
-      }
-    }
-
-    @keyframes dse-art-flow-lines {
+    @keyframes dse-art-flow-gate {
       0%,
       100% {
-        opacity: .3;
+        opacity: .22;
+        transform: scale(.82);
       }
 
       50% {
-        opacity: .72;
-      }
-    }
-
-    @keyframes dse-art-target-pulse {
-      0%,
-      45%,
-      100% {
-        opacity: .25;
-        transform: scale(.8);
-      }
-
-      60%,
-      72% {
-        opacity: 1;
-        transform: scale(1.28);
+        opacity: .62;
+        transform: scale(1.08);
       }
     }
 
@@ -5434,19 +5397,29 @@
           <span class="dse-orientation-art" aria-hidden="true">
             <svg viewBox="0 0 240 160">
               <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                <g class="dse-art-window-group dse-art-window-left">
-                  <rect class="dse-art-window" x="26" y="28" width="86" height="102" rx="2"/>
-                  <path class="dse-art-flow-lines" d="M38 44h28M38 58h54M38 72h63M38 86h49M38 100h58M38 114h34" opacity=".54"/>
-                  <circle class="dse-art-accent dse-art-pulse" cx="84" cy="100" r="3"/>
-                </g>
-                <g class="dse-art-window-group dse-art-window-right">
-                  <rect class="dse-art-window" x="128" y="50" width="86" height="102" rx="2"/>
-                  <path class="dse-art-flow-lines dse-art-flow-lines-right" d="M140 66h28M140 80h54M140 94h44M140 108h57M140 122h38" opacity=".54"/>
-                  <circle class="dse-art-target-pulse" cx="176" cy="108" r="3"/>
-                </g>
-                <path class="dse-art-flow-arrow" d="M112 80h16M124 76l4 4-4 4"/>
-                <path class="dse-art-flow-signal" d="M112 80h16"/>
-                <circle class="dse-art-flow-dot" cx="112" cy="80" r="2.4"/>
+                <rect x="16" y="26" width="84" height="108" rx="3"/>
+                <path class="dse-art-data-row" d="M28 42h28M28 57h57M28 72h43M28 87h54M28 102h38M28 117h49"/>
+                <rect class="dse-art-data-row-focus" x="28" y="111" width="49" height="11" rx="2"/>
+                <rect x="140" y="26" width="84" height="108" rx="3"/>
+                <path class="dse-art-data-row" d="M152 42h31M152 57h54M152 72h42M152 87h57M152 102h37M152 117h49"/>
+                <rect class="dse-art-data-row-focus" x="152" y="46" width="59" height="16" rx="2"/>
+
+                <path class="dse-art-flow-route" d="M100 52C111 52 111 72 118 78M100 80h18M100 108C111 108 111 88 118 82"/>
+                <path class="dse-art-flow-route" d="M122 78C129 72 129 52 140 52M122 80h18M122 82C129 88 129 108 140 108"/>
+
+                <path class="dse-art-flow-signal dse-art-flow-lane-1" d="M100 52C111 52 111 72 118 78M122 78C129 72 129 52 140 52"/>
+                <path class="dse-art-flow-signal dse-art-flow-lane-2" d="M100 80h18M122 80h18"/>
+                <path class="dse-art-flow-signal dse-art-flow-lane-3" d="M100 108C111 108 111 88 118 82M122 82C129 88 129 108 140 108"/>
+
+                <circle class="dse-art-flow-port" cx="100" cy="52" r="1.8"/>
+                <circle class="dse-art-flow-port" cx="100" cy="80" r="1.8"/>
+                <circle class="dse-art-flow-port" cx="100" cy="108" r="1.8"/>
+                <circle class="dse-art-flow-port" cx="140" cy="52" r="1.8"/>
+                <circle class="dse-art-flow-port" cx="140" cy="80" r="1.8"/>
+                <circle class="dse-art-flow-port" cx="140" cy="108" r="1.8"/>
+
+                <circle class="dse-art-flow-gate-ring" cx="120" cy="80" r="7"/>
+                <path class="dse-art-flow-gate" d="m120 76 4 4-4 4-4-4Z"/>
               </g>
             </svg>
           </span>
