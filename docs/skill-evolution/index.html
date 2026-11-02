@@ -156,7 +156,7 @@
 
     #dse-root .dse-orientation-links {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 7px;
     }
 
@@ -3613,7 +3613,7 @@
 
     #dse-root .dse-orientation-links {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 0;
       border-top: 1px solid var(--dse-line);
       border-bottom: 1px solid var(--dse-line);
@@ -3679,6 +3679,12 @@
       stroke: var(--dse-cyan);
       fill: var(--dse-cyan);
       opacity: .8;
+    }
+
+    #dse-root .dse-art-node {
+      fill: currentColor;
+      stroke: none;
+      opacity: .72;
     }
 
     #dse-root .dse-art-layer,
@@ -4960,6 +4966,18 @@
         bottom: auto;
         width: auto;
       }
+
+      #dse-root .dse-orientation-links {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      #dse-root .dse-orientation-links a:nth-child(2n) {
+        border-right: 0;
+      }
+
+      #dse-root .dse-orientation-links a:nth-last-child(-n + 2) {
+        border-bottom: 0;
+      }
     }
 
     @media (max-width: 880px) {
@@ -5389,7 +5407,7 @@
       <div class="dse-orientation-copy">
         <p class="dse-orientation-kicker">START HERE / 第一次来</p>
         <h2 id="dse-start-title">先选一个目标</h2>
-        <p class="dse-orientation-summary">三个入口对应查看能力、追溯演进和体验判断流程。先选你此刻最想解决的问题。</p>
+        <p class="dse-orientation-summary">四个入口对应查看能力、追溯演进、体验判断流程和查看文件星系。先选你此刻最想解决的问题。</p>
       </div>
       <nav class="dse-orientation-links" aria-label="快速导览">
         <a href="#dse-map-title">
@@ -5460,6 +5478,28 @@
           <span class="dse-orientation-link-copy">
             <strong>体验 Skill 流程</strong>
             <small>切换术语、调校、排障与配置有效性演示</small>
+          </span>
+        </a>
+        <a href="orrery/">
+          <span class="dse-orientation-index">04 / 文件星系</span>
+          <span class="dse-orientation-art" aria-hidden="true">
+            <svg viewBox="0 0 240 160">
+              <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="120" cy="82" rx="94" ry="35" transform="rotate(-8 120 82)" opacity=".5"/>
+                <ellipse cx="120" cy="82" rx="72" ry="26" transform="rotate(10 120 82)" opacity=".4"/>
+                <ellipse cx="120" cy="82" rx="48" ry="18" transform="rotate(-15 120 82)" opacity=".34"/>
+                <circle class="dse-art-accent" cx="120" cy="82" r="11"/>
+                <circle class="dse-art-node" cx="196" cy="57" r="4"/>
+                <circle class="dse-art-node" cx="58" cy="97" r="4"/>
+                <circle class="dse-art-node" cx="158" cy="112" r="3.5"/>
+                <circle class="dse-art-node" cx="77" cy="61" r="3.5"/>
+                <path d="M120 82 196 57M120 82 58 97M120 82 158 112M120 82 77 61" stroke-dasharray="2 7" opacity=".34"/>
+              </g>
+            </svg>
+          </span>
+          <span class="dse-orientation-link-copy">
+            <strong>看文件星系</strong>
+            <small>按权重查看 61 个 Skill 文件如何组织成完整系统</small>
           </span>
         </a>
       </nav>

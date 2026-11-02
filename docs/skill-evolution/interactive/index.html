@@ -8013,8 +8013,11 @@
         });
       }
 
-      function rotateScenarioWindow() {
-        scenarioCursor = (scenarioCursor + 2) % scenarioIds.length;
+      function selectNextScenario() {
+        const currentIndex = scenarioIds.indexOf(activeScenario);
+        const nextIndex = (currentIndex + 1) % scenarioIds.length;
+        scenarioCursor = (nextIndex + 1) % scenarioIds.length;
+        renderScenario(scenarioIds[nextIndex]);
         renderScenarioButtons();
       }
 
@@ -8026,7 +8029,7 @@
       }
       root.querySelector("[data-scenario-rotate]").addEventListener("click", () => {
         setScenarioAutoPaused(true);
-        rotateScenarioWindow();
+        selectNextScenario();
       });
       scenarioAutoToggle.addEventListener("click", () => {
         setScenarioAutoPaused(!scenarioAutoPaused);
@@ -8045,7 +8048,7 @@
           !scenarioAutoPaused &&
           !scenarioFocusPaused
         ) {
-          rotateScenarioWindow();
+          selectNextScenario();
         }
       }, 8000);
       setScenarioAutoPaused(reduceMotionQuery.matches);
