@@ -3232,6 +3232,26 @@
       border-radius: 8px;
     }
 
+    #dse-root .dse-gate-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+      align-items: start;
+      column-gap: 12px;
+    }
+
+    #dse-root .dse-gate-details > .dse-gate-checklist,
+    #dse-root .dse-gate-details > .dse-rule-list {
+      min-width: 0;
+      margin-top: 8px;
+    }
+
+    @media (min-width: 1220px) {
+      #dse-root .dse-gate-details:has(> .dse-gate-checklist:not([hidden])):has(> .dse-rule-list:not([hidden])) > .dse-rule-list {
+        padding-left: 12px;
+        border-left: 1px solid var(--dse-line);
+      }
+    }
+
     #dse-root .dse-gate-check-copy strong {
       font-size: 10px;
     }
@@ -4005,39 +4025,41 @@
             <button type="button" class="dse-demo-action" data-gate-action="direct">模拟直接索要参数</button>
             <button type="button" class="dse-demo-action primary" data-gate-action="check" aria-controls="dse-gate-checklist" aria-expanded="false">展开五项检查</button>
             <button type="button" class="dse-demo-action" id="dse-enter-experiment" disabled>进入演示实验</button>
-            <button type="button" class="dse-demo-action" data-gate-action="rules">查看拒绝规则</button>
+            <button type="button" class="dse-demo-action" data-gate-action="rules" aria-controls="dse-gate-rules" aria-expanded="false">查看拒绝规则</button>
           </div>
           <p class="dse-gate-help">门禁通过只改变状态，不生成硬件参数；实验阶段仍是只读演示。</p>
 
-          <div class="dse-gate-checklist" id="dse-gate-checklist" hidden>
-            <label class="dse-gate-check">
-              <input type="checkbox" data-gate-check="platform">
-              <span class="dse-gate-check-copy"><strong>1. 确认是哪台机器</strong><small>先分清台式机或笔记本，并确认 CPU、GPU、系统和平台版本，避免套用别的电脑的参数。</small></span>
-            </label>
-            <label class="dse-gate-check">
-              <input type="checkbox" data-gate-check="baseline">
-              <span class="dse-gate-check-copy"><strong>2. 保存当前稳定基线</strong><small>记录默认或已知良好配置在固定负载下的温度、功耗、频率、性能和画面表现。</small></span>
-            </label>
-            <label class="dse-gate-check">
-              <input type="checkbox" data-gate-check="recovery">
-              <span class="dse-gate-check-copy"><strong>3. 知道怎么恢复原样</strong><small>确认现在改过什么，以及驱动重置、花屏或黑屏时如何恢复原厂或上一已知良好配置。</small></span>
-            </label>
-            <label class="dse-gate-check">
-              <input type="checkbox" data-gate-check="workload">
-              <span class="dse-gate-check-copy"><strong>4. 固定负载和目标</strong><small>明确本轮要改善什么，并确保前后使用同一游戏场景、跑分、渲染任务或稳定性测试。</small></span>
-            </label>
-            <label class="dse-gate-check">
-              <input type="checkbox" data-gate-check="abort">
-              <span class="dse-gate-check-copy"><strong>5. 先定义成功与停止</strong><small>提前写清什么结果算有效改善，以及出现黑屏、伪影、驱动重置、异常温度或性能下降时立即回退。</small></span>
-            </label>
-          </div>
+          <div class="dse-gate-details">
+            <div class="dse-gate-checklist" id="dse-gate-checklist" hidden>
+              <label class="dse-gate-check">
+                <input type="checkbox" data-gate-check="platform">
+                <span class="dse-gate-check-copy"><strong>1. 确认是哪台机器</strong><small>先分清台式机或笔记本，并确认 CPU、GPU、系统和平台版本，避免套用别的电脑的参数。</small></span>
+              </label>
+              <label class="dse-gate-check">
+                <input type="checkbox" data-gate-check="baseline">
+                <span class="dse-gate-check-copy"><strong>2. 保存当前稳定基线</strong><small>记录默认或已知良好配置在固定负载下的温度、功耗、频率、性能和画面表现。</small></span>
+              </label>
+              <label class="dse-gate-check">
+                <input type="checkbox" data-gate-check="recovery">
+                <span class="dse-gate-check-copy"><strong>3. 知道怎么恢复原样</strong><small>确认现在改过什么，以及驱动重置、花屏或黑屏时如何恢复原厂或上一已知良好配置。</small></span>
+              </label>
+              <label class="dse-gate-check">
+                <input type="checkbox" data-gate-check="workload">
+                <span class="dse-gate-check-copy"><strong>4. 固定负载和目标</strong><small>明确本轮要改善什么，并确保前后使用同一游戏场景、跑分、渲染任务或稳定性测试。</small></span>
+              </label>
+              <label class="dse-gate-check">
+                <input type="checkbox" data-gate-check="abort">
+                <span class="dse-gate-check-copy"><strong>5. 先定义成功与停止</strong><small>提前写清什么结果算有效改善，以及出现黑屏、伪影、驱动重置、异常温度或性能下降时立即回退。</small></span>
+              </label>
+            </div>
 
-          <ul class="dse-rule-list" id="dse-gate-rules" hidden>
-            <li>物理危险优先于排障、遥测、调校和购买判断。</li>
-            <li>用户口头接受风险不能代替恢复路径。</li>
-            <li>未知供电路径不能直接提高功耗墙。</li>
-            <li>未解释的不稳定必须先排障，再考虑调校。</li>
-          </ul>
+            <ul class="dse-rule-list" id="dse-gate-rules" hidden>
+              <li>物理危险优先于排障、遥测、调校和购买判断。</li>
+              <li>用户口头接受风险不能代替恢复路径。</li>
+              <li>未知供电路径不能直接提高功耗墙。</li>
+              <li>未解释的不稳定必须先排障，再考虑调校。</li>
+            </ul>
+          </div>
         </article>
 
         <article class="dse-demo-panel dse-compare-panel" data-demo-mode="tune" aria-labelledby="dse-compare-demo-title">
@@ -4299,6 +4321,7 @@
       const gateMissing = document.getElementById("dse-gate-missing");
       const gateChecklist = document.getElementById("dse-gate-checklist");
       const gateRules = document.getElementById("dse-gate-rules");
+      const gateRulesButton = root.querySelector('[data-gate-action="rules"]');
       const compareDirect = document.getElementById("dse-compare-direct");
       const compareSafe = document.getElementById("dse-compare-safe");
       const compareAuditList = document.getElementById("dse-compare-audit-list");
@@ -6060,6 +6083,8 @@
         compareSafe.textContent = scenario.safe;
         gateChecklist.hidden = true;
         gateRules.hidden = true;
+        gateRulesButton.setAttribute("aria-expanded", "false");
+        gateRulesButton.textContent = "查看拒绝规则";
         root.querySelectorAll("[data-gate-check]").forEach(input => {
           input.checked = false;
         });
@@ -6189,6 +6214,8 @@
               return;
             }
             gateRules.hidden = true;
+            gateRulesButton.setAttribute("aria-expanded", "false");
+            gateRulesButton.textContent = "查看拒绝规则";
             if (!gateChecklist.hidden) {
               gateChecklist.hidden = true;
               button.setAttribute("aria-expanded", "false");
@@ -6223,6 +6250,8 @@
             return;
           }
           gateRules.hidden = !gateRules.hidden;
+          gateRulesButton.setAttribute("aria-expanded", String(!gateRules.hidden));
+          gateRulesButton.textContent = gateRules.hidden ? "查看拒绝规则" : "收起拒绝规则";
         });
       });
 
