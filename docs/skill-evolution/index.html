@@ -3406,8 +3406,16 @@
       font-size: 10px;
     }
 
-    #dse-root .dse-demo-field-note {
+    #dse-root .dse-demo-field-label {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      min-height: 12px;
+    }
+
+    #dse-root .dse-demo-field-label small {
       color: #646b75;
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
       font-size: 8px;
       line-height: 1.4;
       letter-spacing: .015em;
@@ -5481,14 +5489,14 @@
                 <option value="手动稳定性测试">手动稳定性测试</option>
               </select>
             </label>
-            <label class="dse-demo-field">路线
+            <label class="dse-demo-field">
+              <span class="dse-demo-field-label">路线 <small id="dse-route-context" aria-live="polite">· GPU</small></span>
               <select id="dse-demo-route" aria-describedby="dse-route-context">
                 <option value="曲线降压">曲线降压</option>
                 <option value="核心频率">核心频率</option>
                 <option value="功耗限制">功耗限制</option>
                 <option value="厂商预设">厂商预设</option>
               </select>
-              <small class="dse-demo-field-note" id="dse-route-context">当前显示 GPU 路线</small>
             </label>
             <label class="dse-demo-field">当前基线
               <select id="dse-demo-baseline">
@@ -7727,7 +7735,7 @@
           return option;
         }));
         demoRoute.value = spec.routes.includes(previousRoute) ? previousRoute : spec.routes[0];
-        demoRouteContext.textContent = `当前显示 ${spec.label} 路线`;
+        demoRouteContext.textContent = `· ${spec.label}`;
       }
 
       syncDemoRouteOptions();
