@@ -3473,7 +3473,7 @@
       grid-template-columns: minmax(0, 1fr) 280px;
       align-items: start;
       gap: 64px;
-      padding-bottom: 44px;
+      padding-bottom: 64px;
       border-bottom: 0;
     }
 
@@ -3556,7 +3556,7 @@
       grid-template-columns: 1fr;
       gap: 20px;
       margin-top: 0;
-      padding: 24px 0 0;
+      padding: 32px 0 0;
       background: transparent;
       border: 0;
       border-top: 1px solid var(--dse-line);
@@ -3608,7 +3608,7 @@
     #dse-root .dse-orientation-links a {
       display: flex;
       flex-direction: column;
-      min-height: 292px;
+      min-height: 324px;
       padding: 16px 18px 20px;
       background: transparent;
       border: 0;
@@ -3640,7 +3640,7 @@
       display: grid;
       flex: 1;
       place-items: center;
-      min-height: 165px;
+      min-height: 192px;
       color: #40464e;
       transition: color .18s ease;
     }
@@ -3651,9 +3651,14 @@
 
     #dse-root .dse-orientation-art svg {
       width: 100%;
-      max-width: 238px;
+      max-width: 262px;
       height: auto;
       overflow: visible;
+      transition: transform .28s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    #dse-root .dse-orientation-links a:hover .dse-orientation-art svg {
+      transform: scale(1.025);
     }
 
     #dse-root .dse-art-accent {
@@ -3937,7 +3942,7 @@
     }
 
     #dse-root .dse-toolbar {
-      padding: 9px 0;
+      padding: 13px 0;
       background: rgba(8, 9, 11, .92);
       border-bottom-color: var(--dse-line);
     }
@@ -3984,8 +3989,7 @@
     }
 
     #dse-root .dse-legend {
-      gap: 14px;
-      color: #676e78;
+      display: none;
     }
 
     #dse-root .dse-map-stage.is-detail-open,
@@ -4025,7 +4029,7 @@
 
     #dse-root .dse-track h2 {
       margin-top: 7px;
-      font-size: 24px;
+      font-size: 32px;
       font-weight: 570;
       letter-spacing: -.025em;
     }
@@ -4146,7 +4150,7 @@
     }
 
     #dse-root .dse-archive h2 {
-      font-size: 30px;
+      font-size: 36px;
       font-weight: 560;
       letter-spacing: -.035em;
     }
@@ -4324,8 +4328,30 @@
     }
 
     #dse-root .dse-mode-guide-title {
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 560;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-head {
+      align-items: center;
+      padding-bottom: 22px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-kicker {
+      display: none;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo h2 {
+      max-width: none;
+      margin-top: 0;
+      font-size: 24px;
+      letter-spacing: -.025em;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-summary {
+      max-width: 720px;
+      font-size: 13px;
+      line-height: 1.65;
     }
 
     #dse-root .dse-demo-grid {
