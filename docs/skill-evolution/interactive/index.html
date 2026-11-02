@@ -4363,21 +4363,34 @@
     }
 
     #dse-root .dse-demo-grid {
-      gap: 18px;
-      margin-top: 24px;
+      grid-template-columns: 1fr;
+      gap: 26px;
+      margin-top: 28px;
     }
 
     #dse-root .dse-demo-panel {
-      padding: 16px;
+      padding: 20px;
       background: #0a0c0e;
       border: 1px solid #20242a;
       border-top-width: 1px;
       border-radius: 8px;
+      scroll-margin-top: 76px;
+    }
+
+    #dse-root .dse-demo-panel-head {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--dse-line);
+      margin-bottom: 14px;
     }
 
     #dse-root .dse-demo-panel h3 {
-      font-size: 15px;
+      font-size: 18px;
       font-weight: 560;
+    }
+
+    #dse-root #dse-scenario-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
     }
 
     #dse-root #dse-triage-case-grid {
@@ -4865,6 +4878,14 @@
 
       #dse-root .dse-demo h2 {
         font-size: 30px;
+      }
+
+      #dse-root .dse-demo-panel {
+        padding: 14px;
+      }
+
+      #dse-root #dse-scenario-grid {
+        grid-template-columns: 1fr;
       }
 
       #dse-root .dse-demo-badge {
@@ -5549,6 +5570,7 @@
           </div>
           <div class="dse-gate-actions">
             <button type="button" class="dse-demo-action primary" id="dse-triage-advance">推进状态</button>
+            <button type="button" class="dse-demo-action" id="dse-triage-auto-toggle" aria-pressed="false">暂停自动轮换</button>
             <button type="button" class="dse-demo-action" id="dse-triage-reset">重置当前场景</button>
           </div>
         </article>
@@ -5713,6 +5735,7 @@
       const triageCopyTitle = document.getElementById("dse-triage-copy-title");
       const triageCopyBody = document.getElementById("dse-triage-copy-body");
       const triageAdvanceButton = document.getElementById("dse-triage-advance");
+      const triageAutoToggle = document.getElementById("dse-triage-auto-toggle");
       const triageResetButton = document.getElementById("dse-triage-reset");
       const identityStateRail = document.getElementById("dse-identity-state-rail");
       const baselineStateRail = document.getElementById("dse-baseline-state-rail");
@@ -6473,6 +6496,8 @@
       let activeExperimentState = "";
       let activeTriageCase = "stutter";
       let triageStageIndex = 0;
+      let triageAutoPaused = false;
+      let triageFocusPaused = false;
       let activeLifecycleEvent = "confirm";
       let activeDemoMode = "tune";
 
@@ -6705,11 +6730,18 @@
         });
       }
 
-      function selectTriageCase(id) {
+      function setTriageAutoPaused(paused) {
+        triageAutoPaused = paused;
+        triageAutoToggle.setAttribute("aria-pressed", String(paused));
+        triageAutoToggle.textContent = paused ? "继续自动轮换" : "暂停自动轮换";
+      }
+
+      function selectTriageCase(id, options = {}) {
         if (!triageCases[id]) return;
         activeTriageCase = id;
         triageStageIndex = 0;
         renderTriageState();
+        if (options.pauseAuto) setTriageAutoPaused(true);
       }
 
       function renderTriageCases() {
@@ -6721,7 +6753,7 @@
           button.dataset.triageCase = id;
           button.setAttribute("aria-pressed", String(id === activeTriageCase));
           button.textContent = triageCase.request;
-          button.addEventListener("click", () => selectTriageCase(id));
+          button.addEventListener("click", () => selectTriageCase(id, { pauseAuto: true }));
           triageCaseGrid.appendChild(button);
         });
       }
@@ -7888,14 +7920,39 @@
         });
       });
 
+      const triageCaseIds = Object.keys(triageCases);
+      triageAutoToggle.addEventListener("click", () => {
+        setTriageAutoPaused(!triageAutoPaused);
+      });
+      triageCaseGrid.addEventListener("focusin", () => {
+        triageFocusPaused = true;
+      });
+      triageCaseGrid.addEventListener("focusout", event => {
+        if (!triageCaseGrid.contains(event.relatedTarget)) triageFocusPaused = false;
+      });
+      window.setInterval(() => {
+        if (
+          !document.hidden &&
+          !demoSection.hidden &&
+          activeDemoMode === "triage" &&
+          !triageAutoPaused &&
+          !triageFocusPaused
+        ) {
+          const currentIndex = triageCaseIds.indexOf(activeTriageCase);
+          selectTriageCase(triageCaseIds[(currentIndex + 1) % triageCaseIds.length]);
+        }
+      }, 4800);
+
       triageAdvanceButton.addEventListener("click", () => {
         const triageCase = triageCases[activeTriageCase];
         if (triageCase.danger || triageStageIndex >= triageStateOrder.length - 1) return;
+        setTriageAutoPaused(true);
         triageStageIndex += 1;
         renderTriageState();
       });
 
       triageResetButton.addEventListener("click", () => {
+        setTriageAutoPaused(true);
         triageStageIndex = 0;
         renderTriageState();
       });
