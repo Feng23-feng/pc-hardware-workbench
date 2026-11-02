@@ -4476,6 +4476,169 @@
       font-weight: 560;
     }
 
+    #dse-root .dse-demo-step {
+      color: #8b929c;
+      font-size: 9px;
+      letter-spacing: .035em;
+    }
+
+    #dse-root .dse-tech-details {
+      margin-top: 14px;
+      border-top: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-tech-details summary,
+    #dse-root .dse-secondary-actions summary {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 0 0;
+      color: #8b929c;
+      font-size: 10px;
+      line-height: 1.45;
+      list-style: none;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-tech-details summary::-webkit-details-marker,
+    #dse-root .dse-secondary-actions summary::-webkit-details-marker {
+      display: none;
+    }
+
+    #dse-root .dse-tech-details summary::after,
+    #dse-root .dse-secondary-actions summary::after {
+      content: "+";
+      margin-left: auto;
+      color: var(--dse-muted);
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+    }
+
+    #dse-root .dse-tech-details[open] summary,
+    #dse-root .dse-secondary-actions[open] summary {
+      color: var(--dse-text);
+    }
+
+    #dse-root .dse-tech-details[open] summary::after,
+    #dse-root .dse-secondary-actions[open] summary::after {
+      content: "−";
+    }
+
+    #dse-root .dse-tech-details .dse-state-rail {
+      margin-top: 10px;
+    }
+
+    #dse-root .dse-secondary-actions {
+      margin-top: 8px;
+    }
+
+    #dse-root .dse-secondary-actions > div {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      padding-top: 9px;
+    }
+
+    #dse-root .dse-secondary-actions .dse-demo-action {
+      min-height: 30px;
+      padding: 0;
+      color: var(--dse-muted);
+      background: transparent;
+      border: 0;
+      text-align: left;
+    }
+
+    #dse-root .dse-secondary-actions .dse-demo-action:hover,
+    #dse-root .dse-secondary-actions .dse-demo-action:focus-visible {
+      color: var(--dse-text);
+      background: transparent;
+      border: 0;
+    }
+
+    #dse-root .dse-gate-actions .dse-demo-action:not(.primary):not(:disabled) {
+      min-height: 30px;
+      padding: 0;
+      color: var(--dse-muted);
+      background: transparent;
+      border: 0;
+    }
+
+    #dse-root .dse-gate-actions .dse-demo-action:not(.primary):not(:disabled):hover,
+    #dse-root .dse-gate-actions .dse-demo-action:not(.primary):not(:disabled):focus-visible {
+      color: var(--dse-text);
+      background: transparent;
+      border: 0;
+    }
+
+    #dse-root #dse-enter-experiment:disabled {
+      display: none;
+    }
+
+    #dse-root #dse-generate-experiment:disabled {
+      display: none;
+    }
+
+    #dse-root #dse-enter-experiment:not(:disabled) {
+      color: #071012;
+      background: #dceef2;
+      border-color: #dceef2;
+    }
+
+    #dse-root .dse-scenario-meta .dse-demo-action {
+      min-height: 28px;
+      padding: 0;
+      color: #8b929c;
+      background: transparent;
+      border: 0;
+    }
+
+    #dse-root .dse-scenario-meta .dse-demo-action:hover,
+    #dse-root .dse-scenario-meta .dse-demo-action:focus-visible {
+      color: var(--dse-text);
+      background: transparent;
+      border: 0;
+    }
+
+    #dse-root .dse-state-live {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: baseline;
+      gap: 10px;
+      margin-top: 14px;
+      padding: 10px 12px;
+      background: #0d1114;
+      border-left: 2px solid var(--dse-cyan);
+      border-radius: 0 6px 6px 0;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    #dse-root .dse-state-live strong {
+      color: var(--dse-text);
+      font-size: 11px;
+      font-weight: 560;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    #dse-root .dse-state-live span:last-child {
+      margin-left: 0;
+    }
+
+    #dse-root .dse-compare-label {
+      font-size: 10px;
+      letter-spacing: .02em;
+      color: #8b929c;
+    }
+
+    #dse-root .dse-compare-copy {
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    #dse-root .dse-lifecycle-track .dse-state-code {
+      display: none;
+    }
+
     #dse-root #dse-scenario-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 8px;
@@ -4500,7 +4663,7 @@
     }
 
     #dse-root #dse-triage-case-grid::before {
-      content: "CASE FILES / 选择一个症状";
+      content: "故障案例 / 点一项查看";
       position: absolute;
       top: 13px;
       left: 46px;
@@ -4972,6 +5135,16 @@
         padding: 14px;
       }
 
+      #dse-root .dse-state-live {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+
+      #dse-root .dse-tech-details summary,
+      #dse-root .dse-secondary-actions summary {
+        min-height: 40px;
+      }
+
       #dse-root .dse-tune-steps {
         top: 4px;
       }
@@ -5138,6 +5311,18 @@
         font-size: 27px;
       }
 
+      #dse-root .dse-demo-modes {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0 16px;
+      }
+
+      #dse-root .dse-demo-modes .dse-filter {
+        justify-content: flex-start;
+        width: 100%;
+        padding-left: 0;
+      }
+
       #dse-root .dse-process-step {
         font-size: 10px;
       }
@@ -5179,16 +5364,16 @@
   <div class="dse-shell">
     <header class="dse-header">
       <div class="dse-header-copy">
-        <p class="dse-kicker">PC HARDWARE WORKBENCH / PROJECT MAP</p>
+        <p class="dse-kicker">电脑硬件工作台 / 项目地图</p>
         <h1><span class="dse-title-primary">电脑硬件工作台。</span><span class="dse-title-sub">先看证据，再决定是否调校。</span></h1>
         <p class="dse-subtitle">读取配置、排查问题、分析性能并规划升级。每个判断先经过设备身份、恢复路径和证据门禁，不自动修改硬件。</p>
       </div>
       <aside class="dse-intro-window" aria-label="工具介绍与当前状态">
-        <p class="dse-intro-kicker">PROJECT STATUS / 当前状态</p>
+        <p class="dse-intro-kicker">当前状态</p>
         <div class="dse-chips" aria-label="当前版本状态">
-          <span class="dse-chip">WORKBENCH 1.4.4</span>
+          <span class="dse-chip">工作台 1.4.4</span>
           <span class="dse-chip prototype">超频原型 3.0.2 · 未发布</span>
-          <span class="dse-chip triage">TRIAGE: PUBLIC</span>
+          <span class="dse-chip triage">故障排查：公开</span>
         </div>
       </aside>
     </header>
@@ -5201,7 +5386,7 @@
       </div>
       <nav class="dse-orientation-links" aria-label="快速导览">
         <a href="#dse-map-title">
-          <span class="dse-orientation-index">FIG. 01 / 能力地图</span>
+          <span class="dse-orientation-index">01 / 能力地图</span>
           <span class="dse-orientation-art" aria-hidden="true">
             <svg viewBox="0 0 240 160">
               <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
@@ -5224,7 +5409,7 @@
           </span>
         </a>
         <a href="#dse-archive-title">
-          <span class="dse-orientation-index">FIG. 02 / 版本演进</span>
+          <span class="dse-orientation-index">02 / 版本演进</span>
           <span class="dse-orientation-art" aria-hidden="true">
             <svg viewBox="0 0 240 160">
               <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
@@ -5245,7 +5430,7 @@
           </span>
         </a>
         <a href="interactive/">
-          <span class="dse-orientation-index">FIG. 03 / 交互流程</span>
+          <span class="dse-orientation-index">03 / 交互流程</span>
           <span class="dse-orientation-art" aria-hidden="true">
             <svg viewBox="0 0 240 160">
               <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
@@ -5272,12 +5457,12 @@
         </a>
       </nav>
       <div class="dse-process-visual" aria-label="安全调校流程">
-        <span class="dse-process-label">SAFE FLOW / 安全流程</span>
+        <span class="dse-process-label">安全流程</span>
         <ol class="dse-process-steps">
           <li class="dse-process-step"><b>01</b>请求</li>
           <li class="dse-process-step"><b>02</b>五项证据</li>
           <li class="dse-process-step"><b>03</b>实验卡</li>
-          <li class="dse-process-step"><b>04</b>KEEP / REVERT</li>
+          <li class="dse-process-step"><b>04</b>保留 / 恢复</li>
         </ol>
         <span class="dse-process-note">只读证据 · 可回滚 · 无自动硬件写入</span>
       </div>
@@ -5304,10 +5489,10 @@
         <section class="dse-track core" data-track="core" aria-label="电脑调试工作台演变">
           <div class="dse-track-head">
             <div>
-              <span class="dse-track-kicker">TRACK A / CORE</span>
+              <span class="dse-track-kicker">主工作台</span>
               <h2 id="dse-map-title">电脑硬件工作台</h2>
             </div>
-            <span class="dse-track-badge">STABLE 1.4.4</span>
+            <span class="dse-track-badge">稳定 1.4.4</span>
           </div>
           <div class="dse-lane" id="dse-core-lane"></div>
         </section>
@@ -5315,7 +5500,7 @@
         <section class="dse-track prototype" data-track="prototype" aria-label="自动超频原型演变">
           <div class="dse-track-head">
             <div>
-              <span class="dse-track-kicker">TRACK B / MODULE</span>
+              <span class="dse-track-kicker">自动超频原型</span>
               <h2>自动超频原型</h2>
             </div>
             <span class="dse-track-badge">未完善 · 尚未发布</span>
@@ -5326,10 +5511,10 @@
         <section class="dse-track triage" data-track="triage" aria-label="通用排障支线" hidden>
           <div class="dse-track-head">
             <div>
-              <span class="dse-track-kicker">TRACK C / TRIAGE</span>
+              <span class="dse-track-kicker">故障排查</span>
               <h2>Triage 排障支线</h2>
             </div>
-            <span class="dse-track-badge">PUBLIC TRIAGE</span>
+            <span class="dse-track-badge">公开排障</span>
           </div>
           <div class="dse-lane" id="dse-triage-lane"></div>
         </section>
@@ -5337,7 +5522,7 @@
 
       <section class="dse-detail merge" aria-live="polite">
         <div class="dse-floating-handle">
-          <p class="dse-detail-kicker">MILESTONE DOSSIER / 节点介绍</p>
+          <p class="dse-detail-kicker">节点介绍</p>
           <div class="dse-floating-actions">
             <span class="dse-drag-hint">DETAIL / 详情</span>
             <button type="button" class="dse-window-control" data-window-toggle aria-controls="dse-milestone-body" aria-expanded="true" aria-label="折叠节点介绍">−</button>
@@ -5372,11 +5557,11 @@
       <span aria-hidden="true" style="text-align:center;color:var(--dse-cyan)">SYS</span>
       <div class="dse-merge-stack">
         <button type="button" class="dse-merge-button" data-merge-id="merge">
-          <span class="dse-merge-kicker">CONVERGENCE NODE</span>
+          <span class="dse-merge-kicker">融合目标</span>
           <span class="dse-merge-title">融入正式工作台 · 单一用户入口</span>
         </button>
         <button type="button" class="dse-merge-button" data-merge-id="merge-release">
-          <span class="dse-merge-kicker">RELEASE GATE</span>
+          <span class="dse-merge-kicker">发布前检查</span>
           <span class="dse-merge-title">融合版发布门禁 · 回归与回滚</span>
         </button>
       </div>
@@ -5387,30 +5572,30 @@
     <section class="dse-demo" id="dse-demo" aria-labelledby="dse-demo-title" hidden>
       <header class="dse-demo-head">
         <div class="dse-demo-heading">
-          <p class="dse-demo-kicker">SKILL WORKFLOW &amp; STATE MACHINE / SAFETY AND EVIDENCE</p>
-          <h2 id="dse-demo-title">Skill 工作流与状态机</h2>
+          <p class="dse-demo-kicker">从问题到测试计划</p>
+          <h2 id="dse-demo-title">从问题到测试计划</h2>
         </div>
         <div class="dse-demo-lead">
-          <p class="dse-demo-summary">先选一个模式，再按页面提示逐步操作。所有结果都是界面演示，不会读取硬件、生成真实候选值或修改设置。</p>
+          <p class="dse-demo-summary">选一个最接近你的情况，看看先要弄清楚什么，再决定要不要改设置。这里只做演示，不会读取或修改你的电脑。</p>
           <div class="dse-demo-meta">
             <a class="dse-demo-back" href="../">← 返回项目地图</a>
-            <span class="dse-demo-badge">SIMULATION ONLY · NO HARDWARE WRITE</span>
+            <span class="dse-demo-badge">在线演示 · 不会修改你的电脑</span>
           </div>
         </div>
       </header>
 
       <div class="dse-demo-modes" role="group" aria-label="交互实验室模式">
-        <button type="button" class="dse-filter" data-demo-mode="terms" aria-pressed="false">术语解释</button>
-        <button type="button" class="dse-filter" data-demo-mode="tune" aria-pressed="true">调校流程</button>
-        <button type="button" class="dse-filter" data-demo-mode="triage" aria-pressed="false">排障分流</button>
-        <button type="button" class="dse-filter" data-demo-mode="identity" aria-pressed="false">配置有效性</button>
+        <button type="button" class="dse-filter" data-demo-mode="terms" aria-pressed="false">看懂名词</button>
+        <button type="button" class="dse-filter" data-demo-mode="tune" aria-pressed="true">安全调参</button>
+        <button type="button" class="dse-filter" data-demo-mode="triage" aria-pressed="false">排查故障</button>
+        <button type="button" class="dse-filter" data-demo-mode="identity" aria-pressed="false">旧记录还能用吗</button>
       </div>
 
       <section class="dse-mode-guide" aria-labelledby="dse-mode-guide-title" aria-live="polite">
         <div class="dse-mode-guide-copy">
-          <p class="dse-mode-guide-kicker" id="dse-mode-guide-kicker">当前模式 / 调校流程</p>
-          <h3 class="dse-mode-guide-title" id="dse-mode-guide-title">从一句需求，走到可回退的实验计划</h3>
-          <p class="dse-mode-guide-summary" id="dse-mode-guide-summary">先收集证据，再允许设计实验。这里会展示缺少基线、恢复路径或停止条件时，为什么不应直接给出超频参数。</p>
+          <p class="dse-mode-guide-kicker" id="dse-mode-guide-kicker">当前：安全调参</p>
+          <h3 class="dse-mode-guide-title" id="dse-mode-guide-title">先别急着改参数，先把情况说清楚</h3>
+          <p class="dse-mode-guide-summary" id="dse-mode-guide-summary">你会看到：为什么系统先问情况、为什么信息不齐时不给参数，以及最后怎么安排一次能恢复原样的测试。</p>
         </div>
         <div class="dse-mode-guide-route">
           <p class="dse-mode-guide-route-label">建议操作</p>
@@ -5421,15 +5606,15 @@
       <nav class="dse-tune-steps" id="dse-tune-steps" aria-label="调校流程步骤">
         <a href="#dse-tune-gate-panel" data-tune-step-link="gate" aria-current="step">
           <b>01</b>
-          <span><strong>门禁</strong><small>选择与检查</small></span>
+          <span><strong>先确认条件</strong><small>选例子、补信息</small></span>
         </a>
         <a href="#dse-tune-compare-panel" data-tune-step-link="compare">
           <b>02</b>
-          <span><strong>对照</strong><small>两种回答</small></span>
+          <span><strong>看两种回答</strong><small>直接给 vs 先问清</small></span>
         </a>
         <a href="#dse-tune-experiment-panel" data-tune-step-link="experiment">
           <b>03</b>
-          <span><strong>实验</strong><small>计划与结果</small></span>
+          <span><strong>再安排测试</strong><small>只看计划，不动电脑</small></span>
         </a>
       </nav>
 
@@ -5437,10 +5622,10 @@
         <article class="dse-demo-panel wide dse-term-panel" data-demo-mode="terms" aria-labelledby="dse-term-title" hidden>
           <div class="dse-demo-panel-head">
             <div>
-              <h3 id="dse-term-title">术语信号台</h3>
-              <p class="dse-term-intro">6 个常驻核心词、24 个轮换分支词。悬停或键盘聚焦即可查看，触屏轻点固定；解释统一拆成“动作 / 类比 / 后果”。</p>
+              <h3 id="dse-term-title">先弄懂这些词</h3>
+              <p class="dse-term-intro">点上任意一个词，看它在实际场景里是什么意思。解释会拆成“它做什么、可以怎么理解、判断错会怎样”。</p>
             </div>
-            <span class="dse-demo-step">TERM SIGNAL / 30</span>
+            <span class="dse-demo-step">30 个常用词</span>
           </div>
 
           <div class="dse-term-rails">
@@ -5461,7 +5646,7 @@
                 </div>
               </div>
               <div class="dse-term-token-row" id="dse-term-rotating-row" aria-label="轮换分支术语"></div>
-              <p class="dse-term-hint" id="dse-term-rotation-hint">每 9 秒漂入下一组；悬停、聚焦或打开解释时暂停。</p>
+              <p class="dse-term-hint" id="dse-term-rotation-hint">每 9 秒自动换一组；鼠标停留、键盘聚焦或打开解释时暂停。</p>
             </section>
           </div>
 
@@ -5476,42 +5661,41 @@
             </div>
             <div class="dse-term-detail-grid">
               <div class="dse-term-detail-cell">
-                <p class="dse-term-detail-label">动作</p>
+              <p class="dse-term-detail-label">它做什么</p>
                 <p class="dse-term-detail-copy" id="dse-term-action"></p>
               </div>
               <div class="dse-term-detail-cell">
-                <p class="dse-term-detail-label">类比</p>
+              <p class="dse-term-detail-label">可以怎么理解</p>
                 <p class="dse-term-detail-copy" id="dse-term-analogy"></p>
               </div>
               <div class="dse-term-detail-cell">
-                <p class="dse-term-detail-label">后果</p>
+              <p class="dse-term-detail-label">判断错会怎样</p>
                 <p class="dse-term-detail-copy" id="dse-term-consequence"></p>
               </div>
             </div>
-            <p class="dse-term-boundary">术语解释只用于理解和识别概念，不等于你的机器可以套用某个参数；个性化候选仍需通过完整安全门禁。</p>
+            <p class="dse-term-boundary">这些词只是帮助你理解，不等于你的电脑可以直接套用参数。真正操作前，仍要先确认设备、现状和怎么恢复。</p>
           </section>
         </article>
 
         <article class="dse-demo-panel" id="dse-tune-gate-panel" data-demo-mode="tune" data-tune-step="gate" aria-labelledby="dse-gate-demo-title">
           <div class="dse-demo-panel-head">
             <div>
-              <h3 id="dse-gate-demo-title">从请求走到证据门禁</h3>
-              <p class="dse-demo-panel-sub">先选一个场景，再展开五项检查；你会看到系统为什么拒绝缺证据的直接参数请求。</p>
+              <h3 id="dse-gate-demo-title">先选一个最像你的情况</h3>
+              <p class="dse-demo-panel-sub">选一个例子，下面会告诉你现在还缺什么，以及为什么不能直接给出参数。</p>
             </div>
-            <span class="dse-demo-step">01 · 门禁</span>
+            <span class="dse-demo-step">01 · 先确认条件</span>
           </div>
 
-          <ol class="dse-state-rail" id="dse-tune-state-rail" aria-label="调校状态"></ol>
           <div class="dse-state-live" aria-live="polite">
-            <strong id="dse-tune-state-label">STATE / INPUT</strong>
-            <span id="dse-tune-state-next">选择一个示例请求开始。</span>
+            <strong id="dse-tune-state-label">现在：等你选一个例子</strong>
+            <span id="dse-tune-state-next">从下面挑一个最接近你情况的例子。</span>
           </div>
 
           <div class="dse-scenario-grid" id="dse-scenario-grid" aria-label="示例请求"></div>
           <div class="dse-scenario-meta">
-            <button type="button" class="dse-demo-action" data-scenario-rotate>换一组场景</button>
-            <button type="button" class="dse-demo-action" data-scenario-auto-toggle aria-pressed="false">暂停自动换组</button>
-            <span>共 13 个场景 · 每次显示 3 个 · 8 秒自动轮换</span>
+            <button type="button" class="dse-demo-action" data-scenario-rotate>换一组例子</button>
+            <button type="button" class="dse-demo-action" data-scenario-auto-toggle aria-pressed="false">暂停自动演示</button>
+            <span>共 13 个例子 · 每次显示 3 个 · 8 秒自动更换</span>
           </div>
 
           <blockquote class="dse-gate-request" id="dse-gate-request"></blockquote>
@@ -5522,34 +5706,39 @@
           </div>
 
           <div class="dse-gate-actions">
-            <button type="button" class="dse-demo-action" data-gate-action="direct">模拟直接索要参数</button>
-            <button type="button" class="dse-demo-action primary" data-gate-action="check" aria-controls="dse-gate-checklist" aria-expanded="false">展开五项检查</button>
-            <button type="button" class="dse-demo-action" id="dse-enter-experiment" disabled>进入演示实验</button>
-            <button type="button" class="dse-demo-action" data-gate-action="rules" aria-controls="dse-gate-rules" aria-expanded="false">查看拒绝规则</button>
+            <button type="button" class="dse-demo-action primary" data-gate-action="check" aria-controls="dse-gate-checklist" aria-expanded="false">开始检查</button>
+            <button type="button" class="dse-demo-action" id="dse-enter-experiment" disabled>下一步：看测试计划</button>
           </div>
-          <p class="dse-gate-help">第一次来：先选一个场景 → 展开五项检查 → 勾选确实已经拿到的证据。这里只演示判断流程，不生成真实参数。</p>
+          <p class="dse-gate-help">先选一个例子，再勾选你已经知道的信息。这里只是演示，不会给出可直接套用的参数。</p>
+          <details class="dse-secondary-actions">
+            <summary>更多演示</summary>
+            <div>
+              <button type="button" class="dse-demo-action" data-gate-action="direct">如果直接给参数会怎样？</button>
+              <button type="button" class="dse-demo-action" data-gate-action="rules" aria-controls="dse-gate-rules" aria-expanded="false">为什么要先检查这些？</button>
+            </div>
+          </details>
 
           <div class="dse-gate-details">
             <div class="dse-gate-checklist" id="dse-gate-checklist" hidden>
               <label class="dse-gate-check">
                 <input type="checkbox" data-gate-check="platform">
-                <span class="dse-gate-check-copy"><strong>1. 确认是哪台机器</strong><small>先分清台式机或笔记本，并确认 CPU、GPU、系统和平台版本，避免套用别的电脑的参数。</small></span>
+                <span class="dse-gate-check-copy"><strong>1. 这是哪台电脑</strong><small>先确认台式机还是笔记本，以及处理器、显卡和系统。不要套用别人电脑上的设置。</small></span>
               </label>
               <label class="dse-gate-check">
                 <input type="checkbox" data-gate-check="baseline">
-                <span class="dse-gate-check-copy"><strong>2. 保存当前稳定基线</strong><small>记录默认或已知良好配置在固定负载下的温度、功耗、频率、性能和画面表现。</small></span>
+                <span class="dse-gate-check-copy"><strong>2. 现在稳定时是什么样</strong><small>记录没出问题时，同一个场景下的温度、性能、频率和画面表现。</small></span>
               </label>
               <label class="dse-gate-check">
                 <input type="checkbox" data-gate-check="recovery">
-                <span class="dse-gate-check-copy"><strong>3. 知道怎么恢复原样</strong><small>确认现在改过什么，以及驱动重置、花屏或黑屏时如何恢复原厂或上一已知良好配置。</small></span>
+                <span class="dse-gate-check-copy"><strong>3. 出问题怎么恢复</strong><small>知道现在改过什么，也知道黑屏、花屏或驱动重置时怎么回到原样。</small></span>
               </label>
               <label class="dse-gate-check">
                 <input type="checkbox" data-gate-check="workload">
-                <span class="dse-gate-check-copy"><strong>4. 固定负载和目标</strong><small>明确本轮要改善什么，并确保前后使用同一游戏场景、跑分、渲染任务或稳定性测试。</small></span>
+                <span class="dse-gate-check-copy"><strong>4. 用什么场景对比</strong><small>前后使用同一个游戏场景或测试任务，并且只改一个地方。</small></span>
               </label>
               <label class="dse-gate-check">
                 <input type="checkbox" data-gate-check="abort">
-                <span class="dse-gate-check-copy"><strong>5. 先定义成功与停止</strong><small>提前写清什么结果算有效改善，以及出现黑屏、伪影、驱动重置、异常温度或性能下降时立即回退。</small></span>
+                <span class="dse-gate-check-copy"><strong>5. 什么情况马上停</strong><small>提前说清楚：出现黑屏、花屏、驱动重置、异常温度或性能下降时，马上恢复原样。</small></span>
               </label>
             </div>
 
@@ -5560,58 +5749,61 @@
               <li>未解释的不稳定必须先排障，再考虑调校。</li>
             </ul>
           </div>
+          <details class="dse-tech-details">
+            <summary>给熟悉硬件的用户：查看内部判断状态</summary>
+            <ol class="dse-state-rail" id="dse-tune-state-rail" aria-label="调校状态"></ol>
+          </details>
         </article>
 
         <article class="dse-demo-panel dse-compare-panel" id="dse-tune-compare-panel" data-demo-mode="tune" data-tune-step="compare" aria-labelledby="dse-compare-demo-title">
           <div class="dse-demo-panel-head">
             <div>
-              <h3 id="dse-compare-demo-title">两种回答有什么不同</h3>
-              <p class="dse-demo-panel-sub">左侧模拟直接索要参数的回答，右侧展示先补齐证据的做法；不虚构某组参数必然导致蓝屏。</p>
+              <h3 id="dse-compare-demo-title">直接给参数，和先问清楚，有什么不同</h3>
+              <p class="dse-demo-panel-sub">左边看起来省事，但不知道你的现状和恢复方式；右边会先补上这些信息。</p>
             </div>
-            <span class="dse-demo-step">02 · 对照</span>
+            <span class="dse-demo-step">02 · 看两种回答</span>
           </div>
           <div class="dse-compare-grid">
             <div class="dse-compare-card direct">
-              <p class="dse-compare-label">DIRECT ANSWER PATTERN / 示意</p>
+              <p class="dse-compare-label">直接给参数</p>
               <p class="dse-compare-copy" id="dse-compare-direct"></p>
             </div>
             <div class="dse-compare-card safe">
-              <p class="dse-compare-label">WORKBENCH RESPONSE / 门禁</p>
+              <p class="dse-compare-label">先问清楚再建议</p>
               <p class="dse-compare-copy" id="dse-compare-safe"></p>
             </div>
           </div>
           <div class="dse-compare-spine" aria-hidden="true">
             <span></span>
-            <b>NO EVIDENCE → NO CANDIDATE</b>
+            <b>信息不齐，就不急着出方案</b>
             <span></span>
           </div>
           <section class="dse-compare-audit" aria-label="证据保留状态" aria-live="polite">
             <div class="dse-compare-audit-head">
-              <p class="dse-compare-audit-kicker">EVIDENCE HELD / 证据保留</p>
+              <p class="dse-compare-audit-kicker">已经知道的信息</p>
               <span class="dse-compare-audit-score" id="dse-compare-audit-score">0 / 5</span>
             </div>
             <div class="dse-compare-audit-list" id="dse-compare-audit-list"></div>
-            <p class="dse-compare-audit-note" id="dse-compare-audit-note">直接答案压缩了条件；门禁答案保留缺失项和安全下一步。</p>
+            <p class="dse-compare-audit-note" id="dse-compare-audit-note">直接回答省掉了条件；右侧会保留缺失项和下一步。</p>
           </section>
         </article>
 
         <article class="dse-demo-panel wide dse-experiment-panel" id="dse-tune-experiment-panel" data-demo-mode="tune" data-tune-step="experiment" aria-labelledby="dse-experiment-demo-title">
           <div class="dse-demo-panel-head">
             <div>
-              <h3 id="dse-experiment-demo-title">通过门禁后怎么实验</h3>
-              <p class="dse-demo-panel-sub">只有五项证据齐全后才进入这条路径，依次形成基线、候选、测量和结果；任何配置变化都必须重新确认当前资格。</p>
+              <h3 id="dse-experiment-demo-title">条件齐了，再看测试怎么安排</h3>
+              <p class="dse-demo-panel-sub">先记录现在稳定的样子，再只改一个地方。结果不好时，按事先写好的方式恢复。</p>
             </div>
-            <span class="dse-demo-step">03 · 实验</span>
+            <span class="dse-demo-step">03 · 再安排测试</span>
           </div>
 
-          <ol class="dse-state-rail" id="dse-experiment-state-rail" aria-label="实验状态"></ol>
           <div class="dse-state-live" aria-live="polite">
-            <strong id="dse-experiment-state-label">STATE / WAITING GATE</strong>
-            <span id="dse-experiment-state-next">先在上方完成五项证据检查。</span>
+            <strong id="dse-experiment-state-label">现在：还没开始</strong>
+            <span id="dse-experiment-state-next">先完成第 1 步的信息检查。</span>
           </div>
 
           <div class="dse-demo-form">
-            <label class="dse-demo-field">目标
+            <label class="dse-demo-field">想解决什么
               <select id="dse-demo-goal">
                 <option value="降温">降温</option>
                 <option value="降噪">降噪</option>
@@ -5620,14 +5812,14 @@
                 <option value="日常平衡">日常平衡</option>
               </select>
             </label>
-            <label class="dse-demo-field">组件
+            <label class="dse-demo-field">要改哪一部分
               <select id="dse-demo-component">
-                <option value="GPU 核心曲线">GPU 核心曲线</option>
-                <option value="CPU 电压/频率">CPU 电压/频率</option>
-                <option value="内存配置">内存配置</option>
+                <option value="GPU 核心曲线">显卡 / GPU</option>
+                <option value="CPU 电压/频率">处理器 / CPU</option>
+                <option value="内存配置">内存</option>
               </select>
             </label>
-            <label class="dse-demo-field">固定负载
+            <label class="dse-demo-field">用什么场景对比
               <select id="dse-demo-workload">
                 <option value="游戏固定场景">游戏固定场景</option>
                 <option value="合成基准">合成基准</option>
@@ -5636,7 +5828,7 @@
               </select>
             </label>
             <label class="dse-demo-field">
-              <span class="dse-demo-field-label">路线 <small id="dse-route-context" aria-live="polite">· GPU</small></span>
+              <span class="dse-demo-field-label">准备怎么改 <small id="dse-route-context" aria-live="polite">· GPU</small></span>
               <select id="dse-demo-route" aria-describedby="dse-route-context">
                 <option value="曲线降压">曲线降压</option>
                 <option value="核心频率">核心频率</option>
@@ -5644,22 +5836,22 @@
                 <option value="厂商预设">厂商预设</option>
               </select>
             </label>
-            <label class="dse-demo-field">当前基线
+            <label class="dse-demo-field">目前稳定状态
               <select id="dse-demo-baseline">
-                <option value="yes">已有</option>
-                <option value="no">没有</option>
+                <option value="yes">已经记录</option>
+                <option value="no">还没记录</option>
               </select>
             </label>
-            <label class="dse-demo-field">恢复路径
+            <label class="dse-demo-field">知道怎么恢复吗
               <select id="dse-demo-recovery">
-                <option value="yes">已确认</option>
-                <option value="no">未确认</option>
+                <option value="yes">知道</option>
+                <option value="no">不知道</option>
               </select>
             </label>
           </div>
 
           <div class="dse-gate-actions">
-            <button type="button" class="dse-demo-action primary" id="dse-generate-experiment" disabled>生成演示实验卡</button>
+            <button type="button" class="dse-demo-action primary" id="dse-generate-experiment" disabled>生成测试计划</button>
           </div>
 
           <div class="dse-experiment-output blocked" id="dse-experiment-output" aria-live="polite" hidden>
@@ -5667,54 +5859,61 @@
             <p class="dse-exp-title" id="dse-exp-title"></p>
             <div class="dse-exp-grid" id="dse-exp-grid"></div>
             <div class="dse-sim-actions" id="dse-sim-actions" hidden>
-              <button type="button" class="dse-demo-action" data-sim-result="pass">模拟 PASS</button>
-              <button type="button" class="dse-demo-action" data-sim-result="fail">模拟 FAIL</button>
-              <button type="button" class="dse-demo-action" data-sim-result="inconclusive">模拟无法判断</button>
+              <button type="button" class="dse-demo-action" data-sim-result="pass">假设测试成功</button>
+              <button type="button" class="dse-demo-action" data-sim-result="fail">假设测试失败</button>
+              <button type="button" class="dse-demo-action" data-sim-result="inconclusive">结果说不清</button>
             </div>
             <div class="dse-sim-outcome" id="dse-sim-outcome" aria-live="polite" hidden></div>
           </div>
+          <details class="dse-tech-details">
+            <summary>给熟悉硬件的用户：查看测试状态</summary>
+            <ol class="dse-state-rail" id="dse-experiment-state-rail" aria-label="实验状态"></ol>
+          </details>
         </article>
 
         <article class="dse-demo-panel dse-machine-panel triage" data-demo-mode="triage" aria-labelledby="dse-triage-machine-title" hidden>
           <div class="dse-demo-panel-head">
             <div>
-              <h3 id="dse-triage-machine-title">Triage 状态机</h3>
-              <p class="dse-demo-panel-sub">8 个示例：症状先分层；物理危险直接终止，其余情况按证据进入最小可逆检查。</p>
+              <h3 id="dse-triage-machine-title">按症状一步一步排查</h3>
+              <p class="dse-demo-panel-sub">先看有没有安全问题，再从最小、最容易恢复的检查开始。每轮只增加一个条件。</p>
             </div>
-            <span class="dse-demo-step">TRIAGE / 05</span>
+            <span class="dse-demo-step">故障排查</span>
           </div>
-          <div class="dse-scenario-grid" id="dse-triage-case-grid" aria-label="Triage 示例"></div>
-          <ol class="dse-state-rail" id="dse-triage-state-rail" aria-label="Triage 状态"></ol>
+          <div class="dse-scenario-grid" id="dse-triage-case-grid" aria-label="故障案例"></div>
           <div class="dse-state-live" aria-live="polite">
-            <strong id="dse-triage-state-label">STATE / SCOPE</strong>
-            <span id="dse-triage-state-next">选择一个症状或推进当前状态。</span>
+            <strong id="dse-triage-state-label">现在：先看安全范围</strong>
+            <span id="dse-triage-state-next">选一个症状，然后按提示一步一步来。</span>
           </div>
           <div class="dse-machine-copy" id="dse-triage-copy" data-tone="blocked" aria-live="polite">
             <p class="dse-machine-copy-title" id="dse-triage-copy-title"></p>
             <p class="dse-machine-copy-body" id="dse-triage-copy-body"></p>
           </div>
           <div class="dse-gate-actions">
-            <button type="button" class="dse-demo-action primary" id="dse-triage-advance">推进状态</button>
-            <button type="button" class="dse-demo-action" id="dse-triage-auto-toggle" aria-pressed="false">暂停自动轮换</button>
-            <button type="button" class="dse-demo-action" id="dse-triage-reset">重置当前场景</button>
+            <button type="button" class="dse-demo-action primary" id="dse-triage-advance">下一步</button>
+            <button type="button" class="dse-demo-action" id="dse-triage-auto-toggle" aria-pressed="false">暂停自动演示</button>
+            <button type="button" class="dse-demo-action" id="dse-triage-reset">重新开始</button>
           </div>
+          <details class="dse-tech-details">
+            <summary>给熟悉硬件的用户：查看排查步骤</summary>
+            <ol class="dse-state-rail" id="dse-triage-state-rail" aria-label="故障排查步骤"></ol>
+          </details>
         </article>
 
         <article class="dse-demo-panel dse-machine-panel lifecycle" data-demo-mode="identity" aria-labelledby="dse-lifecycle-title" hidden>
           <div class="dse-demo-panel-head">
             <div>
-              <h3 id="dse-lifecycle-title">身份与基线有效期</h3>
-              <p class="dse-demo-panel-sub">身份来源和配置指纹共同决定旧记录是当前证据、待刷新记录，还是只能保留为历史。</p>
+              <h3 id="dse-lifecycle-title">旧记录还能继续用吗</h3>
+              <p class="dse-demo-panel-sub">机器、驱动或设置变过以后，旧记录还可以参考，但不一定还能当作现在的依据。</p>
             </div>
-            <span class="dse-demo-step">STATE LENS / 06</span>
+            <span class="dse-demo-step">旧记录判断</span>
           </div>
           <div class="dse-lifecycle-grid">
             <section class="dse-lifecycle-track" aria-labelledby="dse-identity-state-label">
-              <p class="dse-lifecycle-track-label" id="dse-identity-state-label">IDENTITY QUALITY</p>
+              <p class="dse-lifecycle-track-label" id="dse-identity-state-label">这台机器能不能确认</p>
               <ol class="dse-state-rail" id="dse-identity-state-rail" aria-label="设备身份状态"></ol>
             </section>
             <section class="dse-lifecycle-track" aria-labelledby="dse-baseline-state-label">
-              <p class="dse-lifecycle-track-label" id="dse-baseline-state-label">BASELINE VALIDITY</p>
+              <p class="dse-lifecycle-track-label" id="dse-baseline-state-label">旧记录现在还有效吗</p>
               <ol class="dse-state-rail" id="dse-baseline-state-rail" aria-label="基线有效性状态"></ol>
             </section>
           </div>
@@ -5730,7 +5929,7 @@
     <section class="dse-archive" aria-labelledby="dse-archive-title">
       <header class="dse-archive-head">
         <div>
-          <p class="dse-archive-kicker">VERSION ARCHIVE / EVERY RECORDED VERSION</p>
+          <p class="dse-archive-kicker">版本档案 / 全部已记录版本</p>
           <h2 id="dse-archive-title">逐版本迭代档案</h2>
           <p class="dse-archive-summary">从统一工作台 1.0.0 到当前 1.4.4，再到自动超频原型的独立分叉、档位证据和有限验证。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。</p>
         </div>
@@ -5743,7 +5942,7 @@
       <div id="dse-version-archive"></div>
       <section class="dse-version-detail" id="dse-version-detail" aria-live="polite" hidden>
         <div class="dse-floating-handle">
-          <p class="dse-version-detail-kicker">VERSION DOSSIER / 选中版本</p>
+          <p class="dse-version-detail-kicker">选中版本</p>
           <div class="dse-floating-actions">
             <span class="dse-drag-hint">DETAIL / 详情</span>
             <button type="button" class="dse-window-control" data-window-toggle aria-controls="dse-version-body" aria-expanded="true" aria-label="折叠版本介绍">−</button>
@@ -5776,8 +5975,8 @@
     <button type="button" class="dse-inspector-restore" id="dse-inspector-restore" hidden>说明</button>
 
     <footer class="dse-footer">
-      <span>PATH: CORE SAFETY + GPU EVIDENCE → MODULE MERGE → SINGLE ENTRY</span>
-      <span>BOUNDARY: EXPERIMENT PLAN ONLY · NO HARDWARE WRITE · USER-CONTROLLED</span>
+      <span>路径：安全边界 + 硬件信息 → 融合模块 → 单一入口</span>
+      <span>边界：只提供测试计划，不修改硬件，由你确认后操作</span>
     </footer>
   </div>
 
@@ -5789,9 +5988,9 @@
         : "index";
       const isInteractiveView = siteView === "interactive";
       if (isInteractiveView) {
-        root.querySelector(".dse-kicker").textContent = "SKILL INTERACTION LAB";
-        root.querySelector("h1").textContent = "Skill 交互实验室";
-        root.querySelector(".dse-subtitle").textContent = "先选择一种模式，再按页面提示逐步操作。所有内容都是安全边界明确的界面演示。";
+        root.querySelector(".dse-kicker").textContent = "交互演示";
+        root.querySelector("h1").textContent = "先看看这套流程怎么判断";
+        root.querySelector(".dse-subtitle").textContent = "选一个最像你的情况，看看需要先确认什么。这里只做演示，不会读取或修改你的电脑。";
       }
       const coreLane = document.getElementById("dse-core-lane");
       const prototypeLane = document.getElementById("dse-prototype-lane");
@@ -6178,7 +6377,7 @@
 
       const versionSeries = [
         {
-          id: "wb-1-0", track: "core", label: "WORKBENCH / 1.0", sub: "统一入口 · 新手路线 · 流程闭环",
+          id: "wb-1-0", track: "core", label: "工作台 / 1.0", sub: "统一入口 · 新手路线 · 流程闭环",
           versions: [
             ["1.0.0", "统一工作台", "2026-10-25", "BASELINE", ["合并排障、购买判断与调校三套能力。", "建立按任务加载的统一入口和跨模式交接。", "接入本地只读采集器，保留手动应用边界。"], "22 个上游参考/脚本逐哈希一致；入口、采集与 ZIP 完整性检查通过。", "正式工作台的起点。"],
             ["1.0.1", "采集接入排障与调校", "2026-10-25", "RELEASED", ["硬件信息不足时提供可选只读采集。", "用真实 CPU、GPU、主板与形态选择平台路线。", "明确快照不能证明稳定、散热或瓶颈。"], "采集、来源覆盖与发布包完整性检查通过。", "把“先识别硬件”接入既有工作流。"],
@@ -6206,7 +6405,7 @@
           ]
         },
         {
-          id: "wb-1-1", track: "core", label: "WORKBENCH / 1.1", sub: "预期方向 · 在线证据 · 散热分支",
+          id: "wb-1-1", track: "core", label: "工作台 / 1.1", sub: "预期方向 · 在线证据 · 散热分支",
           versions: [
             ["1.1.0", "旧报告时效提醒", "2026-10-25", "RELEASED", ["复用硬件报告前先问近期是否更换部件。", "CPU、GPU、内存、硬盘、主板、显示器或电源变化后重采。", "旧报告标记为当前任务过期。"], "硬件变更与旧报告交互场景通过。", "开始区分“历史报告”与“当前配置”。"],
             ["1.1.1", "配置化调校方向", "2026-10-25", "RELEASED", ["根据平台、形态、目标与固定负载给预期方向。", "GPU 能效先曲线，性能先核心后显存。", "型号不直接等于通用电压、频率或收益。"], "笔记本 GPU 配置方向与参考联动检查通过。", "从静态手册进入配置感知建议。"],
@@ -6219,7 +6418,7 @@
           ]
         },
         {
-          id: "wb-1-2", track: "core", label: "WORKBENCH / 1.2", sub: "设备身份 · GPU 曲线 · 遥测安全",
+          id: "wb-1-2", track: "core", label: "工作台 / 1.2", sub: "设备身份 · GPU 曲线 · 遥测安全",
           versions: [
             ["1.2.0", "设备身份质量", "2026-10-26", "RELEASED", ["新增 IdentityQuality 与会话身份状态映射。", "身份字段按数据处理并使用安全 Markdown。", "采集 smoke 纳入默认测试体系。"], "身份、采集、遥测和交互测试通过；collector r6。", "让“读到了字段”与“身份可信”分开。"],
             ["1.2.1", "身份聚合与实机授权", "2026-10-26", "RELEASED", ["以系统 Model 为核心减少误判不可读。", "补充中文乱码模式与部分身份状态。", "实机测试默认 SKIP，必须显式授权并选择隐私模式。"], "标准与脱敏实机运行通过；collector r7。", "把自动化测试的隐私边界写死。"],
@@ -6242,7 +6441,7 @@
           ]
         },
         {
-          id: "wb-1-3", track: "core", label: "WORKBENCH / 1.3", sub: "采集上下文 · 脱敏契约 · 发布工程",
+          id: "wb-1-3", track: "core", label: "工作台 / 1.3", sub: "采集上下文 · 脱敏契约 · 发布工程",
           versions: [
             ["1.3.0", "用户手动提权采集", "2026-10-26", "RELEASED", ["默认仍是非提权只读采集。", "新增用户主动启动的 RequireElevated 模式，不自动 UAC。", "记录哪些字段可能因权限恢复，哪些仍不可见。"], "collector r11；权限模式与采集回归通过。", "在需要硬件数据的场景提供受控提权路径。"],
             ["1.3.1", "受限代理上下文", "2026-10-26", "RELEASED", ["区分 restricted-agent、标准用户和提权用户。", "增加带时间戳的 nvidia-smi 瞬时 GPU 数据。", "Markdown 报告改 UTF-8 BOM，修复中文 PowerShell 5.1。"], "collector r12；三种上下文与瞬时传感器检查通过。", "解决采集在受限宿主里“有命令但无结果”。"],
@@ -6268,7 +6467,7 @@
           ]
         },
         {
-          id: "wb-1-4", track: "core", label: "WORKBENCH / 1.4", sub: "自然语气 · 提示时机 · 当前分发",
+          id: "wb-1-4", track: "core", label: "工作台 / 1.4", sub: "自然语气 · 提示时机 · 当前分发",
           versions: [
             ["1.4.0", "语气层", "2026-10-28", "TONE TEST", ["安全提示与三段式解释改为由候选值或真实动作触发。", "删除状态行和方括号式模式横幅。", "多步流程仍保留一句自然语言进度提示。"], "12 条语气稳定性场景；测试包未达到发布标准，由 1.4.1 接续。", "从“流程模板感”转向自然专家表达。"],
             ["1.4.1", "收窄提示范围", "2026-10-28", "TONE TEST", ["普通系统、软件、HDR、监测导出不再机械触发安全提示。", "提示范围收窄到调校敏感参数与明确改动动作。", "补充 HWiNFO 菜单位置可能随版本变化。"], "规则项三轮稳定性复查；版本记录后由 1.4.2 接续。", "修复 1.4.0 中语气规则过宽的问题。"],
@@ -6367,11 +6566,11 @@
       ];
 
       const compareEvidenceItems = [
-        { id: "platform", label: "设备身份" },
-        { id: "baseline", label: "当前基线" },
-        { id: "recovery", label: "恢复路径" },
-        { id: "workload", label: "固定负载" },
-        { id: "abort", label: "停止条件" }
+        { id: "platform", label: "是哪台电脑" },
+        { id: "baseline", label: "现在稳定状态" },
+        { id: "recovery", label: "怎么恢复" },
+        { id: "workload", label: "怎么对比" },
+        { id: "abort", label: "何时停止" }
       ];
 
       const triageCases = {
@@ -6380,7 +6579,7 @@
           danger: true,
           stages: {
             scope: {
-              title: "HARD-STOP / 物理危险优先",
+              title: "先停下：这台设备可能有安全问题",
               body: "立即停止运行；仅在安全时断电断能。不要继续开机、压测、重插带电部件或采集更多性能数据。",
               tone: "stop"
             }
@@ -6631,43 +6830,43 @@
 
       const modeGuideContent = {
         terms: {
-          kicker: "当前模式 / 术语解释",
-          title: "先看懂词，再判断它和你的问题有没有关系",
-          summary: "选中术语后，会拆成动作、类比和后果。它帮助理解概念，但不会给出可以照抄到任何机器上的参数。",
+          kicker: "当前：看懂名词",
+          title: "不用背参数，先把词放回场景里",
+          summary: "点一个词，就能看到它大概在做什么、可以怎么理解，以及判断错会有什么影响。",
           steps: [
-            ["选中一个术语", "悬停、键盘聚焦或触屏轻点都可以。"],
-            ["读三段解释", "分别看它在做什么、像什么，以及判断错会怎样。"],
-            ["带着语境理解", "术语只是一层解释，不能代替设备身份、基线和恢复路径。"]
+            ["点一个不懂的词", "触屏轻点，电脑上悬停也可以。"],
+            ["看通俗解释", "先弄懂意思，不用记具体数值。"],
+            ["回到实际问题", "词懂了，再把情况说清楚。"]
           ]
         },
         tune: {
-          kicker: "当前模式 / 调校流程",
-          title: "从一句需求，走到可回退的实验计划",
-          summary: "先收集证据，再允许设计实验。这里会展示缺少基线、恢复路径或停止条件时，为什么不应直接给出超频参数。",
+          kicker: "当前：安全调参",
+          title: "先别急着改参数，先把情况说清楚",
+          summary: "你会看到：为什么系统先问情况、为什么信息不齐时不给参数，以及最后怎么安排一次能恢复原样的测试。",
           steps: [
-            ["选一个示例请求", "从下方场景里挑一个最像你当前问题的例子。"],
-            ["补五项证据", "展开检查并勾选已经拿到的证据，观察门禁何时放行。"],
-            ["依次看三个区域", "先看门禁状态，再对照两种回答，最后看通过后的实验步骤。"]
+            ["选一个类似情况", "从下面挑一个最接近你现在问题的例子。"],
+            ["补上你知道的信息", "不知道的就先留空，不要猜。"],
+            ["看测试和恢复方式", "只在信息齐全后，才讨论怎么测试。"]
           ]
         },
         triage: {
-          kicker: "当前模式 / 排障分流",
-          title: "先排除危险，再决定下一步查什么",
-          summary: "这里不替你猜故障，而是演示怎样按证据选择最小、可逆的检查，避免把卡顿或掉电直接归咎于性能设置。",
+          kicker: "当前：排查故障",
+          title: "先看有没有危险，再一步一步排查",
+          summary: "这里不替你猜是哪一个零件坏了，而是先排除危险，再做最小、最容易恢复的检查。",
           steps: [
-            ["选一个故障症状", "从下方 8 个实例里选择最接近的现象。"],
-            ["先确认安全范围", "出现焦味、打火、鼓包或液体时直接停止。"],
-            ["每次只推进一步", "每轮只增加一个证据或一个可逆动作。"]
+            ["选一个症状", "从下面挑最接近的现象。"],
+            ["先排除危险", "焦味、打火、鼓包或漏液时直接停用。"],
+            ["一次只查一项", "每次只改一个条件，方便判断有没有用。"]
           ]
         },
         identity: {
-          kicker: "当前模式 / 配置有效性",
-          title: "判断旧记录还能不能继续使用",
-          summary: "硬件身份或配置发生变化后，旧记录仍有历史价值，但不一定能继续充当当前基线或复用旧候选。",
+          kicker: "当前：旧记录判断",
+          title: "机器或设置变了，旧记录还能用吗",
+          summary: "旧记录可以不删，但设备、驱动或设置变化后，它不一定还能代表现在的状态。",
           steps: [
-            ["选一个配置事件", "例如身份确认、只凭用户自述，或检测结果冲突。"],
-            ["同时看两套状态", "左侧判断设备身份，右侧判断基线是否仍然有效。"],
-            ["决定记录怎么用", "区分当前可用、需要刷新，或只能保留为历史。"]
+            ["点一个发生过的变化", "例如换了硬件、更新驱动或改了功耗限制。"],
+            ["看旧记录还能做什么", "是可以继续比较，还是只能留作历史。"],
+            ["决定下一步", "继续用、重新记录，或者先不用旧数据。"]
           ]
         }
       };
@@ -6690,51 +6889,68 @@
       const tuneStateCopy = {
         input: {
           label: "STATE / INPUT",
-          next: "选择一个示例请求开始。"
+          next: "从下面挑一个最接近你情况的例子。"
         },
         classify: {
           label: "STATE / CLASSIFY",
-          next: "先判断是物理危险、证据不足还是可进入门禁。"
+          next: "先看有没有危险，再决定接下来要确认什么。"
         },
         gate: {
           label: "STATE / EVIDENCE GATE",
-          next: "逐项补齐当前身份、基线、恢复、负载和停止条件。"
+          next: "把目前状态、怎么恢复、怎么测试和何时停止补清楚。"
         },
         eligible: {
           label: "STATE / ELIGIBLE",
-          next: "五项齐全；只解锁演示实验，不代表参数安全。"
+          next: "信息已经齐了，可以继续看测试计划；这不代表参数一定安全。"
         },
         measure: {
           label: "STATE / MEASURE",
-          next: "在下方查看演示实验卡；硬件设置仍由用户手动控制。"
+          next: "看下面的测试计划；硬件设置仍然由你自己操作。"
         },
         outcome: {
           label: "STATE / OUTCOME",
-          next: "根据结果选择保留、回退或重复，不增加第二个变量。"
+          next: "结果有效就保留，失败就恢复原样，不清楚就按同样条件再测一次。"
         }
       };
 
       const experimentStateCopy = {
         baseline: {
           label: "STATE / BASELINE",
-          next: "确认当前基线、配置变化和恢复路径。"
+          next: "先确认现在的稳定状态，以及怎么恢复。"
         },
         candidate: {
           label: "STATE / CANDIDATE",
-          next: "候选存在也必须绑定单一变量和回退方式。"
+          next: "即使有方案，也只能改一个地方，并保留恢复方式。"
         },
         measure: {
           label: "STATE / MEASURE",
-          next: "使用同一固定负载观测有效频率、性能、温度和异常。"
+          next: "用同一个场景，看性能、温度和有没有异常。"
         },
         outcome: {
           label: "STATE / OUTCOME",
-          next: "区分 PASS、FAIL 与 INCONCLUSIVE。"
+          next: "结果分成：有效、无效，或者还判断不了。"
         },
         decision: {
           label: "STATE / DECISION",
-          next: "保留通过值、回退失败值，或重复无法判断的结果。"
+          next: "有效就保留，失败就恢复，不清楚就按同样条件再测一次。"
         }
+      };
+
+      const tuneFriendlyStateLabels = {
+        input: "现在：等你选一个例子",
+        classify: "现在：先判断问题类型",
+        gate: "现在：还缺一些信息",
+        eligible: "现在：可以继续看测试计划",
+        measure: "现在：看测试怎么安排",
+        outcome: "现在：判断结果怎么处理"
+      };
+
+      const experimentFriendlyStateLabels = {
+        baseline: "现在：先确认稳定状态",
+        candidate: "现在：准备一个测试方案",
+        measure: "现在：按计划测试",
+        outcome: "现在：看结果是否有效",
+        decision: "现在：决定保留还是恢复"
       };
 
       const triageStateOrder = ["scope", "evidence", "action", "handoff"];
@@ -6779,16 +6995,44 @@
         });
       }
 
+      function humanizeUiCopy(text) {
+        return String(text)
+          .replaceAll("安全门禁需要的证据", "开始测试前需要确认的信息")
+          .replaceAll("只解锁演示实验，不代表任何硬件参数安全", "只代表可以继续看测试计划，不代表参数一定安全")
+          .replaceAll("只解锁演示实验", "只代表可以继续看测试计划")
+          .replaceAll("请求已分类；", "已经知道要先看哪类问题；")
+          .replaceAll("固定负载", "固定测试场景")
+          .replaceAll("恢复路径", "怎么恢复")
+          .replaceAll("平台", "电脑型号和系统")
+          .replaceAll("五项证据", "5 项信息")
+          .replaceAll("证据齐全", "信息已经齐了")
+          .replaceAll("证据不足", "信息不足")
+          .replaceAll("候选值", "具体参数")
+          .replaceAll("候选", "方案")
+          .replaceAll("基线", "稳定状态")
+          .replaceAll("变量", "改动")
+          .replaceAll("物理危险", "安全问题")
+          .replaceAll("门禁", "开始前检查")
+          .replaceAll("证据", "信息");
+      }
+
       function setTuneState(stateId, options = {}) {
         const copy = options.copy || tuneStateCopy[stateId] || tuneStateCopy.input;
         activeTuneState = stateId;
-        tuneStateLabel.textContent = options.label || copy.label;
-        tuneStateNext.textContent = options.next || copy.next;
+        tuneStateLabel.textContent = options.danger
+          ? "现在：先停下来处理安全问题"
+          : tuneFriendlyStateLabels[stateId] || "现在：看下一步";
+        tuneStateLabel.dataset.technical = options.label || copy.label;
+        tuneStateNext.textContent = humanizeUiCopy(options.next || copy.next);
         renderStateRail(tuneStateRail, tuneStates, stateId, {
           dangerId: options.danger ? stateId : "",
           warningId: options.warning ? stateId : "",
           meta: options.meta
         });
+        root.querySelector('[data-gate-action="check"]')?.classList.toggle(
+          "primary",
+          !(tuneGateReady && stateId === "eligible")
+        );
         enterExperimentButton.disabled = !(tuneGateReady && stateId === "eligible");
       }
 
@@ -6796,10 +7040,11 @@
         activeExperimentState = stateId;
         const copy = options.copy || experimentStateCopy[stateId] || {
           label: "STATE / WAITING GATE",
-          next: "先完成上方五项证据检查。"
+          next: "先完成上面的信息检查。"
         };
-        experimentStateLabel.textContent = options.label || copy.label;
-        experimentStateNext.textContent = options.next || copy.next;
+        experimentStateLabel.textContent = experimentFriendlyStateLabels[stateId] || "现在：等待下一步";
+        experimentStateLabel.dataset.technical = options.label || copy.label;
+        experimentStateNext.textContent = humanizeUiCopy(options.next || copy.next);
         renderStateRail(experimentStateRail, experimentStates, stateId, {
           dangerId: options.dangerId,
           warningId: options.warningId,
@@ -6811,8 +7056,9 @@
       function resetExperimentState(reason = "WAITING GATE") {
         activeExperimentState = "";
         generateExperimentButton.disabled = true;
-        experimentStateLabel.textContent = `STATE / ${reason}`;
-        experimentStateNext.textContent = "先完成上方五项证据检查。";
+        experimentStateLabel.textContent = reason === "HARD-STOP" ? "现在：先处理安全问题" : "现在：还没开始测试";
+        experimentStateLabel.dataset.technical = `STATE / ${reason}`;
+        experimentStateNext.textContent = "先完成上面的信息检查。";
         experimentOutput.hidden = true;
         simActions.hidden = true;
         simOutcome.hidden = true;
@@ -6836,23 +7082,30 @@
             [stageId]: `${triageStageIndex + 1}/${triageStateOrder.length}`
           }
         });
-        triageStateLabel.textContent = isDanger ? "STATE / HARD-STOP" : `STATE / ${stageId.toUpperCase()}`;
-        triageStateNext.textContent = isDanger
-          ? "物理危险优先，不进入后续检查。"
+        const triageStepLabels = {
+          scope: "现在：先看安全范围",
+          evidence: "现在：补充当前信息",
+          action: "现在：做一个小检查",
+          handoff: "现在：决定下一步"
+        };
+        triageStateLabel.textContent = isDanger ? "现在：先停下来" : triageStepLabels[stageId];
+        triageStateLabel.dataset.technical = isDanger ? "STATE / HARD-STOP" : `STATE / ${stageId.toUpperCase()}`;
+        triageStateNext.textContent = humanizeUiCopy(isDanger
+          ? "有焦味、打火、鼓包或漏液时，不要继续开机或压测。"
           : triageStageIndex >= triageStateOrder.length - 1
-            ? "已达到分流终点。"
-            : "推进下一步时，只增加一个新证据或一个可逆动作。";
+            ? "这一步已经完成，可以看上面的结果。"
+            : "下一步只增加一个信息，或者做一个可以恢复的小检查。");
         triageCopy.dataset.tone = stage.tone;
-        triageCopyTitle.textContent = stage.title;
-        triageCopyBody.textContent = stage.body;
+        triageCopyTitle.textContent = humanizeUiCopy(stage.title);
+        triageCopyBody.textContent = humanizeUiCopy(stage.body);
         triageAdvanceButton.disabled = isDanger || triageStageIndex >= triageStateOrder.length - 1;
         triageAdvanceButton.textContent = isDanger || triageStageIndex >= triageStateOrder.length - 1
-          ? "已到状态终点"
+          ? "这组已经看完"
           : triageStageIndex === 0
-            ? "补充当前证据"
+            ? "补充信息"
             : triageStageIndex === 1
-              ? "执行最小检查"
-              : "形成分流结论";
+              ? "做一个小检查"
+              : "看下一步";
         triageCaseGrid.querySelectorAll("[data-triage-case]").forEach(button => {
           button.setAttribute("aria-pressed", String(button.dataset.triageCase === activeTriageCase));
         });
@@ -6861,7 +7114,7 @@
       function setTriageAutoPaused(paused) {
         triageAutoPaused = paused;
         triageAutoToggle.setAttribute("aria-pressed", String(paused));
-        triageAutoToggle.textContent = paused ? "继续自动轮换" : "暂停自动轮换";
+        triageAutoToggle.textContent = paused ? "继续自动演示" : "暂停自动演示";
       }
 
       function selectTriageCase(id, options = {}) {
@@ -6903,8 +7156,8 @@
           readyId: event.baseline === "current" ? "current" : ""
         });
         lifecycleCopy.dataset.tone = event.tone;
-        lifecycleCopyTitle.textContent = event.title;
-        lifecycleCopyBody.textContent = event.body;
+        lifecycleCopyTitle.textContent = humanizeUiCopy(event.title);
+        lifecycleCopyBody.textContent = humanizeUiCopy(event.body);
         lifecycleEvents.querySelectorAll("[data-lifecycle-event]").forEach(button => {
           button.setAttribute("aria-pressed", String(button.dataset.lifecycleEvent === eventId));
         });
@@ -7425,7 +7678,7 @@
         button.setAttribute("aria-label", `${item.code} ${item.title}：${item.summary}`);
         button.innerHTML = `
           <span class="dse-node-code">${item.code}</span>
-          <span class="dse-node-state ${item.status}">${item.state}</span>
+          <span class="dse-node-state ${item.status}">${item.state === "CLEARED" ? "已完成" : item.state.replace("STABLE", "稳定")}</span>
           <span class="dse-node-title">${item.title}</span>
           <span class="dse-node-summary">${item.summary}</span>
         `;
@@ -7610,17 +7863,51 @@
 
       function setGateMissing(items) {
         gateMissing.replaceChildren();
+        const friendlyLabels = {
+          "稳定基线": "目前稳定状态",
+          "当前基线": "目前稳定状态",
+          "当前核心基线": "现在显卡的稳定状态",
+          "当前解锁功耗基线": "解锁功耗后的稳定状态",
+          "恢复配置": "怎么恢复原样",
+          "恢复路径": "怎么恢复原样",
+          "固定负载": "固定测试场景",
+          "固定工作负载": "固定测试场景",
+          "固定跑分": "固定跑分场景",
+          "中止信号": "什么情况立即停",
+          "PSU 型号与功率": "电源型号和功率",
+          "连接方式": "供电怎么连接",
+          "Crash/WHEA 证据": "崩溃或硬件错误记录",
+          "主板 BIOS 与微码": "主板 BIOS 版本",
+          "散热基线": "现在温度和散热表现",
+          "显存结温": "显存温度",
+          "共享功耗证据": "显卡内部功耗分配",
+          "Hot Spot 基线": "显卡热点温度",
+          "噪音目标": "能接受的噪音",
+          "当前功耗/温度基线": "现在功耗和温度",
+          "实际收益": "测试前后的真实变化"
+        };
         items.forEach(item => {
           const tag = document.createElement("span");
-          tag.textContent = item;
+          tag.textContent = friendlyLabels[item] || humanizeUiCopy(item);
+          tag.dataset.technicalLabel = item;
           gateMissing.appendChild(tag);
         });
       }
 
       function setGateOutput(tone, title, copy, missing = []) {
         gateOutput.dataset.tone = tone;
-        gateTitle.textContent = title;
-        gateCopy.textContent = copy;
+        gateOutput.dataset.technicalTitle = title;
+        gateOutput.dataset.technicalCopy = copy;
+        gateTitle.textContent = tone === "stop"
+          ? "先停下来：可能有安全问题"
+          : tone === "ready"
+            ? "信息齐了，可以继续"
+            : "现在还缺一些信息";
+        gateCopy.textContent = tone === "stop"
+          ? "先停止使用设备，不要继续开机、压测或插拔。先处理安全问题。"
+          : tone === "ready"
+            ? "需要确认的信息已经齐了，可以继续看测试计划。但这不代表参数一定安全。"
+            : `不用急着给参数。先把还缺的信息补齐，不知道的就先留空，不要猜。`;
         setGateMissing(missing);
       }
 
@@ -7636,18 +7923,18 @@
           const chip = document.createElement("span");
           chip.className = `dse-compare-audit-item${present ? " is-present" : ""}`;
           chip.textContent = item.label;
-          chip.setAttribute("aria-label", `${item.label}：${present ? "已保留" : "未保留"}`);
+          chip.setAttribute("aria-label", `${item.label}：${present ? "已经确认" : "还没确认"}`);
           compareAuditList.appendChild(chip);
         });
         compareAuditScore.textContent = `${retained} / ${compareEvidenceItems.length}`;
         if (isHazard) {
-          compareAuditNote.textContent = "物理危险场景不继续收集性能证据；先停止使用并处理安全风险。";
+          compareAuditNote.textContent = "有安全隐患时，不继续收集性能数据；先停止使用并处理危险。";
         } else if (retained === compareEvidenceItems.length) {
-          compareAuditNote.textContent = "五项证据都保留下来；这只解锁实验设计，不代表候选值安全或稳定。";
+          compareAuditNote.textContent = "五项信息都齐了；现在只能继续做测试计划，不代表参数一定安全。";
         } else if (retained === 0) {
-          compareAuditNote.textContent = "直接答案省略了全部中间证据；门禁答案会先显示缺口和低风险下一步。";
+          compareAuditNote.textContent = "直接回答省略了全部条件；右侧会先说明还缺什么，以及下一步该做什么。";
         } else {
-          compareAuditNote.textContent = `已保留 ${retained}/5；剩余缺口仍会阻止候选值，而不是让回答显得更“确定”。`;
+          compareAuditNote.textContent = `已经确认 ${retained}/5；剩下没确认的内容补齐前，系统不会给出具体方案。`;
         }
       }
 
@@ -7659,19 +7946,19 @@
           button.setAttribute("aria-pressed", String(button.dataset.scenario === id));
         });
         gateRequest.textContent = `> ${scenario.request}`;
-        compareDirect.textContent = scenario.direct;
-        compareSafe.textContent = scenario.safe;
+        compareDirect.textContent = humanizeUiCopy(scenario.direct);
+        compareSafe.textContent = humanizeUiCopy(scenario.safe);
         gateChecklist.hidden = true;
         gateRules.hidden = true;
         gateRulesButton.setAttribute("aria-expanded", "false");
-        gateRulesButton.textContent = "查看拒绝规则";
+        gateRulesButton.textContent = "为什么要先检查这些？";
         root.querySelectorAll("[data-gate-check]").forEach(input => {
           input.checked = false;
         });
         const checkButton = root.querySelector('[data-gate-action="check"]');
         checkButton.disabled = !scenario.canCheck;
         checkButton.setAttribute("aria-expanded", "false");
-        checkButton.textContent = "展开五项检查";
+        checkButton.textContent = "开始检查";
         tuneGateReady = false;
         enterExperimentButton.disabled = true;
         renderCompareAudit(scenario.tone === "stop");
@@ -7729,7 +8016,7 @@
       function setScenarioAutoPaused(paused) {
         scenarioAutoPaused = paused;
         scenarioAutoToggle.setAttribute("aria-pressed", String(paused));
-        scenarioAutoToggle.textContent = paused ? "恢复自动换组" : "暂停自动换组";
+        scenarioAutoToggle.textContent = paused ? "继续自动演示" : "暂停自动演示";
       }
       root.querySelector("[data-scenario-rotate]").addEventListener("click", () => {
         setScenarioAutoPaused(true);
@@ -7797,11 +8084,11 @@
             }
             gateRules.hidden = true;
             gateRulesButton.setAttribute("aria-expanded", "false");
-            gateRulesButton.textContent = "查看拒绝规则";
+            gateRulesButton.textContent = "为什么要先检查这些？";
             if (!gateChecklist.hidden) {
               gateChecklist.hidden = true;
               button.setAttribute("aria-expanded", "false");
-              button.textContent = "展开五项检查";
+            button.textContent = "开始检查";
               if (!tuneGateReady) {
                 const inputs = [...root.querySelectorAll("[data-gate-check]")];
                 const done = inputs.filter(item => item.checked).length;
@@ -7814,7 +8101,7 @@
             }
             gateChecklist.hidden = false;
             button.setAttribute("aria-expanded", "true");
-            button.textContent = "收起五项检查";
+            button.textContent = "收起检查";
             const inputs = [...root.querySelectorAll("[data-gate-check]")];
             const done = inputs.filter(item => item.checked).length;
             tuneGateReady = done === inputs.length;
@@ -7833,7 +8120,7 @@
           }
           gateRules.hidden = !gateRules.hidden;
           gateRulesButton.setAttribute("aria-expanded", String(!gateRules.hidden));
-          gateRulesButton.textContent = gateRules.hidden ? "查看拒绝规则" : "收起拒绝规则";
+          gateRulesButton.textContent = gateRules.hidden ? "为什么要先检查这些？" : "收起说明";
         });
       });
 
@@ -7869,21 +8156,21 @@
           return;
         }
         const missing = [];
-        if (demoBaseline.value !== "yes") missing.push("当前基线");
-        if (demoRecovery.value !== "yes") missing.push("恢复路径");
+        if (demoBaseline.value !== "yes") missing.push("目前稳定状态");
+        if (demoRecovery.value !== "yes") missing.push("恢复方法");
         if (missing.length) {
           generateExperimentButton.disabled = true;
           setExperimentState("baseline", {
             warningId: "baseline",
             meta: { baseline: "MISSING" },
-            next: `缺少：${missing.join("、")}。补齐前不能形成候选。`
+            next: `还缺：${missing.join("、")}。补齐前不能安排测试。`
           });
           return;
         }
         generateExperimentButton.disabled = false;
         setExperimentState("candidate", {
           meta: { baseline: "READY", candidate: "PENDING" },
-          next: "点击生成演示实验卡；本页仍不会产生可套用数值。"
+          next: "点击生成测试计划；本页仍然不会产生可直接套用的数值。"
         });
       }
 
@@ -7907,7 +8194,7 @@
         if (!tuneGateReady) return;
         setTuneState("measure", {
           meta: { gate: "5/5", measure: "READY" },
-          next: "进入实验状态机；先确认基线，再形成单一变量候选。"
+          next: "先确认现在的稳定状态，再安排只改一个地方的测试。"
         });
         enterExperimentButton.disabled = true;
         syncExperimentReadiness();
@@ -7950,50 +8237,50 @@
         const baseline = document.getElementById("dse-demo-baseline").value;
         const recovery = document.getElementById("dse-demo-recovery").value;
         const missing = [];
-        if (baseline !== "yes") missing.push("当前基线");
-        if (recovery !== "yes") missing.push("恢复路径");
+        if (baseline !== "yes") missing.push("目前稳定状态");
+        if (recovery !== "yes") missing.push("恢复方法");
         experimentOutput.hidden = false;
         expGrid.replaceChildren();
         simActions.hidden = true;
         simOutcome.hidden = true;
         if (missing.length) {
           experimentOutput.className = "dse-experiment-output blocked";
-          expStatus.textContent = "BLOCKED CARD · MISSING EVIDENCE";
-          expTitle.textContent = "暂不生成实验候选";
+          expStatus.textContent = "还不能生成测试计划";
+          expTitle.textContent = "先补齐缺的信息";
           setExperimentState("baseline", {
             warningId: "baseline",
             meta: { baseline: "MISSING" },
-            next: `缺少：${missing.join("、")}。补齐后再形成候选。`
+            next: `还缺：${missing.join("、")}。补齐后再安排测试。`
           });
           expGrid.append(
-            createExpItem("缺少条件", missing.join("、")),
-            createExpItem("安全下一步", "记录当前配置并建立一个明确的原厂/已知良好恢复点。"),
-            createExpItem("硬件操作", "NONE")
+            createExpItem("还缺什么", missing.join("、")),
+            createExpItem("下一步", "先记录现在的状态，并确认怎么恢复原样。"),
+            createExpItem("会修改电脑吗", "不会。这里只生成演示计划。")
           );
           return;
         }
         experimentOutput.className = "dse-experiment-output demo";
-        expStatus.textContent = "DEMO EXPERIMENT CARD · SIMULATION ONLY";
+        expStatus.textContent = "测试计划草稿 · 只做演示";
         expTitle.textContent = `${goal} / ${component}`;
         generateExperimentButton.disabled = true;
         setExperimentState("measure", {
           meta: { candidate: "DEMO ONLY", measure: "RUNNING" },
-          next: "记录同负载结果；通过、失败或无法判断必须分开。"
+          next: "用同一个场景记录结果，把成功、失败和还看不清的情况分开。"
         });
         setTuneState("measure", {
           meta: { gate: "5/5", measure: "RUNNING" },
-          next: "演示实验运行中；页面仍未读取或修改任何硬件。"
+          next: "这里只是在演示测试流程，页面不会读取或修改硬件。"
         });
         enterExperimentButton.disabled = true;
         expGrid.append(
-          createExpItem("唯一变量", `${route}（只改变这一类控制）`),
-          createExpItem("固定负载", workload),
-          createExpItem("候选来源", "使用用户实测工作点；本页不生成具体数值"),
-          createExpItem("通过条件", "相对基线出现超过噪声的收益，且无异常降频、伪影、驱动重置或温度异常"),
-          createExpItem("中止信号", "黑屏、花屏、驱动重置、崩溃、异常功耗/温度或性能持续下降"),
-          createExpItem("回退方式", "恢复到已保存的已知良好配置，并在重启后复核"),
-          createExpItem("证据边界", "本卡由演示输入生成，未读取硬件，也不能证明稳定"),
-          createExpItem("安全提示", "参数仅供参考，请以安全为第一要务。NONE")
+          createExpItem("这次只改什么", `${route}（只改这一项）`),
+          createExpItem("怎么对比", workload),
+          createExpItem("方案从哪来", "根据你自己测到的结果；本页不会生成具体数值"),
+          createExpItem("什么算有效", "比原来更稳定或更快，而且没有新的降频、花屏、驱动重置或异常温度"),
+          createExpItem("什么时候立即停", "黑屏、花屏、驱动重置、崩溃、异常功耗/温度或性能持续下降"),
+          createExpItem("怎么恢复原样", "回到已经确认稳定的配置，重启后再检查一次"),
+          createExpItem("别误会", "这只是演示计划，没有读取硬件，也不能证明真的稳定"),
+          createExpItem("安全提醒", "不要只照着网页数字操作，先确认自己的设备和恢复方式")
         );
         simActions.hidden = false;
       });
@@ -8002,47 +8289,47 @@
         button.addEventListener("click", () => {
           if (button.dataset.simResult === "pass") {
             simOutcome.className = "dse-sim-outcome";
-            simOutcome.textContent = "SIMULATED PASS → KEEP：本轮结果可保留，但仍需重启、睡眠唤醒和日常使用验证。";
+            simOutcome.textContent = "假设这轮成功：可以先保留，但还要经过重启、睡眠唤醒和日常使用确认。";
             setExperimentState("decision", {
               readyId: "decision",
               label: "STATE / KEEP",
-              next: "保留本轮通过值，并继续重启、唤醒和日常使用验证。",
+              next: "可以暂时保留，但还要重启、睡眠唤醒和日常使用确认。",
               meta: { outcome: "PASS", decision: "KEEP" }
             });
             setTuneState("outcome", {
               warning: false,
               label: "STATE / KEEP",
-              next: "本轮通过；仍需日常稳定性验证。",
+              next: "这一轮看起来成功，还要继续观察是否稳定。",
               meta: { outcome: "PASS" }
             });
           } else if (button.dataset.simResult === "fail") {
             simOutcome.className = "dse-sim-outcome fail";
-            simOutcome.textContent = "SIMULATED FAIL → REVERT：恢复上一已通过配置，并检查中止信号。";
+            simOutcome.textContent = "假设这轮失败：回到上一次确认稳定的配置，不要再继续叠新改动。";
             setExperimentState("decision", {
               warningId: "decision",
               label: "STATE / REVERT",
-              next: "恢复上一已知良好配置，并检查触发失败的因素。",
+              next: "恢复上一次确认稳定的配置，再看是什么导致失败。",
               meta: { outcome: "FAIL", decision: "REVERT" }
             });
             setTuneState("outcome", {
               warning: true,
               label: "STATE / REVERT",
-              next: "本轮失败；先回退，不叠加第二个变量。",
+              next: "这一轮失败，先恢复原样，不要再叠加新的改动。",
               meta: { outcome: "FAIL" }
             });
           } else {
             simOutcome.className = "dse-sim-outcome inconclusive";
-            simOutcome.textContent = "SIMULATED INCONCLUSIVE → REPEAT：重复同一负载，不增加第二个变量。";
+            simOutcome.textContent = "这轮结果说不清：保持同样条件再测一次，不要同时改第二个地方。";
             setExperimentState("decision", {
               warningId: "decision",
               label: "STATE / REPEAT",
-              next: "保持同一候选与负载，重复一次观测。",
+              next: "保持同一个方案和测试场景，再重复一次。",
               meta: { outcome: "INCONCLUSIVE", decision: "REPEAT" }
             });
             setTuneState("outcome", {
               warning: true,
               label: "STATE / REPEAT",
-              next: "证据不足以下结论；重复同条件，不增加新变量。",
+              next: "现在还不能下结论，按同样条件再测一次。",
               meta: { outcome: "INCONCLUSIVE" }
             });
           }
