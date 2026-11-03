@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <meta name="description" content="电脑硬件工作台 Skill 文件仪象台本地演示">
+  <meta name="description" content="电脑硬件工作台 Skill 1.5.2 历史文件结构存档">
   <link rel="icon" href="data:,">
-  <title>Skill Orrery · 文件仪象台</title>
+  <title>历史文件星系 · Skill 1.5.2</title>
   <style>
     :root {
       --void: #07090c;
@@ -203,6 +203,9 @@
 
     .snapshot-banner a {
       flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
       color: var(--paper);
       text-decoration: none;
       border-bottom: 1px solid #536170;
@@ -1424,6 +1427,53 @@
       }
     }
 
+    .header-stats,
+    .breadcrumb {
+      font-size: 13px;
+    }
+
+    .stage-hint {
+      color: #929da8;
+      font-size: 12px;
+    }
+
+    .category-label strong {
+      font-size: 13px;
+    }
+
+    .category-label small {
+      color: #9aa5af;
+      font-size: 12px;
+    }
+
+    .file-name {
+      color: #9aa4ad;
+      font-size: 12px;
+      opacity: .72;
+    }
+
+    .camera-zoom {
+      color: #9aa5af;
+      font-size: 12px;
+    }
+
+    .sector-rail button {
+      font-size: 13px;
+    }
+
+    .dossier-kicker,
+    .dossier-path {
+      font-size: 12px;
+    }
+
+    .overview-row em {
+      font-size: 12px;
+    }
+
+    .motion-toggle {
+      font-size: 13px;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *,
       *::before,
@@ -1442,8 +1492,8 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true"></div>
         <div>
-          <h1>文件仪象台</h1>
-          <p>电脑硬件工作台 · 冻结的 61 文件结构快照</p>
+          <h1>历史文件星系</h1>
+          <p>电脑硬件工作台 · Skill 1.5.2 的 61 文件结构存档</p>
         </div>
       </div>
       <div class="header-stats" aria-label="项目概况">
@@ -1455,7 +1505,7 @@
     </header>
 
     <div class="snapshot-banner" role="note">
-      <span><strong>历史快照：</strong>本页保留 Skill 1.5.2 时期的文件结构与关系，不表示当前 2.4.0 的完整文件清单。</span>
+      <span><strong>为什么不同步：</strong>这是有意保留的历史档案。Skill 1.5.2 时期记录为 61 个文件；当前 2.4.0 的清单可能不同，不会自动更新到本页。</span>
       <a href="../">回到 2.4.0 项目地图</a>
     </div>
 

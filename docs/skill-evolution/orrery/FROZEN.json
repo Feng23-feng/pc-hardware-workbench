@@ -4,7 +4,7 @@
   "status": "frozen",
   "frozenAt": "2026-11-03",
   "source": "docs/skill-evolution/orrery/index.html",
-  "sha256": "5D36D03FBBE3C5FEA1D19602F2EC61EF9AA84E84DAD2A886D975C046CD538356",
-  "bytes": 104712,
-  "changes": "Historical-snapshot labeling, mobile header/control sizing, and favicon metadata; the frozen file dataset is unchanged."
+  "sha256": "14D56F80B1776870D397083A306660DCAD0636C2EA9DFA0C1DD28892B4F98AC1",
+  "bytes": 105570,
+  "changes": "Clear historical-archive labeling, readable labels, accessible controls, and favicon metadata; the frozen file dataset is unchanged."
 }

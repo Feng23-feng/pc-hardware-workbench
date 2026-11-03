@@ -27,7 +27,7 @@ if ($errors.Count -eq 0) {
         @{ Name = "Index"; Html = $indexHtml },
         @{ Name = "Interactive"; Html = $interactiveHtml }
     )) {
-        if ($entry.Html -notmatch '\u5DE5\u4F5C\u53F0 2\.4\.0 \u00B7 \u672C\u5730\u5019\u9009') {
+        if ($entry.Html -notmatch '\u5DE5\u4F5C\u53F0 2\.4\.0 \u00B7 \u672C\u5730\u6D4B\u8BD5\u5019\u9009') {
             $errors.Add("$($entry.Name) does not label 2.4.0 as the local candidate.") | Out-Null
         }
         if ($entry.Html -match '\u5DE5\u4F5C\u53F0 1\.5\.2') {
@@ -36,8 +36,8 @@ if ($errors.Count -eq 0) {
         if ($entry.Html -match '\u7A33\u5B9A 2\.4\.0|STABLE 2\.4\.0') {
             $errors.Add("$($entry.Name) still presents 2.4.0 as stable.") | Out-Null
         }
-        if ($entry.Html -notmatch '\u4EBA\u5DE5\u7B7E\u7F72\uFF1APENDING') {
-            $errors.Add("$($entry.Name) does not surface pending human acceptance.") | Out-Null
+        if ($entry.Html -notmatch 'PENDING') {
+            $errors.Add("$($entry.Name) does not preserve pending validation status.") | Out-Null
         }
         if ($entry.Html -notmatch 'currentSeriesByTrack\s*=\s*\{[\s\S]*?core:\s*"wb-2-2"') {
             $errors.Add("$($entry.Name) current core series is not wb-2-2.") | Out-Null
@@ -85,18 +85,26 @@ if ($errors.Count -eq 0) {
         $errors.Add("Index does not label the file orrery as a frozen v1.2 snapshot.") | Out-Null
     }
     foreach ($marker in @(
+        'dse-skill-kicker',
+        '$pc-hardware-workbench',
         'class="dse-hero-actions"',
         'class="dse-hero-status"',
         'id="dse-overview-title"',
         'class="dse-about-grid"',
         'class="dse-preview-card"',
+        'class="dse-section-continue"',
         'id="dse-how-title"',
         'id="dse-candidate-title"',
+        'class="dse-candidate-columns"',
+        'class="dse-candidate-details"',
         'class="dse-explore"'
     )) {
         if ($indexHtml -notmatch [regex]::Escape($marker)) {
             $errors.Add("Index homepage hierarchy is missing $marker.") | Out-Null
         }
+    }
+    if ($indexHtml -notmatch '\u4EBA\u5DE5\u7B7E\u7F72\uFF1APENDING') {
+        $errors.Add("Index technical details do not preserve the human-acceptance gate.") | Out-Null
     }
     if ([regex]::Matches($indexHtml, '<a class="dse-hero-action\b').Count -ne 1) {
         $errors.Add("Index must expose exactly one primary hero action.") | Out-Null
@@ -110,9 +118,16 @@ if ($errors.Count -eq 0) {
     foreach ($marker in @(
         'class="dse-hero-status"',
         'class="dse-guided"',
+        'class="dse-guided-path"',
+        'id="dse-guided-outcome"',
+        'class="dse-guided-action-note"',
         'id="dse-guided-scenario"',
         'id="dse-guided-next"',
-        'class="dse-advanced-shell" id="dse-advanced-shell"'
+        'class="dse-advanced-shell" id="dse-advanced-shell"',
+        'class="dse-advanced-status"',
+        'id="dse-advanced-prev"',
+        'id="dse-advanced-reset"',
+        'id="dse-advanced-next"'
     )) {
         if ($interactiveHtml -notmatch [regex]::Escape($marker)) {
             $errors.Add("Interactive progressive-disclosure hierarchy is missing $marker.") | Out-Null
@@ -126,6 +141,15 @@ if ($errors.Count -eq 0) {
     }
     if ($interactiveHtml -match 'href="interactive/"') {
         $errors.Add("Interactive page contains a self-referential nested link.") | Out-Null
+    }
+    if ($interactiveHtml -match '\u5408\u6210(?:\u57FA\u51C6|\u57FA\u7EBF)') {
+        $errors.Add("Interactive page still uses the ambiguous synthetic-baseline label.") | Out-Null
+    }
+    if ($interactiveHtml -notmatch '\u53EF\u91CD\u590D\u57FA\u51C6\u6D4B\u8BD5') {
+        $errors.Add("Interactive workload selector does not use the plain-language benchmark label.") | Out-Null
+    }
+    if ($interactiveHtml -notmatch 'applyFilter\(button\.dataset\.filter, false\)') {
+        $errors.Add("Interactive filter controls must preserve their current scroll position.") | Out-Null
     }
 
     foreach ($entry in @(

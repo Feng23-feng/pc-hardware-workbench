@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="dark">
   <meta name="description" content="电脑硬件工作台 2.4.0 本地候选：只读硬件证据、故障排查、遥测分析与版本档案。">
   <link rel="icon" href="data:,">
-  <title>电脑硬件工作台 · 2.4.0 候选 / 项目地图</title>
+  <title>pc-hardware-workbench · 电脑硬件工作台</title>
 </head>
 <body>
 <main id="dse-root" class="dse">
@@ -5969,6 +5969,12 @@
       one focal point per section, narrow reading measure, fewer competing dividers.
     */
     #dse-root {
+      --dse-type-title: clamp(52px, 5.6vw, 72px);
+      --dse-type-section-title: 42px;
+      --dse-type-body: 16px;
+      --dse-type-copy: 15px;
+      --dse-type-meta: 13px;
+      --dse-type-label: 12px;
       font-family: "Segoe UI Variable Text", "Segoe UI", "Noto Sans SC", "Microsoft YaHei UI", sans-serif;
       scroll-behavior: smooth;
     }
@@ -5991,6 +5997,11 @@
     }
 
     #dse-root .dse-hero .dse-kicker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
       margin: 0 0 18px;
       color: #8f96a0;
       font-family: "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI", sans-serif;
@@ -6000,12 +6011,31 @@
       text-transform: none;
     }
 
+    #dse-root .dse-skill-kicker code,
+    #dse-root .dse-invoke-example code {
+      padding: 3px 7px;
+      color: #dce2e7;
+      background: #11151a;
+      border: 1px solid #293039;
+      border-radius: 6px;
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      letter-spacing: 0;
+    }
+
+    #dse-root .dse-invoke-example {
+      margin: 13px 0 0;
+      color: #8c949d;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
     #dse-root .dse-hero h1 {
       max-width: 820px;
       margin: 0 auto;
       color: #f4f6f8;
       font-family: "Segoe UI Variable Display", "Segoe UI", "Microsoft YaHei UI", sans-serif;
-      font-size: clamp(52px, 5.6vw, 72px);
+      font-size: var(--dse-type-title);
       font-weight: 570;
       line-height: 1.1;
       letter-spacing: -.012em;
@@ -6016,7 +6046,7 @@
       max-width: 640px;
       margin: 24px auto 0;
       color: #9aa1aa;
-      font-size: 16px;
+      font-size: var(--dse-type-body);
       line-height: 1.8;
       letter-spacing: 0;
     }
@@ -6071,6 +6101,29 @@
       text-decoration: none;
     }
 
+    #dse-root .dse-section-continue {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      min-height: 44px;
+      margin: 34px auto 0;
+      color: #aab1b9;
+      font-size: 12px;
+      text-decoration: none;
+    }
+
+    html.dse-motion-ready #dse-root [data-reveal] {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity .46s ease, transform .46s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    html.dse-motion-ready #dse-root [data-reveal].is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     #dse-root .dse-about,
     #dse-root .dse-howto {
       max-width: 1100px;
@@ -6090,10 +6143,11 @@
       margin: 0;
       color: #f1f3f5;
       font-family: "Segoe UI Variable Display", "Segoe UI", "Microsoft YaHei UI", sans-serif;
-      font-size: 42px;
+      font-size: var(--dse-type-section-title);
       font-weight: 560;
       line-height: 1.16;
       letter-spacing: -.012em;
+      text-wrap: balance;
     }
 
     #dse-root .dse-section-intro > p {
@@ -6231,7 +6285,7 @@
       max-width: 430px;
       margin: 4px 24px 0;
       color: #7f8790;
-      font-size: 12px;
+      font-size: var(--dse-type-copy);
       line-height: 1.65;
     }
 
@@ -6373,14 +6427,34 @@
     }
 
     #dse-root .dse-candidate {
-      display: grid;
-      grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+      display: block;
       max-width: 980px;
-      gap: 64px;
       margin: 100px auto 0;
       padding: 36px 0;
       border-top: 1px solid #252b32;
       border-bottom: 1px solid #252b32;
+    }
+
+    #dse-root .dse-candidate-intro {
+      max-width: 680px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    #dse-root .dse-candidate-state {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 14px;
+      color: #8f97a0;
+      font-size: 12px;
+    }
+
+    #dse-root .dse-candidate-state span {
+      color: var(--dse-amber);
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
     }
 
     #dse-root .dse-candidate h2 {
@@ -6388,11 +6462,97 @@
     }
 
     #dse-root .dse-candidate-lead {
-      max-width: 480px;
-      margin: 16px 0 0;
+      max-width: 620px;
+      margin: 16px auto 0;
       color: #959da6;
       font-size: 15px;
       line-height: 1.78;
+    }
+
+    #dse-root .dse-candidate-columns {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 56px;
+      margin-top: 38px;
+    }
+
+    #dse-root .dse-candidate-columns article {
+      min-width: 0;
+    }
+
+    #dse-root .dse-candidate-columns h3 {
+      margin: 0 0 13px;
+      color: #e8ebee;
+      font-size: 16px;
+      font-weight: 570;
+    }
+
+    #dse-root .dse-candidate-columns ul {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      color: #9aa1aa;
+      font-size: 14px;
+      line-height: 1.72;
+      list-style: none;
+    }
+
+    #dse-root .dse-candidate-columns li {
+      position: relative;
+      padding-left: 15px;
+    }
+
+    #dse-root .dse-candidate-columns li::before {
+      position: absolute;
+      top: .72em;
+      left: 0;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #65707a;
+      content: "";
+    }
+
+    #dse-root .dse-candidate-details {
+      max-width: 720px;
+      margin: 34px auto 0;
+      border-top: 1px solid #232930;
+      border-bottom: 1px solid #232930;
+    }
+
+    #dse-root .dse-candidate-details summary {
+      display: flex;
+      align-items: center;
+      min-height: 48px;
+      color: #aab1b9;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-candidate-details summary::after {
+      margin-left: auto;
+      color: var(--dse-cyan);
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 15px;
+      content: "+";
+    }
+
+    #dse-root .dse-candidate-details[open] summary::after {
+      content: "−";
+    }
+
+    #dse-root .dse-candidate-details .dse-candidate-facts {
+      padding: 2px 0 18px;
+    }
+
+    #dse-root .dse-field-help {
+      display: block;
+      margin-top: 7px;
+      color: #a0a8b0;
+      font-size: var(--dse-type-meta);
+      font-weight: 400;
+      line-height: 1.6;
     }
 
     #dse-root .dse-candidate-fact {
@@ -6403,7 +6563,7 @@
 
     #dse-root .dse-candidate-fact dt {
       color: #7f8790;
-      font-size: 11px;
+      font-size: var(--dse-type-meta);
       letter-spacing: 0;
     }
 
@@ -6453,7 +6613,86 @@
       font-variant-numeric: tabular-nums;
     }
 
+    #dse-root .dse-skill-kicker code,
+    #dse-root .dse-invoke-example code,
+    #dse-root .dse-hero-status,
+    #dse-root .dse-candidate-state,
+    #dse-root .dse-section-continue,
+    #dse-root .dse-text-link,
+    #dse-root .dse-candidate-details summary {
+      font-size: var(--dse-type-meta);
+    }
+
+    #dse-root .dse-window-bar,
+    #dse-root .dse-visual-flow small,
+    #dse-root .dse-preview-body > small {
+      font-size: var(--dse-type-label);
+    }
+
+    #dse-root .dse-about-points p,
+    #dse-root .dse-howto-step p,
+    #dse-root .dse-candidate-lead,
+    #dse-root .dse-candidate-columns ul,
+    #dse-root .dse-candidate-fact dd {
+      font-size: var(--dse-type-copy);
+    }
+
+    #dse-root .dse-preview-checks span,
+    #dse-root .dse-preview-next,
+    #dse-root .dse-explore small {
+      font-size: var(--dse-type-meta);
+    }
+
+    #dse-root .dse-filter,
+    #dse-root .dse-track-kicker,
+    #dse-root .dse-track-badge,
+    #dse-root .dse-node-code,
+    #dse-root .dse-node-summary,
+    #dse-root .dse-node-state,
+    #dse-root .dse-archive-kicker,
+    #dse-root .dse-series-count,
+    #dse-root .dse-series-label small,
+    #dse-root .dse-archive-total,
+    #dse-root .dse-version-code,
+    #dse-root .dse-version-title,
+    #dse-root .dse-footer span {
+      font-size: var(--dse-type-label);
+      line-height: 1.5;
+    }
+
+    #dse-root .dse-archive-summary {
+      font-size: var(--dse-type-copy);
+      line-height: 1.7;
+    }
+
+    #dse-root .dse-footer span {
+      color: #8f97a0;
+    }
+
+    #dse-root .dse-howto-step b,
+    #dse-root .dse-candidate-state span {
+      font-size: var(--dse-type-label);
+    }
+
+    @media (max-width: 1000px) {
+      #dse-root {
+        --dse-type-title: 56px;
+        --dse-type-section-title: 36px;
+        --dse-type-body: 15px;
+        --dse-type-copy: 15px;
+      }
+    }
+
     @media (max-width: 760px) {
+      #dse-root {
+        --dse-type-title: 40px;
+        --dse-type-section-title: 30px;
+        --dse-type-body: 15px;
+        --dse-type-copy: 14px;
+        --dse-type-meta: 13px;
+        --dse-type-label: 12px;
+      }
+
       #dse-root .dse-hero {
         min-height: min(720px, 86svh);
         padding: 44px 0 70px;
@@ -6461,14 +6700,12 @@
 
       #dse-root .dse-hero h1 {
         max-width: 560px;
-        font-size: 40px;
         line-height: 1.12;
       }
 
       #dse-root .dse-hero .dse-subtitle {
         max-width: 560px;
         margin-top: 18px;
-        font-size: 15px;
         line-height: 1.78;
       }
 
@@ -6486,7 +6723,7 @@
         flex-direction: column;
         gap: 7px;
         margin-top: 20px;
-        font-size: 11px;
+        font-size: var(--dse-type-meta);
       }
 
       #dse-root .dse-hero-status a {
@@ -6505,12 +6742,12 @@
 
       #dse-root .dse-section-intro h2,
       #dse-root .dse-candidate h2 {
-        font-size: 30px;
+        font-size: var(--dse-type-section-title);
       }
 
       #dse-root .dse-section-intro > p {
         margin-top: 12px;
-        font-size: 15px;
+        font-size: var(--dse-type-body);
         line-height: 1.75;
       }
 
@@ -6546,6 +6783,16 @@
       #dse-root .dse-candidate {
         margin-top: 76px;
         padding: 28px 0;
+      }
+
+      #dse-root .dse-candidate-intro {
+        text-align: left;
+      }
+
+      #dse-root .dse-candidate-columns {
+        grid-template-columns: 1fr;
+        gap: 28px;
+        margin-top: 30px;
       }
 
       #dse-root .dse-candidate-fact {
@@ -6589,6 +6836,11 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
+      html.dse-motion-ready #dse-root [data-reveal] {
+        opacity: 1;
+        transform: none;
+      }
+
       #dse-root,
       #dse-root *,
       #dse-root *::before,
@@ -6606,21 +6858,21 @@
   <div class="dse-shell">
     <header class="dse-header dse-hero">
       <div class="dse-header-copy">
-        <p class="dse-kicker">电脑硬件工作台</p>
+        <p class="dse-kicker dse-skill-kicker"><span>Codex Skill</span><code>pc-hardware-workbench</code></p>
         <h1>先看证据，再决定是否调校。</h1>
         <p class="dse-subtitle">读取配置、统一遥测、核对资料、解读截图与照片，并规划升级。在你同意后可读取正在运行的监控数据；不会自动修改硬件。</p>
+        <p class="dse-invoke-example">在 Codex 中调用：<code>$pc-hardware-workbench</code></p>
         <nav class="dse-hero-actions" aria-label="主要入口">
-          <a class="dse-hero-action primary" href="#dse-how-title">看看怎么用</a>
+          <a class="dse-hero-action primary" href="#dse-overview-title">看看怎么用</a>
         </nav>
         <div class="dse-hero-status" aria-label="当前版本状态">
-          <span>工作台 2.4.0 · 本地候选</span>
-          <span>人工签署：PENDING</span>
+          <span>工作台 2.4.0 · 本地测试候选</span>
           <a href="#dse-archive-title">106 个版本记录 →</a>
         </div>
       </div>
     </header>
 
-    <section class="dse-about" aria-labelledby="dse-overview-title">
+    <section class="dse-about" data-reveal aria-labelledby="dse-overview-title">
       <div class="dse-section-intro">
         <h2 id="dse-overview-title">先看懂，再动手。</h2>
         <p>把当前配置、故障现象、遥测与官方资料整理成可追溯证据。只读采集，不自动改硬件。</p>
@@ -6655,9 +6907,10 @@
           <p>不确定项会保留，不会被一句话包装成结论。</p>
         </div>
       </div>
+      <a class="dse-section-continue" href="#dse-how-title">继续：看怎么用 →</a>
     </section>
 
-    <section class="dse-howto" aria-labelledby="dse-how-title">
+    <section class="dse-howto" data-reveal aria-labelledby="dse-how-title">
       <div class="dse-section-intro">
         <h2 id="dse-how-title">三步，从问题到下一步。</h2>
         <p>不用先背参数。说清问题，补齐与当前判断真正相关的证据，再决定下一步。</p>
@@ -6700,32 +6953,54 @@
       <a class="dse-text-link" href="interactive/">体验单场景演示 →</a>
     </section>
 
-    <section class="dse-candidate" aria-labelledby="dse-candidate-title">
-      <div>
-        <h2 id="dse-candidate-title">2.4.0 当前仍是本地候选。</h2>
-        <p class="dse-candidate-lead">2.4.0 强化了 LHM 本机 Web 读取与 GPU 显存证据门禁。自动测试和独立行为对话已通过，但广泛发布所需的人工签署仍为 PENDING。</p>
+    <section class="dse-candidate" data-reveal aria-labelledby="dse-candidate-title">
+      <div class="dse-candidate-intro">
+        <p class="dse-candidate-state"><span>2.4.0</span>本地测试候选</p>
+        <h2 id="dse-candidate-title">可以用，但还不是正式稳定版。</h2>
+        <p class="dse-candidate-lead">自动测试已经通过，也能完成配置读取、排障、遥测和安全的下一步建议；还需要更多真实设备与人工体验验证。</p>
       </div>
-      <dl class="dse-candidate-facts">
-        <div class="dse-candidate-fact">
-          <dt>当前版本</dt>
-          <dd>工作台 2.4.0 · 本地候选；GitHub main 已同步。</dd>
-        </div>
-        <div class="dse-candidate-fact">
-          <dt>实时读取</dt>
-          <dd>在你同意后，只读访问已运行 LHM 的本机回环 Web；旧版 WMI 保留为兼容后备。</dd>
-        </div>
-        <div class="dse-candidate-fact">
-          <dt>显存结论</dt>
-          <dd>先确认具体显卡、显存和实际负载；不会只凭一个频率推带宽或超频值。</dd>
-        </div>
-        <div class="dse-candidate-fact">
-          <dt>发布限制</dt>
-          <dd>人工签署（Human acceptance）仍 PENDING；历史版本保留原验证语境。</dd>
-        </div>
-      </dl>
+      <div class="dse-candidate-columns">
+        <article>
+          <h3>当前能做什么</h3>
+          <ul>
+            <li>读取硬件配置，并整理故障与遥测证据。</li>
+            <li>在你同意后查看正在运行的监控数据，只读且不自动修改硬件。</li>
+            <li>给出可执行的下一步；涉及显存或调校时，明确还需要哪些条件。</li>
+          </ul>
+        </article>
+        <article>
+          <h3>为什么还是测试候选</h3>
+          <ul>
+            <li>真实设备覆盖仍在扩大，部分结论需要结合你的负载与记录。</li>
+            <li>公开使用前的人工体验验证尚未全部完成。</li>
+            <li>页面始终提供计划与边界，最终设置仍由你确认和操作。</li>
+          </ul>
+        </article>
+      </div>
+      <details class="dse-candidate-details">
+        <summary>查看技术与发布说明</summary>
+        <dl class="dse-candidate-facts">
+          <div class="dse-candidate-fact">
+            <dt>版本</dt>
+            <dd>工作台 2.4.0 · 本地候选；GitHub main 已同步。</dd>
+          </div>
+          <div class="dse-candidate-fact">
+            <dt>实时读取</dt>
+            <dd>在你同意后，只读访问已运行 LHM 的本机回环 Web；旧版 WMI 保留为兼容后备。</dd>
+          </div>
+          <div class="dse-candidate-fact">
+            <dt>显存结论</dt>
+            <dd>先确认具体显卡、显存和实际负载；不会只凭一个频率推带宽或超频值。</dd>
+          </div>
+          <div class="dse-candidate-fact">
+            <dt>发布限制</dt>
+            <dd>人工签署：PENDING；历史版本保留原验证语境。</dd>
+          </div>
+        </dl>
+      </details>
     </section>
 
-    <nav class="dse-explore" aria-label="深入入口">
+    <nav class="dse-explore" data-reveal aria-label="深入入口">
       <a href="#dse-map-title">
         <strong>能力地图</strong>
         <small>工作台与自动化原型的演进轨道</small>
@@ -6739,8 +7014,8 @@
         <small>从单一步骤体验判断流程</small>
       </a>
       <a href="orrery/">
-        <strong>文件星系</strong>
-        <small>冻结 v1.2 历史文件快照</small>
+        <strong>历史文件星系 · 1.5.2</strong>
+        <small>固定存档，不跟随当前 2.4.0 更新</small>
       </a>
     </nav>
 
@@ -6887,8 +7162,8 @@
         <button type="button" class="dse-filter" data-filter="core" aria-pressed="true">主工作台</button>
         <button type="button" class="dse-filter" data-filter="prototype" aria-pressed="false">自动超频原型</button>
         <button type="button" class="dse-filter" data-filter="triage" aria-pressed="false">Triage 排障</button>
-        <a class="dse-filter dse-lab-link" href="interactive/">交互实验室 ↗</a>
-        <a class="dse-filter dse-lab-link" href="orrery/">Skill 文件星系 ↗</a>
+        <a class="dse-filter dse-lab-link" href="interactive/" title="打开交互实验室页面">交互实验室页面 ↗</a>
+        <a class="dse-filter dse-lab-link" href="orrery/" title="打开 Skill 1.5.2 历史文件星系">历史文件星系页面（1.5.2）↗</a>
         <button type="button" class="dse-filter" data-filter="merge" aria-pressed="false">融合阶段</button>
       </div>
       <div class="dse-legend">
@@ -7235,12 +7510,13 @@
               </select>
             </label>
             <label class="dse-demo-field">用什么场景对比
-              <select id="dse-demo-workload">
-                <option value="游戏固定场景">游戏固定场景</option>
-                <option value="合成基准">合成基准</option>
-                <option value="渲染/编译">渲染/编译</option>
-                <option value="手动稳定性测试">手动稳定性测试</option>
+              <select id="dse-demo-workload" aria-describedby="dse-workload-help">
+                <option value="游戏固定场景" title="同一个游戏、画质和场景，最接近真实体验">游戏固定场景</option>
+                <option value="可重复基准测试" title="3DMark、Cinebench、FurMark 等标准测试，便于重复比较">可重复基准测试</option>
+                <option value="渲染/编译" title="持续且可重复的生产力负载">渲染 / 编译</option>
+                <option value="手动稳定性测试" title="针对温度、功耗和错误的人工压力检查">手动稳定性测试</option>
               </select>
+              <small class="dse-field-help" id="dse-workload-help">游戏最接近真实体验；基准测试便于重复比较，但不等于日常表现。</small>
             </label>
             <label class="dse-demo-field">
               <span class="dse-demo-field-label">准备怎么改 <small id="dse-route-context" aria-live="polite">· GPU</small></span>
@@ -9987,7 +10263,7 @@
       }
 
       root.querySelectorAll(".dse-filter[data-filter]").forEach(button => {
-        button.addEventListener("click", () => applyFilter(button.dataset.filter, true));
+        button.addEventListener("click", () => applyFilter(button.dataset.filter, false));
       });
       root.querySelectorAll(".dse-demo-modes [data-demo-mode]").forEach(button => {
         button.addEventListener("click", () => {
@@ -10014,6 +10290,38 @@
       mergeButtons.forEach(button => {
         button.addEventListener("click", () => selectMilestone(button.dataset.mergeId, true));
       });
+      function setupSectionReveal() {
+        if (
+          isInteractiveView ||
+          reduceMotionQuery.matches ||
+          !("IntersectionObserver" in window)
+        ) {
+          return;
+        }
+        const items = [...root.querySelectorAll("[data-reveal]")];
+        if (!items.length) return;
+        document.documentElement.classList.add("dse-motion-ready");
+        const observer = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          });
+        }, {
+          root,
+          threshold: .12,
+          rootMargin: "0px 0px -10%"
+        });
+        items.forEach(item => observer.observe(item));
+        reduceMotionQuery.addEventListener?.("change", event => {
+          if (!event.matches) return;
+          document.documentElement.classList.remove("dse-motion-ready");
+          items.forEach(item => item.classList.add("is-visible"));
+          observer.disconnect();
+        });
+      }
+
+      setupSectionReveal();
       setDemoMode("tune", { updateRoute: false });
       if (isInteractiveView) {
         initTermLab();

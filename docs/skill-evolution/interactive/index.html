@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="dark">
   <meta name="description" content="电脑硬件工作台 2.4.0 候选交互实验室：从单一步骤开始理解证据、排障与调校门禁。">
   <link rel="icon" href="data:,">
-  <title>交互实验室 · 电脑硬件工作台</title>
+  <title>交互实验室 · pc-hardware-workbench</title>
 </head>
 <body>
 <main id="dse-root" class="dse">
@@ -2759,6 +2759,21 @@
     #dse-root .dse-value {
       font-size: 12px;
       line-height: 1.65;
+    }
+
+    #dse-root .dse-field-help {
+      display: block;
+      margin-top: 7px;
+      color: #a0a8b0;
+      font-size: var(--dse-type-meta);
+      font-weight: 400;
+      line-height: 1.6;
+    }
+
+    #dse-root .dse-footer span {
+      color: #8f97a0;
+      font-size: var(--dse-type-label);
+      line-height: 1.6;
     }
 
     #dse-root .dse-footer {
@@ -5771,6 +5786,12 @@
       a single reading column, one primary guided action, advanced layers kept quiet.
     */
     #dse-root {
+      --dse-type-title: clamp(52px, 5.5vw, 70px);
+      --dse-type-section-title: 42px;
+      --dse-type-body: 16px;
+      --dse-type-copy: 15px;
+      --dse-type-meta: 13px;
+      --dse-type-label: 12px;
       font-family: "Segoe UI Variable Text", "Segoe UI", "Noto Sans SC", "Microsoft YaHei UI", sans-serif;
       scroll-behavior: smooth;
     }
@@ -5807,7 +5828,7 @@
       margin: 0 auto;
       color: #f4f6f8;
       font-family: "Segoe UI Variable Display", "Segoe UI", "Microsoft YaHei UI", sans-serif;
-      font-size: clamp(52px, 5.5vw, 70px);
+      font-size: var(--dse-type-title);
       font-weight: 570;
       line-height: 1.1;
       letter-spacing: -.012em;
@@ -5818,7 +5839,7 @@
       max-width: 620px;
       margin: 24px auto 0;
       color: #9aa1aa;
-      font-size: 16px;
+      font-size: var(--dse-type-body);
       line-height: 1.8;
       letter-spacing: 0;
     }
@@ -5915,10 +5936,11 @@
       margin: 0;
       color: #f1f3f5;
       font-family: "Segoe UI Variable Display", "Segoe UI", "Microsoft YaHei UI", sans-serif;
-      font-size: 42px;
+      font-size: var(--dse-type-section-title);
       font-weight: 560;
       line-height: 1.16;
       letter-spacing: -.012em;
+      text-wrap: balance;
     }
 
     #dse-root .dse-guided-head > p {
@@ -5929,7 +5951,90 @@
       line-height: 1.78;
     }
 
+    #dse-root .dse-guided-path {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      max-width: 760px;
+      margin: 0 auto 24px;
+      padding: 0;
+    }
+
+    #dse-root .dse-guided-path > span {
+      position: relative;
+      display: grid;
+      grid-template-columns: 26px minmax(0, 1fr);
+      grid-template-rows: auto auto;
+      align-items: center;
+      column-gap: 9px;
+      row-gap: 2px;
+      min-height: 44px;
+      color: #77808a;
+      font-size: 13px;
+      font-weight: 520;
+    }
+
+    #dse-root .dse-guided-path > span:not(:last-child)::after {
+      position: absolute;
+      top: 50%;
+      right: -7px;
+      color: #4f5963;
+      font-size: 13px;
+      content: "→";
+      transform: translateY(-50%);
+    }
+
+    #dse-root .dse-guided-path b {
+      display: inline-grid;
+      place-items: center;
+      flex: 0 0 26px;
+      width: 26px;
+      height: 26px;
+      color: #89929c;
+      border: 1px solid #343b43;
+      border-radius: 50%;
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: var(--dse-type-label);
+      font-weight: 500;
+      grid-row: 1 / 3;
+    }
+
+    #dse-root .dse-guided-path > span.is-current {
+      color: #eef1f3;
+    }
+
+    #dse-root .dse-guided-path > span.is-current b {
+      color: #071013;
+      background: var(--dse-cyan);
+      border-color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-guided-path > span.is-complete {
+      color: #9da6af;
+    }
+
+    #dse-root .dse-guided-path > span.is-complete b {
+      color: #cce5e9;
+      border-color: #4b6870;
+      background: rgba(129, 207, 223, .08);
+    }
+
+    #dse-root .dse-guided-path-state {
+      grid-column: 2;
+      color: #78828c;
+      font-size: var(--dse-type-label);
+      font-style: normal;
+    }
+
+    #dse-root .dse-guided-path > span.is-current .dse-guided-path-state {
+      color: #9ed8e2;
+    }
+
+    #dse-root .dse-guided-path > span.is-complete .dse-guided-path-state {
+      color: #9fa8b1;
+    }
+
     #dse-root .dse-guided-stage {
+      grid-template-rows: auto auto auto auto;
       margin: 0;
       padding: 30px;
       background:
@@ -5944,7 +6049,8 @@
 
     #dse-root .dse-guided-progress {
       color: #8faeb5;
-      font-size: 10px;
+      font-size: 12px;
+      line-height: 1.5;
       letter-spacing: .02em;
     }
 
@@ -5966,13 +6072,49 @@
 
     #dse-root #dse-guided-scenario {
       min-height: 46px;
-      font-size: 13px;
+      font-size: 14px;
     }
 
     #dse-root .dse-guided-next {
       min-height: 48px;
       border-radius: 999px;
       font-size: 13px;
+    }
+
+    #dse-root .dse-guided-action-note {
+      grid-column: 2;
+      grid-row: 4;
+      margin: 0;
+      color: #a3abb4;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    #dse-root .dse-guided-outcome {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr);
+      align-items: start;
+      gap: 18px;
+      max-width: 980px;
+      margin: 16px auto 0;
+      padding: 16px 18px;
+      color: #a8b0b8;
+      background: rgba(129, 207, 223, .035);
+      border: 1px solid rgba(129, 207, 223, .16);
+      border-radius: 10px;
+    }
+
+    #dse-root .dse-guided-outcome small {
+      color: #8fc0cb;
+      font-size: 13px;
+      font-weight: 520;
+    }
+
+    #dse-root .dse-guided-outcome p {
+      margin: 0;
+      color: #c2c8ce;
+      font-size: 14px;
+      line-height: 1.7;
     }
 
     #dse-root .dse-guided-reason {
@@ -5993,7 +6135,203 @@
       border-bottom: 1px solid #252b31;
     }
 
+    #dse-root .dse-hero-status,
+    #dse-root .dse-guided-select-label,
+    #dse-root .dse-guided-progress,
+    #dse-root .dse-guided-action-note,
+    #dse-root .dse-guided-reason summary,
+    #dse-root .dse-advanced-shell > summary small,
+    #dse-root .dse-advanced-status small,
+    #dse-root .dse-advanced-status span {
+      font-size: var(--dse-type-meta);
+    }
+
+    #dse-root .dse-advanced-shell > summary span {
+      font-size: var(--dse-type-label);
+    }
+
+    #dse-root .dse-advanced-shell > summary strong {
+      font-size: 15px;
+    }
+
+    #dse-root .dse-filter,
+    #dse-root .dse-demo-action,
+    #dse-root .dse-state-action,
+    #dse-root .dse-term-token,
+    #dse-root .dse-mode-guide-kicker,
+    #dse-root .dse-demo-modes .dse-filter,
+    #dse-root .dse-demo-field,
+    #dse-root .dse-demo-field select,
+    #dse-root .dse-demo-step,
+    #dse-root .dse-demo-badge,
+    #dse-root .dse-tech-details summary,
+    #dse-root .dse-secondary-actions summary {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    #dse-root .dse-demo-panel-sub,
+    #dse-root .dse-mode-guide-summary,
+    #dse-root .dse-state-live,
+    #dse-root .dse-gate-help,
+    #dse-root .dse-rule-list li,
+    #dse-root .dse-gate-check-copy small {
+      color: #a0a8b0;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    #dse-root .dse-advanced-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 18px 0;
+      border-bottom: 1px solid #252b31;
+    }
+
+    #dse-root .dse-advanced-status > div:first-child {
+      display: grid;
+      grid-template-columns: auto auto;
+      align-items: baseline;
+      gap: 4px 12px;
+    }
+
+    #dse-root .dse-advanced-status small {
+      grid-column: 1 / -1;
+      color: #9ba3ac;
+      font-size: 12px;
+    }
+
+    #dse-root .dse-advanced-status strong {
+      color: #eef1f3;
+      font-size: 19px;
+      font-weight: 570;
+    }
+
+    #dse-root .dse-advanced-status span {
+      color: #9aa2ab;
+      font-size: 13px;
+    }
+
+    #dse-root .dse-advanced-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    #dse-root .dse-advanced-actions button {
+      min-height: 42px;
+      padding: 0 13px;
+      color: #bdc4cb;
+      background: #101419;
+      border: 1px solid #343c44;
+      border-radius: 999px;
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-advanced-actions button:hover:not(:disabled),
+    #dse-root .dse-advanced-actions button:focus-visible:not(:disabled) {
+      color: #f2f4f6;
+      border-color: #5b6671;
+    }
+
+    #dse-root .dse-advanced-actions button:disabled {
+      color: #656e77;
+      cursor: not-allowed;
+      opacity: .62;
+    }
+
+    #dse-root .dse-demo :where(span, small, strong, b, summary) {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    #dse-root .dse-demo :where(p, blockquote, li) {
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    #dse-root .dse-demo button,
+    #dse-root .dse-demo-back {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    #dse-root .dse-demo summary {
+      min-height: 44px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    #dse-root .dse-mode-guide-route-label,
+    #dse-root .dse-mode-guide-step b,
+    #dse-root .dse-mode-guide-step small,
+    #dse-root .dse-tune-steps b,
+    #dse-root .dse-tune-steps small,
+    #dse-root .dse-gate-missing span,
+    #dse-root .dse-scenario-meta > span,
+    #dse-root .dse-demo-field-label small,
+    #dse-root .dse-compare-audit-kicker,
+    #dse-root .dse-compare-audit-score,
+    #dse-root .dse-compare-audit-item,
+    #dse-root .dse-compare-audit-note {
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    #dse-root .dse-mode-guide-step strong,
+    #dse-root .dse-tune-steps strong,
+    #dse-root .dse-gate-title,
+    #dse-root .dse-state-live strong,
+    #dse-root .dse-compare-label {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    #dse-root .dse-gate-request,
+    #dse-root .dse-gate-copy {
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    #dse-root .dse-demo-field select {
+      font-size: 14px;
+    }
+
+    #dse-root .dse-scenario {
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    #dse-root .dse-demo .dse-scenario-meta .dse-demo-action {
+      min-height: 44px;
+      padding: 0 10px;
+    }
+
+    @media (max-width: 1000px) {
+      #dse-root {
+        --dse-type-title: 56px;
+        --dse-type-section-title: 36px;
+        --dse-type-body: 15px;
+        --dse-type-copy: 15px;
+      }
+    }
+
     @media (max-width: 760px) {
+      #dse-root {
+        --dse-type-title: 40px;
+        --dse-type-section-title: 30px;
+        --dse-type-body: 15px;
+        --dse-type-copy: 14px;
+        --dse-type-meta: 13px;
+        --dse-type-label: 12px;
+      }
+
       #dse-root .dse-hero {
         min-height: min(700px, 86svh);
         padding: 42px 0 62px;
@@ -6001,14 +6339,12 @@
 
       #dse-root .dse-hero h1 {
         max-width: 540px;
-        font-size: 40px;
         line-height: 1.12;
       }
 
       #dse-root .dse-hero .dse-subtitle {
         max-width: 540px;
         margin-top: 18px;
-        font-size: 15px;
         line-height: 1.78;
       }
 
@@ -6041,16 +6377,17 @@
       }
 
       #dse-root .dse-guided h2 {
-        font-size: 30px;
+        font-size: var(--dse-type-section-title);
       }
 
       #dse-root .dse-guided-head > p {
         margin: 12px 0 0;
-        font-size: 15px;
+        font-size: var(--dse-type-body);
         line-height: 1.75;
       }
 
       #dse-root .dse-guided-stage {
+        grid-template-columns: 1fr;
         padding: 20px;
         border-radius: 14px;
       }
@@ -6064,12 +6401,44 @@
         line-height: 1.72;
       }
 
+      #dse-root .dse-guided-action-note,
+      #dse-root .dse-guided-next {
+        grid-column: 1;
+        grid-row: auto;
+      }
+
+      #dse-root .dse-guided-path > span:not(:last-child)::after {
+        right: -4px;
+      }
+
+      #dse-root .dse-guided-outcome {
+        grid-template-columns: 1fr;
+        gap: 5px;
+        padding: 14px;
+      }
+
       #dse-root .dse-guided-reason {
         margin-top: 20px;
       }
 
       #dse-root .dse-advanced-shell {
         margin-top: 58px;
+      }
+
+      #dse-root .dse-advanced-status {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      #dse-root .dse-advanced-actions {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      #dse-root .dse-advanced-actions button {
+        min-height: 44px;
+        padding: 0 8px;
       }
     }
 
@@ -6104,8 +6473,7 @@
           <a class="dse-hero-action primary" href="#dse-guided-title">开始演示</a>
         </nav>
         <div class="dse-hero-status" aria-label="当前版本状态">
-          <span>工作台 2.4.0 · 本地候选</span>
-          <span>人工签署：PENDING</span>
+          <span>工作台 2.4.0 · 本地测试候选</span>
           <a href="../#dse-archive-title">返回完整版本档案 →</a>
         </div>
       </div>
@@ -6114,13 +6482,19 @@
     <section class="dse-guided" aria-labelledby="dse-guided-title">
       <header class="dse-guided-head">
         <div>
-          <h2 id="dse-guided-title">一次只处理一个问题。</h2>
+          <h2 id="dse-guided-title">先选问题，再补证据，最后得到下一步。</h2>
         </div>
-        <p>先选一个场景；每次只显示一条信息和下一步，需要时再展开详细原因。</p>
+        <p>这是一个三步演示。你会先看到为什么缺证据，再看到怎样补，最后得到一条可执行的下一步建议。</p>
       </header>
 
+      <div class="dse-guided-path" aria-label="演示流程">
+        <span data-guided-path="0" class="is-current"><b>1</b><span class="dse-guided-path-label">选择问题</span><em class="dse-guided-path-state">当前</em></span>
+        <span data-guided-path="1"><b>2</b><span class="dse-guided-path-label">补齐证据</span><em class="dse-guided-path-state">待进行</em></span>
+        <span data-guided-path="2"><b>3</b><span class="dse-guided-path-label">得到下一步</span><em class="dse-guided-path-state">待进行</em></span>
+      </div>
+
       <div class="dse-guided-stage">
-        <label class="dse-guided-select-label" for="dse-guided-scenario">换一个问题</label>
+        <label class="dse-guided-select-label" for="dse-guided-scenario">选择一个示例问题</label>
         <select id="dse-guided-scenario">
           <option value="temperature">电脑温度偏高</option>
           <option value="stutter">游戏掉帧或卡顿</option>
@@ -6128,12 +6502,18 @@
         </select>
 
         <div class="dse-guided-copy" aria-live="polite">
-          <p class="dse-guided-progress" id="dse-guided-progress">温度偏高 · 第 1 步 / 共 3 步</p>
+          <p class="dse-guided-progress" id="dse-guided-progress">温度偏高 · 当前第 1 步 / 共 3 步</p>
           <h3 id="dse-guided-step-title">先确认是哪一部分温度高</h3>
           <p id="dse-guided-step-copy">先说明 CPU、GPU、显存或整机温度，以及当时在做什么。单看一个瞬间数字，不能判断散热是否异常。</p>
         </div>
 
-        <button class="dse-guided-next" id="dse-guided-next" type="button">下一步：补齐负载与传感器</button>
+        <button class="dse-guided-next" id="dse-guided-next" type="button">继续演示：补齐证据</button>
+        <p class="dse-guided-action-note">点击只更新下方示例，不打开表单，也不会读取或修改你的电脑。</p>
+      </div>
+
+      <div class="dse-guided-outcome" aria-live="polite">
+        <small>最终产出预览</small>
+        <p id="dse-guided-outcome">一条带缺失项与下一步的检查建议，不会直接给出调校数值。</p>
       </div>
 
       <details class="dse-guided-reason">
@@ -6255,7 +6635,7 @@
         <button type="button" class="dse-filter" data-filter="core" aria-pressed="true">主工作台</button>
         <button type="button" class="dse-filter" data-filter="prototype" aria-pressed="false">自动超频原型</button>
         <button type="button" class="dse-filter" data-filter="triage" aria-pressed="false">Triage 排障</button>
-        <a class="dse-filter dse-lab-link" href="./">交互实验室 ↗</a>
+        <a class="dse-filter dse-lab-link" href="./" title="刷新当前交互实验室页面">交互实验室页面 ↗</a>
         <button type="button" class="dse-filter" data-filter="merge" aria-pressed="false">融合阶段</button>
       </div>
       <div class="dse-legend">
@@ -6357,6 +6737,18 @@
         <strong>完整术语、调校门禁、排障与证据实验</strong>
         <small>仅按需使用</small>
       </summary>
+    <div class="dse-advanced-status" aria-live="polite">
+      <div>
+        <small>当前高级主题</small>
+        <strong id="dse-advanced-current">安全调参</strong>
+        <span id="dse-advanced-progress">2 / 5 · 可随时切换</span>
+      </div>
+      <div class="dse-advanced-actions">
+        <button id="dse-advanced-prev" type="button">上一步</button>
+        <button id="dse-advanced-reset" type="button">重置</button>
+        <button id="dse-advanced-next" type="button">下一步</button>
+      </div>
+    </div>
     <section class="dse-demo" id="dse-demo" aria-labelledby="dse-demo-title" hidden>
       <header class="dse-demo-head">
         <div class="dse-demo-heading">
@@ -6367,7 +6759,7 @@
           <p class="dse-demo-summary">选一个最接近你的情况，看看先要弄清楚什么，再决定要不要改设置。这里只做演示，不会读取或修改你的电脑。</p>
           <div class="dse-demo-meta">
             <a class="dse-demo-back" href="../">← 返回项目地图</a>
-            <a class="dse-demo-back" href="../orrery/">Skill 文件星系 ↗</a>
+            <a class="dse-demo-back" href="../orrery/" title="打开 Skill 1.5.2 历史文件星系">历史文件星系页面（1.5.2）↗</a>
             <span class="dse-demo-badge">在线演示 · 不会修改你的电脑</span>
           </div>
         </div>
@@ -6610,12 +7002,13 @@
               </select>
             </label>
             <label class="dse-demo-field">用什么场景对比
-              <select id="dse-demo-workload">
-                <option value="游戏固定场景">游戏固定场景</option>
-                <option value="合成基准">合成基准</option>
-                <option value="渲染/编译">渲染/编译</option>
-                <option value="手动稳定性测试">手动稳定性测试</option>
+              <select id="dse-demo-workload" aria-describedby="dse-workload-help">
+                <option value="游戏固定场景" title="同一个游戏、画质和场景，最接近真实体验">游戏固定场景</option>
+                <option value="可重复基准测试" title="3DMark、Cinebench、FurMark 等标准测试，便于重复比较">可重复基准测试</option>
+                <option value="渲染/编译" title="持续且可重复的生产力负载">渲染 / 编译</option>
+                <option value="手动稳定性测试" title="针对温度、功耗和错误的人工压力检查">手动稳定性测试</option>
               </select>
+              <small class="dse-field-help" id="dse-workload-help">游戏最接近真实体验；基准测试便于重复比较，但不等于日常表现。</small>
             </label>
             <label class="dse-demo-field">
               <span class="dse-demo-field-label">准备怎么改 <small id="dse-route-context" aria-live="polite">· GPU</small></span>
@@ -9320,9 +9713,32 @@
         });
       }
 
+      const advancedModeOrder = ["terms", "tune", "triage", "identity", "evidence"];
+      const advancedModeLabels = {
+        terms: "看懂名词",
+        tune: "安全调参",
+        triage: "排查故障",
+        identity: "旧记录判断",
+        evidence: "证据系统"
+      };
+
+      function syncAdvancedProgress(mode) {
+        const current = document.getElementById("dse-advanced-current");
+        const progress = document.getElementById("dse-advanced-progress");
+        const previous = document.getElementById("dse-advanced-prev");
+        const next = document.getElementById("dse-advanced-next");
+        if (!current || !progress || !previous || !next) return;
+        const index = advancedModeOrder.indexOf(mode);
+        current.textContent = advancedModeLabels[mode] || mode;
+        progress.textContent = `${index + 1} / ${advancedModeOrder.length} · 可切换主题`;
+        previous.disabled = index <= 0;
+        next.disabled = index >= advancedModeOrder.length - 1;
+      }
+
       function setDemoMode(mode, options = {}) {
         if (!["terms", "tune", "triage", "identity", "evidence"].includes(mode)) return;
         activeDemoMode = mode;
+        syncAdvancedProgress(mode);
         renderModeGuide(mode);
         tuneSteps.hidden = mode !== "tune";
         root.querySelectorAll(".dse-demo-panel[data-demo-mode]").forEach(panel => {
@@ -9418,7 +9834,7 @@
       }
 
       root.querySelectorAll(".dse-filter[data-filter]").forEach(button => {
-        button.addEventListener("click", () => applyFilter(button.dataset.filter, true));
+        button.addEventListener("click", () => applyFilter(button.dataset.filter, false));
       });
       root.querySelectorAll(".dse-demo-modes [data-demo-mode]").forEach(button => {
         button.addEventListener("click", () => {
@@ -9427,6 +9843,21 @@
             scroll: true
           });
         });
+      });
+      document.getElementById("dse-advanced-prev")?.addEventListener("click", () => {
+        const index = advancedModeOrder.indexOf(activeDemoMode);
+        const mode = advancedModeOrder[Math.max(0, index - 1)];
+        if (mode) setDemoMode(mode, { updateRoute: true, scroll: false });
+      });
+      document.getElementById("dse-advanced-next")?.addEventListener("click", () => {
+        const index = advancedModeOrder.indexOf(activeDemoMode);
+        const mode = advancedModeOrder[Math.min(advancedModeOrder.length - 1, index + 1)];
+        if (mode) setDemoMode(mode, { updateRoute: true, scroll: false });
+      });
+      document.getElementById("dse-advanced-reset")?.addEventListener("click", () => {
+        const advancedShell = document.getElementById("dse-advanced-shell");
+        if (advancedShell) advancedShell.open = true;
+        setDemoMode("tune", { updateRoute: true, scroll: false });
       });
       tuneStepLinks.forEach(link => {
         link.addEventListener("click", event => {
@@ -9454,12 +9885,15 @@
         const evidence = document.getElementById("dse-guided-evidence");
         const why = document.getElementById("dse-guided-why");
         const nextButton = document.getElementById("dse-guided-next");
+        const pathItems = [...document.querySelectorAll("[data-guided-path]")];
+        const outcomeText = document.getElementById("dse-guided-outcome");
         const advancedShell = document.getElementById("dse-advanced-shell");
         if (!scenarioSelect || !progress || !title || !copy || !evidence || !why || !nextButton) return;
 
         const scenarios = {
           temperature: {
             label: "温度偏高",
+            outcome: "会得到一条补充负载、温度和散热证据的检查建议，不会直接给出调压数值。",
             steps: [
               {
                 title: "先确认是哪一部分温度高",
@@ -9486,6 +9920,7 @@
           },
           stutter: {
             label: "掉帧或卡顿",
+            outcome: "会得到一条同场景复测与证据对比建议，不会直接把掉帧归因于某个硬件。",
             steps: [
               {
                 title: "先分清是哪一种卡顿",
@@ -9512,6 +9947,7 @@
           },
           tuning: {
             label: "想调校",
+            outcome: "会得到一份只改一个变量、包含中止信号和恢复方式的测试计划。",
             steps: [
               {
                 title: "先说清楚目标和恢复方式",
@@ -9547,9 +9983,22 @@
           copy.textContent = item.copy;
           evidence.textContent = item.evidence;
           why.textContent = item.why;
-          nextButton.textContent = guidedStep === scenario.steps.length - 1
-            ? item.next
-            : `下一步：${item.next}`;
+          outcomeText.textContent = scenario.outcome;
+          pathItems.forEach((pathItem, index) => {
+            const state = pathItem.querySelector(".dse-guided-path-state");
+            const complete = index < guidedStep;
+            const current = index === guidedStep;
+            pathItem.classList.toggle("is-complete", complete);
+            pathItem.classList.toggle("is-current", current);
+            if (state) state.textContent = complete ? "已完成" : current ? "当前" : "待进行";
+            if (current) pathItem.setAttribute("aria-current", "step");
+            else pathItem.removeAttribute("aria-current");
+          });
+          nextButton.textContent = guidedStep === 0
+            ? "继续演示：补齐证据"
+            : guidedStep === 1
+              ? "继续演示：得到下一步"
+              : "重新演示本场景";
         }
 
         scenarioSelect.addEventListener("change", () => {
