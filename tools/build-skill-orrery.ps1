@@ -123,7 +123,7 @@ $tracked = @(
     $gitOutput |
         ForEach-Object { $_.Trim() } |
         Where-Object { $_ } |
-        Sort-Object
+        Sort-Object -Culture "en-US" -CaseSensitive
 )
 if ($tracked.Count -eq 0) {
     throw "No Git-tracked Skill files were found."
@@ -268,7 +268,7 @@ foreach ($record in $fileRecords) {
             if (-not $candidates.Contains([string]$path)) { $candidates.Add([string]$path) }
         }
     }
-    foreach ($path in ($inbound[$record.path] | Sort-Object)) {
+    foreach ($path in ($inbound[$record.path] | Sort-Object -Culture "en-US" -CaseSensitive)) {
         if (-not $candidates.Contains($path)) { $candidates.Add($path) }
     }
     $related = @(
@@ -284,7 +284,7 @@ $sortedRecords = @(
         Sort-Object @{ Expression = { [int]$curation.sectors.PSObject.Properties[$_.sector].Value.ring } },
                       @{ Expression = { [string]$_.sector } },
                       @{ Expression = { [string]$_.cluster } },
-                      @{ Expression = { [string]$_.path } }
+                      @{ Expression = { [string]$_.path } } -Culture "en-US" -CaseSensitive
 )
 $weights = @($sortedRecords | ForEach-Object { [double]$_.weight })
 $weightMin = ($weights | Measure-Object -Minimum).Minimum
@@ -325,13 +325,13 @@ foreach ($sectorProperty in $curation.sectors.PSObject.Properties) {
         weight = Round-Metric $sectorWeight
     }) | Out-Null
 }
-$sortedSectors = @($sectorRecords | Sort-Object ring, name)
+$sortedSectors = @($sectorRecords | Sort-Object ring, name -Culture "en-US" -CaseSensitive)
 $sectorWeights = @($sortedSectors | Where-Object { $_.id -ne "core" } | ForEach-Object { [double]$_.weight })
 $sectorWeightMin = ($sectorWeights | Measure-Object -Minimum).Minimum
 $sectorWeightMax = ($sectorWeights | Measure-Object -Maximum).Maximum
 
 $categoryCounts = [ordered]@{}
-foreach ($group in @($sortedRecords | Group-Object category | Sort-Object Name)) {
+foreach ($group in @($sortedRecords | Group-Object category | Sort-Object Name -Culture "en-US" -CaseSensitive)) {
     $categoryCounts[$group.Name] = $group.Count
 }
 $sectorCounts = [ordered]@{}
