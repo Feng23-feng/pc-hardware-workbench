@@ -28,7 +28,7 @@ function Copy-TrackedTree {
         [Parameter(Mandatory = $true)][string]$DestinationRoot
     )
     $files = @(
-        & git -C $RepositoryRoot ls-files -- $TrackedPrefix
+        & git -C $RepositoryRoot -c core.quotepath=false ls-files -- $TrackedPrefix
     )
     if ($LASTEXITCODE -ne 0) {
         throw "git ls-files failed for $TrackedPrefix."
