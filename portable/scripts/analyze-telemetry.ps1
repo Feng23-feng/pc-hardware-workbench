@@ -291,6 +291,9 @@ function Test-MetricValuePlausible {
         "^FPS" {
             return $Value -ge 0 -and $Value -le 100000
         }
+        "^GPU memory clock" {
+            return $Value -ge 0 -and $Value -le 30000
+        }
         "clock" {
             return $Value -ge 0 -and $Value -le 10000
         }
@@ -1481,6 +1484,13 @@ foreach ($spec in $specs) {
     if ($null -ne $statistics) {
         $series.Add($statistics) | Out-Null
         $usedColumns.Add($column) | Out-Null
+        if (
+            $statistics.Metric -eq "GPU memory clock (MHz)" -and
+            [double]$statistics.Max -gt 12000
+        ) {
+            $warnings.Add(
+                "GPU memory clock exceeded the common GDDR6/GDDR6X clock range; verify whether the source reports a physical memory clock or an effective data rate. Do not infer bandwidth, performance, or tuning headroom from this value alone.")
+        }
     }
 }
 
@@ -1579,6 +1589,13 @@ foreach ($pattern in $IncludeColumn) {
         if ($null -ne $statistics) {
             $series.Add($statistics) | Out-Null
             $usedColumns.Add($column) | Out-Null
+            if (
+                $statistics.Metric -eq "GPU memory clock (MHz)" -and
+                [double]$statistics.Max -gt 12000
+            ) {
+                $warnings.Add(
+                    "GPU memory clock exceeded the common GDDR6/GDDR6X clock range; verify whether the source reports a physical memory clock or an effective data rate. Do not infer bandwidth, performance, or tuning headroom from this value alone.")
+            }
         }
     }
 }

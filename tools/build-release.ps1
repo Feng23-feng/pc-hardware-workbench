@@ -142,7 +142,7 @@ Included capabilities
 - unified CSV and SensorSnapshot telemetry normalization;
 - SVG telemetry charts and static HTML hardware-case reports;
 - official-source RAG evidence cards with expiry and conflict checks;
-- explicit-consent, read-only LibreHardwareMonitor WMI adapter;
+- explicit-consent, read-only LibreHardwareMonitor loopback Web adapter with WMI fallback;
 - runtime-owned visual evidence rules for screenshots and photos;
 - read-only Skill Doctor and full non-live regression tests.
 

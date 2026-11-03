@@ -1,5 +1,16 @@
 ﻿# 电脑硬件工作台版本记录
 
+## 2.4.0 — 2026-11-03
+
+- 将 LibreHardwareMonitor 实时适配升级为当前版本的本机回环 Web `/data.json`，保留旧版 WMI 作为兼容后备；
+- 只允许 HTTP loopback `/data.json`，拒绝远程主机、URI 凭据、查询参数和片段，不启动 LHM、不提权、不修改 Web/WMI 设置；
+- 解析 LHM Web 树中的 `Type`、单位、硬件路径和重复传感器，记录 `Transport` 与 `ObservedComponents`，并把硬件身份透传到归一化结果；
+- 补齐 GHz/MHz、GB/MB、MB/s、B/s、温度单位等显示值转换；未知或不支持的单位不静默猜测；
+- 修复 RTX 50 Laptop `GPU Memory Clock 14001 MHz` 被通用 10 GHz 上限误判；显存时钟绝对合理性上限设为 30 GHz，超过常见 GDDR6/GDDR6X 范围时保留并提示核对物理时钟/等效数据率；
+- 新增 GPU 显存解释门禁：具体 GPU/SKU、显存类型与容量、驱动/vBIOS/工具、请求值与观测口径、固定负载及恢复证据缺失时，不给显存超频值、带宽提升或跨代稳定范围；
+- LHM 0.9.6 实机通过：Web 传输读取 284 个传感器，保留具体 GPU 硬件路径，短序列归一化与 SVG 渲染链路成功；
+- 两个独立行为对话通过：显存建议门禁 PASS，LHM 未运行降级提示 PASS；完整自动回归和官方 validator 通过。
+
 ## 2.3.0 — 2026-11-03
 
 - 将 `SKILL.md` 从 13,310 B 降至约 12,284 B，恢复约 1 KB 入口余量；

@@ -67,7 +67,7 @@ try {
     Assert-True ($jsonResult.ExitCode -eq 0) "Doctor JSON check failed: $($jsonResult.Stderr)"
     $report = $jsonResult.Stdout | ConvertFrom-Json
     Assert-True ($report.DoctorVersion -eq "1.0.0") "Doctor version is missing."
-    Assert-True ($report.SkillVersion -eq "2.3.0") "Doctor read the wrong Skill version."
+    Assert-True ($report.SkillVersion -eq "2.4.0") "Doctor read the wrong Skill version."
     Assert-True ($report.Overall -eq "AVAILABLE") "Doctor marked the installed Skill as broken."
     Assert-True (@($report.Checks | Where-Object { $_.Name -eq "Core files" -and $_.Status -eq "AVAILABLE" }).Count -eq 1) "Doctor did not validate core files."
     Assert-True (@($report.Checks | Where-Object { $_.Name -eq "PowerShell syntax" -and $_.Status -eq "AVAILABLE" }).Count -eq 1) "Doctor did not parse PowerShell scripts."
@@ -118,7 +118,9 @@ try {
     Assert-True (@($badOutputReport.Checks | Where-Object { $_.Name -eq "Output directory" -and $_.Status -eq "BROKEN" }).Count -eq 1) "Missing output directory was not reported."
 
     $doctorText = Get-Content -Raw -LiteralPath $resolvedDoctor -Encoding UTF8
-    Assert-True ($doctorText -notmatch '(?i)Start-Process|Start-Service|Invoke-WebRequest|Invoke-RestMethod|runas|install-module') "Doctor can start, elevate, install, or use network access."
+    Assert-True ($doctorText -match '127\.0\.0\.1:8085/data\.json') "Doctor is missing the local LHM Web probe."
+    Assert-True ($doctorText -match 'IsLoopback') "Doctor does not restrict the LHM Web probe to loopback."
+    Assert-True ($doctorText -notmatch '(?i)Start-Process|Start-Service|runas|install-module') "Doctor can start, elevate, or install software."
 
     if ($failures.Count -gt 0) {
         Write-Host "Doctor regression: FAIL" -ForegroundColor Red

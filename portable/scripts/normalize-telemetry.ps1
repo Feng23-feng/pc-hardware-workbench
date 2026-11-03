@@ -487,6 +487,12 @@ try {
         if ($null -eq $source) {
             Stop-WithInputError "Sensor snapshot source metadata is required."
         }
+        $observedComponents = @(
+            @(Get-PropertyValue $source "observedComponents" @()) |
+                ForEach-Object { ConvertTo-CleanText $_ } |
+                Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
+                Sort-Object -Unique
+        )
         $tool = ConvertTo-CleanText (Get-PropertyValue $source "tool" "")
         $version = ConvertTo-CleanText (Get-PropertyValue $source "version" "")
         if ([string]::IsNullOrWhiteSpace($tool) -or [string]::IsNullOrWhiteSpace($version)) {
@@ -738,6 +744,7 @@ try {
             Version = $version
             DeviceId = if ([string]::IsNullOrWhiteSpace($DeviceId)) { $null } else { ConvertTo-CleanText $DeviceId }
             CapturedAt = $normalizedCapturedAt
+            ObservedComponents = @($observedComponents)
             InputKind = $inputKind
             InputFileName = $inputFileName
             InputSha256 = $inputHash

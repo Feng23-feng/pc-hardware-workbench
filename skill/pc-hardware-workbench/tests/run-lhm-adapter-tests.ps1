@@ -105,6 +105,84 @@ try {
     }
     Assert-True $limitRejected "LHM sensor-count limit was not enforced."
 
+    $webTree = [pscustomobject]@{
+        Text = "Sensor"
+        Children = @(
+            [pscustomobject]@{
+                Text = "NVIDIA RTX Fixture"
+                Children = @(
+                    [pscustomobject]@{
+                        Text = "GPU Core"
+                        Value = "61.5 $([char]0x00B0)C"
+                        RawValue = "61.5 $([char]0x00B0)C"
+                        SensorId = "/gpu-nvidia/0/temperature/0"
+                        Type = "Temperature"
+                        Children = @()
+                    },
+                    [pscustomobject]@{
+                        Text = "GPU Memory"
+                        Value = "14.001 GHz"
+                        RawValue = "14.001 GHz"
+                        SensorId = "/gpu-nvidia/0/clock/1"
+                        Type = "Clock"
+                        Children = @()
+                    },
+                    [pscustomobject]@{
+                        Text = "GPU Memory Used"
+                        Value = "1.5 GB"
+                        RawValue = "1.5 GB"
+                        SensorId = "/gpu-nvidia/0/smalldata/1"
+                        Type = "SmallData"
+                        Children = @()
+                    }
+                )
+            },
+            [pscustomobject]@{
+                Text = "Memory"
+                Children = @(
+                    [pscustomobject]@{
+                        Text = "Memory Used"
+                        Value = "14.2 GB"
+                        RawValue = "14.2 GB"
+                        SensorId = "/ram/data/0"
+                        Type = "Data"
+                        Children = @()
+                    },
+                    [pscustomobject]@{
+                        Text = "Heading"
+                        Value = ""
+                        Children = @()
+                    }
+                )
+            }
+        )
+    }
+    $webSensorObjects = @(ConvertFrom-LhmWebSensorTree -Document $webTree -MaxSensors 20)
+    Assert-True ($webSensorObjects.Count -eq 4) "LHM Web tree flattening returned the wrong sensor count."
+    $webConverted = @(ConvertFrom-LhmSensorObjects -Sensors $webSensorObjects -MaxSensors 20)
+    $webTemperature = @($webConverted | Where-Object { $_.identifier -eq "/gpu-nvidia/0/temperature/0" }) | Select-Object -First 1
+    $webMemoryClock = @($webConverted | Where-Object { $_.identifier -eq "/gpu-nvidia/0/clock/1" }) | Select-Object -First 1
+    $webGpuMemory = @($webConverted | Where-Object { $_.identifier -eq "/gpu-nvidia/0/smalldata/1" }) | Select-Object -First 1
+    $webSystemMemory = @($webConverted | Where-Object { $_.identifier -eq "/ram/data/0" }) | Select-Object -First 1
+    Assert-True ($webTemperature.category -eq "temperature" -and $webTemperature.value -eq 61.5) "LHM Web temperature parsing is wrong."
+    Assert-True ($webTemperature.hardwarePath -match "NVIDIA RTX Fixture") "LHM Web hardware context was not retained."
+    Assert-True ($null -ne $webMemoryClock -and [Math]::Abs([double]$webMemoryClock.value - 14001.0) -lt 0.001) "LHM Web GHz-to-MHz conversion is wrong."
+    Assert-True ($null -ne $webGpuMemory -and [Math]::Abs([double]$webGpuMemory.value - 1536.0) -lt 0.001) "LHM Web GB-to-MB conversion is wrong."
+    Assert-True ($null -ne $webSystemMemory -and [Math]::Abs([double]$webSystemMemory.value - 14540.8) -lt 0.001) "LHM Web system-memory conversion is wrong."
+    $fahrenheitValue = ConvertFrom-LhmDisplayValue -Value "111.2 $([char]0x00B0)F" -TargetUnit "C"
+    Assert-True ([Math]::Abs([double]$fahrenheitValue - 44.0) -lt 0.001) "LHM Web Fahrenheit-to-Celsius conversion is wrong."
+    $unknownUnitValue = ConvertFrom-LhmDisplayValue -Value "14.2 bananas" -TargetUnit "MB"
+    Assert-True ($null -eq $unknownUnitValue) "LHM Web accepted an unsupported unit conversion."
+
+    $webLimitRejected = $false
+    try {
+        ConvertFrom-LhmWebSensorTree -Document $webTree -MaxSensors 3 | Out-Null
+    }
+    catch {
+        $webLimitRejected = $_.Exception.Message -match "sensor limit"
+    }
+    Assert-True $webLimitRejected "LHM Web sensor-count limit was not enforced."
+
     $samples = @(
         [pscustomobject]@{
             capturedAt = "2026-11-03T12:00:00+08:00"
@@ -127,10 +205,12 @@ try {
         -Samples $samples `
         -SourceVersion "1.3-test" `
         -DeviceAlias "lhm-fixture" `
+        -Transport "fixture" `
         -Warnings @("Synthetic LHM fixture warning.")
     Assert-True ($snapshot.schemaVersion -eq "1.0") "LHM snapshot schema is missing."
     Assert-True ($snapshot.source.tool -eq "LibreHardwareMonitor") "LHM source tool is wrong."
     Assert-True ($snapshot.source.version -eq "1.3-test") "LHM source version is wrong."
+    Assert-True ($snapshot.source.transport -eq "fixture") "LHM source transport is wrong."
     Assert-True ($snapshot.source.deviceId -eq "lhm-fixture") "LHM device alias is missing."
     Assert-True (@($snapshot.warnings).Count -eq 1) "LHM snapshot warning was not retained."
 
@@ -165,6 +245,8 @@ param(
     [Parameter(Mandatory = $true)][string]$CollectorPath,
     [Parameter(Mandatory = $true)][string]$OutputPath,
     [Parameter(Mandatory = $true)][string]$Case,
+    [ValidateSet("Auto", "Web", "Wmi")][string]$Transport = "Auto",
+    [string]$WebEndpoint = "http://127.0.0.1:8085/data.json",
     [int]$MaxSensors = 500
 )
 
@@ -199,7 +281,70 @@ function Get-CimInstance {
     }
 }
 
-& $CollectorPath -OutputPath $OutputPath -AllowLiveCollector -DeviceAlias "mock-lhm" -MaxSensors $MaxSensors
+function Invoke-RestMethod {
+    [CmdletBinding()]
+    param(
+        [string]$Uri,
+        [string]$Method,
+        [int]$TimeoutSec
+    )
+    if ($Case -eq "web-failure") {
+        throw "Mock LHM web endpoint unavailable."
+    }
+    if ($Case -eq "web-empty") {
+        return [pscustomobject]@{
+            Text = "Sensor"
+            Children = @()
+        }
+    }
+    if ($Case -eq "web-limit") {
+        return [pscustomobject]@{
+            Text = "Sensor"
+            Children = @(
+                [pscustomobject]@{
+                    Text = "GPU Core"
+                    RawValue = "60.0 $([char]0x00B0)C"
+                    SensorId = "/gpu-nvidia/0/temperature/0"
+                    Type = "Temperature"
+                    Children = @()
+                },
+                [pscustomobject]@{
+                    Text = "GPU Package"
+                    RawValue = "120.0 W"
+                    SensorId = "/gpu-nvidia/0/power/0"
+                    Type = "Power"
+                    Children = @()
+                }
+            )
+        }
+    }
+    return [pscustomobject]@{
+        Text = "Sensor"
+        Children = @(
+            [pscustomobject]@{
+                Text = "NVIDIA GeForce RTX Fixture"
+                Children = @(
+                    [pscustomobject]@{
+                        Text = "GPU Core"
+                        RawValue = "60.0 $([char]0x00B0)C"
+                        SensorId = "/gpu-nvidia/0/temperature/0"
+                        Type = "Temperature"
+                        Children = @()
+                    },
+                    [pscustomobject]@{
+                        Text = "GPU Core"
+                        RawValue = "2100.0 MHz"
+                        SensorId = "/gpu-nvidia/0/clock/0"
+                        Type = "Clock"
+                        Children = @()
+                    }
+                )
+            }
+        )
+    }
+}
+
+& $CollectorPath -OutputPath $OutputPath -AllowLiveCollector -Transport $Transport -WebEndpoint $WebEndpoint -DeviceAlias "mock-lhm" -MaxSensors $MaxSensors -SourceVersion "fixture"
 if ($null -ne $LASTEXITCODE) {
     exit $LASTEXITCODE
 }
@@ -210,6 +355,7 @@ if ($null -ne $LASTEXITCODE) {
         "-CollectorPath", $resolvedCollector,
         "-OutputPath", $mockSuccessPath,
         "-Case", "success",
+        "-Transport", "Wmi",
         "-MaxSensors", "10"
     )
     Assert-True ($mockSuccess.ExitCode -eq 0) "Mocked LHM success path failed: $($mockSuccess.Stderr)"
@@ -220,6 +366,7 @@ if ($null -ne $LASTEXITCODE) {
         "-CollectorPath", $resolvedCollector,
         "-OutputPath", $mockEmptyPath,
         "-Case", "empty",
+        "-Transport", "Wmi",
         "-MaxSensors", "10"
     )
     Assert-True ($mockEmpty.ExitCode -eq 1) "Empty mocked LHM sensor set did not return exit 1: exit=$($mockEmpty.ExitCode) stderr=$($mockEmpty.Stderr)"
@@ -230,25 +377,95 @@ if ($null -ne $LASTEXITCODE) {
         "-CollectorPath", $resolvedCollector,
         "-OutputPath", $mockFailurePath,
         "-Case", "wmi-failure",
+        "-Transport", "Wmi",
         "-MaxSensors", "10"
     )
     Assert-True ($mockFailure.ExitCode -eq 1) "Mocked LHM WMI failure did not return exit 1: exit=$($mockFailure.ExitCode) stderr=$($mockFailure.Stderr)"
-    Assert-True ($mockFailure.Stderr -match "WMI is unavailable") "Mocked WMI failure message is unclear."
+    Assert-True ($mockFailure.Stderr -match "live read failed") "Mocked WMI failure message is unclear."
 
     $mockLimitPath = Join-Path $tempRoot "mock-lhm-limit.json"
     $mockLimit = Invoke-Process -ScriptPath $harnessPath -Arguments @(
         "-CollectorPath", $resolvedCollector,
         "-OutputPath", $mockLimitPath,
         "-Case", "limit",
+        "-Transport", "Wmi",
         "-MaxSensors", "1"
     )
     Assert-True ($mockLimit.ExitCode -eq 2) "Mocked LHM sensor limit did not return exit 2: exit=$($mockLimit.ExitCode) stderr=$($mockLimit.Stderr)"
     Assert-True ($mockLimit.Stderr -match "sensor limit") "Mocked LHM sensor-limit message is unclear."
     Assert-True (-not (Test-Path -LiteralPath $mockLimitPath -PathType Leaf)) "Mocked LHM sensor-limit case created output."
 
+    $mockWebSuccessPath = Join-Path $tempRoot "mock-lhm-web-success.json"
+    $mockWebSuccess = Invoke-Process -ScriptPath $harnessPath -Arguments @(
+        "-CollectorPath", $resolvedCollector,
+        "-OutputPath", $mockWebSuccessPath,
+        "-Case", "web-success",
+        "-Transport", "Web",
+        "-MaxSensors", "10"
+    )
+    Assert-True ($mockWebSuccess.ExitCode -eq 0) "Mocked LHM Web success path failed: $($mockWebSuccess.Stderr)"
+    $mockWebSnapshot = Get-Content -Raw -LiteralPath $mockWebSuccessPath -Encoding UTF8 | ConvertFrom-Json
+    Assert-True ($mockWebSnapshot.source.transport -eq "Web") "Mocked LHM Web transport was not recorded."
+    Assert-True (@($mockWebSnapshot.samples[0].sensors).Count -eq 2) "Mocked LHM Web sensor tree was not flattened."
+    Assert-True (($mockWebSnapshot.source.observedComponents -join " ") -match "NVIDIA GeForce RTX Fixture") "Mocked LHM Web component identity was not retained."
+    $mockWebNormalizedPath = Join-Path $tempRoot "mock-lhm-web-normalized.json"
+    $mockWebNormalize = Invoke-Process -ScriptPath $resolvedNormalizer -Arguments @(
+        "-Path", $mockWebSuccessPath,
+        "-OutputPath", $mockWebNormalizedPath
+    )
+    Assert-True ($mockWebNormalize.ExitCode -eq 0) "Mocked LHM Web snapshot could not be normalized: $($mockWebNormalize.Stderr)"
+    $mockWebNormalized = Get-Content -Raw -LiteralPath $mockWebNormalizedPath -Encoding UTF8 | ConvertFrom-Json
+    Assert-True (($mockWebNormalized.Source.ObservedComponents -join " ") -match "NVIDIA GeForce RTX Fixture") "Normalized LHM Web component identity was lost."
+
+    $mockWebFallbackPath = Join-Path $tempRoot "mock-lhm-web-fallback.json"
+    $mockWebFallback = Invoke-Process -ScriptPath $harnessPath -Arguments @(
+        "-CollectorPath", $resolvedCollector,
+        "-OutputPath", $mockWebFallbackPath,
+        "-Case", "web-failure",
+        "-Transport", "Auto",
+        "-MaxSensors", "10"
+    )
+    Assert-True ($mockWebFallback.ExitCode -eq 0) "LHM Auto transport did not fall back to WMI: $($mockWebFallback.Stderr)"
+    $mockFallbackSnapshot = Get-Content -Raw -LiteralPath $mockWebFallbackPath -Encoding UTF8 | ConvertFrom-Json
+    Assert-True ($mockFallbackSnapshot.source.transport -eq "Wmi") "LHM Auto fallback did not record WMI transport."
+
+    $mockWebEmptyPath = Join-Path $tempRoot "mock-lhm-web-empty.json"
+    $mockWebEmpty = Invoke-Process -ScriptPath $harnessPath -Arguments @(
+        "-CollectorPath", $resolvedCollector,
+        "-OutputPath", $mockWebEmptyPath,
+        "-Case", "web-empty",
+        "-Transport", "Web",
+        "-MaxSensors", "10"
+    )
+    Assert-True ($mockWebEmpty.ExitCode -eq 1) "Empty mocked LHM Web sensor tree did not return exit 1."
+
+    $mockWebLimitPath = Join-Path $tempRoot "mock-lhm-web-limit.json"
+    $mockWebLimit = Invoke-Process -ScriptPath $harnessPath -Arguments @(
+        "-CollectorPath", $resolvedCollector,
+        "-OutputPath", $mockWebLimitPath,
+        "-Case", "web-limit",
+        "-Transport", "Web",
+        "-MaxSensors", "1"
+    )
+    Assert-True ($mockWebLimit.ExitCode -eq 2) "Mocked LHM Web sensor limit did not return exit 2."
+
+    $remoteEndpointPath = Join-Path $tempRoot "mock-lhm-remote-endpoint.json"
+    $remoteEndpoint = Invoke-Process -ScriptPath $harnessPath -Arguments @(
+        "-CollectorPath", $resolvedCollector,
+        "-OutputPath", $remoteEndpointPath,
+        "-Case", "web-success",
+        "-Transport", "Web",
+        "-MaxSensors", "10",
+        "-WebEndpoint", "http://192.0.2.10:8085/data.json"
+    )
+    Assert-True ($remoteEndpoint.ExitCode -eq 2) "LHM Web accepted a non-loopback endpoint."
+    Assert-True (-not (Test-Path -LiteralPath $remoteEndpointPath -PathType Leaf)) "LHM Web created output for a rejected endpoint."
+
     $collectorText = Get-Content -Raw -LiteralPath $resolvedCollector -Encoding UTF8
     Assert-True ($collectorText -match "root/LibreHardwareMonitor") "LHM collector does not query the documented WMI namespace."
-    Assert-True ($collectorText -notmatch '(?i)Start-Process|Start-Service|Invoke-WebRequest|Invoke-RestMethod|schtasks\.exe|sc\.exe') "LHM collector can start software, execute remote content, or persist itself."
+    Assert-True ($collectorText -match '127\.0\.0\.1:8085/data\.json') "LHM collector is missing its local Web endpoint default."
+    Assert-True ($collectorText -match 'IsLoopback') "LHM collector does not restrict Web access to loopback."
+    Assert-True ($collectorText -notmatch '(?i)Start-Process|Start-Service|schtasks\.exe|sc\.exe') "LHM collector can start software or persist itself."
     Assert-True ($collectorText -notmatch '(?i)runas|verb\s+runas|windowsprincipal') "LHM collector can self-elevate."
 
     if ($failures.Count -gt 0) {
@@ -260,7 +477,7 @@ if ($null -ne $LASTEXITCODE) {
     }
 
     Write-Host "LHM adapter regression: PASS" -ForegroundColor Green
-    Write-Host "Live LHM WMI read: SKIP (requires an already-running LHM process and explicit -AllowLiveCollector)" -ForegroundColor Yellow
+    Write-Host "Live LHM Web/WMI read: SKIP (requires an already-running LHM process and explicit -AllowLiveCollector)" -ForegroundColor Yellow
 }
 finally {
     $resolvedTemp = [IO.Path]::GetFullPath($tempRoot)

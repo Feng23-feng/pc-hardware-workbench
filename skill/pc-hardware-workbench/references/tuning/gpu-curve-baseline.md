@@ -201,6 +201,12 @@ overhead, throttling, or a worse frame time require reverting to the previous
 memory step. Stop on artifacts, texture or geometry corruption, screen
 flicker, driver resets, or unstable temperatures.
 
+Never compare raw memory-clock values across GDDR generations or assume that a
+sensor labelled `GPU Memory Clock` reports the same basis as another vendor's
+tool. The source may expose a physical clock, an effective data rate, or a
+vendor-scaled value. Require the exact GPU, applied setting, and matched
+workload evidence before interpreting a change.
+
 ## Laptop GPU memory
 
 Do not recommend a large VRAM overclock on a laptop. It can increase shared

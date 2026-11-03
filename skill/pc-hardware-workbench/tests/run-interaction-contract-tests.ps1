@@ -54,7 +54,7 @@ $skill = Get-Content -LiteralPath $skillPath -Raw -Encoding UTF8
 $referenceOnlyNotice = [regex]::Unescape('\u53C2\u6570\u4EC5\u4F9B\u53C2\u8003\uFF0C\u8BF7\u4EE5\u5B89\u5168\u4E3A\u7B2C\u4E00\u8981\u52A1\u3002')
 $englishReferenceOnlyNotice = "For reference only - put safety first."
 
-Assert-Contains $skill '(?m)^  version: "2\.3\.0"\r?$' "metadata.version should be 2.3.0."
+Assert-Contains $skill '(?m)^  version: "2\.4\.0"\r?$' "metadata.version should be 2.4.0."
 Assert-Contains $skill 'r23 collector' "The Skill maintenance summary collector revision disagrees with the collector code."
 Assert-Contains $skill 'while the power-path evidence is incomplete' "The Advice intensity route does not include incomplete power-path evidence."
 Assert-Contains $skill 'hidden or manufacturer-limited limit' "The Advice intensity summary is narrower than the hidden or manufacturer-limited scope."
@@ -102,6 +102,7 @@ Assert-Contains $skill 'does not require the tuning entry gate' "Telemetry-only 
 Assert-Contains $skill 'collector is Windows-only' "Automatic collector scope is not limited to Windows."
 Assert-Contains $skill 'cooling-evidence\.md' "Cooling evidence route is missing."
 Assert-Contains $skill 'gpu-clock-behavior\.md' "GPU dynamic clock behavior reference is not linked from the entrypoint."
+Assert-Contains $skill 'GPU memory advice additionally requires the exact GPU, VRAM type and capacity' "The entrypoint does not gate GPU memory advice on card and VRAM identity."
 Assert-Contains $skill 'tuning-modes\.md' "Quick/deep tuning route is missing."
 Assert-Contains $skill 'fixed-workloads\.md' "Fixed workload route is missing."
 Assert-Contains $skill 'telemetry-analysis\.md' "Telemetry analysis route is missing."
@@ -169,6 +170,10 @@ Assert-Contains $intake 'Evidence ownership' "Tuning intake has no evidence-owne
 Assert-Contains $intake 'Instrument first' "Tuning intake does not prefer instrumented evidence."
 Assert-Contains $intake 'Keep one decision per turn' "Tuning intake can turn the gate into a questionnaire."
 Assert-Contains $intake 'block only the step that depends on it' "Tuning intake blocks the whole route on one missing user-only item."
+Assert-Contains $intake 'GPU memory interpretation gate' "GPU memory advice has no identity and reporting-basis gate."
+Assert-Contains $intake 'VRAM type' "GPU memory advice does not require the installed VRAM type."
+Assert-Contains $intake 'requested/configured value' "GPU memory advice does not separate requested and observed clocks."
+Assert-Contains $intake 'Do not substitute a GPU family guess' "GPU memory advice can infer the card from a product family."
 
 $experimentLoop = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/tuning/experiment-loop.md") -Raw -Encoding UTF8
 Assert-Contains $experimentLoop 'Decision and optional learning review' "The optional tuning learning-review step is missing."
@@ -212,6 +217,9 @@ Assert-Contains $gpuClock 'Battlemage' "GPU clock guidance omits Intel Arc B-ser
 Assert-Contains $gpuClock 'absence of one intended point does \*\*not\*\* prove' "GPU clock guidance can still reject a curve solely because one point is absent."
 Assert-Contains $gpuClock 'presence of one intended point also does not prove' "GPU clock guidance can still treat one observed sample as proof."
 Assert-Contains $gpuClock 'operating-point distribution' "GPU clock guidance does not use the observed operating distribution."
+Assert-Contains $gpuClock 'GPU memory clock.*source-dependent' "GPU clock guidance does not qualify memory-clock meaning."
+Assert-Contains $gpuClock 'Memory bandwidth.*not a sensor' "GPU clock guidance can mistake bandwidth for a sensor."
+Assert-Contains $gpuClock 'GPU memory interpretation gate' "GPU clock guidance does not link the memory identity gate."
 Assert-Contains $gpuCurve 'gpu-clock-behavior\.md' "GPU curve guidance does not link the dynamic clock behavior reference."
 Assert-Contains $gpuCurve 'do not require the exact MHz value\s+to recur' "GPU curve guidance still requires the exact target point."
 Assert-Contains $gpuCurve 'Do not say the curve failed solely because one intended\s+voltage/MHz coordinate never appeared' "GPU curve guidance can still infer curve failure from an absent point."
@@ -448,7 +456,9 @@ $lhmCollector = Read-RequiredFile `
     -Label "scripts/lhm/read-lhm-telemetry.ps1"
 Assert-Contains $lhmCollector 'root/LibreHardwareMonitor' "LHM collector uses the wrong WMI namespace."
 Assert-Contains $lhmCollector 'AllowLiveCollector' "LHM collector has no explicit consent gate."
-Assert-True ($lhmCollector -notmatch '(?i)Start-Process|Start-Service|Invoke-WebRequest|Invoke-RestMethod|schtasks\.exe|runas') "LHM collector can start software or self-elevate."
+Assert-Contains $lhmCollector '127.0.0.1:8085/data.json' "LHM collector is missing its loopback Web endpoint."
+Assert-Contains $lhmCollector 'IsLoopback' "LHM collector does not restrict Web access to loopback."
+Assert-True ($lhmCollector -notmatch '(?i)Start-Process|Start-Service|schtasks\.exe|runas') "LHM collector can start software or self-elevate."
 $lhmFunctions = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "scripts/lhm/lhm-functions.ps1") `
     -Label "scripts/lhm/lhm-functions.ps1"
@@ -472,7 +482,9 @@ $doctorScript = Read-RequiredFile `
     -Label "scripts/doctor.ps1"
 Assert-Contains $doctorScript 'PowerShell syntax' "Doctor does not parse Skill scripts."
 Assert-Contains $doctorScript 'Model vision' "Doctor does not disclose runtime-owned vision limits."
-Assert-True ($doctorScript -notmatch '(?i)Start-Process|Start-Service|Invoke-WebRequest|Invoke-RestMethod|runas|install-module') "Doctor can repair, elevate, install, start software, or use network access."
+Assert-Contains $doctorScript '127.0.0.1:8085/data.json' "Doctor is missing its loopback LHM Web probe."
+Assert-Contains $doctorScript 'IsLoopback' "Doctor does not restrict the LHM Web probe to loopback."
+Assert-True ($doctorScript -notmatch '(?i)Start-Process|Start-Service|runas|install-module') "Doctor can repair, elevate, install, or start software."
 $hardwareCase = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "references/integration/hardware-case.md") `
     -Label "references/integration/hardware-case.md"

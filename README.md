@@ -11,7 +11,7 @@ changes under the user's control.
 
 ## Project status
 
-- Current Skill candidate: **2.3.0**
+- Current Skill candidate: **2.4.0**
 - Automated non-live tests: passing
 - Live hardware collection: opt-in only
 - Broad release sign-off: pending
@@ -21,10 +21,10 @@ changes under the user's control.
 
 [打开《电脑硬件工作台 × 自动超频原型》完整迭代档案](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/)
 
-浏览工作台与 GPU 自动超频原型的完整演进记录，包括 105 个版本节点、每版改动、验证状态和历史位置。
+浏览工作台与 GPU 自动超频原型的完整演进记录，包括 106 个版本节点、每版改动、验证状态和历史位置。
 
 Explore the complete Workbench and GPU auto-overclock prototype history, including
-105 recorded versions and their validation status.
+106 recorded versions and their validation status.
 
 [打开 Skill 交互实验室](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/interactive/)
 
@@ -65,9 +65,11 @@ or conflicting evidence remains visible as historical evidence rather than being
 silently rewritten.
 
 An optional LibreHardwareMonitor adapter can read an already-running local
-instance through WMI with explicit consent. It emits the same sensor-snapshot
-JSON as other structured sources; it never installs or starts LHM, elevates,
-runs indefinitely, or writes hardware settings.
+instance through its loopback Web endpoint, with legacy WMI as a compatibility
+fallback, and only with explicit consent. It preserves reported hardware paths,
+emits the same sensor-snapshot JSON as other structured sources, and never
+installs or starts LHM, elevates, connects to a non-loopback host, runs
+indefinitely, or writes hardware settings.
 
 Visual evidence rules cover monitoring screenshots, BIOS photos, Stop Codes,
 Debug LEDs, Device Manager, and Event Viewer images. The Skill uses the model's

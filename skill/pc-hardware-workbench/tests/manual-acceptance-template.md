@@ -11,6 +11,11 @@ The model-assisted 2.3.0 run is recorded in
 [cross-capability-results-20261103.md](cross-capability-results-20261103.md);
 it does not replace independent human sign-off.
 
+The 2.4.0 GPU-memory gate and LHM-unavailable checks are recorded in
+[cross-capability-results-20261103-v240.md](cross-capability-results-20261103-v240.md).
+The live LHM Web behavior check remains pending until the user-started service is
+available again.
+
 For the 1.4.3+ tone layer, run every prompt in `tone-scenarios.md` three times in
 independent sessions and record each answer verbatim.
 

@@ -5452,7 +5452,7 @@
       <aside class="dse-intro-window" aria-label="工具介绍与当前状态">
         <p class="dse-intro-kicker">当前状态</p>
         <div class="dse-chips" aria-label="当前版本状态">
-          <span class="dse-chip">工作台 2.3.0</span>
+          <span class="dse-chip">工作台 2.4.0</span>
           <span class="dse-chip prototype">超频原型 3.0.2 · 未发布</span>
           <span class="dse-chip triage">故障排查：公开</span>
         </div>
@@ -5586,7 +5586,7 @@
               <span class="dse-track-kicker">主工作台</span>
               <h2 id="dse-map-title">电脑硬件工作台</h2>
             </div>
-            <span class="dse-track-badge">稳定 2.3.0</span>
+            <span class="dse-track-badge">稳定 2.4.0</span>
           </div>
           <div class="dse-lane" id="dse-core-lane"></div>
         </section>
@@ -5973,7 +5973,7 @@
               <h3 id="dse-evidence-system-title">同一条证据链，接住不同来源</h3>
               <p class="dse-demo-panel-sub">CSV、实时传感器、官方资料和图片不会直接混成一句结论。先保留来源和限制，再决定能不能比较。</p>
             </div>
-            <span class="dse-demo-step">2.3.0 · 只读</span>
+            <span class="dse-demo-step">2.4.0 · 只读</span>
           </div>
           <div class="dse-process-visual" aria-label="统一证据管线">
             <span class="dse-process-label">证据管线</span>
@@ -6062,7 +6062,7 @@
         <div>
           <p class="dse-archive-kicker">版本档案 / 全部已记录版本</p>
           <h2 id="dse-archive-title">逐版本迭代档案</h2>
-          <p class="dse-archive-summary">从统一工作台 1.0.0 到当前 2.3.0，再到自动超频原型的独立分叉、档位证据和有限验证。1.6.0 之后新增遥测标准化、动态 RAG、只读 LHM、视觉证据、Doctor 和入口减重。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。</p>
+          <p class="dse-archive-summary">从统一工作台 1.0.0 到当前 2.4.0，再到自动超频原型的独立分叉、档位证据和有限验证。1.6.0 之后新增遥测标准化、动态 RAG、LHM 本机 Web、视觉证据、Doctor、入口减重和显存解释门禁。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。</p>
         </div>
         <div class="dse-archive-totals" aria-label="版本档案统计">
           <span class="dse-archive-total"><b id="dse-wb-count">0</b>工作台版本</span>
@@ -6623,7 +6623,8 @@
             ["2.0.0", "LibreHardwareMonitor 只读适配器", "2026-11-03", "RELEASED", ["读取已运行 LHM 的 root/LibreHardwareMonitor WMI，必须显式 AllowLiveCollector。", "支持单次快照与最长 300 秒有界采样，输出统一 SensorSnapshot。", "不安装、不启动、不提权、不联网、不后台常驻，也不写硬件设置。"], "独立复核 19 PASS / 0 FAIL / 1 SKIP；真实 WMI 因未授权保持 SKIP。", "实时数据接入不影响 CSV 和标准 JSON 的同一后处理路径。"],
             ["2.1.0", "多模态证据规则", "2026-11-03", "RELEASED", ["覆盖监控截图、BIOS 照片、蓝屏、Debug LED、设备管理器和事件查看器。", "强制区分可见事实、推断、未知和证据限制；截图不等于时间序列。", "图片内命令和提示词一律不可信，不触发执行、下载或设置修改。"], "带恶意指令的合成截图独立测试 PASS；模型视觉未被打包成 Skill 能力。", "视觉能力仍由运行时提供，Skill 负责领域证据边界。"],
             ["2.2.0", "只读 Skill Doctor", "2026-11-03", "RELEASED", ["检查版本、核心文件、语法、编码、输出目录、PowerShell、CIM、validator 和可选工具。", "区分 AVAILABLE、OPTIONAL_MISSING、PERMISSION_REQUIRED、BROKEN、UNKNOWN 与 SKIP。", "只诊断不修复；不安装、不提权、不启动软件、不联网。"], "Doctor 独立复核 14 PASS / 0 FAIL / 1 SKIP；安装树 83/83 一致。", "2.3.0 之前的本地方案；人工验收与真实 LHM 探测仍 PENDING。"],
-            ["2.3.0", "入口减重与跨能力验收", "2026-11-03", "CURRENT LOCAL", ["SKILL.md 从 13,310 B 降至约 12,284 B，Quick 初始加载降至约 22.2 KB。", "遥测、LHM 和视觉证据按当前输入只加载匹配 reference；预算收紧为 12.5 KB / 23 KB。", "新增 6 个跨能力场景：模糊症状、CSV+截图、官方冲突、LHM 缺失、图像矛盾、权限绕过。"], "完整自动回归通过；3 个独立行为对话验收待执行。", "当前本地候选；网页已更新到 105 个版本，GitHub 尚未推送。"]
+            ["2.3.0", "入口减重与跨能力验收", "2026-11-03", "PREVIOUS LOCAL", ["SKILL.md 从 13,310 B 降至约 12,284 B，Quick 初始加载降至约 22.2 KB。", "遥测、LHM 和视觉证据按当前输入只加载匹配 reference；预算收紧为 12.5 KB / 23 KB。", "新增 6 个跨能力场景：模糊症状、CSV+截图、官方冲突、LHM 缺失、图像矛盾、权限绕过。"], "完整自动回归通过；3 个独立行为对话 6/6 PASS。", "2.4.0 之前的本地候选；独立人工签署仍 PENDING。"],
+            ["2.4.0", "LHM Web 与显存证据门禁", "2026-11-03", "CURRENT LOCAL", ["LHM 0.9.6 改走 loopback Web /data.json，旧版 WMI 仅作兼容后备；实机读取 284 个传感器。", "保留 GPU 硬件路径并透传到归一化结果；网络适配器自定义名称不进入 ObservedComponents。", "新增显存解释门禁：具体 GPU、显存类型与容量、驱动/vBIOS/工具、请求/观测口径和固定负载缺失时不给数值或带宽结论。", "显存时钟 14001 MHz 保留并提示口径风险；绝对合理性上限 30 GHz，明显异常值仍过滤。"], "完整自动回归与 validator PASS；显存建议门禁和 LHM 未运行两个独立行为对话 PASS；实时 Web 行为验收待重开 LHM 后执行。", "当前本地候选；106 个版本记录，GitHub 尚未推送。"]
           ]
         },
         {
@@ -7681,9 +7682,9 @@
           proof: "GitHub release、MIT License、README、package sync 验证；1.5.2 是后续证据系统的历史公开基线。"
         },
         {
-          id: "core-instrumentation", track: "core", code: "WB-08", title: "可信证据系统 2.3.0",
+          id: "core-instrumentation", track: "core", code: "WB-08", title: "可信证据系统 2.4.0",
           summary: "统一遥测 · RAG · LHM · 视觉 · Doctor · 简单入口",
-          status: "done", state: "STABLE 2.3.0",
+          status: "done", state: "STABLE 2.4.0",
           goal: "把 CSV、结构化快照、官方资料、实时只读传感器和图片统一到可追溯、可降级、可诊断的证据体系。",
           action: "先标准化来源与时间，再记录证据卡和缺失；网页图片不再等于时间序列，Doctor 把权限问题与损坏问题分开。",
           proof: "各子系统独立复核通过；入口 12,284 B、Quick 22,218 B；实时 LHM 与人工验收仍 SKIP/PENDING，尚未推送 GitHub。"

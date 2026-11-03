@@ -52,6 +52,48 @@ function Add-DoctorCheck {
     }) | Out-Null
 }
 
+function Get-LhmWebSensorCount {
+    $endpoint = [Uri]"http://127.0.0.1:8085/data.json"
+    if (
+        $endpoint.Scheme -ne "http" -or
+        -not $endpoint.IsLoopback -or
+        $endpoint.AbsolutePath -ne "/data.json"
+    ) {
+        throw "The LHM Web endpoint is not loopback-only."
+    }
+    $document = Invoke-RestMethod `
+        -Uri $endpoint.AbsoluteUri `
+        -Method Get `
+        -TimeoutSec 5 `
+        -ErrorAction Stop
+    $count = 0
+    $pending = New-Object System.Collections.Stack
+    $pending.Push($document)
+    while ($pending.Count -gt 0) {
+        $node = $pending.Pop()
+        if ($null -eq $node) {
+            continue
+        }
+        if (
+            $null -ne $node.PSObject.Properties["SensorId"] -and
+            $null -ne $node.PSObject.Properties["Type"] -and
+            -not [string]::IsNullOrWhiteSpace((Get-CleanText $node.PSObject.Properties["SensorId"].Value))
+        ) {
+            $count++
+        }
+        $children = $node.PSObject.Properties["Children"]
+        if ($null -ne $children) {
+            foreach ($child in @($children.Value)) {
+                $pending.Push($child)
+            }
+        }
+    }
+    if ($count -eq 0) {
+        throw "The LHM Web endpoint returned no supported sensors."
+    }
+    return $count
+}
+
 $checks = New-Object System.Collections.Generic.List[object]
 $resolvedRoot = $null
 try {
@@ -194,23 +236,40 @@ else {
         Add-DoctorCheck -Name "LibreHardwareMonitor" -Status "OPTIONAL_MISSING" -Detail "Process not detected"
     }
     else {
+        $webSensorCount = $null
+        $webFailure = $null
         try {
-            $sensors = @(
-                Get-CimInstance `
-                    -Namespace "root/LibreHardwareMonitor" `
-                    -ClassName "Sensor" `
-                    -ErrorAction Stop
-            )
+            $webSensorCount = Get-LhmWebSensorCount
             Add-DoctorCheck `
                 -Name "LibreHardwareMonitor" `
                 -Status "AVAILABLE" `
-                -Detail "process=$($lhmProcess.ProcessName); sensors=$($sensors.Count)"
+                -Detail "process=$($lhmProcess.ProcessName); transport=web; sensors=$webSensorCount"
         }
         catch {
-            Add-DoctorCheck `
-                -Name "LibreHardwareMonitor" `
-                -Status $(if (Test-AccessDeniedMessage $_.Exception.Message) { "PERMISSION_REQUIRED" } else { "BROKEN" }) `
-                -Detail $_.Exception.Message
+            $webFailure = $_.Exception.Message
+        }
+
+        if ($null -eq $webSensorCount) {
+            try {
+                $sensors = @(
+                    Get-CimInstance `
+                        -Namespace "root/LibreHardwareMonitor" `
+                        -ClassName "Sensor" `
+                        -ErrorAction Stop
+                )
+                Add-DoctorCheck `
+                    -Name "LibreHardwareMonitor" `
+                    -Status "AVAILABLE" `
+                    -Detail "process=$($lhmProcess.ProcessName); transport=wmi; sensors=$($sensors.Count)"
+            }
+            catch {
+                $wmiFailure = $_.Exception.Message
+                $detail = "web unavailable: $webFailure; wmi unavailable: $wmiFailure"
+                Add-DoctorCheck `
+                    -Name "LibreHardwareMonitor" `
+                    -Status $(if (Test-AccessDeniedMessage $detail) { "PERMISSION_REQUIRED" } else { "BROKEN" }) `
+                    -Detail $detail
+            }
         }
     }
 }

@@ -29,7 +29,7 @@ JSON output:
 - current PowerShell edition/version and optional PowerShell 7;
 - basic Windows CIM access;
 - optional `nvidia-smi`;
-- optional LibreHardwareMonitor process/WMI state;
+- optional LibreHardwareMonitor process and local Web/WMI transport state;
 - real write/delete access in a selected output directory;
 - optional validator path;
 - model vision and OCR remain `UNKNOWN` because the script cannot prove runtime
@@ -43,8 +43,10 @@ The LHM check is skipped by default. To inspect an already-running local LHM:
 ... -ProbeLhm -AllowLiveCollector
 ```
 
-This read-only probe checks the process and `root/LibreHardwareMonitor` sensor
-namespace. It never starts LHM or elevates.
+This read-only probe checks the process and first tries the loopback endpoint
+`http://127.0.0.1:8085/data.json`. If that interface is unavailable, it checks
+the legacy `root/LibreHardwareMonitor` sensor namespace. It never starts LHM,
+opens the Web server, or elevates.
 
 ## Status values
 

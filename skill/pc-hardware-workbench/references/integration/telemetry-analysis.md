@@ -126,6 +126,10 @@ It maps common column names for:
 - FPS and frame time;
 - PresentMon `msBetweenPresents` as a frame-time source;
 - GPU core voltage when exposed, plus core/effective/memory clocks;
+- GPU memory clock as a source-specific observation rather than bandwidth;
+  values above the common GDDR6/GDDR6X range are retained only when still
+  physically plausible and are flagged because the source may report either a
+  physical clock or an effective data rate;
 - GPU power and temperature;
 - GPU hotspot and memory-junction temperature when present;
 - GPU fan RPM/percentage;

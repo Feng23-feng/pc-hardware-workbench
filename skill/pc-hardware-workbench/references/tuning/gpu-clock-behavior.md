@@ -43,6 +43,12 @@ exact voltage and MHz coordinate.
 - **Performance-limit reason / PerfCap:** the dominant cap reported by the GPU
   or monitoring tool, such as power, thermal, voltage, reliability, or
   utilization.
+- **GPU memory clock:** a source-dependent observation. It may represent a
+  physical memory clock, effective data rate, or vendor-scaled value; the label
+  alone does not establish which.
+- **Memory bandwidth:** a calculated property, not a sensor. A valid calculation
+  requires the memory data-rate basis plus bus width and configuration, and does
+  not by itself prove achieved application performance.
 
 ## NVIDIA generations
 
@@ -153,6 +159,11 @@ Prefer:
 These rules apply to monitoring and concept questions without triggering the
 tuning-entry gate. They become tuning safety rules when the user asks for a
 candidate value, a curve edit, or a conclusion about whether to keep a profile.
+
+Memory tuning follows the GPU memory interpretation gate in
+[intake.md](intake.md). A family name such as “RTX 50” or “GDDR7” is not a
+substitute for the installed card, VRAM configuration, firmware, and observed
+clock basis.
 
 ## Sources reviewed
 

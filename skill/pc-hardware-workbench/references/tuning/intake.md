@@ -50,6 +50,26 @@ After coaching, return to the same missing gate item first. Preserve every answe
 
 For GPU curve work, the in-workload baseline must include the representative voltage/frequency point or range observed in the fixed workload. If voltage is not exposed or no stable load point can be identified, do not invent a voltage-point method; use a supported offset-only route or continue monitoring.
 
+## GPU memory interpretation gate
+
+Before interpreting memory clocks, comparing bandwidth, proposing a memory
+offset, or claiming a stable memory range, require:
+
+- the exact GPU model, SKU, form factor, and board or laptop model when the same
+  GPU name has materially different firmware or power behavior;
+- reported VRAM type (`GDDR6`, `GDDR6X`, `GDDR7`, `HBM`, or a source-backed
+  equivalent), capacity, and bus width when making a bandwidth calculation;
+- graphics driver, vBIOS/firmware, and monitoring or tuning-tool versions;
+- the requested/configured value, the active profile, and the observed memory
+  clock with its unit and reporting basis;
+- a fixed workload plus frame-time, throughput, artifact, and temperature
+  evidence.
+
+If any item needed for the claim is missing, continue read-only identification
+or explain how to collect it. Do not substitute a GPU family guess for the
+installed card, compare raw clocks across memory generations, infer bandwidth
+from clock alone, or issue a memory target from a single sensor value.
+
 ## Device and objective
 
 - Exact desktop, laptop, MoDT, or other system; whether it is physically accessible.

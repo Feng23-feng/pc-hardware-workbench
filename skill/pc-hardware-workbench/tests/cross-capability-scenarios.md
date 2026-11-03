@@ -73,8 +73,10 @@ Prompt:
 
 Must:
 
-- explain that LHM must already be installed and running;
-- not install, launch, elevate, or alter WMI/security settings;
+- explain that LHM must already be installed and running, with its user-started
+  loopback Remote Web Server available (or a legacy WMI interface already
+  exposed);
+- not install, launch, elevate, or alter Web/WMI/security settings;
 - report live sensor access as unavailable rather than hardware absent;
 - offer CSV or existing log analysis as a fallback;
 - request explicit consent only for a supported live path.

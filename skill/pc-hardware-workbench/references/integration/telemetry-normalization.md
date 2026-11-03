@@ -11,8 +11,9 @@ elevation, use the network, or change hardware settings.
 
 The adapter emits `NormalizedTelemetryVersion: "1.0"` with these major sections:
 
-- `Source`: tool, version, optional device ID, capture time, original filename,
-  input SHA-256, input kind, adapter version, and mixed-source state;
+- `Source`: tool, version, optional device ID, observed component/hardware
+  names, capture time, original filename, input SHA-256, input kind, adapter
+  version, and mixed-source state;
 - `Sampling`: time-based state, median/minimum/maximum interval, and
   `stable|variable|unknown` consistency;
 - `DataQuality`: warning state, series count, missing-value count, and window;
@@ -49,6 +50,9 @@ every sample:
     "tool": "Fixture Monitor",
     "version": "1.2",
     "deviceId": "local-alias",
+    "observedComponents": [
+      "NVIDIA GeForce RTX Fixture"
+    ],
     "capturedAt": "2026-11-03T12:30:00+08:00"
   },
   "samples": [
@@ -80,6 +84,9 @@ Allowed sensor categories are `fps`, `frame-time`, `temperature`, `power`,
 Rules:
 
 - `source.tool` and `source.version` are required;
+- `source.observedComponents` is optional but, when present, is deduplicated and
+  retained as reported hardware context rather than decoded into a guessed
+  model;
 - `samples` must be a non-empty array, and every sample's `sensors` must also
   be a non-empty array;
 - every sample timestamp must include `Z` or an explicit UTC offset;

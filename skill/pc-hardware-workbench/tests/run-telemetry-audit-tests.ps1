@@ -352,6 +352,43 @@ try {
         @($invalidPhysical.Warnings | Where-Object { $_ -match "outside the analyzer's plausible range" }).Count -ge 1
     ) "Rejected physical values were not reported."
 
+    $gddr6Path = Join-Path $tempRoot "gddr6-memory-clock.csv"
+    [IO.File]::WriteAllText($gddr6Path, @'
+"Time [s]","GPU Memory Clock [MHz]"
+"0","7000"
+"1","7001"
+'@, $utf8)
+    $gddr6 = & $resolvedAnalyzer -Path $gddr6Path -Format Json | ConvertFrom-Json
+    $gddr6Memory = @($gddr6.Metrics | Where-Object { $_.Metric -eq "GPU memory clock (MHz)" }) | Select-Object -First 1
+    Assert-True ($null -ne $gddr6Memory) "A normal GDDR6 memory clock was rejected."
+    Assert-True (
+        @($gddr6.Warnings | Where-Object { $_ -match "common GDDR6/GDDR6X clock range" }).Count -eq 0
+    ) "A normal GDDR6 memory clock received a GDDR7-basis warning."
+
+    $gddr7Path = Join-Path $tempRoot "gddr7-memory-clock.csv"
+    [IO.File]::WriteAllText($gddr7Path, @'
+"Time [s]","GPU Memory Clock [MHz]"
+"0","14001"
+"1","14002"
+'@, $utf8)
+    $gddr7 = & $resolvedAnalyzer -Path $gddr7Path -Format Json | ConvertFrom-Json
+    $gddr7Memory = @($gddr7.Metrics | Where-Object { $_.Metric -eq "GPU memory clock (MHz)" }) | Select-Object -First 1
+    Assert-True ($null -ne $gddr7Memory) "A valid high-bandwidth GPU memory clock was rejected."
+    Assert-True (
+        @($gddr7.Warnings | Where-Object { $_ -match "common GDDR6/GDDR6X clock range" }).Count -eq 1
+    ) "An unusually high memory clock did not receive a reporting-basis warning."
+
+    $absurdMemoryClockPath = Join-Path $tempRoot "absurd-memory-clock.csv"
+    [IO.File]::WriteAllText($absurdMemoryClockPath, @'
+"Time [s]","GPU Memory Clock [MHz]"
+"0","40000"
+"1","40001"
+'@, $utf8)
+    $absurdMemoryClock = & $resolvedAnalyzer -Path $absurdMemoryClockPath -Format Json | ConvertFrom-Json
+    Assert-True (
+        @($absurdMemoryClock.Metrics | Where-Object { $_.Metric -eq "GPU memory clock (MHz)" }).Count -eq 0
+    ) "An implausible GPU memory clock was accepted."
+
     $unitAliasPath = Join-Path $tempRoot "unit-aliases.csv"
     [IO.File]::WriteAllText($unitAliasPath, @'
 "GPU Temperature [°R]","GPU Temperature [C]","GPU Power [Watt]","GPU Clock [千兆赫]"

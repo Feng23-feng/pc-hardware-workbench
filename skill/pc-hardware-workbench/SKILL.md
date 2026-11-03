@@ -2,7 +2,7 @@
 name: pc-hardware-workbench
 description: Integrate Windows-focused read-only hardware inventory, telemetry charting, evidence-gated troubleshooting, guided overclocking, and upgrade-purchase decisions through one routed workflow. Other systems receive manual guidance only. Keep tuning-only requests free of unsolicited purchase advice; never modify hardware automatically or bypass permissions or anti-cheat.
 metadata:
-  version: "2.3.0"
+  version: "2.4.0"
   short-description: "One routed entry for hardware inventory, telemetry visuals, triage, tuning, and purchase decisions"
 ---
 
@@ -163,6 +163,10 @@ Before interpreting GPU clocks, V/F curves, offsets, or performance limits, read
 [gpu-clock-behavior.md](references/tuning/gpu-clock-behavior.md). GPU Boost is a
 dynamic range; one matching or missing sample is not proof of curve behavior or
 stability.
+
+GPU memory advice additionally requires the exact GPU, VRAM type and capacity,
+driver/vBIOS/tool, and requested-versus-observed clock basis. Without them, give
+no memory target or bandwidth, cross-generation, or stable-range claim.
 
 Before a candidate is applied, give the one-screen card from
 [fixed-workloads.md](references/integration/fixed-workloads.md). Change one primary
