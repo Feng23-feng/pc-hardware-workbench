@@ -5461,9 +5461,44 @@
       font-weight: 560;
     }
 
+    #dse-root .dse-global-nav {
+      position: sticky;
+      top: 0;
+      z-index: 140;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 52px;
+      padding: 0 max(24px, calc((100vw - 1240px) / 2));
+      color: #8f98a1;
+      background: rgba(8, 9, 11, .9);
+      border-bottom: 1px solid #22282e;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    #dse-root .dse-global-nav a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      color: #c9cfd5;
+      font-size: var(--dse-type-meta);
+      text-decoration: none;
+    }
+
+    #dse-root .dse-global-nav a:hover,
+    #dse-root .dse-global-nav a:focus-visible {
+      color: #fff;
+    }
+
+    #dse-root .dse-global-nav span {
+      font-size: var(--dse-type-label);
+    }
+
     #dse-root #dse-guided-title,
     #dse-root #dse-demo-title {
-      scroll-margin-top: 28px;
+      scroll-margin-top: 76px;
     }
 
     #dse-root .dse-chip {
@@ -5951,6 +5986,160 @@
       line-height: 1.78;
     }
 
+    #dse-root .dse-guided-stage {
+      grid-template-columns: minmax(0, 1fr) 280px;
+      grid-template-rows: auto auto auto;
+      align-items: start;
+      gap: 24px 38px;
+    }
+
+    #dse-root .dse-guided-copy {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    #dse-root .dse-guided-side {
+      display: grid;
+      grid-column: 2;
+      grid-row: 1;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    #dse-root .dse-guided-side .dse-guided-select-label,
+    #dse-root .dse-guided-side #dse-guided-scenario,
+    #dse-root .dse-guided-side .dse-guided-next,
+    #dse-root .dse-guided-side .dse-guided-action-note {
+      grid-column: auto;
+      grid-row: auto;
+    }
+
+    #dse-root .dse-guided-side .dse-guided-next {
+      width: 100%;
+    }
+
+    #dse-root .dse-guided-brief {
+      display: grid;
+      gap: 9px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid #262d34;
+    }
+
+    #dse-root .dse-guided-brief p {
+      display: grid;
+      grid-template-columns: 132px minmax(0, 1fr);
+      gap: 14px;
+      margin: 0;
+      font-size: var(--dse-type-meta);
+      line-height: 1.6;
+    }
+
+    #dse-root .dse-guided-brief span {
+      color: #8f98a2;
+    }
+
+    #dse-root .dse-guided-brief strong {
+      color: #c4cad0;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-guided-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+    }
+
+    #dse-root .dse-guided-actions button,
+    #dse-root .dse-guided-result-actions button {
+      min-height: 40px;
+      padding: 0;
+      color: #9ca5ae;
+      background: transparent;
+      border: 0;
+      font: inherit;
+      font-size: 13px;
+      text-decoration: underline;
+      text-decoration-color: #4a535c;
+      text-underline-offset: 3px;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-guided-actions button:hover:not(:disabled),
+    #dse-root .dse-guided-actions button:focus-visible:not(:disabled),
+    #dse-root .dse-guided-result-actions button:hover,
+    #dse-root .dse-guided-result-actions button:focus-visible {
+      color: #edf0f2;
+      text-decoration-color: #9dcbd4;
+    }
+
+    #dse-root .dse-guided-actions button:disabled {
+      color: #858d96;
+      cursor: not-allowed;
+      text-decoration-color: transparent;
+    }
+
+    #dse-root .dse-guided-evidence {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      min-width: 0;
+      margin: 0;
+      padding: 18px 0 0;
+      border: 0;
+      border-top: 1px solid #262d34;
+    }
+
+    #dse-root .dse-guided-evidence legend {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 12px;
+      color: #d8dde2;
+      font-size: 14px;
+      font-weight: 520;
+    }
+
+    #dse-root .dse-guided-evidence legend span {
+      color: #8f98a2;
+      font-size: var(--dse-type-meta);
+      font-weight: 400;
+    }
+
+    #dse-root #dse-guided-evidence-options {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    #dse-root .dse-guided-evidence-option {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 44px;
+      padding: 8px 10px;
+      color: #aeb6be;
+      background: #0b0f13;
+      border: 1px solid #293039;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.45;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-guided-evidence-option:has(input:checked) {
+      color: #e7ebee;
+      border-color: rgba(129, 207, 223, .42);
+      background: rgba(129, 207, 223, .055);
+    }
+
+    #dse-root .dse-guided-evidence-option input {
+      flex: none;
+      width: 17px;
+      height: 17px;
+      accent-color: var(--dse-cyan);
+    }
+
     #dse-root .dse-guided-path {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -6092,16 +6281,25 @@
 
     #dse-root .dse-guided-outcome {
       display: grid;
-      grid-template-columns: 120px minmax(0, 1fr);
+      grid-column: 1 / -1;
+      grid-row: 3;
+      grid-template-columns: minmax(0, 1fr);
       align-items: start;
-      gap: 18px;
-      max-width: 980px;
-      margin: 16px auto 0;
+      gap: 10px;
+      max-width: none;
+      margin: 0;
       padding: 16px 18px;
       color: #a8b0b8;
       background: rgba(129, 207, 223, .035);
       border: 1px solid rgba(129, 207, 223, .16);
       border-radius: 10px;
+    }
+
+    #dse-root .dse-guided-outcome header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
     }
 
     #dse-root .dse-guided-outcome small {
@@ -6110,11 +6308,49 @@
       font-weight: 520;
     }
 
+    #dse-root .dse-guided-outcome header strong {
+      color: #d8e8eb;
+      font-size: var(--dse-type-meta);
+      font-weight: 560;
+    }
+
     #dse-root .dse-guided-outcome p {
       margin: 0;
       color: #c2c8ce;
       font-size: 14px;
       line-height: 1.7;
+    }
+
+    #dse-root .dse-guided-missing {
+      color: #d8b47a !important;
+    }
+
+    #dse-root .dse-guided-recommendation {
+      color: #dce2e6 !important;
+    }
+
+    #dse-root .dse-guided-result-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px 18px;
+      padding-top: 7px;
+      border-top: 1px solid rgba(129, 207, 223, .12);
+    }
+
+    #dse-root .dse-guided-outcome.is-updated {
+      animation: dse-guided-result-update .32s ease both;
+    }
+
+    @keyframes dse-guided-result-update {
+      from {
+        opacity: .62;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     #dse-root .dse-guided-reason {
@@ -6268,6 +6504,17 @@
       line-height: 1.5;
     }
 
+    #dse-root button.dse-demo-back {
+      padding: 0;
+      color: #b8c0c8;
+      background: transparent;
+      border: 0;
+      font: inherit;
+      text-decoration: underline;
+      text-decoration-color: #4b555f;
+      text-underline-offset: 3px;
+    }
+
     #dse-root .dse-mode-guide-route-label,
     #dse-root .dse-mode-guide-step b,
     #dse-root .dse-mode-guide-step small,
@@ -6332,6 +6579,10 @@
         --dse-type-label: 12px;
       }
 
+      #dse-root .dse-global-nav {
+        padding-inline: 14px;
+      }
+
       #dse-root .dse-hero {
         min-height: min(700px, 86svh);
         padding: 42px 0 62px;
@@ -6388,6 +6639,7 @@
 
       #dse-root .dse-guided-stage {
         grid-template-columns: 1fr;
+        grid-template-rows: auto;
         padding: 20px;
         border-radius: 14px;
       }
@@ -6405,6 +6657,29 @@
       #dse-root .dse-guided-next {
         grid-column: 1;
         grid-row: auto;
+      }
+
+      #dse-root .dse-guided-copy,
+      #dse-root .dse-guided-side,
+      #dse-root .dse-guided-evidence,
+      #dse-root .dse-guided-outcome {
+        grid-column: 1;
+        grid-row: auto;
+      }
+
+      #dse-root .dse-guided-brief p {
+        grid-template-columns: 1fr;
+        gap: 3px;
+      }
+
+      #dse-root #dse-guided-evidence-options {
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root .dse-guided-outcome header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
       }
 
       #dse-root .dse-guided-path > span:not(:last-child)::after {
@@ -6463,6 +6738,11 @@
     }
   </style>
 
+  <nav class="dse-global-nav" aria-label="全局导航">
+    <a href="../">← 返回项目地图</a>
+    <span aria-current="page">交互实验室</span>
+  </nav>
+
   <div class="dse-shell">
     <header class="dse-header dse-hero">
       <div class="dse-header-copy">
@@ -6494,32 +6774,56 @@
       </div>
 
       <div class="dse-guided-stage">
-        <label class="dse-guided-select-label" for="dse-guided-scenario">选择一个示例问题</label>
-        <select id="dse-guided-scenario">
-          <option value="temperature">电脑温度偏高</option>
-          <option value="stutter">游戏掉帧或卡顿</option>
-          <option value="tuning">想调校 GPU / CPU</option>
-        </select>
-
         <div class="dse-guided-copy" aria-live="polite">
           <p class="dse-guided-progress" id="dse-guided-progress">温度偏高 · 当前第 1 步 / 共 3 步</p>
           <h3 id="dse-guided-step-title">先确认是哪一部分温度高</h3>
           <p id="dse-guided-step-copy">先说明 CPU、GPU、显存或整机温度，以及当时在做什么。单看一个瞬间数字，不能判断散热是否异常。</p>
+          <div class="dse-guided-brief">
+            <p><span>现在能做什么</span><strong id="dse-guided-now">选择一个最接近的场景，并说明发生了什么。</strong></p>
+            <p><span>点击后会发生什么</span><strong id="dse-guided-effect">进入证据选择，结果会随你勾选的条件实时更新。</strong></p>
+          </div>
         </div>
 
-        <button class="dse-guided-next" id="dse-guided-next" type="button">继续演示：补齐证据</button>
-        <p class="dse-guided-action-note">点击只更新下方示例，不打开表单，也不会读取或修改你的电脑。</p>
+        <div class="dse-guided-side">
+          <label class="dse-guided-select-label" for="dse-guided-scenario">选择一个示例问题</label>
+          <select id="dse-guided-scenario">
+            <option value="temperature">电脑温度偏高</option>
+            <option value="stutter">游戏掉帧或卡顿</option>
+            <option value="tuning">想调校 GPU / CPU</option>
+          </select>
+          <button class="dse-guided-next" id="dse-guided-next" type="button" aria-describedby="dse-guided-action-note">继续：选择证据</button>
+          <div class="dse-guided-actions">
+            <button id="dse-guided-prev" type="button" disabled>上一步</button>
+            <button id="dse-guided-reset" type="button">重新开始</button>
+          </div>
+          <p class="dse-guided-action-note" id="dse-guided-action-note">点击只更新示例，不打开表单，也不会读取或修改你的电脑。</p>
+        </div>
+
+        <fieldset class="dse-guided-evidence" id="dse-guided-evidence-choices" hidden>
+          <legend>你目前有哪些证据？<span id="dse-guided-evidence-count">已选 0 项</span></legend>
+          <div id="dse-guided-evidence-options"></div>
+        </fieldset>
+
+        <section class="dse-guided-outcome" aria-live="polite">
+          <header>
+            <small id="dse-guided-outcome-label">最终产出预览</small>
+            <strong id="dse-guided-outcome-status">尚未完成</strong>
+          </header>
+          <p id="dse-guided-outcome">一条带缺失项与下一步的检查建议，不会直接给出调校数值。</p>
+          <p class="dse-guided-missing" id="dse-guided-missing" hidden></p>
+          <p class="dse-guided-recommendation" id="dse-guided-recommendation" hidden></p>
+          <div class="dse-guided-result-actions" id="dse-guided-result-actions" hidden>
+            <button id="dse-guided-show-reason" type="button">查看证据原因</button>
+            <button id="dse-guided-switch" type="button">换一个场景</button>
+            <button id="dse-guided-open-advanced" type="button">打开高级排障</button>
+          </div>
+        </section>
       </div>
 
-      <div class="dse-guided-outcome" aria-live="polite">
-        <small>最终产出预览</small>
-        <p id="dse-guided-outcome">一条带缺失项与下一步的检查建议，不会直接给出调校数值。</p>
-      </div>
-
-      <details class="dse-guided-reason">
+      <details class="dse-guided-reason" id="dse-guided-reason">
         <summary>高级解释：证据、原因与内部状态</summary>
         <div class="dse-guided-reason-body">
-          <p><strong>需要什么证据</strong><span id="dse-guided-evidence">具体部件、固定负载、环境条件、监测工具，以及同一负载下的多点记录。</span></p>
+          <p><strong>需要什么证据</strong><span id="dse-guided-evidence-detail">具体部件、固定负载、环境条件、监测工具，以及同一负载下的多点记录。</span></p>
           <p><strong>为什么先问这些</strong><span id="dse-guided-why">温度必须和负载、功耗与散热条件一起解释；缺少上下文时，升级散热或直接调压都只是猜测。</span></p>
           <p><strong>内部状态</strong><span>当前只演示“补充证据”这一步，不生成参数，也不读取或修改你的电脑。</span></p>
         </div>
@@ -6758,7 +7062,7 @@
         <div class="dse-demo-lead">
           <p class="dse-demo-summary">选一个最接近你的情况，看看先要弄清楚什么，再决定要不要改设置。这里只做演示，不会读取或修改你的电脑。</p>
           <div class="dse-demo-meta">
-            <a class="dse-demo-back" href="../">← 返回项目地图</a>
+            <button class="dse-demo-back" id="dse-close-advanced" type="button">↑ 收起高级模式</button>
             <a class="dse-demo-back" href="../orrery/" title="打开 Skill 1.5.2 历史文件星系">历史文件星系页面（1.5.2）↗</a>
             <span class="dse-demo-badge">在线演示 · 不会修改你的电脑</span>
           </div>
@@ -9859,6 +10163,17 @@
         if (advancedShell) advancedShell.open = true;
         setDemoMode("tune", { updateRoute: true, scroll: false });
       });
+      document.getElementById("dse-close-advanced")?.addEventListener("click", () => {
+        const advancedShell = document.getElementById("dse-advanced-shell");
+        if (!advancedShell) return;
+        advancedShell.open = false;
+        const summary = advancedShell.querySelector(":scope > summary");
+        advancedShell.scrollIntoView({
+          behavior: reduceMotionQuery.matches ? "auto" : "smooth",
+          block: "start"
+        });
+        summary?.focus();
+      });
       tuneStepLinks.forEach(link => {
         link.addEventListener("click", event => {
           event.preventDefault();
@@ -9882,18 +10197,66 @@
         const progress = document.getElementById("dse-guided-progress");
         const title = document.getElementById("dse-guided-step-title");
         const copy = document.getElementById("dse-guided-step-copy");
-        const evidence = document.getElementById("dse-guided-evidence");
+        const evidenceDetail = document.getElementById("dse-guided-evidence-detail");
         const why = document.getElementById("dse-guided-why");
         const nextButton = document.getElementById("dse-guided-next");
+        const previousButton = document.getElementById("dse-guided-prev");
+        const resetButton = document.getElementById("dse-guided-reset");
+        const nowText = document.getElementById("dse-guided-now");
+        const effectText = document.getElementById("dse-guided-effect");
+        const actionNote = document.querySelector(".dse-guided-action-note");
         const pathItems = [...document.querySelectorAll("[data-guided-path]")];
         const outcomeText = document.getElementById("dse-guided-outcome");
+        const outcomeLabel = document.getElementById("dse-guided-outcome-label");
+        const outcomeStatus = document.getElementById("dse-guided-outcome-status");
+        const missingText = document.getElementById("dse-guided-missing");
+        const recommendation = document.getElementById("dse-guided-recommendation");
+        const resultActions = document.getElementById("dse-guided-result-actions");
+        const evidenceFieldset = document.getElementById("dse-guided-evidence-choices");
+        const evidenceCount = document.getElementById("dse-guided-evidence-count");
+        const evidenceOptionsContainer = document.getElementById("dse-guided-evidence-options");
+        const switchScenarioButton = document.getElementById("dse-guided-switch");
+        const showReasonButton = document.getElementById("dse-guided-show-reason");
+        const openAdvancedButton = document.getElementById("dse-guided-open-advanced");
         const advancedShell = document.getElementById("dse-advanced-shell");
-        if (!scenarioSelect || !progress || !title || !copy || !evidence || !why || !nextButton) return;
+        if (
+          !scenarioSelect ||
+          !progress ||
+          !title ||
+          !copy ||
+          !evidenceDetail ||
+          !why ||
+          !nextButton ||
+          !previousButton ||
+          !resetButton ||
+          !nowText ||
+          !effectText ||
+          !actionNote ||
+          !outcomeText ||
+          !outcomeLabel ||
+          !outcomeStatus ||
+          !missingText ||
+          !recommendation ||
+          !resultActions ||
+          !evidenceFieldset ||
+          !evidenceCount ||
+          !evidenceOptionsContainer
+        ) {
+          return;
+        }
 
         const scenarios = {
           temperature: {
             label: "温度偏高",
             outcome: "会得到一条补充负载、温度和散热证据的检查建议，不会直接给出调压数值。",
+            conclusion: "目前只能确定检查方向，不能仅凭一个温度读数判断散热或调校问题。",
+            advancedMode: "triage",
+            finalAction: "在同一固定负载下复测，先比较温度、功耗和频率，再检查风道与环境。",
+            evidenceOptions: [
+              { id: "load", label: "固定负载和持续时间" },
+              { id: "sensors", label: "温度、功耗与频率记录" },
+              { id: "context", label: "环境温度和机箱风道" }
+            ],
             steps: [
               {
                 title: "先确认是哪一部分温度高",
@@ -9921,6 +10284,14 @@
           stutter: {
             label: "掉帧或卡顿",
             outcome: "会得到一条同场景复测与证据对比建议，不会直接把掉帧归因于某个硬件。",
+            conclusion: "目前还不能把卡顿归因到某一个硬件，需要同一场景下的时间序列证据。",
+            advancedMode: "triage",
+            finalAction: "固定同一场景，对照基线和异常段，再检查驱动、后台任务与温度/功耗记录。",
+            evidenceOptions: [
+              { id: "scene", label: "固定游戏、画质和地图" },
+              { id: "frames", label: "帧时间或 FPS 记录" },
+              { id: "context", label: "驱动版本与系统事件" }
+            ],
             steps: [
               {
                 title: "先分清是哪一种卡顿",
@@ -9948,6 +10319,14 @@
           tuning: {
             label: "想调校",
             outcome: "会得到一份只改一个变量、包含中止信号和恢复方式的测试计划。",
+            conclusion: "可以开始整理测试，但缺少条件时仍不会给出可直接套用的设置。",
+            advancedMode: "tune",
+            finalAction: "先确认目标和恢复方式，只改一个主变量，再用同一负载检查结果与重启后的稳定性。",
+            evidenceOptions: [
+              { id: "goal", label: "目标和当前稳定基线" },
+              { id: "recovery", label: "恢复方法和恢复顺序" },
+              { id: "workload", label: "固定负载与可操作控制项" }
+            ],
             steps: [
               {
                 title: "先说清楚目标和恢复方式",
@@ -9974,40 +10353,217 @@
           }
         };
 
+        const guidedStepMeta = [
+          {
+            now: "选择一个最接近的场景，并说明发生了什么。",
+            effect: "下一步会展示一组证据选项，不会读取或修改你的电脑。"
+          },
+          {
+            now: "勾选你目前已有的证据，缺少的项目可以留空。",
+            effect: "结果卡会实时更新；继续后会生成一条明确、可执行的下一步。"
+          },
+          {
+            now: "查看结论和缺失项，也可以返回调整证据。",
+            effect: "可以把这轮结果作为提示复制到 Codex，或进入对应高级模式继续。"
+          }
+        ];
+        const evidenceSelections = Object.fromEntries(
+          Object.entries(scenarios).map(([key, scenario]) => [
+            key,
+            new Set(scenario.evidenceOptions.slice(0, 1).map(option => option.id))
+          ])
+        );
         let guidedStep = 0;
-        function renderGuidedStep() {
-          const scenario = scenarios[scenarioSelect.value] || scenarios.temperature;
+        let copyResetTimer = 0;
+
+        function currentScenario() {
+          return scenarios[scenarioSelect.value] || scenarios.temperature;
+        }
+
+        function selectedEvidence(scenario) {
+          const selected = evidenceSelections[scenarioSelect.value];
+          return scenario.evidenceOptions.filter(option => selected.has(option.id));
+        }
+
+        function missingEvidence(scenario) {
+          const selected = evidenceSelections[scenarioSelect.value];
+          return scenario.evidenceOptions.filter(option => !selected.has(option.id));
+        }
+
+        function renderEvidenceChoices(scenario) {
+          const selected = evidenceSelections[scenarioSelect.value];
+          evidenceOptionsContainer.replaceChildren();
+          scenario.evidenceOptions.forEach(option => {
+            const label = document.createElement("label");
+            label.className = "dse-guided-evidence-option";
+            const input = document.createElement("input");
+            input.type = "checkbox";
+            input.checked = selected.has(option.id);
+            input.value = option.id;
+            const text = document.createElement("span");
+            text.textContent = option.label;
+            input.addEventListener("change", () => {
+              if (input.checked) selected.add(option.id);
+              else selected.delete(option.id);
+              updateResultCard(scenario, true);
+            });
+            label.append(input, text);
+            evidenceOptionsContainer.appendChild(label);
+          });
+          evidenceCount.textContent = `已选 ${selected.length} / ${scenario.evidenceOptions.length} 项`;
+        }
+
+        function flashResultCard() {
+          outcomeText.closest(".dse-guided-outcome")?.classList.remove("is-updated");
+          requestAnimationFrame(() => {
+            outcomeText.closest(".dse-guided-outcome")?.classList.add("is-updated");
+          });
+        }
+
+        function updateResultCard(scenario, flash = false) {
+          const selected = selectedEvidence(scenario);
+          const missing = missingEvidence(scenario);
+          evidenceCount.textContent = `已选 ${selected.length} / ${scenario.evidenceOptions.length} 项`;
+          evidenceFieldset.hidden = guidedStep === 0;
+          resultActions.hidden = guidedStep !== 2;
+          missingText.hidden = guidedStep !== 2;
+          recommendation.hidden = guidedStep !== 2;
+
+          if (guidedStep === 0) {
+            outcomeLabel.textContent = "最终产出预览";
+            outcomeStatus.textContent = "尚未完成";
+            outcomeText.textContent = scenario.outcome;
+          } else if (guidedStep === 1) {
+            outcomeLabel.textContent = "下一步将生成";
+            outcomeStatus.textContent = `已选 ${selected.length} / ${scenario.evidenceOptions.length}`;
+            outcomeText.textContent = missing.length
+              ? `还需补齐：${missing.map(option => option.label).join("、")}。勾选变化会立即更新。`
+              : "证据项已经齐了。继续后仍会标注需要复核的设备与负载条件。";
+          } else {
+            outcomeLabel.textContent = "本次演示结果";
+            outcomeStatus.textContent = missing.length ? `还需补齐 ${missing.length} 项` : "流程已完成";
+            outcomeText.textContent = scenario.conclusion;
+            missingText.textContent = missing.length
+              ? `缺少的证据：${missing.map(option => option.label).join("、")}`
+              : "证据项已齐；仍需在真实设备和固定负载下复核。";
+            recommendation.textContent = `推荐下一步：${scenario.finalAction}`;
+            openAdvancedButton.textContent = scenario.advancedMode === "tune"
+              ? "打开高级调校"
+              : "打开高级排障";
+          }
+          if (flash) flashResultCard();
+        }
+
+        async function copyGuidedPrompt(scenario) {
+          const selected = selectedEvidence(scenario).map(option => option.label);
+          const missing = missingEvidence(scenario).map(option => option.label);
+          const prompt = [
+            `请使用 $pc-hardware-workbench 继续分析：${scenario.label}。`,
+            `已有证据：${selected.length ? selected.join("、") : "暂无"}。`,
+            `缺少或待确认：${missing.length ? missing.join("、") : "无"}。`,
+            "请先给出最小下一步，并说明仍需验证什么；不要自动修改硬件。"
+          ].join("\n");
+          let copied = false;
+          try {
+            await navigator.clipboard.writeText(prompt);
+            copied = true;
+          } catch {
+            const fallback = document.createElement("textarea");
+            fallback.value = prompt;
+            fallback.setAttribute("readonly", "");
+            fallback.style.position = "fixed";
+            fallback.style.left = "-9999px";
+            document.body.appendChild(fallback);
+            fallback.select();
+            copied = document.execCommand("copy");
+            fallback.remove();
+          }
+          clearTimeout(copyResetTimer);
+          nextButton.textContent = copied ? "已复制，可粘贴到 Codex" : "请选择调用示例手动复制";
+          copyResetTimer = window.setTimeout(() => renderGuidedStep(), 1800);
+        }
+
+        function renderGuidedStep({ flash = false } = {}) {
+          const scenario = currentScenario();
           const item = scenario.steps[guidedStep];
-          progress.textContent = `${scenario.label} · 第 ${guidedStep + 1} 步 / 共 ${scenario.steps.length} 步`;
+          const completed = guidedStep === scenario.steps.length - 1;
+          progress.textContent = completed
+            ? `${scenario.label} · 已完成 ${scenario.steps.length} 步`
+            : `${scenario.label} · 当前第 ${guidedStep + 1} 步 / 共 ${scenario.steps.length} 步`;
           title.textContent = item.title;
           copy.textContent = item.copy;
-          evidence.textContent = item.evidence;
+          nowText.textContent = guidedStepMeta[guidedStep].now;
+          effectText.textContent = guidedStepMeta[guidedStep].effect;
+          evidenceDetail.textContent = item.evidence;
           why.textContent = item.why;
-          outcomeText.textContent = scenario.outcome;
+          renderEvidenceChoices(scenario);
+          updateResultCard(scenario, flash);
           pathItems.forEach((pathItem, index) => {
             const state = pathItem.querySelector(".dse-guided-path-state");
             const complete = index < guidedStep;
             const current = index === guidedStep;
-            pathItem.classList.toggle("is-complete", complete);
+            pathItem.classList.toggle("is-complete", complete || (completed && current));
             pathItem.classList.toggle("is-current", current);
-            if (state) state.textContent = complete ? "已完成" : current ? "当前" : "待进行";
+            if (state) state.textContent = complete || completed ? "已完成" : current ? "当前" : "待进行";
             if (current) pathItem.setAttribute("aria-current", "step");
             else pathItem.removeAttribute("aria-current");
           });
+          previousButton.disabled = guidedStep === 0;
           nextButton.textContent = guidedStep === 0
-            ? "继续演示：补齐证据"
+            ? "继续：选择证据"
             : guidedStep === 1
-              ? "继续演示：得到下一步"
-              : "重新演示本场景";
+              ? "生成下一步"
+              : "复制下一步给 Codex";
+          actionNote.textContent = guidedStep === 2
+            ? "点击会复制一段给 Codex 的提示，不会执行命令或修改硬件。"
+            : "点击只更新示例，不打开表单，也不会读取或修改你的电脑。";
         }
 
         scenarioSelect.addEventListener("change", () => {
           guidedStep = 0;
-          renderGuidedStep();
+          renderGuidedStep({ flash: true });
         });
-        nextButton.addEventListener("click", () => {
-          guidedStep = (guidedStep + 1) % 3;
-          renderGuidedStep();
+        nextButton.addEventListener("click", async () => {
+          if (guidedStep < 2) {
+            guidedStep += 1;
+            renderGuidedStep({ flash: true });
+            return;
+          }
+          await copyGuidedPrompt(currentScenario());
+        });
+        previousButton.addEventListener("click", () => {
+          if (guidedStep === 0) return;
+          guidedStep -= 1;
+          renderGuidedStep({ flash: true });
+        });
+        resetButton.addEventListener("click", () => {
+          guidedStep = 0;
+          evidenceSelections[scenarioSelect.value].clear();
+          renderGuidedStep({ flash: true });
+        });
+        switchScenarioButton?.addEventListener("click", () => {
+          scenarioSelect.selectedIndex = (scenarioSelect.selectedIndex + 1) % scenarioSelect.options.length;
+          scenarioSelect.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+        showReasonButton?.addEventListener("click", () => {
+          const reason = document.getElementById("dse-guided-reason");
+          if (!reason) return;
+          reason.open = true;
+          reason.scrollIntoView({
+            behavior: reduceMotionQuery.matches ? "auto" : "smooth",
+            block: "start"
+          });
+          reason.querySelector("summary")?.focus();
+        });
+        openAdvancedButton?.addEventListener("click", () => {
+          const scenario = currentScenario();
+          if (!advancedShell) return;
+          advancedShell.open = true;
+          setDemoMode(scenario.advancedMode, { updateRoute: true, scroll: false });
+          advancedShell.scrollIntoView({
+            behavior: reduceMotionQuery.matches ? "auto" : "smooth",
+            block: "start"
+          });
         });
         renderGuidedStep();
       }

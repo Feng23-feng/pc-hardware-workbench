@@ -7,6 +7,21 @@
   <meta name="description" content="电脑硬件工作台 2.4.0 本地候选：只读硬件证据、故障排查、遥测分析与版本档案。">
   <link rel="icon" href="data:,">
   <title>pc-hardware-workbench · 电脑硬件工作台</title>
+  <script>
+    try {
+      const entryKey = "pc-hardware-workbench:home-entry:v2";
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!reducedMotion && sessionStorage.getItem(entryKey) !== "complete") {
+        sessionStorage.setItem(entryKey, "complete");
+        document.documentElement.classList.add("dse-hero-enter");
+        window.setTimeout(() => {
+          document.documentElement.classList.remove("dse-hero-enter");
+        }, 1500);
+      }
+    } catch {
+      // Storage may be unavailable; show the page immediately.
+    }
+  </script>
 </head>
 <body>
 <main id="dse-root" class="dse">
@@ -4877,18 +4892,7 @@
       border-color: var(--dse-cyan);
     }
 
-    @keyframes dse-page-enter {
-      from {
-        opacity: 0;
-        transform: translateY(7px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
+    /* Homepage first-load entrance is defined with the hero typography pass. */
     @keyframes dse-surface-enter {
       from {
         opacity: 0;
@@ -4923,27 +4927,6 @@
         opacity: 1;
         transform: translateY(0);
       }
-    }
-
-    #dse-root .dse-header {
-      animation: dse-page-enter .26s cubic-bezier(.22, 1, .36, 1) backwards;
-    }
-
-    #dse-root .dse-orientation {
-      animation: dse-page-enter .28s cubic-bezier(.22, 1, .36, 1) .035s backwards;
-    }
-
-    #dse-root .dse-toolbar {
-      animation: dse-page-enter .24s cubic-bezier(.22, 1, .36, 1) .07s backwards;
-    }
-
-    #dse-root .dse-map-stage,
-    #dse-root .dse-demo {
-      animation: dse-page-enter .28s cubic-bezier(.22, 1, .36, 1) .1s backwards;
-    }
-
-    #dse-root .dse-archive {
-      animation: dse-page-enter .28s cubic-bezier(.22, 1, .36, 1) .14s backwards;
     }
 
     #dse-root .dse-track:not([hidden]),
@@ -6672,6 +6655,49 @@
     #dse-root .dse-howto-step b,
     #dse-root .dse-candidate-state span {
       font-size: var(--dse-type-label);
+    }
+
+    #dse-root .dse-header,
+    #dse-root .dse-orientation,
+    #dse-root .dse-toolbar,
+    #dse-root .dse-map-stage,
+    #dse-root .dse-demo,
+    #dse-root .dse-archive {
+      animation: none;
+    }
+
+    @keyframes dse-home-hero-enter {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    html.dse-hero-enter #dse-root .dse-hero .dse-skill-kicker,
+    html.dse-hero-enter #dse-root .dse-hero h1 {
+      animation: dse-home-hero-enter .9s cubic-bezier(.22, 1, .36, 1) .06s backwards;
+      will-change: opacity, transform;
+    }
+
+    html.dse-hero-enter #dse-root .dse-hero .dse-subtitle,
+    html.dse-hero-enter #dse-root .dse-hero .dse-invoke-example {
+      animation: dse-home-hero-enter .9s cubic-bezier(.22, 1, .36, 1) .14s backwards;
+      will-change: opacity, transform;
+    }
+
+    html.dse-hero-enter #dse-root .dse-hero-actions {
+      animation: dse-home-hero-enter .9s cubic-bezier(.22, 1, .36, 1) .22s backwards;
+      will-change: opacity, transform;
+    }
+
+    html.dse-hero-enter #dse-root .dse-hero-status {
+      animation: dse-home-hero-enter .9s cubic-bezier(.22, 1, .36, 1) .3s backwards;
+      will-change: opacity, transform;
     }
 
     @media (max-width: 1000px) {

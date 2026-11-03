@@ -1,10 +1,10 @@
 {
-  "name": "Skill Orrery / 文件仪象台",
+  "name": "历史文件星系 · Skill 1.5.2",
   "version": "1.2",
   "status": "frozen",
   "frozenAt": "2026-11-03",
   "source": "docs/skill-evolution/orrery/index.html",
-  "sha256": "14D56F80B1776870D397083A306660DCAD0636C2EA9DFA0C1DD28892B4F98AC1",
-  "bytes": 105570,
-  "changes": "Clear historical-archive labeling, readable labels, accessible controls, and favicon metadata; the frozen file dataset is unchanged."
+  "sha256": "EB2DC220EA6C27359C2B5FBE9A7F33EF427C416118C134A79DB2F56E74C07F1E",
+  "bytes": 106428,
+  "changes": "Historical-archive labeling, persistent global navigation, readable labels, accessible controls, and favicon metadata; the frozen file dataset is unchanged."
 }

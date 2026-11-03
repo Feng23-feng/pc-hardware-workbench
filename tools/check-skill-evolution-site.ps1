@@ -109,6 +109,12 @@ if ($errors.Count -eq 0) {
     if ([regex]::Matches($indexHtml, '<a class="dse-hero-action\b').Count -ne 1) {
         $errors.Add("Index must expose exactly one primary hero action.") | Out-Null
     }
+    if ($indexHtml -match 'dse-page-enter' -or $indexHtml -notmatch 'dse-home-hero-enter') {
+        $errors.Add("Index first-load motion is not using the dedicated hero entrance.") | Out-Null
+    }
+    if ($indexHtml -notmatch 'sessionStorage' -or $indexHtml -notmatch 'dse-hero-enter') {
+        $errors.Add("Index first-load motion is not session-gated.") | Out-Null
+    }
     if ($interactiveHtml -notmatch 'data-demo-mode="evidence"') {
         $errors.Add("Interactive page has no evidence-system mode.") | Out-Null
     }
@@ -120,9 +126,18 @@ if ($errors.Count -eq 0) {
         'class="dse-guided"',
         'class="dse-guided-path"',
         'id="dse-guided-outcome"',
+        'id="dse-guided-evidence-choices"',
+        'id="dse-guided-evidence-options"',
+        'id="dse-guided-result-actions"',
+        'id="dse-guided-recommendation"',
         'class="dse-guided-action-note"',
         'id="dse-guided-scenario"',
         'id="dse-guided-next"',
+        'id="dse-guided-prev"',
+        'id="dse-guided-reset"',
+        'id="dse-guided-show-reason"',
+        'id="dse-guided-switch"',
+        'id="dse-guided-open-advanced"',
         'class="dse-advanced-shell" id="dse-advanced-shell"',
         'class="dse-advanced-status"',
         'id="dse-advanced-prev"',
@@ -135,6 +150,12 @@ if ($errors.Count -eq 0) {
     }
     if ([regex]::Matches($interactiveHtml, '<a class="dse-hero-action\b').Count -ne 1) {
         $errors.Add("Interactive lab must expose exactly one hero action.") | Out-Null
+    }
+    if ($interactiveHtml -notmatch '<nav class="dse-global-nav"[^>]*>\s*<a href="\.\./">\u2190 \u8FD4\u56DE\u9879\u76EE\u5730\u56FE</a>') {
+        $errors.Add("Interactive lab has no persistent global return to the project map.") | Out-Null
+    }
+    if ($interactiveHtml -notmatch '\u2191 \u6536\u8D77\u9AD8\u7EA7\u6A21\u5F0F') {
+        $errors.Add("Advanced mode does not expose its local close action.") | Out-Null
     }
     if ($interactiveHtml -match '<details class="dse-advanced-shell" id="dse-advanced-shell" open') {
         $errors.Add("Interactive advanced content must be collapsed by default.") | Out-Null
@@ -150,6 +171,12 @@ if ($errors.Count -eq 0) {
     }
     if ($interactiveHtml -notmatch 'applyFilter\(button\.dataset\.filter, false\)') {
         $errors.Add("Interactive filter controls must preserve their current scroll position.") | Out-Null
+    }
+    if ($interactiveHtml -match '\u91CD\u65B0\u6F14\u793A\u672C\u573A\u666F') {
+        $errors.Add("Interactive completion prompt still uses the old replay-only action.") | Out-Null
+    }
+    if ($interactiveHtml -notmatch 'navigator\.clipboard\.writeText') {
+        $errors.Add("Interactive guided result has no copy-to-Codex continuation.") | Out-Null
     }
 
     foreach ($entry in @(
@@ -192,8 +219,8 @@ if ($errors.Count -eq 0) {
 
     if ($errors.Count -eq 0) {
         $orreryHtml = Get-Content -Raw -LiteralPath $orreryPath -Encoding UTF8
-        if ($orreryHtml -notmatch 'href="\.\./"') {
-            $errors.Add("Orrery has no return link to the project map.") | Out-Null
+        if ($orreryHtml -notmatch '<nav class="global-nav"[^>]*>\s*<a href="\.\./">\u2190 \u8FD4\u56DE\u9879\u76EE\u5730\u56FE</a>') {
+            $errors.Add("Orrery has no persistent global return to the project map.") | Out-Null
         }
         if ($orreryHtml -notmatch '\u5386\u53F2\u5FEB\u7167|\u51BB\u7ED3 v1\.2') {
             $errors.Add("Orrery does not clearly identify its frozen snapshot status.") | Out-Null

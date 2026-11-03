@@ -89,6 +89,41 @@
       padding: 18px 22px 22px;
     }
 
+    .global-nav {
+      position: sticky;
+      top: 0;
+      z-index: 120;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 52px;
+      padding: 0 2px;
+      color: var(--muted);
+      background: rgba(5, 7, 10, .9);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .global-nav a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      color: #c8d0d7;
+      font-size: 13px;
+      text-decoration: none;
+    }
+
+    .global-nav a:hover,
+    .global-nav a:focus-visible {
+      color: var(--paper);
+    }
+
+    .global-nav span {
+      font-size: 12px;
+    }
+
     .app-header {
       display: flex;
       align-items: center;
@@ -224,7 +259,7 @@
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(350px, 400px);
       gap: 12px;
-      height: clamp(660px, calc(100svh - 122px), 960px);
+      height: clamp(620px, calc(100svh - 210px), 900px);
       padding-top: 12px;
     }
 
@@ -1488,6 +1523,10 @@
 </head>
 <body>
   <main class="app">
+    <nav class="global-nav" aria-label="全局导航">
+      <a href="../">← 返回项目地图</a>
+      <span aria-current="page">历史文件星系</span>
+    </nav>
     <header class="app-header">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true"></div>
@@ -1497,7 +1536,6 @@
         </div>
       </div>
       <div class="header-stats" aria-label="项目概况">
-        <a href="../">返回项目地图</a>
         <span>61 个文件</span>
         <span>7 个星体系统</span>
         <span>冻结 v1.2 · Skill 1.5.2</span>
@@ -1506,7 +1544,6 @@
 
     <div class="snapshot-banner" role="note">
       <span><strong>为什么不同步：</strong>这是有意保留的历史档案。Skill 1.5.2 时期记录为 61 个文件；当前 2.4.0 的清单可能不同，不会自动更新到本页。</span>
-      <a href="../">回到 2.4.0 项目地图</a>
     </div>
 
     <div class="workspace">
