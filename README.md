@@ -11,7 +11,7 @@ changes under the user's control.
 
 ## Project status
 
-- Current Skill candidate: **2.0.0**
+- Current Skill candidate: **2.1.0**
 - Automated non-live tests: passing
 - Live hardware collection: opt-in only
 - Broad release sign-off: pending
@@ -68,6 +68,11 @@ An optional LibreHardwareMonitor adapter can read an already-running local
 instance through WMI with explicit consent. It emits the same sensor-snapshot
 JSON as other structured sources; it never installs or starts LHM, elevates,
 runs indefinitely, or writes hardware settings.
+
+Visual evidence rules cover monitoring screenshots, BIOS photos, Stop Codes,
+Debug LEDs, Device Manager, and Event Viewer images. The Skill uses the model's
+existing vision capability when present, otherwise it explicitly falls back to
+text, crops, or OCR instead of pretending the image was read.
 
 For investigations that span multiple turns, a local hardware case can retain
 hashed evidence, hypotheses, timeline events, baselines, experiments, and the

@@ -101,6 +101,8 @@ markers, and HTML therefore remain text rather than active markup.
 The analyzer script reads compatible CSV/text logs; a monitoring screenshot is not
 parsed as a sample set. The Skill may still inspect a user-supplied screenshot from
 HWiNFO, Afterburner, RTSS, or a vendor utility as limited single-point evidence.
+Read [visual-evidence.md](visual-evidence.md) before classifying or combining
+image evidence.
 
 Before interpreting it, identify:
 

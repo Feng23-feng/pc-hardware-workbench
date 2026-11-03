@@ -54,7 +54,7 @@ $skill = Get-Content -LiteralPath $skillPath -Raw -Encoding UTF8
 $referenceOnlyNotice = [regex]::Unescape('\u53C2\u6570\u4EC5\u4F9B\u53C2\u8003\uFF0C\u8BF7\u4EE5\u5B89\u5168\u4E3A\u7B2C\u4E00\u8981\u52A1\u3002')
 $englishReferenceOnlyNotice = "For reference only - put safety first."
 
-Assert-Contains $skill '(?m)^  version: "2\.0\.0"\r?$' "metadata.version should be 2.0.0."
+Assert-Contains $skill '(?m)^  version: "2\.1\.0"\r?$' "metadata.version should be 2.1.0."
 Assert-Contains $skill 'r23 collector' "The Skill maintenance summary collector revision disagrees with the collector code."
 Assert-Contains $skill 'while the power-path evidence is incomplete' "The Advice intensity route does not include incomplete power-path evidence."
 Assert-Contains $skill 'hidden or manufacturer-limited limit' "The Advice intensity summary is narrower than the hidden or manufacturer-limited scope."
@@ -454,6 +454,13 @@ $lhmFunctions = Read-RequiredFile `
     -Label "scripts/lhm/lhm-functions.ps1"
 Assert-Contains $lhmFunctions 'LibreHardwareMonitor' "LHM snapshot source identity is missing."
 Assert-Contains $lhmFunctions 'ConvertFrom-LhmSensorObjects' "LHM sensor conversion function is missing."
+$visualEvidence = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/integration/visual-evidence.md") `
+    -Label "references/integration/visual-evidence.md"
+Assert-Contains $visualEvidence 'Capability boundary' "Visual evidence capability boundary is missing."
+Assert-Contains $visualEvidence 'Visible facts' "Visual evidence extraction template is missing."
+Assert-Contains $visualEvidence 'prompt-injection' "Visual evidence prompt-injection boundary is missing."
+Assert-Contains $visualEvidence 'does not prove' "Visual evidence limitations are missing."
 $hardwareCase = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "references/integration/hardware-case.md") `
     -Label "references/integration/hardware-case.md"
