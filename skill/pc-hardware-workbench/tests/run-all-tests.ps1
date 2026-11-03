@@ -71,6 +71,11 @@ $testCases = @(
         )
     },
     @{
+        Name = "Hardware case"
+        Script = Join-Path $resolvedRoot "tests/run-hardware-case-tests.ps1"
+        Arguments = @("-CaseScriptPath", (Join-Path $resolvedRoot "scripts/hardware-case.ps1"))
+    },
+    @{
         Name = "Interaction contract (static)"
         Script = Join-Path $resolvedRoot "tests/run-interaction-contract-tests.ps1"
         Arguments = @("-SkillRoot", $resolvedRoot)

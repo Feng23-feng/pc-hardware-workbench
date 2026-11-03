@@ -54,6 +54,14 @@ telemetry analyzer can also emit validated chart data, and the bundled SVG
 renderer can turn up to three recognized series into a deterministic visual
 overview without adding an external plotting dependency.
 
+For investigations that span multiple turns, a local hardware case can retain
+hashed evidence, hypotheses, timeline events, baselines, experiments, and the
+next action without storing that private state in the public Skill package.
+
+The Skill entrypoint is intentionally a concise router. Mode-specific procedures
+and examples stay in references, so the Quick starting path remains below its
+25 KB budget while the model can load deeper guidance only when needed.
+
 Telemetry recognition includes Intel package sensors, AMD HWiNFO Tctl/Tdie
 temperature, CPU PPT package power, GPU core voltage, and CPU core maximum
 temperature where those columns are exposed.

@@ -389,6 +389,18 @@ $chartRenderer = Read-RequiredFile `
 Assert-Contains $chartRenderer 'Resolve-LocalOutputFilePath' "Chart renderer does not use the shared safe output-path helper."
 Assert-Contains $chartRenderer 'Only SVG output is supported' "Chart renderer output format is not constrained."
 Assert-Contains $chartRenderer 'does not prove hardware stability' "Chart renderer omits the evidence limitation."
+$hardwareCase = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/integration/hardware-case.md") `
+    -Label "references/integration/hardware-case.md"
+Assert-Contains $hardwareCase 'private local state' "Hardware case is not classified as private local state."
+Assert-Contains $hardwareCase 'Never convert `supported` into `verified`' "Hardware case permits unsupported confidence upgrades."
+Assert-Contains $hardwareCase 'does not authorise hardware changes' "Hardware case can be mistaken for execution permission."
+$hardwareCaseScript = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "scripts/hardware-case.ps1") `
+    -Label "scripts/hardware-case.ps1"
+Assert-Contains $hardwareCaseScript 'Assert-LocalReadFilePath' "Hardware case does not validate local evidence paths."
+Assert-Contains $hardwareCaseScript 'Get-FileHash' "Hardware case evidence has no content hash."
+Assert-Contains $hardwareCaseScript 'ConvertTo-CaseTimestamp' "Hardware case does not use explicit timestamps."
 $pathSafety = Get-Content -LiteralPath (Join-Path $resolvedRoot "scripts/local-path-safety.ps1") -Raw -Encoding UTF8
 $triageChecklist = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/triage/triage-checklist.md") -Raw -Encoding UTF8
 $telemetryAnalysis = $telemetry
@@ -572,8 +584,8 @@ Assert-Contains $coverageMap 'controlled integration revisions' "Coverage map st
 Assert-True ($coverageMap -notmatch 'byte-for-byte unchanged') "Coverage map still claims source files are byte-for-byte unchanged."
 
 $scenarioDoc = Get-Content -LiteralPath (Join-Path $resolvedRoot "tests/interaction-scenarios.md") -Raw -Encoding UTF8
-Assert-Contains $scenarioDoc 'no larger than 17 KB' "Interaction scenario budget does not match the 17 KB entrypoint budget."
-Assert-Contains $scenarioDoc 'no larger than 31 KB' "Interaction scenario budget does not match the 31 KB quick-mode budget."
+Assert-Contains $scenarioDoc 'no larger than 13 KB' "Interaction scenario budget does not match the 13 KB entrypoint budget."
+Assert-Contains $scenarioDoc 'no larger than 25 KB' "Interaction scenario budget does not match the 25 KB quick-mode budget."
 Assert-Contains $scenarioDoc 'Manual behavioral acceptance scenarios' "Interaction scenarios are still presented as automated behavior tests."
 Assert-Contains $scenarioDoc 'do not prove that every scenario behaves' "Interaction scenarios overstate static test coverage."
 Assert-Contains $scenarioDoc '(?m)^## 47\. A dynamic boost point does not define curve activation' "Interaction scenarios omit the dynamic GPU operating-point case."
@@ -614,22 +626,21 @@ if (-not (Test-Path -LiteralPath $auditTest -PathType Leaf)) {
 }
 
 $skillBytes = (Get-Item -LiteralPath $skillPath).Length
-if ($skillBytes -gt 17408) {
-    $failures.Add("SKILL.md exceeds the 17 KB entrypoint budget: $skillBytes bytes.")
+if ($skillBytes -gt 13312) {
+    $failures.Add("SKILL.md exceeds the 13 KB entrypoint budget: $skillBytes bytes.")
 }
 
 $quickFiles = @(
     "SKILL.md",
     "references/integration/tuning-modes.md",
-    "references/tuning/component-playbooks.md",
     "references/integration/fixed-workloads.md"
 )
 $quickBytes = 0
 foreach ($relative in $quickFiles) {
     $quickBytes += (Get-Item -LiteralPath (Join-Path $resolvedRoot $relative)).Length
 }
-if ($quickBytes -gt 31744) {
-    $failures.Add("Quick-mode initial load exceeds the 31 KB budget: $quickBytes bytes.")
+if ($quickBytes -gt 25600) {
+    $failures.Add("Quick-mode initial load exceeds the 25 KB budget: $quickBytes bytes.")
 }
 
 $oldValidation = Join-Path $resolvedRoot "references/integration/validation-and-telemetry.md"
