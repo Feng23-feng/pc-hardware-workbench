@@ -1,10 +1,10 @@
 {
   "name": "Skill Orrery / 文件仪象台",
-  "version": "1.1",
+  "version": "1.2",
   "status": "frozen",
-  "frozenAt": "2026-11-02",
+  "frozenAt": "2026-11-03",
   "source": "docs/skill-evolution/orrery/index.html",
-  "sha256": "E3AB008A57109F81A97B8B91909AAC6C3A8CA923A5C273A909029C58E0BEE677",
-  "bytes": 99810,
-  "changes": "Depth-aware orbit layering, smaller planets, and wider orbital spacing."
+  "sha256": "4DD7EFC6BF91F754BB80D8332ECB06DB66FC5A7262DB99A6422EB9BFBDAA8073",
+  "bytes": 102580,
+  "changes": "Depth-aware orbit layering, smaller planets, wider orbital spacing, and non-blocking orbit labels."
 }
