@@ -692,20 +692,35 @@ if ($Check) {
     if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
         $stale.Add("Missing generated manifest: $manifestPath") | Out-Null
     }
-    elseif ((Get-CanonicalText $manifestPath) -cne $manifestJson) {
-        $stale.Add("Generated manifest is stale. Run tools/build-skill-orrery.ps1.") | Out-Null
+    else {
+        $actualManifest = Get-CanonicalText $manifestPath
+        if ($actualManifest -cne $manifestJson) {
+            $actualManifestHash = Get-Sha256Hex -Bytes $utf8NoBom.GetBytes($actualManifest)
+            $expectedManifestHash = Get-Sha256Hex -Bytes $utf8NoBom.GetBytes($manifestJson)
+            $stale.Add("Generated manifest is stale (actual $actualManifestHash, expected $expectedManifestHash, aggregate $aggregateSha256). Run tools/build-skill-orrery.ps1.") | Out-Null
+        }
     }
     if (-not (Test-Path -LiteralPath $indexPath -PathType Leaf)) {
         $stale.Add("Missing generated current orrery: $indexPath") | Out-Null
     }
-    elseif ((Get-CanonicalText $indexPath) -cne $generatedHtml) {
-        $stale.Add("Generated current orrery is stale. Run tools/build-skill-orrery.ps1.") | Out-Null
+    else {
+        $actualIndex = Get-CanonicalText $indexPath
+        if ($actualIndex -cne $generatedHtml) {
+            $actualIndexHash = Get-Sha256Hex -Bytes $utf8NoBom.GetBytes($actualIndex)
+            $expectedIndexHash = Get-Sha256Hex -Bytes $pageBytes
+            $stale.Add("Generated current orrery is stale (actual $actualIndexHash, expected $expectedIndexHash, aggregate $aggregateSha256). Run tools/build-skill-orrery.ps1.") | Out-Null
+        }
     }
     if (-not (Test-Path -LiteralPath $frozenPath -PathType Leaf)) {
         $stale.Add("Missing generated current metadata: $frozenPath") | Out-Null
     }
-    elseif ((Get-CanonicalText $frozenPath) -cne $frozenJson) {
-        $stale.Add("Generated current metadata is stale. Run tools/build-skill-orrery.ps1.") | Out-Null
+    else {
+        $actualFrozen = Get-CanonicalText $frozenPath
+        if ($actualFrozen -cne $frozenJson) {
+            $actualFrozenHash = Get-Sha256Hex -Bytes $utf8NoBom.GetBytes($actualFrozen)
+            $expectedFrozenHash = Get-Sha256Hex -Bytes $utf8NoBom.GetBytes($frozenJson)
+            $stale.Add("Generated current metadata is stale (actual $actualFrozenHash, expected $expectedFrozenHash, aggregate $aggregateSha256). Run tools/build-skill-orrery.ps1.") | Out-Null
+        }
     }
     if ($stale.Count -gt 0) {
         $stale | ForEach-Object { Write-Host "- $_" -ForegroundColor Red }
