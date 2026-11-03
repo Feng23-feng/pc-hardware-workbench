@@ -348,7 +348,8 @@
     }
 
     .motion-toggle,
-    .back-button {
+    .back-button,
+    .selection-reset {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -363,7 +364,8 @@
     }
 
     .motion-toggle:hover,
-    .back-button:hover {
+    .back-button:hover,
+    .selection-reset:hover {
       border-color: #344557;
       color: var(--paper);
     }
@@ -383,13 +385,15 @@
       box-shadow: none;
     }
 
-    .back-button {
+    .back-button,
+    .selection-reset {
       display: none;
       padding-inline: 8px;
       font-size: 12px;
     }
 
-    .back-button.is-visible {
+    .back-button.is-visible,
+    .selection-reset.is-visible {
       display: inline-flex;
     }
 
@@ -1414,16 +1418,30 @@
         top: 10px;
         right: 10px;
         left: 10px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 8px;
       }
 
       .breadcrumb {
-        max-width: calc(100% - 80px);
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
       }
 
-      .motion-toggle {
-        min-height: 44px;
-        padding-inline: 10px;
+      .toolbar-actions {
+        width: 100%;
+        justify-content: flex-end;
+        gap: 6px;
+      }
+
+      .motion-toggle,
+      .back-button,
+      .selection-reset {
+        min-height: 40px;
+        padding-inline: 9px;
         font-size: 11px;
+        white-space: nowrap;
       }
 
       .camera-rail {
@@ -1704,6 +1722,7 @@
         <div class="stage-toolbar">
           <div class="breadcrumb" id="breadcrumb" aria-live="polite"></div>
           <div class="toolbar-actions">
+            <button class="selection-reset" id="selectionReset" type="button" title="清除选中文件和关联高亮">重置选择</button>
             <button class="back-button" id="backButton" type="button">返回星系</button>
             <button class="motion-toggle" id="motionToggle" type="button" aria-pressed="false">自动视角</button>
           </div>
@@ -1802,6 +1821,7 @@
     const breadcrumb = document.getElementById("breadcrumb");
     const dossier = document.getElementById("dossier");
     const backButton = document.getElementById("backButton");
+    const selectionReset = document.getElementById("selectionReset");
     const motionToggle = document.getElementById("motionToggle");
     const zoomIn = document.getElementById("zoomIn");
     const zoomOut = document.getElementById("zoomOut");
@@ -2319,6 +2339,7 @@
       state.groupMotionStart = state.motionTime;
       state.selected = null;
       stage.classList.remove("has-file-selection");
+      selectionReset.classList.remove("is-visible");
       state.hovered = null;
       state.paused = false;
       orbitLayer.style.opacity = "0";
@@ -2355,6 +2376,7 @@
       state.group = null;
       state.selected = null;
       stage.classList.remove("has-file-selection");
+      selectionReset.classList.remove("is-visible");
       state.hovered = null;
       state.paused = false;
       orbitLayer.style.opacity = "1";
@@ -2557,6 +2579,7 @@
         node.classList.toggle("is-related", file.related.includes(nodePath));
       });
       stage.classList.add("has-file-selection");
+      selectionReset.classList.add("is-visible");
       updateBreadcrumb();
       drawLinksFor(file);
       renderFileDetail(file);
@@ -2609,18 +2632,7 @@
         const groupButton = document.createElement("button");
         groupButton.type = "button";
         groupButton.textContent = GROUPS[state.group].name;
-        groupButton.addEventListener("click", () => {
-          state.selected = null;
-          stage.classList.remove("has-file-selection");
-          state.paused = false;
-          renderGroupOverview(state.group);
-          state.fileNodes.forEach(node => {
-            node.classList.remove("is-active", "is-related");
-          });
-          drawLocalOrbits(state.group);
-          updateBreadcrumb();
-          state.paused = false;
-        });
+        groupButton.addEventListener("click", clearFileSelection);
         breadcrumb.appendChild(groupButton);
       }
 
@@ -2630,6 +2642,20 @@
         selected.textContent = FILES_BY_PATH.get(state.selected).name;
         breadcrumb.appendChild(selected);
       }
+    }
+
+    function clearFileSelection() {
+      if (!state.group) return;
+      state.selected = null;
+      state.paused = false;
+      stage.classList.remove("has-file-selection");
+      selectionReset.classList.remove("is-visible");
+      state.fileNodes.forEach(node => {
+        node.classList.remove("is-active", "is-related");
+      });
+      drawLocalOrbits(state.group);
+      renderGroupOverview(state.group);
+      updateBreadcrumb();
     }
 
     function crumbSeparator() {
@@ -2771,6 +2797,7 @@
     }
 
     backButton.addEventListener("click", closeGroup);
+    selectionReset.addEventListener("click", clearFileSelection);
     motionToggle.addEventListener("click", () => {
       state.cameraDrift = !state.cameraDrift;
       motionToggle.setAttribute("aria-pressed", String(state.cameraDrift));
@@ -2880,13 +2907,7 @@
     document.addEventListener("keydown", event => {
       if (event.key !== "Escape") return;
       if (state.selected) {
-        state.selected = null;
-        stage.classList.remove("has-file-selection");
-        state.paused = false;
-        state.fileNodes.forEach(node => node.classList.remove("is-active", "is-related"));
-        drawLocalOrbits(state.group);
-        renderGroupOverview(state.group);
-        updateBreadcrumb();
+        clearFileSelection();
       } else if (state.group) {
         closeGroup();
       }

@@ -256,6 +256,11 @@ if ($errors.Count -eq 0) {
             $orreryHtml -notmatch 'opacity:\s*\.3;') {
             $errors.Add("Orrery does not provide the selected-state unrelated-label de-emphasis treatment.") | Out-Null
         }
+        if ($orreryHtml -notmatch 'id="selectionReset"[^>]*>\u91CD\u7F6E\u9009\u62E9</button>' -or
+            $orreryHtml -notmatch 'function clearFileSelection\(\)' -or
+            $orreryHtml -notmatch 'selectionReset\.addEventListener\("click", clearFileSelection\)') {
+            $errors.Add("Orrery does not provide a visible reset-selection control.") | Out-Null
+        }
         if ($orreryHtml -notmatch 'rel="icon"') {
             $errors.Add("Orrery has no favicon declaration.") | Out-Null
         }
