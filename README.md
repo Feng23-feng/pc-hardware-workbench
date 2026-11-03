@@ -121,11 +121,15 @@ This project combines human hardware experience with AI-assisted engineering:
 
 ```text
 skill/pc-hardware-workbench/   Codex Skill, scripts, references, tests
+adapters/dsh/                  DeepSeek Harness adapter entry and package template
 portable/                      Standalone Windows PowerShell tool
 tools/validate-skill.py        Structural validation used by CI
 tools/validate-skill.ps1       Wrapper: bootstrap/offline validation
+tools/build-release.ps1        Reproducible Codex, DSH, and portable package builder
 tools/check-portable-sync.ps1  Skill -> portable shared-script drift check
 tools/check-package-sync.ps1   Skill tree vs shipped package drift check
+tools/check-version-consistency.ps1  Version drift guard
+tools/check-skill-evolution-site.ps1 Site content and JavaScript check
 .github/workflows/ci.yml       Windows CI (whitespace audit + tests + validator)
 LICENSE                        MIT
 CHANGELOG.md                   Version history
@@ -296,6 +300,23 @@ Later validation runs are offline and need no temporary PyYAML download. The
 wrapper runs both the repository validator and the official
 `skill-creator/scripts/quick_validate.py`; the official validator receives a
 temporary structural copy with UTF-8 BOMs removed.
+
+## Build local release candidates
+
+From a clean tracked worktree:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass `
+  -File .\tools\build-release.ps1 `
+  -RepositoryRoot . `
+  -Label test `
+  -ValidatorPath "C:\Users\<user>\Documents\Codex\tools\skill-creator-validator\validate-skill.ps1"
+```
+
+The builder reads only Git-tracked files. It emits Codex share, DeepSeek Harness,
+and portable ZIPs with release notes, `BUILD-INFO.json`, per-file manifests, and
+outer SHA256 lists. It extracts and rechecks the Skill trees and runs the
+packaged portable self-test. Existing release targets are never overwritten.
 
 ## Contributing
 
