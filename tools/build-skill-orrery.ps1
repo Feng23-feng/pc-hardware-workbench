@@ -48,6 +48,16 @@ function Get-Sha256Hex {
     }
 }
 
+function ConvertTo-LfText {
+    param([string]$Text)
+    return $Text.Replace("`r`n", "`n").Replace("`r", "`n")
+}
+
+function Get-CanonicalText {
+    param([string]$Path)
+    return ConvertTo-LfText ([System.IO.File]::ReadAllText($Path, $utf8Strict))
+}
+
 function Get-Sha256ForFile {
     param([string]$Path)
     return Get-Sha256Hex -Bytes ([System.IO.File]::ReadAllBytes($Path))
@@ -203,7 +213,7 @@ foreach ($relativePath in $relativeFiles) {
     $sectorId = Get-SectorId $relativePath
     $categoryId = Get-CategoryId $relativePath
     $filePath = Join-Path $skillRoot $relativePath
-    $bytes = [System.IO.File]::ReadAllBytes($filePath)
+    $bytes = $utf8NoBom.GetBytes((Get-CanonicalText $filePath))
     $inboundCount = $inbound[$relativePath].Count
     $outboundCount = $outbound[$relativePath].Count
     $baseWeight = Get-BaseWeight -RelativePath $relativePath -SectorId $sectorId
@@ -657,6 +667,7 @@ $currentStyle = @'
 '@
 $generatedHtml = $generatedHtml.Replace("</head>", $currentStyle + "`n</head>")
 
+$generatedHtml = ConvertTo-LfText $generatedHtml
 $pageBytes = $utf8NoBom.GetBytes($generatedHtml)
 $pageSha256 = Get-Sha256Hex -Bytes $pageBytes
 $frozenObject = [pscustomobject][ordered]@{
@@ -681,19 +692,19 @@ if ($Check) {
     if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
         $stale.Add("Missing generated manifest: $manifestPath") | Out-Null
     }
-    elseif ([System.IO.File]::ReadAllText($manifestPath, $utf8Strict) -cne $manifestJson) {
+    elseif ((Get-CanonicalText $manifestPath) -cne $manifestJson) {
         $stale.Add("Generated manifest is stale. Run tools/build-skill-orrery.ps1.") | Out-Null
     }
     if (-not (Test-Path -LiteralPath $indexPath -PathType Leaf)) {
         $stale.Add("Missing generated current orrery: $indexPath") | Out-Null
     }
-    elseif ([System.IO.File]::ReadAllText($indexPath, $utf8Strict) -cne $generatedHtml) {
+    elseif ((Get-CanonicalText $indexPath) -cne $generatedHtml) {
         $stale.Add("Generated current orrery is stale. Run tools/build-skill-orrery.ps1.") | Out-Null
     }
     if (-not (Test-Path -LiteralPath $frozenPath -PathType Leaf)) {
         $stale.Add("Missing generated current metadata: $frozenPath") | Out-Null
     }
-    elseif ([System.IO.File]::ReadAllText($frozenPath, $utf8Strict) -cne $frozenJson) {
+    elseif ((Get-CanonicalText $frozenPath) -cne $frozenJson) {
         $stale.Add("Generated current metadata is stale. Run tools/build-skill-orrery.ps1.") | Out-Null
     }
     if ($stale.Count -gt 0) {

@@ -243,7 +243,9 @@ if ($errors.Count -eq 0) {
         }
 
         $frozen = Get-Content -Raw -LiteralPath $frozenPath -Encoding UTF8 | ConvertFrom-Json
-        $orreryBytes = [IO.File]::ReadAllBytes($orreryPath)
+        $orreryText = [IO.File]::ReadAllText($orreryPath, [Text.UTF8Encoding]::new($false, $true))
+        $orreryText = $orreryText.Replace("`r`n", "`n").Replace("`r", "`n")
+        $orreryBytes = [Text.UTF8Encoding]::new($false).GetBytes($orreryText)
         $sha256 = [Security.Cryptography.SHA256]::Create()
         $orreryHash = -join (
             $sha256.ComputeHash($orreryBytes) |
