@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$SkillRoot = (Split-Path -Parent $PSScriptRoot),
+    [string]$SkillRoot,
 
     [ValidateSet("Text", "Json")]
     [string]$Format = "Text",
@@ -15,6 +15,9 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+if ([string]::IsNullOrWhiteSpace($SkillRoot)) {
+    $SkillRoot = Split-Path -Parent $PSScriptRoot
+}
 $invariant = [System.Globalization.CultureInfo]::InvariantCulture
 $pathSafetyHelper = Join-Path $PSScriptRoot "local-path-safety.ps1"
 if (-not (Test-Path -LiteralPath $pathSafetyHelper -PathType Leaf)) {
@@ -226,7 +229,7 @@ if ($ProbeLhm -and -not $AllowLiveCollector) {
     Add-DoctorCheck -Name "LibreHardwareMonitor" -Status "PERMISSION_REQUIRED" -Detail "ProbeLhm requires explicit -AllowLiveCollector"
 }
 elseif (-not $ProbeLhm) {
-    Add-DoctorCheck -Name "LibreHardwareMonitor" -Status "SKIP" -Detail "Use -ProbeLhm -AllowLiveCollector to inspect the local WMI adapter"
+    Add-DoctorCheck -Name "LibreHardwareMonitor" -Status "SKIP" -Detail "Use -ProbeLhm -AllowLiveCollector to inspect the local Web/WMI adapter"
 }
 else {
     $lhmProcess = Get-Process -ErrorAction SilentlyContinue |

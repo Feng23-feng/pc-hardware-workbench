@@ -1,9 +1,12 @@
 [CmdletBinding()]
 param(
-    [string]$RepositoryRoot = (Split-Path -Parent $PSScriptRoot)
+    [string]$RepositoryRoot
 )
 
 $ErrorActionPreference = "Stop"
+if ([string]::IsNullOrWhiteSpace($RepositoryRoot)) {
+    $RepositoryRoot = Split-Path -Parent $PSScriptRoot
+}
 $errors = New-Object System.Collections.Generic.List[string]
 $siteRoot = Join-Path $RepositoryRoot "docs\skill-evolution"
 $indexPath = Join-Path $siteRoot "index.html"

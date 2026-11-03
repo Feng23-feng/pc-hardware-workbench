@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$RepositoryRoot = (Split-Path -Parent $PSScriptRoot),
+    [string]$RepositoryRoot,
 
     [string]$OutputRoot,
 
@@ -10,6 +10,9 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+if ([string]::IsNullOrWhiteSpace($RepositoryRoot)) {
+    $RepositoryRoot = Split-Path -Parent $PSScriptRoot
+}
 $invariant = [System.Globalization.CultureInfo]::InvariantCulture
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 if ([string]::IsNullOrWhiteSpace($OutputRoot)) {

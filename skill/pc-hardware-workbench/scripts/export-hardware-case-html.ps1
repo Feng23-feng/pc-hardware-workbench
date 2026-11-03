@@ -6,12 +6,15 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$OutputPath,
 
-    [string]$CaseScriptPath = (Join-Path $PSScriptRoot "hardware-case.ps1"),
+    [string]$CaseScriptPath,
 
     [switch]$IncludeArtifacts
 )
 
 $ErrorActionPreference = "Stop"
+if ([string]::IsNullOrWhiteSpace($CaseScriptPath)) {
+    $CaseScriptPath = Join-Path $PSScriptRoot "hardware-case.ps1"
+}
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 $pathSafetyHelper = Join-Path $PSScriptRoot "local-path-safety.ps1"
 if (-not (Test-Path -LiteralPath $pathSafetyHelper -PathType Leaf)) {
