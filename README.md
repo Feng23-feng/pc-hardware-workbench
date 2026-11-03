@@ -11,7 +11,7 @@ changes under the user's control.
 
 ## Project status
 
-- Current Skill candidate: **1.5.2**
+- Current Skill candidate: **1.6.0**
 - Automated non-live tests: passing
 - Live hardware collection: opt-in only
 - Broad release sign-off: pending
@@ -49,7 +49,10 @@ a recovery path. This project keeps those decisions explicit:
 The triage route also covers everyday slowdowns, game stutter, common Windows crash
 records, laptop battery versus adapter evidence, and a short peripheral/network
 handoff. Monitoring screenshots are accepted only as limited single-point evidence;
-CSV logs remain the basis for statistics and time-window comparisons.
+CSV logs remain the basis for statistics and time-window comparisons. The
+telemetry analyzer can also emit validated chart data, and the bundled SVG
+renderer can turn up to three recognized series into a deterministic visual
+overview without adding an external plotting dependency.
 
 Telemetry recognition includes Intel package sensors, AMD HWiNFO Tctl/Tdie
 temperature, CPU PPT package power, GPU core voltage, and CPU core maximum

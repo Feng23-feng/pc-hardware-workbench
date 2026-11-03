@@ -54,7 +54,7 @@ $skill = Get-Content -LiteralPath $skillPath -Raw -Encoding UTF8
 $referenceOnlyNotice = [regex]::Unescape('\u53C2\u6570\u4EC5\u4F9B\u53C2\u8003\uFF0C\u8BF7\u4EE5\u5B89\u5168\u4E3A\u7B2C\u4E00\u8981\u52A1\u3002')
 $englishReferenceOnlyNotice = "For reference only - put safety first."
 
-Assert-Contains $skill '(?m)^  version: "1\.5\.2"\r?$' "metadata.version should be 1.5.2."
+Assert-Contains $skill '(?m)^  version: "1\.6\.0"\r?$' "metadata.version should be 1.6.0."
 Assert-Contains $skill 'r23 collector' "The Skill maintenance summary collector revision disagrees with the collector code."
 Assert-Contains $skill 'while the power-path evidence is incomplete' "The Advice intensity route does not include incomplete power-path evidence."
 Assert-Contains $skill 'hidden or manufacturer-limited limit' "The Advice intensity summary is narrower than the hidden or manufacturer-limited scope."
@@ -368,18 +368,27 @@ Assert-Contains $telemetry 'describe dAppCDN as network-dependent and stop retry
 Assert-Contains $telemetry 'say that "U\.S\." is a server location rather than a download restriction' "A first-capture monitoring route must explain the U.S. server-location meaning."
 Assert-Contains $telemetry 'name DWG FastView, LanSweeper, OPEN, and Try Now as advertisements' "A first-capture monitoring route must identify download-page advertisements."
 Assert-Contains $telemetry 'warn that a raw HWiNFO CSV may carry appended device metadata' "A first-capture monitoring route must warn about raw CSV metadata."
+Assert-Contains $telemetry 'render-telemetry-chart\.ps1' "Telemetry guidance does not route to the chart renderer."
+Assert-Contains $telemetry 'chart is an evidence view, not a new measurement source' "Telemetry guidance treats a chart as independent evidence."
 
 $analyzer = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "scripts/analyze-telemetry.ps1") `
     -Label "scripts/analyze-telemetry.ps1"
-Assert-Contains $analyzer 'AnalyzerVersion = "1\.1\.6"' "Analyzer behavior changed without an AnalyzerVersion bump."
+Assert-Contains $analyzer 'AnalyzerVersion = "1\.2\.0"' "Analyzer behavior changed without an AnalyzerVersion bump."
 Assert-Contains $analyzer 'MaxInputMegabytes' "Telemetry analyzer has no large-file safety limit."
+Assert-Contains $analyzer 'ChartData' "Telemetry analyzer does not expose validated chart data."
 Assert-Contains $analyzer 'ConvertTo-MarkdownCell \$result\.FileName' "Telemetry filename is not passed through Markdown sanitization."
 Assert-Contains $analyzer 'ConvertTo-MarkdownCell \$warning' "Telemetry warnings are not passed through Markdown sanitization."
 Assert-Contains $analyzer 'offline or cloud-placeholder file' "Telemetry analyzer may trigger cloud-file hydration."
 Assert-Contains $analyzer 'local-path-safety\.ps1' "Telemetry analyzer does not use the shared local-path helper."
 Assert-Contains $analyzer 'Presented FPS 1% low' "Telemetry analyzer omits Presented 1% low FPS."
 Assert-Contains $analyzer 'Low-FPS sensor column' "Telemetry analyzer omits all-zero low-FPS warnings."
+$chartRenderer = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "scripts/render-telemetry-chart.ps1") `
+    -Label "scripts/render-telemetry-chart.ps1"
+Assert-Contains $chartRenderer 'Resolve-LocalOutputFilePath' "Chart renderer does not use the shared safe output-path helper."
+Assert-Contains $chartRenderer 'Only SVG output is supported' "Chart renderer output format is not constrained."
+Assert-Contains $chartRenderer 'does not prove hardware stability' "Chart renderer omits the evidence limitation."
 $pathSafety = Get-Content -LiteralPath (Join-Path $resolvedRoot "scripts/local-path-safety.ps1") -Raw -Encoding UTF8
 $triageChecklist = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/triage/triage-checklist.md") -Raw -Encoding UTF8
 $telemetryAnalysis = $telemetry

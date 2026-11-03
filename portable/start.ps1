@@ -34,7 +34,7 @@ try {
 function Write-Title {
     Clear-Host
     Write-Host "==============================================" -ForegroundColor Cyan
-    Write-Host "       电脑硬件便携工具包 1.5.2" -ForegroundColor Cyan
+    Write-Host "       电脑硬件便携工具包 1.6.0" -ForegroundColor Cyan
     Write-Host "==============================================" -ForegroundColor Cyan
     Write-Host "本地、只读、无网络；不会修改 BIOS、频率、电压、功耗或风扇。" -ForegroundColor DarkGray
     Write-Host "目标：教你识别、验证和恢复，让下次可以自己完成调校闭环。" -ForegroundColor DarkGray
@@ -2554,7 +2554,8 @@ function Test-PortableKit {
         (Join-Path $scriptsRoot "system-native.cs"),
         (Join-Path $scriptsRoot "storage-native.cs"),
         (Join-Path $scriptsRoot "display-native.cs"),
-        (Join-Path $scriptsRoot "analyze-telemetry.ps1")
+        (Join-Path $scriptsRoot "analyze-telemetry.ps1"),
+        (Join-Path $scriptsRoot "render-telemetry-chart.ps1")
     )
 
     $missing = @($required | Where-Object { -not (Test-Path -LiteralPath $_ -PathType Leaf) })

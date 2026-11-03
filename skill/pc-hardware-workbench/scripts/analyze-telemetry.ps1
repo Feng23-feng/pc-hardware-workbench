@@ -3,7 +3,7 @@ param(
     [Parameter(Mandatory = $true, Position = 0)]
     [string]$Path,
 
-    [ValidateSet("Markdown", "Json")]
+    [ValidateSet("Markdown", "Json", "ChartData")]
     [string]$Format = "Markdown",
 
     [ValidateRange(0.0, [double]::MaxValue)]
@@ -26,7 +26,10 @@ param(
     [switch]$HideFileName,
 
     [ValidateRange(1, 4096)]
-    [int]$MaxInputMegabytes = 512
+    [int]$MaxInputMegabytes = 512,
+
+    [ValidateRange(20, 5000)]
+    [int]$MaxChartPoints = 480
 )
 
 $ErrorActionPreference = "Stop"
@@ -514,7 +517,8 @@ function Get-SeriesStatistics {
     param(
         [string]$Label,
         [string]$Column,
-        [double[]]$Values
+        [double[]]$Values,
+        [string]$Unit = ""
     )
 
     if ($Values.Count -eq 0) {
@@ -549,7 +553,104 @@ function Get-SeriesStatistics {
         Median = $median
         P95 = $p95
         Max = $sorted[$sorted.Count - 1]
+        Unit = $Unit
     }
+}
+
+function Get-MetricRowValue {
+    param(
+        [object]$Row,
+        [object]$Metric
+    )
+
+    if ($null -eq $Row -or $null -eq $Metric) {
+        return $null
+    }
+
+    $sourceColumn = [string]$Metric.SourceColumn
+    if ([string]::IsNullOrWhiteSpace($sourceColumn)) {
+        return $null
+    }
+    $property = $Row.PSObject.Properties[$sourceColumn]
+    if ($null -eq $property) {
+        return $null
+    }
+
+    if ([string]$Metric.Metric -eq "FPS derived from frame time") {
+        $frameTime = Convert-MetricValue -Value $property.Value -Column $sourceColumn -ExpectedUnit "ms"
+        if (
+            $null -ne $frameTime -and
+            (Test-MetricValuePlausible -MetricLabel "Frame time" -Value ([double]$frameTime))
+        ) {
+            return 1000.0 / [double]$frameTime
+        }
+        return $null
+    }
+
+    $unitProperty = $Metric.PSObject.Properties["Unit"]
+    $expectedUnit = if ($null -ne $unitProperty) { [string]$unitProperty.Value } else { "" }
+    $number = if ([string]::IsNullOrWhiteSpace($expectedUnit)) {
+        ConvertTo-Number -Value $property.Value
+    }
+    else {
+        Convert-MetricValue -Value $property.Value -Column $sourceColumn -ExpectedUnit $expectedUnit
+    }
+
+    if (
+        $null -ne $number -and
+        (Test-MetricValuePlausible -MetricLabel ([string]$Metric.Metric) -Value ([double]$number))
+    ) {
+        return [double]$number
+    }
+    return $null
+}
+
+function Get-ChartSampleIndexes {
+    param(
+        [object[]]$Points,
+        [int]$MaximumPoints
+    )
+
+    $count = $Points.Count
+    if ($count -le $MaximumPoints) {
+        return [int[]](0..($count - 1))
+    }
+
+    $indexes = New-Object System.Collections.Generic.HashSet[int]
+    $indexes.Add(0) | Out-Null
+    $indexes.Add($count - 1) | Out-Null
+
+    $bucketCount = [Math]::Max(1, [Math]::Floor(($MaximumPoints - 2) / 3))
+    $bucketSize = [Math]::Max(1, [Math]::Ceiling($count / [double]$bucketCount))
+    for ($bucketStart = 0; $bucketStart -lt $count; $bucketStart += $bucketSize) {
+        $bucketEnd = [Math]::Min($count - 1, $bucketStart + $bucketSize - 1)
+        $minimumIndex = $bucketStart
+        $maximumIndex = $bucketStart
+        $minimumValue = $null
+        $maximumValue = $null
+
+        for ($index = $bucketStart; $index -le $bucketEnd; $index++) {
+            $value = $Points[$index].V
+            if ($null -eq $value) {
+                continue
+            }
+            if ($null -eq $minimumValue -or $value -lt $minimumValue) {
+                $minimumValue = [double]$value
+                $minimumIndex = $index
+            }
+            if ($null -eq $maximumValue -or $value -gt $maximumValue) {
+                $maximumValue = [double]$value
+                $maximumIndex = $index
+            }
+        }
+
+        $indexes.Add($bucketStart) | Out-Null
+        $indexes.Add($minimumIndex) | Out-Null
+        $indexes.Add($maximumIndex) | Out-Null
+    }
+
+    $sortedIndexes = @($indexes | Sort-Object)
+    return [int[]]$sortedIndexes
 }
 
 function Format-Number {
@@ -1194,7 +1295,7 @@ if ($fpsColumn) {
         }
     }
 
-    $statistics = Get-SeriesStatistics -Label "FPS" -Column $fpsColumn -Values @($values)
+    $statistics = Get-SeriesStatistics -Label "FPS" -Column $fpsColumn -Values @($values) -Unit "FPS"
     if ($null -ne $statistics) {
         $series.Add($statistics) | Out-Null
         $usedColumns.Add($fpsColumn) | Out-Null
@@ -1263,7 +1364,7 @@ foreach ($spec in $specs) {
         }
     }
 
-    $statistics = Get-SeriesStatistics -Label $spec.Metric -Column $column -Values @($values)
+    $statistics = Get-SeriesStatistics -Label $spec.Metric -Column $column -Values @($values) -Unit $spec.Unit
     if ($null -ne $statistics) {
         $series.Add($statistics) | Out-Null
         $usedColumns.Add($column) | Out-Null
@@ -1291,7 +1392,7 @@ foreach ($spec in $supplementalSpecs) {
         continue
     }
 
-    $statistics = Get-SeriesStatistics -Label $spec.Metric -Column $column -Values $values
+    $statistics = Get-SeriesStatistics -Label $spec.Metric -Column $column -Values $values -Unit $spec.Unit
     if ($null -ne $statistics) {
         $series.Add($statistics) | Out-Null
         $usedColumns.Add($column) | Out-Null
@@ -1329,7 +1430,7 @@ if (-not $fpsColumn -and $frameTimeColumn) {
             }
         }
     }
-    $statistics = Get-SeriesStatistics -Label "FPS derived from frame time" -Column $frameTimeColumn -Values @($derivedFps)
+    $statistics = Get-SeriesStatistics -Label "FPS derived from frame time" -Column $frameTimeColumn -Values @($derivedFps) -Unit "FPS"
     if ($null -ne $statistics) {
         $series.Insert(0, $statistics)
     }
@@ -1361,7 +1462,7 @@ foreach ($pattern in $IncludeColumn) {
             }
         }
 
-        $statistics = Get-SeriesStatistics -Label $column -Column $column -Values @($values)
+        $statistics = Get-SeriesStatistics -Label $column -Column $column -Values @($values) -Unit (Get-ColumnUnit -Column $column)
         if ($null -ne $statistics) {
             $series.Add($statistics) | Out-Null
             $usedColumns.Add($column) | Out-Null
@@ -1391,7 +1492,7 @@ else {
 }
 
 $result = [pscustomobject]@{
-    AnalyzerVersion = "1.1.6"
+    AnalyzerVersion = "1.2.0"
     FileName = if ($HideFileName) { "[hidden]" } else { [System.IO.Path]::GetFileName($resolvedPath) }
     HeaderLine = $headerLineIndex + 1
     InvalidRows = $invalidDataRows
@@ -1403,6 +1504,75 @@ $result = [pscustomobject]@{
     DuplicateHeaderNames = @($duplicateHeaderNames.ToArray())
     Metrics = @($series.ToArray())
     Warnings = @($warnings.ToArray())
+}
+
+if ($Format -eq "ChartData") {
+    $timeBasedAxis = -not $usedTimeFallback -and $parsedTimeCount -gt 0
+    $chartSeries = New-Object System.Collections.Generic.List[object]
+    foreach ($metric in $series) {
+        $points = New-Object System.Collections.Generic.List[object]
+        for ($offset = 0; $offset -lt $selectedRows.Count; $offset++) {
+            $row = $selectedRows[$offset]
+            $globalIndex = $startIndex + $offset
+            $timeValue = if ($timeBasedAxis) {
+                $candidateTime = $timeOffsets[$globalIndex]
+                if ([double]::IsNaN($candidateTime)) {
+                    $null
+                }
+                else {
+                    [Math]::Round([double]$candidateTime, 3)
+                }
+            }
+            else {
+                $offset + 1
+            }
+
+            $metricValue = Get-MetricRowValue -Row $row -Metric $metric
+            $points.Add([pscustomobject]@{
+                T = $timeValue
+                V = if ($null -eq $metricValue) { $null } else { [Math]::Round([double]$metricValue, 6) }
+            }) | Out-Null
+        }
+
+        $sampleIndexes = @(Get-ChartSampleIndexes -Points $points.ToArray() -MaximumPoints $MaxChartPoints)
+        $sampledPoints = New-Object System.Collections.Generic.List[object]
+        foreach ($sampleIndex in $sampleIndexes) {
+            $sampledPoints.Add($points[$sampleIndex]) | Out-Null
+        }
+
+        $chartSeries.Add([pscustomobject]@{
+            Metric = $metric.Metric
+            SourceColumn = $metric.SourceColumn
+            Unit = $metric.Unit
+            Samples = $metric.Samples
+            Min = $metric.Min
+            Mean = $metric.Mean
+            Median = $metric.Median
+            P95 = $metric.P95
+            Max = $metric.Max
+            OriginalSamples = $points.Count
+            Downsampled = $sampledPoints.Count -lt $points.Count
+            Points = @($sampledPoints.ToArray())
+        }) | Out-Null
+    }
+
+    $chartResult = [pscustomobject]@{
+        ChartDataVersion = "1.0"
+        AnalyzerVersion = $result.AnalyzerVersion
+        FileName = $result.FileName
+        HeaderLine = $result.HeaderLine
+        TotalRows = $result.TotalRows
+        AnalyzedRows = $result.AnalyzedRows
+        RequestedWindow = $result.RequestedWindow
+        Window = $result.Window
+        TimeBased = $timeBasedAxis
+        XAxisLabel = if ($timeBasedAxis) { "seconds" } else { "samples" }
+        MaxChartPoints = $MaxChartPoints
+        Series = @($chartSeries.ToArray())
+        Warnings = @($result.Warnings)
+    }
+    $chartResult | ConvertTo-Json -Depth 10
+    return
 }
 
 if ($Format -eq "Json") {

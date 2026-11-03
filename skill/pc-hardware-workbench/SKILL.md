@@ -1,9 +1,9 @@
 ---
 name: pc-hardware-workbench
-description: Integrate Windows-focused read-only hardware inventory, evidence-gated troubleshooting, guided overclocking, and upgrade-purchase decisions through one routed workflow. Other operating systems receive manual guidance only. Keep tuning-only requests free of unsolicited purchase advice; never modify hardware settings automatically and never bypass permissions or anti-cheat.
+description: Integrate Windows-focused read-only hardware inventory, telemetry analysis and SVG visualization, evidence-gated troubleshooting, guided overclocking, and upgrade-purchase decisions through one routed workflow. Other operating systems receive manual guidance only. Keep tuning-only requests free of unsolicited purchase advice; never modify hardware settings automatically and never bypass permissions or anti-cheat.
 metadata:
-  version: "1.5.2"
-  short-description: "One routed entry for hardware inventory, triage, tuning, and purchase decisions"
+  version: "1.6.0"
+  short-description: "One routed entry for hardware inventory, telemetry visuals, triage, tuning, and purchase decisions"
 ---
 
 # PC Hardware Workbench
@@ -103,6 +103,8 @@ Localize the fault before changing settings. State the likely layer, supporting/
 Use this shared subflow when the user mainly wants to summarize or interpret an existing monitoring log. Read [telemetry-analysis.md](references/integration/telemetry-analysis.md), confirm that software and a record exist, and collect only the workload/window context needed to interpret the data. A user-supplied monitoring screenshot may be treated as limited single-point evidence, never as a CSV-equivalent sample.
 
 Analysis alone is read-only and does not require the tuning entry gate. Do not call a telemetry summary proof of stability, a diagnosis, or permission to change settings. If the user requests a diagnosis or tuning change, hand off through [cross-mode-handoffs.md](references/integration/cross-mode-handoffs.md); if it is part of an active experiment, link the summary to the same experiment card and continue that flow.
+
+When the user asks to see a supported CSV visually, or when a completed baseline or experiment is clearer with a chart, use `scripts/render-telemetry-chart.ps1` as documented in [telemetry-analysis.md](references/integration/telemetry-analysis.md). Use a new SVG output path, report what the chart shows and its limits, and keep the original CSV as the source evidence. Do not force a chart for small answers, screenshots, or data that is too sparse.
 
 ### Tune
 

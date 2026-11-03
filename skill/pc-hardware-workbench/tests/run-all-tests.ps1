@@ -63,6 +63,14 @@ $testCases = @(
         Arguments = @("-AnalyzerPath", (Join-Path $resolvedRoot "scripts/analyze-telemetry.ps1"))
     },
     @{
+        Name = "Telemetry chart"
+        Script = Join-Path $resolvedRoot "tests/run-telemetry-chart-tests.ps1"
+        Arguments = @(
+            "-AnalyzerPath", (Join-Path $resolvedRoot "scripts/analyze-telemetry.ps1"),
+            "-RendererPath", (Join-Path $resolvedRoot "scripts/render-telemetry-chart.ps1")
+        )
+    },
+    @{
         Name = "Interaction contract (static)"
         Script = Join-Path $resolvedRoot "tests/run-interaction-contract-tests.ps1"
         Arguments = @("-SkillRoot", $resolvedRoot)

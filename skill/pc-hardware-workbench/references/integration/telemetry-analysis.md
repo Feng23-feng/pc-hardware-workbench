@@ -28,6 +28,22 @@ JSON output:
 powershell -NoProfile -ExecutionPolicy Bypass -File "<suite-folder>\scripts\analyze-telemetry.ps1" -Path "<telemetry.csv>" -Format Json
 ```
 
+Machine-readable chart input:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File "<suite-folder>\scripts\analyze-telemetry.ps1" -Path "<telemetry.csv>" -Format ChartData
+```
+
+Generate a dependency-free SVG overview:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File "<suite-folder>\scripts\render-telemetry-chart.ps1" -Path "<telemetry.csv>" -OutputPath "<new-chart.svg>" -WarmupSeconds 60 -DurationSeconds 300
+```
+
+The renderer uses the analyzer's validated chart data, selects up to three useful series by default, preserves missing-value gaps, and does not overwrite an existing output file. Use `-MaxSeries` to change the number from 1 to 8, `-MaxPoints` to control downsampling, and `-IncludeColumn` for an explicit custom numeric series. SVG is the first no-dependency format; it can be displayed directly or converted later if needed.
+
+The chart is an evidence view, not a new measurement source. Keep the original CSV and its `Window`, field selection, units, sampling limitations, and warnings with the image. If the data is too sparse or no recognized metric exists, do not force a chart.
+
 Time-window selection when the file has timestamps:
 
 ```powershell
