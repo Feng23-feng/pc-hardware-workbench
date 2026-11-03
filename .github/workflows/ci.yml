@@ -56,6 +56,13 @@ jobs:
             -File .\tools\check-skill-evolution-site.ps1
           exit $LASTEXITCODE
 
+      - name: Check version consistency
+        shell: powershell
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass `
+            -File .\tools\check-version-consistency.ps1
+          exit $LASTEXITCODE
+
       - name: Reject trailing whitespace in shipped trees
         shell: pwsh
         run: |
