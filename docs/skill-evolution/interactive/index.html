@@ -5766,6 +5766,313 @@
       }
     }
 
+    /*
+      Editorial spacing pass:
+      a single reading column, one primary guided action, advanced layers kept quiet.
+    */
+    #dse-root {
+      font-family: "Segoe UI Variable Text", "Segoe UI", "Noto Sans SC", "Microsoft YaHei UI", sans-serif;
+      scroll-behavior: smooth;
+    }
+
+    #dse-root .dse-hero {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-width: 920px;
+      min-height: min(800px, 82svh);
+      margin: 0 auto;
+      padding: 70px 0 92px;
+      border: 0;
+      text-align: center;
+    }
+
+    #dse-root .dse-hero .dse-header-copy {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    #dse-root .dse-hero .dse-kicker {
+      margin: 0 0 18px;
+      color: #8f96a0;
+      font-family: "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI", sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .015em;
+      text-transform: none;
+    }
+
+    #dse-root .dse-hero h1 {
+      max-width: 760px;
+      margin: 0 auto;
+      color: #f4f6f8;
+      font-family: "Segoe UI Variable Display", "Segoe UI", "Microsoft YaHei UI", sans-serif;
+      font-size: clamp(52px, 5.5vw, 70px);
+      font-weight: 570;
+      line-height: 1.1;
+      letter-spacing: -.012em;
+      text-wrap: balance;
+    }
+
+    #dse-root .dse-hero .dse-subtitle {
+      max-width: 620px;
+      margin: 24px auto 0;
+      color: #9aa1aa;
+      font-size: 16px;
+      line-height: 1.8;
+      letter-spacing: 0;
+    }
+
+    #dse-root .dse-hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    #dse-root .dse-hero-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 22px;
+      color: #c9ced4;
+      background: #111519;
+      border: 1px solid #353d45;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 560;
+      text-decoration: none;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-hero-action.primary {
+      color: #c9ced4;
+      background: transparent;
+      border-color: #353d45;
+    }
+
+    #dse-root .dse-hero-action:hover,
+    #dse-root .dse-hero-action:focus-visible {
+      color: #eef1f3;
+      border-color: #56616c;
+      background: #171c21;
+    }
+
+    #dse-root .dse-hero-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      margin-top: 24px;
+      color: #7f8790;
+      font-size: 11px;
+      line-height: 1.5;
+      letter-spacing: 0;
+    }
+
+    #dse-root .dse-hero-status span,
+    #dse-root .dse-hero-status a {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    #dse-root .dse-hero-status span::before {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #707984;
+      content: "";
+    }
+
+    #dse-root .dse-hero-status span:nth-child(2)::before {
+      background: var(--dse-amber);
+    }
+
+    #dse-root .dse-hero-status a {
+      min-height: 36px;
+      color: #aab1b9;
+      text-decoration: none;
+    }
+
+    #dse-root .dse-guided {
+      max-width: 980px;
+      margin: 96px auto 0;
+      padding: 0;
+      border: 0;
+    }
+
+    #dse-root .dse-guided-head {
+      display: block;
+      max-width: 680px;
+      margin: 0 auto 38px;
+      text-align: center;
+    }
+
+    #dse-root .dse-guided h2 {
+      margin: 0;
+      color: #f1f3f5;
+      font-family: "Segoe UI Variable Display", "Segoe UI", "Microsoft YaHei UI", sans-serif;
+      font-size: 42px;
+      font-weight: 560;
+      line-height: 1.16;
+      letter-spacing: -.012em;
+    }
+
+    #dse-root .dse-guided-head > p {
+      max-width: 610px;
+      margin: 15px auto 0;
+      color: #969ea7;
+      font-size: 16px;
+      line-height: 1.78;
+    }
+
+    #dse-root .dse-guided-stage {
+      margin: 0;
+      padding: 30px;
+      background:
+        radial-gradient(circle at 86% 8%, rgba(129, 207, 223, .065), transparent 34%),
+        linear-gradient(155deg, rgba(18, 22, 27, .98), rgba(8, 10, 13, .98));
+      border: 1px solid #292f36;
+      border-radius: 18px;
+      box-shadow:
+        0 28px 76px rgba(0, 0, 0, .3),
+        inset 0 1px 0 rgba(255, 255, 255, .03);
+    }
+
+    #dse-root .dse-guided-progress {
+      color: #8faeb5;
+      font-size: 10px;
+      letter-spacing: .02em;
+    }
+
+    #dse-root .dse-guided-copy h3 {
+      margin-top: 12px;
+      color: #edf0f2;
+      font-size: 26px;
+      font-weight: 570;
+      line-height: 1.25;
+      letter-spacing: -.015em;
+    }
+
+    #dse-root .dse-guided-copy > p:last-child {
+      max-width: 620px;
+      color: #9aa1aa;
+      font-size: 15px;
+      line-height: 1.78;
+    }
+
+    #dse-root #dse-guided-scenario {
+      min-height: 46px;
+      font-size: 13px;
+    }
+
+    #dse-root .dse-guided-next {
+      min-height: 48px;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+
+    #dse-root .dse-guided-reason {
+      max-width: 980px;
+      margin: 26px auto 0;
+      border-color: #252b31;
+    }
+
+    #dse-root .dse-advanced-shell {
+      max-width: 980px;
+      margin: 76px auto 0;
+      border-top: 0;
+    }
+
+    #dse-root .dse-advanced-shell > summary {
+      min-height: 70px;
+      border-top: 1px solid #252b31;
+      border-bottom: 1px solid #252b31;
+    }
+
+    @media (max-width: 760px) {
+      #dse-root .dse-hero {
+        min-height: min(700px, 86svh);
+        padding: 42px 0 62px;
+      }
+
+      #dse-root .dse-hero h1 {
+        max-width: 540px;
+        font-size: 40px;
+        line-height: 1.12;
+      }
+
+      #dse-root .dse-hero .dse-subtitle {
+        max-width: 540px;
+        margin-top: 18px;
+        font-size: 15px;
+        line-height: 1.78;
+      }
+
+      #dse-root .dse-hero-actions {
+        display: flex;
+      }
+
+      #dse-root .dse-hero-action {
+        width: auto;
+        min-width: 168px;
+      }
+
+      #dse-root .dse-hero-status {
+        flex-direction: column;
+        gap: 7px;
+        margin-top: 20px;
+      }
+
+      #dse-root .dse-hero-status a {
+        min-height: 44px;
+      }
+
+      #dse-root .dse-guided {
+        margin-top: 68px;
+      }
+
+      #dse-root .dse-guided-head {
+        margin-bottom: 28px;
+        text-align: left;
+      }
+
+      #dse-root .dse-guided h2 {
+        font-size: 30px;
+      }
+
+      #dse-root .dse-guided-head > p {
+        margin: 12px 0 0;
+        font-size: 15px;
+        line-height: 1.75;
+      }
+
+      #dse-root .dse-guided-stage {
+        padding: 20px;
+        border-radius: 14px;
+      }
+
+      #dse-root .dse-guided-copy h3 {
+        font-size: 22px;
+      }
+
+      #dse-root .dse-guided-copy > p:last-child {
+        font-size: 14px;
+        line-height: 1.72;
+      }
+
+      #dse-root .dse-guided-reason {
+        margin-top: 20px;
+      }
+
+      #dse-root .dse-advanced-shell {
+        margin-top: 58px;
+      }
+    }
+
     @media (max-width: 420px) {
       #dse-root .dse-chips {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -5788,29 +6095,28 @@
   </style>
 
   <div class="dse-shell">
-    <header class="dse-header">
+    <header class="dse-header dse-hero">
       <div class="dse-header-copy">
-        <p class="dse-kicker">电脑硬件工作台 / 项目地图</p>
-        <h1><span class="dse-title-primary">电脑硬件工作台。</span><span class="dse-title-sub">先看证据，再决定是否调校。</span></h1>
-        <p class="dse-subtitle">读取配置、统一遥测、核对官方资料、解读截图与照片，并规划升级。2.4.0 在明确同意后，只读访问已运行 LHM 的本机回环 Web；每个判断先经过来源、时间、恢复路径和证据门禁，不自动修改硬件。</p>
-        <p class="dse-evidence-note"><strong>显存证据门禁</strong>先确认具体显卡、显存类型与容量、驱动 / vBIOS、固定负载和请求 / 观测口径，不从单一时钟读数推断带宽。</p>
-      </div>
-      <aside class="dse-intro-window" aria-label="工具介绍与当前状态">
-        <p class="dse-intro-kicker">当前状态</p>
-        <div class="dse-chips" aria-label="当前版本状态">
-          <span class="dse-chip">工作台 2.4.0 · 本地候选</span>
-          <span class="dse-chip next">人工签署：PENDING</span>
+        <p class="dse-kicker">交互实验室</p>
+        <h1>从一个问题开始。</h1>
+        <p class="dse-subtitle">读取配置、统一遥测、核对资料、解读截图与照片，并规划升级。在你同意后可读取正在运行的监控数据；不会自动修改硬件。</p>
+        <nav class="dse-hero-actions" aria-label="开始演示">
+          <a class="dse-hero-action primary" href="#dse-guided-title">开始演示</a>
+        </nav>
+        <div class="dse-hero-status" aria-label="当前版本状态">
+          <span>工作台 2.4.0 · 本地候选</span>
+          <span>人工签署：PENDING</span>
+          <a href="../#dse-archive-title">返回完整版本档案 →</a>
         </div>
-      </aside>
+      </div>
     </header>
 
     <section class="dse-guided" aria-labelledby="dse-guided-title">
       <header class="dse-guided-head">
         <div>
-          <p class="dse-guided-kicker">GUIDED LAB / 新手演示</p>
-          <h2 id="dse-guided-title">先选一个问题，一次只走一步</h2>
+          <h2 id="dse-guided-title">一次只处理一个问题。</h2>
         </div>
-        <p>默认只展示一个场景。先理解现在缺什么，再看证据或展开高级分支。</p>
+        <p>先选一个场景；每次只显示一条信息和下一步，需要时再展开详细原因。</p>
       </header>
 
       <div class="dse-guided-stage">
@@ -6508,9 +6814,9 @@
         : "index";
       const isInteractiveView = siteView === "interactive";
       if (isInteractiveView) {
-        root.querySelector(".dse-kicker").textContent = "交互演示";
-        root.querySelector("h1").textContent = "先看看这套流程怎么判断";
-        root.querySelector(".dse-subtitle").textContent = "选一个最像你的情况，看看需要先确认什么。这里只做演示，不会读取或修改你的电脑。";
+        root.querySelector(".dse-kicker").textContent = "交互实验室";
+        root.querySelector("h1").textContent = "从一个问题开始。";
+        root.querySelector(".dse-subtitle").textContent = "选一个温度、掉帧或调校问题，只看一个场景和下一步。这里不会读取或修改你的电脑。";
       }
       const coreLane = document.getElementById("dse-core-lane");
       const prototypeLane = document.getElementById("dse-prototype-lane");

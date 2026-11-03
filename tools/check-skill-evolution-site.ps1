@@ -86,7 +86,10 @@ if ($errors.Count -eq 0) {
     }
     foreach ($marker in @(
         'class="dse-hero-actions"',
+        'class="dse-hero-status"',
         'id="dse-overview-title"',
+        'class="dse-about-grid"',
+        'class="dse-preview-card"',
         'id="dse-how-title"',
         'id="dse-candidate-title"',
         'class="dse-explore"'
@@ -95,6 +98,9 @@ if ($errors.Count -eq 0) {
             $errors.Add("Index homepage hierarchy is missing $marker.") | Out-Null
         }
     }
+    if ([regex]::Matches($indexHtml, '<a class="dse-hero-action\b').Count -ne 1) {
+        $errors.Add("Index must expose exactly one primary hero action.") | Out-Null
+    }
     if ($interactiveHtml -notmatch 'data-demo-mode="evidence"') {
         $errors.Add("Interactive page has no evidence-system mode.") | Out-Null
     }
@@ -102,6 +108,7 @@ if ($errors.Count -eq 0) {
         $errors.Add("Interactive evidence-system panel copy is missing.") | Out-Null
     }
     foreach ($marker in @(
+        'class="dse-hero-status"',
         'class="dse-guided"',
         'id="dse-guided-scenario"',
         'id="dse-guided-next"',
@@ -110,6 +117,9 @@ if ($errors.Count -eq 0) {
         if ($interactiveHtml -notmatch [regex]::Escape($marker)) {
             $errors.Add("Interactive progressive-disclosure hierarchy is missing $marker.") | Out-Null
         }
+    }
+    if ([regex]::Matches($interactiveHtml, '<a class="dse-hero-action\b').Count -ne 1) {
+        $errors.Add("Interactive lab must expose exactly one hero action.") | Out-Null
     }
     if ($interactiveHtml -match '<details class="dse-advanced-shell" id="dse-advanced-shell" open') {
         $errors.Add("Interactive advanced content must be collapsed by default.") | Out-Null
