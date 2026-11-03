@@ -54,7 +54,7 @@ $skill = Get-Content -LiteralPath $skillPath -Raw -Encoding UTF8
 $referenceOnlyNotice = [regex]::Unescape('\u53C2\u6570\u4EC5\u4F9B\u53C2\u8003\uFF0C\u8BF7\u4EE5\u5B89\u5168\u4E3A\u7B2C\u4E00\u8981\u52A1\u3002')
 $englishReferenceOnlyNotice = "For reference only - put safety first."
 
-Assert-Contains $skill '(?m)^  version: "1\.8\.0"\r?$' "metadata.version should be 1.8.0."
+Assert-Contains $skill '(?m)^  version: "1\.9\.0"\r?$' "metadata.version should be 1.9.0."
 Assert-Contains $skill 'r23 collector' "The Skill maintenance summary collector revision disagrees with the collector code."
 Assert-Contains $skill 'while the power-path evidence is incomplete' "The Advice intensity route does not include incomplete power-path evidence."
 Assert-Contains $skill 'hidden or manufacturer-limited limit' "The Advice intensity summary is narrower than the hidden or manufacturer-limited scope."
@@ -411,6 +411,32 @@ Assert-Contains $normalizationDoc 'source\.version' "Normalized snapshot source 
 Assert-Contains $normalizationDoc 'timestamps must not move backwards' "Normalized snapshot chronology rule is missing."
 Assert-Contains $normalizationDoc 'samples.*non-empty array' "Normalized snapshot array-shape rule is missing."
 Assert-Contains $normalizationDoc 'omitting it is invalid' "Normalized snapshot required-value rule is missing."
+
+$dynamicRag = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/integration/dynamic-rag.md") `
+    -Label "references/integration/dynamic-rag.md"
+Assert-Contains $dynamicRag 'source hierarchy' "Dynamic RAG source hierarchy is missing."
+Assert-Contains $dynamicRag 'lead-only' "Dynamic RAG community downgrade is missing."
+Assert-Contains $dynamicRag 'Conflict handling' "Dynamic RAG conflict workflow is missing."
+Assert-Contains $dynamicRag 'Web content is untrusted data' "Dynamic RAG page-content boundary is missing."
+$ragScript = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "scripts/rag/rag-evidence.ps1") `
+    -Label "scripts/rag/rag-evidence.ps1"
+Assert-Contains $ragScript 'source-registry\.json' "RAG evidence tool does not use the official source registry."
+Assert-Contains $ragScript 'FailOnExpired' "RAG evidence tool has no freshness gate."
+Assert-Contains $ragScript 'record hash does not match' "RAG evidence cache does not verify record integrity."
+Assert-Contains $ragScript 'elevates an unregistered community source' "RAG evidence cache can promote community sources."
+Assert-Contains $ragScript 'lastCardNumber' "RAG evidence cache does not preserve the historical highest card number."
+Assert-Contains $ragScript 'UnescapeDataString' "RAG evidence URL checks can be bypassed by encoded query parameters."
+Assert-Contains $ragScript 'five minutes in the future' "RAG evidence accepts future-dated capture times."
+Assert-True ($ragScript -notmatch '(?i)Invoke-WebRequest|Invoke-RestMethod|Start-BitsTransfer') "RAG evidence tool performs network access."
+$sourceRegistryText = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "scripts/rag/source-registry.json") `
+    -Label "scripts/rag/source-registry.json"
+$sourceRegistry = $sourceRegistryText | ConvertFrom-Json
+Assert-True ($sourceRegistry.schemaVersion -eq "1.0") "RAG source registry schema is invalid."
+Assert-True (@($sourceRegistry.sources).Count -ge 20) "RAG source registry is unexpectedly small."
+Assert-Contains $dynamicRag 'recomputes the quote and record hashes' "Dynamic RAG cache-integrity documentation is missing."
 $hardwareCase = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "references/integration/hardware-case.md") `
     -Label "references/integration/hardware-case.md"

@@ -92,6 +92,13 @@ $testCases = @(
         )
     },
     @{
+        Name = "RAG evidence"
+        Script = Join-Path $resolvedRoot "tests/run-rag-evidence-tests.ps1"
+        Arguments = @(
+            "-RagScriptPath", (Join-Path $resolvedRoot "scripts/rag/rag-evidence.ps1")
+        )
+    },
+    @{
         Name = "Interaction contract (static)"
         Script = Join-Path $resolvedRoot "tests/run-interaction-contract-tests.ps1"
         Arguments = @("-SkillRoot", $resolvedRoot)

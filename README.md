@@ -11,7 +11,7 @@ changes under the user's control.
 
 ## Project status
 
-- Current Skill candidate: **1.8.0**
+- Current Skill candidate: **1.9.0**
 - Automated non-live tests: passing
 - Live hardware collection: opt-in only
 - Broad release sign-off: pending
@@ -57,6 +57,12 @@ missing-value breaks, and explicit `-IncludeColumn` selections take priority.
 Structured sensor snapshots and CSV records can also be normalized into one
 versioned JSON document with source provenance, sampling consistency, mixed-
 source warnings, and chart-ready series before rendering.
+
+For current vendor facts, the Skill uses a local RAG evidence layer instead of
+trusting search snippets. Official domains are registered, source cards carry
+publish/fetch/expiry scope, community material is marked `lead-only`, and expired
+or conflicting evidence remains visible as historical evidence rather than being
+silently rewritten.
 
 For investigations that span multiple turns, a local hardware case can retain
 hashed evidence, hypotheses, timeline events, baselines, experiments, and the

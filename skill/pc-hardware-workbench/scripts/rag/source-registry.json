@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "1.0",
+  "updatedAt": "2026-11-03",
+  "defaultFreshnessDays": {
+    "A": 90,
+    "B": 30,
+    "C": 14
+  },
+  "sources": [
+    { "publisher": "Intel", "tier": "A", "domains": ["intel.com"] },
+    { "publisher": "AMD", "tier": "A", "domains": ["amd.com"] },
+    { "publisher": "NVIDIA", "tier": "A", "domains": ["nvidia.com"] },
+    { "publisher": "Microsoft", "tier": "A", "domains": ["microsoft.com"] },
+    { "publisher": "ASUS", "tier": "A", "domains": ["asus.com"] },
+    { "publisher": "MSI", "tier": "A", "domains": ["msi.com"] },
+    { "publisher": "Gigabyte", "tier": "A", "domains": ["gigabyte.com"] },
+    { "publisher": "ASRock", "tier": "A", "domains": ["asrock.com"] },
+    { "publisher": "Lenovo", "tier": "A", "domains": ["lenovo.com"] },
+    { "publisher": "Dell", "tier": "A", "domains": ["dell.com"] },
+    { "publisher": "HP", "tier": "A", "domains": ["hp.com"] },
+    { "publisher": "Acer", "tier": "A", "domains": ["acer.com"] },
+    { "publisher": "Corsair", "tier": "A", "domains": ["corsair.com"] },
+    { "publisher": "Seasonic", "tier": "A", "domains": ["seasonic.com"] },
+    { "publisher": "Crucial", "tier": "A", "domains": ["crucial.com"] },
+    { "publisher": "Micron", "tier": "A", "domains": ["micron.com"] },
+    { "publisher": "Samsung", "tier": "A", "domains": ["samsung.com"] },
+    { "publisher": "Western Digital", "tier": "A", "domains": ["westerndigital.com"] },
+    { "publisher": "Seagate", "tier": "A", "domains": ["seagate.com"] },
+    { "publisher": "Kingston", "tier": "A", "domains": ["kingston.com"] },
+    { "publisher": "G.SKILL", "tier": "A", "domains": ["gskill.com"] },
+    { "publisher": "TeamGroup", "tier": "A", "domains": ["teamgroupinc.com"] },
+    { "publisher": "Sapphire", "tier": "A", "domains": ["sapphiretech.com"] },
+    { "publisher": "PowerColor", "tier": "A", "domains": ["powercolor.com"] },
+    { "publisher": "ZOTAC", "tier": "A", "domains": ["zotac.com"] },
+    { "publisher": "XFX", "tier": "A", "domains": ["xfxforce.com"] },
+    { "publisher": "EVGA", "tier": "A", "domains": ["evga.com"] }
+  ]
+}
