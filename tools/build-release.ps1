@@ -78,7 +78,7 @@ $gitCommit = (& git -C $RepositoryRoot rev-parse HEAD).Trim()
 if ($LASTEXITCODE -ne 0) {
     Stop-WithBuildError "Could not read Git commit."
 }
-$gitStatus = @(& git -C $RepositoryRoot status --porcelain)
+$gitStatus = @(& git -C $RepositoryRoot status --porcelain --untracked-files=no)
 if ($LASTEXITCODE -ne 0) {
     Stop-WithBuildError "Could not read Git status."
 }
