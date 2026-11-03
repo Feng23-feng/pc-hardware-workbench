@@ -95,5 +95,6 @@ PowerShell 的 JSON 输出可能随运行环境和对象类型产生格式差异
 ## 关联
 
 - 可复用视觉规则：本机 `~/.codex/skills/orbital-visualization/SKILL.md`
+- GitHub 发布故障处理：`docs/skill-evolution/GITHUB-PUBLISH-TROUBLESHOOTING.md`
 - 当前生成器：`tools/build-skill-orrery.ps1`
 - 当前冻结元数据：`docs/skill-evolution/orrery/FROZEN.json`
