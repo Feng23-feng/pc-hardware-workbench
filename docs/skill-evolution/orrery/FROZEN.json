@@ -1,10 +1,12 @@
 {
     "name":  "当前文件星系 · Skill 2.4.0",
     "version":  "2.4.0",
-    "status":  "generated",
+    "status":  "frozen",
+    "frozenAt":  "2026-11-04",
     "generatedFrom":  "git ls-files -- skill/pc-hardware-workbench",
     "source":  "docs/skill-evolution/orrery/index.html",
     "manifest":  "docs/skill-evolution/orrery/data/manifest.json",
+    "changes":  "Symmetric free-orbit camera, smooth cached orbital motion, restored natural cadence, and persistent file/relation labels.",
     "fileCount":  86,
     "aggregateSha256":  "EFA294799FF5FCD79F1FF756FE99646C45CC52763EE4FECDCD7708F947B3CA56",
     "sha256":  "646857F6C72EBFD814C9B25F680515043CC5420EF2F55F77F77C289BD7C33585",

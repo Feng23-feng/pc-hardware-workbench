@@ -249,8 +249,11 @@ if ($errors.Count -eq 0) {
             $sha256.ComputeHash($orreryBytes) |
                 ForEach-Object { $_.ToString("X2") }
         )
-        if ($frozen.version -ne "2.4.0" -or $frozen.status -ne "generated" -or [int]$frozen.fileCount -ne 86) {
+        if ($frozen.version -ne "2.4.0" -or $frozen.status -ne "frozen" -or [int]$frozen.fileCount -ne 86) {
             $errors.Add("Orrery FROZEN.json version/status/file count is unexpected.") | Out-Null
+        }
+        if ($frozen.frozenAt -ne "2026-11-04" -or [string]::IsNullOrWhiteSpace($frozen.changes)) {
+            $errors.Add("Orrery FROZEN.json is missing its freeze date or change summary.") | Out-Null
         }
         if ([int]$frozen.bytes -ne $orreryBytes.Length) {
             $errors.Add("Orrery FROZEN.json byte count is stale.") | Out-Null
