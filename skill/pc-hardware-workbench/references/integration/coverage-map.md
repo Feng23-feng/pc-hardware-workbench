@@ -13,6 +13,7 @@ This integrated suite preserves the generic references and scripts from three in
 | dynamic RAG evidence | 1.9.0 | `scripts/rag/`, `references/integration/dynamic-rag.md` | Official source registry, tiered source hierarchy, minimal queries, append-only evidence cards, publication/fetch/expiry scope, conflict references, community lead downgrade, and freshness checks without script-driven network access |
 | LHM live adapter | 2.0.0 | `scripts/lhm/`, `references/integration/lhm-adapter.md` | Explicit-consent, bounded read-only WMI collection from an already-running LibreHardwareMonitor instance; sensor-type mapping, structured snapshots, provenance, duplicate handling, and no self-install, self-start, elevation, network access, persistence, or hardware writes |
 | visual evidence | 2.1.0 | `references/integration/visual-evidence.md` | Runtime-owned vision capability, screenshot and photo evidence classes, visible-versus-inferred separation, OCR/crop/redaction fallback, prompt-injection isolation, case hashing, and cross-evidence limits |
+| Skill Doctor | 2.2.0 | `scripts/doctor.ps1`, `references/integration/skill-doctor.md` | Read-only installation and runtime diagnostics for version, required files, PowerShell syntax/encoding, output writability, CIM, PowerShell 7, optional sensors, validator, and runtime-owned vision limits, with no install, elevation, start, repair, or network action |
 | personal-hardware-triage | excluded | none | Personal device history intentionally excluded |
 
 ## Controlled source revisions

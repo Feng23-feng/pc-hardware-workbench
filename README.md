@@ -11,7 +11,7 @@ changes under the user's control.
 
 ## Project status
 
-- Current Skill candidate: **2.1.0**
+- Current Skill candidate: **2.2.0**
 - Automated non-live tests: passing
 - Live hardware collection: opt-in only
 - Broad release sign-off: pending
@@ -73,6 +73,11 @@ Visual evidence rules cover monitoring screenshots, BIOS photos, Stop Codes,
 Debug LEDs, Device Manager, and Event Viewer images. The Skill uses the model's
 existing vision capability when present, otherwise it explicitly falls back to
 text, crops, or OCR instead of pretending the image was read.
+
+The read-only Skill Doctor checks installation, script syntax/encoding, output
+writability, PowerShell versions, CIM, validator availability, and optional
+monitoring tools. It reports `PERMISSION_REQUIRED` separately from `BROKEN` and
+never installs, elevates, starts software, or repairs files.
 
 For investigations that span multiple turns, a local hardware case can retain
 hashed evidence, hypotheses, timeline events, baselines, experiments, and the

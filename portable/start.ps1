@@ -2554,6 +2554,7 @@ function Test-PortableKit {
         (Join-Path $scriptsRoot "system-native.cs"),
         (Join-Path $scriptsRoot "storage-native.cs"),
         (Join-Path $scriptsRoot "display-native.cs"),
+        (Join-Path $scriptsRoot "doctor.ps1"),
         (Join-Path $scriptsRoot "analyze-telemetry.ps1"),
         (Join-Path $scriptsRoot "normalize-telemetry.ps1"),
         (Join-Path $scriptsRoot "render-telemetry-chart.ps1"),

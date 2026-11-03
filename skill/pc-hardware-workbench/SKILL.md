@@ -2,7 +2,7 @@
 name: pc-hardware-workbench
 description: Integrate Windows-focused read-only hardware inventory, telemetry charting, evidence-gated troubleshooting, guided overclocking, and upgrade-purchase decisions through one routed workflow. Other systems receive manual guidance only. Keep tuning-only requests free of unsolicited purchase advice; never modify hardware automatically or bypass permissions or anti-cheat.
 metadata:
-  version: "2.1.0"
+  version: "2.2.0"
   short-description: "One routed entry for hardware inventory, telemetry visuals, triage, tuning, and purchase decisions"
 ---
 
@@ -246,8 +246,10 @@ or next action appropriate to the route.
 
 ## Maintenance
 
-The suite preserves the generic reference sets and the r23 collector. Personal
-device histories are excluded. Read
+For install or runtime health, read
+[skill-doctor.md](references/integration/skill-doctor.md) and run
+`scripts/doctor.ps1`; it repairs nothing. The suite preserves generic references
+and r23 collector; personal histories excluded. Read
 [coverage-map.md](references/integration/coverage-map.md) when redistributing and
 [installation-coexistence.md](references/integration/installation-coexistence.md)
 when multiple hardware Skills are installed.

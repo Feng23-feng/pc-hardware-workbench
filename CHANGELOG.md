@@ -1,5 +1,13 @@
 ﻿# 电脑硬件工作台版本记录
 
+## 2.2.0 — 2026-11-03
+
+- 新增只读 Skill Doctor，检查版本、核心文件、PowerShell 语法、脚本编码、输出目录、CIM、PowerShell 7、nvidia-smi、validator 和 LHM 可选状态；
+- Doctor 使用 `AVAILABLE`、`OPTIONAL_MISSING`、`PERMISSION_REQUIRED`、`BROKEN`、`UNKNOWN`、`SKIP` 状态，避免把权限拒绝误报为硬件或安装损坏；
+- LHM 检查默认 SKIP，只有 `-ProbeLhm -AllowLiveCollector` 才读取进程和 WMI 命名空间；
+- Doctor 不安装、不启动、不提权、不修复、不联网，也不声称能检测模型视觉或 OCR 能力；
+- 新增正常、缺文件、错误输出目录、未授权 LHM、文本/JSON 和只读边界回归测试。
+
 ## 2.1.0 — 2026-11-03
 
 - 新增多模态视觉证据规则，覆盖监控截图、BIOS/UEFI 照片、Debug LED、蓝屏代码、设备管理器和事件查看器；
