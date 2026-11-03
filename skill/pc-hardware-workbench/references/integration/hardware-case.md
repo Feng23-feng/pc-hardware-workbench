@@ -29,8 +29,10 @@ case-folder/
 ```
 
 `case.json` is the source of truth. `artifacts/` contains only files that the
-user explicitly chose to import. The original source path and SHA-256 are
-recorded when a file is referenced.
+user explicitly chose to import. For an imported file, the case keeps the
+original filename, capture time, relative imported path, and SHA-256; it does not
+retain the private source path. For an external reference, the source path and
+SHA-256 are recorded instead.
 
 ## Commands
 
@@ -43,7 +45,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "<skill>\scripts\hardware-ca
 Add evidence and optionally copy it into the case:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File "<skill>\scripts\hardware-case.ps1" -Action AddEvidence -CasePath "<private-case-folder>\case.json" -EvidenceType telemetry -EvidencePath "<telemetry.csv>" -Summary "<what this file proves>" -ImportArtifact
+powershell -NoProfile -ExecutionPolicy Bypass -File "<skill>\scripts\hardware-case.ps1" -Action AddEvidence -CasePath "<private-case-folder>\case.json" -EvidenceType telemetry -EvidencePath "<telemetry.csv>" -EvidenceCapturedAt "2026-11-03T12:30:00+08:00" -Summary "<what this file proves>" -ImportArtifact
 ```
 
 Add and update a hypothesis:
@@ -57,7 +59,7 @@ Record timeline, baseline, experiment, and next action:
 
 ```powershell
 ... -Action AddTimeline -EventType driver -OccurredAt "2026-11-03T12:30:00+08:00" -Summary "<event>"
-... -Action AddBaseline -Workload "<fixed workload>" -Conditions "<driver, power mode, cooling>" -EvidenceId "E-001" -Summary "<baseline metrics>"
+... -Action AddBaseline -BaselineStatus valid -Workload "<fixed workload>" -Conditions "<driver, power mode, cooling>" -EvidenceId "E-001" -Summary "<baseline metrics>"
 ... -Action AddExperiment -Change "<one variable>" -Expected "<expected behavior>" -Result "<result>" -Decision "<keep/revert/continue/stop>"
 ... -Action SetNextAction -NextAction "<single next action>"
 ```
@@ -77,8 +79,13 @@ Read or validate:
 - A baseline records its workload, conditions, evidence ID, and date. Do not reuse
   it after a material hardware, firmware, driver, power-limit, or workload change
   as if it were still directly comparable.
+- Use `-BaselineStatus valid|provisional|none`. A valid baseline requires
+  evidence; use `none` when the evidence only shows mixed or unusable phases.
 - Preserve history when a state changes. Mark old baselines as historical rather
   than deleting or rewriting them.
+- `Validate` checks JSON structure, evidence-file presence, path containment,
+  evidence SHA-256, and cross-references. It does not prove that the evidence
+  interpretation is correct.
 - The case may contain private paths and hardware details. Export only a
   separately reviewed, redacted summary.
 - The case records state; it does not authorise hardware changes.

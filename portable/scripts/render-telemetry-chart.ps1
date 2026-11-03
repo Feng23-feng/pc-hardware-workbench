@@ -254,6 +254,9 @@ foreach ($seriesItem in $selectedSeries) {
     $rawYRange = $yMaximum - $yMinimum
     $yPad = if ($rawYRange -gt 0) { $rawYRange * .08 } else { [Math]::Max(1, [Math]::Abs($yMaximum) * .05) }
     $plotYMinimum = $yMinimum - $yPad
+    if ($yMinimum -ge 0 -and $plotYMinimum -lt 0) {
+        $plotYMinimum = 0
+    }
     $plotYMaximum = $yMaximum + $yPad
     $plotYRange = $plotYMaximum - $plotYMinimum
     if ($plotYRange -le 0) {

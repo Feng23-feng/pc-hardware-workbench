@@ -77,6 +77,7 @@ try {
     Assert-True ($svg.Contains(">FPS<")) "FPS panel is missing."
     Assert-True ($svg.Contains("<polyline")) "Rendered chart contains no line series."
     Assert-True (-not ($svg -match "NaN|Infinity")) "Rendered SVG contains a non-finite value."
+    Assert-True (-not ($svg -match ">\-\d+(?:\.\d+)?</text>")) "A non-negative telemetry series received a negative axis label."
 
     $existingHash = (Get-FileHash -LiteralPath $svgPath -Algorithm SHA256).Hash
     $previousErrorPreference = $ErrorActionPreference

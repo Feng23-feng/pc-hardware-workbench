@@ -36,6 +36,8 @@ param(
 
     [switch]$ImportArtifact,
 
+    [datetimeoffset]$EvidenceCapturedAt = [datetimeoffset]::Now,
+
     [string]$Hypothesis,
 
     [string]$HypothesisId,
@@ -59,6 +61,9 @@ param(
     [string]$Conditions,
 
     [string]$EvidenceId,
+
+    [ValidateSet("valid", "provisional", "none")]
+    [string]$BaselineStatus = "provisional",
 
     [string]$ExperimentId,
 
@@ -93,6 +98,21 @@ function Stop-WithCaseInputError {
 function ConvertTo-CaseTimestamp {
     param([datetimeoffset]$Value)
     return $Value.ToString("o", $invariant)
+}
+
+function Test-DateTimeOffsetValue {
+    param([string]$Value)
+    try {
+        [datetimeoffset]::Parse(
+            $Value,
+            $invariant,
+            [System.Globalization.DateTimeStyles]::RoundtripKind
+        ) | Out-Null
+        return $true
+    }
+    catch {
+        return $false
+    }
 }
 
 function Get-NormalizedList {
@@ -231,6 +251,104 @@ function Assert-CaseShape {
     }
 }
 
+function Assert-CaseIntegrity {
+    param(
+        [Parameter(Mandatory = $true)][object]$Case,
+        [Parameter(Mandatory = $true)][string]$CaseFile
+    )
+
+    $caseRoot = [IO.Path]::GetFullPath((Split-Path -Parent $CaseFile))
+    $caseRootPrefix = $caseRoot.TrimEnd('\', '/') + [IO.Path]::DirectorySeparatorChar
+    $evidenceIds = New-Object System.Collections.Generic.HashSet[string]
+    $hypothesisIds = New-Object System.Collections.Generic.HashSet[string]
+    foreach ($item in @($Case.hypotheses)) {
+        $hypothesisIds.Add([string]$item.Id) | Out-Null
+    }
+
+    foreach ($evidence in @($Case.evidence)) {
+        $evidenceIds.Add([string]$evidence.Id) | Out-Null
+        if ($null -eq $evidence.PSObject.Properties["CapturedAt"] -or
+            -not (Test-DateTimeOffsetValue ([string]$evidence.CapturedAt))) {
+            throw "Evidence '$($evidence.Id)' has an invalid CapturedAt timestamp."
+        }
+
+        $recordedHash = if ($null -ne $evidence.PSObject.Properties["Sha256"]) {
+            [string]$evidence.Sha256
+        }
+        else {
+            ""
+        }
+        $importedPath = if ($null -ne $evidence.PSObject.Properties["ImportedPath"]) {
+            [string]$evidence.ImportedPath
+        }
+        else {
+            ""
+        }
+        $sourcePath = if ($null -ne $evidence.PSObject.Properties["SourcePath"]) {
+            [string]$evidence.SourcePath
+        }
+        else {
+            ""
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace($importedPath)) {
+            if ([IO.Path]::IsPathRooted($importedPath)) {
+                throw "Evidence '$($evidence.Id)' ImportedPath must be relative."
+            }
+            $storedPath = [IO.Path]::GetFullPath((Join-Path $caseRoot $importedPath))
+            if (-not $storedPath.StartsWith($caseRootPrefix, [StringComparison]::OrdinalIgnoreCase)) {
+                throw "Evidence '$($evidence.Id)' ImportedPath escapes the case directory."
+            }
+            if (-not (Test-Path -LiteralPath $storedPath -PathType Leaf)) {
+                throw "Evidence '$($evidence.Id)' file is missing: $importedPath"
+            }
+            if (Test-PathChainHasReparsePoint -Path $storedPath) {
+                throw "Evidence '$($evidence.Id)' resolves through a reparse point."
+            }
+            $actualHash = (Get-FileHash -LiteralPath $storedPath -Algorithm SHA256).Hash
+            if ([string]::IsNullOrWhiteSpace($recordedHash) -or $actualHash -ne $recordedHash) {
+                throw "Evidence '$($evidence.Id)' SHA-256 does not match the stored file."
+            }
+        }
+        elseif (-not [string]::IsNullOrWhiteSpace($sourcePath)) {
+            if (-not (Test-Path -LiteralPath $sourcePath -PathType Leaf)) {
+                throw "Evidence '$($evidence.Id)' source file is missing: $sourcePath"
+            }
+            $actualHash = (Get-FileHash -LiteralPath $sourcePath -Algorithm SHA256).Hash
+            if ([string]::IsNullOrWhiteSpace($recordedHash) -or $actualHash -ne $recordedHash) {
+                throw "Evidence '$($evidence.Id)' SHA-256 does not match its source file."
+            }
+        }
+        elseif ($evidence.Type -notin @("manual", "web", "other")) {
+            throw "Evidence '$($evidence.Id)' of type '$($evidence.Type)' has no stored file."
+        }
+    }
+
+    foreach ($baseline in @($Case.baselines)) {
+        $baselineStatus = if ($null -ne $baseline.PSObject.Properties["Status"]) {
+            [string]$baseline.Status
+        }
+        else {
+            "unknown"
+        }
+        if ([string]::IsNullOrWhiteSpace([string]$baseline.EvidenceId)) {
+            if ($baselineStatus -eq "valid") {
+                throw "Valid baseline '$($baseline.Id)' requires an EvidenceId."
+            }
+        }
+        elseif (-not $evidenceIds.Contains([string]$baseline.EvidenceId)) {
+            throw "Baseline '$($baseline.Id)' references missing evidence '$($baseline.EvidenceId)'."
+        }
+    }
+
+    foreach ($experiment in @($Case.experiments)) {
+        if (-not [string]::IsNullOrWhiteSpace([string]$experiment.HypothesisId) -and
+            -not $hypothesisIds.Contains([string]$experiment.HypothesisId)) {
+            throw "Experiment '$($experiment.Id)' references missing hypothesis '$($experiment.HypothesisId)'."
+        }
+    }
+}
+
 if ($Action -eq "New") {
     if ([string]::IsNullOrWhiteSpace($DeviceAlias) -or [string]::IsNullOrWhiteSpace($Goal)) {
         Stop-WithCaseInputError "New requires -DeviceAlias and -Goal."
@@ -302,6 +420,7 @@ switch ($Action) {
             Stop-WithCaseInputError "AddEvidence requires -Summary."
         }
         $sourcePath = $null
+        $sourceFileName = $null
         $storedPath = $null
         $hash = $null
         if (-not [string]::IsNullOrWhiteSpace($EvidencePath)) {
@@ -311,6 +430,7 @@ switch ($Action) {
             catch {
                 Stop-WithCaseInputError $_.Exception.Message
             }
+            $sourceFileName = [IO.Path]::GetFileName($sourcePath)
             $hash = (Get-FileHash -LiteralPath $sourcePath -Algorithm SHA256).Hash
             if ($ImportArtifact) {
                 $artifactDirectory = Join-Path (Split-Path -Parent $caseFile) "artifacts"
@@ -331,8 +451,9 @@ switch ($Action) {
             Summary = $Summary
             ImportedPath = $storedPath
             SourcePath = if ($ImportArtifact) { $null } else { $sourcePath }
+            OriginalFileName = $sourceFileName
             Sha256 = $hash
-            CapturedAt = $now
+            CapturedAt = ConvertTo-CaseTimestamp $EvidenceCapturedAt
         }
         $case.evidence = @(@($case.evidence) + @($item))
         Write-Case -FilePath $caseFile -Case $case
@@ -402,16 +523,23 @@ switch ($Action) {
         break
     }
     "AddBaseline" {
-        if ([string]::IsNullOrWhiteSpace($Workload)) {
-            Stop-WithCaseInputError "AddBaseline requires -Workload."
+        if ($BaselineStatus -ne "none" -and [string]::IsNullOrWhiteSpace($Workload)) {
+            Stop-WithCaseInputError "AddBaseline requires -Workload unless -BaselineStatus is none."
+        }
+        if ($BaselineStatus -eq "none" -and [string]::IsNullOrWhiteSpace($Summary)) {
+            Stop-WithCaseInputError "A none baseline requires -Summary explaining why no valid baseline exists."
         }
         if (-not [string]::IsNullOrWhiteSpace($EvidenceId) -and
             -not (@($case.evidence | Where-Object { $_.Id -eq $EvidenceId }))) {
             Stop-WithCaseInputError "Evidence not found: $EvidenceId"
         }
+        if ($BaselineStatus -eq "valid" -and [string]::IsNullOrWhiteSpace($EvidenceId)) {
+            Stop-WithCaseInputError "A valid baseline requires -EvidenceId."
+        }
         $item = [pscustomobject]@{
             Id = Get-NextEntityId -Items @($case.baselines) -Prefix "B"
-            Workload = $Workload
+            Status = $BaselineStatus
+            Workload = if ([string]::IsNullOrWhiteSpace($Workload)) { $null } else { $Workload }
             Conditions = $Conditions
             EvidenceId = if ([string]::IsNullOrWhiteSpace($EvidenceId)) { $null } else { $EvidenceId }
             Summary = $Summary
@@ -482,6 +610,7 @@ switch ($Action) {
     }
     "Validate" {
         Assert-CaseShape -Case $case
+        Assert-CaseIntegrity -Case $case -CaseFile $caseFile
         Write-Output "Hardware case is valid: $caseFile"
         break
     }

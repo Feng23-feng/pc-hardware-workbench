@@ -84,6 +84,7 @@ try {
         -CasePath $caseDirectory `
         -EvidenceType telemetry `
         -EvidencePath $evidenceFile `
+        -EvidenceCapturedAt "2026-11-03T14:00:00+08:00" `
         -Summary "Baseline telemetry" `
         -ImportArtifact
     Assert-True ($evidenceId -eq "E-001") "Unexpected first evidence ID: $evidenceId"
@@ -113,11 +114,17 @@ try {
 
     $baselineId = & $resolvedScript -Action AddBaseline `
         -CasePath $caseDirectory `
+        -BaselineStatus valid `
         -Workload "fixed game benchmark" `
         -Conditions "AC power; stock profile" `
         -EvidenceId $evidenceId `
         -Summary "Stable baseline summary"
     Assert-True ($baselineId -eq "B-001") "Unexpected first baseline ID: $baselineId"
+    $noBaselineId = & $resolvedScript -Action AddBaseline `
+        -CasePath $caseDirectory `
+        -BaselineStatus none `
+        -Summary "Mixed phases cannot establish a comparable baseline"
+    Assert-True ($noBaselineId -eq "B-002") "Unexpected no-baseline record ID: $noBaselineId"
 
     $experimentId = & $resolvedScript -Action AddExperiment `
         -CasePath $caseDirectory `
@@ -143,14 +150,18 @@ try {
     Assert-True (@($case.evidence).Count -eq 1) "Evidence was not persisted."
     Assert-True (@($case.hypotheses).Count -eq 1) "Hypothesis was not persisted."
     Assert-True (@($case.timeline).Count -eq 1) "Timeline event was not persisted."
-    Assert-True (@($case.baselines).Count -eq 1) "Baseline was not persisted."
+    Assert-True (@($case.baselines).Count -eq 2) "Baseline records were not persisted."
     Assert-True (@($case.experiments).Count -eq 1) "Experiment was not persisted."
     Assert-True ($case.hypotheses[0].Status -eq "supported") "A later hypothesis update reset the existing status."
     Assert-True ($case.hypotheses[0].Supporting.Count -eq 1) "Supporting evidence was not appended."
     Assert-True ($case.evidence[0].Sha256 -eq $evidenceHash) "Imported evidence hash changed."
     Assert-True ($case.evidence[0].ImportedPath -match '^artifacts/.+sample_telemetry\.csv$') "Imported evidence path is not relative."
     Assert-True ($null -eq $case.evidence[0].SourcePath) "Imported evidence retained its private source path."
+    Assert-True ($case.evidence[0].OriginalFileName -eq "sample telemetry.csv") "Imported evidence lost its original filename."
+    Assert-True ($case.evidence[0].CapturedAt -eq "2026-11-03T14:00:00.0000000+08:00") "Evidence capture time was replaced by import time."
     Assert-True ($case.baselines[0].EvidenceId -eq $evidenceId) "Baseline did not retain its evidence ID."
+    Assert-True ($case.baselines[0].Status -eq "valid") "Valid baseline status was not stored."
+    Assert-True ($case.baselines[1].Status -eq "none") "No-baseline status was not stored."
     Assert-True ($case.nextAction -eq "Repeat the fixed workload after rollback") "Next action was not saved."
 
     $notEmptyDirectory = Join-Path $tempRoot "not-empty"
@@ -182,6 +193,32 @@ try {
     )
     Assert-True ($badEvidenceCapture.ExitCode -eq 2) "Baseline accepted a missing evidence ID."
     Assert-True ($badEvidenceCapture.Stderr -match "Evidence not found") "Missing baseline evidence error is unclear."
+
+    $missingCaseDirectory = Join-Path $tempRoot "case-missing-evidence"
+    Copy-Item -LiteralPath $caseDirectory -Destination $missingCaseDirectory -Recurse
+    $missingCaseFile = Join-Path $missingCaseDirectory "case.json"
+    $missingCase = Get-Content -Raw -LiteralPath $missingCaseFile -Encoding UTF8 | ConvertFrom-Json
+    $missingArtifact = Join-Path $missingCaseDirectory ([string]$missingCase.evidence[0].ImportedPath)
+    Remove-Item -LiteralPath $missingArtifact -Force
+    $missingEvidenceValidation = Invoke-CaseProcess -Arguments @(
+        "-Action", "Validate",
+        "-CasePath", $missingCaseFile
+    )
+    Assert-True ($missingEvidenceValidation.ExitCode -ne 0) "Validate accepted a case with a missing evidence file."
+    Assert-True ($missingEvidenceValidation.Stderr -match "file is missing") "Missing evidence validation was not explained."
+
+    $hashCaseDirectory = Join-Path $tempRoot "case-bad-hash"
+    Copy-Item -LiteralPath $caseDirectory -Destination $hashCaseDirectory -Recurse
+    $hashCaseFile = Join-Path $hashCaseDirectory "case.json"
+    $hashCase = Get-Content -Raw -LiteralPath $hashCaseFile -Encoding UTF8 | ConvertFrom-Json
+    $hashArtifact = Join-Path $hashCaseDirectory ([string]$hashCase.evidence[0].ImportedPath)
+    [IO.File]::AppendAllText($hashArtifact, "tampered", $utf8)
+    $hashValidation = Invoke-CaseProcess -Arguments @(
+        "-Action", "Validate",
+        "-CasePath", $hashCaseFile
+    )
+    Assert-True ($hashValidation.ExitCode -ne 0) "Validate accepted a case with a mismatched evidence hash."
+    Assert-True ($hashValidation.Stderr -match "SHA-256 does not match") "Hash mismatch validation was not explained."
 
     if ($failures.Count -gt 0) {
         Write-Host "Hardware case regression: FAIL" -ForegroundColor Red
