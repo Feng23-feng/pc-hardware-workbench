@@ -2,7 +2,7 @@
 name: pc-hardware-workbench
 description: Integrate Windows-focused read-only hardware inventory, telemetry charting, evidence-gated troubleshooting, guided overclocking, and upgrade-purchase decisions through one routed workflow. Other systems receive manual guidance only. Keep tuning-only requests free of unsolicited purchase advice; never modify hardware automatically or bypass permissions or anti-cheat.
 metadata:
-  version: "2.2.0"
+  version: "2.3.0"
   short-description: "One routed entry for hardware inventory, telemetry visuals, triage, tuning, and purchase decisions"
 ---
 
@@ -73,9 +73,9 @@ the safety floor does not.
 
 ## Plain-language parameter explanations
 
-When a response recommends, gives, or instructs a change to a BIOS/UEFI tuning setting,
-firmware, clock, voltage, power control, fan policy, memory timing, or hardware curve,
-include the safety notice in the user's current language and in the same paragraph:
+For any BIOS/UEFI tuning setting, firmware, clock, voltage, power control, fan
+policy, memory timing, or hardware curve, include the safety notice in the
+user's language and in the same paragraph:
 
 - Chinese: `参数仅供参考，请以安全为第一要务。`
 - English: `For reference only - put safety first.`
@@ -85,15 +85,9 @@ Never mix the Chinese and English notices in one reply. Do not add the notice to
 location-only or concept-only explanations, refusals without a candidate value,
 safety stops, or ordinary UI instructions.
 
-Do not give a bare number, offset, timing, profile, or instruction without the safety notice and an appropriately detailed explanation. Choose explanation depth by user knowledge and risk. Use **Action:** what changes, **Analogy:** one
-clearly labeled comparison, and **Consequence:** benefit, risk, stop, and
-recovery for beginners, persistent/BIOS/UEFI work, or unclear rollback.
-Experienced low-risk changes may use a compact equivalent.
-
-For BIOS/UEFI, use the exact visible menu/control label; if it differs or is split,
-ask what the user sees and never invent a path. Read
-[explanation-style.md](references/integration/explanation-style.md) for the full
-pattern.
+Do not give a bare number, offset, timing, profile, or instruction without the safety notice and an appropriately detailed explanation. Choose explanation depth by user knowledge and risk. Before writing the explanation, read
+[explanation-style.md](references/integration/explanation-style.md); for
+BIOS/UEFI use the exact visible menu/control label and never invent a path.
 
 ## Route by task
 
@@ -125,26 +119,16 @@ would change the diagnosis.
 ### Telemetry and logs
 
 Read [telemetry-analysis.md](references/integration/telemetry-analysis.md).
-Confirm the monitoring software and record, then collect only workload/window
-context needed to interpret it. A screenshot is limited single-point evidence,
-not a CSV-equivalent sample.
+Confirm the source and workload context. Telemetry-only analysis is read-only and
+does not require the tuning entry gate; never treat it as stability proof,
+diagnosis, or permission to change settings.
 
-Telemetry-only analysis is read-only and does not require the tuning entry gate.
-Never treat it as stability proof, diagnosis, or permission to change settings.
-For a supported CSV visual, use `scripts/render-telemetry-chart.ps1`; use a fresh
-SVG path, state its limits, and keep the CSV as evidence. Skip sparse data and
-screenshots. If a hardware case exists, register the CSV and chart as evidence.
-For a structured sensor snapshot or cross-source provenance, read
-[telemetry-normalization.md](references/integration/telemetry-normalization.md)
-and use `scripts/normalize-telemetry.ps1`; normalized JSON is already windowed.
-When an already-running LibreHardwareMonitor and explicit live-read consent are
-available, read [lhm-adapter.md](references/integration/lhm-adapter.md); never
-install, start, or elevate it.
-
-For screenshots, BIOS photos, Stop Code images, Debug LEDs, or Device Manager
-captures, read
-[visual-evidence.md](references/integration/visual-evidence.md) before
-interpreting them. Model vision remains a runtime capability, not a Skill claim.
+For CSV charts use `scripts/render-telemetry-chart.ps1`. For structured snapshots,
+cross-source provenance, already-running LHM with explicit consent, or images,
+load only the matching reference: [telemetry-normalization.md](references/integration/telemetry-normalization.md),
+[lhm-adapter.md](references/integration/lhm-adapter.md), or
+[visual-evidence.md](references/integration/visual-evidence.md). Keep original
+evidence and limits; a screenshot is not a time series.
 
 ### Tune
 
@@ -195,10 +179,9 @@ Read [intake-template.md](references/upgrade/intake-template.md),
 
 No performance purchase is the default until a concrete problem and positive
 expected value exist. Compare a non-purchase option, date/region/currency price,
-and never invent prices. If the user states a **preference, aesthetic, collection,
-gift, capability, or future-project** goal, assess that goal instead of
-fabricating a performance bottleneck. Use the matching functional or
-preference/planning template.
+and never invent prices. For a **preference, aesthetic, collection, gift,
+capability, or future-project** goal, assess that goal directly rather than
+fabricating a performance bottleneck; use decision-framework's matching template.
 
 ## Advice intensity
 
@@ -246,10 +229,8 @@ or next action appropriate to the route.
 
 ## Maintenance
 
-For install or runtime health, read
-[skill-doctor.md](references/integration/skill-doctor.md) and run
-`scripts/doctor.ps1`; it repairs nothing. The suite preserves generic references
-and r23 collector; personal histories excluded. Read
-[coverage-map.md](references/integration/coverage-map.md) when redistributing and
-[installation-coexistence.md](references/integration/installation-coexistence.md)
-when multiple hardware Skills are installed.
+Runtime health: read [skill-doctor.md](references/integration/skill-doctor.md)
+and run `scripts/doctor.ps1`; it repairs nothing. Preserve the r23 collector and
+exclude personal histories. For redistribution or coexistence, read
+[coverage-map.md](references/integration/coverage-map.md) and
+[installation-coexistence.md](references/integration/installation-coexistence.md).

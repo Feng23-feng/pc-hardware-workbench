@@ -14,6 +14,7 @@ This integrated suite preserves the generic references and scripts from three in
 | LHM live adapter | 2.0.0 | `scripts/lhm/`, `references/integration/lhm-adapter.md` | Explicit-consent, bounded read-only WMI collection from an already-running LibreHardwareMonitor instance; sensor-type mapping, structured snapshots, provenance, duplicate handling, and no self-install, self-start, elevation, network access, persistence, or hardware writes |
 | visual evidence | 2.1.0 | `references/integration/visual-evidence.md` | Runtime-owned vision capability, screenshot and photo evidence classes, visible-versus-inferred separation, OCR/crop/redaction fallback, prompt-injection isolation, case hashing, and cross-evidence limits |
 | Skill Doctor | 2.2.0 | `scripts/doctor.ps1`, `references/integration/skill-doctor.md` | Read-only installation and runtime diagnostics for version, required files, PowerShell syntax/encoding, output writability, CIM, PowerShell 7, optional sensors, validator, and runtime-owned vision limits, with no install, elevation, start, repair, or network action |
+| simplified cross-capability routing | 2.3.0 | `SKILL.md`, `tests/cross-capability-scenarios.md` | Entry reduced below 12.5 KB and Quick path below 23 KB; conditional telemetry, LHM, and visual guidance remains in references; six real conversation scenarios cover cross-source, unavailable-source, conflict, and bypass demands |
 | personal-hardware-triage | excluded | none | Personal device history intentionally excluded |
 
 ## Controlled source revisions

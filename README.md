@@ -11,7 +11,7 @@ changes under the user's control.
 
 ## Project status
 
-- Current Skill candidate: **2.2.0**
+- Current Skill candidate: **2.3.0**
 - Automated non-live tests: passing
 - Live hardware collection: opt-in only
 - Broad release sign-off: pending
@@ -21,10 +21,10 @@ changes under the user's control.
 
 [打开《电脑硬件工作台 × 自动超频原型》完整迭代档案](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/)
 
-浏览工作台与 GPU 自动超频原型的完整演进记录，包括 104 个版本节点、每版改动、验证状态和历史位置。
+浏览工作台与 GPU 自动超频原型的完整演进记录，包括 105 个版本节点、每版改动、验证状态和历史位置。
 
 Explore the complete Workbench and GPU auto-overclock prototype history, including
-104 recorded versions and their validation status.
+105 recorded versions and their validation status.
 
 [打开 Skill 交互实验室](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/interactive/)
 
@@ -88,7 +88,8 @@ and reject active or externally linked SVG content.
 
 The Skill entrypoint is intentionally a concise router. Mode-specific procedures
 and examples stay in references, so the Quick starting path remains below its
-25 KB budget while the model can load deeper guidance only when needed.
+23 KB budget while the model can load deeper guidance only when needed. The
+entrypoint itself is held below 12.5 KB.
 
 Telemetry recognition includes Intel package sensors, AMD HWiNFO Tctl/Tdie
 temperature, CPU PPT package power, GPU core voltage, and CPU core maximum

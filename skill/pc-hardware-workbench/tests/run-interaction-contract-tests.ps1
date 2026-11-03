@@ -54,7 +54,7 @@ $skill = Get-Content -LiteralPath $skillPath -Raw -Encoding UTF8
 $referenceOnlyNotice = [regex]::Unescape('\u53C2\u6570\u4EC5\u4F9B\u53C2\u8003\uFF0C\u8BF7\u4EE5\u5B89\u5168\u4E3A\u7B2C\u4E00\u8981\u52A1\u3002')
 $englishReferenceOnlyNotice = "For reference only - put safety first."
 
-Assert-Contains $skill '(?m)^  version: "2\.2\.0"\r?$' "metadata.version should be 2.2.0."
+Assert-Contains $skill '(?m)^  version: "2\.3\.0"\r?$' "metadata.version should be 2.3.0."
 Assert-Contains $skill 'r23 collector' "The Skill maintenance summary collector revision disagrees with the collector code."
 Assert-Contains $skill 'while the power-path evidence is incomplete' "The Advice intensity route does not include incomplete power-path evidence."
 Assert-Contains $skill 'hidden or manufacturer-limited limit' "The Advice intensity summary is narrower than the hidden or manufacturer-limited scope."
@@ -68,9 +68,6 @@ Assert-Contains $skill ("(?m)^> " + [regex]::Escape($neutralIntroduction)) "The 
 Assert-Contains $skill 'Explain named choices' "Choice explanation rule is missing."
 Assert-Contains $skill 'Do not ask a bare' "Bare named-choice prohibition is missing."
 Assert-Contains $skill 'Plain-language parameter explanations' "Plain-language parameter rule is missing."
-Assert-Contains $skill 'Action:' "Plain-language action component is missing."
-Assert-Contains $skill 'Analogy:' "Plain-language analogy component is missing."
-Assert-Contains $skill 'Consequence:' "Plain-language consequence component is missing."
 Assert-Contains $skill 'explanation-style\.md' "The detailed explanation-style reference is not linked."
 Assert-Contains $skill 'Do not give a bare number, offset, timing, profile, or instruction without the safety notice and an appropriately detailed explanation' "The bare-value rule lost its safety-notice binding."
 Assert-Contains $skill ([regex]::Escape($referenceOnlyNotice)) "The mandatory reference-only safety notice is missing."
@@ -344,6 +341,9 @@ $explanationStyle = Read-RequiredFile `
 Assert-Contains $explanationStyle 'what changes, where it changes, and what remains unchanged' "Explanation reference does not define Action."
 Assert-Contains $explanationStyle 'one everyday comparison' "Explanation reference does not define Analogy."
 Assert-Contains $explanationStyle 'signals that mean\s+stop, and how to recover' "Explanation reference does not define Consequence."
+Assert-Contains $explanationStyle '## Action' "Explanation reference lacks the Action section."
+Assert-Contains $explanationStyle '## Analogy' "Explanation reference lacks the Analogy section."
+Assert-Contains $explanationStyle '## Consequence' "Explanation reference lacks the Consequence section."
 Assert-Contains $explanationStyle 'Only when the same paragraph contains a candidate value for one of those' "Explanation reference lacks the action-triggered safety boundary."
 Assert-Contains $explanationStyle 'Do not add this notice to location-only explanations, concept-only' "Explanation reference applies the safety notice to non-action answers."
 Assert-Contains $explanationStyle 'refusals without a candidate value, physical-safety stops' "Explanation reference still forces boilerplate onto refusals and safety stops."
@@ -677,8 +677,24 @@ Assert-Contains $coverageMap 'controlled integration revisions' "Coverage map st
 Assert-True ($coverageMap -notmatch 'byte-for-byte unchanged') "Coverage map still claims source files are byte-for-byte unchanged."
 
 $scenarioDoc = Get-Content -LiteralPath (Join-Path $resolvedRoot "tests/interaction-scenarios.md") -Raw -Encoding UTF8
-Assert-Contains $scenarioDoc 'no larger than 13 KB' "Interaction scenario budget does not match the 13 KB entrypoint budget."
-Assert-Contains $scenarioDoc 'no larger than 25 KB' "Interaction scenario budget does not match the 25 KB quick-mode budget."
+Assert-Contains $scenarioDoc 'no larger than 12\.5 KB' "Interaction scenario budget does not match the 12.5 KB entrypoint budget."
+Assert-Contains $scenarioDoc 'no larger than 23 KB' "Interaction scenario budget does not match the 23 KB quick-mode budget."
+$crossCapabilityScenarios = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "tests/cross-capability-scenarios.md") `
+    -Label "tests/cross-capability-scenarios.md"
+foreach ($scenarioHeading in @(
+    "1. Beginner gives only a vague symptom",
+    "2. CSV and screenshot cover the same run",
+    "3. Official document conflicts with local evidence",
+    "4. LibreHardwareMonitor is not running",
+    "5. Screenshot contradicts the log",
+    "6. User demands both a bypass and a direct setting"
+)) {
+    Assert-Contains $crossCapabilityScenarios ([regex]::Escape("## $scenarioHeading")) "Cross-capability scenario is missing: $scenarioHeading"
+}
+Assert-Contains $crossCapabilityScenarios 'do not average the two claims' "Cross-source conflict rules permit averaging."
+Assert-Contains $crossCapabilityScenarios 'report live sensor access as unavailable rather than hardware absent' "Missing LHM is confused with missing hardware."
+Assert-Contains $crossCapabilityScenarios 'no target value' "Power-path refusal permits a target value."
 Assert-Contains $scenarioDoc 'Manual behavioral acceptance scenarios' "Interaction scenarios are still presented as automated behavior tests."
 Assert-Contains $scenarioDoc 'do not prove that every scenario behaves' "Interaction scenarios overstate static test coverage."
 Assert-Contains $scenarioDoc '(?m)^## 47\. A dynamic boost point does not define curve activation' "Interaction scenarios omit the dynamic GPU operating-point case."
@@ -719,8 +735,8 @@ if (-not (Test-Path -LiteralPath $auditTest -PathType Leaf)) {
 }
 
 $skillBytes = (Get-Item -LiteralPath $skillPath).Length
-if ($skillBytes -gt 13312) {
-    $failures.Add("SKILL.md exceeds the 13 KB entrypoint budget: $skillBytes bytes.")
+if ($skillBytes -gt 12800) {
+    $failures.Add("SKILL.md exceeds the 12.5 KB entrypoint budget: $skillBytes bytes.")
 }
 
 $quickFiles = @(
@@ -732,8 +748,8 @@ $quickBytes = 0
 foreach ($relative in $quickFiles) {
     $quickBytes += (Get-Item -LiteralPath (Join-Path $resolvedRoot $relative)).Length
 }
-if ($quickBytes -gt 25600) {
-    $failures.Add("Quick-mode initial load exceeds the 25 KB budget: $quickBytes bytes.")
+if ($quickBytes -gt 23000) {
+    $failures.Add("Quick-mode initial load exceeds the 23 KB budget: $quickBytes bytes.")
 }
 
 $oldValidation = Join-Path $resolvedRoot "references/integration/validation-and-telemetry.md"

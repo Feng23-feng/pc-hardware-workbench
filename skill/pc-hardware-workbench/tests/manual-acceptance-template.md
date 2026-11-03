@@ -4,6 +4,10 @@ Use this record before a broad release. Run representative prompts from
 `interaction-scenarios.md` against the installed Skill and record observed
 behavior, not merely whether the rule exists in text.
 
+Cross-capability prompts are tracked separately in
+[cross-capability-scenarios.md](cross-capability-scenarios.md). Run all six
+before treating the current evidence-system release as behaviorally accepted.
+
 For the 1.4.3+ tone layer, run every prompt in `tone-scenarios.md` three times in
 independent sessions and record each answer verbatim.
 

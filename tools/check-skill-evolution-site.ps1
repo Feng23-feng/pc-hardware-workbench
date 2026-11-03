@@ -22,13 +22,13 @@ if ($errors.Count -eq 0) {
         @{ Name = "Index"; Html = $indexHtml },
         @{ Name = "Interactive"; Html = $interactiveHtml }
     )) {
-        if ($entry.Html -notmatch '\u5DE5\u4F5C\u53F0 2\.2\.0') {
-            $errors.Add("$($entry.Name) does not show the 2.2.0 current chip.") | Out-Null
+        if ($entry.Html -notmatch '\u5DE5\u4F5C\u53F0 2\.3\.0') {
+            $errors.Add("$($entry.Name) does not show the 2.3.0 current chip.") | Out-Null
         }
         if ($entry.Html -match '\u5DE5\u4F5C\u53F0 1\.5\.2') {
             $errors.Add("$($entry.Name) still presents 1.5.2 as the current chip.") | Out-Null
         }
-        foreach ($version in @("1.6.0", "1.7.0", "1.8.0", "1.9.0", "2.0.0", "2.1.0", "2.2.0")) {
+        foreach ($version in @("1.6.0", "1.7.0", "1.8.0", "1.9.0", "2.0.0", "2.1.0", "2.2.0", "2.3.0")) {
             if ($entry.Html -notmatch [regex]::Escape('"' + $version + '"')) {
                 $errors.Add("$($entry.Name) is missing version $version.") | Out-Null
             }
@@ -44,8 +44,8 @@ if ($errors.Count -eq 0) {
                 $segment,
                 '(?m)^\s*\["\d+\.\d+\.\d+(?:-r\d+)?",'
             ).Count
-            if ($versionCount -ne 104) {
-                $errors.Add("$($entry.Name) version count is $versionCount, expected 104.") | Out-Null
+            if ($versionCount -ne 105) {
+                $errors.Add("$($entry.Name) version count is $versionCount, expected 105.") | Out-Null
             }
         }
     }
@@ -93,4 +93,4 @@ if ($errors.Count -gt 0) {
     exit 1
 }
 
-Write-Host "Skill evolution site check: PASS (104 versions, evidence lab, JavaScript syntax)" -ForegroundColor Green
+Write-Host "Skill evolution site check: PASS (105 versions, evidence lab, JavaScript syntax)" -ForegroundColor Green
