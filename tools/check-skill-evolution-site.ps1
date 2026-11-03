@@ -54,6 +54,13 @@ if ($errors.Count -eq 0) {
         if ($entry.Html -match '\u5DE5\u4F5C\u53F0 2\.4\.0[^\r\n]*GitHub \u5C1A\u672A\u63A8\u9001') {
             $errors.Add("$($entry.Name) still says the 2.4.0 candidate is not on GitHub.") | Out-Null
         }
+        foreach ($headingMatch in [regex]::Matches($entry.Html, '(?is)<h[1-4][^>]*>(.*?)</h[1-4]>')) {
+            $headingText = [regex]::Replace($headingMatch.Groups[1].Value, '<[^>]+>', '')
+            $headingText = [Net.WebUtility]::HtmlDecode($headingText)
+            if ($headingText -match '[\u3001\u3002\x21\x3F\uFF01\uFF1F\uFF0C\uFF1B\uFF1A]') {
+                $errors.Add("$($entry.Name) display heading contains sentence punctuation: $headingText") | Out-Null
+            }
+        }
         foreach ($version in @("1.6.0", "1.7.0", "1.8.0", "1.9.0", "2.0.0", "2.1.0", "2.2.0", "2.3.0", "2.4.0")) {
             if ($entry.Html -notmatch [regex]::Escape('"' + $version + '"')) {
                 $errors.Add("$($entry.Name) is missing version $version.") | Out-Null
@@ -121,7 +128,7 @@ if ($errors.Count -eq 0) {
     if ($interactiveHtml -notmatch 'data-demo-mode="evidence"') {
         $errors.Add("Interactive page has no evidence-system mode.") | Out-Null
     }
-    if ($interactiveHtml -notmatch '\u540C\u4E00\u6761\u8BC1\u636E\u94FE\uFF0C\u63A5\u4F4F\u4E0D\u540C\u6765\u6E90') {
+    if ($interactiveHtml -notmatch '\u540C\u4E00\u6761\u8BC1\u636E\u94FE \u63A5\u4F4F\u4E0D\u540C\u6765\u6E90') {
         $errors.Add("Interactive evidence-system panel copy is missing.") | Out-Null
     }
     foreach ($marker in @(
