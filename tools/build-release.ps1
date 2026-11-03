@@ -259,8 +259,10 @@ New-Item -ItemType Directory -Path $verifyRoot -Force | Out-Null
 try {
     Expand-Archive -LiteralPath $skillZip -DestinationPath (Join-Path $verifyRoot "skill")
     Expand-Archive -LiteralPath $portableZip -DestinationPath (Join-Path $verifyRoot "portable")
-    $packagedSkill = Join-Path (Join-Path $verifyRoot "skill") "pc-hardware-workbench"
-    $packagedPortable = Join-Path (Join-Path $verifyRoot "portable") "pc-hardware-portable"
+    $packagedSkillOuter = Join-Path (Join-Path $verifyRoot "skill") "pc-hardware-workbench-v$releaseName"
+    $packagedPortableOuter = Join-Path (Join-Path $verifyRoot "portable") "pc-hardware-portable-v$releaseName"
+    $packagedSkill = Join-Path $packagedSkillOuter "pc-hardware-workbench"
+    $packagedPortable = $packagedPortableOuter
     & powershell -NoProfile -ExecutionPolicy Bypass `
         -File (Join-Path $RepositoryRoot "tools\check-package-sync.ps1") `
         -LeftRoot $skillRoot -RightRoot $packagedSkill -IgnoreEolOnly
