@@ -355,7 +355,7 @@ $manifest = [pscustomobject][ordered]@{
         fileWeightMax = $weightMax
         sectorWeightMin = $sectorWeightMin
         sectorWeightMax = $sectorWeightMax
-        orbitSpeedMultiplier = 1.18
+        orbitSpeedMultiplier = 1.0
     }
     sectors = $sortedSectors
     files = $sortedRecords
@@ -364,7 +364,7 @@ $manifest = [pscustomobject][ordered]@{
 $manifestJson = $manifest | ConvertTo-Json -Depth 20
 $manifestJson = $manifestJson.Replace("`r`n", "`n") + "`n"
 
-$orbitSpeedMultiplier = 1.18
+$orbitSpeedMultiplier = 1.0
 $groupsObject = [ordered]@{}
 foreach ($sector in $sortedSectors) {
     $groupsObject[$sector.id] = [pscustomobject][ordered]@{

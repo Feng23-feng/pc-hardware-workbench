@@ -32,7 +32,7 @@
                         "fileWeightMax":  2.01,
                         "sectorWeightMin":  5.38,
                         "sectorWeightMax":  23.46,
-                        "orbitSpeedMultiplier":  1.18
+                        "orbitSpeedMultiplier":  1
                     },
     "sectors":  [
                     {
