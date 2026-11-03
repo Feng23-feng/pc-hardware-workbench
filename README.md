@@ -32,7 +32,7 @@ Explore the complete Workbench and GPU auto-overclock prototype history, includi
 
 [打开 Skill 文件星系](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/orrery/)
 
-文件星系把当前 2.4.0 的 86 个 Skill 文件按契约核心、流程、排障、调校、升级、运行脚本和验证网络组织成可旋转、可缩放的三维式总览；文件大小按权重映射，不表示实际文件体积。页面内保留 Skill 1.5.2 时期的 61 文件快照作为历史对照。
+文件星系把当前 2.4.0 的 86 个 Skill 文件按契约核心、流程、排障、调校、升级、运行脚本和验证网络组织成可旋转、可缩放的三维式总览；文件大小按权重映射，不表示实际文件体积。
 
 ## Why this project exists
 

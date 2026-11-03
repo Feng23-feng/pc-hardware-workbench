@@ -5,9 +5,8 @@
     "generatedFrom":  "git ls-files -- skill/pc-hardware-workbench",
     "source":  "docs/skill-evolution/orrery/index.html",
     "manifest":  "docs/skill-evolution/orrery/data/manifest.json",
-    "archive":  "docs/skill-evolution/orrery/archive/1.5.2/",
     "fileCount":  86,
     "aggregateSha256":  "EFA294799FF5FCD79F1FF756FE99646C45CC52763EE4FECDCD7708F947B3CA56",
-    "sha256":  "D8DAC1492B9B93BD08953BD82559FA09A97CC628BB75642ED719E2A4CB5891DB",
-    "bytes":  164778
+    "sha256":  "A4DCD13BB7FC2F19781CD313E6D2912C2D11A4FE2E925B71AD5BD5A8213ADD4D",
+    "bytes":  167570
 }

@@ -1586,13 +1586,78 @@
     }
   }
 </style>
+<style id="dse-current-orrery-adjustments">
+  .file-name {
+    max-width: 160px;
+    font-size: 11px;
+  }
+
+  .stage.compact-labels .file-node:not(.is-anchor) .file-name {
+    opacity: 0;
+  }
+
+  .stage.compact-labels .file-node.is-anchor .file-name {
+    opacity: .72;
+  }
+
+  .stage.compact-labels .file-node:hover .file-name,
+  .stage.compact-labels .file-node:focus-visible .file-name,
+  .stage.compact-labels .file-node.is-active .file-name {
+    opacity: 1;
+  }
+
+  .category-node:not(.is-core) .category-label small {
+    display: none;
+  }
+
+  .category-node:not(.is-core):hover .category-label small,
+  .category-node:not(.is-core):focus-visible .category-label small {
+    display: block;
+  }
+
+  @media (min-width: 621px) and (max-width: 1120px) {
+    .workspace {
+      grid-template-columns: minmax(0, 1fr);
+      height: auto;
+    }
+
+    .stage-shell {
+      height: min(680px, 74svh);
+      min-height: 560px;
+    }
+
+    .dossier {
+      min-height: 420px;
+      max-height: none;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .global-nav {
+      min-height: 48px;
+      gap: 8px;
+    }
+
+    .global-nav a {
+      min-height: 40px;
+      font-size: 12px;
+    }
+
+    .global-nav > span {
+      display: none;
+    }
+
+    .category-node:not(.is-core) .category-label {
+      display: none;
+    }
+  }
+</style>
 </head>
 <body>
   <main class="app">
     <nav class="global-nav" aria-label="全局导航">
       <a href="../">← 返回项目地图</a>
       <span aria-current="page">当前文件星系 · 2.4.0</span>
-      <a href="archive/1.5.2/">1.5.2 历史档案 · 61 文件</a>
     </nav>
     <header class="app-header">
       <div class="brand">
@@ -1609,7 +1674,7 @@
       </div>
     </header>
 
-    <div class="snapshot-banner" role="note"><span><strong>当前快照：</strong>清单直接取自 Git 跟踪的 86 个文件；逐文件 SHA 与结构权重由生成器计算。指纹 <code>EFA294799FF5</code>。</span><a href="archive/1.5.2/">保留的 1.5.2 / 61 文件冻结快照</a></div>
+    <div class="snapshot-banner" role="note"><span><strong>当前快照：</strong>清单直接取自 Git 跟踪的 86 个文件；逐文件 SHA 与结构权重由生成器计算。指纹 <code>EFA294799FF5</code>。</span></div>
 
     <div class="workspace">
       <section class="stage-shell" aria-label="Skill 2.4.0 当前文件星系">
@@ -3493,6 +3558,8 @@
     const GROUP_WEIGHT_MAX = Math.max(...GROUP_WEIGHTS);
     const DEPTH_LAYER_COUNT = 13;
     const DEPTH_Z_INDEX_BASE = 20;
+    const CAMERA_PITCH_LIMIT = 1.55;
+    const PLANET_TEXTURE_FRAME_MS = 32;
     const state = {
       group: null,
       selected: null,
@@ -3524,12 +3591,15 @@
       starGroup: null,
       sceneLayers: [],
       categoryOrbitPaths: new Map(),
+      categoryOrbitProjectionKey: "",
       localOrbitPaths: [],
+      localOrbitProjectionKey: "",
       categoryNodes: new Map(),
       fileNodes: new Map(),
       localAngles: new Map()
     };
     const planetMeta = new WeakMap();
+    const planetImages = new WeakMap();
 
     const stage = document.getElementById("stage");
     const orbitLayer = document.getElementById("orbitLayer");
@@ -3616,7 +3686,11 @@
       const size = canvas.width;
       const center = size / 2;
       const radius = size * .445;
-      const image = context.createImageData(size, size);
+      let image = planetImages.get(canvas);
+      if (!image || image.width !== size || image.height !== size) {
+        image = context.createImageData(size, size);
+        planetImages.set(canvas, image);
+      }
       const spin = meta.phase +
         state.planetTime * meta.direction * Math.PI * 2 / meta.duration;
       const cosSpin = Math.cos(spin);
@@ -3692,7 +3766,7 @@
     function renderVisiblePlanets(force = false) {
       if (state.reducedMotion && !force) return;
       const timestamp = performance.now();
-      if (!force && timestamp - state.lastPlanetFrame < 40) return;
+      if (!force && timestamp - state.lastPlanetFrame < PLANET_TEXTURE_FRAME_MS) return;
       state.lastPlanetFrame = timestamp;
       document.querySelectorAll(".planet-canvas").forEach(canvas => {
         if (!planetMeta.has(canvas)) return;
@@ -3954,6 +4028,16 @@
 
     function updateCategoryProjection() {
       if (!state.layout || state.group) return;
+      const projectionKey = [
+        state.layout.centerX,
+        state.layout.centerY,
+        state.layout.maxRadius,
+        state.cameraYaw,
+        state.cameraPitch,
+        state.cameraRoll,
+        state.cameraZoom
+      ].map(value => Number(value).toFixed(4)).join("|");
+      const refreshOrbitPaths = state.categoryOrbitProjectionKey !== projectionKey;
       const core = state.categoryNodes.get("core");
       const depthRange = sceneDepthRange(state.layout.maxRadius);
       if (core) {
@@ -3983,7 +4067,7 @@
         node.style.setProperty("--planet-span", `${planetDiameter * planetScale}px`);
         node.style.zIndex = String(depthZIndex(point.z, depthRange));
         const orbitPaths = state.categoryOrbitPaths.get(id) || [];
-        if (orbitPaths.length) {
+        if (refreshOrbitPaths && orbitPaths.length) {
           const paths = projectedLayeredPaths(
             angle => orbitPoint(group, angle),
             0,
@@ -3994,12 +4078,16 @@
           orbitPaths.forEach((path, index) => path.setAttribute("d", paths[index]));
         }
       });
+      if (refreshOrbitPaths) {
+        state.categoryOrbitProjectionKey = projectionKey;
+      }
     }
 
     function drawScene() {
       if (!state.layout) return;
       const { width, height } = state.layout;
       const sceneLayers = createSceneLayers(width, height);
+      state.categoryOrbitProjectionKey = "";
 
       const starGroup = svgElement("g");
       state.starGroup = starGroup;
@@ -4104,6 +4192,7 @@
     function drawLocalOrbits(groupId) {
       if (!state.layout) return;
       drawScene();
+      state.localOrbitProjectionKey = "";
       state.localOrbitPaths = getLocalOrbitSpecs(groupId).map((spec, index) => {
         const paths = createLayeredOrbitPaths(
           "local-orbit",
@@ -4212,18 +4301,31 @@
       const localMax = Math.min(state.layout.width * .4, state.layout.height * .41);
       const files = FILES_BY_GROUP[state.group];
       const depthRange = sceneDepthRange(localMax);
+      const projectionKey = [
+        state.group,
+        state.layout.width,
+        state.layout.height,
+        state.cameraYaw,
+        state.cameraPitch,
+        state.cameraRoll,
+        state.cameraZoom
+      ].map(value => Number.isNaN(Number(value)) ? value : Number(value).toFixed(4)).join("|");
+      const refreshOrbitPaths = state.localOrbitProjectionKey !== projectionKey;
       sectorTitle.style.setProperty("--sector-scale", state.cameraZoom.toFixed(3));
       sectorTitle.style.zIndex = String(depthZIndex(0, depthRange));
-      state.localOrbitPaths.forEach((orbitPaths, index) => {
-        const paths = projectedLayeredPaths(
-          angle => localOrbitPoint(state.group, index, angle),
-          0,
-          360,
-          140,
-          depthRange
-        );
-        orbitPaths.forEach((path, layerIndex) => path.setAttribute("d", paths[layerIndex]));
-      });
+      if (refreshOrbitPaths) {
+        state.localOrbitPaths.forEach((orbitPaths, index) => {
+          const paths = projectedLayeredPaths(
+            angle => localOrbitPoint(state.group, index, angle),
+            0,
+            360,
+            140,
+            depthRange
+          );
+          orbitPaths.forEach((path, layerIndex) => path.setAttribute("d", paths[layerIndex]));
+        });
+        state.localOrbitProjectionKey = projectionKey;
+      }
       files.forEach(file => {
         const node = state.fileNodes.get(file.path);
         const info = state.localAngles.get(file.path);
@@ -4505,7 +4607,12 @@
       else {
         updateCategoryProjection();
       }
-      renderVisiblePlanets(true);
+      if (state.reducedMotion) {
+        renderVisiblePlanets(true);
+      }
+      else {
+        state.lastPlanetFrame = 0;
+      }
     }
 
     stage.addEventListener("pointerdown", event => {
@@ -4540,8 +4647,8 @@
       state.cameraYaw = state.dragStartYaw + (event.clientX - state.dragStartX) * .0032;
       state.cameraPitch = clamp(
         state.dragStartPitch + (event.clientY - state.dragStartY) * .0032,
-        -1.55,
-        .18
+        -CAMERA_PITCH_LIMIT,
+        CAMERA_PITCH_LIMIT
       );
       const elapsed = Math.max(8, event.timeStamp - state.lastDragTimestamp);
       state.cameraYawVelocity = clamp((state.cameraYaw - previousYaw) / elapsed * 1000, -2.2, 2.2);

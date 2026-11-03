@@ -9,6 +9,7 @@ outputs/
 dist/
 share/
 *.zip
+work/
 *.7z
 
 *.log

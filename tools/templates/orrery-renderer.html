@@ -1,0 +1,4658 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="电脑硬件工作台 Skill 2.4.0 当前 Git 跟踪文件结构，共 86 个文件">
+  <link rel="icon" href="data:,">
+  <title>当前文件星系 · Skill 2.4.0</title>
+  <style>
+    :root {
+      --void: #07090c;
+      --surface: #0d1116;
+      --surface-2: #111820;
+      --paper: #e7edf2;
+      --muted: #8e9aa7;
+      --line: #202a35;
+      --line-soft: rgba(139, 167, 191, .15);
+      --cyan: #7dd3e8;
+      --amber: #e6b36e;
+      --rose: #d99ab7;
+      --leaf: #b3d89a;
+      --blue: #7f9dff;
+      --rust: #e78f73;
+      --core: #eef4f7;
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-width: 320px;
+      background: var(--void);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      overflow-x: hidden;
+      color: var(--paper);
+      background:
+        radial-gradient(ellipse at 48% 48%, rgba(39, 71, 88, .15), transparent 36%),
+        radial-gradient(circle at 78% 20%, rgba(85, 51, 76, .08), transparent 24%),
+        linear-gradient(180deg, #05070a 0%, #020406 62%, #010203 100%);
+      font-family: "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI", "Noto Sans SC", sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      content: "";
+      opacity: .45;
+      background-image:
+        radial-gradient(circle, rgba(219, 236, 248, .72) 0 1px, transparent 1.6px),
+        radial-gradient(circle, rgba(165, 204, 225, .5) 0 1px, transparent 1.5px),
+        radial-gradient(circle, rgba(255, 255, 255, .38) 0 .8px, transparent 1.4px);
+      background-position: 17px 31px, 73px 109px, 131px 53px;
+      background-size: 173px 191px, 251px 233px, 307px 269px;
+      mask-image: radial-gradient(ellipse at 48% 46%, #000 8%, rgba(0, 0, 0, .72) 58%, transparent 92%);
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      color: inherit;
+    }
+
+    button:focus-visible,
+    a:focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 4px;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: min(1760px, 100%);
+      min-height: 100svh;
+      margin: 0 auto;
+      padding: 18px 22px 22px;
+    }
+
+    .global-nav {
+      position: sticky;
+      top: 0;
+      z-index: 120;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 52px;
+      padding: 0 2px;
+      color: var(--muted);
+      background: rgba(5, 7, 10, .9);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .global-nav a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      color: #c8d0d7;
+      font-size: 13px;
+      text-decoration: none;
+    }
+
+    .global-nav a:hover,
+    .global-nav a:focus-visible {
+      color: var(--paper);
+    }
+
+    .global-nav span {
+      font-size: 12px;
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 64px;
+      padding: 0 2px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      position: relative;
+      flex: 0 0 38px;
+      width: 38px;
+      height: 38px;
+      border: 1px solid rgba(125, 211, 232, .46);
+      border-radius: 50%;
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      position: absolute;
+      content: "";
+      border-radius: 50%;
+    }
+
+    .brand-mark::before {
+      inset: 7px;
+      border: 1px solid rgba(231, 237, 242, .7);
+    }
+
+    .brand-mark::after {
+      top: 4px;
+      left: 50%;
+      width: 7px;
+      height: 7px;
+      background: var(--cyan);
+      box-shadow: 0 0 14px rgba(125, 211, 232, .8);
+      transform: translateX(-50%);
+    }
+
+    .brand h1 {
+      margin: 0;
+      color: var(--paper);
+      font-family: "Segoe UI Variable Display", "Segoe UI", "Microsoft YaHei UI", sans-serif;
+      font-size: clamp(24px, 2.2vw, 34px);
+      font-weight: 500;
+      letter-spacing: -.035em;
+      line-height: 1.05;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .header-stats {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .header-stats span {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .header-stats a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .header-stats a:hover {
+      color: var(--paper);
+    }
+
+    .snapshot-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-top: 12px;
+      padding: 11px 14px;
+      color: #aeb9c2;
+      border: 1px solid rgba(230, 179, 110, .25);
+      border-radius: 10px;
+      background: rgba(35, 27, 17, .36);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .snapshot-banner strong {
+      color: var(--amber);
+      font-weight: 560;
+    }
+
+    .snapshot-banner a {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      color: var(--paper);
+      text-decoration: none;
+      border-bottom: 1px solid #536170;
+    }
+
+    .header-stats span::before {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+      content: "";
+      opacity: .6;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(350px, 400px);
+      gap: 12px;
+      height: clamp(620px, calc(100svh - 210px), 900px);
+      padding-top: 12px;
+    }
+
+    .stage-shell {
+      position: relative;
+      height: 100%;
+      min-width: 0;
+      overflow: hidden;
+      border: 1px solid rgba(118, 149, 173, .09);
+      border-radius: var(--radius);
+      background:
+        radial-gradient(ellipse at 50% 48%, rgba(30, 58, 74, .13), transparent 35%),
+        radial-gradient(ellipse at 72% 78%, rgba(65, 40, 57, .055), transparent 30%),
+        linear-gradient(180deg, rgba(5, 8, 11, .98), rgba(2, 4, 7, .99));
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .025),
+        0 22px 70px rgba(0, 0, 0, .28);
+    }
+
+    .stage-shell::before {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      content: "";
+      background:
+        radial-gradient(ellipse at 50% 47%, transparent 32%, rgba(1, 3, 5, .18) 67%, rgba(0, 1, 2, .64) 100%),
+        linear-gradient(180deg, rgba(4, 7, 10, .28), transparent 16%, transparent 82%, rgba(2, 4, 6, .42));
+      mask-image: linear-gradient(180deg, #000 0%, #000 90%, transparent 100%);
+    }
+
+    .stage-toolbar {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      left: 16px;
+      z-index: 80;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      pointer-events: none;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+      color: var(--muted);
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 11px;
+      pointer-events: auto;
+    }
+
+    .breadcrumb button {
+      min-height: 32px;
+      margin-left: -7px;
+      padding: 4px 7px;
+      border: 0;
+      color: inherit;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .breadcrumb button:hover {
+      color: var(--paper);
+    }
+
+    .breadcrumb span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .crumb-separator {
+      flex: 0 0 auto;
+      color: #566474;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: auto;
+    }
+
+    .motion-toggle,
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      background: rgba(9, 13, 18, .74);
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+    }
+
+    .motion-toggle:hover,
+    .back-button:hover {
+      border-color: #344557;
+      color: var(--paper);
+    }
+
+    .motion-toggle::before {
+      width: 6px;
+      height: 6px;
+      margin-right: 7px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 9px rgba(125, 211, 232, .7);
+      content: "";
+    }
+
+    .motion-toggle[aria-pressed="false"]::before {
+      background: #5e6874;
+      box-shadow: none;
+    }
+
+    .back-button {
+      display: none;
+      padding-inline: 8px;
+      font-size: 12px;
+    }
+
+    .back-button.is-visible {
+      display: inline-flex;
+    }
+
+    .stage {
+      position: absolute;
+      inset: 0;
+      isolation: isolate;
+      overflow: hidden;
+      touch-action: pan-y;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .scene-lines,
+    .node-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .scene-lines {
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .scene-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .orbit-line {
+      fill: none;
+      stroke: var(--line-soft);
+      stroke-width: 1;
+      vector-effect: non-scaling-stroke;
+      transition: opacity .25s ease, stroke-width .25s ease;
+    }
+
+    .orbit-line.is-dashed {
+      stroke-dasharray: 2 10;
+      opacity: .65;
+    }
+
+    .orbit-tick {
+      stroke: rgba(138, 166, 187, .22);
+      stroke-width: 1;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .orbit-axis {
+      stroke: rgba(138, 166, 187, .08);
+      stroke-width: 1;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .orbital-plane {
+      fill: rgba(31, 58, 75, .09);
+      stroke: rgba(116, 151, 174, .12);
+      stroke-width: 1;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .stage.is-dragging {
+      cursor: grabbing;
+    }
+
+    .stage.is-rolling {
+      cursor: ew-resize;
+    }
+
+    .category-orbit {
+      opacity: .21;
+      stroke-width: .95;
+      stroke-dasharray: none;
+    }
+
+    .category-orbit.is-hot {
+      opacity: .42;
+      stroke-width: 1.15;
+      stroke-dasharray: none;
+    }
+
+    .orbit-trail {
+      fill: none;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      opacity: .72;
+      filter: drop-shadow(0 0 3px currentColor);
+    }
+
+    .orbit-trail.is-hot {
+      stroke-width: 2.2;
+      opacity: 1;
+    }
+
+    .star-dot {
+      fill: #c9d9e6;
+      opacity: .22;
+    }
+
+    .link-line {
+      stroke: var(--cyan);
+      stroke-width: 1.1;
+      stroke-dasharray: 4 8;
+      opacity: .6;
+      vector-effect: non-scaling-stroke;
+      animation: dashFlow 8s linear infinite;
+    }
+
+    @keyframes dashFlow {
+      to {
+        stroke-dashoffset: -48;
+      }
+    }
+
+    .core-aura {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: min(21vw, 214px);
+      height: min(21vw, 214px);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(167, 215, 224, .08), rgba(70, 101, 121, .02) 48%, transparent 70%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+    }
+
+    .core-aura::after {
+      position: absolute;
+      inset: 13%;
+      border: 1px solid rgba(125, 211, 232, .08);
+      border-radius: 50%;
+      content: "";
+    }
+
+    .category-node,
+    .file-node {
+      position: absolute;
+      display: grid;
+      justify-items: center;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .category-node {
+      z-index: 4;
+      place-items: center;
+      width: 44px;
+      min-height: 44px;
+      transition: opacity .35s ease, transform .16s ease-out;
+      overflow: visible;
+    }
+
+    .category-node:not(.is-core) .category-sphere::after {
+      position: absolute;
+      inset: -16%;
+      border: 1px solid color-mix(in srgb, var(--group-color) 44%, transparent);
+      border-radius: 50%;
+      content: "";
+      opacity: .46;
+      pointer-events: none;
+      transform: rotate(-17deg) scaleY(.25);
+      box-shadow: 0 0 8px color-mix(in srgb, var(--group-color) 12%, transparent);
+    }
+
+    .category-sphere {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: var(--diameter, 46px);
+      height: var(--diameter, 46px);
+      border: 1px solid color-mix(in srgb, var(--group-color) 44%, transparent);
+      border-radius: 50%;
+      color: var(--group-color);
+      background: #080e14;
+      box-shadow:
+        0 0 0 4px color-mix(in srgb, var(--group-color) 4%, transparent),
+        0 0 15px color-mix(in srgb, var(--group-color) 10%, transparent);
+      transform: scale(var(--planet-scale, 1));
+      transition:
+        transform .32s cubic-bezier(.2, .8, .2, 1),
+        scale .32s cubic-bezier(.2, .8, .2, 1),
+        box-shadow .32s ease,
+        border-color .32s ease;
+      overflow: visible;
+    }
+
+    .category-sphere::before,
+    .file-sphere::before {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      border-radius: inherit;
+      background: radial-gradient(circle, transparent 56%, rgba(0, 0, 0, .08) 78%, rgba(0, 0, 0, .46) 100%);
+      box-shadow: inset 0 0 6px rgba(0, 0, 0, .34);
+      content: "";
+      pointer-events: none;
+    }
+
+    .category-node.is-core .category-sphere::before {
+      background: radial-gradient(circle, transparent 54%, rgba(4, 16, 22, .1) 76%, rgba(1, 5, 8, .48) 100%);
+    }
+
+    .planet-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .category-node:hover .category-sphere,
+    .category-node:focus-visible .category-sphere {
+      border-color: color-mix(in srgb, var(--group-color) 85%, white 8%);
+      box-shadow:
+        0 0 0 6px color-mix(in srgb, var(--group-color) 7%, transparent),
+        0 0 24px color-mix(in srgb, var(--group-color) 20%, transparent);
+      transform: scale(var(--planet-scale, 1));
+      scale: 1.16;
+    }
+
+    .category-count {
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .category-label {
+      position: absolute;
+      top: calc(50% + var(--planet-span, var(--diameter, 46px)) / 2 + 8px);
+      left: 50%;
+      display: grid;
+      justify-items: center;
+      gap: 0;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.2;
+      opacity: .5;
+      transform: translateX(-50%);
+      transition: opacity .18s ease;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .category-label::before {
+      position: absolute;
+      top: -7px;
+      left: 50%;
+      width: 1px;
+      height: 5px;
+      background: var(--group-color);
+      content: "";
+      transform: translateX(-50%);
+      opacity: .4;
+    }
+
+    .category-label strong {
+      color: color-mix(in srgb, var(--group-color) 38%, #78848e 62%);
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .category-label small {
+      color: var(--muted);
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 10px;
+    }
+
+    .category-node.is-core {
+      z-index: 6;
+      width: 44px;
+    }
+
+    .category-node.is-core .category-sphere {
+      width: var(--diameter, 42px);
+      height: var(--diameter, 42px);
+      color: var(--paper);
+      background:
+        radial-gradient(circle at 34% 28%, rgba(255, 255, 255, .78), transparent 13%),
+        radial-gradient(circle at 42% 44%, rgba(125, 211, 232, .52), rgba(25, 37, 47, .9) 44%, #0b1116 74%);
+      box-shadow:
+        0 0 0 6px rgba(125, 211, 232, .025),
+        0 0 22px rgba(125, 211, 232, .18),
+        0 0 52px rgba(125, 211, 232, .055);
+    }
+
+    .category-node.is-core .category-label {
+      top: calc(50% + var(--planet-span, var(--diameter, 42px)) / 2 + 12px);
+      right: auto;
+      left: 50%;
+      justify-items: center;
+      text-align: center;
+      transform: translateX(-50%);
+    }
+
+    .category-node.is-core .category-label::before {
+      top: -9px;
+      left: 50%;
+      width: 1px;
+      height: 6px;
+      transform: translateX(-50%);
+    }
+
+    .category-node.is-core .category-label strong {
+      color: #9ba7b0;
+      font-size: 12px;
+    }
+
+    .category-node:hover .category-label,
+    .category-node:focus-visible .category-label {
+      opacity: 1;
+    }
+
+    .category-node:hover .category-label strong,
+    .category-node:focus-visible .category-label strong {
+      color: var(--paper);
+    }
+
+    .category-node:hover .category-label small,
+    .category-node:focus-visible .category-label small {
+      color: #aeb9c2;
+    }
+
+    .category-node:hover .category-label::before,
+    .category-node:focus-visible .category-label::before {
+      opacity: .9;
+    }
+
+    .sector-title {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 3;
+      display: none;
+      width: 190px;
+      height: 176px;
+      color: var(--paper);
+      text-align: center;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+    }
+
+    .sector-title.is-visible {
+      display: grid;
+    }
+
+    .sector-title::before {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 120px;
+      height: 120px;
+      border: 1px solid color-mix(in srgb, var(--sector-color) 36%, transparent);
+      border-radius: 50%;
+      background: radial-gradient(circle, color-mix(in srgb, var(--sector-color) 16%, transparent), transparent 68%);
+      content: "";
+      transform: translate(-50%, -50%) scale(var(--sector-scale, 1));
+    }
+
+    .sector-planet {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      display: block;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      box-shadow:
+        0 0 0 5px color-mix(in srgb, var(--sector-color) 4%, transparent),
+        0 0 30px color-mix(in srgb, var(--sector-color) 18%, transparent);
+      transform: translate(-50%, -50%) scale(var(--sector-scale, 1));
+    }
+
+    .sector-planet::after {
+      position: absolute;
+      inset: -12px;
+      border: 1px solid color-mix(in srgb, var(--sector-color) 24%, transparent);
+      border-radius: 50%;
+      content: "";
+      transform: rotate(-14deg) scaleY(.38);
+    }
+
+    .sector-title strong {
+      position: absolute;
+      top: calc(50% + 42px);
+      left: 50%;
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+      transform: translateX(-50%);
+    }
+
+    .sector-title .sector-folder {
+      position: absolute;
+      top: calc(50% + 60px);
+      left: 50%;
+      color: var(--sector-color);
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 10px;
+      white-space: nowrap;
+      transform: translateX(-50%);
+    }
+
+    .sector-title small {
+      position: absolute;
+      top: calc(50% + 76px);
+      left: 50%;
+      color: var(--muted);
+      font-size: 10px;
+      transform: translateX(-50%);
+    }
+
+    .file-node {
+      z-index: 5;
+      width: 44px;
+      min-height: 44px;
+      align-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease, transform .13s ease-out;
+    }
+
+    .file-node.is-visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .file-node .node-body {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      min-height: 44px;
+    }
+
+    .file-sphere {
+      position: relative;
+      flex: 0 0 var(--file-size, 12px);
+      width: var(--file-size, 12px);
+      height: var(--file-size, 12px);
+      border: 1px solid color-mix(in srgb, var(--file-color) 75%, white 8%);
+      border-radius: 50%;
+      background: #091016;
+      box-shadow: 0 0 13px color-mix(in srgb, var(--file-color) 24%, transparent);
+      transform: scale(var(--planet-scale, 1));
+      transition:
+        transform .2s cubic-bezier(.2, .8, .2, 1),
+        scale .2s cubic-bezier(.2, .8, .2, 1),
+        box-shadow .2s ease;
+      overflow: visible;
+    }
+
+    .file-sphere .planet-canvas {
+      inset: 0;
+    }
+
+    .file-node:hover .file-sphere,
+    .file-node:focus-visible .file-sphere,
+    .file-node.is-active .file-sphere {
+      transform: scale(var(--planet-scale, 1));
+      scale: 1.38;
+      box-shadow:
+        0 0 0 6px color-mix(in srgb, var(--file-color) 7%, transparent),
+        0 0 24px color-mix(in srgb, var(--file-color) 42%, transparent);
+    }
+
+    .file-name {
+      position: absolute;
+      top: calc(50% + var(--planet-span, var(--file-size, 12px)) / 2 + 5px);
+      left: 50%;
+      width: max-content;
+      max-width: 128px;
+      overflow: hidden;
+      padding: 1px 3px;
+      border-radius: 3px;
+      color: #7a8791;
+      background: rgba(4, 8, 11, .48);
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 9px;
+      line-height: 1.25;
+      opacity: .48;
+      text-align: center;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      transform: translateX(-50%);
+      transition: color .18s ease, opacity .18s ease, background-color .18s ease;
+      pointer-events: none;
+    }
+
+    .file-node:hover .file-name,
+    .file-node:focus-visible .file-name,
+    .file-node.is-active .file-name {
+      color: var(--paper);
+      background: rgba(6, 10, 14, .82);
+      opacity: 1;
+    }
+
+    .stage.compact-labels .file-node:hover,
+    .stage.compact-labels .file-node:focus-visible,
+    .stage.compact-labels .file-node.is-active {
+      z-index: 14;
+    }
+
+    .category-node:hover,
+    .category-node:focus-visible,
+    .file-node:hover,
+    .file-node:focus-visible,
+    .file-node.is-active {
+      z-index: 70 !important;
+    }
+
+    .file-node.is-related:not(.is-active) .file-sphere {
+      box-shadow:
+        0 0 0 4px color-mix(in srgb, var(--file-color) 6%, transparent),
+        0 0 19px color-mix(in srgb, var(--file-color) 32%, transparent);
+    }
+
+    .stage-hint {
+      position: absolute;
+      bottom: 18px;
+      left: 18px;
+      z-index: 7;
+      max-width: 360px;
+      color: #74808d;
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 11px;
+      pointer-events: none;
+    }
+
+    .stage-hint strong {
+      color: #9ca8b4;
+      font-weight: 500;
+    }
+
+    .sector-rail {
+      display: none;
+    }
+
+    .camera-rail {
+      position: absolute;
+      right: 16px;
+      bottom: 17px;
+      z-index: 80;
+      display: grid;
+      grid-template-columns: 40px;
+      justify-items: center;
+      gap: 4px;
+      padding: 5px;
+      border: 1px solid rgba(135, 165, 186, .12);
+      border-radius: 10px;
+      background: rgba(4, 8, 11, .6);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .18);
+      backdrop-filter: blur(14px);
+    }
+
+    .camera-rail button {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border: 0;
+      border-radius: 7px;
+      color: #9caab6;
+      background: transparent;
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 15px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .camera-rail button:hover {
+      color: var(--paper);
+      background: rgba(125, 211, 232, .075);
+    }
+
+    .camera-zoom {
+      color: #6e7d89;
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 8px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.4;
+    }
+
+    .dossier {
+      position: relative;
+      min-width: 0;
+      overflow: auto;
+      border: 1px solid rgba(126, 153, 174, .18);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(180deg, rgba(12, 16, 21, .96), rgba(6, 9, 13, .975));
+      box-shadow: 0 18px 55px rgba(0, 0, 0, .24);
+      backdrop-filter: blur(18px);
+      scrollbar-width: thin;
+      scrollbar-color: #2b3946 transparent;
+    }
+
+    .dossier::before {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      display: block;
+      height: 2px;
+      background: linear-gradient(90deg, var(--panel-accent, var(--cyan)), transparent 72%);
+      content: "";
+      opacity: .8;
+    }
+
+    .dossier-inner {
+      padding: 25px 24px 30px;
+    }
+
+    .dossier-kicker {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      color: #aab5be;
+      font-size: 12px;
+    }
+
+    .dossier-kicker::before {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--panel-accent, var(--cyan));
+      box-shadow: 0 0 11px color-mix(in srgb, var(--panel-accent, var(--cyan)) 55%, transparent);
+      content: "";
+    }
+
+    .dossier h2 {
+      margin: 0;
+      color: var(--paper);
+      font-family: "Segoe UI Variable Display", "Segoe UI", "Microsoft YaHei UI", sans-serif;
+      font-size: clamp(24px, 2vw, 28px);
+      font-weight: 500;
+      letter-spacing: -.025em;
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+    }
+
+    .dossier-path {
+      margin: 7px 0 0;
+      color: #a7b3bd;
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .dossier-lead {
+      margin: 19px 0 0;
+      color: #c2ccd5;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .detail-block {
+      margin-top: 21px;
+      padding-top: 17px;
+      border-top: 1px solid var(--line);
+    }
+
+    .detail-block h3 {
+      margin: 0 0 8px;
+      color: #aeb9c2;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .detail-block p,
+    .detail-block ul {
+      margin: 0;
+      color: #d0d8df;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .detail-block ul {
+      padding-left: 17px;
+    }
+
+    .detail-block li + li {
+      margin-top: 4px;
+    }
+
+    .related-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 8px;
+    }
+
+    .related-link {
+      min-height: 30px;
+      padding: 4px 0;
+      border: 0;
+      border-bottom: 1px solid #2a3947;
+      color: #b5dce9;
+      background: transparent;
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 11px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .related-link:hover {
+      border-color: var(--cyan);
+      color: var(--paper);
+    }
+
+    .file-meta {
+      display: grid;
+      gap: 8px;
+      margin-top: 18px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .file-meta li {
+      display: grid;
+      grid-template-columns: 74px minmax(0, 1fr);
+      gap: 10px;
+      color: #aeb9c2;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .file-meta strong {
+      color: #c6d0d9;
+      font-weight: 500;
+    }
+
+    .overview-list {
+      display: grid;
+      gap: 0;
+      margin-top: 20px;
+      border-top: 1px solid var(--line);
+    }
+
+    .overview-row {
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr) 28px;
+      align-items: start;
+      gap: 4px 12px;
+      min-height: 66px;
+      padding: 11px 4px;
+      border-bottom: 1px solid var(--line);
+      color: #b9c4cd;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .overview-row b {
+      color: var(--paper);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .overview-row em {
+      padding-top: 3px;
+      color: var(--row-color, var(--cyan));
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 11px;
+      font-style: normal;
+    }
+
+    .overview-row span {
+      line-height: 1.55;
+    }
+
+    .overview-note {
+      margin-top: 20px;
+      padding: 14px 0 0;
+      border-top: 1px solid var(--line);
+      color: #9ba8b2;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .group-file-list {
+      display: grid;
+      gap: 0;
+      margin-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .group-file-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 46px;
+      padding: 7px 6px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      color: #c5ced6;
+      background: transparent;
+      border-radius: 7px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .group-file-row span:first-child {
+      overflow: hidden;
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .group-file-row span:last-child {
+      flex: 0 0 auto;
+      color: #aeb9c2;
+      font-size: 11px;
+    }
+
+    .group-file-row:hover {
+      color: var(--paper);
+      background: rgba(125, 211, 232, .055);
+    }
+
+    @media (max-width: 1100px) {
+      .workspace {
+        grid-template-columns: minmax(0, 1fr) 350px;
+      }
+
+      .header-stats span:nth-child(2) {
+        display: none;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .app {
+        padding: 16px 14px 22px;
+      }
+
+      .app-header {
+        align-items: flex-start;
+      }
+
+      .header-stats {
+        gap: 10px;
+        padding-top: 5px;
+      }
+
+      .workspace {
+        grid-template-columns: minmax(0, 1fr);
+        height: auto;
+      }
+
+      .stage-shell {
+        height: min(650px, 72svh);
+        min-height: 500px;
+      }
+
+      .dossier {
+        min-height: 360px;
+        max-height: none;
+      }
+
+      .sector-rail {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        left: 12px;
+        z-index: 9;
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        padding: 7px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(8, 12, 17, .86);
+        scrollbar-width: none;
+        backdrop-filter: blur(14px);
+        mask-image: linear-gradient(90deg, #000 0%, #000 94%, transparent 100%);
+      }
+
+      .sector-rail::-webkit-scrollbar {
+        display: none;
+      }
+
+      .sector-rail button {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        flex: 0 0 auto;
+        min-height: 34px;
+        padding: 5px 9px;
+        border: 0;
+        border-radius: 7px;
+        color: var(--muted);
+        background: transparent;
+        font-size: 11px;
+        cursor: pointer;
+      }
+
+      .sector-rail button::before {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--rail-color, var(--muted));
+        content: "";
+        opacity: .75;
+      }
+
+      .sector-rail button.is-active {
+        color: var(--paper);
+        background: #18222c;
+      }
+
+      .stage-hint {
+        display: none;
+      }
+
+      .camera-rail {
+        right: 14px;
+        bottom: 66px;
+      }
+
+      .stage-toolbar {
+        right: 16px;
+      }
+
+      .category-label small {
+        display: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app-header {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding-bottom: 14px;
+      }
+
+      .brand {
+        gap: 11px;
+      }
+
+      .brand-mark {
+        flex-basis: 32px;
+        width: 32px;
+        height: 32px;
+      }
+
+      .brand h1 {
+        font-size: 23px;
+      }
+
+      .brand p {
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .header-stats span,
+      .header-stats span:last-child {
+        display: inline-flex;
+      }
+
+      .header-stats {
+        display: flex;
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 9px 15px;
+        padding-top: 0;
+        font-size: 11px;
+        line-height: 1.5;
+        white-space: normal;
+      }
+
+      .header-stats a,
+      .breadcrumb button {
+        min-height: 44px;
+        align-items: center;
+      }
+
+      .snapshot-banner {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 7px;
+      }
+
+      .snapshot-banner a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+      }
+
+      .workspace {
+        padding-top: 12px;
+        gap: 12px;
+      }
+
+      .stage-shell {
+        height: 570px;
+        min-height: 570px;
+      }
+
+      .stage-toolbar {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+      }
+
+      .breadcrumb {
+        max-width: calc(100% - 80px);
+      }
+
+      .motion-toggle {
+        min-height: 44px;
+        padding-inline: 10px;
+        font-size: 11px;
+      }
+
+      .camera-rail {
+        right: 10px;
+        bottom: 62px;
+      }
+
+      .camera-rail {
+        grid-template-columns: 44px;
+        padding: 4px;
+      }
+
+      .camera-rail button {
+        width: 44px;
+        height: 44px;
+      }
+
+      .sector-rail button {
+        min-height: 44px;
+      }
+
+      .category-node {
+        width: 44px;
+      }
+
+      .category-label strong {
+        font-size: 11px;
+      }
+
+      .dossier-inner {
+        padding: 20px 17px 24px;
+      }
+
+      .dossier h2 {
+        font-size: 21px;
+      }
+
+      .detail-block p,
+      .detail-block ul {
+        font-size: 13px;
+      }
+    }
+
+    .header-stats,
+    .breadcrumb {
+      font-size: 13px;
+    }
+
+    .stage-hint {
+      color: #929da8;
+      font-size: 12px;
+    }
+
+    .category-label strong {
+      font-size: 13px;
+    }
+
+    .category-label small {
+      color: #9aa5af;
+      font-size: 12px;
+    }
+
+    .file-name {
+      color: #9aa4ad;
+      font-size: 12px;
+      opacity: .72;
+    }
+
+    .camera-zoom {
+      color: #9aa5af;
+      font-size: 12px;
+    }
+
+    .sector-rail button {
+      font-size: 13px;
+    }
+
+    .dossier-kicker,
+    .dossier-path {
+      font-size: 12px;
+    }
+
+    .overview-row em {
+      font-size: 12px;
+    }
+
+    .motion-toggle {
+      font-size: 13px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+      }
+    }
+  </style>
+<style id="dse-current-orrery-adjustments">
+  .file-name {
+    max-width: 160px;
+    font-size: 11px;
+  }
+
+  .stage.compact-labels .file-node:not(.is-anchor) .file-name {
+    opacity: 0;
+  }
+
+  .stage.compact-labels .file-node.is-anchor .file-name {
+    opacity: .72;
+  }
+
+  .stage.compact-labels .file-node:hover .file-name,
+  .stage.compact-labels .file-node:focus-visible .file-name,
+  .stage.compact-labels .file-node.is-active .file-name {
+    opacity: 1;
+  }
+
+  .category-node:not(.is-core) .category-label small {
+    display: none;
+  }
+
+  .category-node:not(.is-core):hover .category-label small,
+  .category-node:not(.is-core):focus-visible .category-label small {
+    display: block;
+  }
+
+  @media (min-width: 621px) and (max-width: 1120px) {
+    .workspace {
+      grid-template-columns: minmax(0, 1fr);
+      height: auto;
+    }
+
+    .stage-shell {
+      height: min(680px, 74svh);
+      min-height: 560px;
+    }
+
+    .dossier {
+      min-height: 420px;
+      max-height: none;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .global-nav {
+      min-height: 48px;
+      gap: 8px;
+    }
+
+    .global-nav a {
+      min-height: 40px;
+      font-size: 12px;
+    }
+
+    .global-nav > span {
+      display: none;
+    }
+
+    .category-node:not(.is-core) .category-label {
+      display: none;
+    }
+  }
+</style>
+</head>
+<body>
+  <main class="app">
+    <nav class="global-nav" aria-label="全局导航">
+      <a href="../">← 返回项目地图</a>
+      <span aria-current="page">当前文件星系 · 2.4.0</span>
+    </nav>
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div>
+          <h1>当前文件星系</h1>
+          <p>电脑硬件工作台 · Skill 2.4.0 的 86 文件结构</p>
+        </div>
+      </div>
+      <div class="header-stats" aria-label="项目概况">
+        <span>86 个文件</span>
+        <span>7 个星体系统</span>
+        <span>当前候选 · Skill 2.4.0</span>
+      </div>
+    </header>
+
+    <div class="snapshot-banner" role="note"><span><strong>当前快照：</strong>清单直接取自 Git 跟踪的 86 个文件；逐文件 SHA 与结构权重由生成器计算。指纹 <code>EFA294799FF5</code>。</span></div>
+
+    <div class="workspace">
+      <section class="stage-shell" aria-label="Skill 2.4.0 当前文件星系">
+        <div class="stage-toolbar">
+          <div class="breadcrumb" id="breadcrumb" aria-live="polite"></div>
+          <div class="toolbar-actions">
+            <button class="back-button" id="backButton" type="button">返回星系</button>
+            <button class="motion-toggle" id="motionToggle" type="button" aria-pressed="false">自动视角</button>
+          </div>
+        </div>
+
+        <div class="stage" id="stage">
+          <div class="core-aura" aria-hidden="true"></div>
+          <div class="scene-lines" id="sceneLines" aria-hidden="true"></div>
+          <div class="node-layer" id="orbitLayer"></div>
+          <div class="sector-title" id="sectorTitle" aria-hidden="true"></div>
+          <div class="node-layer" id="fileLayer"></div>
+          <p class="stage-hint"><strong>操作：</strong>拖动空白处旋转视角，Shift 或右键拖动滚转，滚轮缩放；点击目录展开文件。</p>
+          <div class="camera-rail" aria-label="视角控制">
+            <button id="zoomIn" type="button" aria-label="拉近星系">+</button>
+            <span class="camera-zoom" id="cameraZoomLabel" aria-live="polite">100</span>
+            <button id="zoomReset" type="button" aria-label="重置星系视角">◎</button>
+            <button id="zoomOut" type="button" aria-label="拉远星系">−</button>
+          </div>
+          <nav class="sector-rail" id="sectorRail" aria-label="快速选择目录"></nav>
+        </div>
+      </section>
+
+      <aside class="dossier" id="dossier" aria-live="polite" aria-label="文件档案"></aside>
+    </div>
+  </main>
+
+  <script>
+    const GROUPS = {
+    "core":  {
+                 "name":  "契约核心",
+                 "folder":  "root",
+                 "root":  "",
+                 "ring":  0,
+                 "orbitScale":  0,
+                 "flatten":  0,
+                 "focusSide":  0,
+                 "tilt":  0,
+                 "inclination":  0,
+                 "color":  "#eef4f7",
+                 "summary":  "Skill 的入口、调用元数据、路由与安全优先级；所有条件加载都从这里出发。",
+                 "angle":  0,
+                 "speed":  0
+             },
+    "integration":  {
+                        "name":  "流程与证据",
+                        "folder":  "integration/",
+                        "root":  "references/integration/",
+                        "ring":  1,
+                        "orbitScale":  0.3,
+                        "flatten":  0.883,
+                        "focusSide":  0,
+                        "tilt":  -1.8,
+                        "inclination":  2.4,
+                        "color":  "#7dd3e8",
+                        "summary":  "20 个跨模式参考，覆盖采集、证据、案卷、遥测、交接和维护。",
+                        "angle":  -15,
+                        "speed":  0.85
+                    },
+    "tuning":  {
+                   "name":  "调校决策",
+                   "folder":  "tuning/",
+                   "root":  "references/tuning/",
+                   "ring":  2,
+                   "orbitScale":  0.55,
+                   "flatten":  0.929,
+                   "focusSide":  0,
+                   "tilt":  2.6,
+                   "inclination":  -3.1,
+                   "color":  "#d99ab7",
+                   "summary":  "13 个参考把入口门禁、单变量实验、GPU 行为、恢复和记录串成闭环。",
+                   "angle":  -50,
+                   "speed":  0.67
+               },
+    "triage":  {
+                   "name":  "故障分流",
+                   "folder":  "triage/",
+                   "root":  "references/triage/",
+                   "ring":  2,
+                   "orbitScale":  0.42,
+                   "flatten":  0.901,
+                   "focusSide":  0,
+                   "tilt":  0,
+                   "inclination":  0,
+                   "color":  "#e6b36e",
+                   "summary":  "先定位故障层，再决定采集、诊断实验、停止还是转交维修。",
+                   "angle":  145,
+                   "speed":  -0.51
+               },
+    "upgrade":  {
+                    "name":  "升级判断",
+                    "folder":  "upgrade/",
+                    "root":  "references/upgrade/",
+                    "ring":  3,
+                    "orbitScale":  0.67,
+                    "flatten":  0.947,
+                    "focusSide":  0,
+                    "tilt":  0,
+                    "inclination":  0,
+                    "color":  "#b3d89a",
+                    "summary":  "6 个参考区分性能、维修、偏好和未来项目，比较保留与非购买选项。",
+                    "angle":  200,
+                    "speed":  -0.37
+                },
+    "scripts":  {
+                    "name":  "运行内核",
+                    "folder":  "scripts/",
+                    "root":  "scripts/",
+                    "ring":  3,
+                    "orbitScale":  0.79,
+                    "flatten":  0.963,
+                    "focusSide":  0,
+                    "tilt":  -1.2,
+                    "inclination":  1.8,
+                    "color":  "#7f9dff",
+                    "summary":  "17 个脚本与原生探针承担只读采集、遥测管线、案卷、适配与诊断。",
+                    "angle":  70,
+                    "speed":  0.45
+                },
+    "tests":  {
+                  "name":  "验证网络",
+                  "folder":  "tests/",
+                  "root":  "tests/",
+                  "ring":  4,
+                  "orbitScale":  0.9,
+                  "flatten":  0.976,
+                  "focusSide":  0,
+                  "tilt":  2.2,
+                  "inclination":  3.4,
+                  "color":  "#e78f73",
+                  "summary":  "23 个场景、测试与结果记录把契约、脚本、隐私和人工验收变成证据。",
+                  "angle":  235,
+                  "speed":  -0.22
+              }
+};
+
+    const FILES = [
+    {
+        "group":  "core",
+        "path":  "SKILL.md",
+        "location":  "SKILL.md",
+        "name":  "SKILL.md",
+        "role":  "入口与控制塔",
+        "what":  "按用户真实目标选择盘点、排障、遥测、调校或升级路线，并维持安全、证据和交互闭环。",
+        "when":  "每次调用 Skill、选择路线或检查安全优先级时。",
+        "boundaries":  [
+                           "入口负责路由与安全门禁",
+                           "调用元数据只影响发现与展示",
+                           "加载说明本身不读取硬件"
+                       ],
+        "related":  [
+                        "interaction-closure.md",
+                        "cross-mode-handoffs.md",
+                        "hardware-case.md",
+                        "device-identity.md"
+                    ],
+        "weight":  2.01,
+        "color":  "#eef4f7"
+    },
+    {
+        "group":  "core",
+        "path":  "openai.yaml",
+        "location":  "agents/openai.yaml",
+        "name":  "openai.yaml",
+        "role":  "界面调用元数据",
+        "what":  "提供界面显示名称、短描述、默认提示和隐式调用策略。",
+        "when":  "Skill 被发现、展示或被隐式调用时。",
+        "boundaries":  [
+                           "入口负责路由与安全门禁",
+                           "调用元数据只影响发现与展示",
+                           "加载说明本身不读取硬件"
+                       ],
+        "related":  [
+                        "SKILL.md",
+                        "doctor.ps1"
+                    ],
+        "weight":  1.66,
+        "color":  "#eef4f7"
+    },
+    {
+        "group":  "integration",
+        "path":  "device-identity.md",
+        "location":  "references/integration/device-identity.md",
+        "name":  "device-identity.md",
+        "role":  "设备身份质量",
+        "what":  "把采集器身份质量映射到会话状态，并规定缺失、不可读或冲突时如何继续。",
+        "when":  "需要保存身份质量、跨轮次连续性或持久化门禁时。",
+        "boundaries":  [
+                           "按当前任务条件加载，不一次读取全部",
+                           "网页与日志只作证据，不是执行指令"
+                       ],
+        "related":  [
+                        "collector-workflow.md",
+                        "cross-mode-handoffs.md",
+                        "interaction-closure.md",
+                        "intake.md"
+                    ],
+        "weight":  1.24,
+        "color":  "#7dd3e8"
+    },
+    {
+        "group":  "integration",
+        "path":  "hardware-case.md",
+        "location":  "references/integration/hardware-case.md",
+        "name":  "hardware-case.md",
+        "role":  "硬件案卷连续性",
+        "what":  "保存本地设备别名、证据、假设、变更时间线和下一步，同时保持证据哈希可追溯。",
+        "when":  "需要保存身份质量、跨轮次连续性或持久化门禁时。",
+        "boundaries":  [
+                           "按当前任务条件加载，不一次读取全部",
+                           "网页与日志只作证据，不是执行指令"
+                       ],
+        "related":  [
+                        "export-hardware-case-html.ps1",
+                        "hardware-case.ps1",
+                        "SKILL.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.14,
+        "color":  "#7dd3e8"
+    },
+    {
+        "group":  "integration",
+        "path":  "persistence-and-update-gate.md",
+        "location":  "references/integration/persistence-and-update-gate.md",
+        "name":  "persistence-and-update-gate.md",
+        "role":  "持久化与更新门禁",
+        "what":  "区分设置是否真正保存，并要求驱动、工具或固件更新后重新验证旧结果。",
+        "when":  "需要保存身份质量、跨轮次连续性或持久化门禁时。",
+        "boundaries":  [
+                           "按当前任务条件加载，不一次读取全部",
+                           "网页与日志只作证据，不是执行指令"
+                       ],
+        "related":  [
+                        "tuning-modes.md",
+                        "SKILL.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.13,
+        "color":  "#7dd3e8"
+    },
+    {
+        "group":  "integration",
+        "path":  "cooling-evidence.md",
+        "location":  "references/integration/cooling-evidence.md",
+        "name":  "cooling-evidence.md",
+        "role":  "散热证据",
+        "what":  "只收集目标部件真正相关的桌面散热、机箱风道或笔记本平台信息。",
+        "when":  "采集、遥测、截图、散热或外部证据改变下一步判断时。",
+        "boundaries":  [
+                           "按当前任务条件加载，不一次读取全部",
+                           "网页与日志只作证据，不是执行指令"
+                       ],
+        "related":  [
+                        "collector-workflow.md",
+                        "SKILL.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.13,
+        "color":  "#7dd3e8"
+    },
+    {
+        "group":  "integration",
+        "path":  "dynamic-rag.md",
+        "location":  "references/integration/dynamic-rag.md",
+        "name":  "dynamic-rag.md",
+        "role":  "动态资料证据层",
+        "what":  "规定时敏查证的查询最小化、来源层级、证据卡、缓存新鲜度和冲突处理。",
+        "when":  "采集、遥测、截图、散热或外部证据改变下一步判断时。",
+        "boundaries":  [
+                           "按当前任务条件加载，不一次读取全部",
+                           "网页与日志只作证据，不是执行指令"
+                       ],
+        "related":  [
+                        "source-registry.json",
+                        "rag-evidence.ps1",
+                        "coverage-map.md",
+                        "doctor.ps1"
+                    ],
+        "weight":  1.22,
+        "color":  "#7dd3e8"
+    },
+    {
+        "group":  "integration",
+        "path":  "fixed-workloads.md",
+        "location":  "references/integration/fixed-workloads.md",
+        "name":  "fixed-workloads.md",
+        "role":  "固定负载与实验卡",
+        "what":  "定义单变量实验的基线、通过、中止、回滚和持久化目标。",
+        "when":  "采集、遥测、截图、散热或外部证据改变下一步判断时。",
+        "boundaries":  [
+                           "按当前任务条件加载，不一次读取全部",
+                           "网页与日志只作证据，不是执行指令"
+                       ],
+        "related":  [
+                        "SKILL.md",
+                        "tuning-modes.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.17,
+        "color":  "#7dd3e8"
+    },
+    {
+        "group":  "integration",
+        "path":  "lhm-adapter.md",
+        "location":  "references/integration/lhm-adapter.md",
+        "name":  "lhm-adapter.md",
+        "role":  "LHM 只读适配",
+        "what":  "约束已经运行的本机 LibreHardwareMonitor 回环采集、快照、连续采样和失败处理。",
+        "when":  "采集、遥测、截图、散热或外部证据改变下一步判断时。",
+        "boundaries":  [
+                           "按当前任务条件加载，不一次读取全部",
+                           "网页与日志只作证据，不是执行指令"
+                       ],
+        "related":  [
+                        "read-lhm-telemetry.ps1",
+                        "normalize-telemetry.ps1",
+                        "render-telemetry-chart.ps1",
+                        "coverage-map.md"
+                    ],
+        "weight":  1.23,
+        "color":  "#7dd3e8"
+    },
+    {
+        "group":  "integration",
+        "path":  "success-and-sensor-semantics.md",
+        "location":  "references/integration/success-and-sensor-semantics.md",
+        "name":  "success-and-sensor-semantics.md",
+        "role":  "成功与传感器语义",
+        "what":  "解释 FPS、低帧、功耗、温度和限制原因各自能证明什么，以及不能证明什么。",
+        "when":  "采集、遥测、截图、散热或外部证据改变下一步判断时。",
+        "boundaries":  [
+                           "按当前任务条件加载，不一次读取全部",
+                           "网页与日志只作证据，不是执行指令"
+                       ],
+        "related":  [
+                        "tuning-modes.md",
+                        "component-playbooks.md",
+                        "SKILL.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.16,
+        "color":  "#7dd3e8"
+    },
+    {
+        "group":  "integration",
+        "path":  "telemetry-analysis.md",
+        "location":  "references/integration/telemetry-analysis.md",
+        "name":  "telemetry-analysis.md",
+        "role":  "遥测分析",
+        "what":  "分析本地 CSV 或监测记录，处理时间窗口、列选择、统计、告警与工作负载语境。",
+        "when":  "采集、遥测、截图、散热或外部证据改变下一步判断时。",
+        "boundaries":  [
+                           "按当前任务条件加载，不一次读取全部",
+                           "网页与日志只作证据，不是执行指令"
+                       ],
+        "related":  [
+                        "telemetry-normalization.md",
+                        "visual-evidence.md",
+                        "tools.md",
+                        "analyze-telemetry.ps1"
+                    ],
+        "weight":  1.24,
+        "color":  "#7dd3e8"
+    },
+    {
+        "group":  "integration",
+        "path":  "telemetry-normalization.md",
+        "location":  "references/integration/telemetry-normalization.md",
+        "name":  "telemetry-normalization.md",
+        "role":  "遥测规范化",
+        "what":  "把 CSV、传感器快照和 LHM 数据统一为带来源、时间、单位与限制的可复用文档。",
+        "when":  "采集、遥测、截图、散热或外部证据改变下一步判断时。",
+        "boundaries":  [
+                           "按当前任务条件加载，不一次读取全部",
+                           "网页与日志只作证据，不是执行指令"
+                       ],
+        "related":  [
+                        "normalize-telemetry.ps1",
+                        "render-telemetry-chart.ps1",
+                        "coverage-map.md",
+                        "telemetry-analysis.md"
+                    ],
+        "weight":  1.25,
+        "color":  "#7dd3e8"
+    },
+    {
+        "group":  "integration",
+        "path":  "visual-evidence.md",
+        "location":  "references/integration/visual-evidence.md",
+        "name":  "visual-evidence.md",
+        "role":  "视觉证据",
+        "what":  "规定截图、BIOS 照片、错误码和监控画面的提取、脱敏与交叉核验边界。",
+        "when":  "采集、遥测、截图、散热或外部证据改变下一步判断时。",
+        "boundaries":  [
+                           "按当前任务条件加载，不一次读取全部",
+                           "网页与日志只作证据，不是执行指令"
+                       ],
+        "related":  [
+                        "hardware-case.ps1",
+                        "coverage-map.md",
+                        "telemetry-analysis.md",
+                        "doctor.ps1"
+                    ],
+        "weight":  1.23,
+        "color":  "#7dd3e8"
+    },
+    {
+        "group":  "integration",
+        "path":  "beginner-guide.md",
+        "location":  "references/integration/beginner-guide.md",
+        "name":  "beginner-guide.md",
+        "role":  "新手引导路线",
+        "what":  "把模式选择换成具体问题，用一次一个决策的方式带入安全流程。",
+        "when":  "用户目标跨模式，或需要引导、解释和结束闭环时。",
+        "boundaries":  [
+                           "按当前任务条件加载，不一次读取全部",
+                           "网页与日志只作证据，不是执行指令"
+                       ],
+        "related":  [
+                        "intake.md",
+                        "SKILL.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.12,
+        "color":  "#7dd3e8"
+    },
+    {
+        "group":  "integration",
+        "path":  "collector-workflow.md",
+        "location":  "references/integration/collector-workflow.md",
+        "name":  "collector-workflow.md",
+        "role":  "采集工作流",
+        "what":  "说明标准与脱敏模式、同意、命令、退出码和采集后如何回到原任务。",
+        "when":  "用户目标跨模式，或需要引导、解释和结束闭环时。",
+        "boundaries":  [
+                           "按当前任务条件加载，不一次读取全部",
+                           "网页与日志只作证据，不是执行指令"
+                       ],
+        "related":  [
+                        "output-format.md",
+                        "device-identity.md",
+                        "cooling-evidence.md",
+                        "hardware-detection.md"
+                    ],
+        "weight":  1.22,
+        "color":  "#7dd3e8"
+    },
+    {
+        "group":  "integration",
+        "path":  "cross-mode-handoffs.md",
+        "location":  "references/integration/cross-mode-handoffs.md",
+        "name":  "cross-mode-handoffs.md",
+        "role":  "跨模式交接",
+        "what":  "在盘点、排障、遥测、调校和购买之间携带证据、结果与未解决问题。",
+        "when":  "用户目标跨模式，或需要引导、解释和结束闭环时。",
+        "boundaries":  [
+                           "按当前任务条件加载，不一次读取全部",
+                           "网页与日志只作证据，不是执行指令"
+                       ],
+        "related":  [
+                        "device-identity.md",
+                        "SKILL.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.12,
+        "color":  "#7dd3e8"
+    },
+    {
+        "group":  "integration",
+        "path":  "explanation-style.md",
+        "location":  "references/integration/explanation-style.md",
+        "name":  "explanation-style.md",
+        "role":  "解释风格",
+        "what":  "按用户知识、风险和参数类型调整 Action、Analogy 与 Consequence 的密度。",
+        "when":  "用户目标跨模式，或需要引导、解释和结束闭环时。",
+        "boundaries":  [
+                           "按当前任务条件加载，不一次读取全部",
+                           "网页与日志只作证据，不是执行指令"
+                       ],
+        "related":  [
+                        "SKILL.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.09,
+        "color":  "#7dd3e8"
+    },
+    {
+        "group":  "integration",
+        "path":  "interaction-closure.md",
+        "location":  "references/integration/interaction-closure.md",
+        "name":  "interaction-closure.md",
+        "role":  "交互闭环",
+        "what":  "确保每个分支都有结果、下一步、问题、取消、停止或交接，而不是留下悬空流程。",
+        "when":  "用户目标跨模式，或需要引导、解释和结束闭环时。",
+        "boundaries":  [
+                           "按当前任务条件加载，不一次读取全部",
+                           "网页与日志只作证据，不是执行指令"
+                       ],
+        "related":  [
+                        "device-identity.md",
+                        "SKILL.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.12,
+        "color":  "#7dd3e8"
+    },
+    {
+        "group":  "integration",
+        "path":  "tuning-modes.md",
+        "location":  "references/integration/tuning-modes.md",
+        "name":  "tuning-modes.md",
+        "role":  "快速与深入调校",
+        "what":  "在不降低五道安全门禁的前提下，调整讲解、记录和实验深度。",
+        "when":  "用户目标跨模式，或需要引导、解释和结束闭环时。",
+        "boundaries":  [
+                           "按当前任务条件加载，不一次读取全部",
+                           "网页与日志只作证据，不是执行指令"
+                       ],
+        "related":  [
+                        "fixed-workloads.md",
+                        "success-and-sensor-semantics.md",
+                        "persistence-and-update-gate.md",
+                        "intake.md"
+                    ],
+        "weight":  1.18,
+        "color":  "#7dd3e8"
+    },
+    {
+        "group":  "integration",
+        "path":  "coverage-map.md",
+        "location":  "references/integration/coverage-map.md",
+        "name":  "coverage-map.md",
+        "role":  "覆盖与维护地图",
+        "what":  "记录版本来源、受控修订、脚本集合和维护时必须保持的路由不变量。",
+        "when":  "安装、分发、维护或运行环境需要诊断时。",
+        "boundaries":  [
+                           "按当前任务条件加载，不一次读取全部",
+                           "网页与日志只作证据，不是执行指令"
+                       ],
+        "related":  [
+                        "dynamic-rag.md",
+                        "lhm-adapter.md",
+                        "skill-doctor.md",
+                        "telemetry-normalization.md"
+                    ],
+        "weight":  1.21,
+        "color":  "#7dd3e8"
+    },
+    {
+        "group":  "integration",
+        "path":  "installation-coexistence.md",
+        "location":  "references/integration/installation-coexistence.md",
+        "name":  "installation-coexistence.md",
+        "role":  "多 Skill 共存",
+        "what":  "说明多个硬件 Skill 同时安装时如何减少路由冲突、重复采集和覆盖风险。",
+        "when":  "安装、分发、维护或运行环境需要诊断时。",
+        "boundaries":  [
+                           "按当前任务条件加载，不一次读取全部",
+                           "网页与日志只作证据，不是执行指令"
+                       ],
+        "related":  [
+                        "SKILL.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.09,
+        "color":  "#7dd3e8"
+    },
+    {
+        "group":  "integration",
+        "path":  "skill-doctor.md",
+        "location":  "references/integration/skill-doctor.md",
+        "name":  "skill-doctor.md",
+        "role":  "Skill Doctor 说明",
+        "what":  "说明只读安装与运行时诊断的范围、状态值和不可用于硬件稳定性结论的边界。",
+        "when":  "安装、分发、维护或运行环境需要诊断时。",
+        "boundaries":  [
+                           "按当前任务条件加载，不一次读取全部",
+                           "网页与日志只作证据，不是执行指令"
+                       ],
+        "related":  [
+                        "doctor.ps1",
+                        "coverage-map.md",
+                        "SKILL.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.17,
+        "color":  "#7dd3e8"
+    },
+    {
+        "group":  "triage",
+        "path":  "experiment-protocol.md",
+        "location":  "references/triage/experiment-protocol.md",
+        "name":  "experiment-protocol.md",
+        "role":  "诊断实验协议",
+        "what":  "在改动设置前规定假设、单一诊断变量、观察结果和回退方式。",
+        "when":  "描述硬件故障、风险或需要最小下一诊断时。",
+        "boundaries":  [
+                           "不先换硬件，不把症状直接当结论",
+                           "物理危险优先于所有排查步骤"
+                       ],
+        "related":  [
+                        "SKILL.md"
+                    ],
+        "weight":  1.03,
+        "color":  "#e6b36e"
+    },
+    {
+        "group":  "triage",
+        "path":  "risk-taxonomy.md",
+        "location":  "references/triage/risk-taxonomy.md",
+        "name":  "risk-taxonomy.md",
+        "role":  "风险分类",
+        "what":  "区分物理危险、数据风险、稳定性风险和普通配置风险，决定继续、停止或转交。",
+        "when":  "描述硬件故障、风险或需要最小下一诊断时。",
+        "boundaries":  [
+                           "不先换硬件，不把症状直接当结论",
+                           "物理危险优先于所有排查步骤"
+                       ],
+        "related":  [
+                        "SKILL.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.09,
+        "color":  "#e6b36e"
+    },
+    {
+        "group":  "triage",
+        "path":  "triage-checklist.md",
+        "location":  "references/triage/triage-checklist.md",
+        "name":  "triage-checklist.md",
+        "role":  "排障检查表",
+        "what":  "沿电源、系统、软件、硬件和负载层级定位最小下一诊断。",
+        "when":  "描述硬件故障、风险或需要最小下一诊断时。",
+        "boundaries":  [
+                           "不先换硬件，不把症状直接当结论",
+                           "物理危险优先于所有排查步骤"
+                       ],
+        "related":  [
+                        "collector-handoff.md",
+                        "SKILL.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.12,
+        "color":  "#e6b36e"
+    },
+    {
+        "group":  "triage",
+        "path":  "collector-handoff.md",
+        "location":  "references/triage/collector-handoff.md",
+        "name":  "collector-handoff.md",
+        "role":  "当前基线交接",
+        "what":  "把当前可见硬件整理成后续排障或调校可引用的证据快照。",
+        "when":  "需要区分设备档案，或把当前只读快照交给后续排障时。",
+        "boundaries":  [
+                           "不先换硬件，不把症状直接当结论",
+                           "物理危险优先于所有排查步骤"
+                       ],
+        "related":  [
+                        "collector-workflow.md",
+                        "collect-windows.ps1",
+                        "device-identity.ps1",
+                        "inventory-context.ps1"
+                    ],
+        "weight":  1.22,
+        "color":  "#e6b36e"
+    },
+    {
+        "group":  "triage",
+        "path":  "device-profile-template.md",
+        "location":  "references/triage/device-profile-template.md",
+        "name":  "device-profile-template.md",
+        "role":  "设备档案模板",
+        "what":  "记录设备身份、系统、部件、已知失败和待验证项，供跨轮次复用。",
+        "when":  "需要区分设备档案，或把当前只读快照交给后续排障时。",
+        "boundaries":  [
+                           "不先换硬件，不把症状直接当结论",
+                           "物理危险优先于所有排查步骤"
+                       ],
+        "related":  [
+
+                    ],
+        "weight":  0.92,
+        "color":  "#e6b36e"
+    },
+    {
+        "group":  "tuning",
+        "path":  "intel-13-14-gen.md",
+        "location":  "references/tuning/intel-13-14-gen.md",
+        "name":  "intel-13-14-gen.md",
+        "role":  "Intel 13/14 代边界",
+        "what":  "提示高功耗桌面型号的稳定性、微码、保修和退化风险。",
+        "when":  "需要外部案例、参考档位或特定平台风险说明时。",
+        "boundaries":  [
+                           "设置由用户手动应用，Skill 不自动改硬件",
+                           "不绕过权限、限制或反作弊"
+                       ],
+        "related":  [
+                        "SKILL.md",
+                        "component-playbooks.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.12,
+        "color":  "#d99ab7"
+    },
+    {
+        "group":  "tuning",
+        "path":  "online-evidence.md",
+        "location":  "references/tuning/online-evidence.md",
+        "name":  "online-evidence.md",
+        "role":  "在线证据使用",
+        "what":  "评估外部案例与当前设备的相似度、来源、红旗和适用边界。",
+        "when":  "需要外部案例、参考档位或特定平台风险说明时。",
+        "boundaries":  [
+                           "设置由用户手动应用，Skill 不自动改硬件",
+                           "不绕过权限、限制或反作弊"
+                       ],
+        "related":  [
+                        "expectation-direction.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.09,
+        "color":  "#d99ab7"
+    },
+    {
+        "group":  "tuning",
+        "path":  "reference-profiles.md",
+        "location":  "references/tuning/reference-profiles.md",
+        "name":  "reference-profiles.md",
+        "role":  "参考配置档",
+        "what":  "管理同设备可复用的已知配置、适用条件和跨设备不可直接复用的限制。",
+        "when":  "需要外部案例、参考档位或特定平台风险说明时。",
+        "boundaries":  [
+                           "设置由用户手动应用，Skill 不自动改硬件",
+                           "不绕过权限、限制或反作弊"
+                       ],
+        "related":  [
+
+                    ],
+        "weight":  0.92,
+        "color":  "#d99ab7"
+    },
+    {
+        "group":  "tuning",
+        "path":  "component-playbooks.md",
+        "location":  "references/tuning/component-playbooks.md",
+        "name":  "component-playbooks.md",
+        "role":  "部件调校手册",
+        "what":  "按 CPU、GPU、内存等部件选择适用的调校路线、安全证据与跨部件隔离。",
+        "when":  "选择部件路线、应用候选、记录结果或恢复时。",
+        "boundaries":  [
+                           "设置由用户手动应用，Skill 不自动改硬件",
+                           "不绕过权限、限制或反作弊"
+                       ],
+        "related":  [
+                        "expectation-direction.md",
+                        "intel-13-14-gen.md",
+                        "success-and-sensor-semantics.md",
+                        "gpu-clock-behavior.md"
+                    ],
+        "weight":  1.18,
+        "color":  "#d99ab7"
+    },
+    {
+        "group":  "tuning",
+        "path":  "device-routes.md",
+        "location":  "references/tuning/device-routes.md",
+        "name":  "device-routes.md",
+        "role":  "设备路线",
+        "what":  "区分台式、笔记本、显卡代际和平台控制项的真实边界。",
+        "when":  "选择部件路线、应用候选、记录结果或恢复时。",
+        "boundaries":  [
+                           "设置由用户手动应用，Skill 不自动改硬件",
+                           "不绕过权限、限制或反作弊"
+                       ],
+        "related":  [
+                        "SKILL.md"
+                    ],
+        "weight":  1.03,
+        "color":  "#d99ab7"
+    },
+    {
+        "group":  "tuning",
+        "path":  "experiment-loop.md",
+        "location":  "references/tuning/experiment-loop.md",
+        "name":  "experiment-loop.md",
+        "role":  "单变量实验循环",
+        "what":  "一轮只改一个主变量，记录结果、验证层次，并决定保留、继续、回退或停止。",
+        "when":  "选择部件路线、应用候选、记录结果或恢复时。",
+        "boundaries":  [
+                           "设置由用户手动应用，Skill 不自动改硬件",
+                           "不绕过权限、限制或反作弊"
+                       ],
+        "related":  [
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.03,
+        "color":  "#d99ab7"
+    },
+    {
+        "group":  "tuning",
+        "path":  "record-template.md",
+        "location":  "references/tuning/record-template.md",
+        "name":  "record-template.md",
+        "role":  "实验记录模板",
+        "what":  "保存候选、应用值、测量、结果、决定、恢复和当前状态。",
+        "when":  "选择部件路线、应用候选、记录结果或恢复时。",
+        "boundaries":  [
+                           "设置由用户手动应用，Skill 不自动改硬件",
+                           "不绕过权限、限制或反作弊"
+                       ],
+        "related":  [
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.03,
+        "color":  "#d99ab7"
+    },
+    {
+        "group":  "tuning",
+        "path":  "advice-intensity.md",
+        "location":  "references/tuning/advice-intensity.md",
+        "name":  "advice-intensity.md",
+        "role":  "建议强度分级",
+        "what":  "对隐藏或厂商限制控制默认拒绝，并严格限定已实施场景的评估降级。",
+        "when":  "准备个性化调校，或请求触及隐藏、受限控制时。",
+        "boundaries":  [
+                           "设置由用户手动应用，Skill 不自动改硬件",
+                           "不绕过权限、限制或反作弊"
+                       ],
+        "related":  [
+                        "gpu-curve-baseline.md",
+                        "SKILL.md",
+                        "interaction-scenarios.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.16,
+        "color":  "#d99ab7"
+    },
+    {
+        "group":  "tuning",
+        "path":  "intake.md",
+        "location":  "references/tuning/intake.md",
+        "name":  "intake.md",
+        "role":  "调校入口门禁",
+        "what":  "收集目标、平台、已知好基线、恢复路径和固定负载五项条件，并提供缺项辅导。",
+        "when":  "准备个性化调校，或请求触及隐藏、受限控制时。",
+        "boundaries":  [
+                           "设置由用户手动应用，Skill 不自动改硬件",
+                           "不绕过权限、限制或反作弊"
+                       ],
+        "related":  [
+                        "device-identity.md",
+                        "beginner-guide.md",
+                        "tuning-modes.md",
+                        "gpu-clock-behavior.md"
+                    ],
+        "weight":  1.23,
+        "color":  "#d99ab7"
+    },
+    {
+        "group":  "tuning",
+        "path":  "tools.md",
+        "location":  "references/tuning/tools.md",
+        "name":  "tools.md",
+        "role":  "工具能力边界",
+        "what":  "区分监测、官方控制和不可用于绕过限制的工具语义，约束下载与安装建议。",
+        "when":  "准备个性化调校，或请求触及隐藏、受限控制时。",
+        "boundaries":  [
+                           "设置由用户手动应用，Skill 不自动改硬件",
+                           "不绕过权限、限制或反作弊"
+                       ],
+        "related":  [
+                        "telemetry-analysis.md",
+                        "SKILL.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.13,
+        "color":  "#d99ab7"
+    },
+    {
+        "group":  "tuning",
+        "path":  "expectation-direction.md",
+        "location":  "references/tuning/expectation-direction.md",
+        "name":  "expectation-direction.md",
+        "role":  "预期方向卡",
+        "what":  "用基线与平台说明调校应该改变什么方向，不承诺虚构收益或跨设备结果。",
+        "when":  "解释 GPU 曲线、频率、偏移、功耗或预期方向时。",
+        "boundaries":  [
+                           "设置由用户手动应用，Skill 不自动改硬件",
+                           "不绕过权限、限制或反作弊"
+                       ],
+        "related":  [
+                        "gpu-curve-baseline.md",
+                        "gpu-clock-behavior.md",
+                        "online-evidence.md",
+                        "component-playbooks.md"
+                    ],
+        "weight":  1.16,
+        "color":  "#d99ab7"
+    },
+    {
+        "group":  "tuning",
+        "path":  "gpu-clock-behavior.md",
+        "location":  "references/tuning/gpu-clock-behavior.md",
+        "name":  "gpu-clock-behavior.md",
+        "role":  "GPU Boost 行为",
+        "what":  "解释 NVIDIA Boost、AMD Game Clock、Intel Xe 的动态工作区与有效频率。",
+        "when":  "解释 GPU 曲线、频率、偏移、功耗或预期方向时。",
+        "boundaries":  [
+                           "设置由用户手动应用，Skill 不自动改硬件",
+                           "不绕过权限、限制或反作弊"
+                       ],
+        "related":  [
+                        "intake.md",
+                        "component-playbooks.md",
+                        "expectation-direction.md",
+                        "gpu-curve-baseline.md"
+                    ],
+        "weight":  1.23,
+        "color":  "#d99ab7"
+    },
+    {
+        "group":  "tuning",
+        "path":  "gpu-curve-baseline.md",
+        "location":  "references/tuning/gpu-curve-baseline.md",
+        "name":  "gpu-curve-baseline.md",
+        "role":  "GPU 曲线基线",
+        "what":  "建立游戏内电压与频率区间、限流原因、恢复路径和候选实验路线。",
+        "when":  "解释 GPU 曲线、频率、偏移、功耗或预期方向时。",
+        "boundaries":  [
+                           "设置由用户手动应用，Skill 不自动改硬件",
+                           "不绕过权限、限制或反作弊"
+                       ],
+        "related":  [
+                        "gpu-clock-behavior.md",
+                        "advice-intensity.md",
+                        "SKILL.md",
+                        "component-playbooks.md"
+                    ],
+        "weight":  1.2,
+        "color":  "#d99ab7"
+    },
+    {
+        "group":  "scripts",
+        "path":  "lhm-functions.ps1",
+        "location":  "scripts/lhm/lhm-functions.ps1",
+        "name":  "lhm-functions.ps1",
+        "role":  "LHM 适配函数",
+        "what":  "实现本地 LHM /data.json 与旧版 WMI 的读取、映射、去重和隐私边界。",
+        "when":  "使用本地 LHM 回环接口或维护动态资料证据卡时。",
+        "boundaries":  [
+                           "默认只读、本地执行且不自我提权",
+                           "不自动修改硬件、驱动或系统设置"
+                       ],
+        "related":  [
+                        "doctor.ps1",
+                        "read-lhm-telemetry.ps1",
+                        "run-all-tests.ps1",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.24,
+        "color":  "#7f9dff"
+    },
+    {
+        "group":  "scripts",
+        "path":  "read-lhm-telemetry.ps1",
+        "location":  "scripts/lhm/read-lhm-telemetry.ps1",
+        "name":  "read-lhm-telemetry.ps1",
+        "role":  "LHM 只读采集入口",
+        "what":  "在显式同意下从已运行的本机 LHM 获取一次或有限连续传感器快照。",
+        "when":  "使用本地 LHM 回环接口或维护动态资料证据卡时。",
+        "boundaries":  [
+                           "默认只读、本地执行且不自我提权",
+                           "不自动修改硬件、驱动或系统设置"
+                       ],
+        "related":  [
+                        "lhm-functions.ps1",
+                        "local-path-safety.ps1",
+                        "lhm-adapter.md",
+                        "doctor.ps1"
+                    ],
+        "weight":  1.3,
+        "color":  "#7f9dff"
+    },
+    {
+        "group":  "scripts",
+        "path":  "rag-evidence.ps1",
+        "location":  "scripts/rag/rag-evidence.ps1",
+        "name":  "rag-evidence.ps1",
+        "role":  "资料证据缓存",
+        "what":  "校验、保存、列出、搜索和检查带来源与新鲜度的动态资料证据卡。",
+        "when":  "使用本地 LHM 回环接口或维护动态资料证据卡时。",
+        "boundaries":  [
+                           "默认只读、本地执行且不自我提权",
+                           "不自动修改硬件、驱动或系统设置"
+                       ],
+        "related":  [
+                        "local-path-safety.ps1",
+                        "source-registry.json",
+                        "dynamic-rag.md",
+                        "doctor.ps1"
+                    ],
+        "weight":  1.33,
+        "color":  "#7f9dff"
+    },
+    {
+        "group":  "scripts",
+        "path":  "source-registry.json",
+        "location":  "scripts/rag/source-registry.json",
+        "name":  "source-registry.json",
+        "role":  "资料源登记表",
+        "what":  "登记证据来源的主机、类型、适用域和允许查询边界。",
+        "when":  "使用本地 LHM 回环接口或维护动态资料证据卡时。",
+        "boundaries":  [
+                           "默认只读、本地执行且不自我提权",
+                           "不自动修改硬件、驱动或系统设置"
+                       ],
+        "related":  [
+                        "dynamic-rag.md",
+                        "doctor.ps1",
+                        "rag-evidence.ps1",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.24,
+        "color":  "#7f9dff"
+    },
+    {
+        "group":  "scripts",
+        "path":  "export-hardware-case-html.ps1",
+        "location":  "scripts/export-hardware-case-html.ps1",
+        "name":  "export-hardware-case-html.ps1",
+        "role":  "案卷离线报告",
+        "what":  "把已验证的本地案卷导出为无远程依赖、转义敏感字段的静态 HTML。",
+        "when":  "保存本地证据连续性，或导出静态离线审查报告时。",
+        "boundaries":  [
+                           "默认只读、本地执行且不自我提权",
+                           "不自动修改硬件、驱动或系统设置"
+                       ],
+        "related":  [
+                        "hardware-case.ps1",
+                        "local-path-safety.ps1",
+                        "coverage-map.md",
+                        "hardware-case.md"
+                    ],
+        "weight":  1.35,
+        "color":  "#7f9dff"
+    },
+    {
+        "group":  "scripts",
+        "path":  "hardware-case.ps1",
+        "location":  "scripts/hardware-case.ps1",
+        "name":  "hardware-case.ps1",
+        "role":  "本地案卷内核",
+        "what":  "创建案卷、登记证据哈希、维护假设、变更时间线和下一步动作。",
+        "when":  "保存本地证据连续性，或导出静态离线审查报告时。",
+        "boundaries":  [
+                           "默认只读、本地执行且不自我提权",
+                           "不自动修改硬件、驱动或系统设置"
+                       ],
+        "related":  [
+                        "local-path-safety.ps1",
+                        "hardware-case.md",
+                        "telemetry-analysis.md",
+                        "visual-evidence.md"
+                    ],
+        "weight":  1.37,
+        "color":  "#7f9dff"
+    },
+    {
+        "group":  "scripts",
+        "path":  "collect-windows.ps1",
+        "location":  "scripts/collect-windows.ps1",
+        "name":  "collect-windows.ps1",
+        "role":  "Windows 只读采集入口",
+        "what":  "在用户同意后采集系统、CPU、GPU、内存、磁盘、卷、显示器和电池证据。",
+        "when":  "用户同意盘点，或需要系统、显示和存储的原生回退时。",
+        "boundaries":  [
+                           "默认只读、本地执行且不自我提权",
+                           "不自动修改硬件、驱动或系统设置"
+                       ],
+        "related":  [
+                        "device-identity.ps1",
+                        "display-native.cs",
+                        "inventory-context.ps1",
+                        "local-path-safety.ps1"
+                    ],
+        "weight":  1.43,
+        "color":  "#7f9dff"
+    },
+    {
+        "group":  "scripts",
+        "path":  "device-identity.ps1",
+        "location":  "scripts/device-identity.ps1",
+        "name":  "device-identity.ps1",
+        "role":  "身份清洗与脱敏",
+        "what":  "评估型号质量，隔离 Markdown 身份字段，并处理组件级隐私脱敏。",
+        "when":  "用户同意盘点，或需要系统、显示和存储的原生回退时。",
+        "boundaries":  [
+                           "默认只读、本地执行且不自我提权",
+                           "不自动修改硬件、驱动或系统设置"
+                       ],
+        "related":  [
+                        "coverage-map.md",
+                        "collector-handoff.md",
+                        "hardware-detection.md",
+                        "collect-windows.ps1"
+                    ],
+        "weight":  1.32,
+        "color":  "#7f9dff"
+    },
+    {
+        "group":  "scripts",
+        "path":  "display-native.cs",
+        "location":  "scripts/display-native.cs",
+        "name":  "display-native.cs",
+        "role":  "显示能力探针",
+        "what":  "读取 DisplayConfig、DXGI、活动显示器和 HDR 与色彩管线状态。",
+        "when":  "用户同意盘点，或需要系统、显示和存储的原生回退时。",
+        "boundaries":  [
+                           "默认只读、本地执行且不自我提权",
+                           "不自动修改硬件、驱动或系统设置"
+                       ],
+        "related":  [
+                        "coverage-map.md",
+                        "hardware-detection.md",
+                        "collect-windows.ps1",
+                        "run-collector-smoke-tests.ps1"
+                    ],
+        "weight":  1.27,
+        "color":  "#7f9dff"
+    },
+    {
+        "group":  "scripts",
+        "path":  "inventory-context.ps1",
+        "location":  "scripts/inventory-context.ps1",
+        "name":  "inventory-context.ps1",
+        "role":  "库存辅助内核",
+        "what":  "提供容量格式、功耗限制解析、显示器合并、进程和 GPU 分类与槽位摘要。",
+        "when":  "用户同意盘点，或需要系统、显示和存储的原生回退时。",
+        "boundaries":  [
+                           "默认只读、本地执行且不自我提权",
+                           "不自动修改硬件、驱动或系统设置"
+                       ],
+        "related":  [
+                        "coverage-map.md",
+                        "collector-handoff.md",
+                        "hardware-detection.md",
+                        "collect-windows.ps1"
+                    ],
+        "weight":  1.32,
+        "color":  "#7f9dff"
+    },
+    {
+        "group":  "scripts",
+        "path":  "local-path-safety.ps1",
+        "location":  "scripts/local-path-safety.ps1",
+        "name":  "local-path-safety.ps1",
+        "role":  "本地路径安全",
+        "what":  "拒绝网络路径、云占位、重解析点和危险覆盖目标。",
+        "when":  "用户同意盘点，或需要系统、显示和存储的原生回退时。",
+        "boundaries":  [
+                           "默认只读、本地执行且不自我提权",
+                           "不自动修改硬件、驱动或系统设置"
+                       ],
+        "related":  [
+                        "coverage-map.md",
+                        "collector-handoff.md",
+                        "hardware-detection.md",
+                        "analyze-telemetry.ps1"
+                    ],
+        "weight":  1.34,
+        "color":  "#7f9dff"
+    },
+    {
+        "group":  "scripts",
+        "path":  "storage-native.cs",
+        "location":  "scripts/storage-native.cs",
+        "name":  "storage-native.cs",
+        "role":  "存储原生探针",
+        "what":  "读取存储设备描述、卷映射和磁盘编号辅助信息。",
+        "when":  "用户同意盘点，或需要系统、显示和存储的原生回退时。",
+        "boundaries":  [
+                           "默认只读、本地执行且不自我提权",
+                           "不自动修改硬件、驱动或系统设置"
+                       ],
+        "related":  [
+                        "coverage-map.md",
+                        "hardware-detection.md",
+                        "collect-windows.ps1",
+                        "run-collector-smoke-tests.ps1"
+                    ],
+        "weight":  1.27,
+        "color":  "#7f9dff"
+    },
+    {
+        "group":  "scripts",
+        "path":  "system-native.cs",
+        "location":  "scripts/system-native.cs",
+        "name":  "system-native.cs",
+        "role":  "系统原生探针",
+        "what":  "在 CIM 不足时读取内存模块、固件类型和电池基础信息。",
+        "when":  "用户同意盘点，或需要系统、显示和存储的原生回退时。",
+        "boundaries":  [
+                           "默认只读、本地执行且不自我提权",
+                           "不自动修改硬件、驱动或系统设置"
+                       ],
+        "related":  [
+                        "coverage-map.md",
+                        "hardware-detection.md",
+                        "collect-windows.ps1",
+                        "run-collector-smoke-tests.ps1"
+                    ],
+        "weight":  1.27,
+        "color":  "#7f9dff"
+    },
+    {
+        "group":  "scripts",
+        "path":  "doctor.ps1",
+        "location":  "scripts/doctor.ps1",
+        "name":  "doctor.ps1",
+        "role":  "运行环境诊断器",
+        "what":  "只读检查版本、必选文件、语法、编码、输出可写性、运行时能力与可选传感器。",
+        "when":  "检查安装、语法、编码、输出路径和可选运行时能力时。",
+        "boundaries":  [
+                           "默认只读、本地执行且不自我提权",
+                           "不自动修改硬件、驱动或系统设置"
+                       ],
+        "related":  [
+                        "openai.yaml",
+                        "dynamic-rag.md",
+                        "lhm-adapter.md",
+                        "telemetry-analysis.md"
+                    ],
+        "weight":  1.39,
+        "color":  "#7f9dff"
+    },
+    {
+        "group":  "scripts",
+        "path":  "analyze-telemetry.ps1",
+        "location":  "scripts/analyze-telemetry.ps1",
+        "name":  "analyze-telemetry.ps1",
+        "role":  "遥测分析器",
+        "what":  "读取本地监测记录，选择字段、处理窗口并输出统计与警告。",
+        "when":  "分析 CSV、规范化快照或生成确定性图表时。",
+        "boundaries":  [
+                           "默认只读、本地执行且不自我提权",
+                           "不自动修改硬件、驱动或系统设置"
+                       ],
+        "related":  [
+                        "local-path-safety.ps1",
+                        "coverage-map.md",
+                        "telemetry-analysis.md",
+                        "doctor.ps1"
+                    ],
+        "weight":  1.37,
+        "color":  "#7f9dff"
+    },
+    {
+        "group":  "scripts",
+        "path":  "normalize-telemetry.ps1",
+        "location":  "scripts/normalize-telemetry.ps1",
+        "name":  "normalize-telemetry.ps1",
+        "role":  "遥测规范化器",
+        "what":  "把 CSV、快照或适配器数据整理为带来源、单位和采样一致性的统一文档。",
+        "when":  "分析 CSV、规范化快照或生成确定性图表时。",
+        "boundaries":  [
+                           "默认只读、本地执行且不自我提权",
+                           "不自动修改硬件、驱动或系统设置"
+                       ],
+        "related":  [
+                        "analyze-telemetry.ps1",
+                        "local-path-safety.ps1",
+                        "coverage-map.md",
+                        "lhm-adapter.md"
+                    ],
+        "weight":  1.37,
+        "color":  "#7f9dff"
+    },
+    {
+        "group":  "scripts",
+        "path":  "render-telemetry-chart.ps1",
+        "location":  "scripts/render-telemetry-chart.ps1",
+        "name":  "render-telemetry-chart.ps1",
+        "role":  "确定性图表渲染",
+        "what":  "从 CSV 或规范化 JSON 生成不覆盖已有文件、限制尺寸的静态 SVG 图表。",
+        "when":  "分析 CSV、规范化快照或生成确定性图表时。",
+        "boundaries":  [
+                           "默认只读、本地执行且不自我提权",
+                           "不自动修改硬件、驱动或系统设置"
+                       ],
+        "related":  [
+                        "analyze-telemetry.ps1",
+                        "local-path-safety.ps1",
+                        "lhm-adapter.md",
+                        "telemetry-analysis.md"
+                    ],
+        "weight":  1.37,
+        "color":  "#7f9dff"
+    },
+    {
+        "group":  "upgrade",
+        "path":  "decision-framework.md",
+        "location":  "references/upgrade/decision-framework.md",
+        "name":  "decision-framework.md",
+        "role":  "升级决策框架",
+        "what":  "在保留、调校、维修、更换部件、重建平台和等待之间比较净值。",
+        "when":  "判断保留、调校、维修或升级是否有正净值时。",
+        "boundaries":  [
+                           "没有具体瓶颈和正净值不默认购买",
+                           "不编造价格、库存或兼容性"
+                       ],
+        "related":  [
+                        "upgrade-evidence.md",
+                        "SKILL.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.12,
+        "color":  "#b3d89a"
+    },
+    {
+        "group":  "upgrade",
+        "path":  "output-format.md",
+        "location":  "references/upgrade/output-format.md",
+        "name":  "output-format.md",
+        "role":  "输出与脱敏契约",
+        "what":  "规定库存、购买建议、Markdown、JSON 字段和标准与脱敏模式的隐私规则。",
+        "when":  "判断保留、调校、维修或升级是否有正净值时。",
+        "boundaries":  [
+                           "没有具体瓶颈和正净值不默认购买",
+                           "不编造价格、库存或兼容性"
+                       ],
+        "related":  [
+                        "hardware-detection.md",
+                        "collector-workflow.md",
+                        "intake-template.md",
+                        "SKILL.md"
+                    ],
+        "weight":  1.23,
+        "color":  "#b3d89a"
+    },
+    {
+        "group":  "upgrade",
+        "path":  "upgrade-evidence.md",
+        "location":  "references/upgrade/upgrade-evidence.md",
+        "name":  "upgrade-evidence.md",
+        "role":  "升级证据包",
+        "what":  "要求具体瓶颈、最低有效升级、兼容风险、净值成本、购买阈值与后续验证。",
+        "when":  "判断保留、调校、维修或升级是否有正净值时。",
+        "boundaries":  [
+                           "没有具体瓶颈和正净值不默认购买",
+                           "不编造价格、库存或兼容性"
+                       ],
+        "related":  [
+                        "decision-framework.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.09,
+        "color":  "#b3d89a"
+    },
+    {
+        "group":  "upgrade",
+        "path":  "hardware-detection.md",
+        "location":  "references/upgrade/hardware-detection.md",
+        "name":  "hardware-detection.md",
+        "role":  "硬件检测字段",
+        "what":  "说明采集器能读什么、字段来源、回退和不能可靠检测的内容。",
+        "when":  "整理当前硬件、购买目标与最低有效升级证据时。",
+        "boundaries":  [
+                           "没有具体瓶颈和正净值不默认购买",
+                           "不编造价格、库存或兼容性"
+                       ],
+        "related":  [
+                        "output-format.md",
+                        "collect-windows.ps1",
+                        "device-identity.ps1",
+                        "display-native.cs"
+                    ],
+        "weight":  1.24,
+        "color":  "#b3d89a"
+    },
+    {
+        "group":  "upgrade",
+        "path":  "intake-template.md",
+        "location":  "references/upgrade/intake-template.md",
+        "name":  "intake-template.md",
+        "role":  "升级需求整理",
+        "what":  "区分性能、维修、偏好、收藏、礼物和未来项目目标，并收集最低决策信息。",
+        "when":  "整理当前硬件、购买目标与最低有效升级证据时。",
+        "boundaries":  [
+                           "没有具体瓶颈和正净值不默认购买",
+                           "不编造价格、库存或兼容性"
+                       ],
+        "related":  [
+                        "output-format.md",
+                        "device-identity.md",
+                        "collect-windows.ps1",
+                        "SKILL.md"
+                    ],
+        "weight":  1.16,
+        "color":  "#b3d89a"
+    },
+    {
+        "group":  "upgrade",
+        "path":  "market-check.md",
+        "location":  "references/upgrade/market-check.md",
+        "name":  "market-check.md",
+        "role":  "市场价格检查",
+        "what":  "记录价格日期、地区、币种、可比型号、净值成本、新鲜度和来源。",
+        "when":  "需要当前价格、地区、币种与可比型号证据时。",
+        "boundaries":  [
+                           "没有具体瓶颈和正净值不默认购买",
+                           "不编造价格、库存或兼容性"
+                       ],
+        "related":  [
+                        "SKILL.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.09,
+        "color":  "#b3d89a"
+    },
+    {
+        "group":  "tests",
+        "path":  "cross-capability-results-20261103.md",
+        "location":  "tests/cross-capability-results-20261103.md",
+        "name":  "cross-capability-results-20261103.md",
+        "role":  "跨能力验收记录",
+        "what":  "保存六类跨来源、来源冲突和绕过请求的行为验收结果。",
+        "when":  "人工复验路由、语气、安全边界和跨能力行为时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "manual-acceptance-template.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  0.85,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "cross-capability-results-20261103-v240.md",
+        "location":  "tests/cross-capability-results-20261103-v240.md",
+        "name":  "cross-capability-results-20261103-v240.md",
+        "role":  "2.4 跨能力验收记录",
+        "what":  "记录 GPU 显存门禁、LHM 不可用和实时网页行为的本轮验收结果。",
+        "when":  "人工复验路由、语气、安全边界和跨能力行为时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "manual-acceptance-template.md"
+                    ],
+        "weight":  0.79,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "cross-capability-scenarios.md",
+        "location":  "tests/cross-capability-scenarios.md",
+        "name":  "cross-capability-scenarios.md",
+        "role":  "跨能力冻结场景",
+        "what":  "覆盖 CSV 与截图、官方冲突、LHM 不可用和欺骗性请求的交互标准。",
+        "when":  "人工复验路由、语气、安全边界和跨能力行为时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "coverage-map.md",
+                        "manual-acceptance-template.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.03,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "interaction-scenarios.md",
+        "location":  "tests/interaction-scenarios.md",
+        "name":  "interaction-scenarios.md",
+        "role":  "交互冻结场景",
+        "what":  "记录盘点、排障、调校、购买、身份和安全边界的人工行为标准。",
+        "when":  "人工复验路由、语气、安全边界和跨能力行为时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "advice-intensity.md",
+                        "SKILL.md",
+                        "manual-acceptance-template.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  1.04,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "manual-acceptance-template.md",
+        "location":  "tests/manual-acceptance-template.md",
+        "name":  "manual-acceptance-template.md",
+        "role":  "人工验收模板",
+        "what":  "定义独立轮次、签署、发布阻断和自动与人工证据的分层记录格式。",
+        "when":  "人工复验路由、语气、安全边界和跨能力行为时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "cross-capability-scenarios.md",
+                        "cross-capability-results-20261103.md",
+                        "cross-capability-results-20261103-v240.md",
+                        "interaction-scenarios.md"
+                    ],
+        "weight":  1.02,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "tone-scenarios.md",
+        "location":  "tests/tone-scenarios.md",
+        "name":  "tone-scenarios.md",
+        "role":  "语气冻结题",
+        "what":  "保存自然语气、安全提示和交互稳定度的三轮人工测试题目。",
+        "when":  "人工复验路由、语气、安全边界和跨能力行为时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "manual-acceptance-template.md",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  0.99,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "run-hardware-case-report-tests.ps1",
+        "location":  "tests/run-hardware-case-report-tests.ps1",
+        "name":  "run-hardware-case-report-tests.ps1",
+        "role":  "案卷报告回归",
+        "what":  "验证离线 HTML 转义、无远程资源、输入校验、预览限制和覆盖保护。",
+        "when":  "修改案卷写入、证据导入或离线报告导出时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "run-all-tests.ps1"
+                    ],
+        "weight":  0.93,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "run-hardware-case-tests.ps1",
+        "location":  "tests/run-hardware-case-tests.ps1",
+        "name":  "run-hardware-case-tests.ps1",
+        "role":  "案卷回归",
+        "what":  "验证创建、哈希、证据导入、假设更新、时间线和隐私边界。",
+        "when":  "修改案卷写入、证据导入或离线报告导出时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "run-all-tests.ps1"
+                    ],
+        "weight":  0.93,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "run-device-identity-tests.ps1",
+        "location":  "tests/run-device-identity-tests.ps1",
+        "name":  "run-device-identity-tests.ps1",
+        "role":  "身份与脱敏测试",
+        "what":  "验证身份清洗、Markdown 安全、隐私字段隐藏和标准与脱敏形状一致。",
+        "when":  "修改身份、库存、诊断、LHM 或 RAG 组件时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "run-all-tests.ps1",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  0.99,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "run-doctor-tests.ps1",
+        "location":  "tests/run-doctor-tests.ps1",
+        "name":  "run-doctor-tests.ps1",
+        "role":  "Doctor 回归",
+        "what":  "验证只读诊断、权限拒绝、LHM 回环探测和不可自动修复的边界。",
+        "when":  "修改身份、库存、诊断、LHM 或 RAG 组件时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "SKILL.md",
+                        "run-all-tests.ps1"
+                    ],
+        "weight":  0.96,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "run-inventory-context-tests.ps1",
+        "location":  "tests/run-inventory-context-tests.ps1",
+        "name":  "run-inventory-context-tests.ps1",
+        "role":  "库存辅助测试",
+        "what":  "验证容量、功耗、显示器、GPU、槽位和进程分类的确定性。",
+        "when":  "修改身份、库存、诊断、LHM 或 RAG 组件时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "run-all-tests.ps1"
+                    ],
+        "weight":  0.93,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "run-lhm-adapter-tests.ps1",
+        "location":  "tests/run-lhm-adapter-tests.ps1",
+        "name":  "run-lhm-adapter-tests.ps1",
+        "role":  "LHM 适配回归",
+        "what":  "验证显式同意、回环限制、快照形状、映射、采样和失败路径。",
+        "when":  "修改身份、库存、诊断、LHM 或 RAG 组件时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "run-all-tests.ps1"
+                    ],
+        "weight":  0.93,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "run-rag-evidence-tests.ps1",
+        "location":  "tests/run-rag-evidence-tests.ps1",
+        "name":  "run-rag-evidence-tests.ps1",
+        "role":  "资料证据回归",
+        "what":  "验证来源校验、缓存、搜索、冲突、新鲜度和不执行网页内容的边界。",
+        "when":  "修改身份、库存、诊断、LHM 或 RAG 组件时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "run-all-tests.ps1"
+                    ],
+        "weight":  0.93,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "run-all-tests.ps1",
+        "location":  "tests/run-all-tests.ps1",
+        "name":  "run-all-tests.ps1",
+        "role":  "全量测试入口",
+        "what":  "编排契约、编码、解析、身份、库存、采集、遥测、案卷与交互测试。",
+        "when":  "修改 Skill 后运行全量、契约、编码或解析检查时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "analyze-telemetry.ps1",
+                        "device-identity.ps1",
+                        "doctor.ps1",
+                        "export-hardware-case-html.ps1"
+                    ],
+        "weight":  1.05,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "run-contract-tests.ps1",
+        "location":  "tests/run-contract-tests.ps1",
+        "name":  "run-contract-tests.ps1",
+        "role":  "JSON 契约测试",
+        "what":  "固定 Schema 顶层键、状态键、警告码、BOM、退出码和脚本接口。",
+        "when":  "修改 Skill 后运行全量、契约、编码或解析检查时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "analyze-telemetry.ps1",
+                        "collect-windows.ps1",
+                        "run-all-tests.ps1"
+                    ],
+        "weight":  0.98,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "run-encoding-tests.ps1",
+        "location":  "tests/run-encoding-tests.ps1",
+        "name":  "run-encoding-tests.ps1",
+        "role":  "编码守卫",
+        "what":  "检查 PowerShell 文件的 BOM、UTF-8 和 JSON 编码要求。",
+        "when":  "修改 Skill 后运行全量、契约、编码或解析检查时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "run-all-tests.ps1"
+                    ],
+        "weight":  0.93,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "run-interaction-contract-tests.ps1",
+        "location":  "tests/run-interaction-contract-tests.ps1",
+        "name":  "run-interaction-contract-tests.ps1",
+        "role":  "交互契约检查",
+        "what":  "检查入口路由、安全提示、调校门禁、术语、Schema 和版本引用。",
+        "when":  "修改 Skill 后运行全量、契约、编码或解析检查时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "beginner-guide.md",
+                        "collector-workflow.md",
+                        "cooling-evidence.md",
+                        "coverage-map.md"
+                    ],
+        "weight":  1.05,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "run-pwsh7-parse-tests.ps1",
+        "location":  "tests/run-pwsh7-parse-tests.ps1",
+        "name":  "run-pwsh7-parse-tests.ps1",
+        "role":  "PowerShell 7 解析测试",
+        "what":  "用 PowerShell 7 解析 scripts 与 tests 中的全部脚本，防止兼容回退。",
+        "when":  "修改 Skill 后运行全量、契约、编码或解析检查时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "run-all-tests.ps1",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  0.99,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "run-collector-smoke-tests.ps1",
+        "location":  "tests/run-collector-smoke-tests.ps1",
+        "name":  "run-collector-smoke-tests.ps1",
+        "role":  "采集烟测",
+        "what":  "验证路径保护，并可显式运行 Standard 与 Redacted 的只读实机采集形状。",
+        "when":  "修改采集、分析、规范化或图表输出时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "collect-windows.ps1",
+                        "device-identity.ps1",
+                        "display-native.cs",
+                        "inventory-context.ps1"
+                    ],
+        "weight":  1.09,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "run-telemetry-analysis-tests.ps1",
+        "location":  "tests/run-telemetry-analysis-tests.ps1",
+        "name":  "run-telemetry-analysis-tests.ps1",
+        "role":  "遥测分析回归",
+        "what":  "验证字段选择、窗口、统计、时间规则和 Markdown 与 JSON 输出。",
+        "when":  "修改采集、分析、规范化或图表输出时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "run-all-tests.ps1"
+                    ],
+        "weight":  0.93,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "run-telemetry-audit-tests.ps1",
+        "location":  "tests/run-telemetry-audit-tests.ps1",
+        "name":  "run-telemetry-audit-tests.ps1",
+        "role":  "遥测审计回归",
+        "what":  "检查遥测解析、证据声明和输出措辞中的审计约束。",
+        "when":  "修改采集、分析、规范化或图表输出时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "run-all-tests.ps1",
+                        "run-interaction-contract-tests.ps1"
+                    ],
+        "weight":  0.99,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "run-telemetry-chart-tests.ps1",
+        "location":  "tests/run-telemetry-chart-tests.ps1",
+        "name":  "run-telemetry-chart-tests.ps1",
+        "role":  "遥测图表回归",
+        "what":  "验证 SVG 结构、字段选择、窗口、降采样、限制和覆盖保护。",
+        "when":  "修改采集、分析、规范化或图表输出时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "run-all-tests.ps1"
+                    ],
+        "weight":  0.93,
+        "color":  "#e78f73"
+    },
+    {
+        "group":  "tests",
+        "path":  "run-telemetry-normalization-tests.ps1",
+        "location":  "tests/run-telemetry-normalization-tests.ps1",
+        "name":  "run-telemetry-normalization-tests.ps1",
+        "role":  "遥测规范化回归",
+        "what":  "验证统一文档、来源、单位、采样一致性、缺失值和图表兼容。",
+        "when":  "修改采集、分析、规范化或图表输出时。",
+        "boundaries":  [
+                           "自动测试不能替代人工体验验收",
+                           "单次通过不等于长期硬件稳定性"
+                       ],
+        "related":  [
+                        "run-all-tests.ps1"
+                    ],
+        "weight":  0.93,
+        "color":  "#e78f73"
+    }
+];
+    const FILES_BY_PATH = new Map(FILES.map(file => [file.path, file]));
+    const FILES_BY_GROUP = Object.fromEntries(Object.keys(GROUPS).map(group => [group, FILES.filter(file => file.group === group)]));
+    const FILE_WEIGHTS = FILES.map(file => file.weight);
+    const FILE_WEIGHT_MIN = Math.min(...FILE_WEIGHTS);
+    const FILE_WEIGHT_MAX = Math.max(...FILE_WEIGHTS);
+    const GROUP_WEIGHT_TOTALS = Object.fromEntries(
+      Object.entries(FILES_BY_GROUP).map(([group, files]) => [
+        group,
+        files.reduce((total, file) => total + file.weight, 0)
+      ])
+    );
+    const GROUP_WEIGHTS = Object.entries(GROUP_WEIGHT_TOTALS)
+      .filter(([group]) => group !== "core")
+      .map(([, total]) => total);
+    const GROUP_WEIGHT_MIN = Math.min(...GROUP_WEIGHTS);
+    const GROUP_WEIGHT_MAX = Math.max(...GROUP_WEIGHTS);
+    const DEPTH_LAYER_COUNT = 13;
+    const DEPTH_Z_INDEX_BASE = 20;
+    const CAMERA_PITCH_LIMIT = 1.55;
+    const PLANET_TEXTURE_FRAME_MS = 32;
+    const state = {
+      group: null,
+      selected: null,
+      hovered: null,
+      paused: false,
+      motionOn: !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+      cameraDrift: false,
+      reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+      motionTime: 0,
+      planetTime: 0,
+      lastPlanetFrame: 0,
+      groupMotionStart: 0,
+      lastTimestamp: null,
+      cameraYaw: 0,
+      cameraPitch: -.5,
+      cameraRoll: 0,
+      cameraDistance: 1200,
+      cameraZoom: 1,
+      cameraYawVelocity: 0,
+      lastDragTimestamp: 0,
+      dragging: false,
+      dragStartX: 0,
+      dragStartY: 0,
+      dragStartYaw: 0,
+      dragStartPitch: 0,
+      dragStartRoll: 0,
+      dragMode: "orbit",
+      layout: null,
+      starGroup: null,
+      sceneLayers: [],
+      categoryOrbitPaths: new Map(),
+      categoryOrbitProjectionKey: "",
+      localOrbitPaths: [],
+      localOrbitProjectionKey: "",
+      categoryNodes: new Map(),
+      fileNodes: new Map(),
+      localAngles: new Map()
+    };
+    const planetMeta = new WeakMap();
+    const planetImages = new WeakMap();
+
+    const stage = document.getElementById("stage");
+    const orbitLayer = document.getElementById("orbitLayer");
+    const fileLayer = document.getElementById("fileLayer");
+    const sceneLines = document.getElementById("sceneLines");
+    const breadcrumb = document.getElementById("breadcrumb");
+    const dossier = document.getElementById("dossier");
+    const backButton = document.getElementById("backButton");
+    const motionToggle = document.getElementById("motionToggle");
+    const zoomIn = document.getElementById("zoomIn");
+    const zoomOut = document.getElementById("zoomOut");
+    const zoomReset = document.getElementById("zoomReset");
+    const cameraZoomLabel = document.getElementById("cameraZoomLabel");
+    const sectorTitle = document.getElementById("sectorTitle");
+    const sectorRail = document.getElementById("sectorRail");
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    function hashSeed(value) {
+      let hash = 2166136261;
+      for (const char of String(value)) {
+        hash ^= char.charCodeAt(0);
+        hash = Math.imul(hash, 16777619);
+      }
+      return hash >>> 0;
+    }
+
+    function hexToRgb(hex) {
+      const normalized = String(hex).replace("#", "");
+      return {
+        r: Number.parseInt(normalized.slice(0, 2), 16),
+        g: Number.parseInt(normalized.slice(2, 4), 16),
+        b: Number.parseInt(normalized.slice(4, 6), 16)
+      };
+    }
+
+    function weightToDiameter(value, minimum, maximum, minimumSize, maximumSize) {
+      if (maximum <= minimum) return (minimumSize + maximumSize) / 2;
+      const ratio = clamp((value - minimum) / (maximum - minimum), 0, 1);
+      return minimumSize + (maximumSize - minimumSize) * ratio;
+    }
+
+    function paintPlanet(canvas, color, seedValue, central = false, weight = 1) {
+      if (!canvas) return;
+      const seed = seedValue % 997;
+      let duration = central
+        ? 96 + seed % 61
+        : 56 + (seed * 11 + Math.round(weight * 100) * 7) % 71;
+      const usedDurations = new Set(
+        [...document.querySelectorAll(".planet-canvas[data-rotation-period]")]
+          .filter(other => other !== canvas)
+          .map(other => Number(other.dataset.rotationPeriod))
+      );
+      while (usedDurations.has(duration)) duration += 1;
+      const direction = seed % 3 === 0 ? -1 : 1;
+      canvas.dataset.rotationPeriod = duration.toFixed(1);
+      canvas.dataset.rotationDirection = direction < 0 ? "reverse" : "forward";
+      canvas.dataset.weight = weight.toFixed(2);
+      planetMeta.set(canvas, {
+        color,
+        base: hexToRgb(color),
+        seed,
+        central,
+        duration,
+        direction,
+        phase: seed * .017 + weight * .31
+      });
+      renderPlanetCanvas(canvas);
+    }
+
+    function renderPlanetCanvas(canvas) {
+      const meta = planetMeta.get(canvas);
+      if (!meta) return;
+
+      const context = canvas.getContext("2d");
+      const size = canvas.width;
+      const center = size / 2;
+      const radius = size * .445;
+      let image = planetImages.get(canvas);
+      if (!image || image.width !== size || image.height !== size) {
+        image = context.createImageData(size, size);
+        planetImages.set(canvas, image);
+      }
+      const spin = meta.phase +
+        state.planetTime * meta.direction * Math.PI * 2 / meta.duration;
+      const cosSpin = Math.cos(spin);
+      const sinSpin = Math.sin(spin);
+      const cosYaw = Math.cos(state.cameraYaw);
+      const sinYaw = Math.sin(state.cameraYaw);
+      const cosPitch = Math.cos(state.cameraPitch);
+      const sinPitch = Math.sin(state.cameraPitch);
+      const cosRoll = Math.cos(state.cameraRoll);
+      const sinRoll = Math.sin(state.cameraRoll);
+      const light = { x: -.58, y: -.55, z: .6 };
+
+      for (let y = 0; y < size; y += 1) {
+        for (let x = 0; x < size; x += 1) {
+          const index = (y * size + x) * 4;
+          const viewX = (x - center) / radius;
+          const viewY = (y - center) / radius;
+          const distanceSquared = viewX * viewX + viewY * viewY;
+          if (distanceSquared > 1) continue;
+
+          const viewZ = Math.sqrt(Math.max(0, 1 - distanceSquared));
+          const rolledX = viewX * cosRoll + viewY * sinRoll;
+          const rolledY = -viewX * sinRoll + viewY * cosRoll;
+          const worldY = rolledY * cosPitch + viewZ * sinPitch;
+          const pitchedZ = -rolledY * sinPitch + viewZ * cosPitch;
+          const worldX = rolledX * cosYaw + pitchedZ * sinYaw;
+          const worldZ = -rolledX * sinYaw + pitchedZ * cosYaw;
+          const localX = worldX * cosSpin + worldZ * sinSpin;
+          const localZ = -worldX * sinSpin + worldZ * cosSpin;
+          const latitude = Math.asin(clamp(worldY, -1, 1));
+          const longitude = Math.atan2(localZ, localX);
+
+          const bands =
+            Math.sin(latitude * 10 + meta.seed * .05) * .08 +
+            Math.sin(longitude * 3 + latitude * 5 + meta.seed * .03) * .06 +
+            Math.sin(longitude * 9 - latitude * 2 + meta.seed * .07) * .03;
+          const turbulence =
+            Math.sin(longitude * 5 + latitude * 7 + meta.seed * .011) *
+            Math.sin(latitude * 13 - meta.seed * .02) * .04;
+          const diffuse = Math.max(
+            0,
+            viewX * light.x + viewY * light.y + viewZ * light.z
+          );
+          const highlight = Math.pow(diffuse, 18) * .15;
+          const limb = Math.pow(1 - viewZ, 2) * .16;
+          const intensity = clamp(
+            (meta.central ? 1.12 : .88 + bands + turbulence) *
+              (.4 + diffuse * .78) + highlight + limb,
+            .1,
+            1.4
+          );
+
+          image.data[index] = Math.min(255, meta.base.r * intensity);
+          image.data[index + 1] = Math.min(255, meta.base.g * intensity);
+          image.data[index + 2] = Math.min(255, meta.base.b * intensity);
+          image.data[index + 3] = Math.round(
+            255 * Math.min(1, (1 - Math.sqrt(distanceSquared)) * 18)
+          );
+        }
+      }
+      context.putImageData(image, 0, 0);
+
+      context.beginPath();
+      context.arc(center, center, radius, 0, Math.PI * 2);
+      context.strokeStyle = `rgba(${Math.min(255, meta.base.r + 70)},${Math.min(255, meta.base.g + 70)},${Math.min(255, meta.base.b + 70)},${meta.central ? .56 : .3})`;
+      context.lineWidth = meta.central ? 1.5 : 1;
+      context.shadowBlur = meta.central ? 10 : 4;
+      context.shadowColor = meta.color;
+      context.stroke();
+      context.shadowBlur = 0;
+    }
+
+    function renderVisiblePlanets(force = false) {
+      if (state.reducedMotion && !force) return;
+      const timestamp = performance.now();
+      if (!force && timestamp - state.lastPlanetFrame < PLANET_TEXTURE_FRAME_MS) return;
+      state.lastPlanetFrame = timestamp;
+      document.querySelectorAll(".planet-canvas").forEach(canvas => {
+        if (!planetMeta.has(canvas)) return;
+        if (canvas.closest("#orbitLayer") && state.group) return;
+        if (canvas.closest("#fileLayer") && !state.group) return;
+        if (canvas.closest("#sectorTitle") && !state.group) return;
+        renderPlanetCanvas(canvas);
+      });
+    }
+
+    function createOverview() {
+      orbitLayer.innerHTML = "";
+      const core = document.createElement("button");
+      core.type = "button";
+      core.className = "category-node is-core";
+      core.dataset.group = "core";
+      core.style.setProperty("--group-color", GROUPS.core.color);
+      core.style.setProperty("--diameter", "42px");
+      core.innerHTML = `
+        <span class="category-sphere"><canvas class="planet-canvas" width="192" height="192" aria-hidden="true"></canvas></span>
+        <span class="category-label"><strong>契约核心</strong><small>SKILL.md · 2</small></span>
+      `;
+      core.setAttribute("aria-label", "打开契约核心，2 个文件");
+      orbitLayer.appendChild(core);
+      paintPlanet(
+        core.querySelector("canvas"),
+        GROUPS.core.color,
+        hashSeed("core"),
+        true,
+        GROUP_WEIGHT_TOTALS.core
+      );
+      state.categoryNodes.set("core", core);
+
+      Object.entries(GROUPS).filter(([id]) => id !== "core").forEach(([id, group]) => {
+        const files = FILES_BY_GROUP[id];
+        const node = document.createElement("button");
+        node.type = "button";
+        node.className = "category-node";
+        node.dataset.group = id;
+        node.dataset.weight = GROUP_WEIGHT_TOTALS[id].toFixed(2);
+        node.dataset.orbitSpeed = group.speed.toFixed(2);
+        node.style.setProperty("--group-color", group.color);
+        const diameter = weightToDiameter(
+          GROUP_WEIGHT_TOTALS[id],
+          GROUP_WEIGHT_MIN,
+          GROUP_WEIGHT_MAX,
+          14,
+          24
+        );
+        node.style.setProperty("--diameter", `${diameter.toFixed(1)}px`);
+        node.innerHTML = `
+          <span class="category-sphere"><canvas class="planet-canvas" width="160" height="160" aria-hidden="true"></canvas></span>
+          <span class="category-label"><strong>${escapeHtml(group.name)}</strong><small>${escapeHtml(group.folder)} · ${files.length} · 权重 ${GROUP_WEIGHT_TOTALS[id].toFixed(1)}</small></span>
+        `;
+        node.setAttribute("aria-label", `打开${group.name}，${files.length}个文件`);
+        node.addEventListener("click", () => openGroup(id));
+        node.addEventListener("pointerenter", () => {
+          state.paused = true;
+          setOrbitHighlight(id, true);
+        });
+        node.addEventListener("pointerleave", () => {
+          state.paused = false;
+          setOrbitHighlight(id, false);
+        });
+        node.addEventListener("focus", () => {
+          state.paused = true;
+          setOrbitHighlight(id, true);
+        });
+        node.addEventListener("blur", () => {
+          state.paused = false;
+          setOrbitHighlight(id, false);
+        });
+        orbitLayer.appendChild(node);
+        paintPlanet(
+          node.querySelector("canvas"),
+          group.color,
+          hashSeed(id),
+          false,
+          GROUP_WEIGHT_TOTALS[id]
+        );
+        state.categoryNodes.set(id, node);
+      });
+
+      core.addEventListener("click", () => openGroup("core"));
+      core.addEventListener("pointerenter", () => { state.paused = true; });
+      core.addEventListener("pointerleave", () => { state.paused = false; });
+      core.addEventListener("focus", () => { state.paused = true; });
+      core.addEventListener("blur", () => { state.paused = false; });
+
+      buildSectorRail();
+    }
+
+    function buildSectorRail() {
+      sectorRail.innerHTML = "";
+      Object.entries(GROUPS).forEach(([id, group]) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.dataset.group = id;
+        button.style.setProperty("--rail-color", group.color);
+        button.textContent = `${group.name} ${FILES_BY_GROUP[id].length}`;
+        button.addEventListener("click", () => openGroup(id));
+        sectorRail.appendChild(button);
+      });
+    }
+
+    function setOrbitHighlight(groupId, active) {
+      (state.categoryOrbitPaths.get(groupId) || []).forEach(orbit => {
+        orbit.classList.toggle("is-hot", active || state.group === groupId);
+      });
+    }
+
+    function updateSectorRail() {
+      sectorRail.querySelectorAll("button").forEach(button => {
+        button.classList.toggle("is-active", button.dataset.group === state.group);
+      });
+    }
+
+    function measure() {
+      const rect = stage.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+      const centerX = width * .5;
+      const centerY = height * .5;
+      const maxRadius = Math.max(
+        104,
+        Math.min(width * .46, height * .5)
+      );
+      const ringRadii = [0, maxRadius * .31, maxRadius * .54, maxRadius * .74, maxRadius * .91];
+      state.layout = { width, height, centerX, centerY, maxRadius, ringRadii };
+      drawScene();
+      positionCategories();
+      if (state.group) {
+        positionLocalFiles();
+      }
+    }
+
+    function svgElement(name, attrs = {}) {
+      const element = document.createElementNS("http://www.w3.org/2000/svg", name);
+      Object.entries(attrs).forEach(([key, value]) => element.setAttribute(key, value));
+      return element;
+    }
+
+    function clamp(value, minimum, maximum) {
+      return Math.min(maximum, Math.max(minimum, value));
+    }
+
+    function createSceneLayers(width, height) {
+      sceneLines.innerHTML = "";
+      state.categoryOrbitPaths.clear();
+      state.localOrbitPaths = [];
+      state.sceneLayers = Array.from({ length: DEPTH_LAYER_COUNT }, (_, index) => {
+        const layer = svgElement("svg", {
+          class: "scene-layer",
+          viewBox: `0 0 ${width} ${height}`,
+          "aria-hidden": "true",
+          "data-depth-layer": index
+        });
+        layer.style.zIndex = String(DEPTH_Z_INDEX_BASE + index);
+        sceneLines.appendChild(layer);
+        return layer;
+      });
+      return state.sceneLayers;
+    }
+
+    function sceneDepthRange(radius) {
+      return Math.max(radius * 1.45, 180);
+    }
+
+    function depthLayerIndex(z, range) {
+      const normalized = clamp((z + range) / (range * 2), 0, .999999);
+      return Math.floor((1 - normalized) * DEPTH_LAYER_COUNT);
+    }
+
+    function depthZIndex(z, range) {
+      return DEPTH_Z_INDEX_BASE + depthLayerIndex(z, range);
+    }
+
+    function createLayeredOrbitPaths(className, dataAttribute, dataValue, color) {
+      return state.sceneLayers.map((layer, index) => {
+        const path = svgElement("path", {
+          class: `orbit-line ${className}`,
+          [dataAttribute]: dataValue,
+          "data-depth-layer": index
+        });
+        path.style.stroke = color;
+        layer.appendChild(path);
+        return path;
+      });
+    }
+
+    function projectedLayeredPaths(sampler, startAngle, endAngle, steps, range) {
+      const commands = Array.from({ length: DEPTH_LAYER_COUNT }, () => []);
+      let previous = sampler(startAngle);
+      let previousLayer = -1;
+      for (let index = 1; index <= steps; index += 1) {
+        const angle = startAngle + (endAngle - startAngle) * index / steps;
+        const point = sampler(angle);
+        const layerIndex = depthLayerIndex((previous.z + point.z) * .5, range);
+        const start = `${previous.x.toFixed(2)} ${previous.y.toFixed(2)}`;
+        const end = `${point.x.toFixed(2)} ${point.y.toFixed(2)}`;
+        commands[layerIndex].push(
+          `${layerIndex === previousLayer ? "L" : `M${start} L`}${end}`
+        );
+        previous = point;
+        previousLayer = layerIndex;
+      }
+      return commands.map(bucket => bucket.join(" "));
+    }
+
+    function projectWorldPoint(x, y, z) {
+      const yaw = state.cameraYaw;
+      const pitch = state.cameraPitch;
+      const cosYaw = Math.cos(yaw);
+      const sinYaw = Math.sin(yaw);
+      const cosPitch = Math.cos(pitch);
+      const sinPitch = Math.sin(pitch);
+      const cosRoll = Math.cos(state.cameraRoll);
+      const sinRoll = Math.sin(state.cameraRoll);
+      const rotatedX = x * cosYaw - z * sinYaw;
+      const rotatedZ = x * sinYaw + z * cosYaw;
+      const projectedY = y * cosPitch - rotatedZ * sinPitch;
+      const projectedZ = y * sinPitch + rotatedZ * cosPitch;
+      const screenX = rotatedX * cosRoll - projectedY * sinRoll;
+      const screenY = rotatedX * sinRoll + projectedY * cosRoll;
+      const scale = state.cameraDistance / (state.cameraDistance + projectedZ);
+      return {
+        x: state.layout.centerX + screenX * scale * state.cameraZoom,
+        y: state.layout.centerY + screenY * scale * state.cameraZoom,
+        z: projectedZ,
+        scale
+      };
+    }
+
+    function getGroupOrbit(group) {
+      const semiMajor = state.layout.maxRadius * group.orbitScale;
+      const semiMinor = semiMajor * group.flatten;
+      return {
+        semiMajor,
+        semiMinor,
+        focusShift: Math.sqrt(Math.max(0, semiMajor * semiMajor - semiMinor * semiMinor)) * group.focusSide,
+        orbitTilt: group.tilt * Math.PI / 180,
+        inclination: group.inclination * Math.PI / 180
+      };
+    }
+
+    function orbitPoint(group, angleDegrees) {
+      const orbit = getGroupOrbit(group);
+      const angle = angleDegrees * Math.PI / 180;
+      const major = orbit.focusShift + Math.cos(angle) * orbit.semiMajor;
+      const minor = Math.sin(angle) * orbit.semiMinor;
+      const planeX = major * Math.cos(orbit.orbitTilt) - minor * Math.sin(orbit.orbitTilt);
+      const planeZ = major * Math.sin(orbit.orbitTilt) + minor * Math.cos(orbit.orbitTilt);
+      return projectWorldPoint(
+        planeX,
+        planeZ * Math.sin(orbit.inclination),
+        planeZ * Math.cos(orbit.inclination)
+      );
+    }
+
+    function updateCategoryProjection() {
+      if (!state.layout || state.group) return;
+      const projectionKey = [
+        state.layout.centerX,
+        state.layout.centerY,
+        state.layout.maxRadius,
+        state.cameraYaw,
+        state.cameraPitch,
+        state.cameraRoll,
+        state.cameraZoom
+      ].map(value => Number(value).toFixed(4)).join("|");
+      const refreshOrbitPaths = state.categoryOrbitProjectionKey !== projectionKey;
+      const core = state.categoryNodes.get("core");
+      const depthRange = sceneDepthRange(state.layout.maxRadius);
+      if (core) {
+        const coreDiameter = Number.parseFloat(core.style.getPropertyValue("--diameter"));
+        core.style.left = `${state.layout.centerX}px`;
+        core.style.top = `${state.layout.centerY}px`;
+        core.style.opacity = "1";
+        core.style.setProperty("--planet-scale", state.cameraZoom.toFixed(3));
+        core.style.setProperty("--planet-span", `${coreDiameter * state.cameraZoom}px`);
+        core.style.zIndex = String(depthZIndex(0, depthRange));
+      }
+
+      Object.entries(GROUPS).filter(([id]) => id !== "core").forEach(([id, group]) => {
+        const node = state.categoryNodes.get(id);
+        if (!node) return;
+        const currentAngle = group.angle + state.motionTime * group.speed;
+        const point = orbitPoint(group, currentAngle);
+        node.style.left = `${point.x}px`;
+        node.style.top = `${point.y}px`;
+        node.style.opacity = String(clamp(1 - (point.z / state.layout.maxRadius) * .17, .76, 1));
+        const planetScale = clamp(point.scale * state.cameraZoom, .55, 1.48);
+        const planetDiameter = Number.parseFloat(node.style.getPropertyValue("--diameter"));
+        node.style.setProperty(
+          "--planet-scale",
+          planetScale.toFixed(3)
+        );
+        node.style.setProperty("--planet-span", `${planetDiameter * planetScale}px`);
+        node.style.zIndex = String(depthZIndex(point.z, depthRange));
+        const orbitPaths = state.categoryOrbitPaths.get(id) || [];
+        if (refreshOrbitPaths && orbitPaths.length) {
+          const paths = projectedLayeredPaths(
+            angle => orbitPoint(group, angle),
+            0,
+            360,
+            140,
+            depthRange
+          );
+          orbitPaths.forEach((path, index) => path.setAttribute("d", paths[index]));
+        }
+      });
+      if (refreshOrbitPaths) {
+        state.categoryOrbitProjectionKey = projectionKey;
+      }
+    }
+
+    function drawScene() {
+      if (!state.layout) return;
+      const { width, height } = state.layout;
+      const sceneLayers = createSceneLayers(width, height);
+      state.categoryOrbitProjectionKey = "";
+
+      const starGroup = svgElement("g");
+      state.starGroup = starGroup;
+      for (let index = 0; index < 186; index += 1) {
+        const x = ((index * 97 + 31) % 991) / 991 * width;
+        const y = ((index * 61 + 17) % 997) / 997 * height;
+        starGroup.appendChild(svgElement("circle", {
+          cx: x,
+          cy: y,
+          r: index % 31 === 0 ? 1.45 : (index % 13 === 0 ? 1.05 : .58),
+          class: "star-dot",
+          opacity: index % 17 === 0 ? .42 : (index % 7 === 0 ? .27 : .13)
+        }));
+      }
+      sceneLayers[0].appendChild(starGroup);
+
+      if (!state.group) {
+        Object.entries(GROUPS).filter(([id]) => id !== "core").forEach(([id, group]) => {
+          state.categoryOrbitPaths.set(
+            id,
+            createLayeredOrbitPaths("category-orbit", "data-orbit", id, group.color)
+          );
+        });
+      }
+      updateCategoryProjection();
+    }
+
+    function positionCategories() {
+      if (!state.layout || state.group) return;
+      updateCategoryProjection();
+    }
+
+    function openGroup(groupId) {
+      state.group = groupId;
+      state.groupMotionStart = state.motionTime;
+      state.selected = null;
+      state.hovered = null;
+      state.paused = false;
+      orbitLayer.style.opacity = "0";
+      orbitLayer.style.pointerEvents = "none";
+      fileLayer.innerHTML = "";
+      stage.classList.remove("compact-labels");
+      state.fileNodes.clear();
+      state.localAngles.clear();
+      drawLocalOrbits(groupId);
+      sectorTitle.style.setProperty("--sector-color", GROUPS[groupId].color);
+      sectorTitle.innerHTML = `
+        <span class="sector-planet"><canvas class="planet-canvas" width="220" height="220" aria-hidden="true"></canvas></span>
+        <strong>${escapeHtml(GROUPS[groupId].name)}</strong>
+        <span class="sector-folder">${escapeHtml(GROUPS[groupId].folder)}</span>
+        <small>${FILES_BY_GROUP[groupId].length} 个文件</small>
+      `;
+      paintPlanet(
+        sectorTitle.querySelector("canvas"),
+        GROUPS[groupId].color,
+        hashSeed(groupId),
+        true,
+        GROUP_WEIGHT_TOTALS[groupId]
+      );
+      sectorTitle.classList.add("is-visible");
+      buildLocalFiles(groupId);
+      updateBreadcrumb();
+      updateSectorRail();
+      backButton.classList.add("is-visible");
+      renderGroupOverview(groupId);
+      positionLocalFiles();
+    }
+
+    function closeGroup() {
+      state.group = null;
+      state.selected = null;
+      state.hovered = null;
+      state.paused = false;
+      orbitLayer.style.opacity = "1";
+      orbitLayer.style.pointerEvents = "";
+      fileLayer.innerHTML = "";
+      state.fileNodes.clear();
+      state.localAngles.clear();
+      sectorTitle.classList.remove("is-visible");
+      backButton.classList.remove("is-visible");
+      drawScene();
+      updateBreadcrumb();
+      updateSectorRail();
+      renderOverview();
+      positionCategories();
+    }
+
+    function getLocalOrbitSpecs(groupId) {
+      if (!state.layout) return [];
+      const localMax = Math.min(state.layout.width * .4, state.layout.height * .41);
+      if (FILES_BY_GROUP[groupId].length > 7) {
+        return [
+          { radius: localMax * .52, tilt: 0, inclination: 0, speed: .17, baseAngle: -82 },
+          { radius: localMax, tilt: 0, inclination: 0, speed: -.12, baseAngle: -58 }
+        ];
+      }
+      return [
+        { radius: localMax * .78, tilt: 0, inclination: 0, speed: .14, baseAngle: -84 }
+      ];
+    }
+
+    function drawLocalOrbits(groupId) {
+      if (!state.layout) return;
+      drawScene();
+      state.localOrbitProjectionKey = "";
+      state.localOrbitPaths = getLocalOrbitSpecs(groupId).map((spec, index) => {
+        const paths = createLayeredOrbitPaths(
+          "local-orbit",
+          "data-local-index",
+          String(index),
+          GROUPS[groupId].color
+        );
+        paths.forEach(path => path.setAttribute("opacity", index ? ".24" : ".4"));
+        return paths;
+      });
+      const linksGroup = svgElement("g", { id: "linksGroup" });
+      state.sceneLayers[0].appendChild(linksGroup);
+    }
+
+    function localOrbitPoint(groupId, orbitIndex, angleDegrees) {
+      const spec = getLocalOrbitSpecs(groupId)[orbitIndex];
+      const radians = angleDegrees * Math.PI / 180;
+      const tilt = spec.tilt * Math.PI / 180;
+      const inclination = spec.inclination * Math.PI / 180;
+      const major = Math.cos(radians) * spec.radius;
+      const minor = Math.sin(radians) * spec.radius * .82;
+      const planeX = major * Math.cos(tilt) - minor * Math.sin(tilt);
+      const planeZ = major * Math.sin(tilt) + minor * Math.cos(tilt);
+      return projectWorldPoint(
+        planeX,
+        planeZ * Math.sin(inclination),
+        planeZ * Math.cos(inclination)
+      );
+    }
+
+    function buildLocalFiles(groupId) {
+      const files = FILES_BY_GROUP[groupId];
+      const orbitSpecs = getLocalOrbitSpecs(groupId);
+      stage.classList.toggle(
+        "compact-labels",
+        files.length > 8 || (state.layout && state.layout.width < 620)
+      );
+      const innerCount = orbitSpecs.length > 1 ? Math.ceil(files.length / 2) : 0;
+      files.forEach((file, index) => {
+        const orbitIndex = index < innerCount ? 0 : (innerCount ? 1 : 0);
+        const countInOrbit = orbitIndex === 0
+          ? (innerCount || files.length)
+          : files.length - innerCount;
+        const indexInOrbit = orbitIndex === 0 ? index : index - innerCount;
+        const spec = orbitSpecs[orbitIndex];
+        const baseAngle = spec.baseAngle +
+          (360 / Math.max(countInOrbit, 1)) * indexInOrbit;
+        state.localAngles.set(file.path, { orbitIndex, baseAngle, speed: spec.speed });
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "file-node";
+        button.dataset.path = file.path;
+        button.dataset.weight = file.weight.toFixed(2);
+        button.style.setProperty("--file-color", file.color);
+        const fileDiameter = weightToDiameter(
+          file.weight,
+          FILE_WEIGHT_MIN,
+          FILE_WEIGHT_MAX,
+          6,
+          12
+        );
+        button.style.setProperty("--file-size", `${fileDiameter.toFixed(1)}px`);
+        button.innerHTML = `
+          <span class="node-body">
+            <span class="file-sphere" aria-hidden="true">
+              <canvas class="planet-canvas" width="64" height="64"></canvas>
+            </span>
+            <span class="file-name">${escapeHtml(file.name)}</span>
+          </span>
+        `;
+        button.setAttribute("aria-label", `${file.name}，${file.role}`);
+        button.addEventListener("pointerenter", () => {
+          state.paused = true;
+          state.hovered = file.path;
+        });
+        button.addEventListener("pointerleave", () => {
+          state.paused = false;
+          state.hovered = null;
+        });
+        button.addEventListener("focus", () => {
+          state.paused = true;
+          state.hovered = file.path;
+        });
+        button.addEventListener("blur", () => {
+          state.paused = false;
+          state.hovered = null;
+        });
+        button.addEventListener("click", () => selectFile(file.path));
+        fileLayer.appendChild(button);
+        paintPlanet(
+          button.querySelector("canvas"),
+          file.color,
+          hashSeed(file.path),
+          false,
+          file.weight
+        );
+        state.fileNodes.set(file.path, button);
+      });
+      requestAnimationFrame(() => {
+        state.fileNodes.forEach(node => node.classList.add("is-visible"));
+      });
+    }
+
+    function positionLocalFiles() {
+      if (!state.layout || !state.group) return;
+      const localMax = Math.min(state.layout.width * .4, state.layout.height * .41);
+      const files = FILES_BY_GROUP[state.group];
+      const depthRange = sceneDepthRange(localMax);
+      const projectionKey = [
+        state.group,
+        state.layout.width,
+        state.layout.height,
+        state.cameraYaw,
+        state.cameraPitch,
+        state.cameraRoll,
+        state.cameraZoom
+      ].map(value => Number.isNaN(Number(value)) ? value : Number(value).toFixed(4)).join("|");
+      const refreshOrbitPaths = state.localOrbitProjectionKey !== projectionKey;
+      sectorTitle.style.setProperty("--sector-scale", state.cameraZoom.toFixed(3));
+      sectorTitle.style.zIndex = String(depthZIndex(0, depthRange));
+      if (refreshOrbitPaths) {
+        state.localOrbitPaths.forEach((orbitPaths, index) => {
+          const paths = projectedLayeredPaths(
+            angle => localOrbitPoint(state.group, index, angle),
+            0,
+            360,
+            140,
+            depthRange
+          );
+          orbitPaths.forEach((path, layerIndex) => path.setAttribute("d", paths[layerIndex]));
+        });
+        state.localOrbitProjectionKey = projectionKey;
+      }
+      files.forEach(file => {
+        const node = state.fileNodes.get(file.path);
+        const info = state.localAngles.get(file.path);
+        if (!node || !info) return;
+        const angle = info.baseAngle +
+          (state.motionTime - state.groupMotionStart) * info.speed;
+        const point = localOrbitPoint(state.group, info.orbitIndex, angle);
+        node.style.left = `${point.x}px`;
+        node.style.top = `${point.y}px`;
+        node.style.opacity = String(clamp(1 - (point.z / localMax) * .18, .76, 1));
+        const planetScale = clamp(point.scale * state.cameraZoom, .55, 1.48);
+        const planetDiameter = Number.parseFloat(node.style.getPropertyValue("--file-size"));
+        node.style.setProperty(
+          "--planet-scale",
+          planetScale.toFixed(3)
+        );
+        node.style.setProperty("--planet-span", `${planetDiameter * planetScale}px`);
+        node.style.zIndex = String(depthZIndex(point.z, depthRange));
+      });
+      updateLinks();
+    }
+
+    function selectFile(path) {
+      const file = FILES_BY_PATH.get(path);
+      if (!file) return;
+      if (state.group !== file.group) {
+        openGroup(file.group);
+      }
+      state.selected = path;
+      state.paused = true;
+      state.fileNodes.forEach((node, nodePath) => {
+        node.classList.toggle("is-active", nodePath === path);
+        node.classList.toggle("is-related", file.related.includes(nodePath));
+      });
+      updateBreadcrumb();
+      drawLinksFor(file);
+      renderFileDetail(file);
+      if (window.matchMedia("(max-width: 900px)").matches) {
+        dossier.scrollIntoView({ behavior: state.reducedMotion ? "auto" : "smooth", block: "start" });
+      }
+    }
+
+    function drawLinksFor(file) {
+      const linksGroup = document.getElementById("linksGroup");
+      if (!linksGroup) return;
+      linksGroup.innerHTML = "";
+      const sourceNode = state.fileNodes.get(file.path);
+      if (!sourceNode) return;
+      file.related.forEach(relatedPath => {
+        const targetNode = state.fileNodes.get(relatedPath);
+        if (!targetNode) return;
+        const link = svgElement("line", { class: "link-line" });
+        link.dataset.from = file.path;
+        link.dataset.to = relatedPath;
+        linksGroup.appendChild(link);
+      });
+      updateLinks();
+    }
+
+    function updateLinks() {
+      const linksGroup = document.getElementById("linksGroup");
+      if (!linksGroup) return;
+      linksGroup.querySelectorAll(".link-line").forEach(line => {
+        const fromNode = state.fileNodes.get(line.dataset.from);
+        const toNode = state.fileNodes.get(line.dataset.to);
+        if (!fromNode || !toNode) return;
+        line.setAttribute("x1", parseFloat(fromNode.style.left));
+        line.setAttribute("y1", parseFloat(fromNode.style.top));
+        line.setAttribute("x2", parseFloat(toNode.style.left));
+        line.setAttribute("y2", parseFloat(toNode.style.top));
+      });
+    }
+
+    function updateBreadcrumb() {
+      breadcrumb.innerHTML = "";
+      const overviewButton = document.createElement("button");
+      overviewButton.type = "button";
+      overviewButton.textContent = "总览";
+      overviewButton.addEventListener("click", closeGroup);
+      breadcrumb.appendChild(overviewButton);
+
+      if (state.group) {
+        breadcrumb.appendChild(crumbSeparator());
+        const groupButton = document.createElement("button");
+        groupButton.type = "button";
+        groupButton.textContent = GROUPS[state.group].name;
+        groupButton.addEventListener("click", () => {
+          state.selected = null;
+          state.paused = false;
+          renderGroupOverview(state.group);
+          state.fileNodes.forEach(node => {
+            node.classList.remove("is-active", "is-related");
+          });
+          drawLocalOrbits(state.group);
+          updateBreadcrumb();
+          state.paused = false;
+        });
+        breadcrumb.appendChild(groupButton);
+      }
+
+      if (state.selected) {
+        breadcrumb.appendChild(crumbSeparator());
+        const selected = document.createElement("span");
+        selected.textContent = FILES_BY_PATH.get(state.selected).name;
+        breadcrumb.appendChild(selected);
+      }
+    }
+
+    function crumbSeparator() {
+      const separator = document.createElement("span");
+      separator.className = "crumb-separator";
+      separator.textContent = "/";
+      return separator;
+    }
+
+    function renderOverview() {
+      dossier.style.setProperty("--panel-accent", GROUPS.core.color);
+      dossier.innerHTML = `
+        <div class="dossier-inner">
+          <div class="dossier-kicker">当前 Git 清单 · Skill 2.4.0</div>
+          <h2>当前文件星系，先看系统</h2>
+          <p class="dossier-lead">当前星系盘点 86 个文件：入口、调用元数据、参考、脚本和测试资料。点击任意分区，让它的文件沿职责轨道展开。</p>
+          <div class="overview-list">
+            ${Object.entries(GROUPS).sort((a, b) => a[1].ring - b[1].ring).map(([id, group]) => `
+              <div class="overview-row" style="--row-color:${group.color}">
+                <em>R${group.ring}</em>
+                <span><b>${escapeHtml(group.name)}</b><br>${escapeHtml(group.summary)}</span>
+                <em>${FILES_BY_GROUP[id].length}</em>
+              </div>
+            `).join("")}
+          </div>
+          <p class="overview-note">轨道是按结构关系绘制的示意椭圆，整体以契约核心为视觉中心，部分轨道保留小幅倾角。目录球按该目录的文件权重总和映射大小，文件小球按自身权重映射大小；均不表示文件体积。</p>
+        </div>
+      `;
+    }
+
+    function renderGroupOverview(groupId) {
+      const group = GROUPS[groupId];
+      const files = FILES_BY_GROUP[groupId];
+      dossier.style.setProperty("--panel-accent", group.color);
+      dossier.innerHTML = `
+        <div class="dossier-inner">
+          <div class="dossier-kicker">R${group.ring} · ${escapeHtml(group.folder)}</div>
+          <h2>${escapeHtml(group.name)}</h2>
+          <p class="dossier-lead">${escapeHtml(group.summary)}</p>
+          <div class="group-file-list">
+            ${files.map(file => `
+              <button class="group-file-row" type="button" data-path="${escapeHtml(file.path)}">
+                <span>${escapeHtml(file.name)}</span>
+                <span>${escapeHtml(file.role)}</span>
+              </button>
+            `).join("")}
+          </div>
+          <p class="overview-note">悬停球体会放大；点击球体或上方列表查看文件职责。</p>
+        </div>
+      `;
+      dossier.querySelectorAll(".group-file-row").forEach(button => {
+        button.addEventListener("click", () => selectFile(button.dataset.path));
+      });
+    }
+
+    function renderFileDetail(file) {
+      dossier.style.setProperty("--panel-accent", file.color);
+      const relatedButtons = file.related.length
+        ? file.related.map(path => {
+          const related = FILES_BY_PATH.get(path);
+          return related
+            ? `<button class="related-link" type="button" data-path="${escapeHtml(path)}">${escapeHtml(related.name)}</button>`
+            : "";
+        }).join("")
+        : `<span style="color:var(--muted);font-size:11px">没有声明直接关联文件</span>`;
+      dossier.innerHTML = `
+        <div class="dossier-inner">
+          <div class="dossier-kicker">${escapeHtml(file.role)}</div>
+          <h2>${escapeHtml(file.name)}</h2>
+          <p class="dossier-path">${escapeHtml(file.location)}</p>
+          <p class="dossier-lead">${escapeHtml(file.what)}</p>
+          <section class="detail-block">
+            <h3>何时出现</h3>
+            <p>${escapeHtml(file.when)}</p>
+          </section>
+          <section class="detail-block">
+            <h3>边界</h3>
+            <ul>${file.boundaries.map(boundary => `<li>${escapeHtml(boundary)}</li>`).join("")}</ul>
+          </section>
+          <section class="detail-block">
+            <h3>关联文件</h3>
+            <div class="related-list">${relatedButtons}</div>
+          </section>
+          <ul class="file-meta">
+            <li><strong>所属层级</strong><span>R${GROUPS[file.group].ring} · ${escapeHtml(GROUPS[file.group].name)}</span></li>
+            <li><strong>文件权重</strong><span>${file.weight.toFixed(2)}</span></li>
+            <li><strong>文件类型</strong><span>${fileTypeLabel(file)}</span></li>
+            <li><strong>交互状态</strong><span>仅展示说明；不会执行文件</span></li>
+          </ul>
+        </div>
+      `;
+      dossier.querySelectorAll(".related-link").forEach(button => {
+        button.addEventListener("click", () => selectFile(button.dataset.path));
+      });
+    }
+
+    function fileTypeLabel(file) {
+      if (file.group === "scripts") return "PowerShell / 原生运行辅助";
+      if (file.group === "tests") return "自动测试 / 冻结场景";
+      if (file.group === "core" && file.path.endsWith(".yaml")) return "界面元数据";
+      return "条件加载的规则参考";
+    }
+
+    function frame(timestamp) {
+      if (state.lastTimestamp === null) {
+        state.lastTimestamp = timestamp;
+      }
+      const delta = Math.min((timestamp - state.lastTimestamp) / 1000, .05);
+      state.lastTimestamp = timestamp;
+      if (!state.reducedMotion) {
+        state.planetTime += delta;
+      }
+      if (state.motionOn && !state.paused) {
+        state.motionTime += delta;
+      }
+      if (state.cameraDrift && !state.paused) {
+        state.cameraYaw += delta * .022;
+      }
+      if (!state.dragging && Math.abs(state.cameraYawVelocity) > .001) {
+        state.cameraYaw += state.cameraYawVelocity * delta;
+        state.cameraYawVelocity *= Math.exp(-delta * 4.2);
+      }
+      if (state.starGroup) {
+        const starX = Math.sin(state.cameraYaw) * 8;
+        const starY = Math.cos(state.cameraPitch) * 3 + Math.sin(state.cameraYaw * .73) * 1.5;
+        state.starGroup.setAttribute(
+          "transform",
+          `translate(${starX.toFixed(2)} ${starY.toFixed(2)})`
+        );
+      }
+      if (state.group) {
+        updateCategoryProjection();
+        positionLocalFiles();
+      } else {
+        positionCategories();
+      }
+      renderVisiblePlanets();
+      requestAnimationFrame(frame);
+    }
+
+    backButton.addEventListener("click", closeGroup);
+    motionToggle.addEventListener("click", () => {
+      state.cameraDrift = !state.cameraDrift;
+      motionToggle.setAttribute("aria-pressed", String(state.cameraDrift));
+      motionToggle.textContent = state.cameraDrift ? "停止视角" : "自动视角";
+    });
+
+    function setCameraZoom(value) {
+      state.cameraZoom = clamp(value, .72, 1.22);
+      cameraZoomLabel.textContent = String(Math.round(state.cameraZoom * 100));
+      renderCurrentScene();
+    }
+
+    function resetCamera() {
+      state.cameraYaw = 0;
+      state.cameraPitch = -.5;
+      state.cameraRoll = 0;
+      state.cameraYawVelocity = 0;
+      state.cameraDrift = false;
+      motionToggle.setAttribute("aria-pressed", "false");
+      motionToggle.textContent = "自动视角";
+      setCameraZoom(1);
+    }
+
+    zoomIn.addEventListener("click", () => setCameraZoom(state.cameraZoom + .06));
+    zoomOut.addEventListener("click", () => setCameraZoom(state.cameraZoom - .06));
+    zoomReset.addEventListener("click", resetCamera);
+
+    function renderCurrentScene() {
+      if (state.group) {
+        positionLocalFiles();
+      }
+      else {
+        updateCategoryProjection();
+      }
+      if (state.reducedMotion) {
+        renderVisiblePlanets(true);
+      }
+      else {
+        state.lastPlanetFrame = 0;
+      }
+    }
+
+    stage.addEventListener("pointerdown", event => {
+      const isRollDrag = event.button === 2 || (event.button === 0 && event.shiftKey);
+      if (!isRollDrag && event.button !== 0) return;
+      if (event.target.closest("button, nav, .camera-rail")) return;
+      state.dragging = true;
+      state.paused = true;
+      state.cameraYawVelocity = 0;
+      state.dragMode = isRollDrag ? "roll" : "orbit";
+      state.dragStartX = event.clientX;
+      state.dragStartY = event.clientY;
+      state.dragStartYaw = state.cameraYaw;
+      state.dragStartPitch = state.cameraPitch;
+      state.dragStartRoll = state.cameraRoll;
+      state.lastDragTimestamp = event.timeStamp;
+      stage.classList.add("is-dragging");
+      stage.classList.toggle("is-rolling", isRollDrag);
+      stage.setPointerCapture(event.pointerId);
+    });
+
+    stage.addEventListener("pointermove", event => {
+      if (!state.dragging) return;
+      if (state.dragMode === "roll") {
+        state.cameraRoll = state.dragStartRoll +
+          (event.clientX - state.dragStartX) * .004 +
+          (event.clientY - state.dragStartY) * .0015;
+        renderCurrentScene();
+        return;
+      }
+      const previousYaw = state.cameraYaw;
+      state.cameraYaw = state.dragStartYaw + (event.clientX - state.dragStartX) * .0032;
+      state.cameraPitch = clamp(
+        state.dragStartPitch + (event.clientY - state.dragStartY) * .0032,
+        -CAMERA_PITCH_LIMIT,
+        CAMERA_PITCH_LIMIT
+      );
+      const elapsed = Math.max(8, event.timeStamp - state.lastDragTimestamp);
+      state.cameraYawVelocity = clamp((state.cameraYaw - previousYaw) / elapsed * 1000, -2.2, 2.2);
+      state.lastDragTimestamp = event.timeStamp;
+      renderCurrentScene();
+    });
+
+    function finishGalaxyDrag(event) {
+      if (!state.dragging) return;
+      state.dragging = false;
+      state.paused = false;
+      if (event.timeStamp - state.lastDragTimestamp > 90) {
+        state.cameraYawVelocity = 0;
+      }
+      stage.classList.remove("is-dragging");
+      stage.classList.remove("is-rolling");
+      if (stage.hasPointerCapture(event.pointerId)) {
+        stage.releasePointerCapture(event.pointerId);
+      }
+    }
+
+    stage.addEventListener("pointerup", finishGalaxyDrag);
+    stage.addEventListener("pointercancel", finishGalaxyDrag);
+    stage.addEventListener("contextmenu", event => event.preventDefault());
+    stage.addEventListener("wheel", event => {
+      if (event.target.closest(".camera-rail")) return;
+      event.preventDefault();
+      setCameraZoom(state.cameraZoom - event.deltaY * .00055);
+    }, { passive: false });
+
+    document.addEventListener("keydown", event => {
+      if (event.key !== "Escape") return;
+      if (state.selected) {
+        state.selected = null;
+        state.paused = false;
+        state.fileNodes.forEach(node => node.classList.remove("is-active", "is-related"));
+        drawLocalOrbits(state.group);
+        renderGroupOverview(state.group);
+        updateBreadcrumb();
+      } else if (state.group) {
+        closeGroup();
+      }
+    });
+
+    const resizeObserver = new ResizeObserver(() => {
+      measure();
+      if (state.group) {
+        stage.classList.toggle(
+          "compact-labels",
+          FILES_BY_GROUP[state.group].length > 8 ||
+          (state.layout && state.layout.width < 620)
+        );
+        drawLocalOrbits(state.group);
+        positionLocalFiles();
+        if (state.selected) drawLinksFor(FILES_BY_PATH.get(state.selected));
+      }
+    });
+    resizeObserver.observe(stage);
+
+    if (state.reducedMotion) {
+      state.cameraDrift = false;
+      motionToggle.setAttribute("aria-pressed", "false");
+      motionToggle.textContent = "自动视角";
+    }
+
+    createOverview();
+    updateBreadcrumb();
+    renderOverview();
+    measure();
+    requestAnimationFrame(frame);
+  </script>
+</body>
+</html>

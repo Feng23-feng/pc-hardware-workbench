@@ -17,13 +17,13 @@ $skillRoot = Join-Path $RepositoryRoot $skillRelativeRoot
 $orreryRoot = Join-Path $RepositoryRoot "docs\skill-evolution\orrery"
 $curationPath = Join-Path $orreryRoot "data\curation.json"
 $uiPath = Join-Path $orreryRoot "data\current-ui.json"
-$archivePath = Join-Path $orreryRoot "archive\1.5.2\index.html"
+$rendererTemplatePath = Join-Path $RepositoryRoot "tools\templates\orrery-renderer.html"
 $manifestPath = Join-Path $orreryRoot "data\manifest.json"
 $indexPath = Join-Path $orreryRoot "index.html"
 $frozenPath = Join-Path $orreryRoot "FROZEN.json"
 $skillPath = Join-Path $skillRoot "SKILL.md"
 
-foreach ($required in @($curationPath, $uiPath, $archivePath, $skillPath)) {
+foreach ($required in @($curationPath, $uiPath, $rendererTemplatePath, $skillPath)) {
     if (-not (Test-Path -LiteralPath $required -PathType Leaf)) {
         throw "Missing orrery build input: $required"
     }
@@ -94,7 +94,7 @@ function Get-BaseWeight {
 
 $curation = [System.IO.File]::ReadAllText($curationPath, $utf8Strict) | ConvertFrom-Json
 $ui = [System.IO.File]::ReadAllText($uiPath, $utf8Strict) | ConvertFrom-Json
-$archiveHtml = [System.IO.File]::ReadAllText($archivePath, $utf8Strict)
+$rendererTemplate = [System.IO.File]::ReadAllText($rendererTemplatePath, $utf8Strict)
 $skillText = [System.IO.File]::ReadAllText($skillPath, $utf8Strict)
 
 $versionMatch = [regex]::Match($skillText, '(?m)^\s*version:\s*"([^"]+)"\s*$')
@@ -420,10 +420,10 @@ $filesJson = ConvertTo-Json -InputObject @($fileObjectList.ToArray()) -Depth 20
 $groupsJson = $groupsJson.Replace("`r`n", "`n")
 $filesJson = $filesJson.Replace("`r`n", "`n")
 
-$dataStart = $archiveHtml.IndexOf("    const GROUPS = {", [StringComparison]::Ordinal)
-$dataEnd = $archiveHtml.IndexOf("    const FILES_BY_PATH =", [StringComparison]::Ordinal)
+$dataStart = $rendererTemplate.IndexOf("    const GROUPS = {", [StringComparison]::Ordinal)
+$dataEnd = $rendererTemplate.IndexOf("    const FILES_BY_PATH =", [StringComparison]::Ordinal)
 if ($dataStart -lt 0 -or $dataEnd -le $dataStart) {
-    throw "The frozen 1.5.2 archive does not expose the expected data blocks."
+    throw "The orrery renderer template does not expose the expected data blocks."
 }
 
 $generatedData = @"
@@ -432,7 +432,7 @@ $generatedData = @"
     const FILES = $filesJson;
 
 "@
-$generatedHtml = $archiveHtml.Substring(0, $dataStart) + $generatedData + $archiveHtml.Substring($dataEnd)
+$generatedHtml = $rendererTemplate.Substring(0, $dataStart) + $generatedData + $rendererTemplate.Substring($dataEnd)
 
 function Expand-UiTemplate {
     param([Parameter(Mandatory = $true)][string]$Value)
@@ -447,7 +447,12 @@ $uiTitle = Expand-UiTemplate $ui.title
 $uiDescription = Expand-UiTemplate $ui.description
 $uiMetadataName = Expand-UiTemplate $ui.metadataName
 $uiNavCurrent = Expand-UiTemplate $ui.navCurrent
-$uiNavArchive = Expand-UiTemplate $ui.navArchive
+$uiNavArchive = if ([string]::IsNullOrWhiteSpace($ui.navArchive)) {
+    ""
+}
+else {
+    Expand-UiTemplate $ui.navArchive
+}
 $uiBackLabel = Expand-UiTemplate $ui.backLabel
 $uiHeaderSubtitle = Expand-UiTemplate $ui.headerSubtitle
 $uiStatFiles = Expand-UiTemplate $ui.statFiles
@@ -459,6 +464,12 @@ $uiDossierHeading = Expand-UiTemplate $ui.dossierHeading
 $uiDossierLead = Expand-UiTemplate $ui.dossierLead
 $uiOverviewNote = Expand-UiTemplate $ui.overviewNote
 $uiStageAria = Expand-UiTemplate $ui.stageAria
+$uiArchiveNav = if ([string]::IsNullOrWhiteSpace($uiNavArchive)) {
+    ""
+}
+else {
+    "`n      <a href=""archive/1.5.2/"">$uiNavArchive</a>"
+}
 
 $generatedHtml = [regex]::Replace(
     $generatedHtml,
@@ -486,8 +497,7 @@ $generatedHtml = [regex]::Replace(
         @"
 <nav class="global-nav" aria-label="$($ui.navAria)">
       <a href="../">$uiBackLabel</a>
-      <span aria-current="page">$uiNavCurrent</span>
-      <a href="archive/1.5.2/">$uiNavArchive</a>
+      <span aria-current="page">$uiNavCurrent</span>$uiArchiveNav
     </nav>
 "@
     },
@@ -653,7 +663,6 @@ $frozenObject = [pscustomobject][ordered]@{
     generatedFrom = "git ls-files -- skill/pc-hardware-workbench"
     source = "docs/skill-evolution/orrery/index.html"
     manifest = "docs/skill-evolution/orrery/data/manifest.json"
-    archive = "docs/skill-evolution/orrery/archive/1.5.2/"
     fileCount = $sortedRecords.Count
     aggregateSha256 = $aggregateSha256
     sha256 = $pageSha256

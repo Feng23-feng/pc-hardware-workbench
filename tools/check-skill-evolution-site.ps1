@@ -231,8 +231,12 @@ if ($errors.Count -eq 0) {
         if ($orreryHtml -notmatch '86 \u4E2A\u6587\u4EF6|\u5F53\u524D\u5019\u9009 \u00B7 Skill 2\.4\.0') {
             $errors.Add("Orrery does not expose the current 2.4.0 file count and candidate status.") | Out-Null
         }
-        if ($orreryHtml -notmatch 'archive/1\.5\.2/') {
-            $errors.Add("Orrery does not link to the preserved 1.5.2 archive.") | Out-Null
+        if ($orreryHtml -match 'archive/1\.5\.2/') {
+            $errors.Add("Orrery still exposes the local-only 1.5.2 archive.") | Out-Null
+        }
+        if ($orreryHtml -notmatch 'const CAMERA_PITCH_LIMIT = 1\.55;' -or
+            $orreryHtml -notmatch '-CAMERA_PITCH_LIMIT,\s*CAMERA_PITCH_LIMIT') {
+            $errors.Add("Orrery camera pitch does not use the intended symmetric free-orbit limit.") | Out-Null
         }
         if ($orreryHtml -notmatch 'rel="icon"') {
             $errors.Add("Orrery has no favicon declaration.") | Out-Null
@@ -253,25 +257,6 @@ if ($errors.Count -eq 0) {
         }
         if ($frozen.sha256 -ne $orreryHash) {
             $errors.Add("Orrery FROZEN.json SHA-256 is stale.") | Out-Null
-        }
-        $archiveFrozenPath = Join-Path $siteRoot "orrery\archive\1.5.2\FROZEN.json"
-        $archivePath = Join-Path $siteRoot "orrery\archive\1.5.2\index.html"
-        if (-not (Test-Path -LiteralPath $archiveFrozenPath -PathType Leaf) -or -not (Test-Path -LiteralPath $archivePath -PathType Leaf)) {
-            $errors.Add("The preserved 1.5.2 archive is incomplete.") | Out-Null
-        }
-        else {
-            $archiveFrozen = Get-Content -Raw -LiteralPath $archiveFrozenPath -Encoding UTF8 | ConvertFrom-Json
-            $archiveBytes = [IO.File]::ReadAllBytes($archivePath)
-            $archiveHash = -join (
-                $sha256.ComputeHash($archiveBytes) |
-                    ForEach-Object { $_.ToString("X2") }
-            )
-            if ($archiveFrozen.version -ne "1.3" -or $archiveFrozen.status -ne "frozen" -or [int]$archiveFrozen.fileCount -ne 61) {
-                $errors.Add("The 1.5.2 archive metadata is invalid.") | Out-Null
-            }
-            if ([int]$archiveFrozen.bytes -ne $archiveBytes.Length -or $archiveFrozen.sha256 -ne $archiveHash) {
-                $errors.Add("The 1.5.2 archive manifest is stale.") | Out-Null
-            }
         }
         $sha256.Dispose()
     }
@@ -310,4 +295,4 @@ if ($errors.Count -gt 0) {
     exit 1
 }
 
-Write-Host "Skill evolution site check: PASS (candidate status, homepage hierarchy, 106 versions, current 86-file orrery, 1.5.2 archive, JavaScript syntax)" -ForegroundColor Green
+Write-Host "Skill evolution site check: PASS (candidate status, homepage hierarchy, 106 versions, current 86-file orrery, JavaScript syntax)" -ForegroundColor Green
