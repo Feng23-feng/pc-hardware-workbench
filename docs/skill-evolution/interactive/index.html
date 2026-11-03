@@ -2051,12 +2051,15 @@
     #dse-root .dse-demo-form {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-items: start;
       gap: 8px;
       margin-top: 10px;
     }
 
     #dse-root .dse-demo-field {
       display: grid;
+      align-content: start;
+      align-self: start;
       gap: 4px;
       color: var(--dse-muted);
       font-size: 8px;

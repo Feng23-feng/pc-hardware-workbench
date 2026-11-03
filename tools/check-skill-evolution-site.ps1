@@ -61,6 +61,12 @@ if ($errors.Count -eq 0) {
                 $errors.Add("$($entry.Name) display heading contains sentence punctuation: $headingText") | Out-Null
             }
         }
+        if ($entry.Html -notmatch '(?s)#dse-root \.dse-demo-form\s*\{[^}]*align-items:\s*start;') {
+            $errors.Add("$($entry.Name) demo form does not top-align its grid items.") | Out-Null
+        }
+        if ($entry.Html -notmatch '(?s)#dse-root \.dse-demo-field\s*\{[^}]*align-content:\s*start;[^}]*align-self:\s*start;') {
+            $errors.Add("$($entry.Name) demo fields can stretch and misalign selects.") | Out-Null
+        }
         foreach ($version in @("1.6.0", "1.7.0", "1.8.0", "1.9.0", "2.0.0", "2.1.0", "2.2.0", "2.3.0", "2.4.0")) {
             if ($entry.Html -notmatch [regex]::Escape('"' + $version + '"')) {
                 $errors.Add("$($entry.Name) is missing version $version.") | Out-Null
