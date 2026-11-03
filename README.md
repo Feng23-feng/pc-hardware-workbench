@@ -21,10 +21,10 @@ changes under the user's control.
 
 [打开《电脑硬件工作台 × 自动超频原型》完整迭代档案](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/)
 
-浏览工作台与 GPU 自动超频原型的完整演进记录，包括 97 个版本节点、每版改动、验证状态和历史位置。
+浏览工作台与 GPU 自动超频原型的完整演进记录，包括 104 个版本节点、每版改动、验证状态和历史位置。
 
 Explore the complete Workbench and GPU auto-overclock prototype history, including
-97 recorded versions and their validation status.
+104 recorded versions and their validation status.
 
 [打开 Skill 交互实验室](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/interactive/)
 

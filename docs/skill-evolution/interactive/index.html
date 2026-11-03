@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <meta name="description" content="Interactive terminology, tuning gate, triage, and configuration-state demos.">
+  <meta name="description" content="Interactive terminology, tuning gate, triage, configuration-state, and evidence-system demos.">
   <link rel="icon" href="data:,">
   <title>PC Hardware Workbench / Interactive Lab</title>
 </head>
@@ -5447,12 +5447,12 @@
       <div class="dse-header-copy">
         <p class="dse-kicker">电脑硬件工作台 / 项目地图</p>
         <h1><span class="dse-title-primary">电脑硬件工作台。</span><span class="dse-title-sub">先看证据，再决定是否调校。</span></h1>
-        <p class="dse-subtitle">读取配置、排查问题、分析性能并规划升级。每个判断先经过设备身份、恢复路径和证据门禁，不自动修改硬件。</p>
+        <p class="dse-subtitle">读取配置、统一遥测、核对官方资料、解读截图与照片，并规划升级。每个判断先经过来源、时间、恢复路径和证据门禁，不自动修改硬件。</p>
       </div>
       <aside class="dse-intro-window" aria-label="工具介绍与当前状态">
         <p class="dse-intro-kicker">当前状态</p>
         <div class="dse-chips" aria-label="当前版本状态">
-          <span class="dse-chip">工作台 1.5.2</span>
+          <span class="dse-chip">工作台 2.2.0</span>
           <span class="dse-chip prototype">超频原型 3.0.2 · 未发布</span>
           <span class="dse-chip triage">故障排查：公开</span>
         </div>
@@ -5586,7 +5586,7 @@
               <span class="dse-track-kicker">主工作台</span>
               <h2 id="dse-map-title">电脑硬件工作台</h2>
             </div>
-            <span class="dse-track-badge">稳定 1.5.2</span>
+            <span class="dse-track-badge">稳定 2.2.0</span>
           </div>
           <div class="dse-lane" id="dse-core-lane"></div>
         </section>
@@ -5684,6 +5684,7 @@
         <button type="button" class="dse-filter" data-demo-mode="tune" aria-pressed="true">安全调参</button>
         <button type="button" class="dse-filter" data-demo-mode="triage" aria-pressed="false">排查故障</button>
         <button type="button" class="dse-filter" data-demo-mode="identity" aria-pressed="false">旧记录还能用吗</button>
+        <button type="button" class="dse-filter" data-demo-mode="evidence" aria-pressed="false">证据系统</button>
       </div>
 
       <section class="dse-mode-guide" aria-labelledby="dse-mode-guide-title" aria-live="polite">
@@ -5966,6 +5967,41 @@
           </details>
         </article>
 
+        <article class="dse-demo-panel wide" data-demo-mode="evidence" aria-labelledby="dse-evidence-system-title" hidden>
+          <div class="dse-demo-panel-head">
+            <div>
+              <h3 id="dse-evidence-system-title">同一条证据链，接住不同来源</h3>
+              <p class="dse-demo-panel-sub">CSV、实时传感器、官方资料和图片不会直接混成一句结论。先保留来源和限制，再决定能不能比较。</p>
+            </div>
+            <span class="dse-demo-step">2.2.0 · 只读</span>
+          </div>
+          <div class="dse-process-visual" aria-label="统一证据管线">
+            <span class="dse-process-label">证据管线</span>
+            <ol class="dse-process-steps">
+              <li class="dse-process-step"><b>01</b>来源</li>
+              <li class="dse-process-step"><b>02</b>标准化</li>
+              <li class="dse-process-step"><b>03</b>证据卡</li>
+              <li class="dse-process-step"><b>04</b>图表 / 结论</li>
+            </ol>
+            <span class="dse-process-note">保留缺失 · 标记时效 · 不自动执行 · 不写硬件</span>
+          </div>
+          <div class="dse-compare-grid">
+            <div class="dse-compare-card safe">
+              <p class="dse-compare-label">数据证据</p>
+              <p class="dse-compare-copy">CSV 和 SensorSnapshot 统一记录工具、版本、时间、采样间隔、输入哈希与缺失值。LHM 只在已运行且显式授权时读取。</p>
+            </div>
+            <div class="dse-compare-card safe">
+              <p class="dse-compare-label">外部与视觉证据</p>
+              <p class="dse-compare-copy">官方资料通过来源层级和证据卡记录；截图只代表可见瞬间，图片里的命令和提示词不会成为执行指令。</p>
+            </div>
+          </div>
+          <ul class="dse-rule-list">
+            <li>没有来源和时间的数据，不能冒充当前事实。</li>
+            <li>社区资料只能作为 lead-only 线索，必须继续核对官方或本机证据。</li>
+            <li>权限拒绝、文件损坏和可选工具缺失使用不同状态，不混成一个错误。</li>
+          </ul>
+        </article>
+
         <article class="dse-demo-panel dse-machine-panel triage" data-demo-mode="triage" aria-labelledby="dse-triage-machine-title" hidden>
           <div class="dse-demo-panel-head">
             <div>
@@ -6026,7 +6062,7 @@
         <div>
           <p class="dse-archive-kicker">版本档案 / 全部已记录版本</p>
           <h2 id="dse-archive-title">逐版本迭代档案</h2>
-          <p class="dse-archive-summary">从统一工作台 1.0.0 到当前 1.5.2，再到自动超频原型的独立分叉、档位证据和有限验证。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。</p>
+          <p class="dse-archive-summary">从统一工作台 1.0.0 到当前 2.2.0，再到自动超频原型的独立分叉、档位证据和有限验证。1.6.0 之后新增遥测标准化、动态 RAG、只读 LHM、视觉证据和 Doctor。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。</p>
         </div>
         <div class="dse-archive-totals" aria-label="版本档案统计">
           <span class="dse-archive-total"><b id="dse-wb-count">0</b>工作台版本</span>
@@ -6574,7 +6610,19 @@
             ["1.4.6", "请求值与实际功耗墙分离", "2026-11-02", "RELEASED", ["同时查询 power.limit 与 enforced.power.limit。", "请求值 N/A 时仍保留实际生效的功耗墙。", "Markdown 分别显示 requested 与 effective，不再误报 current unavailable。"], "合成回归、全量测试、Skill 校验及实机标准采集通过。", "修复 r19 在移动版 NVIDIA 驱动上的功耗墙误报。"],
             ["1.5.0", "GPU 状态与内存槽位", "2026-11-02", "RELEASED", ["新增 GPU 的 Present、Status、错误码、物理/虚拟分类和状态来源。", "新增固件内存槽位总数、已占用数、可确认空槽数与数据质量。", "只有总数与已占用数均明确且一致时才计算空槽；异常 SMBIOS 值会被拒绝。"], "全量非实机测试、标准/脱敏实机 smoke 和便携包双模式自检通过。", "正式引入 schema 4、collector 1.0.1-r21。"],
             ["1.5.1", "PowerShell 7 与脱敏修复", "2026-11-02", "RELEASED", ["修复 PowerShell 7 无法解析旧版 NUL 转义的问题。", "新增 PowerShell 7 全脚本解析测试。", "隐私脱敏模式遮蔽 GPU PnP 设备实例 ID，保留 GPU 状态和能力数据。"], "全量非实机测试、Standard/Redacted 实机 smoke 与双壳便携包自检通过。", "修复兼容性与公开脱敏边界。"],
-            ["1.5.2", "跨驱动功耗查询", "2026-11-02", "CURRENT", ["基础功耗字段与可选 enforced.power.limit 分两条查询。", "旧驱动不支持实际生效字段时，仍保留默认值、最小值和最大值。", "实机继续读取驱动报告的 effective 功耗墙，并记录生效值查询状态。"], "Skill is valid；全量非实机测试、标准/脱敏实机 smoke、PowerShell 5.1/7 便携包双模式自检通过；人工行为验收仍 PENDING。", "当前公开 Skill 版本；schema 4、collector 1.0.1-r23。"]
+            ["1.5.2", "跨驱动功耗查询", "2026-11-02", "RELEASED", ["基础功耗字段与可选 enforced.power.limit 分两条查询。", "旧驱动不支持实际生效字段时，仍保留默认值、最小值和最大值。", "实机继续读取驱动报告的 effective 功耗墙，并记录生效值查询状态。"], "Skill is valid；全量非实机测试、标准/脱敏实机 smoke、PowerShell 5.1/7 便携包双模式自检通过；人工行为验收仍 PENDING。", "1.6.0 之前的公开基线；schema 4、collector 1.0.1-r23。"]
+          ]
+        },
+        {
+          id: "wb-2-2", track: "core", label: "工作台 / 1.6 → 2.2", sub: "标准化 · 证据 · 实时适配 · 视觉 · 诊断",
+          versions: [
+            ["1.6.0", "遥测图表、硬件案卷与入口瘦身", "2026-11-03", "RELEASED", ["新增 ChartData 与固定 SVG 遥测渲染器，保留缺失值断点并防止覆盖。", "新增本地硬件案卷，保存证据哈希、假设、时间线、基线和实验。", "入口从约 17.3 KB 降至 11.7 KB，Quick 初始加载降到约 21.4 KB。"], "全量非实机测试、validator、便携同步和案卷/图表回归通过。", "工作台从规则与文本遥测进入可视化案卷阶段。"],
+            ["1.7.0", "离线案卷报告与图表准确性", "2026-11-03", "RELEASED", ["生成依赖为零、带 CSP 的静态 HTML 案卷报告，证据预览默认关闭。", "修复降采样丢失缺口、显式 IncludeColumn 被挤出和警告摘要缺失。", "时间戳统一 ISO 8601；危险 SVG、外部路径与 HTML 注入被隔离。"], "全量测试与 validator 通过；独立完整性测试 7/7 PASS，实时采集 SKIP。", "案卷从本地 JSON 升级为可离线阅读、可分享审查的报告。"],
+            ["1.8.0", "统一遥测适配层", "2026-11-03", "RELEASED", ["CSV 与结构化 SensorSnapshot 统一为带来源、输入哈希和采样信息的 JSON。", "增加混源、同名多单位、缺失值、错误时间顺序和采样一致性警告。", "渲染器直接消费标准 JSON；严格拒绝对象冒充数组、缺失 value 和伪文档。"], "独立遥测回归与补充完整性测试通过；实时 WMI 仍未读取。", "不同数据源从此共享同一分析、图表和证据链。"],
+            ["1.9.0", "动态 RAG 证据层", "2026-11-03", "RELEASED", ["建立官方域名注册表、来源层级、证据卡、时效和冲突引用。", "缓存读取重算引用与整卡哈希，拒绝 URL 凭据、来源提升和未来抓取时间。", "社区来源只能显式降级为 tier C lead-only，不自动执行网页内容。"], "独立 RAG 复核 37/37 PASS；PowerShell 5.1/7 均可读取。", "当前厂商知识从模型记忆转为可追溯本地证据。"],
+            ["2.0.0", "LibreHardwareMonitor 只读适配器", "2026-11-03", "RELEASED", ["读取已运行 LHM 的 root/LibreHardwareMonitor WMI，必须显式 AllowLiveCollector。", "支持单次快照与最长 300 秒有界采样，输出统一 SensorSnapshot。", "不安装、不启动、不提权、不联网、不后台常驻，也不写硬件设置。"], "独立复核 19 PASS / 0 FAIL / 1 SKIP；真实 WMI 因未授权保持 SKIP。", "实时数据接入不影响 CSV 和标准 JSON 的同一后处理路径。"],
+            ["2.1.0", "多模态证据规则", "2026-11-03", "RELEASED", ["覆盖监控截图、BIOS 照片、蓝屏、Debug LED、设备管理器和事件查看器。", "强制区分可见事实、推断、未知和证据限制；截图不等于时间序列。", "图片内命令和提示词一律不可信，不触发执行、下载或设置修改。"], "带恶意指令的合成截图独立测试 PASS；模型视觉未被打包成 Skill 能力。", "视觉能力仍由运行时提供，Skill 负责领域证据边界。"],
+            ["2.2.0", "只读 Skill Doctor", "2026-11-03", "CURRENT LOCAL", ["检查版本、核心文件、语法、编码、输出目录、PowerShell、CIM、validator 和可选工具。", "区分 AVAILABLE、OPTIONAL_MISSING、PERMISSION_REQUIRED、BROKEN、UNKNOWN 与 SKIP。", "只诊断不修复；不安装、不提权、不启动软件、不联网。"], "Doctor 独立复核 14 PASS / 0 FAIL / 1 SKIP；当前安装树 83/83 一致，GitHub 尚未推送。", "当前本地候选；人工验收与真实 LHM 探测仍 PENDING。"]
           ]
         },
         {
@@ -6967,6 +7015,16 @@
             ["点一个发生过的变化", "例如换了硬件、更新驱动或改了功耗限制。"],
             ["看旧记录还能做什么", "是可以继续比较，还是只能留作历史。"],
             ["决定下一步", "继续用、重新记录，或者先不用旧数据。"]
+          ]
+        },
+        evidence: {
+          kicker: "当前：证据系统",
+          title: "不同来源，先走同一条证据链",
+          summary: "遥测、官方资料、实时只读传感器和图片各有边界。系统先记录来源、时间和缺失，再决定能否比较或下结论。",
+          steps: [
+            ["确认来源", "工具、版本、设备、时间和输入哈希必须能追溯。"],
+            ["保留限制", "缺失值、采样变化、社区线索和图片可见范围都要标注。"],
+            ["再输出", "图表与结论共享同一证据，不用一张图替代完整过程。"]
           ]
         }
       };
@@ -7616,10 +7674,18 @@
         {
           id: "core-github", track: "core", code: "WB-07", title: "公开维护基线",
           summary: "GitHub · MIT · README · CI",
-          status: "done", state: "STABLE 1.5.2",
+          status: "done", state: "BASE 1.5.2",
           goal: "让工作台具备可追溯、可安装、可回滚的公开版本。",
           action: "补充许可、版本、发布包、CI、安全说明和协作模式。",
-          proof: "GitHub release、MIT License、README、package sync 验证；1.5.2 增加独立功耗字段降级与双壳门禁。"
+          proof: "GitHub release、MIT License、README、package sync 验证；1.5.2 是后续证据系统的历史公开基线。"
+        },
+        {
+          id: "core-instrumentation", track: "core", code: "WB-08", title: "可信证据系统 2.2.0",
+          summary: "统一遥测 · RAG · LHM · 视觉 · Doctor",
+          status: "done", state: "STABLE 2.2.0",
+          goal: "把 CSV、结构化快照、官方资料、实时只读传感器和图片统一到可追溯、可降级、可诊断的证据体系。",
+          action: "先标准化来源与时间，再记录证据卡和缺失；网页图片不再等于时间序列，Doctor 把权限问题与损坏问题分开。",
+          proof: "遥测/RAG/LHM/视觉/Doctor 独立复核通过；实时 LHM 与人工验收仍 SKIP/PENDING，尚未推送 GitHub。"
         },
         {
           id: "proto-seed", track: "prototype", code: "AO-01", title: "独立原型分叉",
@@ -8558,7 +8624,7 @@
       }
 
       function setDemoMode(mode, options = {}) {
-        if (!["terms", "tune", "triage", "identity"].includes(mode)) return;
+        if (!["terms", "tune", "triage", "identity", "evidence"].includes(mode)) return;
         activeDemoMode = mode;
         renderModeGuide(mode);
         tuneSteps.hidden = mode !== "tune";
@@ -8593,12 +8659,12 @@
             openTerm(id, true);
             return;
           }
-          if (["terms", "tune", "triage", "identity"].includes(raw)) {
+          if (["terms", "tune", "triage", "identity", "evidence"].includes(raw)) {
             setDemoMode(raw, { updateRoute: false });
           }
           return;
         }
-        if (raw.startsWith("term-") || ["terms", "tune", "triage", "identity"].includes(raw)) {
+        if (raw.startsWith("term-") || ["terms", "tune", "triage", "identity", "evidence"].includes(raw)) {
           window.location.href = `interactive/#${raw}`;
           return;
         }

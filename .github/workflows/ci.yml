@@ -49,6 +49,13 @@ jobs:
             -File .\portable\start.ps1 -SelfTest
           exit $LASTEXITCODE
 
+      - name: Validate Skill evolution site
+        shell: powershell
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass `
+            -File .\tools\check-skill-evolution-site.ps1
+          exit $LASTEXITCODE
+
       - name: Reject trailing whitespace in shipped trees
         shell: pwsh
         run: |
