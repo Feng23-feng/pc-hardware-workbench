@@ -12,7 +12,7 @@
   "statFiles": "{{fileCount}} 个文件",
   "statSectors": "{{sectorCount}} 个星体系统",
   "statStatus": "当前候选 · Skill {{version}}",
-  "bannerHtml": "<span><strong>当前快照：</strong>清单直接取自 Git 跟踪的 {{fileCount}} 个文件；逐文件 SHA 与结构权重由生成器计算。指纹 <code>{{shortSha}}</code>。</span>",
+  "bannerHtml": "<span><strong>当前快照：</strong>清单直接取自 Git 跟踪的 {{fileCount}} 个文件；逐文件 SHA 与结构权重由生成器计算。文件集摘要 <code>{{shortSha}}</code> 仅用于确认页面与清单对应，不读取或识别你的设备。</span>",
   "dossierKicker": "当前 Git 清单 · Skill {{version}}",
   "dossierHeading": "当前文件星系，先看系统",
   "dossierLead": "当前星系盘点 {{fileCount}} 个文件：入口、调用元数据、参考、脚本和测试资料。点击任意分区，让它的文件沿职责轨道展开。",
