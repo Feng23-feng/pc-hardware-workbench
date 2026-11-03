@@ -605,15 +605,6 @@ $currentStyle = @'
     opacity: 1;
   }
 
-  .category-node:not(.is-core) .category-label small {
-    display: none;
-  }
-
-  .category-node:not(.is-core):hover .category-label small,
-  .category-node:not(.is-core):focus-visible .category-label small {
-    display: block;
-  }
-
   @media (min-width: 621px) and (max-width: 1120px) {
     .workspace {
       grid-template-columns: minmax(0, 1fr);
