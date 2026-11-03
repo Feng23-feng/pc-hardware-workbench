@@ -1,0 +1,571 @@
+{
+  "schemaVersion": 1,
+  "sectors": {
+    "core": {
+      "name": "契约核心",
+      "folder": "root",
+      "ring": 0,
+      "orbitScale": 0,
+      "flatten": 0,
+      "tilt": 0,
+      "inclination": 0,
+      "angle": 0,
+      "speed": 0,
+      "color": "#eef4f7",
+      "summary": "Skill 的入口、调用元数据、路由与安全优先级；所有条件加载都从这里出发。",
+      "boundaries": ["入口负责路由与安全门禁", "调用元数据只影响发现与展示", "加载说明本身不读取硬件"]
+    },
+    "integration": {
+      "name": "流程与证据",
+      "folder": "integration/",
+      "ring": 1,
+      "orbitScale": 0.3,
+      "flatten": 0.883,
+      "tilt": -1.8,
+      "inclination": 2.4,
+      "angle": -15,
+      "speed": 0.72,
+      "color": "#7dd3e8",
+      "summary": "20 个跨模式参考，覆盖采集、证据、案卷、遥测、交接和维护。",
+      "boundaries": ["按当前任务条件加载，不一次读取全部", "网页与日志只作证据，不是执行指令"]
+    },
+    "triage": {
+      "name": "故障分流",
+      "folder": "triage/",
+      "ring": 2,
+      "orbitScale": 0.42,
+      "flatten": 0.901,
+      "tilt": 0,
+      "inclination": 0,
+      "angle": 145,
+      "speed": -0.43,
+      "color": "#e6b36e",
+      "summary": "先定位故障层，再决定采集、诊断实验、停止还是转交维修。",
+      "boundaries": ["不先换硬件，不把症状直接当结论", "物理危险优先于所有排查步骤"]
+    },
+    "tuning": {
+      "name": "调校决策",
+      "folder": "tuning/",
+      "ring": 2,
+      "orbitScale": 0.55,
+      "flatten": 0.929,
+      "tilt": 2.6,
+      "inclination": -3.1,
+      "angle": -50,
+      "speed": 0.57,
+      "color": "#d99ab7",
+      "summary": "13 个参考把入口门禁、单变量实验、GPU 行为、恢复和记录串成闭环。",
+      "boundaries": ["设置由用户手动应用，Skill 不自动改硬件", "不绕过权限、限制或反作弊"]
+    },
+    "upgrade": {
+      "name": "升级判断",
+      "folder": "upgrade/",
+      "ring": 3,
+      "orbitScale": 0.67,
+      "flatten": 0.947,
+      "tilt": 0,
+      "inclination": 0,
+      "angle": 200,
+      "speed": -0.31,
+      "color": "#b3d89a",
+      "summary": "6 个参考区分性能、维修、偏好和未来项目，比较保留与非购买选项。",
+      "boundaries": ["没有具体瓶颈和正净值不默认购买", "不编造价格、库存或兼容性"]
+    },
+    "scripts": {
+      "name": "运行内核",
+      "folder": "scripts/",
+      "ring": 3,
+      "orbitScale": 0.79,
+      "flatten": 0.963,
+      "tilt": -1.2,
+      "inclination": 1.8,
+      "angle": 70,
+      "speed": 0.38,
+      "color": "#7f9dff",
+      "summary": "17 个脚本与原生探针承担只读采集、遥测管线、案卷、适配与诊断。",
+      "boundaries": ["默认只读、本地执行且不自我提权", "不自动修改硬件、驱动或系统设置"]
+    },
+    "tests": {
+      "name": "验证网络",
+      "folder": "tests/",
+      "ring": 4,
+      "orbitScale": 0.9,
+      "flatten": 0.976,
+      "tilt": 2.2,
+      "inclination": 3.4,
+      "angle": 235,
+      "speed": -0.19,
+      "color": "#e78f73",
+      "summary": "23 个场景、测试与结果记录把契约、脚本、隐私和人工验收变成证据。",
+      "boundaries": ["自动测试不能替代人工体验验收", "单次通过不等于长期硬件稳定性"]
+    }
+  },
+  "clusters": {
+    "core/entry": {"name": "入口", "when": "每次调用 Skill、选择路线或检查安全优先级时。"},
+    "core/invocation": {"name": "界面调用", "when": "Skill 被发现、展示或被隐式调用时。"},
+    "integration/flow": {"name": "流程与交接", "when": "用户目标跨模式，或需要引导、解释和结束闭环时。"},
+    "integration/evidence": {"name": "证据与遥测", "when": "采集、遥测、截图、散热或外部证据改变下一步判断时。"},
+    "integration/continuity": {"name": "身份与案卷", "when": "需要保存身份质量、跨轮次连续性或持久化门禁时。"},
+    "integration/governance": {"name": "维护与共存", "when": "安装、分发、维护或运行环境需要诊断时。"},
+    "triage/scope": {"name": "范围与基线", "when": "需要区分设备档案，或把当前只读快照交给后续排障时。"},
+    "triage/decision": {"name": "诊断决策", "when": "描述硬件故障、风险或需要最小下一诊断时。"},
+    "tuning/gate": {"name": "门禁与边界", "when": "准备个性化调校，或请求触及隐藏、受限控制时。"},
+    "tuning/gpu": {"name": "GPU 与预期", "when": "解释 GPU 曲线、频率、偏移、功耗或预期方向时。"},
+    "tuning/experiment": {"name": "单变量实验", "when": "选择部件路线、应用候选、记录结果或恢复时。"},
+    "tuning/evidence": {"name": "参考证据", "when": "需要外部案例、参考档位或特定平台风险说明时。"},
+    "upgrade/assess": {"name": "决策与结论", "when": "判断保留、调校、维修或升级是否有正净值时。"},
+    "upgrade/intake": {"name": "识别与需求", "when": "整理当前硬件、购买目标与最低有效升级证据时。"},
+    "upgrade/market": {"name": "市场检查", "when": "需要当前价格、地区、币种与可比型号证据时。"},
+    "scripts/collector": {"name": "只读采集", "when": "用户同意盘点，或需要系统、显示和存储的原生回退时。"},
+    "scripts/telemetry": {"name": "遥测管线", "when": "分析 CSV、规范化快照或生成确定性图表时。"},
+    "scripts/cases": {"name": "案卷与报告", "when": "保存本地证据连续性，或导出静态离线审查报告时。"},
+    "scripts/adapters": {"name": "适配层", "when": "使用本地 LHM 回环接口或维护动态资料证据卡时。"},
+    "scripts/maintenance": {"name": "运行诊断", "when": "检查安装、语法、编码、输出路径和可选运行时能力时。"},
+    "tests/behavior": {"name": "行为冻结", "when": "人工复验路由、语气、安全边界和跨能力行为时。"},
+    "tests/harness": {"name": "测试入口", "when": "修改 Skill 后运行全量、契约、编码或解析检查时。"},
+    "tests/telemetry": {"name": "遥测回归", "when": "修改采集、分析、规范化或图表输出时。"},
+    "tests/components": {"name": "组件回归", "when": "修改身份、库存、诊断、LHM 或 RAG 组件时。"},
+    "tests/cases": {"name": "案卷回归", "when": "修改案卷写入、证据导入或离线报告导出时。"}
+  },
+  "files": {
+    "SKILL.md": {
+      "cluster": "core/entry",
+      "role": "入口与控制塔",
+      "summary": "按用户真实目标选择盘点、排障、遥测、调校或升级路线，并维持安全、证据和交互闭环。",
+      "anchor": true
+    },
+    "agents/openai.yaml": {
+      "cluster": "core/invocation",
+      "role": "界面调用元数据",
+      "summary": "提供界面显示名称、短描述、默认提示和隐式调用策略。",
+      "anchor": true,
+      "related": ["SKILL.md"]
+    },
+
+    "references/integration/beginner-guide.md": {
+      "cluster": "integration/flow",
+      "role": "新手引导路线",
+      "summary": "把模式选择换成具体问题，用一次一个决策的方式带入安全流程。"
+    },
+    "references/integration/collector-workflow.md": {
+      "cluster": "integration/flow",
+      "role": "采集工作流",
+      "summary": "说明标准与脱敏模式、同意、命令、退出码和采集后如何回到原任务。"
+    },
+    "references/integration/cross-mode-handoffs.md": {
+      "cluster": "integration/flow",
+      "role": "跨模式交接",
+      "summary": "在盘点、排障、遥测、调校和购买之间携带证据、结果与未解决问题。"
+    },
+    "references/integration/explanation-style.md": {
+      "cluster": "integration/flow",
+      "role": "解释风格",
+      "summary": "按用户知识、风险和参数类型调整 Action、Analogy 与 Consequence 的密度。"
+    },
+    "references/integration/interaction-closure.md": {
+      "cluster": "integration/flow",
+      "role": "交互闭环",
+      "summary": "确保每个分支都有结果、下一步、问题、取消、停止或交接，而不是留下悬空流程。"
+    },
+    "references/integration/tuning-modes.md": {
+      "cluster": "integration/flow",
+      "role": "快速与深入调校",
+      "summary": "在不降低五道安全门禁的前提下，调整讲解、记录和实验深度。"
+    },
+    "references/integration/cooling-evidence.md": {
+      "cluster": "integration/evidence",
+      "role": "散热证据",
+      "summary": "只收集目标部件真正相关的桌面散热、机箱风道或笔记本平台信息。"
+    },
+    "references/integration/dynamic-rag.md": {
+      "cluster": "integration/evidence",
+      "role": "动态资料证据层",
+      "summary": "规定时敏查证的查询最小化、来源层级、证据卡、缓存新鲜度和冲突处理。"
+    },
+    "references/integration/fixed-workloads.md": {
+      "cluster": "integration/evidence",
+      "role": "固定负载与实验卡",
+      "summary": "定义单变量实验的基线、通过、中止、回滚和持久化目标。"
+    },
+    "references/integration/lhm-adapter.md": {
+      "cluster": "integration/evidence",
+      "role": "LHM 只读适配",
+      "summary": "约束已经运行的本机 LibreHardwareMonitor 回环采集、快照、连续采样和失败处理。"
+    },
+    "references/integration/success-and-sensor-semantics.md": {
+      "cluster": "integration/evidence",
+      "role": "成功与传感器语义",
+      "summary": "解释 FPS、低帧、功耗、温度和限制原因各自能证明什么，以及不能证明什么。"
+    },
+    "references/integration/telemetry-analysis.md": {
+      "cluster": "integration/evidence",
+      "role": "遥测分析",
+      "summary": "分析本地 CSV 或监测记录，处理时间窗口、列选择、统计、告警与工作负载语境。"
+    },
+    "references/integration/telemetry-normalization.md": {
+      "cluster": "integration/evidence",
+      "role": "遥测规范化",
+      "summary": "把 CSV、传感器快照和 LHM 数据统一为带来源、时间、单位与限制的可复用文档。"
+    },
+    "references/integration/visual-evidence.md": {
+      "cluster": "integration/evidence",
+      "role": "视觉证据",
+      "summary": "规定截图、BIOS 照片、错误码和监控画面的提取、脱敏与交叉核验边界。"
+    },
+    "references/integration/device-identity.md": {
+      "cluster": "integration/continuity",
+      "role": "设备身份质量",
+      "summary": "把采集器身份质量映射到会话状态，并规定缺失、不可读或冲突时如何继续。"
+    },
+    "references/integration/hardware-case.md": {
+      "cluster": "integration/continuity",
+      "role": "硬件案卷连续性",
+      "summary": "保存本地设备别名、证据、假设、变更时间线和下一步，同时保持证据哈希可追溯。"
+    },
+    "references/integration/persistence-and-update-gate.md": {
+      "cluster": "integration/continuity",
+      "role": "持久化与更新门禁",
+      "summary": "区分设置是否真正保存，并要求驱动、工具或固件更新后重新验证旧结果。"
+    },
+    "references/integration/coverage-map.md": {
+      "cluster": "integration/governance",
+      "role": "覆盖与维护地图",
+      "summary": "记录版本来源、受控修订、脚本集合和维护时必须保持的路由不变量。"
+    },
+    "references/integration/installation-coexistence.md": {
+      "cluster": "integration/governance",
+      "role": "多 Skill 共存",
+      "summary": "说明多个硬件 Skill 同时安装时如何减少路由冲突、重复采集和覆盖风险。"
+    },
+    "references/integration/skill-doctor.md": {
+      "cluster": "integration/governance",
+      "role": "Skill Doctor 说明",
+      "summary": "说明只读安装与运行时诊断的范围、状态值和不可用于硬件稳定性结论的边界。"
+    },
+
+    "references/triage/collector-handoff.md": {
+      "cluster": "triage/scope",
+      "role": "当前基线交接",
+      "summary": "把当前可见硬件整理成后续排障或调校可引用的证据快照。"
+    },
+    "references/triage/device-profile-template.md": {
+      "cluster": "triage/scope",
+      "role": "设备档案模板",
+      "summary": "记录设备身份、系统、部件、已知失败和待验证项，供跨轮次复用。"
+    },
+    "references/triage/experiment-protocol.md": {
+      "cluster": "triage/decision",
+      "role": "诊断实验协议",
+      "summary": "在改动设置前规定假设、单一诊断变量、观察结果和回退方式。"
+    },
+    "references/triage/risk-taxonomy.md": {
+      "cluster": "triage/decision",
+      "role": "风险分类",
+      "summary": "区分物理危险、数据风险、稳定性风险和普通配置风险，决定继续、停止或转交。"
+    },
+    "references/triage/triage-checklist.md": {
+      "cluster": "triage/decision",
+      "role": "排障检查表",
+      "summary": "沿电源、系统、软件、硬件和负载层级定位最小下一诊断。"
+    },
+
+    "references/tuning/advice-intensity.md": {
+      "cluster": "tuning/gate",
+      "role": "建议强度分级",
+      "summary": "对隐藏或厂商限制控制默认拒绝，并严格限定已实施场景的评估降级。"
+    },
+    "references/tuning/intake.md": {
+      "cluster": "tuning/gate",
+      "role": "调校入口门禁",
+      "summary": "收集目标、平台、已知好基线、恢复路径和固定负载五项条件，并提供缺项辅导。"
+    },
+    "references/tuning/tools.md": {
+      "cluster": "tuning/gate",
+      "role": "工具能力边界",
+      "summary": "区分监测、官方控制和不可用于绕过限制的工具语义，约束下载与安装建议。"
+    },
+    "references/tuning/expectation-direction.md": {
+      "cluster": "tuning/gpu",
+      "role": "预期方向卡",
+      "summary": "用基线与平台说明调校应该改变什么方向，不承诺虚构收益或跨设备结果。"
+    },
+    "references/tuning/gpu-clock-behavior.md": {
+      "cluster": "tuning/gpu",
+      "role": "GPU Boost 行为",
+      "summary": "解释 NVIDIA Boost、AMD Game Clock、Intel Xe 的动态工作区与有效频率。"
+    },
+    "references/tuning/gpu-curve-baseline.md": {
+      "cluster": "tuning/gpu",
+      "role": "GPU 曲线基线",
+      "summary": "建立游戏内电压与频率区间、限流原因、恢复路径和候选实验路线。"
+    },
+    "references/tuning/component-playbooks.md": {
+      "cluster": "tuning/experiment",
+      "role": "部件调校手册",
+      "summary": "按 CPU、GPU、内存等部件选择适用的调校路线、安全证据与跨部件隔离。"
+    },
+    "references/tuning/device-routes.md": {
+      "cluster": "tuning/experiment",
+      "role": "设备路线",
+      "summary": "区分台式、笔记本、显卡代际和平台控制项的真实边界。"
+    },
+    "references/tuning/experiment-loop.md": {
+      "cluster": "tuning/experiment",
+      "role": "单变量实验循环",
+      "summary": "一轮只改一个主变量，记录结果、验证层次，并决定保留、继续、回退或停止。"
+    },
+    "references/tuning/record-template.md": {
+      "cluster": "tuning/experiment",
+      "role": "实验记录模板",
+      "summary": "保存候选、应用值、测量、结果、决定、恢复和当前状态。"
+    },
+    "references/tuning/intel-13-14-gen.md": {
+      "cluster": "tuning/evidence",
+      "role": "Intel 13/14 代边界",
+      "summary": "提示高功耗桌面型号的稳定性、微码、保修和退化风险。"
+    },
+    "references/tuning/online-evidence.md": {
+      "cluster": "tuning/evidence",
+      "role": "在线证据使用",
+      "summary": "评估外部案例与当前设备的相似度、来源、红旗和适用边界。"
+    },
+    "references/tuning/reference-profiles.md": {
+      "cluster": "tuning/evidence",
+      "role": "参考配置档",
+      "summary": "管理同设备可复用的已知配置、适用条件和跨设备不可直接复用的限制。"
+    },
+
+    "references/upgrade/decision-framework.md": {
+      "cluster": "upgrade/assess",
+      "role": "升级决策框架",
+      "summary": "在保留、调校、维修、更换部件、重建平台和等待之间比较净值。"
+    },
+    "references/upgrade/output-format.md": {
+      "cluster": "upgrade/assess",
+      "role": "输出与脱敏契约",
+      "summary": "规定库存、购买建议、Markdown、JSON 字段和标准与脱敏模式的隐私规则。"
+    },
+    "references/upgrade/upgrade-evidence.md": {
+      "cluster": "upgrade/assess",
+      "role": "升级证据包",
+      "summary": "要求具体瓶颈、最低有效升级、兼容风险、净值成本、购买阈值与后续验证。"
+    },
+    "references/upgrade/hardware-detection.md": {
+      "cluster": "upgrade/intake",
+      "role": "硬件检测字段",
+      "summary": "说明采集器能读什么、字段来源、回退和不能可靠检测的内容。"
+    },
+    "references/upgrade/intake-template.md": {
+      "cluster": "upgrade/intake",
+      "role": "升级需求整理",
+      "summary": "区分性能、维修、偏好、收藏、礼物和未来项目目标，并收集最低决策信息。"
+    },
+    "references/upgrade/market-check.md": {
+      "cluster": "upgrade/market",
+      "role": "市场价格检查",
+      "summary": "记录价格日期、地区、币种、可比型号、净值成本、新鲜度和来源。"
+    },
+
+    "scripts/collect-windows.ps1": {
+      "cluster": "scripts/collector",
+      "role": "Windows 只读采集入口",
+      "summary": "在用户同意后采集系统、CPU、GPU、内存、磁盘、卷、显示器和电池证据。"
+    },
+    "scripts/device-identity.ps1": {
+      "cluster": "scripts/collector",
+      "role": "身份清洗与脱敏",
+      "summary": "评估型号质量，隔离 Markdown 身份字段，并处理组件级隐私脱敏。"
+    },
+    "scripts/display-native.cs": {
+      "cluster": "scripts/collector",
+      "role": "显示能力探针",
+      "summary": "读取 DisplayConfig、DXGI、活动显示器和 HDR 与色彩管线状态。"
+    },
+    "scripts/inventory-context.ps1": {
+      "cluster": "scripts/collector",
+      "role": "库存辅助内核",
+      "summary": "提供容量格式、功耗限制解析、显示器合并、进程和 GPU 分类与槽位摘要。"
+    },
+    "scripts/local-path-safety.ps1": {
+      "cluster": "scripts/collector",
+      "role": "本地路径安全",
+      "summary": "拒绝网络路径、云占位、重解析点和危险覆盖目标。"
+    },
+    "scripts/storage-native.cs": {
+      "cluster": "scripts/collector",
+      "role": "存储原生探针",
+      "summary": "读取存储设备描述、卷映射和磁盘编号辅助信息。"
+    },
+    "scripts/system-native.cs": {
+      "cluster": "scripts/collector",
+      "role": "系统原生探针",
+      "summary": "在 CIM 不足时读取内存模块、固件类型和电池基础信息。"
+    },
+    "scripts/analyze-telemetry.ps1": {
+      "cluster": "scripts/telemetry",
+      "role": "遥测分析器",
+      "summary": "读取本地监测记录，选择字段、处理窗口并输出统计与警告。"
+    },
+    "scripts/normalize-telemetry.ps1": {
+      "cluster": "scripts/telemetry",
+      "role": "遥测规范化器",
+      "summary": "把 CSV、快照或适配器数据整理为带来源、单位和采样一致性的统一文档。"
+    },
+    "scripts/render-telemetry-chart.ps1": {
+      "cluster": "scripts/telemetry",
+      "role": "确定性图表渲染",
+      "summary": "从 CSV 或规范化 JSON 生成不覆盖已有文件、限制尺寸的静态 SVG 图表。"
+    },
+    "scripts/hardware-case.ps1": {
+      "cluster": "scripts/cases",
+      "role": "本地案卷内核",
+      "summary": "创建案卷、登记证据哈希、维护假设、变更时间线和下一步动作。"
+    },
+    "scripts/export-hardware-case-html.ps1": {
+      "cluster": "scripts/cases",
+      "role": "案卷离线报告",
+      "summary": "把已验证的本地案卷导出为无远程依赖、转义敏感字段的静态 HTML。"
+    },
+    "scripts/lhm/lhm-functions.ps1": {
+      "cluster": "scripts/adapters",
+      "role": "LHM 适配函数",
+      "summary": "实现本地 LHM /data.json 与旧版 WMI 的读取、映射、去重和隐私边界。"
+    },
+    "scripts/lhm/read-lhm-telemetry.ps1": {
+      "cluster": "scripts/adapters",
+      "role": "LHM 只读采集入口",
+      "summary": "在显式同意下从已运行的本机 LHM 获取一次或有限连续传感器快照。"
+    },
+    "scripts/rag/rag-evidence.ps1": {
+      "cluster": "scripts/adapters",
+      "role": "资料证据缓存",
+      "summary": "校验、保存、列出、搜索和检查带来源与新鲜度的动态资料证据卡。"
+    },
+    "scripts/rag/source-registry.json": {
+      "cluster": "scripts/adapters",
+      "role": "资料源登记表",
+      "summary": "登记证据来源的主机、类型、适用域和允许查询边界。"
+    },
+    "scripts/doctor.ps1": {
+      "cluster": "scripts/maintenance",
+      "role": "运行环境诊断器",
+      "summary": "只读检查版本、必选文件、语法、编码、输出可写性、运行时能力与可选传感器。"
+    },
+
+    "tests/cross-capability-results-20261103-v240.md": {
+      "cluster": "tests/behavior",
+      "role": "2.4 跨能力验收记录",
+      "summary": "记录 GPU 显存门禁、LHM 不可用和实时网页行为的本轮验收结果。"
+    },
+    "tests/cross-capability-results-20261103.md": {
+      "cluster": "tests/behavior",
+      "role": "跨能力验收记录",
+      "summary": "保存六类跨来源、来源冲突和绕过请求的行为验收结果。"
+    },
+    "tests/cross-capability-scenarios.md": {
+      "cluster": "tests/behavior",
+      "role": "跨能力冻结场景",
+      "summary": "覆盖 CSV 与截图、官方冲突、LHM 不可用和欺骗性请求的交互标准。"
+    },
+    "tests/interaction-scenarios.md": {
+      "cluster": "tests/behavior",
+      "role": "交互冻结场景",
+      "summary": "记录盘点、排障、调校、购买、身份和安全边界的人工行为标准。"
+    },
+    "tests/manual-acceptance-template.md": {
+      "cluster": "tests/behavior",
+      "role": "人工验收模板",
+      "summary": "定义独立轮次、签署、发布阻断和自动与人工证据的分层记录格式。"
+    },
+    "tests/tone-scenarios.md": {
+      "cluster": "tests/behavior",
+      "role": "语气冻结题",
+      "summary": "保存自然语气、安全提示和交互稳定度的三轮人工测试题目。"
+    },
+    "tests/run-all-tests.ps1": {
+      "cluster": "tests/harness",
+      "role": "全量测试入口",
+      "summary": "编排契约、编码、解析、身份、库存、采集、遥测、案卷与交互测试。"
+    },
+    "tests/run-contract-tests.ps1": {
+      "cluster": "tests/harness",
+      "role": "JSON 契约测试",
+      "summary": "固定 Schema 顶层键、状态键、警告码、BOM、退出码和脚本接口。"
+    },
+    "tests/run-encoding-tests.ps1": {
+      "cluster": "tests/harness",
+      "role": "编码守卫",
+      "summary": "检查 PowerShell 文件的 BOM、UTF-8 和 JSON 编码要求。"
+    },
+    "tests/run-interaction-contract-tests.ps1": {
+      "cluster": "tests/harness",
+      "role": "交互契约检查",
+      "summary": "检查入口路由、安全提示、调校门禁、术语、Schema 和版本引用。"
+    },
+    "tests/run-pwsh7-parse-tests.ps1": {
+      "cluster": "tests/harness",
+      "role": "PowerShell 7 解析测试",
+      "summary": "用 PowerShell 7 解析 scripts 与 tests 中的全部脚本，防止兼容回退。"
+    },
+    "tests/run-collector-smoke-tests.ps1": {
+      "cluster": "tests/telemetry",
+      "role": "采集烟测",
+      "summary": "验证路径保护，并可显式运行 Standard 与 Redacted 的只读实机采集形状。"
+    },
+    "tests/run-telemetry-analysis-tests.ps1": {
+      "cluster": "tests/telemetry",
+      "role": "遥测分析回归",
+      "summary": "验证字段选择、窗口、统计、时间规则和 Markdown 与 JSON 输出。"
+    },
+    "tests/run-telemetry-audit-tests.ps1": {
+      "cluster": "tests/telemetry",
+      "role": "遥测审计回归",
+      "summary": "检查遥测解析、证据声明和输出措辞中的审计约束。"
+    },
+    "tests/run-telemetry-chart-tests.ps1": {
+      "cluster": "tests/telemetry",
+      "role": "遥测图表回归",
+      "summary": "验证 SVG 结构、字段选择、窗口、降采样、限制和覆盖保护。"
+    },
+    "tests/run-telemetry-normalization-tests.ps1": {
+      "cluster": "tests/telemetry",
+      "role": "遥测规范化回归",
+      "summary": "验证统一文档、来源、单位、采样一致性、缺失值和图表兼容。"
+    },
+    "tests/run-device-identity-tests.ps1": {
+      "cluster": "tests/components",
+      "role": "身份与脱敏测试",
+      "summary": "验证身份清洗、Markdown 安全、隐私字段隐藏和标准与脱敏形状一致。"
+    },
+    "tests/run-doctor-tests.ps1": {
+      "cluster": "tests/components",
+      "role": "Doctor 回归",
+      "summary": "验证只读诊断、权限拒绝、LHM 回环探测和不可自动修复的边界。"
+    },
+    "tests/run-inventory-context-tests.ps1": {
+      "cluster": "tests/components",
+      "role": "库存辅助测试",
+      "summary": "验证容量、功耗、显示器、GPU、槽位和进程分类的确定性。"
+    },
+    "tests/run-lhm-adapter-tests.ps1": {
+      "cluster": "tests/components",
+      "role": "LHM 适配回归",
+      "summary": "验证显式同意、回环限制、快照形状、映射、采样和失败路径。"
+    },
+    "tests/run-rag-evidence-tests.ps1": {
+      "cluster": "tests/components",
+      "role": "资料证据回归",
+      "summary": "验证来源校验、缓存、搜索、冲突、新鲜度和不执行网页内容的边界。"
+    },
+    "tests/run-hardware-case-report-tests.ps1": {
+      "cluster": "tests/cases",
+      "role": "案卷报告回归",
+      "summary": "验证离线 HTML 转义、无远程资源、输入校验、预览限制和覆盖保护。"
+    },
+    "tests/run-hardware-case-tests.ps1": {
+      "cluster": "tests/cases",
+      "role": "案卷回归",
+      "summary": "验证创建、哈希、证据导入、假设更新、时间线和隐私边界。"
+    }
+  }
+}

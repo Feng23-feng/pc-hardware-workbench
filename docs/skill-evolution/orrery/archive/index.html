@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="电脑硬件工作台文件星系的历史冻结快照入口。">
+  <link rel="icon" href="data:,">
+  <title>文件星系历史档案 · pc-hardware-workbench</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --void: #07090c;
+      --surface: #0d1319;
+      --paper: #e7edf2;
+      --muted: #93a0aa;
+      --line: #27343f;
+      --cyan: #7dd3e8;
+      --amber: #e6b36e;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      min-width: 320px;
+      min-height: 100svh;
+      margin: 0;
+      color: var(--paper);
+      background:
+        radial-gradient(ellipse at 50% 32%, rgba(42, 76, 91, .2), transparent 40%),
+        linear-gradient(180deg, #05070a, #020406);
+      font-family: "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI", sans-serif;
+    }
+
+    a:focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; }
+    main { width: min(920px, 100%); margin: 0 auto; padding: 22px; }
+    nav, .meta { color: var(--muted); font-size: 13px; }
+    nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    nav a, .snapshot { color: #cbd5dc; text-decoration: none; }
+    header { padding: clamp(54px, 11vw, 100px) 0 36px; }
+    .eyebrow { color: var(--amber); font-size: 13px; }
+    h1 {
+      max-width: 680px;
+      margin: 14px 0 18px;
+      font-family: "Segoe UI Variable Display", "Segoe UI", "Microsoft YaHei UI", sans-serif;
+      font-size: clamp(38px, 8vw, 74px);
+      font-weight: 500;
+      letter-spacing: -.055em;
+      line-height: .98;
+    }
+
+    .lead {
+      max-width: 620px;
+      margin: 0;
+      color: #b9c5ce;
+      font-size: 16px;
+      line-height: 1.75;
+    }
+
+    .snapshot {
+      display: grid;
+      grid-template-columns: 116px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 24px;
+      margin-top: 36px;
+      padding: 24px 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .snapshot:hover .version { color: var(--cyan); }
+    .version {
+      color: var(--amber);
+      font-family: "Cascadia Mono", Consolas, monospace;
+      font-size: 28px;
+      transition: color .2s ease;
+    }
+
+    .snapshot strong { display: block; margin-bottom: 5px; font-size: 17px; font-weight: 550; }
+    .snapshot span { color: var(--muted); font-size: 13px; }
+    .arrow { color: var(--cyan); font-size: 24px; }
+    .meta { margin-top: 18px; line-height: 1.7; overflow-wrap: anywhere; }
+    code { font-family: "Cascadia Mono", Consolas, monospace; font-size: 11px; }
+
+    @media (max-width: 620px) {
+      main { padding: 16px; }
+      nav { align-items: flex-start; }
+      header { padding-top: 54px; }
+      .snapshot { grid-template-columns: 1fr auto; gap: 10px 18px; }
+      .version { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <nav aria-label="全局导航">
+      <a href="../../">← 返回项目地图</a>
+      <a href="../">当前 2.4.0 文件星系 →</a>
+    </nav>
+    <header>
+      <div class="eyebrow">冻结档案</div>
+      <h1>旧版文件星系在这里停驻。</h1>
+      <p class="lead">当前页面已经同步到 Skill 2.4.0。下面保留 1.5.2 时期的 61 文件结构，供比较目录、职责与权重模型如何演化；历史数据不会随当前清单更新。</p>
+    </header>
+    <a class="snapshot" href="1.5.2/">
+      <span class="version">1.5.2</span>
+      <span><strong>历史文件星球</strong><span>61 个文件 · 7 个目录系统 · 原始交互冻结</span></span>
+      <span class="arrow" aria-hidden="true">→</span>
+    </a>
+    <p class="meta">
+      快照索引：<code>EB2DC220EA6C27359C2B5FBE9A7F33EF427C416118C134A79DB2F56E74C07F1E</code><br>
+      本页不读取真实硬件，也不提供执行入口。
+    </p>
+  </main>
+</body>
+</html>

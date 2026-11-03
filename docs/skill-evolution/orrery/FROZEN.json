@@ -1,10 +1,13 @@
 {
-  "name": "历史文件星系 · Skill 1.5.2",
-  "version": "1.2",
-  "status": "frozen",
-  "frozenAt": "2026-11-03",
-  "source": "docs/skill-evolution/orrery/index.html",
-  "sha256": "EB2DC220EA6C27359C2B5FBE9A7F33EF427C416118C134A79DB2F56E74C07F1E",
-  "bytes": 106428,
-  "changes": "Historical-archive labeling, persistent global navigation, readable labels, accessible controls, and favicon metadata; the frozen file dataset is unchanged."
+    "name":  "当前文件星系 · Skill 2.4.0",
+    "version":  "2.4.0",
+    "status":  "generated",
+    "generatedFrom":  "git ls-files -- skill/pc-hardware-workbench",
+    "source":  "docs/skill-evolution/orrery/index.html",
+    "manifest":  "docs/skill-evolution/orrery/data/manifest.json",
+    "archive":  "docs/skill-evolution/orrery/archive/1.5.2/",
+    "fileCount":  86,
+    "aggregateSha256":  "EFA294799FF5FCD79F1FF756FE99646C45CC52763EE4FECDCD7708F947B3CA56",
+    "sha256":  "D8DAC1492B9B93BD08953BD82559FA09A97CC628BB75642ED719E2A4CB5891DB",
+    "bytes":  164778
 }

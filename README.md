@@ -32,7 +32,7 @@ Explore the complete Workbench and GPU auto-overclock prototype history, includi
 
 [打开 Skill 文件星系](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/orrery/)
 
-文件星系把 61 个 Skill 文件按契约核心、流程、排障、调校、升级、运行脚本和验证网络组织成可旋转、可缩放的三维式总览；文件大小按权重映射，不表示实际文件体积。
+文件星系把当前 2.4.0 的 86 个 Skill 文件按契约核心、流程、排障、调校、升级、运行脚本和验证网络组织成可旋转、可缩放的三维式总览；文件大小按权重映射，不表示实际文件体积。页面内保留 Skill 1.5.2 时期的 61 文件快照作为历史对照。
 
 ## Why this project exists
 
@@ -129,6 +129,7 @@ portable/                      Standalone Windows PowerShell tool
 tools/validate-skill.py        Structural validation used by CI
 tools/validate-skill.ps1       Wrapper: bootstrap/offline validation
 tools/build-release.ps1        Reproducible Codex, DSH, and portable package builder
+tools/build-skill-orrery.ps1   Generates and verifies the current Skill file galaxy
 tools/check-portable-sync.ps1  Skill -> portable shared-script drift check
 tools/check-package-sync.ps1   Skill tree vs shipped package drift check
 tools/check-version-consistency.ps1  Version drift guard

@@ -81,8 +81,11 @@ if ($errors.Count -eq 0) {
             }
         }
     }
-    if ($indexHtml -notmatch '\u51BB\u7ED3 v1\.2 \u5FEB\u7167\uFF1A61 \u4E2A Skill \u6587\u4EF6') {
-        $errors.Add("Index does not label the file orrery as a frozen v1.2 snapshot.") | Out-Null
+    if ($indexHtml -notmatch '\u5F53\u524D 86 \u4E2A Skill \u6587\u4EF6') {
+        $errors.Add("Index does not point to the current 86-file orrery.") | Out-Null
+    }
+    if ($indexHtml -notmatch '\u5F53\u524D\u6587\u4EF6\u661F\u7CFB \u00B7 2\.4\.0') {
+        $errors.Add("Index does not label the current file galaxy as 2.4.0.") | Out-Null
     }
     foreach ($marker in @(
         'dse-skill-kicker',
@@ -222,8 +225,14 @@ if ($errors.Count -eq 0) {
         if ($orreryHtml -notmatch '<nav class="global-nav"[^>]*>\s*<a href="\.\./">\u2190 \u8FD4\u56DE\u9879\u76EE\u5730\u56FE</a>') {
             $errors.Add("Orrery has no persistent global return to the project map.") | Out-Null
         }
-        if ($orreryHtml -notmatch '\u5386\u53F2\u5FEB\u7167|\u51BB\u7ED3 v1\.2') {
-            $errors.Add("Orrery does not clearly identify its frozen snapshot status.") | Out-Null
+        if ($orreryHtml -notmatch '\u5F53\u524D\u6587\u4EF6\u661F\u7CFB|\u5F53\u524D\u5FEB\u7167') {
+            $errors.Add("Orrery does not clearly identify its current 2.4.0 snapshot status.") | Out-Null
+        }
+        if ($orreryHtml -notmatch '86 \u4E2A\u6587\u4EF6|\u5F53\u524D\u5019\u9009 \u00B7 Skill 2\.4\.0') {
+            $errors.Add("Orrery does not expose the current 2.4.0 file count and candidate status.") | Out-Null
+        }
+        if ($orreryHtml -notmatch 'archive/1\.5\.2/') {
+            $errors.Add("Orrery does not link to the preserved 1.5.2 archive.") | Out-Null
         }
         if ($orreryHtml -notmatch 'rel="icon"') {
             $errors.Add("Orrery has no favicon declaration.") | Out-Null
@@ -232,17 +241,12 @@ if ($errors.Count -eq 0) {
         $frozen = Get-Content -Raw -LiteralPath $frozenPath -Encoding UTF8 | ConvertFrom-Json
         $orreryBytes = [IO.File]::ReadAllBytes($orreryPath)
         $sha256 = [Security.Cryptography.SHA256]::Create()
-        try {
-            $orreryHash = -join (
-                $sha256.ComputeHash($orreryBytes) |
-                    ForEach-Object { $_.ToString("X2") }
-            )
-        }
-        finally {
-            $sha256.Dispose()
-        }
-        if ($frozen.version -ne "1.2" -or $frozen.status -ne "frozen") {
-            $errors.Add("Orrery FROZEN.json version/status is unexpected.") | Out-Null
+        $orreryHash = -join (
+            $sha256.ComputeHash($orreryBytes) |
+                ForEach-Object { $_.ToString("X2") }
+        )
+        if ($frozen.version -ne "2.4.0" -or $frozen.status -ne "generated" -or [int]$frozen.fileCount -ne 86) {
+            $errors.Add("Orrery FROZEN.json version/status/file count is unexpected.") | Out-Null
         }
         if ([int]$frozen.bytes -ne $orreryBytes.Length) {
             $errors.Add("Orrery FROZEN.json byte count is stale.") | Out-Null
@@ -250,6 +254,26 @@ if ($errors.Count -eq 0) {
         if ($frozen.sha256 -ne $orreryHash) {
             $errors.Add("Orrery FROZEN.json SHA-256 is stale.") | Out-Null
         }
+        $archiveFrozenPath = Join-Path $siteRoot "orrery\archive\1.5.2\FROZEN.json"
+        $archivePath = Join-Path $siteRoot "orrery\archive\1.5.2\index.html"
+        if (-not (Test-Path -LiteralPath $archiveFrozenPath -PathType Leaf) -or -not (Test-Path -LiteralPath $archivePath -PathType Leaf)) {
+            $errors.Add("The preserved 1.5.2 archive is incomplete.") | Out-Null
+        }
+        else {
+            $archiveFrozen = Get-Content -Raw -LiteralPath $archiveFrozenPath -Encoding UTF8 | ConvertFrom-Json
+            $archiveBytes = [IO.File]::ReadAllBytes($archivePath)
+            $archiveHash = -join (
+                $sha256.ComputeHash($archiveBytes) |
+                    ForEach-Object { $_.ToString("X2") }
+            )
+            if ($archiveFrozen.version -ne "1.3" -or $archiveFrozen.status -ne "frozen" -or [int]$archiveFrozen.fileCount -ne 61) {
+                $errors.Add("The 1.5.2 archive metadata is invalid.") | Out-Null
+            }
+            if ([int]$archiveFrozen.bytes -ne $archiveBytes.Length -or $archiveFrozen.sha256 -ne $archiveHash) {
+                $errors.Add("The 1.5.2 archive manifest is stale.") | Out-Null
+            }
+        }
+        $sha256.Dispose()
     }
 
     $node = Get-Command "node.exe" -ErrorAction SilentlyContinue
@@ -286,4 +310,4 @@ if ($errors.Count -gt 0) {
     exit 1
 }
 
-Write-Host "Skill evolution site check: PASS (candidate status, homepage hierarchy, 106 versions, links, frozen orrery, JavaScript syntax)" -ForegroundColor Green
+Write-Host "Skill evolution site check: PASS (candidate status, homepage hierarchy, 106 versions, current 86-file orrery, 1.5.2 archive, JavaScript syntax)" -ForegroundColor Green

@@ -49,6 +49,13 @@ jobs:
             -File .\portable\start.ps1 -SelfTest
           exit $LASTEXITCODE
 
+      - name: Validate current file orrery
+        shell: powershell
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass `
+            -File .\tools\build-skill-orrery.ps1 -Check
+          exit $LASTEXITCODE
+
       - name: Validate Skill evolution site
         shell: powershell
         run: |

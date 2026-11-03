@@ -1,0 +1,2912 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="电脑硬件工作台 Skill 1.5.2 历史文件结构存档">
+  <link rel="icon" href="data:,">
+  <title>历史文件星系 · Skill 1.5.2</title>
+  <style>
+    :root {
+      --void: #07090c;
+      --surface: #0d1116;
+      --surface-2: #111820;
+      --paper: #e7edf2;
+      --muted: #8e9aa7;
+      --line: #202a35;
+      --line-soft: rgba(139, 167, 191, .15);
+      --cyan: #7dd3e8;
+      --amber: #e6b36e;
+      --rose: #d99ab7;
+      --leaf: #b3d89a;
+      --blue: #7f9dff;
+      --rust: #e78f73;
+      --core: #eef4f7;
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-width: 320px;
+      background: var(--void);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh;
+      overflow-x: hidden;
+      color: var(--paper);
+      background:
+        radial-gradient(ellipse at 48% 48%, rgba(39, 71, 88, .15), transparent 36%),
+        radial-gradient(circle at 78% 20%, rgba(85, 51, 76, .08), transparent 24%),
+        linear-gradient(180deg, #05070a 0%, #020406 62%, #010203 100%);
+      font-family: "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI", "Noto Sans SC", sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      content: "";
+      opacity: .45;
+      background-image:
+        radial-gradient(circle, rgba(219, 236, 248, .72) 0 1px, transparent 1.6px),
+        radial-gradient(circle, rgba(165, 204, 225, .5) 0 1px, transparent 1.5px),
+        radial-gradient(circle, rgba(255, 255, 255, .38) 0 .8px, transparent 1.4px);
+      background-position: 17px 31px, 73px 109px, 131px 53px;
+      background-size: 173px 191px, 251px 233px, 307px 269px;
+      mask-image: radial-gradient(ellipse at 48% 46%, #000 8%, rgba(0, 0, 0, .72) 58%, transparent 92%);
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      color: inherit;
+    }
+
+    button:focus-visible,
+    a:focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 4px;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: min(1760px, 100%);
+      min-height: 100svh;
+      margin: 0 auto;
+      padding: 18px 22px 22px;
+    }
+
+    .global-nav {
+      position: sticky;
+      top: 0;
+      z-index: 120;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 52px;
+      padding: 0 2px;
+      color: var(--muted);
+      background: rgba(5, 7, 10, .9);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .global-nav a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      color: #c8d0d7;
+      font-size: 13px;
+      text-decoration: none;
+    }
+
+    .global-nav a:hover,
+    .global-nav a:focus-visible {
+      color: var(--paper);
+    }
+
+    .global-nav span {
+      font-size: 12px;
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 64px;
+      padding: 0 2px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      position: relative;
+      flex: 0 0 38px;
+      width: 38px;
+      height: 38px;
+      border: 1px solid rgba(125, 211, 232, .46);
+      border-radius: 50%;
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      position: absolute;
+      content: "";
+      border-radius: 50%;
+    }
+
+    .brand-mark::before {
+      inset: 7px;
+      border: 1px solid rgba(231, 237, 242, .7);
+    }
+
+    .brand-mark::after {
+      top: 4px;
+      left: 50%;
+      width: 7px;
+      height: 7px;
+      background: var(--cyan);
+      box-shadow: 0 0 14px rgba(125, 211, 232, .8);
+      transform: translateX(-50%);
+    }
+
+    .brand h1 {
+      margin: 0;
+      color: var(--paper);
+      font-family: "Segoe UI Variable Display", "Segoe UI", "Microsoft YaHei UI", sans-serif;
+      font-size: clamp(24px, 2.2vw, 34px);
+      font-weight: 500;
+      letter-spacing: -.035em;
+      line-height: 1.05;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .header-stats {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .header-stats span {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .header-stats a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .header-stats a:hover {
+      color: var(--paper);
+    }
+
+    .snapshot-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-top: 12px;
+      padding: 11px 14px;
+      color: #aeb9c2;
+      border: 1px solid rgba(230, 179, 110, .25);
+      border-radius: 10px;
+      background: rgba(35, 27, 17, .36);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .snapshot-banner strong {
+      color: var(--amber);
+      font-weight: 560;
+    }
+
+    .snapshot-banner a {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      color: var(--paper);
+      text-decoration: none;
+      border-bottom: 1px solid #536170;
+    }
+
+    .header-stats span::before {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+      content: "";
+      opacity: .6;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(350px, 400px);
+      gap: 12px;
+      height: clamp(620px, calc(100svh - 210px), 900px);
+      padding-top: 12px;
+    }
+
+    .stage-shell {
+      position: relative;
+      height: 100%;
+      min-width: 0;
+      overflow: hidden;
+      border: 1px solid rgba(118, 149, 173, .09);
+      border-radius: var(--radius);
+      background:
+        radial-gradient(ellipse at 50% 48%, rgba(30, 58, 74, .13), transparent 35%),
+        radial-gradient(ellipse at 72% 78%, rgba(65, 40, 57, .055), transparent 30%),
+        linear-gradient(180deg, rgba(5, 8, 11, .98), rgba(2, 4, 7, .99));
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, .025),
+        0 22px 70px rgba(0, 0, 0, .28);
+    }
+
+    .stage-shell::before {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      content: "";
+      background:
+        radial-gradient(ellipse at 50% 47%, transparent 32%, rgba(1, 3, 5, .18) 67%, rgba(0, 1, 2, .64) 100%),
+        linear-gradient(180deg, rgba(4, 7, 10, .28), transparent 16%, transparent 82%, rgba(2, 4, 6, .42));
+      mask-image: linear-gradient(180deg, #000 0%, #000 90%, transparent 100%);
+    }
+
+    .stage-toolbar {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      left: 16px;
+      z-index: 80;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      pointer-events: none;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+      color: var(--muted);
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 11px;
+      pointer-events: auto;
+    }
+
+    .breadcrumb button {
+      min-height: 32px;
+      margin-left: -7px;
+      padding: 4px 7px;
+      border: 0;
+      color: inherit;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .breadcrumb button:hover {
+      color: var(--paper);
+    }
+
+    .breadcrumb span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .crumb-separator {
+      flex: 0 0 auto;
+      color: #566474;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: auto;
+    }
+
+    .motion-toggle,
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      background: rgba(9, 13, 18, .74);
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+    }
+
+    .motion-toggle:hover,
+    .back-button:hover {
+      border-color: #344557;
+      color: var(--paper);
+    }
+
+    .motion-toggle::before {
+      width: 6px;
+      height: 6px;
+      margin-right: 7px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 9px rgba(125, 211, 232, .7);
+      content: "";
+    }
+
+    .motion-toggle[aria-pressed="false"]::before {
+      background: #5e6874;
+      box-shadow: none;
+    }
+
+    .back-button {
+      display: none;
+      padding-inline: 8px;
+      font-size: 12px;
+    }
+
+    .back-button.is-visible {
+      display: inline-flex;
+    }
+
+    .stage {
+      position: absolute;
+      inset: 0;
+      isolation: isolate;
+      overflow: hidden;
+      touch-action: pan-y;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .scene-lines,
+    .node-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .scene-lines {
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .scene-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .orbit-line {
+      fill: none;
+      stroke: var(--line-soft);
+      stroke-width: 1;
+      vector-effect: non-scaling-stroke;
+      transition: opacity .25s ease, stroke-width .25s ease;
+    }
+
+    .orbit-line.is-dashed {
+      stroke-dasharray: 2 10;
+      opacity: .65;
+    }
+
+    .orbit-tick {
+      stroke: rgba(138, 166, 187, .22);
+      stroke-width: 1;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .orbit-axis {
+      stroke: rgba(138, 166, 187, .08);
+      stroke-width: 1;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .orbital-plane {
+      fill: rgba(31, 58, 75, .09);
+      stroke: rgba(116, 151, 174, .12);
+      stroke-width: 1;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .stage.is-dragging {
+      cursor: grabbing;
+    }
+
+    .stage.is-rolling {
+      cursor: ew-resize;
+    }
+
+    .category-orbit {
+      opacity: .21;
+      stroke-width: .95;
+      stroke-dasharray: none;
+    }
+
+    .category-orbit.is-hot {
+      opacity: .42;
+      stroke-width: 1.15;
+      stroke-dasharray: none;
+    }
+
+    .orbit-trail {
+      fill: none;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      opacity: .72;
+      filter: drop-shadow(0 0 3px currentColor);
+    }
+
+    .orbit-trail.is-hot {
+      stroke-width: 2.2;
+      opacity: 1;
+    }
+
+    .star-dot {
+      fill: #c9d9e6;
+      opacity: .22;
+    }
+
+    .link-line {
+      stroke: var(--cyan);
+      stroke-width: 1.1;
+      stroke-dasharray: 4 8;
+      opacity: .6;
+      vector-effect: non-scaling-stroke;
+      animation: dashFlow 8s linear infinite;
+    }
+
+    @keyframes dashFlow {
+      to {
+        stroke-dashoffset: -48;
+      }
+    }
+
+    .core-aura {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: min(21vw, 214px);
+      height: min(21vw, 214px);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(167, 215, 224, .08), rgba(70, 101, 121, .02) 48%, transparent 70%);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+    }
+
+    .core-aura::after {
+      position: absolute;
+      inset: 13%;
+      border: 1px solid rgba(125, 211, 232, .08);
+      border-radius: 50%;
+      content: "";
+    }
+
+    .category-node,
+    .file-node {
+      position: absolute;
+      display: grid;
+      justify-items: center;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .category-node {
+      z-index: 4;
+      place-items: center;
+      width: 44px;
+      min-height: 44px;
+      transition: opacity .35s ease, transform .16s ease-out;
+      overflow: visible;
+    }
+
+    .category-node:not(.is-core) .category-sphere::after {
+      position: absolute;
+      inset: -16%;
+      border: 1px solid color-mix(in srgb, var(--group-color) 44%, transparent);
+      border-radius: 50%;
+      content: "";
+      opacity: .46;
+      pointer-events: none;
+      transform: rotate(-17deg) scaleY(.25);
+      box-shadow: 0 0 8px color-mix(in srgb, var(--group-color) 12%, transparent);
+    }
+
+    .category-sphere {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: var(--diameter, 46px);
+      height: var(--diameter, 46px);
+      border: 1px solid color-mix(in srgb, var(--group-color) 44%, transparent);
+      border-radius: 50%;
+      color: var(--group-color);
+      background: #080e14;
+      box-shadow:
+        0 0 0 4px color-mix(in srgb, var(--group-color) 4%, transparent),
+        0 0 15px color-mix(in srgb, var(--group-color) 10%, transparent);
+      transform: scale(var(--planet-scale, 1));
+      transition:
+        transform .32s cubic-bezier(.2, .8, .2, 1),
+        scale .32s cubic-bezier(.2, .8, .2, 1),
+        box-shadow .32s ease,
+        border-color .32s ease;
+      overflow: visible;
+    }
+
+    .category-sphere::before,
+    .file-sphere::before {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      border-radius: inherit;
+      background: radial-gradient(circle, transparent 56%, rgba(0, 0, 0, .08) 78%, rgba(0, 0, 0, .46) 100%);
+      box-shadow: inset 0 0 6px rgba(0, 0, 0, .34);
+      content: "";
+      pointer-events: none;
+    }
+
+    .category-node.is-core .category-sphere::before {
+      background: radial-gradient(circle, transparent 54%, rgba(4, 16, 22, .1) 76%, rgba(1, 5, 8, .48) 100%);
+    }
+
+    .planet-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .category-node:hover .category-sphere,
+    .category-node:focus-visible .category-sphere {
+      border-color: color-mix(in srgb, var(--group-color) 85%, white 8%);
+      box-shadow:
+        0 0 0 6px color-mix(in srgb, var(--group-color) 7%, transparent),
+        0 0 24px color-mix(in srgb, var(--group-color) 20%, transparent);
+      transform: scale(var(--planet-scale, 1));
+      scale: 1.16;
+    }
+
+    .category-count {
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .category-label {
+      position: absolute;
+      top: calc(50% + var(--planet-span, var(--diameter, 46px)) / 2 + 8px);
+      left: 50%;
+      display: grid;
+      justify-items: center;
+      gap: 0;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.2;
+      opacity: .5;
+      transform: translateX(-50%);
+      transition: opacity .18s ease;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .category-label::before {
+      position: absolute;
+      top: -7px;
+      left: 50%;
+      width: 1px;
+      height: 5px;
+      background: var(--group-color);
+      content: "";
+      transform: translateX(-50%);
+      opacity: .4;
+    }
+
+    .category-label strong {
+      color: color-mix(in srgb, var(--group-color) 38%, #78848e 62%);
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .category-label small {
+      color: var(--muted);
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 10px;
+    }
+
+    .category-node.is-core {
+      z-index: 6;
+      width: 44px;
+    }
+
+    .category-node.is-core .category-sphere {
+      width: var(--diameter, 42px);
+      height: var(--diameter, 42px);
+      color: var(--paper);
+      background:
+        radial-gradient(circle at 34% 28%, rgba(255, 255, 255, .78), transparent 13%),
+        radial-gradient(circle at 42% 44%, rgba(125, 211, 232, .52), rgba(25, 37, 47, .9) 44%, #0b1116 74%);
+      box-shadow:
+        0 0 0 6px rgba(125, 211, 232, .025),
+        0 0 22px rgba(125, 211, 232, .18),
+        0 0 52px rgba(125, 211, 232, .055);
+    }
+
+    .category-node.is-core .category-label {
+      top: calc(50% + var(--planet-span, var(--diameter, 42px)) / 2 + 12px);
+      right: auto;
+      left: 50%;
+      justify-items: center;
+      text-align: center;
+      transform: translateX(-50%);
+    }
+
+    .category-node.is-core .category-label::before {
+      top: -9px;
+      left: 50%;
+      width: 1px;
+      height: 6px;
+      transform: translateX(-50%);
+    }
+
+    .category-node.is-core .category-label strong {
+      color: #9ba7b0;
+      font-size: 12px;
+    }
+
+    .category-node:hover .category-label,
+    .category-node:focus-visible .category-label {
+      opacity: 1;
+    }
+
+    .category-node:hover .category-label strong,
+    .category-node:focus-visible .category-label strong {
+      color: var(--paper);
+    }
+
+    .category-node:hover .category-label small,
+    .category-node:focus-visible .category-label small {
+      color: #aeb9c2;
+    }
+
+    .category-node:hover .category-label::before,
+    .category-node:focus-visible .category-label::before {
+      opacity: .9;
+    }
+
+    .sector-title {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 3;
+      display: none;
+      width: 190px;
+      height: 176px;
+      color: var(--paper);
+      text-align: center;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+    }
+
+    .sector-title.is-visible {
+      display: grid;
+    }
+
+    .sector-title::before {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 120px;
+      height: 120px;
+      border: 1px solid color-mix(in srgb, var(--sector-color) 36%, transparent);
+      border-radius: 50%;
+      background: radial-gradient(circle, color-mix(in srgb, var(--sector-color) 16%, transparent), transparent 68%);
+      content: "";
+      transform: translate(-50%, -50%) scale(var(--sector-scale, 1));
+    }
+
+    .sector-planet {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      display: block;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      box-shadow:
+        0 0 0 5px color-mix(in srgb, var(--sector-color) 4%, transparent),
+        0 0 30px color-mix(in srgb, var(--sector-color) 18%, transparent);
+      transform: translate(-50%, -50%) scale(var(--sector-scale, 1));
+    }
+
+    .sector-planet::after {
+      position: absolute;
+      inset: -12px;
+      border: 1px solid color-mix(in srgb, var(--sector-color) 24%, transparent);
+      border-radius: 50%;
+      content: "";
+      transform: rotate(-14deg) scaleY(.38);
+    }
+
+    .sector-title strong {
+      position: absolute;
+      top: calc(50% + 42px);
+      left: 50%;
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+      transform: translateX(-50%);
+    }
+
+    .sector-title .sector-folder {
+      position: absolute;
+      top: calc(50% + 60px);
+      left: 50%;
+      color: var(--sector-color);
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 10px;
+      white-space: nowrap;
+      transform: translateX(-50%);
+    }
+
+    .sector-title small {
+      position: absolute;
+      top: calc(50% + 76px);
+      left: 50%;
+      color: var(--muted);
+      font-size: 10px;
+      transform: translateX(-50%);
+    }
+
+    .file-node {
+      z-index: 5;
+      width: 44px;
+      min-height: 44px;
+      align-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease, transform .13s ease-out;
+    }
+
+    .file-node.is-visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .file-node .node-body {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      min-height: 44px;
+    }
+
+    .file-sphere {
+      position: relative;
+      flex: 0 0 var(--file-size, 12px);
+      width: var(--file-size, 12px);
+      height: var(--file-size, 12px);
+      border: 1px solid color-mix(in srgb, var(--file-color) 75%, white 8%);
+      border-radius: 50%;
+      background: #091016;
+      box-shadow: 0 0 13px color-mix(in srgb, var(--file-color) 24%, transparent);
+      transform: scale(var(--planet-scale, 1));
+      transition:
+        transform .2s cubic-bezier(.2, .8, .2, 1),
+        scale .2s cubic-bezier(.2, .8, .2, 1),
+        box-shadow .2s ease;
+      overflow: visible;
+    }
+
+    .file-sphere .planet-canvas {
+      inset: 0;
+    }
+
+    .file-node:hover .file-sphere,
+    .file-node:focus-visible .file-sphere,
+    .file-node.is-active .file-sphere {
+      transform: scale(var(--planet-scale, 1));
+      scale: 1.38;
+      box-shadow:
+        0 0 0 6px color-mix(in srgb, var(--file-color) 7%, transparent),
+        0 0 24px color-mix(in srgb, var(--file-color) 42%, transparent);
+    }
+
+    .file-name {
+      position: absolute;
+      top: calc(50% + var(--planet-span, var(--file-size, 12px)) / 2 + 5px);
+      left: 50%;
+      width: max-content;
+      max-width: 128px;
+      overflow: hidden;
+      padding: 1px 3px;
+      border-radius: 3px;
+      color: #7a8791;
+      background: rgba(4, 8, 11, .48);
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 9px;
+      line-height: 1.25;
+      opacity: .48;
+      text-align: center;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      transform: translateX(-50%);
+      transition: color .18s ease, opacity .18s ease, background-color .18s ease;
+      pointer-events: none;
+    }
+
+    .file-node:hover .file-name,
+    .file-node:focus-visible .file-name,
+    .file-node.is-active .file-name {
+      color: var(--paper);
+      background: rgba(6, 10, 14, .82);
+      opacity: 1;
+    }
+
+    .stage.compact-labels .file-node:hover,
+    .stage.compact-labels .file-node:focus-visible,
+    .stage.compact-labels .file-node.is-active {
+      z-index: 14;
+    }
+
+    .category-node:hover,
+    .category-node:focus-visible,
+    .file-node:hover,
+    .file-node:focus-visible,
+    .file-node.is-active {
+      z-index: 70 !important;
+    }
+
+    .file-node.is-related:not(.is-active) .file-sphere {
+      box-shadow:
+        0 0 0 4px color-mix(in srgb, var(--file-color) 6%, transparent),
+        0 0 19px color-mix(in srgb, var(--file-color) 32%, transparent);
+    }
+
+    .stage-hint {
+      position: absolute;
+      bottom: 18px;
+      left: 18px;
+      z-index: 7;
+      max-width: 360px;
+      color: #74808d;
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 11px;
+      pointer-events: none;
+    }
+
+    .stage-hint strong {
+      color: #9ca8b4;
+      font-weight: 500;
+    }
+
+    .sector-rail {
+      display: none;
+    }
+
+    .camera-rail {
+      position: absolute;
+      right: 16px;
+      bottom: 17px;
+      z-index: 80;
+      display: grid;
+      grid-template-columns: 40px;
+      justify-items: center;
+      gap: 4px;
+      padding: 5px;
+      border: 1px solid rgba(135, 165, 186, .12);
+      border-radius: 10px;
+      background: rgba(4, 8, 11, .6);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .18);
+      backdrop-filter: blur(14px);
+    }
+
+    .camera-rail button {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border: 0;
+      border-radius: 7px;
+      color: #9caab6;
+      background: transparent;
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 15px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .camera-rail button:hover {
+      color: var(--paper);
+      background: rgba(125, 211, 232, .075);
+    }
+
+    .camera-zoom {
+      color: #6e7d89;
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 8px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.4;
+    }
+
+    .dossier {
+      position: relative;
+      min-width: 0;
+      overflow: auto;
+      border: 1px solid rgba(126, 153, 174, .18);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(180deg, rgba(12, 16, 21, .96), rgba(6, 9, 13, .975));
+      box-shadow: 0 18px 55px rgba(0, 0, 0, .24);
+      backdrop-filter: blur(18px);
+      scrollbar-width: thin;
+      scrollbar-color: #2b3946 transparent;
+    }
+
+    .dossier::before {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      display: block;
+      height: 2px;
+      background: linear-gradient(90deg, var(--panel-accent, var(--cyan)), transparent 72%);
+      content: "";
+      opacity: .8;
+    }
+
+    .dossier-inner {
+      padding: 25px 24px 30px;
+    }
+
+    .dossier-kicker {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      color: #aab5be;
+      font-size: 12px;
+    }
+
+    .dossier-kicker::before {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--panel-accent, var(--cyan));
+      box-shadow: 0 0 11px color-mix(in srgb, var(--panel-accent, var(--cyan)) 55%, transparent);
+      content: "";
+    }
+
+    .dossier h2 {
+      margin: 0;
+      color: var(--paper);
+      font-family: "Segoe UI Variable Display", "Segoe UI", "Microsoft YaHei UI", sans-serif;
+      font-size: clamp(24px, 2vw, 28px);
+      font-weight: 500;
+      letter-spacing: -.025em;
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+    }
+
+    .dossier-path {
+      margin: 7px 0 0;
+      color: #a7b3bd;
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .dossier-lead {
+      margin: 19px 0 0;
+      color: #c2ccd5;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .detail-block {
+      margin-top: 21px;
+      padding-top: 17px;
+      border-top: 1px solid var(--line);
+    }
+
+    .detail-block h3 {
+      margin: 0 0 8px;
+      color: #aeb9c2;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .detail-block p,
+    .detail-block ul {
+      margin: 0;
+      color: #d0d8df;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .detail-block ul {
+      padding-left: 17px;
+    }
+
+    .detail-block li + li {
+      margin-top: 4px;
+    }
+
+    .related-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 8px;
+    }
+
+    .related-link {
+      min-height: 30px;
+      padding: 4px 0;
+      border: 0;
+      border-bottom: 1px solid #2a3947;
+      color: #b5dce9;
+      background: transparent;
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 11px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .related-link:hover {
+      border-color: var(--cyan);
+      color: var(--paper);
+    }
+
+    .file-meta {
+      display: grid;
+      gap: 8px;
+      margin-top: 18px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .file-meta li {
+      display: grid;
+      grid-template-columns: 74px minmax(0, 1fr);
+      gap: 10px;
+      color: #aeb9c2;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .file-meta strong {
+      color: #c6d0d9;
+      font-weight: 500;
+    }
+
+    .overview-list {
+      display: grid;
+      gap: 0;
+      margin-top: 20px;
+      border-top: 1px solid var(--line);
+    }
+
+    .overview-row {
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr) 28px;
+      align-items: start;
+      gap: 4px 12px;
+      min-height: 66px;
+      padding: 11px 4px;
+      border-bottom: 1px solid var(--line);
+      color: #b9c4cd;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .overview-row b {
+      color: var(--paper);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .overview-row em {
+      padding-top: 3px;
+      color: var(--row-color, var(--cyan));
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 11px;
+      font-style: normal;
+    }
+
+    .overview-row span {
+      line-height: 1.55;
+    }
+
+    .overview-note {
+      margin-top: 20px;
+      padding: 14px 0 0;
+      border-top: 1px solid var(--line);
+      color: #9ba8b2;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .group-file-list {
+      display: grid;
+      gap: 0;
+      margin-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .group-file-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 46px;
+      padding: 7px 6px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      color: #c5ced6;
+      background: transparent;
+      border-radius: 7px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .group-file-row span:first-child {
+      overflow: hidden;
+      font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .group-file-row span:last-child {
+      flex: 0 0 auto;
+      color: #aeb9c2;
+      font-size: 11px;
+    }
+
+    .group-file-row:hover {
+      color: var(--paper);
+      background: rgba(125, 211, 232, .055);
+    }
+
+    @media (max-width: 1100px) {
+      .workspace {
+        grid-template-columns: minmax(0, 1fr) 350px;
+      }
+
+      .header-stats span:nth-child(2) {
+        display: none;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .app {
+        padding: 16px 14px 22px;
+      }
+
+      .app-header {
+        align-items: flex-start;
+      }
+
+      .header-stats {
+        gap: 10px;
+        padding-top: 5px;
+      }
+
+      .workspace {
+        grid-template-columns: minmax(0, 1fr);
+        height: auto;
+      }
+
+      .stage-shell {
+        height: min(650px, 72svh);
+        min-height: 500px;
+      }
+
+      .dossier {
+        min-height: 360px;
+        max-height: none;
+      }
+
+      .sector-rail {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        left: 12px;
+        z-index: 9;
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        padding: 7px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(8, 12, 17, .86);
+        scrollbar-width: none;
+        backdrop-filter: blur(14px);
+        mask-image: linear-gradient(90deg, #000 0%, #000 94%, transparent 100%);
+      }
+
+      .sector-rail::-webkit-scrollbar {
+        display: none;
+      }
+
+      .sector-rail button {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        flex: 0 0 auto;
+        min-height: 34px;
+        padding: 5px 9px;
+        border: 0;
+        border-radius: 7px;
+        color: var(--muted);
+        background: transparent;
+        font-size: 11px;
+        cursor: pointer;
+      }
+
+      .sector-rail button::before {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--rail-color, var(--muted));
+        content: "";
+        opacity: .75;
+      }
+
+      .sector-rail button.is-active {
+        color: var(--paper);
+        background: #18222c;
+      }
+
+      .stage-hint {
+        display: none;
+      }
+
+      .camera-rail {
+        right: 14px;
+        bottom: 66px;
+      }
+
+      .stage-toolbar {
+        right: 16px;
+      }
+
+      .category-label small {
+        display: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app-header {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding-bottom: 14px;
+      }
+
+      .brand {
+        gap: 11px;
+      }
+
+      .brand-mark {
+        flex-basis: 32px;
+        width: 32px;
+        height: 32px;
+      }
+
+      .brand h1 {
+        font-size: 23px;
+      }
+
+      .brand p {
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .header-stats span,
+      .header-stats span:last-child {
+        display: inline-flex;
+      }
+
+      .header-stats {
+        display: flex;
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 9px 15px;
+        padding-top: 0;
+        font-size: 11px;
+        line-height: 1.5;
+        white-space: normal;
+      }
+
+      .header-stats a,
+      .breadcrumb button {
+        min-height: 44px;
+        align-items: center;
+      }
+
+      .snapshot-banner {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 7px;
+      }
+
+      .snapshot-banner a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+      }
+
+      .workspace {
+        padding-top: 12px;
+        gap: 12px;
+      }
+
+      .stage-shell {
+        height: 570px;
+        min-height: 570px;
+      }
+
+      .stage-toolbar {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+      }
+
+      .breadcrumb {
+        max-width: calc(100% - 80px);
+      }
+
+      .motion-toggle {
+        min-height: 44px;
+        padding-inline: 10px;
+        font-size: 11px;
+      }
+
+      .camera-rail {
+        right: 10px;
+        bottom: 62px;
+      }
+
+      .camera-rail {
+        grid-template-columns: 44px;
+        padding: 4px;
+      }
+
+      .camera-rail button {
+        width: 44px;
+        height: 44px;
+      }
+
+      .sector-rail button {
+        min-height: 44px;
+      }
+
+      .category-node {
+        width: 44px;
+      }
+
+      .category-label strong {
+        font-size: 11px;
+      }
+
+      .dossier-inner {
+        padding: 20px 17px 24px;
+      }
+
+      .dossier h2 {
+        font-size: 21px;
+      }
+
+      .detail-block p,
+      .detail-block ul {
+        font-size: 13px;
+      }
+    }
+
+    .header-stats,
+    .breadcrumb {
+      font-size: 13px;
+    }
+
+    .stage-hint {
+      color: #929da8;
+      font-size: 12px;
+    }
+
+    .category-label strong {
+      font-size: 13px;
+    }
+
+    .category-label small {
+      color: #9aa5af;
+      font-size: 12px;
+    }
+
+    .file-name {
+      color: #9aa4ad;
+      font-size: 12px;
+      opacity: .72;
+    }
+
+    .camera-zoom {
+      color: #9aa5af;
+      font-size: 12px;
+    }
+
+    .sector-rail button {
+      font-size: 13px;
+    }
+
+    .dossier-kicker,
+    .dossier-path {
+      font-size: 12px;
+    }
+
+    .overview-row em {
+      font-size: 12px;
+    }
+
+    .motion-toggle {
+      font-size: 13px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <nav class="global-nav" aria-label="全局导航">
+      <a href="../">← 返回项目地图</a>
+      <span aria-current="page">历史文件星系</span>
+    </nav>
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div>
+          <h1>历史文件星系</h1>
+          <p>电脑硬件工作台 · Skill 1.5.2 的 61 文件结构存档</p>
+        </div>
+      </div>
+      <div class="header-stats" aria-label="项目概况">
+        <span>61 个文件</span>
+        <span>7 个星体系统</span>
+        <span>冻结 v1.2 · Skill 1.5.2</span>
+      </div>
+    </header>
+
+    <div class="snapshot-banner" role="note">
+      <span><strong>为什么不同步：</strong>这是有意保留的历史档案。Skill 1.5.2 时期记录为 61 个文件；当前 2.4.0 的清单可能不同，不会自动更新到本页。</span>
+    </div>
+
+    <div class="workspace">
+      <section class="stage-shell" aria-label="Skill 文件星系">
+        <div class="stage-toolbar">
+          <div class="breadcrumb" id="breadcrumb" aria-live="polite"></div>
+          <div class="toolbar-actions">
+            <button class="back-button" id="backButton" type="button">返回星系</button>
+            <button class="motion-toggle" id="motionToggle" type="button" aria-pressed="false">自动视角</button>
+          </div>
+        </div>
+
+        <div class="stage" id="stage">
+          <div class="core-aura" aria-hidden="true"></div>
+          <div class="scene-lines" id="sceneLines" aria-hidden="true"></div>
+          <div class="node-layer" id="orbitLayer"></div>
+          <div class="sector-title" id="sectorTitle" aria-hidden="true"></div>
+          <div class="node-layer" id="fileLayer"></div>
+          <p class="stage-hint"><strong>操作：</strong>拖动空白处旋转视角，Shift 或右键拖动滚转，滚轮缩放；点击目录展开文件。</p>
+          <div class="camera-rail" aria-label="视角控制">
+            <button id="zoomIn" type="button" aria-label="拉近星系">+</button>
+            <span class="camera-zoom" id="cameraZoomLabel" aria-live="polite">100</span>
+            <button id="zoomReset" type="button" aria-label="重置星系视角">◎</button>
+            <button id="zoomOut" type="button" aria-label="拉远星系">−</button>
+          </div>
+          <nav class="sector-rail" id="sectorRail" aria-label="快速选择目录"></nav>
+        </div>
+      </section>
+
+      <aside class="dossier" id="dossier" aria-live="polite" aria-label="文件档案"></aside>
+    </div>
+  </main>
+
+  <script>
+    const GROUPS = {
+      core: {
+        name: "契约核心",
+        folder: "root",
+        root: "",
+        ring: 0,
+        orbitScale: 0,
+        flatten: 0,
+        focusSide: 1,
+        tilt: 0,
+        color: "#eef4f7",
+        summary: "Skill 的入口与控制面板。这里决定什么时候进入盘点、排障、调校或升级路线。",
+        angle: 0,
+        speed: 0
+      },
+      integration: {
+        name: "流程与证据",
+        folder: "integration/",
+        root: "references/integration/",
+        ring: 1,
+        orbitScale: .30,
+        flatten: .866,
+        focusSide: 0,
+        tilt: -1.8,
+        inclination: 2.4,
+        color: "#7dd3e8",
+        summary: "把采集、身份、证据、解释、交接和遥测串成一条连续流程。",
+        angle: -15,
+        speed: .72
+      },
+      triage: {
+        name: "故障分流",
+        folder: "triage/",
+        root: "references/triage/",
+        ring: 1,
+        orbitScale: .42,
+        flatten: .903,
+        focusSide: 0,
+        tilt: 0,
+        inclination: 0,
+        color: "#e6b36e",
+        summary: "先定位故障层级，再决定是否需要采集、实验或转交调校。",
+        angle: 145,
+        speed: -.43
+      },
+      tuning: {
+        name: "调校决策",
+        folder: "tuning/",
+        root: "references/tuning/",
+        ring: 2,
+        orbitScale: .55,
+        flatten: .929,
+        focusSide: 0,
+        tilt: 2.6,
+        inclination: -3.1,
+        color: "#d99ab7",
+        summary: "安全门禁、单变量实验、GPU 行为、记录和恢复路径都在这一层。",
+        angle: -50,
+        speed: .57
+      },
+      upgrade: {
+        name: "升级判断",
+        folder: "upgrade/",
+        root: "references/upgrade/",
+        ring: 2,
+        orbitScale: .67,
+        flatten: .947,
+        focusSide: 0,
+        tilt: 0,
+        inclination: 0,
+        color: "#b3d89a",
+        summary: "区分性能、维修、偏好和未来项目，避免把“想买”误写成“必须买”。",
+        angle: 200,
+        speed: -.31
+      },
+      scripts: {
+        name: "运行内核",
+        folder: "scripts/",
+        root: "scripts/",
+        ring: 3,
+        orbitScale: .79,
+        flatten: .963,
+        focusSide: 0,
+        tilt: -1.2,
+        inclination: 1.8,
+        color: "#7f9dff",
+        summary: "实际执行只读采集、遥测分析、本地路径安全和桌面能力探测。",
+        angle: 70,
+        speed: .38
+      },
+      tests: {
+        name: "验证网络",
+        folder: "tests/",
+        root: "tests/",
+        ring: 4,
+        orbitScale: .90,
+        flatten: .976,
+        focusSide: 0,
+        tilt: 2.2,
+        inclination: 3.4,
+        color: "#e78f73",
+        summary: "把规则、脚本、脱敏、跨 Shell 和人工验收变成可重复证据。",
+        angle: 235,
+        speed: -.19
+      }
+    };
+
+    const FILES = [
+      ["core", "SKILL.md", "入口与控制塔", "选择当前任务应该走哪条路线，并保持安全、证据和交互闭环规则。", "每次调用 Skill 时首先加载。", ["不读取硬件", "不自动修改设置"], ["agents/openai.yaml"], 1.32],
+      ["core", "agents/openai.yaml", "界面调用元数据", "提供 Codex 界面显示名称、短描述和调用策略。", "Skill 被发现和展示时使用。", ["不承载业务流程", "不替代 SKILL.md"], ["SKILL.md"], 1.02],
+
+      ["integration", "beginner-guide.md", "新手引导路线", "把模式选择改成具体问题，用一次一个决策的方式带入安全流程。", "用户说不知道选什么或希望被带着走时。", ["不降低安全门禁", "不一次问完整问卷"], ["interaction-closure.md", "tuning-modes.md"], 1.02],
+      ["integration", "collector-workflow.md", "采集工作流", "说明标准与脱敏模式、同意、命令、退出码和采集后如何回到原任务。", "用户需要当前硬件快照时。", ["默认不提权", "单次快照不等于稳定性"], ["hardware-detection.md", "output-format.md"], 1.18],
+      ["integration", "cooling-evidence.md", "散热证据", "只收集目标部件真正相关的桌面散热、机箱风道或笔记本平台信息。", "温度、噪声、持续功耗或升级散热余量成为决策条件时。", ["不从型号猜散热能力", "官方上限不等于实测能力"], ["fixed-workloads.md", "success-and-sensor-semantics.md"], 1.04],
+      ["integration", "coverage-map.md", "覆盖与维护地图", "记录整合来源、版本、受控修订和维护时应保持的路由不变量。", "分发、合并上游或维护 Skill 时。", ["不包含个人设备历史", "不允许覆盖较新的整合规则"], ["SKILL.md"], 1.02],
+      ["integration", "cross-mode-handoffs.md", "跨模式交接", "在盘点、排障、遥测、调校和购买之间携带证据与未解决问题。", "用户目标跨过一个模式时。", ["不重复采集已有证据", "不丢失原任务"], ["interaction-closure.md", "collector-workflow.md"], 1.03],
+      ["integration", "device-identity.md", "设备身份质量", "把采集器的身份质量映射到会话状态，并规定不可读或冲突时如何继续。", "型号、主板或设备身份不完整时。", ["不自动猜测型号", "不把隐藏误判为损坏"], ["hardware-detection.md"], 1.08],
+      ["integration", "explanation-style.md", "解释风格", "按用户知识和风险选择 Action、Analogy、Consequence 的详细程度。", "需要解释调校参数、BIOS 或恢复路径时。", ["不省略安全提示", "不把概念解释变成机械模板"], ["tuning-modes.md"], 1.04],
+      ["integration", "fixed-workloads.md", "固定负载与实验卡", "定义一轮只改变一个主变量时的基线、通过、中止、回滚和持久化目标。", "准备应用调校候选前。", ["一次不改多个变量", "单轮成功不等于长期稳定"], ["experiment-loop.md", "record-template.md"], 1.14],
+      ["integration", "installation-coexistence.md", "多 Skill 共存", "说明多个硬件 Skill 同时安装时如何避免路由冲突和覆盖。", "安装、合并或替换硬件类 Skill 时。", ["不自动卸载其他 Skill", "不复制个人配置"], ["SKILL.md", "coverage-map.md"], 1],
+      ["integration", "interaction-closure.md", "交互闭环", "确保每个分支都有结果、下一步、问题、取消、停止或交接。", "任何多步流程结束或中断时。", ["不显示固定状态模板", "不丢回原任务"], ["cross-mode-handoffs.md"], 1.12],
+      ["integration", "persistence-and-update-gate.md", "持久化与更新门禁", "分类设置是否真正保存，并规定驱动或工具更新后旧结果需要重新验证。", "重启、待机、配置保存或工具更新后。", ["不假设滑块等于持久化", "不把旧结果自动当作新基线"], ["experiment-loop.md"], 1.07],
+      ["integration", "success-and-sensor-semantics.md", "成功与传感器语义", "解释 FPS、低帧、功耗、温度和限制原因各自能证明什么。", "读取遥测或判断调校是否有效时。", ["单点样本不是稳定性", "传感器名称不等于设置值"], ["telemetry-analysis.md", "gpu-clock-behavior.md"], 1.1],
+      ["integration", "telemetry-analysis.md", "遥测分析", "分析本地 CSV 或 HWiNFO 记录，处理时间窗口、列选择、统计和警告。", "用户提供监测日志时。", ["截图不是 CSV", "分析不等于诊断或调校许可"], ["success-and-sensor-semantics.md"], 1.16],
+      ["integration", "tuning-modes.md", "快速与深入调校", "在不降低安全底线的前提下调整记录深度和讲解密度。", "通过调校入口检查后。", ["快速模式不能跳过五道门", "深入模式不等于无限采集"], ["intake.md", "fixed-workloads.md"], 1.12],
+
+      ["triage", "collector-handoff.md", "当前基线交接", "把当前可见硬件整理成后续排障或调校可引用的证据快照。", "排障需要当前机器基线时。", ["不证明活动配置", "不证明性能和稳定性"], ["collector-workflow.md"], 1.06],
+      ["triage", "device-profile-template.md", "设备档案模板", "把设备身份、系统版本、部件和已知历史记录成可复用档案。", "需要跨轮次保留设备证据时。", ["不替用户推断缺失型号", "不混入无关个人历史"], ["device-identity.md"], 1 ],
+      ["triage", "experiment-protocol.md", "诊断实验协议", "在改动设置前规定单一诊断变量、观察结果和回退方式。", "排障已经定位到用户可改的设置层时。", ["不用调校掩盖硬件故障", "不一次改变多个因素"], ["risk-taxonomy.md", "fixed-workloads.md"], 1.08],
+      ["triage", "risk-taxonomy.md", "风险分类", "区分物理危险、数据风险、稳定性风险和普通配置风险。", "判断是否继续、停止或转交维修时。", ["物理危险优先", "未解释的不稳定阻止调校"], ["triage-checklist.md"], 1.14],
+      ["triage", "triage-checklist.md", "排障检查表", "沿电源、系统、软件、硬件和负载层级定位最小下一诊断。", "用户描述卡顿、蓝屏、断连、续航或启动问题时。", ["不先换硬件", "不把症状直接当结论"], ["risk-taxonomy.md", "experiment-protocol.md"], 1.16],
+
+      ["tuning", "advice-intensity.md", "建议强度分级", "隐藏或厂商限制控制默认拒绝；只有已实施、有现状证据且只做评估时降级为风险记录。", "请求触及隐藏功耗墙、电压、风扇或固件限制时。", ["不给工具名或步骤", "不因自称专家而放行"], ["risk-taxonomy.md"], 1.22],
+      ["tuning", "component-playbooks.md", "部件调校手册", "按 CPU、GPU、内存等部件选择适用的调校路线和安全证据。", "目标部件明确且通过入口门禁后。", ["不跨平台照搬参数", "不跳过固定负载"], ["device-routes.md", "intake.md"], 1.13],
+      ["tuning", "device-routes.md", "设备路线", "区分台式、笔记本、显卡代际和平台控制项的真实边界。", "需要选择具体调校路径时。", ["笔记本不走桌面功耗墙路线", "不假设工具存在控制项"], ["component-playbooks.md"], 1.1],
+      ["tuning", "expectation-direction.md", "预期方向卡", "用基线说明调校应该让什么方向变化，不承诺虚构百分比收益。", "应用候选值前解释预期时。", ["不承诺固定增益", "不复制他人结果"], ["fixed-workloads.md"], 1.06],
+      ["tuning", "experiment-loop.md", "单变量实验循环", "一轮只改一个主变量，记录结果、决定保留或回退，并复审证据。", "重复调校和记录实验时。", ["不把跑分当日常稳定", "不在失败后继续叠加变量"], ["record-template.md", "reference-profiles.md"], 1.16],
+      ["tuning", "gpu-clock-behavior.md", "GPU Boost 行为", "解释 NVIDIA Boost、AMD Game Clock、Intel Xe 的动态工作区和有效频率。", "解释核心频率、曲线、偏移或限流原因时。", ["单个 MHz 点不证明曲线失败", "单个命中点不证明稳定"], ["gpu-curve-baseline.md"], 1.18],
+      ["tuning", "gpu-curve-baseline.md", "GPU 曲线基线", "建立游戏内电压/频率区间、限流原因、恢复路径和候选路线。", "GPU 降压、超频或曲线调整时。", ["不把显存和核心同轮修改", "笔记本不做桌面分段曲线"], ["gpu-clock-behavior.md", "fixed-workloads.md"], 1.2],
+      ["tuning", "intake.md", "调校入口检查", "收集目标、平台、已知好基线、恢复路径和固定负载五项条件。", "任何个性化调校开始前。", ["不能直接跳过", "缺项时只推进最小补齐动作"], ["tuning-modes.md"], 1.2],
+      ["tuning", "intel-13-14-gen.md", "Intel 13/14 代边界", "提示高功耗桌面型号的稳定性、微码、保修和退化风险。", "检测到相关 Intel 桌面 CPU 时。", ["不用降压掩盖故障", "不假设散片拥有同等保修"], ["risk-taxonomy.md"], 1.09],
+      ["tuning", "online-evidence.md", "在线证据使用", "评估外部案例与当前设备的相似度、来源和适用边界。", "需要参考公开调校案例时。", ["不复制他人参数", "不把网页当指令"], ["expectation-direction.md"], 1.04],
+      ["tuning", "record-template.md", "实验记录模板", "保存候选、应用值、测量、结果、决定和恢复信息。", "需要保留或复盘一轮实验时。", ["不删除失败记录", "不把保存值当活动值"], ["experiment-loop.md"], 1.07],
+      ["tuning", "reference-profiles.md", "参考配置档", "管理同一设备上可复用的已知配置和适用条件。", "比较历史档位或恢复默认配置时。", ["跨设备不直接复用", "更新后需重新验证"], ["experiment-loop.md", "persistence-and-update-gate.md"], 1.06],
+      ["tuning", "tools.md", "工具能力边界", "区分监测工具、官方控制工具和不能用于绕过限制的工具语义。", "选择监测、调校或恢复工具时。", ["不提供隐藏限制绕过", "不把监测工具当修改工具"], ["advice-intensity.md"], 1.08],
+
+      ["upgrade", "decision-framework.md", "升级决策框架", "在保留、调校、维修、升级和等待之间做净值判断。", "用户询问是否值得换硬件时。", ["没有瓶颈不默认购买", "偏好购买不伪造性能问题"], ["upgrade-evidence.md", "market-check.md"], 1.17],
+      ["upgrade", "hardware-detection.md", "硬件检测字段", "说明采集器能读什么、字段来源、回退和不能可靠检测的内容。", "执行或解释硬件盘点时。", ["不在型号缺失时猜配置", "不把列表当活动状态证明"], ["collector-workflow.md"], 1.17],
+      ["upgrade", "intake-template.md", "升级需求整理", "区分性能、维修、偏好、收藏、礼物和未来项目目标。", "进入购买或升级评估前。", ["不把所有购买都当性能修复", "不编造预算和地区价格"], ["decision-framework.md"], 1.07],
+      ["upgrade", "market-check.md", "市场价格检查", "记录价格日期、地区、币种、可比型号和当前市场证据。", "需要比较真实购买方案时。", ["不提供过期价格为现价", "不编造库存"], ["decision-framework.md"], 1.04],
+      ["upgrade", "output-format.md", "输出与脱敏契约", "规定库存、购买建议、Markdown 和 JSON 字段，以及标准/脱敏模式的隐私规则。", "生成报告或判断兼容、保修和转售信息时。", ["空值不伪造 redacted", "字段含义不能随意改写"], ["hardware-detection.md"], 1.22],
+      ["upgrade", "upgrade-evidence.md", "升级证据", "要求具体瓶颈、最低有效升级、兼容风险、净值成本和购买阈值。", "即将给出升级结论时。", ["单跑分不算瓶颈", "未来想象不替代当前需求"], ["decision-framework.md"], 1.09],
+
+      ["scripts", "analyze-telemetry.ps1", "遥测分析器", "读取本地监测记录，选择字段、处理窗口并输出统计与警告。", "用户提供 CSV 或 HWiNFO 记录时。", ["不修改系统设置", "不把截图当时间序列"], ["local-path-safety.ps1"], 1.2],
+      ["scripts", "collect-windows.ps1", "Windows 只读采集入口", "采集系统、CPU、GPU、内存、磁盘、卷、显示器和电池证据并输出 Markdown/JSON。", "用户同意执行当前硬件盘点时。", ["不自动提权", "不修改硬件"], ["device-identity.ps1", "inventory-context.ps1", "local-path-safety.ps1"], 1.34],
+      ["scripts", "device-identity.ps1", "身份清洗与脱敏", "评估型号质量，隔离 Markdown 身份字段，并处理组件级隐私脱敏。", "生成身份或脱敏报告时。", ["不自动修正可疑型号", "不删除能力证据"], ["collect-windows.ps1"], 1.17],
+      ["scripts", "display-native.cs", "显示能力探针", "读取 DisplayConfig、DXGI、活动显示器和 HDR/色彩管线状态。", "需要当前分辨率、刷新率、HDR 或色彩输出时。", ["不推断面板原生上限", "不把像素格式当 GPU 精度"], ["collect-windows.ps1"], 1.12],
+      ["scripts", "inventory-context.ps1", "库存辅助内核", "提供容量格式、功耗限制解析、显示器合并、进程分类、GPU 分类和内存槽位摘要。", "采集器整理字段或调用合成测试时。", ["不替代源数据", "异常固件值必须拒绝"], ["collect-windows.ps1", "run-inventory-context-tests.ps1"], 1.18],
+      ["scripts", "local-path-safety.ps1", "本地路径安全", "拒绝网络路径、云占位、重解析点和危险覆盖目标。", "读取输入或写出报告前。", ["不访问网络", "不自动覆盖已有文件"], ["analyze-telemetry.ps1", "collect-windows.ps1"], 1.12],
+      ["scripts", "storage-native.cs", "存储原生探针", "读取存储设备描述、卷映射和磁盘编号辅助信息。", "采集物理磁盘和卷关系时。", ["不靠容量猜映射", "不证明磁盘健康"], ["collect-windows.ps1"], 1.1],
+      ["scripts", "system-native.cs", "系统原生探针", "读取内存状态、SMBIOS 内存模块/槽位、固件类型和电池基础信息。", "CIM 被拒绝或需要固件级回退时。", ["不暴露序列号", "异常固件布局要降级"], ["collect-windows.ps1"], 1.15],
+
+      ["tests", "interaction-scenarios.md", "交互冻结场景", "记录 Inventory、Triage、Tune、Purchase 和安全边界的行为标准。", "人工验收或修改路由时。", ["Must 项不能靠文案绕过", "惯例项与规则项判定不同"], ["manual-acceptance-template.md"], 1.12],
+      ["tests", "manual-acceptance-template.md", "人工验收模板", "定义真实三轮、独立签署、发布阻断和记录格式。", "准备公开发布或版本签字时。", ["自动测试不能替代人工", "PENDING 不能写成通过"], ["interaction-scenarios.md", "tone-scenarios.md"], 1.16],
+      ["tests", "run-all-tests.ps1", "全量测试入口", "运行契约、编码、PS7 解析、身份、库存、采集、遥测和交互测试。", "每次修改 Skill 后。", ["live 默认 SKIP", "任何子测试失败都汇总失败"], ["run-contract-tests.ps1", "run-collector-smoke-tests.ps1"], 1.2],
+      ["tests", "run-collector-smoke-tests.ps1", "采集烟测", "验证路径保护，并可显式运行 Standard/Redacted 实机采集和输出形状。", "改采集器且允许实机只读测试时。", ["没有授权不跑 live", "单次 live 不等于人工行为验收"], ["collect-windows.ps1"], 1.15],
+      ["tests", "run-contract-tests.ps1", "JSON 契约测试", "固定 Schema 4 顶层键、状态键、警告码、BOM 和退出码。", "改快照结构或采集警告时。", ["契约测试会执行一次脱敏采集", "不是纯静态测试"], ["collect-windows.ps1", "analyze-telemetry.ps1"], 1.16],
+      ["tests", "run-device-identity-tests.ps1", "身份与脱敏测试", "验证身份清洗、Markdown 安全、GPU PnP ID 隐藏和标准/脱敏形状一致。", "改身份或隐私字段时。", ["不只检查字符串", "必须保持数组和键结构"], ["device-identity.ps1"], 1.14],
+      ["tests", "run-encoding-tests.ps1", "编码守卫", "检查 PowerShell 文件 BOM 与编码要求，避免中文和 PSParser 差异。", "修改脚本或测试文件后。", ["BOM 规则不等于内容正确", "JSON 仍保持无 BOM"], [], 1.02],
+      ["tests", "run-interaction-contract-tests.ps1", "交互契约检查", "检查入口路由、安全提示、调校门、术语、Schema 与版本引用。", "修改 SKILL.md 或关键 reference 后。", ["文本断言不能证明人工体验", "必须配合人工验收"], ["SKILL.md"], 1.19],
+      ["tests", "run-inventory-context-tests.ps1", "库存辅助测试", "验证 IEC 容量、NVIDIA 功耗解析、显示器合并、GPU 分类、内存槽位和进程分类。", "修改 inventory-context.ps1 时。", ["合成测试不替代实机数据", "异常值必须保持不可用"], ["inventory-context.ps1"], 1.18],
+      ["tests", "run-pwsh7-parse-tests.ps1", "PowerShell 7 解析测试", "用 PowerShell 7 解析 scripts 与 tests 下全部脚本，防止旧语法兼容回退。", "修改任意 PowerShell 脚本后。", ["解析通过不等于运行通过", "缺少 pwsh 时明确 SKIP"], ["run-all-tests.ps1"], 1.08],
+      ["tests", "run-telemetry-analysis-tests.ps1", "遥测分析回归", "验证字段选择、窗口、统计、时间规则和 Markdown/JSON 输出。", "修改遥测分析器时。", ["样例通过不代表所有列名", "不等于硬件诊断"], ["analyze-telemetry.ps1"], 1.13],
+      ["tests", "run-telemetry-audit-tests.ps1", "遥测审计回归", "检查遥测解析、证据声明和输出措辞中的审计约束。", "修改遥测证据边界时。", ["不代替真实 CSV 复核", "不能放宽稳定性语义"], ["analyze-telemetry.ps1", "telemetry-analysis.md"], 1.1],
+      ["tests", "tone-scenarios.md", "语气冻结题", "保存语气稳定性、安全提示和交互自然度的三轮人工测试题目。", "语气或规则层修改后。", ["规则项任一轮失败即失败", "不能背答案式通过"], ["manual-acceptance-template.md"], 1.08]
+    ].map(([group, rawPath, role, what, when, boundaries, related, weight]) => {
+      const name = rawPath.split("/").pop();
+      return {
+        group,
+        path: name,
+        location: `${GROUPS[group].root}${rawPath}`,
+        name,
+        role,
+        what,
+        when,
+        boundaries,
+        related: related.map(path => path.split("/").pop()),
+        weight,
+        color: GROUPS[group].color
+      };
+    });
+
+    const FILES_BY_PATH = new Map(FILES.map(file => [file.path, file]));
+    const FILES_BY_GROUP = Object.fromEntries(Object.keys(GROUPS).map(group => [group, FILES.filter(file => file.group === group)]));
+    const FILE_WEIGHTS = FILES.map(file => file.weight);
+    const FILE_WEIGHT_MIN = Math.min(...FILE_WEIGHTS);
+    const FILE_WEIGHT_MAX = Math.max(...FILE_WEIGHTS);
+    const GROUP_WEIGHT_TOTALS = Object.fromEntries(
+      Object.entries(FILES_BY_GROUP).map(([group, files]) => [
+        group,
+        files.reduce((total, file) => total + file.weight, 0)
+      ])
+    );
+    const GROUP_WEIGHTS = Object.entries(GROUP_WEIGHT_TOTALS)
+      .filter(([group]) => group !== "core")
+      .map(([, total]) => total);
+    const GROUP_WEIGHT_MIN = Math.min(...GROUP_WEIGHTS);
+    const GROUP_WEIGHT_MAX = Math.max(...GROUP_WEIGHTS);
+    const DEPTH_LAYER_COUNT = 13;
+    const DEPTH_Z_INDEX_BASE = 20;
+    const state = {
+      group: null,
+      selected: null,
+      hovered: null,
+      paused: false,
+      motionOn: !window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+      cameraDrift: false,
+      reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+      motionTime: 0,
+      planetTime: 0,
+      lastPlanetFrame: 0,
+      groupMotionStart: 0,
+      lastTimestamp: null,
+      cameraYaw: 0,
+      cameraPitch: -.5,
+      cameraRoll: 0,
+      cameraDistance: 1200,
+      cameraZoom: 1,
+      cameraYawVelocity: 0,
+      lastDragTimestamp: 0,
+      dragging: false,
+      dragStartX: 0,
+      dragStartY: 0,
+      dragStartYaw: 0,
+      dragStartPitch: 0,
+      dragStartRoll: 0,
+      dragMode: "orbit",
+      layout: null,
+      starGroup: null,
+      sceneLayers: [],
+      categoryOrbitPaths: new Map(),
+      localOrbitPaths: [],
+      categoryNodes: new Map(),
+      fileNodes: new Map(),
+      localAngles: new Map()
+    };
+    const planetMeta = new WeakMap();
+
+    const stage = document.getElementById("stage");
+    const orbitLayer = document.getElementById("orbitLayer");
+    const fileLayer = document.getElementById("fileLayer");
+    const sceneLines = document.getElementById("sceneLines");
+    const breadcrumb = document.getElementById("breadcrumb");
+    const dossier = document.getElementById("dossier");
+    const backButton = document.getElementById("backButton");
+    const motionToggle = document.getElementById("motionToggle");
+    const zoomIn = document.getElementById("zoomIn");
+    const zoomOut = document.getElementById("zoomOut");
+    const zoomReset = document.getElementById("zoomReset");
+    const cameraZoomLabel = document.getElementById("cameraZoomLabel");
+    const sectorTitle = document.getElementById("sectorTitle");
+    const sectorRail = document.getElementById("sectorRail");
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    function hashSeed(value) {
+      let hash = 2166136261;
+      for (const char of String(value)) {
+        hash ^= char.charCodeAt(0);
+        hash = Math.imul(hash, 16777619);
+      }
+      return hash >>> 0;
+    }
+
+    function hexToRgb(hex) {
+      const normalized = String(hex).replace("#", "");
+      return {
+        r: Number.parseInt(normalized.slice(0, 2), 16),
+        g: Number.parseInt(normalized.slice(2, 4), 16),
+        b: Number.parseInt(normalized.slice(4, 6), 16)
+      };
+    }
+
+    function weightToDiameter(value, minimum, maximum, minimumSize, maximumSize) {
+      if (maximum <= minimum) return (minimumSize + maximumSize) / 2;
+      const ratio = clamp((value - minimum) / (maximum - minimum), 0, 1);
+      return minimumSize + (maximumSize - minimumSize) * ratio;
+    }
+
+    function paintPlanet(canvas, color, seedValue, central = false, weight = 1) {
+      if (!canvas) return;
+      const seed = seedValue % 997;
+      let duration = central
+        ? 96 + seed % 61
+        : 56 + (seed * 11 + Math.round(weight * 100) * 7) % 71;
+      const usedDurations = new Set(
+        [...document.querySelectorAll(".planet-canvas[data-rotation-period]")]
+          .filter(other => other !== canvas)
+          .map(other => Number(other.dataset.rotationPeriod))
+      );
+      while (usedDurations.has(duration)) duration += 1;
+      const direction = seed % 3 === 0 ? -1 : 1;
+      canvas.dataset.rotationPeriod = duration.toFixed(1);
+      canvas.dataset.rotationDirection = direction < 0 ? "reverse" : "forward";
+      canvas.dataset.weight = weight.toFixed(2);
+      planetMeta.set(canvas, {
+        color,
+        base: hexToRgb(color),
+        seed,
+        central,
+        duration,
+        direction,
+        phase: seed * .017 + weight * .31
+      });
+      renderPlanetCanvas(canvas);
+    }
+
+    function renderPlanetCanvas(canvas) {
+      const meta = planetMeta.get(canvas);
+      if (!meta) return;
+
+      const context = canvas.getContext("2d");
+      const size = canvas.width;
+      const center = size / 2;
+      const radius = size * .445;
+      const image = context.createImageData(size, size);
+      const spin = meta.phase +
+        state.planetTime * meta.direction * Math.PI * 2 / meta.duration;
+      const cosSpin = Math.cos(spin);
+      const sinSpin = Math.sin(spin);
+      const cosYaw = Math.cos(state.cameraYaw);
+      const sinYaw = Math.sin(state.cameraYaw);
+      const cosPitch = Math.cos(state.cameraPitch);
+      const sinPitch = Math.sin(state.cameraPitch);
+      const cosRoll = Math.cos(state.cameraRoll);
+      const sinRoll = Math.sin(state.cameraRoll);
+      const light = { x: -.58, y: -.55, z: .6 };
+
+      for (let y = 0; y < size; y += 1) {
+        for (let x = 0; x < size; x += 1) {
+          const index = (y * size + x) * 4;
+          const viewX = (x - center) / radius;
+          const viewY = (y - center) / radius;
+          const distanceSquared = viewX * viewX + viewY * viewY;
+          if (distanceSquared > 1) continue;
+
+          const viewZ = Math.sqrt(Math.max(0, 1 - distanceSquared));
+          const rolledX = viewX * cosRoll + viewY * sinRoll;
+          const rolledY = -viewX * sinRoll + viewY * cosRoll;
+          const worldY = rolledY * cosPitch + viewZ * sinPitch;
+          const pitchedZ = -rolledY * sinPitch + viewZ * cosPitch;
+          const worldX = rolledX * cosYaw + pitchedZ * sinYaw;
+          const worldZ = -rolledX * sinYaw + pitchedZ * cosYaw;
+          const localX = worldX * cosSpin + worldZ * sinSpin;
+          const localZ = -worldX * sinSpin + worldZ * cosSpin;
+          const latitude = Math.asin(clamp(worldY, -1, 1));
+          const longitude = Math.atan2(localZ, localX);
+
+          const bands =
+            Math.sin(latitude * 10 + meta.seed * .05) * .08 +
+            Math.sin(longitude * 3 + latitude * 5 + meta.seed * .03) * .06 +
+            Math.sin(longitude * 9 - latitude * 2 + meta.seed * .07) * .03;
+          const turbulence =
+            Math.sin(longitude * 5 + latitude * 7 + meta.seed * .011) *
+            Math.sin(latitude * 13 - meta.seed * .02) * .04;
+          const diffuse = Math.max(
+            0,
+            viewX * light.x + viewY * light.y + viewZ * light.z
+          );
+          const highlight = Math.pow(diffuse, 18) * .15;
+          const limb = Math.pow(1 - viewZ, 2) * .16;
+          const intensity = clamp(
+            (meta.central ? 1.12 : .88 + bands + turbulence) *
+              (.4 + diffuse * .78) + highlight + limb,
+            .1,
+            1.4
+          );
+
+          image.data[index] = Math.min(255, meta.base.r * intensity);
+          image.data[index + 1] = Math.min(255, meta.base.g * intensity);
+          image.data[index + 2] = Math.min(255, meta.base.b * intensity);
+          image.data[index + 3] = Math.round(
+            255 * Math.min(1, (1 - Math.sqrt(distanceSquared)) * 18)
+          );
+        }
+      }
+      context.putImageData(image, 0, 0);
+
+      context.beginPath();
+      context.arc(center, center, radius, 0, Math.PI * 2);
+      context.strokeStyle = `rgba(${Math.min(255, meta.base.r + 70)},${Math.min(255, meta.base.g + 70)},${Math.min(255, meta.base.b + 70)},${meta.central ? .56 : .3})`;
+      context.lineWidth = meta.central ? 1.5 : 1;
+      context.shadowBlur = meta.central ? 10 : 4;
+      context.shadowColor = meta.color;
+      context.stroke();
+      context.shadowBlur = 0;
+    }
+
+    function renderVisiblePlanets(force = false) {
+      if (state.reducedMotion && !force) return;
+      const timestamp = performance.now();
+      if (!force && timestamp - state.lastPlanetFrame < 40) return;
+      state.lastPlanetFrame = timestamp;
+      document.querySelectorAll(".planet-canvas").forEach(canvas => {
+        if (!planetMeta.has(canvas)) return;
+        if (canvas.closest("#orbitLayer") && state.group) return;
+        if (canvas.closest("#fileLayer") && !state.group) return;
+        if (canvas.closest("#sectorTitle") && !state.group) return;
+        renderPlanetCanvas(canvas);
+      });
+    }
+
+    function createOverview() {
+      orbitLayer.innerHTML = "";
+      const core = document.createElement("button");
+      core.type = "button";
+      core.className = "category-node is-core";
+      core.dataset.group = "core";
+      core.style.setProperty("--group-color", GROUPS.core.color);
+      core.style.setProperty("--diameter", "42px");
+      core.innerHTML = `
+        <span class="category-sphere"><canvas class="planet-canvas" width="192" height="192" aria-hidden="true"></canvas></span>
+        <span class="category-label"><strong>契约核心</strong><small>SKILL.md · 2</small></span>
+      `;
+      core.setAttribute("aria-label", "打开契约核心，2 个文件");
+      orbitLayer.appendChild(core);
+      paintPlanet(
+        core.querySelector("canvas"),
+        GROUPS.core.color,
+        hashSeed("core"),
+        true,
+        GROUP_WEIGHT_TOTALS.core
+      );
+      state.categoryNodes.set("core", core);
+
+      Object.entries(GROUPS).filter(([id]) => id !== "core").forEach(([id, group]) => {
+        const files = FILES_BY_GROUP[id];
+        const node = document.createElement("button");
+        node.type = "button";
+        node.className = "category-node";
+        node.dataset.group = id;
+        node.dataset.weight = GROUP_WEIGHT_TOTALS[id].toFixed(2);
+        node.dataset.orbitSpeed = group.speed.toFixed(2);
+        node.style.setProperty("--group-color", group.color);
+        const diameter = weightToDiameter(
+          GROUP_WEIGHT_TOTALS[id],
+          GROUP_WEIGHT_MIN,
+          GROUP_WEIGHT_MAX,
+          14,
+          24
+        );
+        node.style.setProperty("--diameter", `${diameter.toFixed(1)}px`);
+        node.innerHTML = `
+          <span class="category-sphere"><canvas class="planet-canvas" width="160" height="160" aria-hidden="true"></canvas></span>
+          <span class="category-label"><strong>${escapeHtml(group.name)}</strong><small>${escapeHtml(group.folder)} · ${files.length} · 权重 ${GROUP_WEIGHT_TOTALS[id].toFixed(1)}</small></span>
+        `;
+        node.setAttribute("aria-label", `打开${group.name}，${files.length}个文件`);
+        node.addEventListener("click", () => openGroup(id));
+        node.addEventListener("pointerenter", () => {
+          state.paused = true;
+          setOrbitHighlight(id, true);
+        });
+        node.addEventListener("pointerleave", () => {
+          state.paused = false;
+          setOrbitHighlight(id, false);
+        });
+        node.addEventListener("focus", () => {
+          state.paused = true;
+          setOrbitHighlight(id, true);
+        });
+        node.addEventListener("blur", () => {
+          state.paused = false;
+          setOrbitHighlight(id, false);
+        });
+        orbitLayer.appendChild(node);
+        paintPlanet(
+          node.querySelector("canvas"),
+          group.color,
+          hashSeed(id),
+          false,
+          GROUP_WEIGHT_TOTALS[id]
+        );
+        state.categoryNodes.set(id, node);
+      });
+
+      core.addEventListener("click", () => openGroup("core"));
+      core.addEventListener("pointerenter", () => { state.paused = true; });
+      core.addEventListener("pointerleave", () => { state.paused = false; });
+      core.addEventListener("focus", () => { state.paused = true; });
+      core.addEventListener("blur", () => { state.paused = false; });
+
+      buildSectorRail();
+    }
+
+    function buildSectorRail() {
+      sectorRail.innerHTML = "";
+      Object.entries(GROUPS).forEach(([id, group]) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.dataset.group = id;
+        button.style.setProperty("--rail-color", group.color);
+        button.textContent = `${group.name} ${FILES_BY_GROUP[id].length}`;
+        button.addEventListener("click", () => openGroup(id));
+        sectorRail.appendChild(button);
+      });
+    }
+
+    function setOrbitHighlight(groupId, active) {
+      (state.categoryOrbitPaths.get(groupId) || []).forEach(orbit => {
+        orbit.classList.toggle("is-hot", active || state.group === groupId);
+      });
+    }
+
+    function updateSectorRail() {
+      sectorRail.querySelectorAll("button").forEach(button => {
+        button.classList.toggle("is-active", button.dataset.group === state.group);
+      });
+    }
+
+    function measure() {
+      const rect = stage.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+      const centerX = width * .5;
+      const centerY = height * .5;
+      const maxRadius = Math.max(
+        104,
+        Math.min(width * .46, height * .5)
+      );
+      const ringRadii = [0, maxRadius * .31, maxRadius * .54, maxRadius * .74, maxRadius * .91];
+      state.layout = { width, height, centerX, centerY, maxRadius, ringRadii };
+      drawScene();
+      positionCategories();
+      if (state.group) {
+        positionLocalFiles();
+      }
+    }
+
+    function svgElement(name, attrs = {}) {
+      const element = document.createElementNS("http://www.w3.org/2000/svg", name);
+      Object.entries(attrs).forEach(([key, value]) => element.setAttribute(key, value));
+      return element;
+    }
+
+    function clamp(value, minimum, maximum) {
+      return Math.min(maximum, Math.max(minimum, value));
+    }
+
+    function createSceneLayers(width, height) {
+      sceneLines.innerHTML = "";
+      state.categoryOrbitPaths.clear();
+      state.localOrbitPaths = [];
+      state.sceneLayers = Array.from({ length: DEPTH_LAYER_COUNT }, (_, index) => {
+        const layer = svgElement("svg", {
+          class: "scene-layer",
+          viewBox: `0 0 ${width} ${height}`,
+          "aria-hidden": "true",
+          "data-depth-layer": index
+        });
+        layer.style.zIndex = String(DEPTH_Z_INDEX_BASE + index);
+        sceneLines.appendChild(layer);
+        return layer;
+      });
+      return state.sceneLayers;
+    }
+
+    function sceneDepthRange(radius) {
+      return Math.max(radius * 1.45, 180);
+    }
+
+    function depthLayerIndex(z, range) {
+      const normalized = clamp((z + range) / (range * 2), 0, .999999);
+      return Math.floor((1 - normalized) * DEPTH_LAYER_COUNT);
+    }
+
+    function depthZIndex(z, range) {
+      return DEPTH_Z_INDEX_BASE + depthLayerIndex(z, range);
+    }
+
+    function createLayeredOrbitPaths(className, dataAttribute, dataValue, color) {
+      return state.sceneLayers.map((layer, index) => {
+        const path = svgElement("path", {
+          class: `orbit-line ${className}`,
+          [dataAttribute]: dataValue,
+          "data-depth-layer": index
+        });
+        path.style.stroke = color;
+        layer.appendChild(path);
+        return path;
+      });
+    }
+
+    function projectedLayeredPaths(sampler, startAngle, endAngle, steps, range) {
+      const commands = Array.from({ length: DEPTH_LAYER_COUNT }, () => []);
+      let previous = sampler(startAngle);
+      let previousLayer = -1;
+      for (let index = 1; index <= steps; index += 1) {
+        const angle = startAngle + (endAngle - startAngle) * index / steps;
+        const point = sampler(angle);
+        const layerIndex = depthLayerIndex((previous.z + point.z) * .5, range);
+        const start = `${previous.x.toFixed(2)} ${previous.y.toFixed(2)}`;
+        const end = `${point.x.toFixed(2)} ${point.y.toFixed(2)}`;
+        commands[layerIndex].push(
+          `${layerIndex === previousLayer ? "L" : `M${start} L`}${end}`
+        );
+        previous = point;
+        previousLayer = layerIndex;
+      }
+      return commands.map(bucket => bucket.join(" "));
+    }
+
+    function projectWorldPoint(x, y, z) {
+      const yaw = state.cameraYaw;
+      const pitch = state.cameraPitch;
+      const cosYaw = Math.cos(yaw);
+      const sinYaw = Math.sin(yaw);
+      const cosPitch = Math.cos(pitch);
+      const sinPitch = Math.sin(pitch);
+      const cosRoll = Math.cos(state.cameraRoll);
+      const sinRoll = Math.sin(state.cameraRoll);
+      const rotatedX = x * cosYaw - z * sinYaw;
+      const rotatedZ = x * sinYaw + z * cosYaw;
+      const projectedY = y * cosPitch - rotatedZ * sinPitch;
+      const projectedZ = y * sinPitch + rotatedZ * cosPitch;
+      const screenX = rotatedX * cosRoll - projectedY * sinRoll;
+      const screenY = rotatedX * sinRoll + projectedY * cosRoll;
+      const scale = state.cameraDistance / (state.cameraDistance + projectedZ);
+      return {
+        x: state.layout.centerX + screenX * scale * state.cameraZoom,
+        y: state.layout.centerY + screenY * scale * state.cameraZoom,
+        z: projectedZ,
+        scale
+      };
+    }
+
+    function getGroupOrbit(group) {
+      const semiMajor = state.layout.maxRadius * group.orbitScale;
+      const semiMinor = semiMajor * group.flatten;
+      return {
+        semiMajor,
+        semiMinor,
+        focusShift: Math.sqrt(Math.max(0, semiMajor * semiMajor - semiMinor * semiMinor)) * group.focusSide,
+        orbitTilt: group.tilt * Math.PI / 180,
+        inclination: group.inclination * Math.PI / 180
+      };
+    }
+
+    function orbitPoint(group, angleDegrees) {
+      const orbit = getGroupOrbit(group);
+      const angle = angleDegrees * Math.PI / 180;
+      const major = orbit.focusShift + Math.cos(angle) * orbit.semiMajor;
+      const minor = Math.sin(angle) * orbit.semiMinor;
+      const planeX = major * Math.cos(orbit.orbitTilt) - minor * Math.sin(orbit.orbitTilt);
+      const planeZ = major * Math.sin(orbit.orbitTilt) + minor * Math.cos(orbit.orbitTilt);
+      return projectWorldPoint(
+        planeX,
+        planeZ * Math.sin(orbit.inclination),
+        planeZ * Math.cos(orbit.inclination)
+      );
+    }
+
+    function updateCategoryProjection() {
+      if (!state.layout || state.group) return;
+      const core = state.categoryNodes.get("core");
+      const depthRange = sceneDepthRange(state.layout.maxRadius);
+      if (core) {
+        const coreDiameter = Number.parseFloat(core.style.getPropertyValue("--diameter"));
+        core.style.left = `${state.layout.centerX}px`;
+        core.style.top = `${state.layout.centerY}px`;
+        core.style.opacity = "1";
+        core.style.setProperty("--planet-scale", state.cameraZoom.toFixed(3));
+        core.style.setProperty("--planet-span", `${coreDiameter * state.cameraZoom}px`);
+        core.style.zIndex = String(depthZIndex(0, depthRange));
+      }
+
+      Object.entries(GROUPS).filter(([id]) => id !== "core").forEach(([id, group]) => {
+        const node = state.categoryNodes.get(id);
+        if (!node) return;
+        const currentAngle = group.angle + state.motionTime * group.speed;
+        const point = orbitPoint(group, currentAngle);
+        node.style.left = `${point.x}px`;
+        node.style.top = `${point.y}px`;
+        node.style.opacity = String(clamp(1 - (point.z / state.layout.maxRadius) * .17, .76, 1));
+        const planetScale = clamp(point.scale * state.cameraZoom, .55, 1.48);
+        const planetDiameter = Number.parseFloat(node.style.getPropertyValue("--diameter"));
+        node.style.setProperty(
+          "--planet-scale",
+          planetScale.toFixed(3)
+        );
+        node.style.setProperty("--planet-span", `${planetDiameter * planetScale}px`);
+        node.style.zIndex = String(depthZIndex(point.z, depthRange));
+        const orbitPaths = state.categoryOrbitPaths.get(id) || [];
+        if (orbitPaths.length) {
+          const paths = projectedLayeredPaths(
+            angle => orbitPoint(group, angle),
+            0,
+            360,
+            140,
+            depthRange
+          );
+          orbitPaths.forEach((path, index) => path.setAttribute("d", paths[index]));
+        }
+      });
+    }
+
+    function drawScene() {
+      if (!state.layout) return;
+      const { width, height } = state.layout;
+      const sceneLayers = createSceneLayers(width, height);
+
+      const starGroup = svgElement("g");
+      state.starGroup = starGroup;
+      for (let index = 0; index < 186; index += 1) {
+        const x = ((index * 97 + 31) % 991) / 991 * width;
+        const y = ((index * 61 + 17) % 997) / 997 * height;
+        starGroup.appendChild(svgElement("circle", {
+          cx: x,
+          cy: y,
+          r: index % 31 === 0 ? 1.45 : (index % 13 === 0 ? 1.05 : .58),
+          class: "star-dot",
+          opacity: index % 17 === 0 ? .42 : (index % 7 === 0 ? .27 : .13)
+        }));
+      }
+      sceneLayers[0].appendChild(starGroup);
+
+      if (!state.group) {
+        Object.entries(GROUPS).filter(([id]) => id !== "core").forEach(([id, group]) => {
+          state.categoryOrbitPaths.set(
+            id,
+            createLayeredOrbitPaths("category-orbit", "data-orbit", id, group.color)
+          );
+        });
+      }
+      updateCategoryProjection();
+    }
+
+    function positionCategories() {
+      if (!state.layout || state.group) return;
+      updateCategoryProjection();
+    }
+
+    function openGroup(groupId) {
+      state.group = groupId;
+      state.groupMotionStart = state.motionTime;
+      state.selected = null;
+      state.hovered = null;
+      state.paused = false;
+      orbitLayer.style.opacity = "0";
+      orbitLayer.style.pointerEvents = "none";
+      fileLayer.innerHTML = "";
+      stage.classList.remove("compact-labels");
+      state.fileNodes.clear();
+      state.localAngles.clear();
+      drawLocalOrbits(groupId);
+      sectorTitle.style.setProperty("--sector-color", GROUPS[groupId].color);
+      sectorTitle.innerHTML = `
+        <span class="sector-planet"><canvas class="planet-canvas" width="220" height="220" aria-hidden="true"></canvas></span>
+        <strong>${escapeHtml(GROUPS[groupId].name)}</strong>
+        <span class="sector-folder">${escapeHtml(GROUPS[groupId].folder)}</span>
+        <small>${FILES_BY_GROUP[groupId].length} 个文件</small>
+      `;
+      paintPlanet(
+        sectorTitle.querySelector("canvas"),
+        GROUPS[groupId].color,
+        hashSeed(groupId),
+        true,
+        GROUP_WEIGHT_TOTALS[groupId]
+      );
+      sectorTitle.classList.add("is-visible");
+      buildLocalFiles(groupId);
+      updateBreadcrumb();
+      updateSectorRail();
+      backButton.classList.add("is-visible");
+      renderGroupOverview(groupId);
+      positionLocalFiles();
+    }
+
+    function closeGroup() {
+      state.group = null;
+      state.selected = null;
+      state.hovered = null;
+      state.paused = false;
+      orbitLayer.style.opacity = "1";
+      orbitLayer.style.pointerEvents = "";
+      fileLayer.innerHTML = "";
+      state.fileNodes.clear();
+      state.localAngles.clear();
+      sectorTitle.classList.remove("is-visible");
+      backButton.classList.remove("is-visible");
+      drawScene();
+      updateBreadcrumb();
+      updateSectorRail();
+      renderOverview();
+      positionCategories();
+    }
+
+    function getLocalOrbitSpecs(groupId) {
+      if (!state.layout) return [];
+      const localMax = Math.min(state.layout.width * .4, state.layout.height * .41);
+      if (FILES_BY_GROUP[groupId].length > 7) {
+        return [
+          { radius: localMax * .52, tilt: 0, inclination: 0, speed: .17, baseAngle: -82 },
+          { radius: localMax, tilt: 0, inclination: 0, speed: -.12, baseAngle: -58 }
+        ];
+      }
+      return [
+        { radius: localMax * .78, tilt: 0, inclination: 0, speed: .14, baseAngle: -84 }
+      ];
+    }
+
+    function drawLocalOrbits(groupId) {
+      if (!state.layout) return;
+      drawScene();
+      state.localOrbitPaths = getLocalOrbitSpecs(groupId).map((spec, index) => {
+        const paths = createLayeredOrbitPaths(
+          "local-orbit",
+          "data-local-index",
+          String(index),
+          GROUPS[groupId].color
+        );
+        paths.forEach(path => path.setAttribute("opacity", index ? ".24" : ".4"));
+        return paths;
+      });
+      const linksGroup = svgElement("g", { id: "linksGroup" });
+      state.sceneLayers[0].appendChild(linksGroup);
+    }
+
+    function localOrbitPoint(groupId, orbitIndex, angleDegrees) {
+      const spec = getLocalOrbitSpecs(groupId)[orbitIndex];
+      const radians = angleDegrees * Math.PI / 180;
+      const tilt = spec.tilt * Math.PI / 180;
+      const inclination = spec.inclination * Math.PI / 180;
+      const major = Math.cos(radians) * spec.radius;
+      const minor = Math.sin(radians) * spec.radius * .82;
+      const planeX = major * Math.cos(tilt) - minor * Math.sin(tilt);
+      const planeZ = major * Math.sin(tilt) + minor * Math.cos(tilt);
+      return projectWorldPoint(
+        planeX,
+        planeZ * Math.sin(inclination),
+        planeZ * Math.cos(inclination)
+      );
+    }
+
+    function buildLocalFiles(groupId) {
+      const files = FILES_BY_GROUP[groupId];
+      const orbitSpecs = getLocalOrbitSpecs(groupId);
+      stage.classList.toggle(
+        "compact-labels",
+        files.length > 8 || (state.layout && state.layout.width < 620)
+      );
+      const innerCount = orbitSpecs.length > 1 ? Math.ceil(files.length / 2) : 0;
+      files.forEach((file, index) => {
+        const orbitIndex = index < innerCount ? 0 : (innerCount ? 1 : 0);
+        const countInOrbit = orbitIndex === 0
+          ? (innerCount || files.length)
+          : files.length - innerCount;
+        const indexInOrbit = orbitIndex === 0 ? index : index - innerCount;
+        const spec = orbitSpecs[orbitIndex];
+        const baseAngle = spec.baseAngle +
+          (360 / Math.max(countInOrbit, 1)) * indexInOrbit;
+        state.localAngles.set(file.path, { orbitIndex, baseAngle, speed: spec.speed });
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "file-node";
+        button.dataset.path = file.path;
+        button.dataset.weight = file.weight.toFixed(2);
+        button.style.setProperty("--file-color", file.color);
+        const fileDiameter = weightToDiameter(
+          file.weight,
+          FILE_WEIGHT_MIN,
+          FILE_WEIGHT_MAX,
+          6,
+          12
+        );
+        button.style.setProperty("--file-size", `${fileDiameter.toFixed(1)}px`);
+        button.innerHTML = `
+          <span class="node-body">
+            <span class="file-sphere" aria-hidden="true">
+              <canvas class="planet-canvas" width="64" height="64"></canvas>
+            </span>
+            <span class="file-name">${escapeHtml(file.name)}</span>
+          </span>
+        `;
+        button.setAttribute("aria-label", `${file.name}，${file.role}`);
+        button.addEventListener("pointerenter", () => {
+          state.paused = true;
+          state.hovered = file.path;
+        });
+        button.addEventListener("pointerleave", () => {
+          state.paused = false;
+          state.hovered = null;
+        });
+        button.addEventListener("focus", () => {
+          state.paused = true;
+          state.hovered = file.path;
+        });
+        button.addEventListener("blur", () => {
+          state.paused = false;
+          state.hovered = null;
+        });
+        button.addEventListener("click", () => selectFile(file.path));
+        fileLayer.appendChild(button);
+        paintPlanet(
+          button.querySelector("canvas"),
+          file.color,
+          hashSeed(file.path),
+          false,
+          file.weight
+        );
+        state.fileNodes.set(file.path, button);
+      });
+      requestAnimationFrame(() => {
+        state.fileNodes.forEach(node => node.classList.add("is-visible"));
+      });
+    }
+
+    function positionLocalFiles() {
+      if (!state.layout || !state.group) return;
+      const localMax = Math.min(state.layout.width * .4, state.layout.height * .41);
+      const files = FILES_BY_GROUP[state.group];
+      const depthRange = sceneDepthRange(localMax);
+      sectorTitle.style.setProperty("--sector-scale", state.cameraZoom.toFixed(3));
+      sectorTitle.style.zIndex = String(depthZIndex(0, depthRange));
+      state.localOrbitPaths.forEach((orbitPaths, index) => {
+        const paths = projectedLayeredPaths(
+          angle => localOrbitPoint(state.group, index, angle),
+          0,
+          360,
+          140,
+          depthRange
+        );
+        orbitPaths.forEach((path, layerIndex) => path.setAttribute("d", paths[layerIndex]));
+      });
+      files.forEach(file => {
+        const node = state.fileNodes.get(file.path);
+        const info = state.localAngles.get(file.path);
+        if (!node || !info) return;
+        const angle = info.baseAngle +
+          (state.motionTime - state.groupMotionStart) * info.speed;
+        const point = localOrbitPoint(state.group, info.orbitIndex, angle);
+        node.style.left = `${point.x}px`;
+        node.style.top = `${point.y}px`;
+        node.style.opacity = String(clamp(1 - (point.z / localMax) * .18, .76, 1));
+        const planetScale = clamp(point.scale * state.cameraZoom, .55, 1.48);
+        const planetDiameter = Number.parseFloat(node.style.getPropertyValue("--file-size"));
+        node.style.setProperty(
+          "--planet-scale",
+          planetScale.toFixed(3)
+        );
+        node.style.setProperty("--planet-span", `${planetDiameter * planetScale}px`);
+        node.style.zIndex = String(depthZIndex(point.z, depthRange));
+      });
+      updateLinks();
+    }
+
+    function selectFile(path) {
+      const file = FILES_BY_PATH.get(path);
+      if (!file) return;
+      if (state.group !== file.group) {
+        openGroup(file.group);
+      }
+      state.selected = path;
+      state.paused = true;
+      state.fileNodes.forEach((node, nodePath) => {
+        node.classList.toggle("is-active", nodePath === path);
+        node.classList.toggle("is-related", file.related.includes(nodePath));
+      });
+      updateBreadcrumb();
+      drawLinksFor(file);
+      renderFileDetail(file);
+      if (window.matchMedia("(max-width: 900px)").matches) {
+        dossier.scrollIntoView({ behavior: state.reducedMotion ? "auto" : "smooth", block: "start" });
+      }
+    }
+
+    function drawLinksFor(file) {
+      const linksGroup = document.getElementById("linksGroup");
+      if (!linksGroup) return;
+      linksGroup.innerHTML = "";
+      const sourceNode = state.fileNodes.get(file.path);
+      if (!sourceNode) return;
+      file.related.forEach(relatedPath => {
+        const targetNode = state.fileNodes.get(relatedPath);
+        if (!targetNode) return;
+        const link = svgElement("line", { class: "link-line" });
+        link.dataset.from = file.path;
+        link.dataset.to = relatedPath;
+        linksGroup.appendChild(link);
+      });
+      updateLinks();
+    }
+
+    function updateLinks() {
+      const linksGroup = document.getElementById("linksGroup");
+      if (!linksGroup) return;
+      linksGroup.querySelectorAll(".link-line").forEach(line => {
+        const fromNode = state.fileNodes.get(line.dataset.from);
+        const toNode = state.fileNodes.get(line.dataset.to);
+        if (!fromNode || !toNode) return;
+        line.setAttribute("x1", parseFloat(fromNode.style.left));
+        line.setAttribute("y1", parseFloat(fromNode.style.top));
+        line.setAttribute("x2", parseFloat(toNode.style.left));
+        line.setAttribute("y2", parseFloat(toNode.style.top));
+      });
+    }
+
+    function updateBreadcrumb() {
+      breadcrumb.innerHTML = "";
+      const overviewButton = document.createElement("button");
+      overviewButton.type = "button";
+      overviewButton.textContent = "总览";
+      overviewButton.addEventListener("click", closeGroup);
+      breadcrumb.appendChild(overviewButton);
+
+      if (state.group) {
+        breadcrumb.appendChild(crumbSeparator());
+        const groupButton = document.createElement("button");
+        groupButton.type = "button";
+        groupButton.textContent = GROUPS[state.group].name;
+        groupButton.addEventListener("click", () => {
+          state.selected = null;
+          state.paused = false;
+          renderGroupOverview(state.group);
+          state.fileNodes.forEach(node => {
+            node.classList.remove("is-active", "is-related");
+          });
+          drawLocalOrbits(state.group);
+          updateBreadcrumb();
+          state.paused = false;
+        });
+        breadcrumb.appendChild(groupButton);
+      }
+
+      if (state.selected) {
+        breadcrumb.appendChild(crumbSeparator());
+        const selected = document.createElement("span");
+        selected.textContent = FILES_BY_PATH.get(state.selected).name;
+        breadcrumb.appendChild(selected);
+      }
+    }
+
+    function crumbSeparator() {
+      const separator = document.createElement("span");
+      separator.className = "crumb-separator";
+      separator.textContent = "/";
+      return separator;
+    }
+
+    function renderOverview() {
+      dossier.style.setProperty("--panel-accent", GROUPS.core.color);
+      dossier.innerHTML = `
+        <div class="dossier-inner">
+          <div class="dossier-kicker">历史文件快照 · 当前工作台为 2.4.0</div>
+          <h2>先看系统，再看单个文件</h2>
+          <p class="dossier-lead">这是 Skill 1.5.2 时期的 61 文件冻结视图，用来观察文件如何组成系统，不是当前 2.4.0 的完整清单。点击任意目录球，让它的文件沿轨道展开。</p>
+          <div class="overview-list">
+            ${Object.entries(GROUPS).sort((a, b) => a[1].ring - b[1].ring).map(([id, group]) => `
+              <div class="overview-row" style="--row-color:${group.color}">
+                <em>R${group.ring}</em>
+                <span><b>${escapeHtml(group.name)}</b><br>${escapeHtml(group.summary)}</span>
+                <em>${FILES_BY_GROUP[id].length}</em>
+              </div>
+            `).join("")}
+          </div>
+          <p class="overview-note">轨道是按结构关系绘制的示意椭圆，整体以契约核心为视觉中心，部分轨道保留小幅倾角。目录球按该目录的文件权重总和映射大小，文件小球按自身权重映射大小；均不表示文件体积。</p>
+        </div>
+      `;
+    }
+
+    function renderGroupOverview(groupId) {
+      const group = GROUPS[groupId];
+      const files = FILES_BY_GROUP[groupId];
+      dossier.style.setProperty("--panel-accent", group.color);
+      dossier.innerHTML = `
+        <div class="dossier-inner">
+          <div class="dossier-kicker">R${group.ring} · ${escapeHtml(group.folder)}</div>
+          <h2>${escapeHtml(group.name)}</h2>
+          <p class="dossier-lead">${escapeHtml(group.summary)}</p>
+          <div class="group-file-list">
+            ${files.map(file => `
+              <button class="group-file-row" type="button" data-path="${escapeHtml(file.path)}">
+                <span>${escapeHtml(file.name)}</span>
+                <span>${escapeHtml(file.role)}</span>
+              </button>
+            `).join("")}
+          </div>
+          <p class="overview-note">悬停球体会放大；点击球体或上方列表查看文件职责。</p>
+        </div>
+      `;
+      dossier.querySelectorAll(".group-file-row").forEach(button => {
+        button.addEventListener("click", () => selectFile(button.dataset.path));
+      });
+    }
+
+    function renderFileDetail(file) {
+      dossier.style.setProperty("--panel-accent", file.color);
+      const relatedButtons = file.related.length
+        ? file.related.map(path => {
+          const related = FILES_BY_PATH.get(path);
+          return related
+            ? `<button class="related-link" type="button" data-path="${escapeHtml(path)}">${escapeHtml(related.name)}</button>`
+            : "";
+        }).join("")
+        : `<span style="color:var(--muted);font-size:11px">没有声明直接关联文件</span>`;
+      dossier.innerHTML = `
+        <div class="dossier-inner">
+          <div class="dossier-kicker">${escapeHtml(file.role)}</div>
+          <h2>${escapeHtml(file.name)}</h2>
+          <p class="dossier-path">${escapeHtml(file.location)}</p>
+          <p class="dossier-lead">${escapeHtml(file.what)}</p>
+          <section class="detail-block">
+            <h3>何时出现</h3>
+            <p>${escapeHtml(file.when)}</p>
+          </section>
+          <section class="detail-block">
+            <h3>边界</h3>
+            <ul>${file.boundaries.map(boundary => `<li>${escapeHtml(boundary)}</li>`).join("")}</ul>
+          </section>
+          <section class="detail-block">
+            <h3>关联文件</h3>
+            <div class="related-list">${relatedButtons}</div>
+          </section>
+          <ul class="file-meta">
+            <li><strong>所属层级</strong><span>R${GROUPS[file.group].ring} · ${escapeHtml(GROUPS[file.group].name)}</span></li>
+            <li><strong>文件权重</strong><span>${file.weight.toFixed(2)}</span></li>
+            <li><strong>文件类型</strong><span>${fileTypeLabel(file)}</span></li>
+            <li><strong>交互状态</strong><span>仅展示说明；不会执行文件</span></li>
+          </ul>
+        </div>
+      `;
+      dossier.querySelectorAll(".related-link").forEach(button => {
+        button.addEventListener("click", () => selectFile(button.dataset.path));
+      });
+    }
+
+    function fileTypeLabel(file) {
+      if (file.group === "scripts") return "PowerShell / 原生运行辅助";
+      if (file.group === "tests") return "自动测试 / 冻结场景";
+      if (file.group === "core" && file.path.endsWith(".yaml")) return "界面元数据";
+      return "条件加载的规则参考";
+    }
+
+    function frame(timestamp) {
+      if (state.lastTimestamp === null) {
+        state.lastTimestamp = timestamp;
+      }
+      const delta = Math.min((timestamp - state.lastTimestamp) / 1000, .05);
+      state.lastTimestamp = timestamp;
+      if (!state.reducedMotion) {
+        state.planetTime += delta;
+      }
+      if (state.motionOn && !state.paused) {
+        state.motionTime += delta;
+      }
+      if (state.cameraDrift && !state.paused) {
+        state.cameraYaw += delta * .022;
+      }
+      if (!state.dragging && Math.abs(state.cameraYawVelocity) > .001) {
+        state.cameraYaw += state.cameraYawVelocity * delta;
+        state.cameraYawVelocity *= Math.exp(-delta * 4.2);
+      }
+      if (state.starGroup) {
+        const starX = Math.sin(state.cameraYaw) * 8;
+        const starY = Math.cos(state.cameraPitch) * 3 + Math.sin(state.cameraYaw * .73) * 1.5;
+        state.starGroup.setAttribute(
+          "transform",
+          `translate(${starX.toFixed(2)} ${starY.toFixed(2)})`
+        );
+      }
+      if (state.group) {
+        updateCategoryProjection();
+        positionLocalFiles();
+      } else {
+        positionCategories();
+      }
+      renderVisiblePlanets();
+      requestAnimationFrame(frame);
+    }
+
+    backButton.addEventListener("click", closeGroup);
+    motionToggle.addEventListener("click", () => {
+      state.cameraDrift = !state.cameraDrift;
+      motionToggle.setAttribute("aria-pressed", String(state.cameraDrift));
+      motionToggle.textContent = state.cameraDrift ? "停止视角" : "自动视角";
+    });
+
+    function setCameraZoom(value) {
+      state.cameraZoom = clamp(value, .72, 1.22);
+      cameraZoomLabel.textContent = String(Math.round(state.cameraZoom * 100));
+      renderCurrentScene();
+    }
+
+    function resetCamera() {
+      state.cameraYaw = 0;
+      state.cameraPitch = -.5;
+      state.cameraRoll = 0;
+      state.cameraYawVelocity = 0;
+      state.cameraDrift = false;
+      motionToggle.setAttribute("aria-pressed", "false");
+      motionToggle.textContent = "自动视角";
+      setCameraZoom(1);
+    }
+
+    zoomIn.addEventListener("click", () => setCameraZoom(state.cameraZoom + .06));
+    zoomOut.addEventListener("click", () => setCameraZoom(state.cameraZoom - .06));
+    zoomReset.addEventListener("click", resetCamera);
+
+    function renderCurrentScene() {
+      if (state.group) {
+        positionLocalFiles();
+      }
+      else {
+        updateCategoryProjection();
+      }
+      renderVisiblePlanets(true);
+    }
+
+    stage.addEventListener("pointerdown", event => {
+      const isRollDrag = event.button === 2 || (event.button === 0 && event.shiftKey);
+      if (!isRollDrag && event.button !== 0) return;
+      if (event.target.closest("button, nav, .camera-rail")) return;
+      state.dragging = true;
+      state.paused = true;
+      state.cameraYawVelocity = 0;
+      state.dragMode = isRollDrag ? "roll" : "orbit";
+      state.dragStartX = event.clientX;
+      state.dragStartY = event.clientY;
+      state.dragStartYaw = state.cameraYaw;
+      state.dragStartPitch = state.cameraPitch;
+      state.dragStartRoll = state.cameraRoll;
+      state.lastDragTimestamp = event.timeStamp;
+      stage.classList.add("is-dragging");
+      stage.classList.toggle("is-rolling", isRollDrag);
+      stage.setPointerCapture(event.pointerId);
+    });
+
+    stage.addEventListener("pointermove", event => {
+      if (!state.dragging) return;
+      if (state.dragMode === "roll") {
+        state.cameraRoll = state.dragStartRoll +
+          (event.clientX - state.dragStartX) * .004 +
+          (event.clientY - state.dragStartY) * .0015;
+        renderCurrentScene();
+        return;
+      }
+      const previousYaw = state.cameraYaw;
+      state.cameraYaw = state.dragStartYaw + (event.clientX - state.dragStartX) * .0032;
+      state.cameraPitch = clamp(
+        state.dragStartPitch + (event.clientY - state.dragStartY) * .0032,
+        -1.55,
+        .18
+      );
+      const elapsed = Math.max(8, event.timeStamp - state.lastDragTimestamp);
+      state.cameraYawVelocity = clamp((state.cameraYaw - previousYaw) / elapsed * 1000, -2.2, 2.2);
+      state.lastDragTimestamp = event.timeStamp;
+      renderCurrentScene();
+    });
+
+    function finishGalaxyDrag(event) {
+      if (!state.dragging) return;
+      state.dragging = false;
+      state.paused = false;
+      if (event.timeStamp - state.lastDragTimestamp > 90) {
+        state.cameraYawVelocity = 0;
+      }
+      stage.classList.remove("is-dragging");
+      stage.classList.remove("is-rolling");
+      if (stage.hasPointerCapture(event.pointerId)) {
+        stage.releasePointerCapture(event.pointerId);
+      }
+    }
+
+    stage.addEventListener("pointerup", finishGalaxyDrag);
+    stage.addEventListener("pointercancel", finishGalaxyDrag);
+    stage.addEventListener("contextmenu", event => event.preventDefault());
+    stage.addEventListener("wheel", event => {
+      if (event.target.closest(".camera-rail")) return;
+      event.preventDefault();
+      setCameraZoom(state.cameraZoom - event.deltaY * .00055);
+    }, { passive: false });
+
+    document.addEventListener("keydown", event => {
+      if (event.key !== "Escape") return;
+      if (state.selected) {
+        state.selected = null;
+        state.paused = false;
+        state.fileNodes.forEach(node => node.classList.remove("is-active", "is-related"));
+        drawLocalOrbits(state.group);
+        renderGroupOverview(state.group);
+        updateBreadcrumb();
+      } else if (state.group) {
+        closeGroup();
+      }
+    });
+
+    const resizeObserver = new ResizeObserver(() => {
+      measure();
+      if (state.group) {
+        stage.classList.toggle(
+          "compact-labels",
+          FILES_BY_GROUP[state.group].length > 8 ||
+          (state.layout && state.layout.width < 620)
+        );
+        drawLocalOrbits(state.group);
+        positionLocalFiles();
+        if (state.selected) drawLinksFor(FILES_BY_PATH.get(state.selected));
+      }
+    });
+    resizeObserver.observe(stage);
+
+    if (state.reducedMotion) {
+      state.cameraDrift = false;
+      motionToggle.setAttribute("aria-pressed", "false");
+      motionToggle.textContent = "自动视角";
+    }
+
+    createOverview();
+    updateBreadcrumb();
+    renderOverview();
+    measure();
+    requestAnimationFrame(frame);
+  </script>
+</body>
+</html>
