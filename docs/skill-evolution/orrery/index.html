@@ -1550,6 +1550,12 @@
     background: rgba(6, 10, 14, .76);
   }
 
+  .stage.has-file-selection .file-node:not(.is-active):not(.is-related):not(:hover):not(:focus-visible) .file-name {
+    opacity: .3;
+    color: #74808a;
+    background: rgba(4, 8, 11, .28);
+  }
+
   .stage.compact-labels .file-node:hover .file-name,
   .stage.compact-labels .file-node:focus-visible .file-name,
   .stage.compact-labels .file-node.is-active .file-name,
@@ -1617,6 +1623,12 @@
     opacity: 1;
     color: #dcecf5;
     background: rgba(6, 10, 14, .76);
+  }
+
+  .stage.has-file-selection .file-node:not(.is-active):not(.is-related):not(:hover):not(:focus-visible) .file-name {
+    opacity: .3;
+    color: #74808a;
+    background: rgba(4, 8, 11, .28);
   }
 
   .stage.compact-labels .file-node:hover .file-name,
@@ -2306,6 +2318,7 @@
       state.group = groupId;
       state.groupMotionStart = state.motionTime;
       state.selected = null;
+      stage.classList.remove("has-file-selection");
       state.hovered = null;
       state.paused = false;
       orbitLayer.style.opacity = "0";
@@ -2341,6 +2354,7 @@
     function closeGroup() {
       state.group = null;
       state.selected = null;
+      stage.classList.remove("has-file-selection");
       state.hovered = null;
       state.paused = false;
       orbitLayer.style.opacity = "1";
@@ -2542,6 +2556,7 @@
         node.classList.toggle("is-active", nodePath === path);
         node.classList.toggle("is-related", file.related.includes(nodePath));
       });
+      stage.classList.add("has-file-selection");
       updateBreadcrumb();
       drawLinksFor(file);
       renderFileDetail(file);
@@ -2596,6 +2611,7 @@
         groupButton.textContent = GROUPS[state.group].name;
         groupButton.addEventListener("click", () => {
           state.selected = null;
+          stage.classList.remove("has-file-selection");
           state.paused = false;
           renderGroupOverview(state.group);
           state.fileNodes.forEach(node => {
@@ -2865,6 +2881,7 @@
       if (event.key !== "Escape") return;
       if (state.selected) {
         state.selected = null;
+        stage.classList.remove("has-file-selection");
         state.paused = false;
         state.fileNodes.forEach(node => node.classList.remove("is-active", "is-related"));
         drawLocalOrbits(state.group);

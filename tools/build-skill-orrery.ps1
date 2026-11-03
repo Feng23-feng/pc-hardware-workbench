@@ -620,6 +620,12 @@ $currentStyle = @'
     background: rgba(6, 10, 14, .76);
   }
 
+  .stage.has-file-selection .file-node:not(.is-active):not(.is-related):not(:hover):not(:focus-visible) .file-name {
+    opacity: .3;
+    color: #74808a;
+    background: rgba(4, 8, 11, .28);
+  }
+
   .stage.compact-labels .file-node:hover .file-name,
   .stage.compact-labels .file-node:focus-visible .file-name,
   .stage.compact-labels .file-node.is-active .file-name,

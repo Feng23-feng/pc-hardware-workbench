@@ -251,6 +251,11 @@ if ($errors.Count -eq 0) {
             $orreryHtml -notmatch '-CAMERA_PITCH_LIMIT,\s*CAMERA_PITCH_LIMIT') {
             $errors.Add("Orrery camera pitch does not use the intended symmetric free-orbit limit.") | Out-Null
         }
+        if ($orreryHtml -notmatch 'stage\.classList\.add\("has-file-selection"\)' -or
+            $orreryHtml -notmatch '\.stage\.has-file-selection \.file-node:not\(\.is-active\):not\(\.is-related\):not\(:hover\):not\(:focus-visible\) \.file-name' -or
+            $orreryHtml -notmatch 'opacity:\s*\.3;') {
+            $errors.Add("Orrery does not provide the selected-state unrelated-label de-emphasis treatment.") | Out-Null
+        }
         if ($orreryHtml -notmatch 'rel="icon"') {
             $errors.Add("Orrery has no favicon declaration.") | Out-Null
         }
