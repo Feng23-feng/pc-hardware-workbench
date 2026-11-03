@@ -71,6 +71,19 @@ Read or validate:
 ... -Action Validate
 ```
 
+Export a static offline HTML report:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File "<skill>\scripts\export-hardware-case-html.ps1" -CasePath "<case-folder>\case.json" -OutputPath "<new-report>.html"
+```
+
+Artifact content is omitted by default. To embed bounded text previews and safe
+PNG/JPEG/GIF/WebP/SVG images from imported artifacts:
+
+```powershell
+... -IncludeArtifacts
+```
+
 ## Rules
 
 - Hypothesis statuses are `verified`, `supported`, `pending`, `contradicted`, and `unknown`.
@@ -86,6 +99,11 @@ Read or validate:
 - `Validate` checks JSON structure, evidence-file presence, path containment,
   evidence SHA-256, and cross-references. It does not prove that the evidence
   interpretation is correct.
+- The HTML exporter validates the case first. Its report has no scripts, remote
+  styles, fonts, trackers, or network URLs. Safe SVG images are embedded only as
+  image data; SVGs with active, linking, or external content are skipped.
+- The HTML report does not expose an external evidence source path. It shows the
+  original filename and metadata instead.
 - The case may contain private paths and hardware details. Export only a
   separately reviewed, redacted summary.
 - The case records state; it does not authorise hardware changes.

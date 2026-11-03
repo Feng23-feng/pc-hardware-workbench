@@ -11,7 +11,7 @@ changes under the user's control.
 
 ## Project status
 
-- Current Skill candidate: **1.6.0**
+- Current Skill candidate: **1.7.0**
 - Automated non-live tests: passing
 - Live hardware collection: opt-in only
 - Broad release sign-off: pending
@@ -52,11 +52,15 @@ handoff. Monitoring screenshots are accepted only as limited single-point eviden
 CSV logs remain the basis for statistics and time-window comparisons. The
 telemetry analyzer can also emit validated chart data, and the bundled SVG
 renderer can turn up to three recognized series into a deterministic visual
-overview without adding an external plotting dependency.
+overview without adding an external plotting dependency. Downsampling preserves
+missing-value breaks, and explicit `-IncludeColumn` selections take priority.
 
 For investigations that span multiple turns, a local hardware case can retain
 hashed evidence, hypotheses, timeline events, baselines, experiments, and the
 next action without storing that private state in the public Skill package.
+The case can be exported as a dependency-free, static HTML report for offline
+review. Evidence content is omitted by default; opt-in previews are size-limited
+and reject active or externally linked SVG content.
 
 The Skill entrypoint is intentionally a concise router. Mode-specific procedures
 and examples stay in references, so the Quick starting path remains below its

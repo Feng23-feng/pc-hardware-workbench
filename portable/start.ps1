@@ -2556,7 +2556,8 @@ function Test-PortableKit {
         (Join-Path $scriptsRoot "display-native.cs"),
         (Join-Path $scriptsRoot "analyze-telemetry.ps1"),
         (Join-Path $scriptsRoot "render-telemetry-chart.ps1"),
-        (Join-Path $scriptsRoot "hardware-case.ps1")
+        (Join-Path $scriptsRoot "hardware-case.ps1"),
+        (Join-Path $scriptsRoot "export-hardware-case-html.ps1")
     )
 
     $missing = @($required | Where-Object { -not (Test-Path -LiteralPath $_ -PathType Leaf) })

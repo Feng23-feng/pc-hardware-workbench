@@ -54,7 +54,7 @@ $skill = Get-Content -LiteralPath $skillPath -Raw -Encoding UTF8
 $referenceOnlyNotice = [regex]::Unescape('\u53C2\u6570\u4EC5\u4F9B\u53C2\u8003\uFF0C\u8BF7\u4EE5\u5B89\u5168\u4E3A\u7B2C\u4E00\u8981\u52A1\u3002')
 $englishReferenceOnlyNotice = "For reference only - put safety first."
 
-Assert-Contains $skill '(?m)^  version: "1\.6\.0"\r?$' "metadata.version should be 1.6.0."
+Assert-Contains $skill '(?m)^  version: "1\.7\.0"\r?$' "metadata.version should be 1.7.0."
 Assert-Contains $skill 'r23 collector' "The Skill maintenance summary collector revision disagrees with the collector code."
 Assert-Contains $skill 'while the power-path evidence is incomplete' "The Advice intensity route does not include incomplete power-path evidence."
 Assert-Contains $skill 'hidden or manufacturer-limited limit' "The Advice intensity summary is narrower than the hidden or manufacturer-limited scope."
@@ -374,7 +374,7 @@ Assert-Contains $telemetry 'chart is an evidence view, not a new measurement sou
 $analyzer = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "scripts/analyze-telemetry.ps1") `
     -Label "scripts/analyze-telemetry.ps1"
-Assert-Contains $analyzer 'AnalyzerVersion = "1\.2\.0"' "Analyzer behavior changed without an AnalyzerVersion bump."
+Assert-Contains $analyzer 'AnalyzerVersion = "1\.2\.1"' "Analyzer behavior changed without an AnalyzerVersion bump."
 Assert-Contains $analyzer 'MaxInputMegabytes' "Telemetry analyzer has no large-file safety limit."
 Assert-Contains $analyzer 'ChartData' "Telemetry analyzer does not expose validated chart data."
 Assert-Contains $analyzer 'ConvertTo-MarkdownCell \$result\.FileName' "Telemetry filename is not passed through Markdown sanitization."
@@ -395,12 +395,21 @@ $hardwareCase = Read-RequiredFile `
 Assert-Contains $hardwareCase 'private local state' "Hardware case is not classified as private local state."
 Assert-Contains $hardwareCase 'Never convert `supported` into `verified`' "Hardware case permits unsupported confidence upgrades."
 Assert-Contains $hardwareCase 'does not authorise hardware changes' "Hardware case can be mistaken for execution permission."
+Assert-Contains $hardwareCase 'export-hardware-case-html\.ps1' "Hardware case does not route to the offline HTML report."
+Assert-Contains $hardwareCase '-IncludeArtifacts' "Hardware case does not document the artifact-content opt-in."
 $hardwareCaseScript = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "scripts/hardware-case.ps1") `
     -Label "scripts/hardware-case.ps1"
 Assert-Contains $hardwareCaseScript 'Assert-LocalReadFilePath' "Hardware case does not validate local evidence paths."
 Assert-Contains $hardwareCaseScript 'Get-FileHash' "Hardware case evidence has no content hash."
 Assert-Contains $hardwareCaseScript 'ConvertTo-CaseTimestamp' "Hardware case does not use explicit timestamps."
+$hardwareCaseReport = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "scripts/export-hardware-case-html.ps1") `
+    -Label "scripts/export-hardware-case-html.ps1"
+Assert-Contains $hardwareCaseReport 'ConvertTo-HtmlText' "Hardware case report does not escape case data."
+Assert-Contains $hardwareCaseReport 'Test-SafeSvgForImageEmbedding' "Hardware case report has no SVG preview safety gate."
+Assert-Contains $hardwareCaseReport 'Write-LocalOutputFile' "Hardware case report does not use the safe no-overwrite writer."
+Assert-Contains $hardwareCaseReport 'Artifact content not embedded' "Hardware case report does not default to metadata-only export."
 $pathSafety = Get-Content -LiteralPath (Join-Path $resolvedRoot "scripts/local-path-safety.ps1") -Raw -Encoding UTF8
 $triageChecklist = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/triage/triage-checklist.md") -Raw -Encoding UTF8
 $telemetryAnalysis = $telemetry

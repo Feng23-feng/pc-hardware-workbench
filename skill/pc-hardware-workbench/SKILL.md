@@ -2,7 +2,7 @@
 name: pc-hardware-workbench
 description: Integrate Windows-focused read-only hardware inventory, telemetry charting, evidence-gated troubleshooting, guided overclocking, and upgrade-purchase decisions through one routed workflow. Other systems receive manual guidance only. Keep tuning-only requests free of unsolicited purchase advice; never modify hardware automatically or bypass permissions or anti-cheat.
 metadata:
-  version: "1.6.0"
+  version: "1.7.0"
   short-description: "One routed entry for hardware inventory, telemetry visuals, triage, tuning, and purchase decisions"
 ---
 
@@ -35,7 +35,8 @@ for mixed requests.
 For save/resume/export or evidence-heavy multi-turn work, read
 [hardware-case.md](references/integration/hardware-case.md) and use
 `scripts/hardware-case.ps1`. Keep the case local; update its next action as
-evidence changes.
+evidence changes. For a static offline review, use
+`scripts/export-hardware-case-html.ps1`; artifact content is opt-in.
 
 Track identity as `confirmed`, `user-reported`, `unknown`, `unreadable`, or
 `conflict`. Follow [device-identity.md](references/integration/device-identity.md)

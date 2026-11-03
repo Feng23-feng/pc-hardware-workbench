@@ -616,37 +616,70 @@ function Get-ChartSampleIndexes {
         return [int[]](0..($count - 1))
     }
 
+    $transitionIndexes = New-Object System.Collections.Generic.List[int]
+    $previousValid = $null
+    for ($index = 0; $index -lt $count; $index++) {
+        $isValid = $null -ne $Points[$index].V -and $null -ne $Points[$index].T
+        if ($previousValid -eq $true -and -not $isValid) {
+            $transitionIndexes.Add($index) | Out-Null
+        }
+        $previousValid = $isValid
+    }
+
+    $transitionBudget = [Math]::Min($transitionIndexes.Count, [Math]::Max(0, $MaximumPoints - 2))
+    $selectedTransitions = New-Object System.Collections.Generic.List[int]
+    if ($transitionIndexes.Count -le $transitionBudget) {
+        $selectedTransitions.AddRange($transitionIndexes)
+    }
+    elseif ($transitionBudget -gt 0) {
+        for ($position = 0; $position -lt $transitionBudget; $position++) {
+            $sourcePosition = if ($transitionBudget -eq 1) {
+                0
+            }
+            else {
+                [int][Math]::Round($position * ($transitionIndexes.Count - 1) / [double]($transitionBudget - 1))
+            }
+            $selectedTransitions.Add($transitionIndexes[$sourcePosition]) | Out-Null
+        }
+    }
+
     $indexes = New-Object System.Collections.Generic.HashSet[int]
     $indexes.Add(0) | Out-Null
     $indexes.Add($count - 1) | Out-Null
+    foreach ($transitionIndex in $selectedTransitions) {
+        $indexes.Add($transitionIndex) | Out-Null
+    }
 
-    $bucketCount = [Math]::Max(1, [Math]::Floor(($MaximumPoints - 2) / 3))
-    $bucketSize = [Math]::Max(1, [Math]::Ceiling($count / [double]$bucketCount))
-    for ($bucketStart = 0; $bucketStart -lt $count; $bucketStart += $bucketSize) {
-        $bucketEnd = [Math]::Min($count - 1, $bucketStart + $bucketSize - 1)
-        $minimumIndex = $bucketStart
-        $maximumIndex = $bucketStart
-        $minimumValue = $null
-        $maximumValue = $null
+    $remainingSlots = [Math]::Max(0, $MaximumPoints - 2 - $selectedTransitions.Count)
+    $bucketCount = [Math]::Floor($remainingSlots / 3)
+    if ($bucketCount -gt 0) {
+        $bucketSize = [Math]::Max(1, [Math]::Ceiling($count / [double]$bucketCount))
+        for ($bucketStart = 0; $bucketStart -lt $count; $bucketStart += $bucketSize) {
+            $bucketEnd = [Math]::Min($count - 1, $bucketStart + $bucketSize - 1)
+            $minimumIndex = $bucketStart
+            $maximumIndex = $bucketStart
+            $minimumValue = $null
+            $maximumValue = $null
 
-        for ($index = $bucketStart; $index -le $bucketEnd; $index++) {
-            $value = $Points[$index].V
-            if ($null -eq $value) {
-                continue
+            for ($index = $bucketStart; $index -le $bucketEnd; $index++) {
+                $value = $Points[$index].V
+                if ($null -eq $value -or $null -eq $Points[$index].T) {
+                    continue
+                }
+                if ($null -eq $minimumValue -or $value -lt $minimumValue) {
+                    $minimumValue = [double]$value
+                    $minimumIndex = $index
+                }
+                if ($null -eq $maximumValue -or $value -gt $maximumValue) {
+                    $maximumValue = [double]$value
+                    $maximumIndex = $index
+                }
             }
-            if ($null -eq $minimumValue -or $value -lt $minimumValue) {
-                $minimumValue = [double]$value
-                $minimumIndex = $index
-            }
-            if ($null -eq $maximumValue -or $value -gt $maximumValue) {
-                $maximumValue = [double]$value
-                $maximumIndex = $index
-            }
+
+            $indexes.Add($bucketStart) | Out-Null
+            $indexes.Add($minimumIndex) | Out-Null
+            $indexes.Add($maximumIndex) | Out-Null
         }
-
-        $indexes.Add($bucketStart) | Out-Null
-        $indexes.Add($minimumIndex) | Out-Null
-        $indexes.Add($maximumIndex) | Out-Null
     }
 
     $sortedIndexes = @($indexes | Sort-Object)
@@ -1492,7 +1525,7 @@ else {
 }
 
 $result = [pscustomobject]@{
-    AnalyzerVersion = "1.2.0"
+    AnalyzerVersion = "1.2.1"
     FileName = if ($HideFileName) { "[hidden]" } else { [System.IO.Path]::GetFileName($resolvedPath) }
     HeaderLine = $headerLineIndex + 1
     InvalidRows = $invalidDataRows

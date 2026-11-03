@@ -84,7 +84,8 @@ function Get-SeriesColor {
 function Select-ChartSeries {
     param(
         [object[]]$Series,
-        [int]$Maximum
+        [int]$Maximum,
+        [string[]]$ExplicitPatterns = @()
     )
 
     $preferred = @(
@@ -108,6 +109,25 @@ function Select-ChartSeries {
 
     $selected = New-Object System.Collections.Generic.List[object]
     $seen = New-Object System.Collections.Generic.HashSet[string]
+    foreach ($pattern in $ExplicitPatterns) {
+        if ($selected.Count -ge $Maximum) {
+            break
+        }
+        if ([string]::IsNullOrWhiteSpace($pattern)) {
+            continue
+        }
+        foreach ($candidate in @($Series | Where-Object {
+            $_.SourceColumn -match $pattern -or $_.Metric -match $pattern
+        })) {
+            if ($selected.Count -ge $Maximum) {
+                break
+            }
+            $key = ([string]$candidate.Metric) + [char]0x1F + ([string]$candidate.SourceColumn)
+            if ($seen.Add($key)) {
+                $selected.Add($candidate) | Out-Null
+            }
+        }
+    }
     foreach ($metricName in $preferred) {
         if ($selected.Count -ge $Maximum) {
             break
@@ -200,7 +220,7 @@ $availableSeries = @($chartData.Series)
 if ($availableSeries.Count -eq 0) {
     throw "No recognized numeric telemetry series can be charted. Use -IncludeColumn when the column role is clear."
 }
-$selectedSeries = @(Select-ChartSeries -Series $availableSeries -Maximum $MaxSeries)
+$selectedSeries = @(Select-ChartSeries -Series $availableSeries -Maximum $MaxSeries -ExplicitPatterns $IncludeColumn)
 if ($selectedSeries.Count -eq 0) {
     throw "No telemetry series with usable points can be charted."
 }
@@ -330,7 +350,23 @@ foreach ($seriesItem in $selectedSeries) {
 
 $footerY = $height - 36
 $warningCount = @($chartData.Warnings).Count
-$footerText = "Evidence view only - it does not prove stability.  Warnings: $warningCount"
+$firstWarning = if ($warningCount -gt 0) {
+    $warningText = ([string]$chartData.Warnings[0]) -replace "\s+", " "
+    $warningText.Trim()
+}
+else {
+    ""
+}
+if ($firstWarning.Length -gt 150) {
+    $firstWarning = $firstWarning.Substring(0, 147) + "..."
+}
+$warningSummary = if ([string]::IsNullOrWhiteSpace($firstWarning)) {
+    ""
+}
+else {
+    "  First warning: $firstWarning"
+}
+$footerText = "Evidence view only - it does not prove stability.  Warnings: $warningCount$warningSummary"
 [void]$svg.AppendLine("    <text x=`"$left`" y=`"$footerY`" font-size=`"10`" fill=`"#64727f`">$(ConvertTo-SvgText $footerText)</text>")
 [void]$svg.AppendLine('  </g>')
 [void]$svg.AppendLine('</svg>')

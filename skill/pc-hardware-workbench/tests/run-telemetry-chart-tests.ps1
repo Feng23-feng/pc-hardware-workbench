@@ -52,7 +52,7 @@ try {
 
     $chartData = & $resolvedAnalyzer -Path $telemetryPath -Format ChartData -MaxChartPoints 100 | ConvertFrom-Json
     Assert-True ($chartData.ChartDataVersion -eq "1.0") "Chart data version is missing."
-    Assert-True ($chartData.AnalyzerVersion -eq "1.2.0") "Analyzer version was not updated for chart data."
+    Assert-True ($chartData.AnalyzerVersion -eq "1.2.1") "Analyzer version was not updated for chart data."
     Assert-True ($chartData.TimeBased -eq $true) "Timestamped input was not exposed as a time-based chart."
     Assert-True ($chartData.XAxisLabel -eq "seconds") "Timestamped chart x-axis label is wrong."
     Assert-True (@($chartData.Series).Count -ge 3) "Expected at least three chartable series."
@@ -133,6 +133,53 @@ try {
     Assert-True (
         @($downsampledSeries | Where-Object { @($_.Points).Count -gt 31 }).Count -eq 0
     ) "Downsampled series exceeded MaxChartPoints."
+
+    $gapPath = Join-Path $tempRoot "downsample-gap.csv"
+    $gapBuilder = New-Object System.Text.StringBuilder
+    [void]$gapBuilder.AppendLine('"GPU Temperature [C]","GPU Power [W]"')
+    for ($index = 0; $index -lt 300; $index++) {
+        $temperature = if ($index -ge 140 -and $index -le 160) { "" } else { 55 + ($index % 5) }
+        $power = 100 + ($index % 20)
+        [void]$gapBuilder.AppendLine("`"$temperature`",`"$power`"")
+    }
+    [IO.File]::WriteAllText($gapPath, $gapBuilder.ToString(), $utf8)
+    $gapData = & $resolvedAnalyzer -Path $gapPath -Format ChartData -MaxChartPoints 31 | ConvertFrom-Json
+    $gapTemperature = @($gapData.Series | Where-Object { $_.Metric -eq "GPU temperature (C)" }) | Select-Object -First 1
+    $gapPoints = @($gapTemperature.Points)
+    Assert-True ($gapPoints.Count -le 31) "Gap-preserving downsample exceeded MaxChartPoints."
+    Assert-True (
+        @($gapPoints | Where-Object { $null -eq $_.V }).Count -ge 1
+    ) "Downsampling removed the missing-value gap."
+    $gapSvgPath = Join-Path $tempRoot "downsample-gap.svg"
+    & $resolvedRenderer -Path $gapPath -OutputPath $gapSvgPath -MaxSeries 1 -MaxPoints 31 -IncludeColumn "GPU Temperature" | Out-Null
+    $gapSvg = Get-Content -Raw -LiteralPath $gapSvgPath
+    Assert-True (
+        ([regex]::Matches($gapSvg, "<polyline")).Count -ge 2
+    ) "Rendered chart connected across the missing-value gap."
+
+    $explicitPath = Join-Path $tempRoot "explicit.csv"
+    [IO.File]::WriteAllText($explicitPath, @'
+"GPU Temperature [C]","GPU Power [W]","FPS","VRM Hotspot [C]"
+"60","120","70","64"
+"61","125","71","65"
+"62","130","69","66"
+'@, $utf8)
+    $explicitSvgPath = Join-Path $tempRoot "explicit.svg"
+    & $resolvedRenderer -Path $explicitPath -OutputPath $explicitSvgPath -MaxSeries 3 -IncludeColumn "VRM" | Out-Null
+    $explicitSvg = Get-Content -Raw -LiteralPath $explicitSvgPath
+    Assert-True ($explicitSvg.Contains("VRM Hotspot [C]")) "Explicit IncludeColumn series was pushed out by default series."
+
+    $warningPath = Join-Path $tempRoot "warning.csv"
+    [IO.File]::WriteAllText($warningPath, @'
+"GPU Temperature [C]","Mystery"
+"60","1"
+"61","2"
+"62","3"
+'@, $utf8)
+    $warningSvgPath = Join-Path $tempRoot "warning.svg"
+    & $resolvedRenderer -Path $warningPath -OutputPath $warningSvgPath -MaxSeries 1 | Out-Null
+    $warningSvg = Get-Content -Raw -LiteralPath $warningSvgPath
+    Assert-True ($warningSvg.Contains("First warning:")) "Rendered chart omitted the first analyzer warning."
 
     $maliciousPath = Join-Path $tempRoot "malicious.csv"
     [IO.File]::WriteAllText($maliciousPath, @'

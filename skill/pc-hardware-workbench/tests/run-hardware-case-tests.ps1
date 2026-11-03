@@ -220,6 +220,23 @@ try {
     Assert-True ($hashValidation.ExitCode -ne 0) "Validate accepted a case with a mismatched evidence hash."
     Assert-True ($hashValidation.Stderr -match "SHA-256 does not match") "Hash mismatch validation was not explained."
 
+    $statusCaseDirectory = Join-Path $tempRoot "case-bad-status"
+    Copy-Item -LiteralPath $caseDirectory -Destination $statusCaseDirectory -Recurse
+    $statusCaseFile = Join-Path $statusCaseDirectory "case.json"
+    $statusCase = Get-Content -Raw -LiteralPath $statusCaseFile -Encoding UTF8 | ConvertFrom-Json
+    $statusCase.baselines[0].Status = "invalid"
+    [IO.File]::WriteAllText(
+        $statusCaseFile,
+        ($statusCase | ConvertTo-Json -Depth 20) + "`r`n",
+        $utf8
+    )
+    $statusValidation = Invoke-CaseProcess -Arguments @(
+        "-Action", "Validate",
+        "-CasePath", $statusCaseFile
+    )
+    Assert-True ($statusValidation.ExitCode -ne 0) "Validate accepted an unknown baseline status."
+    Assert-True ($statusValidation.Stderr -match "invalid status") "Unknown baseline status validation was not explained."
+
     if ($failures.Count -gt 0) {
         Write-Host "Hardware case regression: FAIL" -ForegroundColor Red
         foreach ($failure in $failures) {

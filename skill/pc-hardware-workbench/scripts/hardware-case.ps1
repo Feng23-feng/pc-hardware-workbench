@@ -261,12 +261,29 @@ function Assert-CaseIntegrity {
     $caseRootPrefix = $caseRoot.TrimEnd('\', '/') + [IO.Path]::DirectorySeparatorChar
     $evidenceIds = New-Object System.Collections.Generic.HashSet[string]
     $hypothesisIds = New-Object System.Collections.Generic.HashSet[string]
+    foreach ($fieldName in @("createdAt", "updatedAt")) {
+        if (-not (Test-DateTimeOffsetValue ([string]$Case.$fieldName))) {
+            throw "Hardware case field '$fieldName' has an invalid timestamp."
+        }
+    }
     foreach ($item in @($Case.hypotheses)) {
         $hypothesisIds.Add([string]$item.Id) | Out-Null
+        if (([string]$item.Status) -notin @("verified", "supported", "pending", "contradicted", "unknown")) {
+            throw "Hypothesis '$($item.Id)' has an invalid status '$($item.Status)'."
+        }
+        if ($null -eq $item.PSObject.Properties["CreatedAt"] -or
+            -not (Test-DateTimeOffsetValue ([string]$item.CreatedAt)) -or
+            $null -eq $item.PSObject.Properties["UpdatedAt"] -or
+            -not (Test-DateTimeOffsetValue ([string]$item.UpdatedAt))) {
+            throw "Hypothesis '$($item.Id)' has an invalid timestamp."
+        }
     }
 
     foreach ($evidence in @($Case.evidence)) {
         $evidenceIds.Add([string]$evidence.Id) | Out-Null
+        if (([string]$evidence.Type) -notin @("telemetry", "screenshot", "report", "log", "manual", "web", "other")) {
+            throw "Evidence '$($evidence.Id)' has an invalid type '$($evidence.Type)'."
+        }
         if ($null -eq $evidence.PSObject.Properties["CapturedAt"] -or
             -not (Test-DateTimeOffsetValue ([string]$evidence.CapturedAt))) {
             throw "Evidence '$($evidence.Id)' has an invalid CapturedAt timestamp."
@@ -331,6 +348,13 @@ function Assert-CaseIntegrity {
         else {
             "unknown"
         }
+        if ($baselineStatus -notin @("valid", "provisional", "none")) {
+            throw "Baseline '$($baseline.Id)' has an invalid status '$baselineStatus'."
+        }
+        if ($null -eq $baseline.PSObject.Properties["RecordedAt"] -or
+            -not (Test-DateTimeOffsetValue ([string]$baseline.RecordedAt))) {
+            throw "Baseline '$($baseline.Id)' has an invalid RecordedAt timestamp."
+        }
         if ([string]::IsNullOrWhiteSpace([string]$baseline.EvidenceId)) {
             if ($baselineStatus -eq "valid") {
                 throw "Valid baseline '$($baseline.Id)' requires an EvidenceId."
@@ -341,10 +365,28 @@ function Assert-CaseIntegrity {
         }
     }
 
+    foreach ($event in @($Case.timeline)) {
+        if (([string]$event.Type) -notin @("system-update", "driver", "bios", "hardware", "symptom", "change", "recovery", "note")) {
+            throw "Timeline event '$($event.Id)' has an invalid type '$($event.Type)'."
+        }
+        if ($null -eq $event.PSObject.Properties["OccurredAt"] -or
+            -not (Test-DateTimeOffsetValue ([string]$event.OccurredAt)) -or
+            $null -eq $event.PSObject.Properties["RecordedAt"] -or
+            -not (Test-DateTimeOffsetValue ([string]$event.RecordedAt))) {
+            throw "Timeline event '$($event.Id)' has an invalid timestamp."
+        }
+    }
+
     foreach ($experiment in @($Case.experiments)) {
         if (-not [string]::IsNullOrWhiteSpace([string]$experiment.HypothesisId) -and
             -not $hypothesisIds.Contains([string]$experiment.HypothesisId)) {
             throw "Experiment '$($experiment.Id)' references missing hypothesis '$($experiment.HypothesisId)'."
+        }
+        if ($null -eq $experiment.PSObject.Properties["RecordedAt"] -or
+            -not (Test-DateTimeOffsetValue ([string]$experiment.RecordedAt)) -or
+            $null -eq $experiment.PSObject.Properties["UpdatedAt"] -or
+            -not (Test-DateTimeOffsetValue ([string]$experiment.UpdatedAt))) {
+            throw "Experiment '$($experiment.Id)' has an invalid timestamp."
         }
     }
 }
