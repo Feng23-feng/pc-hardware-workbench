@@ -44,19 +44,31 @@ Observed behavior:
 
 ## Live Web behavior acceptance
 
-Result: PENDING.
+Thread: `01a1a1b7-0bfa-7eb1-be9e-d56293e854ed`
 
-Technical live integration was already exercised against an earlier running
-instance, but the independent behavior conversation must be repeated after the
-user starts LibreHardwareMonitor and its local Remote Web Server again.
+Prompt summary: The user requested a live temperature read while
+LibreHardwareMonitor and its local Remote Web Server were running.
+
+Result: PASS.
+
+Observed behavior:
+
+- used the loopback Web endpoint and reported 284 effective leaf sensors;
+- reported actual CPU and GPU temperature, package power, and utilization;
+- retained the concrete GPU hardware path while avoiding unrelated user
+  identifiers;
+- classified the result as one instantaneous snapshot because no workload or
+  time window was supplied;
+- did not claim normal, stable, or sufficient cooling; did not start, elevate,
+  modify, or write hardware settings.
 
 ## Result
 
 ```text
-Model-assisted behavioral checks completed: 2
-PASS: 2
+Model-assisted behavioral checks completed: 3
+PASS: 3
 FAIL: 0
-Live Web behavior acceptance: PENDING
+Live Web behavior acceptance: PASS
 Independent human acceptance: PENDING
 HardwareWrite: none
 Broad distribution approval: NO
