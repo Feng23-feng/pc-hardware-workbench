@@ -591,17 +591,29 @@ $currentStyle = @'
     font-size: 11px;
   }
 
+  .stage.compact-labels .file-name {
+    max-width: 132px;
+    font-size: 10px;
+  }
+
   .stage.compact-labels .file-node:not(.is-anchor) .file-name {
-    opacity: 0;
+    opacity: .56;
   }
 
   .stage.compact-labels .file-node.is-anchor .file-name {
-    opacity: .72;
+    opacity: .78;
+  }
+
+  .stage.compact-labels .file-node.is-related:not(.is-active) .file-name {
+    opacity: 1;
+    color: #dcecf5;
+    background: rgba(6, 10, 14, .76);
   }
 
   .stage.compact-labels .file-node:hover .file-name,
   .stage.compact-labels .file-node:focus-visible .file-name,
-  .stage.compact-labels .file-node.is-active .file-name {
+  .stage.compact-labels .file-node.is-active .file-name,
+  .stage.compact-labels .file-node.is-related:not(.is-active) .file-name {
     opacity: 1;
   }
 
