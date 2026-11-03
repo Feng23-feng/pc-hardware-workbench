@@ -480,6 +480,9 @@ try {
         if ([string](Get-PropertyValue $snapshot "schemaVersion" "") -ne "1.0") {
             Stop-WithInputError "Sensor snapshot schemaVersion must be '1.0'."
         }
+        Add-UniqueWarnings `
+            -Target $warnings `
+            -Values @(Get-PropertyValue $snapshot "warnings" @())
         $source = Get-PropertyValue $snapshot "source"
         if ($null -eq $source) {
             Stop-WithInputError "Sensor snapshot source metadata is required."

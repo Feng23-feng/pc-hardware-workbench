@@ -99,6 +99,15 @@ $testCases = @(
         )
     },
     @{
+        Name = "LHM adapter"
+        Script = Join-Path $resolvedRoot "tests/run-lhm-adapter-tests.ps1"
+        Arguments = @(
+            "-FunctionsPath", (Join-Path $resolvedRoot "scripts/lhm/lhm-functions.ps1"),
+            "-CollectorPath", (Join-Path $resolvedRoot "scripts/lhm/read-lhm-telemetry.ps1"),
+            "-NormalizerPath", (Join-Path $resolvedRoot "scripts/normalize-telemetry.ps1")
+        )
+    },
+    @{
         Name = "Interaction contract (static)"
         Script = Join-Path $resolvedRoot "tests/run-interaction-contract-tests.ps1"
         Arguments = @("-SkillRoot", $resolvedRoot)

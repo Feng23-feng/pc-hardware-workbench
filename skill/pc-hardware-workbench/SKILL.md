@@ -2,7 +2,7 @@
 name: pc-hardware-workbench
 description: Integrate Windows-focused read-only hardware inventory, telemetry charting, evidence-gated troubleshooting, guided overclocking, and upgrade-purchase decisions through one routed workflow. Other systems receive manual guidance only. Keep tuning-only requests free of unsolicited purchase advice; never modify hardware automatically or bypass permissions or anti-cheat.
 metadata:
-  version: "1.9.0"
+  version: "2.0.0"
   short-description: "One routed entry for hardware inventory, telemetry visuals, triage, tuning, and purchase decisions"
 ---
 
@@ -137,6 +137,9 @@ screenshots. If a hardware case exists, register the CSV and chart as evidence.
 For a structured sensor snapshot or cross-source provenance, read
 [telemetry-normalization.md](references/integration/telemetry-normalization.md)
 and use `scripts/normalize-telemetry.ps1`; normalized JSON is already windowed.
+When an already-running LibreHardwareMonitor and explicit live-read consent are
+available, read [lhm-adapter.md](references/integration/lhm-adapter.md); never
+install, start, or elevate it.
 
 ### Tune
 
