@@ -370,6 +370,48 @@ finally {
     }
 }
 
+$skillCurrent = @"
+Current PC Hardware Workbench release: $releaseName
+
+Path:
+$releaseName\$skillZipName
+
+Skill: $version
+Git commit: $gitCommit
+HardwareWrite: none
+Live LHM: explicit consent only
+Human acceptance: PENDING
+Approved for broad distribution: NO
+"@
+$portableCurrent = @"
+Current PC Hardware Portable release: $releaseName
+
+Path:
+$releaseName\$portableZipName
+
+Product banner: $version
+Git commit: $gitCommit
+HardwareWrite: none
+Live collection: explicit opt-in only
+Human acceptance: PENDING
+Approved for broad distribution: NO
+"@
+$dshCurrent = @"
+Current DeepSeek Harness adapter release: $releaseName
+
+Path:
+$releaseName\$dshZipName
+
+Skill: $version
+Git commit: $gitCommit
+HardwareWrite: none
+Human acceptance: PENDING
+Approved for broad distribution: NO
+"@
+[IO.File]::WriteAllText((Join-Path (Join-Path $OutputRoot "pc-hardware-workbench") "CURRENT.txt"), $skillCurrent, $utf8NoBom)
+[IO.File]::WriteAllText((Join-Path (Join-Path $OutputRoot "pc-hardware-portable") "CURRENT.txt"), $portableCurrent, $utf8NoBom)
+[IO.File]::WriteAllText((Join-Path (Join-Path $OutputRoot "deepseek-harness-adapter") "CURRENT.txt"), $dshCurrent, $utf8NoBom)
+
 Write-Host "Release build: PASS ($releaseName)" -ForegroundColor Green
 Write-Host "Skill ZIP: $skillZip"
 Write-Host "Portable ZIP: $portableZip"
