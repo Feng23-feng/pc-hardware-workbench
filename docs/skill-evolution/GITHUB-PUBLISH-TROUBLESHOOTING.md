@@ -23,7 +23,7 @@ fatal: detected dubious ownership in repository
 安全处理：只在当前命令里声明可信目录，不改全局 Git 配置：
 
 ```powershell
-git -c safe.directory=C:/Users/28271/Documents/Codex/pc-hardware-workbench fetch origin
+git -c safe.directory=<absolute-repository-path> fetch origin
 ```
 
 不要把 `safe.directory=*` 写入全局配置。
