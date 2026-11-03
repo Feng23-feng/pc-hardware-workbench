@@ -371,7 +371,7 @@ $manifest = [pscustomobject][ordered]@{
     files = $sortedRecords
 }
 
-$manifestJson = $manifest | ConvertTo-Json -Depth 20
+$manifestJson = $manifest | ConvertTo-Json -Depth 20 -Compress
 $manifestJson = $manifestJson.Replace("`r`n", "`n") + "`n"
 
 $orbitSpeedMultiplier = 1.0
@@ -425,8 +425,8 @@ foreach ($record in $sortedRecords) {
     }) | Out-Null
 }
 
-$groupsJson = $groupsObject | ConvertTo-Json -Depth 20
-$filesJson = ConvertTo-Json -InputObject @($fileObjectList.ToArray()) -Depth 20
+$groupsJson = $groupsObject | ConvertTo-Json -Depth 20 -Compress
+$filesJson = ConvertTo-Json -InputObject @($fileObjectList.ToArray()) -Depth 20 -Compress
 $groupsJson = $groupsJson.Replace("`r`n", "`n")
 $filesJson = $filesJson.Replace("`r`n", "`n")
 
@@ -684,7 +684,7 @@ $frozenObject = [pscustomobject][ordered]@{
     sha256 = $pageSha256
     bytes = $pageBytes.Length
 }
-$frozenJson = $frozenObject | ConvertTo-Json -Depth 10
+$frozenJson = $frozenObject | ConvertTo-Json -Depth 10 -Compress
 $frozenJson = $frozenJson.Replace("`r`n", "`n") + "`n"
 
 if ($Check) {
