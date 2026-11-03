@@ -42,6 +42,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "<suite-folder>\scripts\rend
 
 The renderer uses the analyzer's validated chart data, selects up to three useful series by default, preserves missing-value transitions even after downsampling, and does not overwrite an existing output file. Use `-MaxSeries` to change the number from 1 to 8, `-MaxPoints` to control downsampling, and `-IncludeColumn` for an explicit custom numeric series. Explicitly requested columns are selected before the default metric priority. SVG is the first no-dependency format; it can be displayed directly or converted later if needed.
 
+For a structured JSON snapshot, source provenance, mixed-source warnings, or a
+shared normalized document across CSV and future sensor adapters, read
+[telemetry-normalization.md](telemetry-normalization.md) and use
+`scripts/normalize-telemetry.ps1`. The renderer accepts that document directly
+with auto-detected JSON input or `-InputFormat NormalizedJson`.
+
 The chart is an evidence view, not a new measurement source. Keep the original CSV and its `Window`, field selection, units, sampling limitations, and warnings with the image. If the data is too sparse or no recognized metric exists, do not force a chart.
 
 When a hardware case exists, register the original CSV and chart output with `scripts/hardware-case.ps1 -Action AddEvidence`. Use the evidence ID when recording a baseline or experiment so a later turn can trace the chart back to the exact file and hash.

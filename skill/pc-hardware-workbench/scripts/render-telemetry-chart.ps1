@@ -23,6 +23,9 @@ param(
 
     [string[]]$IncludeColumn = @(),
 
+    [ValidateSet("Auto", "Csv", "NormalizedJson")]
+    [string]$InputFormat = "Auto",
+
     [switch]$HideFileName,
 
     [ValidateRange(1, 4096)]
@@ -44,6 +47,24 @@ if (-not (Test-Path -LiteralPath $pathSafetyHelper -PathType Leaf)) {
     throw "Local path safety helper is missing: $pathSafetyHelper"
 }
 . $pathSafetyHelper
+
+function Get-PropertyValue {
+    param(
+        [AllowNull()][object]$Object,
+        [Parameter(Mandatory = $true)][string]$Name,
+        [AllowNull()][object]$Default = $null
+    )
+    if ($null -eq $Object -or $null -eq $Object.PSObject.Properties[$Name]) {
+        return $Default
+    }
+    return $Object.$Name
+}
+
+function Stop-WithNormalizedInputError {
+    param([Parameter(Mandatory = $true)][string]$Message)
+    [Console]::Error.WriteLine($Message)
+    exit 2
+}
 
 function ConvertTo-SvgText {
     param([AllowNull()][object]$Value)
@@ -174,46 +195,184 @@ if ([System.IO.Path]::GetExtension($resolvedOutput) -notmatch '^\.svg$') {
     exit 2
 }
 
-$analyzerPath = Join-Path $PSScriptRoot "analyze-telemetry.ps1"
-if (-not (Test-Path -LiteralPath $analyzerPath -PathType Leaf)) {
-    throw "Telemetry analyzer is missing: $analyzerPath"
+$resolvedInputFormat = if ($InputFormat -eq "Auto") {
+    if ([System.IO.Path]::GetExtension($resolvedInput) -ieq ".json") {
+        "NormalizedJson"
+    }
+    else {
+        "Csv"
+    }
+}
+else {
+    $InputFormat
 }
 
-$analyzerParameters = @{
-    Path = $resolvedInput
-    Format = "ChartData"
-    Delimiter = $Delimiter
-    MaxInputMegabytes = $MaxInputMegabytes
-    MaxChartPoints = $MaxPoints
-}
-if ($WarmupSeconds -gt 0) {
-    $analyzerParameters.WarmupSeconds = $WarmupSeconds
-}
-if ($DurationSeconds -gt 0) {
-    $analyzerParameters.DurationSeconds = $DurationSeconds
-}
-if ($WarmupRows -gt 0) {
-    $analyzerParameters.WarmupRows = $WarmupRows
-}
-if ($MaxRows -gt 0) {
-    $analyzerParameters.MaxRows = $MaxRows
-}
-if ($IncludeColumn.Count -gt 0) {
-    $analyzerParameters.IncludeColumn = $IncludeColumn
-}
-if ($HideFileName) {
-    $analyzerParameters.HideFileName = $true
-}
+if ($resolvedInputFormat -eq "Csv") {
+    $analyzerPath = Join-Path $PSScriptRoot "analyze-telemetry.ps1"
+    if (-not (Test-Path -LiteralPath $analyzerPath -PathType Leaf)) {
+        throw "Telemetry analyzer is missing: $analyzerPath"
+    }
 
-$chartJson = & $analyzerPath @analyzerParameters | Out-String
-if ([string]::IsNullOrWhiteSpace($chartJson)) {
-    throw "Telemetry analyzer returned no chart data."
+    $analyzerParameters = @{
+        Path = $resolvedInput
+        Format = "ChartData"
+        Delimiter = $Delimiter
+        MaxInputMegabytes = $MaxInputMegabytes
+        MaxChartPoints = $MaxPoints
+    }
+    if ($WarmupSeconds -gt 0) {
+        $analyzerParameters.WarmupSeconds = $WarmupSeconds
+    }
+    if ($DurationSeconds -gt 0) {
+        $analyzerParameters.DurationSeconds = $DurationSeconds
+    }
+    if ($WarmupRows -gt 0) {
+        $analyzerParameters.WarmupRows = $WarmupRows
+    }
+    if ($MaxRows -gt 0) {
+        $analyzerParameters.MaxRows = $MaxRows
+    }
+    if ($IncludeColumn.Count -gt 0) {
+        $analyzerParameters.IncludeColumn = $IncludeColumn
+    }
+    if ($HideFileName) {
+        $analyzerParameters.HideFileName = $true
+    }
+
+    $chartJson = & $analyzerPath @analyzerParameters | Out-String
+    if ([string]::IsNullOrWhiteSpace($chartJson)) {
+        throw "Telemetry analyzer returned no chart data."
+    }
+    try {
+        $chartData = $chartJson | ConvertFrom-Json
+    }
+    catch {
+        throw "Telemetry analyzer returned invalid chart data: $($_.Exception.Message)"
+    }
 }
-try {
-    $chartData = $chartJson | ConvertFrom-Json
-}
-catch {
-    throw "Telemetry analyzer returned invalid chart data: $($_.Exception.Message)"
+else {
+    foreach ($name in @(
+        "WarmupSeconds", "DurationSeconds", "WarmupRows", "MaxRows",
+        "Delimiter", "MaxInputMegabytes", "MaxPoints"
+    )) {
+        if ($PSBoundParameters.ContainsKey($name)) {
+            [Console]::Error.WriteLine(
+                "Normalized JSON is already windowed and downsampled; do not combine it with -$name."
+            )
+            exit 2
+        }
+    }
+
+    try {
+        $normalized = Get-Content -Raw -LiteralPath $resolvedInput -Encoding UTF8 | ConvertFrom-Json
+    }
+    catch {
+        Stop-WithNormalizedInputError "Normalized telemetry JSON is invalid: $($_.Exception.Message)"
+    }
+    foreach ($requiredName in @(
+        "NormalizedTelemetryVersion", "AdapterVersion", "Source", "Sampling",
+        "DataQuality", "Sensors", "ChartData", "Warnings"
+    )) {
+        if ($null -eq $normalized.PSObject.Properties[$requiredName]) {
+            Stop-WithNormalizedInputError "Normalized telemetry document is missing required section '$requiredName'."
+        }
+    }
+    if ([string]$normalized.NormalizedTelemetryVersion -ne "1.0") {
+        Stop-WithNormalizedInputError "NormalizedTelemetryVersion must be '1.0'."
+    }
+    if ([string]$normalized.AdapterVersion -ne "1.0.0") {
+        Stop-WithNormalizedInputError "AdapterVersion must be '1.0.0'."
+    }
+
+    $source = $normalized.PSObject.Properties["Source"].Value
+    if ($null -eq $source -or $source -is [string] -or $source -is [System.Array]) {
+        Stop-WithNormalizedInputError "Normalized telemetry Source must be an object."
+    }
+    foreach ($sourceName in @("Tool", "Version", "InputKind", "InputFileName", "InputSha256", "MixedSources")) {
+        if ($null -eq $source.PSObject.Properties[$sourceName]) {
+            Stop-WithNormalizedInputError "Normalized telemetry Source is missing '$sourceName'."
+        }
+    }
+    if ([string]::IsNullOrWhiteSpace([string]$source.Tool) -or
+        [string]::IsNullOrWhiteSpace([string]$source.Version)) {
+        Stop-WithNormalizedInputError "Normalized telemetry Source.Tool and Source.Version are required."
+    }
+    if ([string]$source.InputKind -notin @("csv", "sensor-snapshot")) {
+        Stop-WithNormalizedInputError "Normalized telemetry Source.InputKind is invalid."
+    }
+    if ([string]$source.InputSha256 -notmatch '^[0-9a-fA-F]{64}$') {
+        Stop-WithNormalizedInputError "Normalized telemetry Source.InputSha256 must be a SHA-256 hash."
+    }
+
+    $sampling = $normalized.PSObject.Properties["Sampling"].Value
+    if ($null -eq $sampling -or $sampling -is [string] -or $sampling -is [System.Array]) {
+        Stop-WithNormalizedInputError "Normalized telemetry Sampling must be an object."
+    }
+    if ([string]$sampling.Consistency -notin @("stable", "variable", "unknown")) {
+        Stop-WithNormalizedInputError "Normalized telemetry Sampling.Consistency is invalid."
+    }
+
+    $sensorsProperty = $normalized.PSObject.Properties["Sensors"]
+    if ($sensorsProperty.Value -isnot [System.Array] -or @($sensorsProperty.Value).Count -eq 0) {
+        Stop-WithNormalizedInputError "Normalized telemetry Sensors must be a non-empty array."
+    }
+    foreach ($sensor in @($sensorsProperty.Value)) {
+        foreach ($sensorName in @("Name", "Category", "Unit", "Header")) {
+            if ($null -eq $sensor.PSObject.Properties[$sensorName] -or
+                [string]::IsNullOrWhiteSpace([string]$sensor.$sensorName)) {
+                Stop-WithNormalizedInputError "Normalized telemetry sensor is missing '$sensorName'."
+            }
+        }
+    }
+
+    $quality = $normalized.PSObject.Properties["DataQuality"].Value
+    if ($null -eq $quality -or $quality -is [string] -or $quality -is [System.Array]) {
+        Stop-WithNormalizedInputError "Normalized telemetry DataQuality must be an object."
+    }
+    if ([string]$quality.Status -notin @("complete", "partial", "warnings")) {
+        Stop-WithNormalizedInputError "Normalized telemetry DataQuality.Status is invalid."
+    }
+    foreach ($qualityName in @("SeriesCount", "MissingValueCount", "Window")) {
+        if ($null -eq $quality.PSObject.Properties[$qualityName]) {
+            Stop-WithNormalizedInputError "Normalized telemetry DataQuality is missing '$qualityName'."
+        }
+    }
+
+    $warningsProperty = $normalized.PSObject.Properties["Warnings"]
+    if ($warningsProperty.Value -isnot [System.Array]) {
+        Stop-WithNormalizedInputError "Normalized telemetry Warnings must be an array."
+    }
+
+    $chartData = $normalized.PSObject.Properties["ChartData"].Value
+    if ($null -eq $chartData -or $chartData -is [string] -or $chartData -is [System.Array]) {
+        Stop-WithNormalizedInputError "Normalized telemetry ChartData must be an object."
+    }
+    if ([string]$chartData.ChartDataVersion -ne "1.0") {
+        Stop-WithNormalizedInputError "Normalized telemetry ChartDataVersion must be '1.0'."
+    }
+    $chartSeriesProperty = $chartData.PSObject.Properties["Series"]
+    if ($null -eq $chartSeriesProperty -or
+        $chartSeriesProperty.Value -isnot [System.Array] -or
+        @($chartSeriesProperty.Value).Count -eq 0) {
+        Stop-WithNormalizedInputError "Normalized telemetry ChartData.Series must be a non-empty array."
+    }
+    if ($null -eq $chartData.PSObject.Properties["Warnings"] -or
+        $chartData.Warnings -isnot [System.Array]) {
+        Stop-WithNormalizedInputError "Normalized telemetry ChartData.Warnings must be an array."
+    }
+    $mergedWarnings = New-Object System.Collections.Generic.List[string]
+    $warningSeen = New-Object System.Collections.Generic.HashSet[string]
+    foreach ($warningValue in @(@($chartData.Warnings) + @($warningsProperty.Value))) {
+        $warningText = ([string]$warningValue) -replace "[\p{Cc}\p{Cf}]", " "
+        $warningText = $warningText.Trim()
+        if (-not [string]::IsNullOrWhiteSpace($warningText) -and $warningSeen.Add($warningText)) {
+            $mergedWarnings.Add($warningText) | Out-Null
+        }
+    }
+    $chartData.Warnings = @($mergedWarnings.ToArray())
+    if ($HideFileName) {
+        $chartData.FileName = "[hidden]"
+    }
 }
 
 $availableSeries = @($chartData.Series)

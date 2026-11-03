@@ -11,7 +11,7 @@ changes under the user's control.
 
 ## Project status
 
-- Current Skill candidate: **1.7.0**
+- Current Skill candidate: **1.8.0**
 - Automated non-live tests: passing
 - Live hardware collection: opt-in only
 - Broad release sign-off: pending
@@ -54,6 +54,9 @@ telemetry analyzer can also emit validated chart data, and the bundled SVG
 renderer can turn up to three recognized series into a deterministic visual
 overview without adding an external plotting dependency. Downsampling preserves
 missing-value breaks, and explicit `-IncludeColumn` selections take priority.
+Structured sensor snapshots and CSV records can also be normalized into one
+versioned JSON document with source provenance, sampling consistency, mixed-
+source warnings, and chart-ready series before rendering.
 
 For investigations that span multiple turns, a local hardware case can retain
 hashed evidence, hypotheses, timeline events, baselines, experiments, and the

@@ -71,6 +71,14 @@ $testCases = @(
         )
     },
     @{
+        Name = "Telemetry normalization"
+        Script = Join-Path $resolvedRoot "tests/run-telemetry-normalization-tests.ps1"
+        Arguments = @(
+            "-AdapterPath", (Join-Path $resolvedRoot "scripts/normalize-telemetry.ps1"),
+            "-RendererPath", (Join-Path $resolvedRoot "scripts/render-telemetry-chart.ps1")
+        )
+    },
+    @{
         Name = "Hardware case"
         Script = Join-Path $resolvedRoot "tests/run-hardware-case-tests.ps1"
         Arguments = @("-CaseScriptPath", (Join-Path $resolvedRoot "scripts/hardware-case.ps1"))

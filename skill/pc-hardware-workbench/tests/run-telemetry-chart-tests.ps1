@@ -52,9 +52,11 @@ try {
 
     $chartData = & $resolvedAnalyzer -Path $telemetryPath -Format ChartData -MaxChartPoints 100 | ConvertFrom-Json
     Assert-True ($chartData.ChartDataVersion -eq "1.0") "Chart data version is missing."
-    Assert-True ($chartData.AnalyzerVersion -eq "1.2.1") "Analyzer version was not updated for chart data."
+    Assert-True ($chartData.AnalyzerVersion -eq "1.2.2") "Analyzer version was not updated for chart data."
     Assert-True ($chartData.TimeBased -eq $true) "Timestamped input was not exposed as a time-based chart."
     Assert-True ($chartData.XAxisLabel -eq "seconds") "Timestamped chart x-axis label is wrong."
+    Assert-True ($chartData.Sampling.Consistency -eq "stable") "Stable chart sampling was not reported as stable."
+    Assert-True ($chartData.Sampling.IntervalSecondsMedian -eq 1) "Chart sampling median is wrong."
     Assert-True (@($chartData.Series).Count -ge 3) "Expected at least three chartable series."
 
     $temperatureSeries = @($chartData.Series | Where-Object { $_.Metric -eq "GPU temperature (C)" }) | Select-Object -First 1
@@ -133,6 +135,29 @@ try {
     Assert-True (
         @($downsampledSeries | Where-Object { @($_.Points).Count -gt 31 }).Count -eq 0
     ) "Downsampled series exceeded MaxChartPoints."
+
+    $stableLargePath = Join-Path $tempRoot "stable-large.csv"
+    $stableBuilder = New-Object System.Text.StringBuilder
+    [void]$stableBuilder.AppendLine('"Date","Time","GPU Temperature [C]"')
+    $startTime = [datetime]::ParseExact(
+        "2026-11-03 12:00:00",
+        "yyyy-MM-dd HH:mm:ss",
+        [System.Globalization.CultureInfo]::InvariantCulture
+    )
+    for ($index = 0; $index -lt 120; $index++) {
+        $sampleTime = $startTime.AddSeconds($index)
+        [void]$stableBuilder.AppendLine(
+            '"' + $sampleTime.ToString("yyyy-MM-dd", [System.Globalization.CultureInfo]::InvariantCulture) +
+            '","' + $sampleTime.ToString("HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture) +
+            '","' + (55 + ($index % 5)) + '"'
+        )
+    }
+    [IO.File]::WriteAllText($stableLargePath, $stableBuilder.ToString(), $utf8)
+    $stableLarge = & $resolvedAnalyzer -Path $stableLargePath -Format ChartData -MaxChartPoints 31 | ConvertFrom-Json
+    $stableLargeSeries = @($stableLarge.Series | Where-Object { $_.Metric -eq "GPU temperature (C)" }) | Select-Object -First 1
+    Assert-True ($stableLargeSeries.Downsampled -eq $true) "Stable sampling fixture was not downsampled."
+    Assert-True ($stableLarge.Sampling.Consistency -eq "stable") "Downsampling falsely changed a stable sampling interval."
+    Assert-True ($stableLarge.Sampling.IntervalSecondsMedian -eq 1) "Downsampled chart lost the original sampling median."
 
     $gapPath = Join-Path $tempRoot "downsample-gap.csv"
     $gapBuilder = New-Object System.Text.StringBuilder

@@ -686,6 +686,86 @@ function Get-ChartSampleIndexes {
     return [int[]]$sortedIndexes
 }
 
+function Get-ChartSamplingSummary {
+    param(
+        [object]$TimeOffsets,
+        [int]$StartIndex,
+        [int]$EndIndex,
+        [bool]$TimeBased
+    )
+
+    if (-not $TimeBased) {
+        return [pscustomobject]@{
+            TimeBased = $false
+            IntervalSecondsMedian = $null
+            IntervalSecondsMinimum = $null
+            IntervalSecondsMaximum = $null
+            Consistency = "unknown"
+        }
+    }
+
+    $validTimes = New-Object System.Collections.Generic.List[double]
+    for ($index = $StartIndex; $index -le $EndIndex; $index++) {
+        $value = [double]$TimeOffsets[$index]
+        if (-not [double]::IsNaN($value)) {
+            $validTimes.Add($value) | Out-Null
+        }
+    }
+    if ($validTimes.Count -lt 2) {
+        return [pscustomobject]@{
+            TimeBased = $true
+            IntervalSecondsMedian = $null
+            IntervalSecondsMinimum = $null
+            IntervalSecondsMaximum = $null
+            Consistency = "unknown"
+        }
+    }
+
+    $intervals = New-Object System.Collections.Generic.List[double]
+    for ($index = 1; $index -lt $validTimes.Count; $index++) {
+        $interval = $validTimes[$index] - $validTimes[$index - 1]
+        if ($interval -gt 0) {
+            $intervals.Add($interval) | Out-Null
+        }
+    }
+    if ($intervals.Count -eq 0) {
+        return [pscustomobject]@{
+            TimeBased = $true
+            IntervalSecondsMedian = $null
+            IntervalSecondsMinimum = $null
+            IntervalSecondsMaximum = $null
+            Consistency = "unknown"
+        }
+    }
+
+    $sorted = @($intervals | Sort-Object)
+    $minimum = $sorted[0]
+    $maximum = $sorted[$sorted.Count - 1]
+    $midpoint = [int][Math]::Floor($sorted.Count / 2)
+    $median = if (($sorted.Count % 2) -eq 0) {
+        ($sorted[$midpoint - 1] + $sorted[$midpoint]) / 2
+    }
+    else {
+        $sorted[$midpoint]
+    }
+    $consistency = if (
+        $median -gt 0 -and
+        ($minimum -lt ($median * 0.75) -or $maximum -gt ($median * 1.25))
+    ) {
+        "variable"
+    }
+    else {
+        "stable"
+    }
+    return [pscustomobject]@{
+        TimeBased = $true
+        IntervalSecondsMedian = [Math]::Round($median, 6)
+        IntervalSecondsMinimum = [Math]::Round($minimum, 6)
+        IntervalSecondsMaximum = [Math]::Round($maximum, 6)
+        Consistency = $consistency
+    }
+}
+
 function Format-Number {
     param([double]$Value)
     return $Value.ToString("0.###", $invariant)
@@ -1524,8 +1604,18 @@ else {
     $windowLabel = "rows $startIndex to $endIndex (header on line $($headerLineIndex + 1))"
 }
 
+$timeBasedAxis = -not $usedTimeFallback -and $parsedTimeCount -gt 0
+$samplingSummary = Get-ChartSamplingSummary `
+    -TimeOffsets $timeOffsets `
+    -StartIndex $startIndex `
+    -EndIndex $endIndex `
+    -TimeBased $timeBasedAxis
+if ($samplingSummary.Consistency -eq "variable") {
+    $warnings.Add("Sampling interval varies materially across the selected window.") | Out-Null
+}
+
 $result = [pscustomobject]@{
-    AnalyzerVersion = "1.2.1"
+    AnalyzerVersion = "1.2.2"
     FileName = if ($HideFileName) { "[hidden]" } else { [System.IO.Path]::GetFileName($resolvedPath) }
     HeaderLine = $headerLineIndex + 1
     InvalidRows = $invalidDataRows
@@ -1533,6 +1623,7 @@ $result = [pscustomobject]@{
     AnalyzedRows = $selectedRows.Count
     RequestedWindow = $requestedWindowLabel
     Window = $windowLabel
+    Sampling = $samplingSummary
     Columns = $headerNames
     DuplicateHeaderNames = @($duplicateHeaderNames.ToArray())
     Metrics = @($series.ToArray())
@@ -1540,7 +1631,6 @@ $result = [pscustomobject]@{
 }
 
 if ($Format -eq "ChartData") {
-    $timeBasedAxis = -not $usedTimeFallback -and $parsedTimeCount -gt 0
     $chartSeries = New-Object System.Collections.Generic.List[object]
     foreach ($metric in $series) {
         $points = New-Object System.Collections.Generic.List[object]
@@ -1599,6 +1689,7 @@ if ($Format -eq "ChartData") {
         RequestedWindow = $result.RequestedWindow
         Window = $result.Window
         TimeBased = $timeBasedAxis
+        Sampling = $samplingSummary
         XAxisLabel = if ($timeBasedAxis) { "seconds" } else { "samples" }
         MaxChartPoints = $MaxChartPoints
         Series = @($chartSeries.ToArray())

@@ -2,7 +2,7 @@
 name: pc-hardware-workbench
 description: Integrate Windows-focused read-only hardware inventory, telemetry charting, evidence-gated troubleshooting, guided overclocking, and upgrade-purchase decisions through one routed workflow. Other systems receive manual guidance only. Keep tuning-only requests free of unsolicited purchase advice; never modify hardware automatically or bypass permissions or anti-cheat.
 metadata:
-  version: "1.7.0"
+  version: "1.8.0"
   short-description: "One routed entry for hardware inventory, telemetry visuals, triage, tuning, and purchase decisions"
 ---
 
@@ -134,6 +134,9 @@ Never treat it as stability proof, diagnosis, or permission to change settings.
 For a supported CSV visual, use `scripts/render-telemetry-chart.ps1`; use a fresh
 SVG path, state its limits, and keep the CSV as evidence. Skip sparse data and
 screenshots. If a hardware case exists, register the CSV and chart as evidence.
+For a structured sensor snapshot or cross-source provenance, read
+[telemetry-normalization.md](references/integration/telemetry-normalization.md)
+and use `scripts/normalize-telemetry.ps1`; normalized JSON is already windowed.
 
 ### Tune
 

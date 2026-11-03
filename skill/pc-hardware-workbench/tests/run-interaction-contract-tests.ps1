@@ -54,7 +54,7 @@ $skill = Get-Content -LiteralPath $skillPath -Raw -Encoding UTF8
 $referenceOnlyNotice = [regex]::Unescape('\u53C2\u6570\u4EC5\u4F9B\u53C2\u8003\uFF0C\u8BF7\u4EE5\u5B89\u5168\u4E3A\u7B2C\u4E00\u8981\u52A1\u3002')
 $englishReferenceOnlyNotice = "For reference only - put safety first."
 
-Assert-Contains $skill '(?m)^  version: "1\.7\.0"\r?$' "metadata.version should be 1.7.0."
+Assert-Contains $skill '(?m)^  version: "1\.8\.0"\r?$' "metadata.version should be 1.8.0."
 Assert-Contains $skill 'r23 collector' "The Skill maintenance summary collector revision disagrees with the collector code."
 Assert-Contains $skill 'while the power-path evidence is incomplete' "The Advice intensity route does not include incomplete power-path evidence."
 Assert-Contains $skill 'hidden or manufacturer-limited limit' "The Advice intensity summary is narrower than the hidden or manufacturer-limited scope."
@@ -370,11 +370,12 @@ Assert-Contains $telemetry 'name DWG FastView, LanSweeper, OPEN, and Try Now as 
 Assert-Contains $telemetry 'warn that a raw HWiNFO CSV may carry appended device metadata' "A first-capture monitoring route must warn about raw CSV metadata."
 Assert-Contains $telemetry 'render-telemetry-chart\.ps1' "Telemetry guidance does not route to the chart renderer."
 Assert-Contains $telemetry 'chart is an evidence view, not a new measurement source' "Telemetry guidance treats a chart as independent evidence."
+Assert-Contains $telemetry 'telemetry-normalization\.md' "Telemetry guidance does not route structured sources to normalization."
 
 $analyzer = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "scripts/analyze-telemetry.ps1") `
     -Label "scripts/analyze-telemetry.ps1"
-Assert-Contains $analyzer 'AnalyzerVersion = "1\.2\.1"' "Analyzer behavior changed without an AnalyzerVersion bump."
+Assert-Contains $analyzer 'AnalyzerVersion = "1\.2\.2"' "Analyzer behavior changed without an AnalyzerVersion bump."
 Assert-Contains $analyzer 'MaxInputMegabytes' "Telemetry analyzer has no large-file safety limit."
 Assert-Contains $analyzer 'ChartData' "Telemetry analyzer does not expose validated chart data."
 Assert-Contains $analyzer 'ConvertTo-MarkdownCell \$result\.FileName' "Telemetry filename is not passed through Markdown sanitization."
@@ -389,6 +390,27 @@ $chartRenderer = Read-RequiredFile `
 Assert-Contains $chartRenderer 'Resolve-LocalOutputFilePath' "Chart renderer does not use the shared safe output-path helper."
 Assert-Contains $chartRenderer 'Only SVG output is supported' "Chart renderer output format is not constrained."
 Assert-Contains $chartRenderer 'does not prove hardware stability' "Chart renderer omits the evidence limitation."
+Assert-Contains $chartRenderer 'NormalizedJson' "Chart renderer cannot consume normalized telemetry JSON."
+Assert-Contains $chartRenderer 'missing required section' "Chart renderer does not reject incomplete normalized documents."
+$normalizer = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "scripts/normalize-telemetry.ps1") `
+    -Label "scripts/normalize-telemetry.ps1"
+Assert-Contains $normalizer 'NormalizedTelemetryVersion = "1\.0"' "Normalized telemetry schema version is missing."
+Assert-Contains $normalizer 'InputSha256' "Normalized telemetry does not preserve input provenance."
+Assert-Contains $normalizer 'MixedSources' "Normalized telemetry does not expose mixed-source state."
+Assert-Contains $normalizer 'Sampling' "Normalized telemetry does not expose sampling metadata."
+Assert-Contains $normalizer 'offline or cloud-placeholder' "Normalized telemetry may trigger cloud hydration."
+Assert-Contains $normalizer 'samples must be an array' "Normalized telemetry accepts object-valued samples."
+Assert-Contains $normalizer 'missing the required value property' "Normalized telemetry accepts sensors without a value property."
+Assert-Contains $normalizer 'DataQuality' "Normalized telemetry does not expose data quality."
+$normalizationDoc = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/integration/telemetry-normalization.md") `
+    -Label "references/integration/telemetry-normalization.md"
+Assert-Contains $normalizationDoc 'source\.tool' "Normalized snapshot source tool requirement is missing."
+Assert-Contains $normalizationDoc 'source\.version' "Normalized snapshot source version requirement is missing."
+Assert-Contains $normalizationDoc 'timestamps must not move backwards' "Normalized snapshot chronology rule is missing."
+Assert-Contains $normalizationDoc 'samples.*non-empty array' "Normalized snapshot array-shape rule is missing."
+Assert-Contains $normalizationDoc 'omitting it is invalid' "Normalized snapshot required-value rule is missing."
 $hardwareCase = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "references/integration/hardware-case.md") `
     -Label "references/integration/hardware-case.md"
