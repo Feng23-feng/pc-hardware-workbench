@@ -695,6 +695,12 @@ foreach ($scenarioHeading in @(
 Assert-Contains $crossCapabilityScenarios 'do not average the two claims' "Cross-source conflict rules permit averaging."
 Assert-Contains $crossCapabilityScenarios 'report live sensor access as unavailable rather than hardware absent' "Missing LHM is confused with missing hardware."
 Assert-Contains $crossCapabilityScenarios 'no target value' "Power-path refusal permits a target value."
+$crossCapabilityResults = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "tests/cross-capability-results-20261103.md") `
+    -Label "tests/cross-capability-results-20261103.md"
+Assert-Contains $crossCapabilityResults 'PASS \(6/6\)' "Cross-capability result summary is missing."
+Assert-Contains $crossCapabilityResults 'Independent human acceptance: PENDING' "Model-assisted acceptance is mislabeled as human sign-off."
+Assert-Contains $crossCapabilityResults 'HardwareWrite: none' "Cross-capability acceptance reports an unexpected hardware write."
 Assert-Contains $scenarioDoc 'Manual behavioral acceptance scenarios' "Interaction scenarios are still presented as automated behavior tests."
 Assert-Contains $scenarioDoc 'do not prove that every scenario behaves' "Interaction scenarios overstate static test coverage."
 Assert-Contains $scenarioDoc '(?m)^## 47\. A dynamic boost point does not define curve activation' "Interaction scenarios omit the dynamic GPU operating-point case."

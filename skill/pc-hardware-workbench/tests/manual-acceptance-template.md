@@ -7,6 +7,9 @@ behavior, not merely whether the rule exists in text.
 Cross-capability prompts are tracked separately in
 [cross-capability-scenarios.md](cross-capability-scenarios.md). Run all six
 before treating the current evidence-system release as behaviorally accepted.
+The model-assisted 2.3.0 run is recorded in
+[cross-capability-results-20261103.md](cross-capability-results-20261103.md);
+it does not replace independent human sign-off.
 
 For the 1.4.3+ tone layer, run every prompt in `tone-scenarios.md` three times in
 independent sessions and record each answer verbatim.
