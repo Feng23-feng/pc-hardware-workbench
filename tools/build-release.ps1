@@ -88,7 +88,8 @@ if ($gitStatus.Count -gt 0) {
 
 $skillReleaseRoot = Join-Path (Join-Path $OutputRoot "pc-hardware-workbench") $releaseName
 $portableReleaseRoot = Join-Path (Join-Path $OutputRoot "pc-hardware-portable") $releaseName
-foreach ($path in @($skillReleaseRoot, $portableReleaseRoot)) {
+$dshReleaseRoot = Join-Path (Join-Path $OutputRoot "deepseek-harness-adapter") $releaseName
+foreach ($path in @($skillReleaseRoot, $portableReleaseRoot, $dshReleaseRoot)) {
     if (Test-Path -LiteralPath $path) {
         Stop-WithBuildError "Release target already exists and will not be overwritten: $path"
     }
@@ -96,9 +97,11 @@ foreach ($path in @($skillReleaseRoot, $portableReleaseRoot)) {
 
 $skillBundleRoot = Join-Path $skillReleaseRoot "bundle"
 $portableBundleRoot = Join-Path $portableReleaseRoot "bundle"
+$dshBundleRoot = Join-Path $dshReleaseRoot "bundle"
 $skillBundleFolder = Join-Path $skillBundleRoot "pc-hardware-workbench-v$releaseName"
 $portableBundleFolder = Join-Path $portableBundleRoot "pc-hardware-portable-v$releaseName"
-New-Item -ItemType Directory -Path $skillBundleFolder,$portableBundleFolder -Force | Out-Null
+$dshBundleFolder = Join-Path $dshBundleRoot "pc-hardware-workbench-deepseek-harness-v$releaseName"
+New-Item -ItemType Directory -Path $skillBundleFolder,$portableBundleFolder,$dshBundleFolder -Force | Out-Null
 
 $skillFiles = @(Copy-TrackedTree `
     -TrackedPrefix "skill/pc-hardware-workbench" `
@@ -106,11 +109,18 @@ $skillFiles = @(Copy-TrackedTree `
 $portableFiles = @(Copy-TrackedTree `
     -TrackedPrefix "portable" `
     -DestinationRoot $portableBundleFolder)
+$adapterFiles = @(Copy-TrackedTree `
+    -TrackedPrefix "adapters/dsh" `
+    -DestinationRoot $dshBundleFolder)
+$dshSkillFiles = @(Copy-TrackedTree `
+    -TrackedPrefix "skill/pc-hardware-workbench" `
+    -DestinationRoot (Join-Path $dshBundleFolder "skill\pc-hardware-workbench"))
 
 foreach ($docName in @("LICENSE", "README.md", "CHANGELOG.md")) {
     Copy-Item -LiteralPath (Join-Path $RepositoryRoot $docName) -Destination (Join-Path $skillBundleFolder $docName)
 }
 Copy-Item -LiteralPath (Join-Path $RepositoryRoot "LICENSE") -Destination (Join-Path $portableBundleFolder "LICENSE")
+Copy-Item -LiteralPath (Join-Path $RepositoryRoot "LICENSE") -Destination (Join-Path $dshBundleFolder "LICENSE")
 
 $testGuideName = (-join @([char]0x6D4B, [char]0x8BD5, [char]0x8BF4, [char]0x660E)) + ".txt"
 $shareGuide = @"
@@ -181,19 +191,39 @@ $buildInfo = [pscustomobject]@{
 $buildJson = $buildInfo | ConvertTo-Json -Depth 8
 [IO.File]::WriteAllText((Join-Path $skillBundleFolder "BUILD-INFO.json"), $buildJson, $utf8NoBom)
 [IO.File]::WriteAllText((Join-Path $portableBundleFolder "BUILD-INFO.json"), $buildJson, $utf8NoBom)
+$dshBuildInfo = [pscustomobject]@{
+    Product = "PC Hardware Workbench / DeepSeek Harness"
+    Version = $version
+    Label = $label
+    ReleaseName = $releaseName
+    GitCommit = $gitCommit
+    BuiltAt = $buildTime
+    AdapterFiles = $adapterFiles.Count
+    SkillFiles = $dshSkillFiles.Count
+    HardwareWrite = "none"
+    HumanAcceptance = "PENDING"
+    BroadDistributionApproved = $false
+}
+$dshBuildJson = $dshBuildInfo | ConvertTo-Json -Depth 8
+[IO.File]::WriteAllText((Join-Path $dshBundleFolder "BUILD-INFO.json"), $dshBuildJson, $utf8NoBom)
 
 Write-Manifest -Root $skillBundleFolder -Path (Join-Path $skillBundleFolder "MANIFEST-SHA256.txt")
 Write-Manifest -Root $portableBundleFolder -Path (Join-Path $portableBundleFolder "MANIFEST-SHA256.txt")
+Write-Manifest -Root $dshBundleFolder -Path (Join-Path $dshBundleFolder "MANIFEST-SHA256.txt")
 
 $skillZipName = "pc-hardware-workbench-v$releaseName-share.zip"
 $portableZipName = "pc-hardware-portable-v$releaseName.zip"
+$dshZipName = "pc-hardware-workbench-deepseek-harness-v$releaseName.zip"
 $skillZip = Join-Path $skillReleaseRoot $skillZipName
 $portableZip = Join-Path $portableReleaseRoot $portableZipName
+$dshZip = Join-Path $dshReleaseRoot $dshZipName
 Compress-Archive -LiteralPath $skillBundleFolder -DestinationPath $skillZip -CompressionLevel Optimal
 Compress-Archive -LiteralPath $portableBundleFolder -DestinationPath $portableZip -CompressionLevel Optimal
+Compress-Archive -LiteralPath $dshBundleFolder -DestinationPath $dshZip -CompressionLevel Optimal
 
 $skillNotesPath = Join-Path $skillReleaseRoot "RELEASE-NOTES-v$releaseName.txt"
 $portableNotesPath = Join-Path $portableReleaseRoot "RELEASE-NOTES-v$releaseName.txt"
+$dshNotesPath = Join-Path $dshReleaseRoot "RELEASE-NOTES-v$releaseName.txt"
 $skillNotes = @"
 PC Hardware Workbench / Codex share $releaseName
 
@@ -244,30 +274,80 @@ Release status
 - Approved for broad distribution: NO
 - HardwareWrite: none
 "@
+$dshNotes = @"
+PC Hardware Workbench / DeepSeek Harness $releaseName
+
+Artifact
+- $dshZipName
+- Size: $((Get-Item -LiteralPath $dshZip).Length) bytes
+- SHA256: $((Get-FileHash -LiteralPath $dshZip -Algorithm SHA256).Hash)
+- Skill: $version, $($dshSkillFiles.Count) tracked files
+- Adapter files: $($adapterFiles.Count)
+- Git commit: $gitCommit
+
+Included
+- AGENTS.md and DEEPSEEK.md adapter entries;
+- complete Skill tree with telemetry, cases, RAG, LHM, visual evidence, and Doctor;
+- no local hardware reports, telemetry, images, caches, or secrets.
+
+Validation
+- packaged Skill tree is checked against the repository after extraction;
+- official Skill validator is run on the packaged tree.
+
+Release status
+- Test candidate
+- Human acceptance: PENDING
+- Approved for broad distribution: NO
+- HardwareWrite: none
+"@
 [IO.File]::WriteAllText($skillNotesPath, $skillNotes, $utf8NoBom)
 [IO.File]::WriteAllText($portableNotesPath, $portableNotes, $utf8NoBom)
+[IO.File]::WriteAllText($dshNotesPath, $dshNotes, $utf8NoBom)
 
-$sums = New-Object System.Collections.Generic.List[string]
-foreach ($artifact in @($skillZip, $portableZip, $skillNotesPath, $portableNotesPath)) {
-    $sums.Add("$((Get-FileHash -LiteralPath $artifact -Algorithm SHA256).Hash)  $([IO.Path]::GetFileName($artifact))") | Out-Null
+$skillSums = New-Object System.Collections.Generic.List[string]
+foreach ($artifact in @($skillZip, $skillNotesPath)) {
+    $skillSums.Add("$((Get-FileHash -LiteralPath $artifact -Algorithm SHA256).Hash)  $([IO.Path]::GetFileName($artifact))") | Out-Null
 }
-[IO.File]::WriteAllLines((Join-Path $skillReleaseRoot "SHA256SUMS-$releaseName.txt"), $sums, $utf8NoBom)
-[IO.File]::WriteAllLines((Join-Path $portableReleaseRoot "SHA256SUMS-$releaseName.txt"), $sums, $utf8NoBom)
+$portableSums = New-Object System.Collections.Generic.List[string]
+foreach ($artifact in @($portableZip, $portableNotesPath)) {
+    $portableSums.Add("$((Get-FileHash -LiteralPath $artifact -Algorithm SHA256).Hash)  $([IO.Path]::GetFileName($artifact))") | Out-Null
+}
+$dshSums = New-Object System.Collections.Generic.List[string]
+foreach ($artifact in @($dshZip, $dshNotesPath)) {
+    $dshSums.Add("$((Get-FileHash -LiteralPath $artifact -Algorithm SHA256).Hash)  $([IO.Path]::GetFileName($artifact))") | Out-Null
+}
+[IO.File]::WriteAllLines((Join-Path $skillReleaseRoot "SHA256SUMS-$releaseName.txt"), $skillSums, $utf8NoBom)
+[IO.File]::WriteAllLines((Join-Path $portableReleaseRoot "SHA256SUMS-$releaseName.txt"), $portableSums, $utf8NoBom)
+[IO.File]::WriteAllLines((Join-Path $dshReleaseRoot "SHA256SUMS-$releaseName.txt"), $dshSums, $utf8NoBom)
 
 $verifyRoot = Join-Path ([IO.Path]::GetTempPath()) "pcwb-release-verify-$([guid]::NewGuid().ToString('N'))"
 New-Item -ItemType Directory -Path $verifyRoot -Force | Out-Null
 try {
     Expand-Archive -LiteralPath $skillZip -DestinationPath (Join-Path $verifyRoot "skill")
     Expand-Archive -LiteralPath $portableZip -DestinationPath (Join-Path $verifyRoot "portable")
+    Expand-Archive -LiteralPath $dshZip -DestinationPath (Join-Path $verifyRoot "dsh")
     $packagedSkillOuter = Join-Path (Join-Path $verifyRoot "skill") "pc-hardware-workbench-v$releaseName"
     $packagedPortableOuter = Join-Path (Join-Path $verifyRoot "portable") "pc-hardware-portable-v$releaseName"
+    $packagedDshOuter = Join-Path (Join-Path $verifyRoot "dsh") "pc-hardware-workbench-deepseek-harness-v$releaseName"
     $packagedSkill = Join-Path $packagedSkillOuter "pc-hardware-workbench"
     $packagedPortable = $packagedPortableOuter
+    $packagedDshSkill = Join-Path $packagedDshOuter "skill\pc-hardware-workbench"
     & powershell -NoProfile -ExecutionPolicy Bypass `
         -File (Join-Path $RepositoryRoot "tools\check-package-sync.ps1") `
         -LeftRoot $skillRoot -RightRoot $packagedSkill -IgnoreEolOnly
     if ($LASTEXITCODE -ne 0) {
         throw "Packaged Skill does not match the repository."
+    }
+    & powershell -NoProfile -ExecutionPolicy Bypass `
+        -File (Join-Path $RepositoryRoot "tools\check-package-sync.ps1") `
+        -LeftRoot $skillRoot -RightRoot $packagedDshSkill -IgnoreEolOnly
+    if ($LASTEXITCODE -ne 0) {
+        throw "Packaged DSH Skill does not match the repository."
+    }
+    foreach ($adapterFile in @("AGENTS.md", "DEEPSEEK.md", "README.md")) {
+        if (-not (Test-Path -LiteralPath (Join-Path $packagedDshOuter $adapterFile) -PathType Leaf)) {
+            throw "Packaged DSH adapter is missing $adapterFile."
+        }
     }
     & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $packagedPortable "start.ps1") -SelfTest
     if ($LASTEXITCODE -ne 0) {
@@ -277,6 +357,10 @@ try {
         & powershell -NoProfile -ExecutionPolicy Bypass -File $ValidatorPath $packagedSkill
         if ($LASTEXITCODE -ne 0) {
             throw "Packaged Skill validator failed."
+        }
+        & powershell -NoProfile -ExecutionPolicy Bypass -File $ValidatorPath $packagedDshSkill
+        if ($LASTEXITCODE -ne 0) {
+            throw "Packaged DSH Skill validator failed."
         }
     }
 }
@@ -289,3 +373,4 @@ finally {
 Write-Host "Release build: PASS ($releaseName)" -ForegroundColor Green
 Write-Host "Skill ZIP: $skillZip"
 Write-Host "Portable ZIP: $portableZip"
+Write-Host "DSH ZIP: $dshZip"
