@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <meta name="description" content="电脑硬件工作台 Skill 文件仪象台本地演示">
+  <link rel="icon" href="data:,">
   <title>Skill Orrery · 文件仪象台</title>
   <style>
     :root {
@@ -169,12 +170,42 @@
     }
 
     .header-stats a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
       color: var(--muted);
       text-decoration: none;
     }
 
     .header-stats a:hover {
       color: var(--paper);
+    }
+
+    .snapshot-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-top: 12px;
+      padding: 11px 14px;
+      color: #aeb9c2;
+      border: 1px solid rgba(230, 179, 110, .25);
+      border-radius: 10px;
+      background: rgba(35, 27, 17, .36);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .snapshot-banner strong {
+      color: var(--amber);
+      font-weight: 560;
+    }
+
+    .snapshot-banner a {
+      flex: 0 0 auto;
+      color: var(--paper);
+      text-decoration: none;
+      border-bottom: 1px solid #536170;
     }
 
     .header-stats span::before {
@@ -247,7 +278,9 @@
     }
 
     .breadcrumb button {
-      padding: 2px 0;
+      min-height: 32px;
+      margin-left: -7px;
+      padding: 4px 7px;
       border: 0;
       color: inherit;
       background: transparent;
@@ -281,7 +314,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 32px;
+      min-height: 40px;
       padding: 5px 10px;
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -876,7 +909,7 @@
       bottom: 17px;
       z-index: 80;
       display: grid;
-      grid-template-columns: 28px;
+      grid-template-columns: 40px;
       justify-items: center;
       gap: 4px;
       padding: 5px;
@@ -890,8 +923,8 @@
     .camera-rail button {
       display: grid;
       place-items: center;
-      width: 28px;
-      height: 28px;
+      width: 40px;
+      height: 40px;
       padding: 0;
       border: 0;
       border-radius: 7px;
@@ -1264,6 +1297,8 @@
 
     @media (max-width: 640px) {
       .app-header {
+        display: grid;
+        grid-template-columns: 1fr;
         gap: 12px;
         padding-bottom: 14px;
       }
@@ -1283,15 +1318,43 @@
       }
 
       .brand p {
-        font-size: 11px;
+        font-size: 12px;
+        line-height: 1.5;
       }
 
-      .header-stats span {
-        display: none;
-      }
-
+      .header-stats span,
       .header-stats span:last-child {
         display: inline-flex;
+      }
+
+      .header-stats {
+        display: flex;
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 9px 15px;
+        padding-top: 0;
+        font-size: 11px;
+        line-height: 1.5;
+        white-space: normal;
+      }
+
+      .header-stats a,
+      .breadcrumb button {
+        min-height: 44px;
+        align-items: center;
+      }
+
+      .snapshot-banner {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 7px;
+      }
+
+      .snapshot-banner a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
       }
 
       .workspace {
@@ -1315,13 +1378,28 @@
       }
 
       .motion-toggle {
-        padding-inline: 8px;
-        font-size: 10px;
+        min-height: 44px;
+        padding-inline: 10px;
+        font-size: 11px;
       }
 
       .camera-rail {
         right: 10px;
         bottom: 62px;
+      }
+
+      .camera-rail {
+        grid-template-columns: 44px;
+        padding: 4px;
+      }
+
+      .camera-rail button {
+        width: 44px;
+        height: 44px;
+      }
+
+      .sector-rail button {
+        min-height: 44px;
       }
 
       .category-node {
@@ -1365,16 +1443,21 @@
         <div class="brand-mark" aria-hidden="true"></div>
         <div>
           <h1>文件仪象台</h1>
-          <p>电脑硬件工作台 · 61 个文件如何接住一个硬件问题</p>
+          <p>电脑硬件工作台 · 冻结的 61 文件结构快照</p>
         </div>
       </div>
       <div class="header-stats" aria-label="项目概况">
         <a href="../">返回项目地图</a>
         <span>61 个文件</span>
         <span>7 个星体系统</span>
-        <span>Skill 1.5.2</span>
+        <span>冻结 v1.2 · Skill 1.5.2</span>
       </div>
     </header>
+
+    <div class="snapshot-banner" role="note">
+      <span><strong>历史快照：</strong>本页保留 Skill 1.5.2 时期的文件结构与关系，不表示当前 2.4.0 的完整文件清单。</span>
+      <a href="../">回到 2.4.0 项目地图</a>
+    </div>
 
     <div class="workspace">
       <section class="stage-shell" aria-label="Skill 文件星系">
@@ -2468,9 +2551,9 @@
       dossier.style.setProperty("--panel-accent", GROUPS.core.color);
       dossier.innerHTML = `
         <div class="dossier-inner">
-          <div class="dossier-kicker">文件星系总览</div>
+          <div class="dossier-kicker">历史文件快照 · 当前工作台为 2.4.0</div>
           <h2>先看系统，再看单个文件</h2>
-          <p class="dossier-lead">这不是文件夹树，而是工作台处理问题时的五个功能层。点击任意目录球，让它的文件沿轨道展开。</p>
+          <p class="dossier-lead">这是 Skill 1.5.2 时期的 61 文件冻结视图，用来观察文件如何组成系统，不是当前 2.4.0 的完整清单。点击任意目录球，让它的文件沿轨道展开。</p>
           <div class="overview-list">
             ${Object.entries(GROUPS).sort((a, b) => a[1].ring - b[1].ring).map(([id, group]) => `
               <div class="overview-row" style="--row-color:${group.color}">

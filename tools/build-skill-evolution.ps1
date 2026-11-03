@@ -53,13 +53,13 @@ $interactiveRoot = Join-Path $OutputRoot "interactive"
 Write-SitePage `
     -Path (Join-Path $OutputRoot "index.html") `
     -SiteView "index" `
-    -Title "PC Hardware Workbench / Evolution Map" `
-    -Description "Version history, capability map, and state record for the PC Hardware Workbench."
+    -Title "电脑硬件工作台 · 2.4.0 候选 / 项目地图" `
+    -Description "电脑硬件工作台 2.4.0 本地候选：只读硬件证据、故障排查、遥测分析与版本档案。"
 
 Write-SitePage `
     -Path (Join-Path $interactiveRoot "index.html") `
     -SiteView "interactive" `
-    -Title "PC Hardware Workbench / Interactive Lab" `
-    -Description "Interactive terminology, tuning gate, triage, and configuration-state demos."
+    -Title "交互实验室 · 电脑硬件工作台" `
+    -Description "电脑硬件工作台 2.4.0 候选交互实验室：从单一步骤开始理解证据、排障与调校门禁。"
 
 Write-Host "Built index.html and interactive/index.html under $OutputRoot"

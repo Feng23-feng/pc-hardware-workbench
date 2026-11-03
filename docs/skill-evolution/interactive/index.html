@@ -4,12 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <meta name="description" content="Interactive terminology, tuning gate, triage, configuration-state, and evidence-system demos.">
+  <meta name="description" content="电脑硬件工作台 2.4.0 候选交互实验室：从单一步骤开始理解证据、排障与调校门禁。">
   <link rel="icon" href="data:,">
-  <title>PC Hardware Workbench / Interactive Lab</title>
+  <title>交互实验室 · 电脑硬件工作台</title>
 </head>
 <body>
-<div id="dse-root" class="dse">
+<main id="dse-root" class="dse">
   <style>
     html,
     body {
@@ -3462,7 +3462,7 @@
       font-size: 10px;
     }
 
-    #dse-root :where(button, a, input, select):focus-visible {
+    #dse-root :where(button, a, input, select, summary):focus-visible {
       outline: 2px solid rgba(129, 207, 223, .9);
       outline-offset: 2px;
     }
@@ -5427,6 +5427,351 @@
       }
     }
 
+    /*
+      Candidate-status readability pass shared with the project map.
+    */
+    #dse-root .dse-evidence-note {
+      max-width: 720px;
+      margin: 12px 0 0;
+      padding-left: 12px;
+      color: #a3a9b1;
+      border-left: 1px solid #4c555f;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    #dse-root .dse-evidence-note strong {
+      margin-right: 6px;
+      color: var(--dse-text);
+      font-weight: 560;
+    }
+
+    #dse-root #dse-guided-title,
+    #dse-root #dse-demo-title {
+      scroll-margin-top: 28px;
+    }
+
+    #dse-root .dse-chip {
+      min-height: 32px;
+      padding: 0 10px;
+      color: #c2c7cd;
+      background: #0c0f12;
+      border: 1px solid #252b32;
+      border-radius: 999px;
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    #dse-root .dse-chip.next {
+      color: var(--dse-amber);
+      border-color: rgba(216, 180, 122, .34);
+    }
+
+    #dse-root .dse-track-badge {
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
+    #dse-root .dse-version-title {
+      font-size: 11px;
+      line-height: 1.4;
+      white-space: normal;
+    }
+
+    #dse-root .dse-guided {
+      margin-top: 42px;
+      padding: 30px 0 34px;
+      border-top: 1px solid var(--dse-line);
+      border-bottom: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-guided-head {
+      display: grid;
+      grid-template-columns: minmax(0, .9fr) minmax(280px, 1.1fr);
+      align-items: end;
+      gap: 38px;
+    }
+
+    #dse-root .dse-guided-kicker {
+      margin: 0 0 10px;
+      color: #8b929c;
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 10px;
+      letter-spacing: .11em;
+    }
+
+    #dse-root .dse-guided h2 {
+      margin: 0;
+      font-size: 34px;
+      font-weight: 570;
+      line-height: 1.12;
+      letter-spacing: -.035em;
+    }
+
+    #dse-root .dse-guided-head > p {
+      max-width: 640px;
+      margin: 0;
+      color: var(--dse-muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    #dse-root .dse-guided-stage {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 240px;
+      grid-template-rows: auto auto auto;
+      gap: 8px 32px;
+      margin-top: 24px;
+      padding: 22px 0;
+      border-top: 1px solid #20252b;
+    }
+
+    #dse-root .dse-guided-select-label {
+      grid-column: 2;
+      grid-row: 1;
+      color: #8b929c;
+      font-size: 10px;
+      letter-spacing: .06em;
+    }
+
+    #dse-root #dse-guided-scenario {
+      grid-column: 2;
+      grid-row: 2;
+      width: 100%;
+      min-height: 44px;
+      padding: 0 10px;
+      color: var(--dse-text);
+      background: #0c1115;
+      border: 1px solid #313942;
+      border-radius: 7px;
+      font: inherit;
+      font-size: 12px;
+    }
+
+    #dse-root .dse-guided-copy {
+      grid-column: 1;
+      grid-row: 1 / 4;
+      align-self: center;
+      min-width: 0;
+    }
+
+    #dse-root .dse-guided-progress {
+      margin: 0;
+      color: var(--dse-cyan);
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 10px;
+      letter-spacing: .06em;
+    }
+
+    #dse-root .dse-guided-copy h3 {
+      margin: 10px 0 0;
+      font-size: 24px;
+      font-weight: 570;
+      line-height: 1.25;
+      letter-spacing: -.02em;
+    }
+
+    #dse-root .dse-guided-copy > p:last-child {
+      max-width: 700px;
+      margin: 10px 0 0;
+      color: #9da4ad;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    #dse-root .dse-guided-next {
+      grid-column: 2;
+      grid-row: 3;
+      align-self: end;
+      min-height: 44px;
+      padding: 0 13px;
+      color: #080a0c;
+      background: var(--dse-text);
+      border: 1px solid var(--dse-text);
+      border-radius: 7px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 560;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-guided-reason {
+      border-top: 1px solid #20252b;
+      border-bottom: 1px solid #20252b;
+    }
+
+    #dse-root .dse-guided-reason summary,
+    #dse-root .dse-advanced-shell > summary {
+      display: flex;
+      align-items: center;
+      min-height: 48px;
+      color: #aab1b9;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-guided-reason summary::after,
+    #dse-root .dse-advanced-shell > summary::after {
+      margin-left: auto;
+      color: var(--dse-cyan);
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 15px;
+      line-height: 1;
+      content: "+";
+    }
+
+    #dse-root .dse-guided-reason[open] summary::after,
+    #dse-root .dse-advanced-shell[open] > summary::after {
+      content: "−";
+    }
+
+    #dse-root .dse-guided-reason-body {
+      display: grid;
+      gap: 10px;
+      padding: 2px 0 18px;
+    }
+
+    #dse-root .dse-guided-reason-body p {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 18px;
+      margin: 0;
+      color: #969da6;
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    #dse-root .dse-guided-reason-body strong {
+      color: #d3d8dd;
+      font-weight: 550;
+    }
+
+    #dse-root .dse-advanced-shell {
+      margin-top: 36px;
+      border-top: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-advanced-shell > summary {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto auto;
+      gap: 12px;
+      min-height: 66px;
+      padding: 0;
+      border-bottom: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-advanced-shell > summary span {
+      color: var(--dse-cyan);
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 9px;
+      letter-spacing: .1em;
+    }
+
+    #dse-root .dse-advanced-shell > summary strong {
+      font-size: 14px;
+      font-weight: 560;
+    }
+
+    #dse-root .dse-advanced-shell > summary small {
+      color: #858d96;
+      font-size: 10px;
+    }
+
+    #dse-root .dse-advanced-shell[open] > summary {
+      margin-bottom: 28px;
+    }
+
+    @media (max-width: 680px) {
+      #dse-root .dse-intro-kicker {
+        font-size: 10px;
+      }
+
+      #dse-root .dse-chips {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      #dse-root .dse-chip {
+        justify-content: flex-start;
+        width: 100%;
+        min-height: 44px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        font-size: 11px;
+        line-height: 1.45;
+      }
+
+      #dse-root .dse-guided {
+        margin-top: 30px;
+        padding: 26px 0 30px;
+      }
+
+      #dse-root .dse-guided-head {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      #dse-root .dse-guided h2 {
+        font-size: 28px;
+      }
+
+      #dse-root .dse-guided-stage {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        gap: 9px;
+        margin-top: 20px;
+        padding: 18px 0;
+      }
+
+      #dse-root .dse-guided-select-label,
+      #dse-root #dse-guided-scenario,
+      #dse-root .dse-guided-copy,
+      #dse-root .dse-guided-next {
+        grid-column: 1;
+        grid-row: auto;
+      }
+
+      #dse-root .dse-guided-copy {
+        margin: 8px 0;
+      }
+
+      #dse-root .dse-guided-copy h3 {
+        font-size: 21px;
+      }
+
+      #dse-root .dse-guided-copy > p:last-child {
+        font-size: 12px;
+      }
+
+      #dse-root .dse-guided-reason summary,
+      #dse-root .dse-advanced-shell > summary {
+        min-height: 52px;
+      }
+
+      #dse-root .dse-guided-reason-body p {
+        grid-template-columns: 1fr;
+        gap: 4px;
+        font-size: 12px;
+      }
+
+      #dse-root .dse-advanced-shell > summary {
+        grid-template-columns: 1fr;
+        gap: 4px;
+        padding: 12px 0;
+      }
+
+      #dse-root .dse-advanced-shell > summary small {
+        text-align: left;
+      }
+    }
+
+    @media (max-width: 420px) {
+      #dse-root .dse-chips {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       #dse-root,
       #dse-root *,
@@ -5447,17 +5792,54 @@
       <div class="dse-header-copy">
         <p class="dse-kicker">电脑硬件工作台 / 项目地图</p>
         <h1><span class="dse-title-primary">电脑硬件工作台。</span><span class="dse-title-sub">先看证据，再决定是否调校。</span></h1>
-        <p class="dse-subtitle">读取配置、统一遥测、核对官方资料、解读截图与照片，并规划升级。每个判断先经过来源、时间、恢复路径和证据门禁，不自动修改硬件。</p>
+        <p class="dse-subtitle">读取配置、统一遥测、核对官方资料、解读截图与照片，并规划升级。2.4.0 在明确同意后，只读访问已运行 LHM 的本机回环 Web；每个判断先经过来源、时间、恢复路径和证据门禁，不自动修改硬件。</p>
+        <p class="dse-evidence-note"><strong>显存证据门禁</strong>先确认具体显卡、显存类型与容量、驱动 / vBIOS、固定负载和请求 / 观测口径，不从单一时钟读数推断带宽。</p>
       </div>
       <aside class="dse-intro-window" aria-label="工具介绍与当前状态">
         <p class="dse-intro-kicker">当前状态</p>
         <div class="dse-chips" aria-label="当前版本状态">
-          <span class="dse-chip">工作台 2.4.0</span>
-          <span class="dse-chip prototype">超频原型 3.0.2 · 未发布</span>
-          <span class="dse-chip triage">故障排查：公开</span>
+          <span class="dse-chip">工作台 2.4.0 · 本地候选</span>
+          <span class="dse-chip next">人工签署：PENDING</span>
         </div>
       </aside>
     </header>
+
+    <section class="dse-guided" aria-labelledby="dse-guided-title">
+      <header class="dse-guided-head">
+        <div>
+          <p class="dse-guided-kicker">GUIDED LAB / 新手演示</p>
+          <h2 id="dse-guided-title">先选一个问题，一次只走一步</h2>
+        </div>
+        <p>默认只展示一个场景。先理解现在缺什么，再看证据或展开高级分支。</p>
+      </header>
+
+      <div class="dse-guided-stage">
+        <label class="dse-guided-select-label" for="dse-guided-scenario">换一个问题</label>
+        <select id="dse-guided-scenario">
+          <option value="temperature">电脑温度偏高</option>
+          <option value="stutter">游戏掉帧或卡顿</option>
+          <option value="tuning">想调校 GPU / CPU</option>
+        </select>
+
+        <div class="dse-guided-copy" aria-live="polite">
+          <p class="dse-guided-progress" id="dse-guided-progress">温度偏高 · 第 1 步 / 共 3 步</p>
+          <h3 id="dse-guided-step-title">先确认是哪一部分温度高</h3>
+          <p id="dse-guided-step-copy">先说明 CPU、GPU、显存或整机温度，以及当时在做什么。单看一个瞬间数字，不能判断散热是否异常。</p>
+        </div>
+
+        <button class="dse-guided-next" id="dse-guided-next" type="button">下一步：补齐负载与传感器</button>
+      </div>
+
+      <details class="dse-guided-reason">
+        <summary>高级解释：证据、原因与内部状态</summary>
+        <div class="dse-guided-reason-body">
+          <p><strong>需要什么证据</strong><span id="dse-guided-evidence">具体部件、固定负载、环境条件、监测工具，以及同一负载下的多点记录。</span></p>
+          <p><strong>为什么先问这些</strong><span id="dse-guided-why">温度必须和负载、功耗与散热条件一起解释；缺少上下文时，升级散热或直接调压都只是猜测。</span></p>
+          <p><strong>内部状态</strong><span>当前只演示“补充证据”这一步，不生成参数，也不读取或修改你的电脑。</span></p>
+        </div>
+      </details>
+
+    </section>
 
     <section class="dse-orientation" aria-labelledby="dse-start-title">
       <div class="dse-orientation-copy">
@@ -5513,7 +5895,7 @@
             <small>按系列展开历史记录与验证状态</small>
           </span>
         </a>
-        <a href="interactive/">
+        <a href="./">
           <span class="dse-orientation-index">03 / 交互流程</span>
           <span class="dse-orientation-art" aria-hidden="true">
             <svg viewBox="0 0 240 160">
@@ -5567,7 +5949,7 @@
         <button type="button" class="dse-filter" data-filter="core" aria-pressed="true">主工作台</button>
         <button type="button" class="dse-filter" data-filter="prototype" aria-pressed="false">自动超频原型</button>
         <button type="button" class="dse-filter" data-filter="triage" aria-pressed="false">Triage 排障</button>
-        <a class="dse-filter dse-lab-link" href="interactive/">交互实验室 ↗</a>
+        <a class="dse-filter dse-lab-link" href="./">交互实验室 ↗</a>
         <button type="button" class="dse-filter" data-filter="merge" aria-pressed="false">融合阶段</button>
       </div>
       <div class="dse-legend">
@@ -5586,7 +5968,7 @@
               <span class="dse-track-kicker">主工作台</span>
               <h2 id="dse-map-title">电脑硬件工作台</h2>
             </div>
-            <span class="dse-track-badge">稳定 2.4.0</span>
+            <span class="dse-track-badge">2.4.0 候选 · 签署 PENDING</span>
           </div>
           <div class="dse-lane" id="dse-core-lane"></div>
         </section>
@@ -5663,6 +6045,12 @@
       <div class="dse-convergence-line reverse"></div>
     </section>
 
+    <details class="dse-advanced-shell" id="dse-advanced-shell">
+      <summary>
+        <span>高级模式</span>
+        <strong>完整术语、调校门禁、排障与证据实验</strong>
+        <small>仅按需使用</small>
+      </summary>
     <section class="dse-demo" id="dse-demo" aria-labelledby="dse-demo-title" hidden>
       <header class="dse-demo-head">
         <div class="dse-demo-heading">
@@ -5973,7 +6361,7 @@
               <h3 id="dse-evidence-system-title">同一条证据链，接住不同来源</h3>
               <p class="dse-demo-panel-sub">CSV、实时传感器、官方资料和图片不会直接混成一句结论。先保留来源和限制，再决定能不能比较。</p>
             </div>
-            <span class="dse-demo-step">2.4.0 · 只读</span>
+            <span class="dse-demo-step">2.4.0 候选 · 只读</span>
           </div>
           <div class="dse-process-visual" aria-label="统一证据管线">
             <span class="dse-process-label">证据管线</span>
@@ -6056,13 +6444,14 @@
         </article>
       </div>
     </section>
+    </details>
 
     <section class="dse-archive" aria-labelledby="dse-archive-title">
       <header class="dse-archive-head">
         <div>
           <p class="dse-archive-kicker">版本档案 / 全部已记录版本</p>
           <h2 id="dse-archive-title">逐版本迭代档案</h2>
-          <p class="dse-archive-summary">从统一工作台 1.0.0 到当前 2.4.0，再到自动超频原型的独立分叉、档位证据和有限验证。1.6.0 之后新增遥测标准化、动态 RAG、LHM 本机 Web、视觉证据、Doctor、入口减重和显存解释门禁。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。</p>
+          <p class="dse-archive-summary">从统一工作台 1.0.0 到当前候选 2.4.0，再到自动超频原型的独立分叉、档位证据和有限验证。1.6.0 之后新增遥测标准化、动态 RAG、LHM 本机 Web、视觉证据、Doctor、入口减重和显存解释门禁。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。</p>
         </div>
         <div class="dse-archive-totals" aria-label="版本档案统计">
           <span class="dse-archive-total"><b id="dse-wb-count">0</b>工作台版本</span>
@@ -6598,7 +6987,7 @@
           ]
         },
         {
-          id: "wb-1-4", track: "core", label: "工作台 / 1.4", sub: "自然语气 · 提示时机 · 当前分发",
+          id: "wb-1-4", track: "core", label: "工作台 / 1.4–1.5", sub: "自然语气 · 提示时机 · 公开基线",
           versions: [
             ["1.4.0", "语气层", "2026-10-28", "TONE TEST", ["安全提示与三段式解释改为由候选值或真实动作触发。", "删除状态行和方括号式模式横幅。", "多步流程仍保留一句自然语言进度提示。"], "12 条语气稳定性场景；测试包未达到发布标准，由 1.4.1 接续。", "从“流程模板感”转向自然专家表达。"],
             ["1.4.1", "收窄提示范围", "2026-10-28", "TONE TEST", ["普通系统、软件、HDR、监测导出不再机械触发安全提示。", "提示范围收窄到调校敏感参数与明确改动动作。", "补充 HWiNFO 菜单位置可能随版本变化。"], "规则项三轮稳定性复查；版本记录后由 1.4.2 接续。", "修复 1.4.0 中语气规则过宽的问题。"],
@@ -6614,7 +7003,7 @@
           ]
         },
         {
-          id: "wb-2-2", track: "core", label: "工作台 / 1.6 → 2.2", sub: "标准化 · 证据 · 实时适配 · 视觉 · 诊断",
+          id: "wb-2-2", track: "core", label: "工作台 / 1.6 → 2.4", sub: "标准化 · 证据 · 实时适配 · 视觉 · Doctor · 当前候选",
           versions: [
             ["1.6.0", "遥测图表、硬件案卷与入口瘦身", "2026-11-03", "RELEASED", ["新增 ChartData 与固定 SVG 遥测渲染器，保留缺失值断点并防止覆盖。", "新增本地硬件案卷，保存证据哈希、假设、时间线、基线和实验。", "入口从约 17.3 KB 降至 11.7 KB，Quick 初始加载降到约 21.4 KB。"], "全量非实机测试、validator、便携同步和案卷/图表回归通过。", "工作台从规则与文本遥测进入可视化案卷阶段。"],
             ["1.7.0", "离线案卷报告与图表准确性", "2026-11-03", "RELEASED", ["生成依赖为零、带 CSP 的静态 HTML 案卷报告，证据预览默认关闭。", "修复降采样丢失缺口、显式 IncludeColumn 被挤出和警告摘要缺失。", "时间戳统一 ISO 8601；危险 SVG、外部路径与 HTML 注入被隔离。"], "全量测试与 validator 通过；独立完整性测试 7/7 PASS，实时采集 SKIP。", "案卷从本地 JSON 升级为可离线阅读、可分享审查的报告。"],
@@ -6624,7 +7013,7 @@
             ["2.1.0", "多模态证据规则", "2026-11-03", "RELEASED", ["覆盖监控截图、BIOS 照片、蓝屏、Debug LED、设备管理器和事件查看器。", "强制区分可见事实、推断、未知和证据限制；截图不等于时间序列。", "图片内命令和提示词一律不可信，不触发执行、下载或设置修改。"], "带恶意指令的合成截图独立测试 PASS；模型视觉未被打包成 Skill 能力。", "视觉能力仍由运行时提供，Skill 负责领域证据边界。"],
             ["2.2.0", "只读 Skill Doctor", "2026-11-03", "RELEASED", ["检查版本、核心文件、语法、编码、输出目录、PowerShell、CIM、validator 和可选工具。", "区分 AVAILABLE、OPTIONAL_MISSING、PERMISSION_REQUIRED、BROKEN、UNKNOWN 与 SKIP。", "只诊断不修复；不安装、不提权、不启动软件、不联网。"], "Doctor 独立复核 14 PASS / 0 FAIL / 1 SKIP；安装树 83/83 一致。", "2.3.0 之前的本地方案；人工验收与真实 LHM 探测仍 PENDING。"],
             ["2.3.0", "入口减重与跨能力验收", "2026-11-03", "PREVIOUS LOCAL", ["SKILL.md 从 13,310 B 降至约 12,284 B，Quick 初始加载降至约 22.2 KB。", "遥测、LHM 和视觉证据按当前输入只加载匹配 reference；预算收紧为 12.5 KB / 23 KB。", "新增 6 个跨能力场景：模糊症状、CSV+截图、官方冲突、LHM 缺失、图像矛盾、权限绕过。"], "完整自动回归通过；3 个独立行为对话 6/6 PASS。", "2.4.0 之前的本地候选；独立人工签署仍 PENDING。"],
-            ["2.4.0", "LHM Web 与显存证据门禁", "2026-11-03", "CURRENT LOCAL", ["LHM 0.9.6 改走 loopback Web /data.json，旧版 WMI 仅作兼容后备；实机读取 284 个传感器。", "保留 GPU 硬件路径并透传到归一化结果；网络适配器自定义名称不进入 ObservedComponents。", "新增显存解释门禁：具体 GPU、显存类型与容量、驱动/vBIOS/工具、请求/观测口径和固定负载缺失时不给数值或带宽结论。", "显存时钟 14001 MHz 保留并提示口径风险；绝对合理性上限 30 GHz，明显异常值仍过滤。", "修复工具脚本相对路径启动时参数默认阶段 PSScriptRoot 为空的问题。"], "完整自动回归与 validator PASS；显存建议门禁、LHM 未运行、LHM Web 实读三个独立行为对话 3/3 PASS；独立人工签署仍 PENDING。", "当前本地候选；106 个版本记录，GitHub main 已推送，Pages 由 main 自动部署，CI 必须在最新提交通过。"]
+            ["2.4.0", "LHM Web 与显存证据门禁", "2026-11-03", "CURRENT CANDIDATE", ["LHM 0.9.6 改走 loopback Web /data.json，旧版 WMI 仅作兼容后备；实机读取 284 个传感器。", "保留 GPU 硬件路径并透传到归一化结果；网络适配器自定义名称不进入 ObservedComponents。", "新增显存解释门禁：具体 GPU、显存类型与容量、驱动/vBIOS/工具、请求/观测口径和固定负载缺失时不给数值或带宽结论。", "显存时钟 14001 MHz 保留并提示口径风险；绝对合理性上限 30 GHz，明显异常值仍过滤。", "修复工具脚本相对路径启动时参数默认阶段 PSScriptRoot 为空的问题。"], "完整自动回归与 validator PASS；显存建议门禁、LHM 未运行、LHM Web 实读三个独立行为对话 3/3 PASS；独立人工签署仍 PENDING。", "当前本地候选，GitHub main 已同步；106 个版本记录，Pages 由 main 自动部署，CI 必须在最新提交通过。"]
           ]
         },
         {
@@ -7684,10 +8073,10 @@
         {
           id: "core-instrumentation", track: "core", code: "WB-08", title: "可信证据系统 2.4.0",
           summary: "统一遥测 · RAG · LHM · 视觉 · Doctor · 简单入口",
-          status: "done", state: "STABLE 2.4.0",
+          status: "done", state: "CURRENT 2.4.0",
           goal: "把 CSV、结构化快照、官方资料、实时只读传感器和图片统一到可追溯、可降级、可诊断的证据体系。",
           action: "先标准化来源与时间，再记录证据卡和缺失；网页图片不再等于时间序列，Doctor 把权限问题与损坏问题分开。",
-          proof: "各子系统独立复核通过；入口 12,284 B、Quick 22,218 B；实时 LHM 与人工验收仍 SKIP/PENDING，尚未推送 GitHub。"
+          proof: "各子系统独立复核通过；入口 12,284 B、Quick 22,218 B；LHM Web 实读三组行为对话 3/3 PASS；广泛发布人工签署仍 PENDING；版本已进入 GitHub main。"
         },
         {
           id: "proto-seed", track: "prototype", code: "AO-01", title: "独立原型分叉",
@@ -7877,7 +8266,7 @@
       }
 
       const currentSeriesByTrack = {
-        core: "wb-1-4",
+        core: "wb-2-2",
         prototype: "proto-3"
       };
       const expandedSeries = new Set(Object.values(currentSeriesByTrack));
@@ -8653,6 +9042,13 @@
         const raw = decodeURIComponent(window.location.hash.replace(/^#/, ""));
         if (!raw) return;
         if (isInteractiveView) {
+          const advancedShell = document.getElementById("dse-advanced-shell");
+          if (
+            raw.startsWith("term-") ||
+            ["terms", "tune", "triage", "identity", "evidence"].includes(raw)
+          ) {
+            advancedShell?.setAttribute("open", "");
+          }
           if (raw.startsWith("term-")) {
             const id = raw.slice(5);
             setDemoMode("terms", { updateRoute: false });
@@ -8743,6 +9139,125 @@
       mergeButtons.forEach(button => {
         button.addEventListener("click", () => selectMilestone(button.dataset.mergeId, true));
       });
+      function setupGuidedLab() {
+        if (!isInteractiveView) return;
+        const scenarioSelect = document.getElementById("dse-guided-scenario");
+        const progress = document.getElementById("dse-guided-progress");
+        const title = document.getElementById("dse-guided-step-title");
+        const copy = document.getElementById("dse-guided-step-copy");
+        const evidence = document.getElementById("dse-guided-evidence");
+        const why = document.getElementById("dse-guided-why");
+        const nextButton = document.getElementById("dse-guided-next");
+        const advancedShell = document.getElementById("dse-advanced-shell");
+        if (!scenarioSelect || !progress || !title || !copy || !evidence || !why || !nextButton) return;
+
+        const scenarios = {
+          temperature: {
+            label: "温度偏高",
+            steps: [
+              {
+                title: "先确认是哪一部分温度高",
+                copy: "先说明 CPU、GPU、显存或整机温度，以及当时在做什么。单看一个瞬间数字，不能判断散热是否异常。",
+                evidence: "具体部件、固定负载、环境条件、监测工具，以及同一负载下的多点记录。",
+                why: "温度必须和负载、功耗与散热条件一起解释；缺少上下文时，升级散热或直接调压都只是猜测。",
+                next: "补齐负载与传感器"
+              },
+              {
+                title: "把温度放回同一个负载里",
+                copy: "选一个可重复的游戏、渲染或基准场景，记录达到稳定后的温度、功耗和频率，而不是只截最高的一瞬间。",
+                evidence: "同一场景的基线记录，至少包含温度、功耗、频率和负载持续时间。",
+                why: "只有同条件对比，才能看出温度变化来自负载、环境、散热还是设置。",
+                next: "查看趋势与散热边界"
+              },
+              {
+                title: "先处理证据缺口，再决定是否调校",
+                copy: "目前只能形成检查方向。若温度过高，应先确认风道、积灰、环境温度和负载条件；硬件设置仍由你决定。",
+                evidence: "当前证据只能支持下一步检查，不能直接证明需要降压、换散热器或升级硬件。",
+                why: "把单点温度当成散热结论，容易掩盖环境或负载变化，也会误导调校方向。",
+                next: "再走一遍"
+              }
+            ]
+          },
+          stutter: {
+            label: "掉帧或卡顿",
+            steps: [
+              {
+                title: "先分清是哪一种卡顿",
+                copy: "持续低帧、周期性掉帧、瞬时光卡、驱动重置和输入延迟不是同一个问题。先描述发生时间和现象。",
+                evidence: "游戏名称、画质设置、驱动版本、发生时间，以及是否能稳定复现。",
+                why: "不同症状对应不同证据；只凭“卡”无法区分负载不足、后台任务、驱动或温度问题。",
+                next: "确定一个可重复场景"
+              },
+              {
+                title: "只记录一个可重复的游玩场景",
+                copy: "固定地图、画质和后台程序，记录 FPS 或帧时间、温度、功耗、GPU 频率与限制原因。截图只能补充可见瞬间。",
+                evidence: "同一场景的 CSV 或结构化记录，优先保留时间顺序和缺失值。",
+                why: "平均 FPS 可能掩盖短暂卡顿；帧时间和限制原因才能说明问题发生在哪一层。",
+                next: "比较基线与异常段"
+              },
+              {
+                title: "先缩小范围，再考虑改设置",
+                copy: "如果异常段伴随温度、功耗或频率变化，就带着这些证据进入排障；如果证据不足，先补记录或复现。",
+                evidence: "基线、异常段和系统事件应能按时间对应；单次跑分不证明日常稳定。",
+                why: "升级或调参之前先确定瓶颈，才能避免用硬件改动掩盖软件、散热或驱动问题。",
+                next: "再走一遍"
+              }
+            ]
+          },
+          tuning: {
+            label: "想调校",
+            steps: [
+              {
+                title: "先说清楚目标和恢复方式",
+                copy: "你想降温、降噪、提持续性能还是跑分？同时确认目前稳定状态和遇到问题时怎么恢复。",
+                evidence: "目标、设备与部件、当前稳定基线、恢复路径、固定负载和可操作控制项。",
+                why: "缺少目标或恢复方式时，任何数值都只是别人的配置，不是适合你的实验计划。",
+                next: "补齐五项调校条件"
+              },
+              {
+                title: "一次只改一个地方",
+                copy: "先保持负载和记录方式不变，只改变一个主变量。不同时改核心频率、显存、功耗墙或电压。",
+                evidence: "候选值来源、当前值、通过判据、中止信号和完整恢复步骤。",
+                why: "单变量测试才能知道结果由什么引起；叠加修改后即使成功，也无法安全复用。",
+                next: "生成可回滚测试计划"
+              },
+              {
+                title: "测试计划只说明怎么做，不替你改硬件",
+                copy: "结果分为保留、重复、诊断和恢复。重启、睡眠唤醒与日常负载仍需继续验证，跑分通过不等于长期稳定。",
+                evidence: "固定负载、重复结果、持久化状态和恢复后的基线才是完整证据。",
+                why: "自动修改硬件会扩大风险；这里只帮助你把变量、观察指标和退出条件写清楚。",
+                next: "再走一遍"
+              }
+            ]
+          }
+        };
+
+        let guidedStep = 0;
+        function renderGuidedStep() {
+          const scenario = scenarios[scenarioSelect.value] || scenarios.temperature;
+          const item = scenario.steps[guidedStep];
+          progress.textContent = `${scenario.label} · 第 ${guidedStep + 1} 步 / 共 ${scenario.steps.length} 步`;
+          title.textContent = item.title;
+          copy.textContent = item.copy;
+          evidence.textContent = item.evidence;
+          why.textContent = item.why;
+          nextButton.textContent = guidedStep === scenario.steps.length - 1
+            ? item.next
+            : `下一步：${item.next}`;
+        }
+
+        scenarioSelect.addEventListener("change", () => {
+          guidedStep = 0;
+          renderGuidedStep();
+        });
+        nextButton.addEventListener("click", () => {
+          guidedStep = (guidedStep + 1) % 3;
+          renderGuidedStep();
+        });
+        renderGuidedStep();
+      }
+
+      setupGuidedLab();
       setDemoMode("tune", { updateRoute: false });
       if (isInteractiveView) {
         initTermLab();
@@ -8751,14 +9266,14 @@
       } else {
         applyFilter("core", false);
         hideInspector(false);
-        selectVersion("wb-1-4-4", false, false);
+        selectVersion("wb-2-4-0", false, false);
         handleRoute();
       }
       window.addEventListener("hashchange", handleRoute);
     })();
   </script>
-</div>
+</main>
 
-<noscript>This page requires JavaScript to show the interactive content.</noscript>
+<noscript>此页面需要 JavaScript 才能显示交互内容。</noscript>
 </body>
 </html>

@@ -4,12 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <meta name="description" content="Version history, evidence system, and state record for the PC Hardware Workbench.">
+  <meta name="description" content="电脑硬件工作台 2.4.0 本地候选：只读硬件证据、故障排查、遥测分析与版本档案。">
   <link rel="icon" href="data:,">
-  <title>PC Hardware Workbench / Evolution Map</title>
+  <title>电脑硬件工作台 · 2.4.0 候选 / 项目地图</title>
 </head>
 <body>
-<div id="dse-root" class="dse">
+<main id="dse-root" class="dse">
   <style>
     html,
     body {
@@ -3468,7 +3468,7 @@
       font-size: 10px;
     }
 
-    #dse-root :where(button, a, input, select):focus-visible {
+    #dse-root :where(button, a, input, select, summary):focus-visible {
       outline: 2px solid rgba(129, 207, 223, .9);
       outline-offset: 2px;
     }
@@ -5451,6 +5451,544 @@
       }
     }
 
+    /*
+      Homepage maintenance pass:
+      lead with purpose and use, keep the evidence map and archive as deeper layers.
+    */
+    #dse-root .dse-evidence-note {
+      max-width: 720px;
+      margin: 12px 0 0;
+      padding-left: 12px;
+      color: #a3a9b1;
+      border-left: 1px solid #4c555f;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    #dse-root .dse-evidence-note strong {
+      margin-right: 6px;
+      color: var(--dse-text);
+      font-weight: 560;
+    }
+
+    #dse-root #dse-overview-title,
+    #dse-root #dse-how-title,
+    #dse-root #dse-candidate-title,
+    #dse-root #dse-map-title,
+    #dse-root #dse-archive-title {
+      scroll-margin-top: 72px;
+    }
+
+    #dse-root .dse-hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    #dse-root .dse-hero-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 17px;
+      color: var(--dse-text);
+      background: #111519;
+      border: 1px solid #353b43;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 560;
+      text-decoration: none;
+      transition: background-color .16s ease, border-color .16s ease, color .16s ease;
+    }
+
+    #dse-root .dse-hero-action.primary {
+      color: #080a0c;
+      background: var(--dse-text);
+      border-color: var(--dse-text);
+    }
+
+    #dse-root .dse-hero-action:hover,
+    #dse-root .dse-hero-action:focus-visible {
+      color: var(--dse-text);
+      background: #1a1f24;
+      border-color: #59616b;
+    }
+
+    #dse-root .dse-hero-action.primary:hover,
+    #dse-root .dse-hero-action.primary:focus-visible {
+      color: #050708;
+      background: #fff;
+      border-color: #fff;
+    }
+
+    #dse-root .dse-chip {
+      min-height: 32px;
+      padding: 0 10px;
+      color: #c2c7cd;
+      background: #0c0f12;
+      border: 1px solid #252b32;
+      border-radius: 999px;
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    #dse-root .dse-chip.next {
+      color: var(--dse-amber);
+      border-color: rgba(216, 180, 122, .34);
+    }
+
+    #dse-root .dse-track-badge {
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
+    #dse-root .dse-reading-section {
+      margin-top: 46px;
+      padding: 38px 0 40px;
+      border-top: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-reading-heading {
+      display: grid;
+      grid-template-columns: minmax(0, .75fr) minmax(0, 1.25fr);
+      align-items: end;
+      gap: 44px;
+    }
+
+    #dse-root .dse-reading-kicker {
+      margin: 0 0 10px;
+      color: #8b929c;
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 10px;
+      letter-spacing: .11em;
+    }
+
+    #dse-root .dse-reading-heading h2,
+    #dse-root .dse-candidate h2 {
+      margin: 0;
+      font-size: 34px;
+      font-weight: 570;
+      line-height: 1.12;
+      letter-spacing: -.035em;
+    }
+
+    #dse-root .dse-reading-lead,
+    #dse-root .dse-candidate-lead {
+      max-width: 680px;
+      margin: 0;
+      color: var(--dse-muted);
+      font-size: 14px;
+      line-height: 1.75;
+    }
+
+    #dse-root .dse-capability-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0;
+      margin-top: 28px;
+      border-top: 1px solid var(--dse-line);
+      border-bottom: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-capability {
+      min-width: 0;
+      padding: 18px 18px 20px 0;
+      border-right: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-capability:not(:first-child) {
+      padding-left: 18px;
+    }
+
+    #dse-root .dse-capability:last-child {
+      padding-right: 0;
+      border-right: 0;
+    }
+
+    #dse-root .dse-capability span {
+      color: #7f8790;
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 9px;
+      letter-spacing: .1em;
+    }
+
+    #dse-root .dse-capability strong {
+      display: block;
+      margin-top: 9px;
+      font-size: 15px;
+      font-weight: 570;
+    }
+
+    #dse-root .dse-capability p {
+      margin: 8px 0 0;
+      color: var(--dse-muted);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    #dse-root .dse-howto-steps {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0;
+      margin: 28px 0 0;
+      padding: 0;
+      border-top: 1px solid var(--dse-line);
+      border-bottom: 1px solid var(--dse-line);
+      list-style: none;
+    }
+
+    #dse-root .dse-howto-step {
+      position: relative;
+      min-width: 0;
+      padding: 20px 24px 23px 0;
+      border-right: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-howto-step:not(:first-child) {
+      padding-left: 24px;
+    }
+
+    #dse-root .dse-howto-step:last-child {
+      padding-right: 0;
+      border-right: 0;
+    }
+
+    #dse-root .dse-howto-step b {
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      color: var(--dse-cyan);
+      border: 1px solid rgba(129, 207, 223, .36);
+      border-radius: 50%;
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 9px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-howto-step strong {
+      display: block;
+      margin-top: 14px;
+      font-size: 16px;
+      font-weight: 570;
+    }
+
+    #dse-root .dse-howto-step p {
+      margin: 7px 0 0;
+      color: var(--dse-muted);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    #dse-root .dse-howto-note {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin: 14px 0 0;
+      color: #8b929c;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    #dse-root .dse-howto-note a {
+      flex: none;
+      display: inline-flex;
+      align-items: center;
+      min-height: 40px;
+      color: var(--dse-text);
+      text-decoration: none;
+      border-bottom: 1px solid #4b535c;
+    }
+
+    #dse-root .dse-candidate {
+      display: grid;
+      grid-template-columns: minmax(0, .9fr) minmax(360px, 1.1fr);
+      gap: 52px;
+      margin-top: 10px;
+      padding: 32px 0;
+      border-top: 1px solid var(--dse-line);
+      border-bottom: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-candidate .dse-reading-kicker {
+      color: var(--dse-amber);
+    }
+
+    #dse-root .dse-candidate-lead {
+      margin-top: 14px;
+      font-size: 13px;
+    }
+
+    #dse-root .dse-candidate-facts {
+      display: grid;
+      gap: 0;
+      align-content: start;
+    }
+
+    #dse-root .dse-candidate-fact {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr);
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid #20252b;
+    }
+
+    #dse-root .dse-candidate-fact:first-child {
+      padding-top: 0;
+    }
+
+    #dse-root .dse-candidate-fact:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    #dse-root .dse-candidate-fact dt {
+      color: #9198a1;
+      font-size: 10px;
+      letter-spacing: .06em;
+    }
+
+    #dse-root .dse-candidate-fact dd {
+      margin: 0;
+      color: #d1d5da;
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    #dse-root .dse-explore {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-top: 26px;
+      border-top: 1px solid var(--dse-line);
+      border-bottom: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-explore a {
+      min-width: 0;
+      min-height: 82px;
+      padding: 15px 16px;
+      color: var(--dse-text);
+      border-right: 1px solid var(--dse-line);
+      text-decoration: none;
+      transition: background-color .16s ease, border-color .16s ease;
+    }
+
+    #dse-root .dse-explore a:last-child {
+      border-right: 0;
+    }
+
+    #dse-root .dse-explore a:hover,
+    #dse-root .dse-explore a:focus-visible {
+      background: rgba(255, 255, 255, .025);
+    }
+
+    #dse-root .dse-explore strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 570;
+    }
+
+    #dse-root .dse-explore small {
+      display: block;
+      margin-top: 5px;
+      color: var(--dse-muted);
+      font-size: 10px;
+      line-height: 1.55;
+    }
+
+    #dse-root .dse-version-title {
+      font-size: 11px;
+      line-height: 1.4;
+      white-space: normal;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-hero-actions,
+    html[data-site-view="interactive"] #dse-root .dse-reading-section,
+    html[data-site-view="interactive"] #dse-root .dse-candidate,
+    html[data-site-view="interactive"] #dse-root .dse-explore {
+      display: none !important;
+    }
+
+    @media (max-width: 680px) {
+      #dse-root .dse-intro-kicker {
+        font-size: 10px;
+      }
+
+      #dse-root .dse-chips {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      #dse-root .dse-chip {
+        justify-content: flex-start;
+        width: 100%;
+        min-height: 44px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        font-size: 11px;
+        line-height: 1.45;
+      }
+
+      #dse-root .dse-hero-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root .dse-hero-action {
+        width: 100%;
+      }
+
+      #dse-root .dse-reading-section {
+        margin-top: 34px;
+        padding: 30px 0;
+      }
+
+      #dse-root .dse-reading-heading {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      #dse-root .dse-reading-heading h2,
+      #dse-root .dse-candidate h2 {
+        font-size: 28px;
+      }
+
+      #dse-root .dse-reading-lead,
+      #dse-root .dse-candidate-lead {
+        font-size: 13px;
+      }
+
+      #dse-root .dse-capability-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin-top: 22px;
+      }
+
+      #dse-root .dse-capability {
+        padding: 15px 12px 16px 0;
+        border-bottom: 1px solid var(--dse-line);
+      }
+
+      #dse-root .dse-capability:not(:first-child) {
+        padding-left: 12px;
+      }
+
+      #dse-root .dse-capability:nth-child(2) {
+        padding-right: 0;
+        border-right: 0;
+      }
+
+      #dse-root .dse-capability:nth-last-child(-n + 2) {
+        border-bottom: 0;
+      }
+
+      #dse-root .dse-capability p {
+        font-size: 11px;
+      }
+
+      #dse-root .dse-howto-steps {
+        grid-template-columns: 1fr;
+        margin-top: 22px;
+      }
+
+      #dse-root .dse-howto-step,
+      #dse-root .dse-howto-step:not(:first-child) {
+        display: grid;
+        grid-template-columns: 34px minmax(0, 1fr);
+        column-gap: 12px;
+        min-height: 92px;
+        padding: 14px 0;
+        border-right: 0;
+        border-bottom: 1px solid var(--dse-line);
+      }
+
+      #dse-root .dse-howto-step:last-child {
+        border-bottom: 0;
+      }
+
+      #dse-root .dse-howto-step b {
+        grid-row: 1 / 3;
+      }
+
+      #dse-root .dse-howto-step strong {
+        margin-top: 2px;
+        font-size: 15px;
+      }
+
+      #dse-root .dse-howto-step p {
+        margin-top: 4px;
+        font-size: 12px;
+      }
+
+      #dse-root .dse-howto-note {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      #dse-root .dse-candidate {
+        grid-template-columns: 1fr;
+        gap: 22px;
+        margin-top: 4px;
+        padding: 26px 0;
+      }
+
+      #dse-root .dse-candidate-fact {
+        grid-template-columns: 66px minmax(0, 1fr);
+        gap: 12px;
+      }
+
+      #dse-root .dse-explore {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin-top: 20px;
+      }
+
+      #dse-root .dse-explore a {
+        min-height: 92px;
+        padding: 13px 12px;
+        border-bottom: 1px solid var(--dse-line);
+      }
+
+      #dse-root .dse-explore a:nth-child(2n) {
+        border-right: 0;
+      }
+
+      #dse-root .dse-explore a:nth-last-child(-n + 2) {
+        border-bottom: 0;
+      }
+
+      #dse-root .dse-explore small {
+        font-size: 10px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      #dse-root .dse-chips {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      #dse-root .dse-capability-grid {
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root .dse-capability,
+      #dse-root .dse-capability:not(:first-child) {
+        padding: 14px 0;
+        border-right: 0;
+        border-bottom: 1px solid var(--dse-line);
+      }
+
+      #dse-root .dse-capability:nth-last-child(-n + 2) {
+        border-bottom: 1px solid var(--dse-line);
+      }
+
+      #dse-root .dse-capability:last-child {
+        border-bottom: 0;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       #dse-root,
       #dse-root *,
@@ -5471,20 +6009,131 @@
       <div class="dse-header-copy">
         <p class="dse-kicker">电脑硬件工作台 / 项目地图</p>
         <h1><span class="dse-title-primary">电脑硬件工作台。</span><span class="dse-title-sub">先看证据，再决定是否调校。</span></h1>
-        <p class="dse-subtitle">读取配置、统一遥测、核对官方资料、解读截图与照片，并规划升级。每个判断先经过来源、时间、恢复路径和证据门禁，不自动修改硬件。</p>
+        <p class="dse-subtitle">读取配置、统一遥测、核对官方资料、解读截图与照片，并规划升级。2.4.0 在明确同意后，只读访问已运行 LHM 的本机回环 Web；每个判断先经过来源、时间、恢复路径和证据门禁，不自动修改硬件。</p>
+        <p class="dse-evidence-note"><strong>显存证据门禁</strong>先确认具体显卡、显存类型与容量、驱动 / vBIOS、固定负载和请求 / 观测口径，不从单一时钟读数推断带宽。</p>
+        <nav class="dse-hero-actions" aria-label="主要入口">
+          <a class="dse-hero-action primary" href="#dse-how-title">开始使用 · 查看怎么用</a>
+          <a class="dse-hero-action" href="#dse-archive-title">版本档案 · 106 个节点</a>
+        </nav>
       </div>
       <aside class="dse-intro-window" aria-label="工具介绍与当前状态">
         <p class="dse-intro-kicker">当前状态</p>
         <div class="dse-chips" aria-label="当前版本状态">
-          <span class="dse-chip">工作台 2.4.0</span>
-          <span class="dse-chip prototype">超频原型 3.0.2 · 未发布</span>
-          <span class="dse-chip triage">故障排查：公开</span>
-          <a class="dse-chip demo" href="orrery/">文件星系：在线</a>
+          <span class="dse-chip">工作台 2.4.0 · 本地候选</span>
+          <span class="dse-chip next">人工签署：PENDING</span>
         </div>
       </aside>
     </header>
 
-    <section class="dse-orientation" aria-labelledby="dse-start-title">
+    <section class="dse-reading-section dse-overview" aria-labelledby="dse-overview-title">
+      <div class="dse-reading-heading">
+        <div>
+          <p class="dse-reading-kicker">WHAT IT IS / 这是什么</p>
+          <h2 id="dse-overview-title">一个证据优先的只读硬件工作台</h2>
+        </div>
+        <p class="dse-reading-lead">从当前配置和真实问题出发，把硬件信息、故障现象、遥测记录、官方资料与截图整理成可追溯证据；先判断“知道什么、还缺什么”，再讨论调校或升级。</p>
+      </div>
+      <div class="dse-capability-grid" aria-label="核心能力">
+        <article class="dse-capability">
+          <span>01 / INVENTORY</span>
+          <strong>读取配置</strong>
+          <p>整理 Windows 可见的 CPU、GPU、内存、存储、显示与设备状态，不猜测缺失型号。</p>
+        </article>
+        <article class="dse-capability">
+          <span>02 / TRIAGE</span>
+          <strong>定位问题</strong>
+          <p>从风险、现象和时间线开始排查，先做可恢复的最小检查，不把症状直接当成故障结论。</p>
+        </article>
+        <article class="dse-capability">
+          <span>03 / TELEMETRY</span>
+          <strong>读懂证据</strong>
+          <p>统一 CSV、结构化快照和截图边界；截图只是可见瞬间，统计与趋势仍需时间序列。</p>
+        </article>
+        <article class="dse-capability">
+          <span>04 / DECISION</span>
+          <strong>决定下一步</strong>
+          <p>调校先过基线、恢复和固定负载门禁；升级先找具体瓶颈。所有硬件设置始终由你操作。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="dse-reading-section dse-howto" aria-labelledby="dse-how-title">
+      <div class="dse-reading-heading">
+        <div>
+          <p class="dse-reading-kicker">HOW IT WORKS / 怎么用</p>
+          <h2 id="dse-how-title">描述问题，补齐证据，得到下一步</h2>
+        </div>
+        <p class="dse-reading-lead">不需要先背参数或选复杂模式。把问题说清楚，工作台会按当前任务只请求真正需要的证据，并把不确定项留在明面上。</p>
+      </div>
+      <ol class="dse-howto-steps">
+        <li class="dse-howto-step">
+          <b>01</b>
+          <strong>描述你遇到的问题</strong>
+          <p>例如游戏卡顿、温度异常、蓝屏、续航变化，或“是否值得升级”。</p>
+        </li>
+        <li class="dse-howto-step">
+          <b>02</b>
+          <strong>提供或授权证据</strong>
+          <p>使用只读快照、CSV、截图或固定负载记录；实时 LHM 必须由你明确同意。</p>
+        </li>
+        <li class="dse-howto-step">
+          <b>03</b>
+          <strong>得到结论与下一步</strong>
+          <p>区分事实、推断和未知，给出最小下一动作或可回滚测试计划，不自动修改硬件。</p>
+        </li>
+      </ol>
+      <p class="dse-howto-note">
+        <span>示例：游戏偶发卡顿 → 固定负载 + 遥测/事件证据 → 先补缺失项，再决定测试或排查。</span>
+        <a href="interactive/">在交互实验室体验 ↗</a>
+      </p>
+    </section>
+
+    <section class="dse-candidate" aria-labelledby="dse-candidate-title">
+      <div>
+        <p class="dse-reading-kicker">CURRENT CANDIDATE / 当前状态</p>
+        <h2 id="dse-candidate-title">2.4.0 已是 main 上的本地候选</h2>
+        <p class="dse-candidate-lead">2.4.0 强化了 LHM 本机 Web 读取与 GPU 显存证据门禁。自动测试和独立行为对话已通过，但广泛发布所需的人工签署仍为 PENDING。</p>
+      </div>
+      <dl class="dse-candidate-facts">
+        <div class="dse-candidate-fact">
+          <dt>当前版本</dt>
+          <dd>工作台 2.4.0 · 本地候选；GitHub main 已同步。</dd>
+        </div>
+        <div class="dse-candidate-fact">
+          <dt>实时读取</dt>
+          <dd>仅在明确同意后，只读访问已运行 LHM 的本机回环 Web；可继续使用兼容后备。</dd>
+        </div>
+        <div class="dse-candidate-fact">
+          <dt>显存结论</dt>
+          <dd>需要具体显卡、VRAM、驱动 / vBIOS、固定负载与观测口径；不从单一时钟值推断带宽。</dd>
+        </div>
+        <div class="dse-candidate-fact">
+          <dt>发布限制</dt>
+          <dd>人工签署（Human acceptance）仍 PENDING；历史版本保留原验证语境。</dd>
+        </div>
+      </dl>
+    </section>
+
+    <nav class="dse-explore" aria-label="深入入口">
+      <a href="#dse-map-title">
+        <strong>能力地图</strong>
+        <small>查看工作台与自动化原型的完整演进轨道。</small>
+      </a>
+      <a href="#dse-archive-title">
+        <strong>106 个版本节点</strong>
+        <small>按系列追溯每版改动、验证和发布状态。</small>
+      </a>
+      <a href="interactive/">
+        <strong>交互实验室</strong>
+        <small>体验调校门禁、排障、旧记录判断和证据系统。</small>
+      </a>
+      <a href="orrery/">
+        <strong>文件星系</strong>
+        <small>查看冻结 v1.2、Skill 1.5.2 时期的历史文件快照。</small>
+      </a>
+    </nav>
+
+    <section class="dse-orientation" aria-labelledby="dse-start-title" hidden>
       <div class="dse-orientation-copy">
         <p class="dse-orientation-kicker">START HERE / 第一次来</p>
         <h2 id="dse-start-title">先选一个目标</h2>
@@ -5606,7 +6255,7 @@
           </span>
           <span class="dse-orientation-link-copy">
             <strong>看文件星系</strong>
-            <small>冻结 v1.2 快照：61 个 Skill 文件如何组织成完整系统</small>
+            <small>冻结 v1.2 快照：61 个 Skill 文件（Skill 1.5.2 时期）如何组织</small>
           </span>
         </a>
       </nav>
@@ -5647,7 +6296,7 @@
               <span class="dse-track-kicker">主工作台</span>
               <h2 id="dse-map-title">电脑硬件工作台</h2>
             </div>
-            <span class="dse-track-badge">稳定 2.4.0</span>
+            <span class="dse-track-badge">2.4.0 候选 · 签署 PENDING</span>
           </div>
           <div class="dse-lane" id="dse-core-lane"></div>
         </section>
@@ -5733,7 +6382,7 @@
         <div class="dse-demo-lead">
           <p class="dse-demo-summary">选一个最接近你的情况，看看先要弄清楚什么，再决定要不要改设置。这里只做演示，不会读取或修改你的电脑。</p>
           <div class="dse-demo-meta">
-            <a class="dse-demo-back" href="../">← 返回项目地图</a>
+            <a class="dse-demo-back" href="./">← 返回项目地图</a>
             <span class="dse-demo-badge">在线演示 · 不会修改你的电脑</span>
           </div>
         </div>
@@ -6086,7 +6735,7 @@
         <div>
           <p class="dse-archive-kicker">版本档案 / 全部已记录版本</p>
           <h2 id="dse-archive-title">逐版本迭代档案</h2>
-          <p class="dse-archive-summary">从统一工作台 1.0.0 到当前 2.4.0，再到自动超频原型的独立分叉、档位证据和有限验证。1.6.0 之后新增遥测标准化、动态 RAG、LHM 本机 Web、视觉证据、Doctor、入口减重和显存解释门禁。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。</p>
+          <p class="dse-archive-summary">从统一工作台 1.0.0 到当前候选 2.4.0，再到自动超频原型的独立分叉、档位证据和有限验证。1.6.0 之后新增遥测标准化、动态 RAG、LHM 本机 Web、视觉证据、Doctor、入口减重和显存解释门禁。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。</p>
         </div>
         <div class="dse-archive-totals" aria-label="版本档案统计">
           <span class="dse-archive-total"><b id="dse-wb-count">0</b>工作台版本</span>
@@ -6622,7 +7271,7 @@
           ]
         },
         {
-          id: "wb-1-4", track: "core", label: "工作台 / 1.4", sub: "自然语气 · 提示时机 · 当前分发",
+          id: "wb-1-4", track: "core", label: "工作台 / 1.4–1.5", sub: "自然语气 · 提示时机 · 公开基线",
           versions: [
             ["1.4.0", "语气层", "2026-10-28", "TONE TEST", ["安全提示与三段式解释改为由候选值或真实动作触发。", "删除状态行和方括号式模式横幅。", "多步流程仍保留一句自然语言进度提示。"], "12 条语气稳定性场景；测试包未达到发布标准，由 1.4.1 接续。", "从“流程模板感”转向自然专家表达。"],
             ["1.4.1", "收窄提示范围", "2026-10-28", "TONE TEST", ["普通系统、软件、HDR、监测导出不再机械触发安全提示。", "提示范围收窄到调校敏感参数与明确改动动作。", "补充 HWiNFO 菜单位置可能随版本变化。"], "规则项三轮稳定性复查；版本记录后由 1.4.2 接续。", "修复 1.4.0 中语气规则过宽的问题。"],
@@ -6638,7 +7287,7 @@
           ]
         },
         {
-          id: "wb-2-2", track: "core", label: "工作台 / 1.6 → 2.2", sub: "标准化 · 证据 · 实时适配 · 视觉 · 诊断",
+          id: "wb-2-2", track: "core", label: "工作台 / 1.6 → 2.4", sub: "标准化 · 证据 · 实时适配 · 视觉 · Doctor · 当前候选",
           versions: [
             ["1.6.0", "遥测图表、硬件案卷与入口瘦身", "2026-11-03", "RELEASED", ["新增 ChartData 与固定 SVG 遥测渲染器，保留缺失值断点并防止覆盖。", "新增本地硬件案卷，保存证据哈希、假设、时间线、基线和实验。", "入口从约 17.3 KB 降至 11.7 KB，Quick 初始加载降到约 21.4 KB。"], "全量非实机测试、validator、便携同步和案卷/图表回归通过。", "工作台从规则与文本遥测进入可视化案卷阶段。"],
             ["1.7.0", "离线案卷报告与图表准确性", "2026-11-03", "RELEASED", ["生成依赖为零、带 CSP 的静态 HTML 案卷报告，证据预览默认关闭。", "修复降采样丢失缺口、显式 IncludeColumn 被挤出和警告摘要缺失。", "时间戳统一 ISO 8601；危险 SVG、外部路径与 HTML 注入被隔离。"], "全量测试与 validator 通过；独立完整性测试 7/7 PASS，实时采集 SKIP。", "案卷从本地 JSON 升级为可离线阅读、可分享审查的报告。"],
@@ -6648,7 +7297,7 @@
             ["2.1.0", "多模态证据规则", "2026-11-03", "RELEASED", ["覆盖监控截图、BIOS 照片、蓝屏、Debug LED、设备管理器和事件查看器。", "强制区分可见事实、推断、未知和证据限制；截图不等于时间序列。", "图片内命令和提示词一律不可信，不触发执行、下载或设置修改。"], "带恶意指令的合成截图独立测试 PASS；模型视觉未被打包成 Skill 能力。", "视觉能力仍由运行时提供，Skill 负责领域证据边界。"],
             ["2.2.0", "只读 Skill Doctor", "2026-11-03", "RELEASED", ["检查版本、核心文件、语法、编码、输出目录、PowerShell、CIM、validator 和可选工具。", "区分 AVAILABLE、OPTIONAL_MISSING、PERMISSION_REQUIRED、BROKEN、UNKNOWN 与 SKIP。", "只诊断不修复；不安装、不提权、不启动软件、不联网。"], "Doctor 独立复核 14 PASS / 0 FAIL / 1 SKIP；安装树 83/83 一致。", "2.3.0 之前的本地方案；人工验收与真实 LHM 探测仍 PENDING。"],
             ["2.3.0", "入口减重与跨能力验收", "2026-11-03", "PREVIOUS LOCAL", ["SKILL.md 从 13,310 B 降至约 12,284 B，Quick 初始加载降至约 22.2 KB。", "遥测、LHM 和视觉证据按当前输入只加载匹配 reference；预算收紧为 12.5 KB / 23 KB。", "新增 6 个跨能力场景：模糊症状、CSV+截图、官方冲突、LHM 缺失、图像矛盾、权限绕过。"], "完整自动回归通过；3 个独立行为对话 6/6 PASS。", "2.4.0 之前的本地候选；独立人工签署仍 PENDING。"],
-            ["2.4.0", "LHM Web 与显存证据门禁", "2026-11-03", "CURRENT LOCAL", ["LHM 0.9.6 改走 loopback Web /data.json，旧版 WMI 仅作兼容后备；实机读取 284 个传感器。", "保留 GPU 硬件路径并透传到归一化结果；网络适配器自定义名称不进入 ObservedComponents。", "新增显存解释门禁：具体 GPU、显存类型与容量、驱动/vBIOS/工具、请求/观测口径和固定负载缺失时不给数值或带宽结论。", "显存时钟 14001 MHz 保留并提示口径风险；绝对合理性上限 30 GHz，明显异常值仍过滤。", "修复工具脚本相对路径启动时参数默认阶段 PSScriptRoot 为空的问题。"], "完整自动回归与 validator PASS；显存建议门禁、LHM 未运行、LHM Web 实读三个独立行为对话 3/3 PASS；独立人工签署仍 PENDING。", "当前本地候选；106 个版本记录，GitHub main 已推送，Pages 由 main 自动部署，CI 必须在最新提交通过。"]
+            ["2.4.0", "LHM Web 与显存证据门禁", "2026-11-03", "CURRENT CANDIDATE", ["LHM 0.9.6 改走 loopback Web /data.json，旧版 WMI 仅作兼容后备；实机读取 284 个传感器。", "保留 GPU 硬件路径并透传到归一化结果；网络适配器自定义名称不进入 ObservedComponents。", "新增显存解释门禁：具体 GPU、显存类型与容量、驱动/vBIOS/工具、请求/观测口径和固定负载缺失时不给数值或带宽结论。", "显存时钟 14001 MHz 保留并提示口径风险；绝对合理性上限 30 GHz，明显异常值仍过滤。", "修复工具脚本相对路径启动时参数默认阶段 PSScriptRoot 为空的问题。"], "完整自动回归与 validator PASS；显存建议门禁、LHM 未运行、LHM Web 实读三个独立行为对话 3/3 PASS；独立人工签署仍 PENDING。", "当前本地候选，GitHub main 已同步；106 个版本记录，Pages 由 main 自动部署，CI 必须在最新提交通过。"]
           ]
         },
         {
@@ -7698,10 +8347,10 @@
         {
           id: "core-instrumentation", track: "core", code: "WB-08", title: "可信证据系统 2.4.0",
           summary: "统一遥测 · RAG · LHM · 视觉 · Doctor · 简单入口",
-          status: "done", state: "STABLE 2.4.0",
+          status: "done", state: "CURRENT 2.4.0",
           goal: "把 CSV、结构化快照、官方资料、实时只读传感器和图片统一到可追溯、可降级、可诊断的证据体系。",
           action: "先标准化来源与时间，再记录证据卡和缺失；网页图片不再等于时间序列，Doctor 把权限问题与损坏问题分开。",
-          proof: "各子系统独立复核通过；入口 12,284 B、Quick 22,218 B；实时 LHM 与人工验收仍 SKIP/PENDING，尚未推送 GitHub。"
+          proof: "各子系统独立复核通过；入口 12,284 B、Quick 22,218 B；LHM Web 实读三组行为对话 3/3 PASS；广泛发布人工签署仍 PENDING；版本已进入 GitHub main。"
         },
         {
           id: "proto-seed", track: "prototype", code: "AO-01", title: "独立原型分叉",
@@ -7891,7 +8540,7 @@
       }
 
       const currentSeriesByTrack = {
-        core: "wb-1-4",
+        core: "wb-2-2",
         prototype: "proto-3"
       };
       const expandedSeries = new Set(Object.values(currentSeriesByTrack));
@@ -8762,14 +9411,14 @@
       } else {
         applyFilter("core", false);
         hideInspector(false);
-        selectVersion("wb-1-4-4", false, false);
+        selectVersion("wb-2-4-0", false, false);
         handleRoute();
       }
       window.addEventListener("hashchange", handleRoute);
     })();
   </script>
-</div>
+</main>
 
-<noscript>This page requires JavaScript to show the interactive content.</noscript>
+<noscript>此页面需要 JavaScript 才能显示交互内容。</noscript>
 </body>
 </html>
