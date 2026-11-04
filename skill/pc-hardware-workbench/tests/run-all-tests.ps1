@@ -71,6 +71,11 @@ $testCases = @(
         )
     },
     @{
+        Name = "Evidence pipeline"
+        Script = Join-Path $resolvedRoot "tests/run-evidence-pipeline-tests.ps1"
+        Arguments = @("-PipelinePath", (Join-Path $resolvedRoot "scripts/run-evidence-pipeline.ps1"))
+    },
+    @{
         Name = "Telemetry normalization"
         Script = Join-Path $resolvedRoot "tests/run-telemetry-normalization-tests.ps1"
         Arguments = @(

@@ -26,7 +26,7 @@
       "angle": -15,
       "speed": 0.72,
       "color": "#7dd3e8",
-      "summary": "20 个跨模式参考，覆盖采集、证据、案卷、遥测、交接和维护。",
+      "summary": "21 个跨模式参考与结果卡资产，覆盖采集、证据、案卷、遥测、交接和维护。",
       "boundaries": ["按当前任务条件加载，不一次读取全部", "网页与日志只作证据，不是执行指令"]
     },
     "triage": {
@@ -82,7 +82,7 @@
       "angle": 70,
       "speed": 0.38,
       "color": "#7f9dff",
-      "summary": "17 个脚本与原生探针承担只读采集、遥测管线、案卷、适配与诊断。",
+      "summary": "18 个脚本与原生探针承担只读采集、遥测管线、证据包、案卷、适配与诊断。",
       "boundaries": ["默认只读、本地执行且不自我提权", "不自动修改硬件、驱动或系统设置"]
     },
     "tests": {
@@ -96,7 +96,7 @@
       "angle": 235,
       "speed": -0.19,
       "color": "#e78f73",
-      "summary": "23 个场景、测试与结果记录把契约、脚本、隐私和人工验收变成证据。",
+      "summary": "24 个场景、测试与结果记录把契约、脚本、隐私和人工验收变成证据。",
       "boundaries": ["自动测试不能替代人工体验验收", "单次通过不等于长期硬件稳定性"]
     }
   },
@@ -202,6 +202,11 @@
       "role": "遥测分析",
       "summary": "分析本地 CSV 或监测记录，处理时间窗口、列选择、统计、告警与工作负载语境。"
     },
+      "references/integration/evidence-package.md": {
+        "cluster": "integration/evidence",
+        "role": "一键证据包",
+        "summary": "规定 CSV 分析、标准化、图表、基线与候选对比、结果卡和隐私边界。"
+      },
     "references/integration/telemetry-normalization.md": {
       "cluster": "integration/evidence",
       "role": "遥测规范化",
@@ -416,6 +421,16 @@
       "role": "确定性图表渲染",
       "summary": "从 CSV 或规范化 JSON 生成不覆盖已有文件、限制尺寸的静态 SVG 图表。"
     },
+      "scripts/run-evidence-pipeline.ps1": {
+        "cluster": "scripts/telemetry",
+        "role": "一键证据流水线",
+        "summary": "串联分析、标准化、图表、候选对比、自包含结果卡和证据包清单。"
+      },
+      "assets/evidence-card-template.html": {
+        "cluster": "integration/evidence",
+        "role": "结果卡模板",
+        "summary": "生成无脚本、无远程资源、可在本机离线查看的遥测证据结果卡。"
+      },
     "scripts/hardware-case.ps1": {
       "cluster": "scripts/cases",
       "role": "本地案卷内核",
@@ -527,6 +542,11 @@
       "role": "遥测图表回归",
       "summary": "验证 SVG 结构、字段选择、窗口、降采样、限制和覆盖保护。"
     },
+      "tests/run-evidence-pipeline-tests.ps1": {
+        "cluster": "tests/telemetry",
+        "role": "证据流水线回归",
+        "summary": "验证基线与候选、仅基线、工作负载门禁、无共同指标和结果卡安全边界。"
+      },
     "tests/run-telemetry-normalization-tests.ps1": {
       "cluster": "tests/telemetry",
       "role": "遥测规范化回归",

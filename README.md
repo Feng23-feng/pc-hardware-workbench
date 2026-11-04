@@ -11,7 +11,7 @@ changes under the user's control.
 
 ## Project status
 
-- Current Skill candidate: **2.4.0**
+- Current Skill candidate: **2.5.0**
 - Automated non-live tests: passing
 - Live hardware collection: opt-in only
 - Broad release sign-off: pending
@@ -32,7 +32,7 @@ Explore the complete Workbench and GPU auto-overclock prototype history, includi
 
 [打开 Skill 文件星系](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/orrery/)
 
-文件星系把当前 2.4.0 的 86 个 Skill 文件按契约核心、流程、排障、调校、升级、运行脚本和验证网络组织成可旋转、可缩放的三维式总览；文件大小按权重映射，不表示实际文件体积。
+文件星系把当前 2.5.0 的 90 个 Skill 文件按契约核心、流程、排障、调校、升级、运行脚本和验证网络组织成可旋转、可缩放的三维式总览；文件大小按权重映射，不表示实际文件体积。
 
 [查看文件星系迭代复盘与防回归清单](docs/skill-evolution/ORRERY-LESSONS.md)
 

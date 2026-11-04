@@ -27,14 +27,14 @@ if ($errors.Count -eq 0) {
         @{ Name = "Index"; Html = $indexHtml },
         @{ Name = "Interactive"; Html = $interactiveHtml }
     )) {
-        if ($entry.Html -notmatch '\u5DE5\u4F5C\u53F0 2\.4\.0 \u00B7 \u672C\u5730\u6D4B\u8BD5\u5019\u9009') {
-            $errors.Add("$($entry.Name) does not label 2.4.0 as the local candidate.") | Out-Null
+        if ($entry.Html -notmatch '\u5DE5\u4F5C\u53F0 2\.5\.0 \u00B7 \u672C\u5730\u6D4B\u8BD5\u5019\u9009') {
+            $errors.Add("$($entry.Name) does not label 2.5.0 as the local candidate.") | Out-Null
         }
         if ($entry.Html -match '\u5DE5\u4F5C\u53F0 1\.5\.2') {
             $errors.Add("$($entry.Name) still presents 1.5.2 as the current chip.") | Out-Null
         }
-        if ($entry.Html -match '\u7A33\u5B9A 2\.4\.0|STABLE 2\.4\.0') {
-            $errors.Add("$($entry.Name) still presents 2.4.0 as stable.") | Out-Null
+        if ($entry.Html -match '\u7A33\u5B9A 2\.5\.0|STABLE 2\.5\.0') {
+            $errors.Add("$($entry.Name) still presents 2.5.0 as stable.") | Out-Null
         }
         if ($entry.Html -notmatch 'PENDING') {
             $errors.Add("$($entry.Name) does not preserve pending validation status.") | Out-Null
@@ -42,17 +42,17 @@ if ($errors.Count -eq 0) {
         if ($entry.Html -notmatch 'currentSeriesByTrack\s*=\s*\{[\s\S]*?core:\s*"wb-2-2"') {
             $errors.Add("$($entry.Name) current core series is not wb-2-2.") | Out-Null
         }
-        if ($entry.Html -notmatch 'selectVersion\("wb-2-4-0"') {
-            $errors.Add("$($entry.Name) does not initialize the archive on 2.4.0.") | Out-Null
+        if ($entry.Html -notmatch 'selectVersion\("wb-2-5-0"') {
+            $errors.Add("$($entry.Name) does not initialize the archive on 2.5.0.") | Out-Null
         }
-        if ($entry.Html -notmatch '\u5DE5\u4F5C\u53F0 / 1\.6 \u2192 2\.4') {
-            $errors.Add("$($entry.Name) version-series label does not cover 1.6 through 2.4.") | Out-Null
+        if ($entry.Html -notmatch '\u5DE5\u4F5C\u53F0 / 1\.6 \u2192 2\.5') {
+            $errors.Add("$($entry.Name) version-series label does not cover 1.6 through 2.5.") | Out-Null
         }
         if ($entry.Html -notmatch 'id="dse-root"' -or $entry.Html -notmatch '<main id="dse-root"') {
             $errors.Add("$($entry.Name) does not use a main landmark for the site root.") | Out-Null
         }
-        if ($entry.Html -match '\u5DE5\u4F5C\u53F0 2\.4\.0[^\r\n]*GitHub \u5C1A\u672A\u63A8\u9001') {
-            $errors.Add("$($entry.Name) still says the 2.4.0 candidate is not on GitHub.") | Out-Null
+        if ($entry.Html -match '\u5DE5\u4F5C\u53F0 2\.5\.0[^\r\n]*GitHub \u5C1A\u672A\u63A8\u9001') {
+            $errors.Add("$($entry.Name) still says the 2.5.0 candidate is not on GitHub.") | Out-Null
         }
         foreach ($headingMatch in [regex]::Matches($entry.Html, '(?is)<h[1-4][^>]*>(.*?)</h[1-4]>')) {
             $headingText = [regex]::Replace($headingMatch.Groups[1].Value, '<[^>]+>', '')
@@ -67,7 +67,7 @@ if ($errors.Count -eq 0) {
         if ($entry.Html -notmatch '(?s)#dse-root \.dse-demo-field\s*\{[^}]*align-content:\s*start;[^}]*align-self:\s*start;') {
             $errors.Add("$($entry.Name) demo fields can stretch and misalign selects.") | Out-Null
         }
-        foreach ($version in @("1.6.0", "1.7.0", "1.8.0", "1.9.0", "2.0.0", "2.1.0", "2.2.0", "2.3.0", "2.4.0")) {
+        foreach ($version in @("1.6.0", "1.7.0", "1.8.0", "1.9.0", "2.0.0", "2.1.0", "2.2.0", "2.3.0", "2.4.0", "2.5.0")) {
             if ($entry.Html -notmatch [regex]::Escape('"' + $version + '"')) {
                 $errors.Add("$($entry.Name) is missing version $version.") | Out-Null
             }
@@ -83,22 +83,22 @@ if ($errors.Count -eq 0) {
                 $segment,
                 '(?m)^\s*\["\d+\.\d+\.\d+(?:-r\d+)?",'
             ).Count
-            if ($versionCount -ne 106) {
-                $errors.Add("$($entry.Name) version count is $versionCount, expected 106.") | Out-Null
+            if ($versionCount -ne 107) {
+                $errors.Add("$($entry.Name) version count is $versionCount, expected 107.") | Out-Null
             }
             if ($segment -notmatch '\["2\.0\.0"[^\r\n]*WMI') {
                 $errors.Add("$($entry.Name) no longer preserves the historical 2.0.0 WMI record.") | Out-Null
             }
-            if ($segment -notmatch '\["2\.4\.0"[^\r\n]*CURRENT CANDIDATE[^\r\n]*loopback Web') {
-                $errors.Add("$($entry.Name) current 2.4.0 record is not consistent with the local candidate.") | Out-Null
+            if ($segment -notmatch '\["2\.5\.0"[^\r\n]*CURRENT CANDIDATE[^\r\n]*\u8BC1\u636E\u5305') {
+                $errors.Add("$($entry.Name) current 2.5.0 record is not consistent with the local candidate.") | Out-Null
             }
         }
     }
-    if ($indexHtml -notmatch '\u5F53\u524D 86 \u4E2A Skill \u6587\u4EF6') {
-        $errors.Add("Index does not point to the current 86-file orrery.") | Out-Null
+    if ($indexHtml -notmatch '\u5F53\u524D 90 \u4E2A Skill \u6587\u4EF6') {
+        $errors.Add("Index does not point to the current 90-file orrery.") | Out-Null
     }
-    if ($indexHtml -notmatch '\u5F53\u524D\u6587\u4EF6\u661F\u7CFB \u00B7 2\.4\.0') {
-        $errors.Add("Index does not label the current file galaxy as 2.4.0.") | Out-Null
+    if ($indexHtml -notmatch '\u5F53\u524D\u6587\u4EF6\u661F\u7CFB \u00B7 2\.5\.0') {
+        $errors.Add("Index does not label the current file galaxy as 2.5.0.") | Out-Null
     }
     foreach ($marker in @(
         'dse-skill-kicker',
@@ -239,10 +239,10 @@ if ($errors.Count -eq 0) {
             $errors.Add("Orrery has no persistent global return to the project map.") | Out-Null
         }
         if ($orreryHtml -notmatch '\u5F53\u524D\u6587\u4EF6\u661F\u7CFB|\u5F53\u524D\u5FEB\u7167') {
-            $errors.Add("Orrery does not clearly identify its current 2.4.0 snapshot status.") | Out-Null
+            $errors.Add("Orrery does not clearly identify its current 2.5.0 snapshot status.") | Out-Null
         }
-        if ($orreryHtml -notmatch '86 \u4E2A\u6587\u4EF6|\u5F53\u524D\u5019\u9009 \u00B7 Skill 2\.4\.0') {
-            $errors.Add("Orrery does not expose the current 2.4.0 file count and candidate status.") | Out-Null
+        if ($orreryHtml -notmatch '90 \u4E2A\u6587\u4EF6|\u5F53\u524D\u5019\u9009 \u00B7 Skill 2\.5\.0') {
+            $errors.Add("Orrery does not expose the current 2.5.0 file count and candidate status.") | Out-Null
         }
         if ($orreryHtml -match 'archive/1\.5\.2/') {
             $errors.Add("Orrery still exposes the local-only 1.5.2 archive.") | Out-Null
@@ -274,7 +274,7 @@ if ($errors.Count -eq 0) {
             $sha256.ComputeHash($orreryBytes) |
                 ForEach-Object { $_.ToString("X2") }
         )
-        if ($frozen.version -ne "2.4.0" -or $frozen.status -ne "frozen" -or [int]$frozen.fileCount -ne 86) {
+        if ($frozen.version -ne "2.5.0" -or $frozen.status -ne "frozen" -or [int]$frozen.fileCount -ne 90) {
             $errors.Add("Orrery FROZEN.json version/status/file count is unexpected.") | Out-Null
         }
         if ($frozen.frozenAt -ne "2026-11-04" -or [string]::IsNullOrWhiteSpace($frozen.changes)) {
@@ -323,4 +323,4 @@ if ($errors.Count -gt 0) {
     exit 1
 }
 
-Write-Host "Skill evolution site check: PASS (candidate status, homepage hierarchy, 106 versions, current 86-file orrery, JavaScript syntax)" -ForegroundColor Green
+Write-Host "Skill evolution site check: PASS (candidate status, homepage hierarchy, 107 versions, current 90-file orrery, JavaScript syntax)" -ForegroundColor Green

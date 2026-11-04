@@ -73,6 +73,7 @@ function Get-SectorId {
 
     if ($RelativePath -eq "SKILL.md") { return "core" }
     if ($RelativePath.StartsWith("agents/", [StringComparison]::Ordinal)) { return "core" }
+    if ($RelativePath.StartsWith("assets/", [StringComparison]::Ordinal)) { return "integration" }
     if ($RelativePath.StartsWith("references/integration/", [StringComparison]::Ordinal)) { return "integration" }
     if ($RelativePath.StartsWith("references/triage/", [StringComparison]::Ordinal)) { return "triage" }
     if ($RelativePath.StartsWith("references/tuning/", [StringComparison]::Ordinal)) { return "tuning" }
@@ -684,7 +685,7 @@ $frozenObject = [pscustomobject][ordered]@{
     generatedFrom = "git ls-files -- skill/pc-hardware-workbench"
     source = "docs/skill-evolution/orrery/index.html"
     manifest = "docs/skill-evolution/orrery/data/manifest.json"
-    changes = "Symmetric free-orbit camera, smooth cached orbital motion, restored natural cadence, and persistent file/relation labels."
+    changes = "Evidence pipeline, baseline/candidate comparison, self-contained result cards, smoother orbital motion, explicit selection reset, and persistent labels."
     fileCount = $sortedRecords.Count
     aggregateSha256 = $aggregateSha256
     sha256 = $pageSha256

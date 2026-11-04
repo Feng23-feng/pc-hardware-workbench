@@ -50,6 +50,11 @@ with auto-detected JSON input or `-InputFormat NormalizedJson`.
 
 The chart is an evidence view, not a new measurement source. Keep the original CSV and its `Window`, field selection, units, sampling limitations, and warnings with the image. If the data is too sparse or no recognized metric exists, do not force a chart.
 
+For one-command packaging and an optional baseline/candidate comparison, read
+[evidence-package.md](evidence-package.md) and use
+`scripts/run-evidence-pipeline.ps1`. The comparison requires declared workload
+context and matching metric names and units.
+
 When a hardware case exists, register the original CSV and chart output with `scripts/hardware-case.ps1 -Action AddEvidence`. Use the evidence ID when recording a baseline or experiment so a later turn can trace the chart back to the exact file and hash.
 
 Time-window selection when the file has timestamps:

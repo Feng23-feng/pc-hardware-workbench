@@ -2,7 +2,7 @@
 name: pc-hardware-workbench
 description: Integrate Windows-focused read-only hardware inventory, telemetry charting, evidence-gated troubleshooting, guided overclocking, and upgrade-purchase decisions through one routed workflow. Other systems receive manual guidance only. Keep tuning-only requests free of unsolicited purchase advice; never modify hardware automatically or bypass permissions or anti-cheat.
 metadata:
-  version: "2.4.0"
+  version: "2.5.0"
   short-description: "One routed entry for hardware inventory, telemetry visuals, triage, tuning, and purchase decisions"
 ---
 
@@ -129,6 +129,10 @@ load only the matching reference: [telemetry-normalization.md](references/integr
 [lhm-adapter.md](references/integration/lhm-adapter.md), or
 [visual-evidence.md](references/integration/visual-evidence.md). Keep original
 evidence and limits; a screenshot is not a time series.
+
+For one-command CSV packaging, charting, and baseline/candidate comparison, read
+[evidence-package.md](references/integration/evidence-package.md) and use
+`scripts/run-evidence-pipeline.ps1`.
 
 ### Tune
 

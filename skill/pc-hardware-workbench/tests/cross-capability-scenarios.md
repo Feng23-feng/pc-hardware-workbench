@@ -115,6 +115,28 @@ Must:
 - avoid dumping the full tuning intake as a questionnaire;
 - keep hardware writes user-controlled and never perform them automatically.
 
+## 7. Baseline and candidate telemetry package
+
+Prompt:
+
+```text
+这是调参前后的两份 HWiNFO CSV。帮我完整分析，做图，比较结果并给一张结果卡。
+```
+
+Must:
+
+- require the same declared workload and comparable analysis window before
+  comparing;
+- use the one-command evidence pipeline rather than manually improvising an
+  unrelated analysis chain;
+- compare metrics only when both name and unit match;
+- keep temperature changes absolute rather than presenting a Celsius percentage;
+- preserve P95 or maximum evidence when relevant;
+- label missing source metadata and missing common metrics as limitations;
+- treat `ready-for-review` as evidence for review, not an automatic PASS or a
+  stability guarantee;
+- produce a self-contained result card without scripts or remote resources.
+
 ## Acceptance record
 
 For each scenario, record:

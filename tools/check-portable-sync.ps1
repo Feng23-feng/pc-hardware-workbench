@@ -17,6 +17,8 @@ if ([string]::IsNullOrWhiteSpace($RepositoryRoot)) {
 }
 $skillScripts = Join-Path $RepositoryRoot "skill\pc-hardware-workbench\scripts"
 $portableScripts = Join-Path $RepositoryRoot "portable\scripts"
+$skillAssets = Join-Path $RepositoryRoot "skill\pc-hardware-workbench\assets"
+$portableAssets = Join-Path $RepositoryRoot "portable\assets"
 
 if (-not (Test-Path -LiteralPath $skillScripts -PathType Container)) {
     throw "Skill scripts directory not found: $skillScripts"
@@ -69,6 +71,70 @@ foreach ($name in $allNames) {
         }
         else {
             $failures.Add("Hash mismatch: $name") | Out-Null
+        }
+    }
+}
+
+if ((Test-Path -LiteralPath $skillAssets -PathType Container) -or (Test-Path -LiteralPath $portableAssets -PathType Container)) {
+    $skillAssetFiles = if (Test-Path -LiteralPath $skillAssets -PathType Container) {
+        @(Get-ChildItem -LiteralPath $skillAssets -Recurse -File | ForEach-Object {
+            [pscustomobject]@{
+                RelativePath = $_.FullName.Substring($skillAssets.Length).TrimStart("\", "/")
+                FullName = $_.FullName
+            }
+        })
+    }
+    else {
+        @()
+    }
+    $portableAssetFiles = if (Test-Path -LiteralPath $portableAssets -PathType Container) {
+        @(Get-ChildItem -LiteralPath $portableAssets -Recurse -File | ForEach-Object {
+            [pscustomobject]@{
+                RelativePath = $_.FullName.Substring($portableAssets.Length).TrimStart("\", "/")
+                FullName = $_.FullName
+            }
+        })
+    }
+    else {
+        @()
+    }
+    $skillAssetMap = @{}
+    foreach ($file in $skillAssetFiles) {
+        $skillAssetMap[$file.RelativePath.Replace("\", "/")] = $file.FullName
+    }
+    $portableAssetMap = @{}
+    foreach ($file in $portableAssetFiles) {
+        $portableAssetMap[$file.RelativePath.Replace("\", "/")] = $file.FullName
+    }
+    $allAssetNames = @($skillAssetMap.Keys + $portableAssetMap.Keys | Sort-Object -Unique)
+    foreach ($relativePath in $allAssetNames) {
+        $skillPath = $skillAssetMap[$relativePath]
+        $portablePath = $portableAssetMap[$relativePath]
+        if (-not $skillPath) {
+            $failures.Add("Portable-only asset: $relativePath") | Out-Null
+            continue
+        }
+        if (-not $portablePath) {
+            if ($Fix) {
+                [IO.Directory]::CreateDirectory((Split-Path -Parent (Join-Path $portableAssets $relativePath))) | Out-Null
+                Copy-Item -LiteralPath $skillPath -Destination (Join-Path $portableAssets $relativePath) -Force
+                $fixed.Add("assets/$relativePath") | Out-Null
+            }
+            else {
+                $failures.Add("Skill asset missing from portable: $relativePath") | Out-Null
+            }
+            continue
+        }
+        $skillHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $skillPath).Hash
+        $portableHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $portablePath).Hash
+        if ($skillHash -ne $portableHash) {
+            if ($Fix) {
+                Copy-Item -LiteralPath $skillPath -Destination $portablePath -Force
+                $fixed.Add("assets/$relativePath") | Out-Null
+            }
+            else {
+                $failures.Add("Asset hash mismatch: $relativePath") | Out-Null
+            }
         }
     }
 }
