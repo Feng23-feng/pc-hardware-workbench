@@ -10239,12 +10239,12 @@
             openTerm(id, true);
             return;
           }
-          if (["terms", "tune", "triage", "identity"].includes(raw)) {
+          if (["terms", "tune", "triage", "identity", "evidence"].includes(raw)) {
             setDemoMode(raw, { updateRoute: false });
           }
           return;
         }
-        if (raw.startsWith("term-") || ["terms", "tune", "triage", "identity"].includes(raw)) {
+        if (raw.startsWith("term-") || ["terms", "tune", "triage", "identity", "evidence"].includes(raw)) {
           window.location.href = `interactive/#${raw}`;
           return;
         }

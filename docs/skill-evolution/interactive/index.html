@@ -7056,7 +7056,7 @@
         <button id="dse-advanced-next" type="button">下一步</button>
       </div>
     </div>
-    <section class="dse-demo" id="dse-demo" aria-labelledby="dse-demo-title" hidden>
+    <section class="dse-demo" id="dse-demo" aria-labelledby="dse-demo-title">
       <header class="dse-demo-head">
         <div class="dse-demo-heading">
           <p class="dse-demo-kicker">从问题到测试计划</p>
@@ -7540,6 +7540,7 @@
       const convergenceSection = root.querySelector(".dse-convergence");
       const archiveSection = root.querySelector(".dse-archive");
       const demoSection = document.getElementById("dse-demo");
+      const advancedShellElement = document.getElementById("dse-advanced-shell");
       const tuneSteps = document.getElementById("dse-tune-steps");
       const tuneStepLinks = [...root.querySelectorAll("[data-tune-step-link]")];
       const tuneStepSections = [...root.querySelectorAll("[data-tune-step]")];
@@ -10046,6 +10047,7 @@
       function setDemoMode(mode, options = {}) {
         if (!["terms", "tune", "triage", "identity", "evidence"].includes(mode)) return;
         activeDemoMode = mode;
+        if (advancedShellElement) demoSection.hidden = false;
         syncAdvancedProgress(mode);
         renderModeGuide(mode);
         tuneSteps.hidden = mode !== "tune";
@@ -10171,12 +10173,45 @@
         const advancedShell = document.getElementById("dse-advanced-shell");
         if (!advancedShell) return;
         advancedShell.open = false;
+        const routeHash = location.hash.slice(1);
+        if (
+          isInteractiveView &&
+          (advancedModeOrder.includes(routeHash) || routeHash.startsWith("term-"))
+        ) {
+          if (!termDetail.hidden) closeTerm(false);
+          try {
+            history.replaceState(null, "", `${location.pathname}${location.search}`);
+          } catch {
+            // Local file previews may not expose history state.
+          }
+        }
         const summary = advancedShell.querySelector(":scope > summary");
         advancedShell.scrollIntoView({
           behavior: reduceMotionQuery.matches ? "auto" : "smooth",
           block: "start"
         });
         summary?.focus();
+      });
+      advancedShellElement?.addEventListener("toggle", () => {
+        if (!advancedShellElement.open) return;
+        demoSection.hidden = false;
+        const hasVisiblePanel = [...root.querySelectorAll(".dse-demo-panel[data-demo-mode]")]
+          .some(panel => !panel.hidden);
+        if (!hasVisiblePanel) {
+          setDemoMode("tune", { updateRoute: false, scroll: false });
+        }
+        window.requestAnimationFrame(() => {
+          const status = advancedShellElement.querySelector(".dse-advanced-status");
+          if (!status) return;
+          const target = Math.max(
+            0,
+            root.scrollTop + status.getBoundingClientRect().top - 64
+          );
+          root.scrollTo({
+            top: target,
+            behavior: reduceMotionQuery.matches ? "auto" : "smooth"
+          });
+        });
       });
       tuneStepLinks.forEach(link => {
         link.addEventListener("click", event => {

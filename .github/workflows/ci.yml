@@ -21,6 +21,11 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
       - name: Install validator dependency
         run: python -m pip install --disable-pip-version-check PyYAML==6.0.3
 
@@ -62,6 +67,9 @@ jobs:
           powershell.exe -NoProfile -ExecutionPolicy Bypass `
             -File .\tools\check-skill-evolution-site.ps1
           exit $LASTEXITCODE
+
+      - name: Validate Skill evolution runtime behavior
+        run: node tools/check-skill-evolution-site-runtime.js
 
       - name: Check version consistency
         shell: powershell
