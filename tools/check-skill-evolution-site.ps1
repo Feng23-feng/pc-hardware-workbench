@@ -294,6 +294,46 @@ if ($errors.Count -eq 0) {
         $errors.Add("node.exe is required for embedded site JavaScript syntax checks.") | Out-Null
     }
     else {
+        $dataValidator = Join-Path ([IO.Path]::GetTempPath()) "pcwb-site-data-$([guid]::NewGuid().ToString('N')).js"
+        [IO.File]::WriteAllText($dataValidator, @'
+const fs = require("node:fs");
+const html = fs.readFileSync(process.argv[2], "utf8");
+const start = html.indexOf("const versionSeries = [");
+const end = html.indexOf("const versionRecords =", start);
+if (start < 0 || end <= start) {
+  console.error("versionSeries data is missing");
+  process.exit(1);
+}
+
+const versionSeries = Function(
+  `${html.slice(start, end)}\nreturn versionSeries;`
+)();
+const problems = [];
+let versionCount = 0;
+
+for (const series of versionSeries) {
+  if (!series || !Array.isArray(series.versions)) {
+    problems.push(`${series?.id ?? "unknown"} has no versions array`);
+    continue;
+  }
+  for (let index = 0; index < series.versions.length; index += 1) {
+    const entry = series.versions[index];
+    versionCount += 1;
+    if (!Array.isArray(entry) || entry.length !== 7) {
+      problems.push(`${series.id} version index ${index} is not a seven-field record`);
+    }
+  }
+}
+
+if (versionCount !== 107) {
+  problems.push(`runtime version count is ${versionCount}, expected 107`);
+}
+if (problems.length > 0) {
+  console.error(problems.join("\n"));
+  process.exit(1);
+}
+'@, (New-Object System.Text.UTF8Encoding($false)))
+
         foreach ($path in @($indexPath, $interactivePath)) {
             $html = Get-Content -Raw -LiteralPath $path -Encoding UTF8
             $scripts = [regex]::Matches($html, '(?is)<script(?:\s[^>]*)?>(.*?)</script>')
@@ -305,12 +345,19 @@ if ($errors.Count -eq 0) {
                 if ($LASTEXITCODE -ne 0) {
                     $errors.Add("Embedded JavaScript syntax check failed: $path") | Out-Null
                 }
+                & $node.Source $dataValidator $path
+                if ($LASTEXITCODE -ne 0) {
+                    $errors.Add("Embedded version data check failed: $path") | Out-Null
+                }
             }
             finally {
                 if (Test-Path -LiteralPath $temporary) {
                     Remove-Item -LiteralPath $temporary -Force
                 }
             }
+        }
+        if (Test-Path -LiteralPath $dataValidator) {
+            Remove-Item -LiteralPath $dataValidator -Force
         }
     }
 }
@@ -323,4 +370,4 @@ if ($errors.Count -gt 0) {
     exit 1
 }
 
-Write-Host "Skill evolution site check: PASS (candidate status, homepage hierarchy, 107 versions, current 90-file orrery, JavaScript syntax)" -ForegroundColor Green
+Write-Host "Skill evolution site check: PASS (candidate status, homepage hierarchy, 107 runtime versions, current 90-file orrery, JavaScript syntax)" -ForegroundColor Green
