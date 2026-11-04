@@ -19,7 +19,14 @@ const browserPath = browserCandidates.find(candidate => fs.existsSync(candidate)
 const failures = [];
 
 function check(condition, message) {
-  if (!condition) failures.push(message);
+  if (!condition) {
+    failures.push(message);
+    const encoded = message
+      .replaceAll("%", "%25")
+      .replaceAll("\r", "%0D")
+      .replaceAll("\n", "%0A");
+    console.log(`::error title=Runtime regression::${encoded}`);
+  }
 }
 
 function sleep(milliseconds) {
@@ -1008,12 +1015,20 @@ async function testViewport(browserUrl, name, width, height, testAutoRotation) {
     }))()`);
     check(triageBefore.active.length > 0 && triageBefore.text > 20, `${prefix}triage panel has no active scenario content.`);
     if (testAutoRotation) {
-      await sleep(8300);
+      const autoRotated = await waitFor(connection, `(() => {
+        const active = [...document.querySelectorAll("#dse-triage-case-grid .dse-scenario")]
+          .find(button => button.getAttribute("aria-pressed") === "true")
+          ?.textContent.trim() || "";
+        return active.length > 0 && active !== ${JSON.stringify(triageBefore.active)};
+      })()`, 15000);
       const triageAfter = await evaluate(connection, `(() => ({
         active: [...document.querySelectorAll("#dse-triage-case-grid .dse-scenario")]
           .find(button => button.getAttribute("aria-pressed") === "true")?.textContent.trim() || ""
       }))()`);
-      check(triageAfter.active !== triageBefore.active, `${prefix}triage auto rotation did not advance.`);
+      check(
+        autoRotated && triageAfter.active !== triageBefore.active,
+        `${prefix}triage auto rotation did not advance (${JSON.stringify(triageBefore.active)} -> ${JSON.stringify(triageAfter.active)}).`
+      );
     }
     await click(connection, "#dse-triage-auto-toggle");
     const pausedText = await evaluate(connection, "document.getElementById('dse-triage-auto-toggle')?.textContent.trim() || ''");
@@ -1316,6 +1331,9 @@ async function main() {
       "--disable-gpu",
       "--disable-software-rasterizer",
       "--disable-dev-shm-usage",
+      "--disable-background-timer-throttling",
+      "--disable-backgrounding-occluded-windows",
+      "--disable-renderer-backgrounding",
       "--no-first-run",
       "--disable-extensions",
       `--remote-debugging-port=${debugPort}`,
