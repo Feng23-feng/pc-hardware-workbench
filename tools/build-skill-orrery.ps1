@@ -672,6 +672,11 @@ $currentStyle = @'
   }
 </style>
 '@
+$generatedHtml = [regex]::Replace(
+    $generatedHtml,
+    '(?s)\s*<style id="dse-current-orrery-adjustments">.*?</style>',
+    ''
+)
 $generatedHtml = $generatedHtml.Replace("</head>", $currentStyle + "`n</head>")
 
 $generatedHtml = ConvertTo-LfText $generatedHtml

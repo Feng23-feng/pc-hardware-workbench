@@ -12,6 +12,14 @@ $ErrorActionPreference = "Stop"
 $utf8Strict = [System.Text.UTF8Encoding]::new($false, $true)
 $fragment = [System.IO.File]::ReadAllText($Source, $utf8Strict)
 $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+$repositoryRoot = Split-Path -Parent $PSScriptRoot
+$skillPath = Join-Path $repositoryRoot "skill\pc-hardware-workbench\SKILL.md"
+$skillText = [System.IO.File]::ReadAllText($skillPath, $utf8Strict)
+$versionMatch = [regex]::Match($skillText, '(?m)^\s*version:\s*"([^"]+)"\s*$')
+if (-not $versionMatch.Success) {
+    throw "Skill metadata.version is missing."
+}
+$skillVersion = $versionMatch.Groups[1].Value
 
 function Write-SitePage {
     param(
@@ -54,12 +62,12 @@ Write-SitePage `
     -Path (Join-Path $OutputRoot "index.html") `
     -SiteView "index" `
     -Title "pc-hardware-workbench · 电脑硬件工作台" `
-    -Description "电脑硬件工作台 2.4.0 本地候选：只读硬件证据、故障排查、遥测分析与版本档案。"
+    -Description "电脑硬件工作台 $skillVersion 本地候选：只读硬件证据、故障排查、遥测分析与版本档案。"
 
 Write-SitePage `
     -Path (Join-Path $interactiveRoot "index.html") `
     -SiteView "interactive" `
     -Title "交互实验室 · pc-hardware-workbench" `
-    -Description "电脑硬件工作台 2.4.0 候选交互实验室：从单一步骤开始理解证据、排障与调校门禁。"
+    -Description "电脑硬件工作台 $skillVersion 候选交互实验室：从单一步骤开始理解证据、排障与调校门禁。"
 
 Write-Host "Built index.html and interactive/index.html under $OutputRoot"

@@ -100,6 +100,9 @@ if ($errors.Count -eq 0) {
     if ($indexHtml -notmatch '\u5F53\u524D\u6587\u4EF6\u661F\u7CFB \u00B7 2\.5\.0') {
         $errors.Add("Index does not label the current file galaxy as 2.5.0.") | Out-Null
     }
+    if ($indexHtml -match '\u56FA\u5B9A\u5B58\u6863[^\r\n]*2\.5\.0') {
+        $errors.Add("Index still describes the current generated file galaxy as a fixed archive.") | Out-Null
+    }
     foreach ($marker in @(
         'dse-skill-kicker',
         '$pc-hardware-workbench',
@@ -235,6 +238,11 @@ if ($errors.Count -eq 0) {
 
     if ($errors.Count -eq 0) {
         $orreryHtml = Get-Content -Raw -LiteralPath $orreryPath -Encoding UTF8
+        $orreryIds = [regex]::Matches($orreryHtml, '(?i)\sid="([^"]+)"') |
+            ForEach-Object { $_.Groups[1].Value }
+        foreach ($duplicate in ($orreryIds | Group-Object | Where-Object { $_.Count -gt 1 })) {
+            $errors.Add("Orrery contains duplicate id '$($duplicate.Name)'.") | Out-Null
+        }
         if ($orreryHtml -notmatch '<nav class="global-nav"[^>]*>\s*<a href="\.\./">\u2190 \u8FD4\u56DE\u9879\u76EE\u5730\u56FE</a>') {
             $errors.Add("Orrery has no persistent global return to the project map.") | Out-Null
         }
