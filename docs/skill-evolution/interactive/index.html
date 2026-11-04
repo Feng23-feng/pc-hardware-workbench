@@ -10172,13 +10172,18 @@
       document.getElementById("dse-close-advanced")?.addEventListener("click", () => {
         const advancedShell = document.getElementById("dse-advanced-shell");
         if (!advancedShell) return;
+        const previousHash = location.hash.slice(1);
+        if (!termDetail.hidden) closeTerm(false);
         advancedShell.open = false;
         const routeHash = location.hash.slice(1);
         if (
           isInteractiveView &&
-          (advancedModeOrder.includes(routeHash) || routeHash.startsWith("term-"))
+          (
+            advancedModeOrder.includes(routeHash) ||
+            previousHash.startsWith("term-") ||
+            routeHash.startsWith("term-")
+          )
         ) {
-          if (!termDetail.hidden) closeTerm(false);
           try {
             history.replaceState(null, "", `${location.pathname}${location.search}`);
           } catch {
