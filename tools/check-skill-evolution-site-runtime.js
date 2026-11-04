@@ -258,6 +258,10 @@ async function setViewport(connection, width, height) {
     enabled: width <= 760,
     maxTouchPoints: width <= 760 ? 5 : 1
   });
+  await connection.send("Emulation.setEmulatedMedia", {
+    media: "screen",
+    features: [{ name: "prefers-reduced-motion", value: "no-preference" }]
+  });
 }
 
 function integrityExpression() {
