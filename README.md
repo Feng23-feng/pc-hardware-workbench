@@ -17,24 +17,21 @@ changes under the user's control.
 - Broad release sign-off: pending
 - Repository license: **MIT**
 
-## 在线交互式项目地图 / Interactive project map
+## 在线项目说明 / About this Skill
 
-[打开《电脑硬件工作台 × 自动超频原型》完整迭代档案](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/)
+[了解这个 Skill](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/)
 
-浏览工作台与 GPU 自动超频原型的完整演进记录，包括 106 个版本节点、每版改动、验证状态和历史位置。
+功能说明、测试状态与历史版本。
 
-Explore the complete Workbench and GPU auto-overclock prototype history, including
-106 recorded versions and their validation status.
+Explore the Workbench and GPU auto-overclock prototype through 107 recorded versions.
 
 [打开 Skill 交互实验室](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/interactive/)
 
 交互实验室按模式展示术语解释、调校门禁、Triage 分流和配置状态失效。
 
-[打开 Skill 文件星系](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/orrery/)
+[查看文件星球](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/orrery/)
 
-文件星系把当前 2.5.0 的 90 个 Skill 文件按契约核心、流程、排障、调校、升级、运行脚本和验证网络组织成可旋转、可缩放的三维式总览；文件大小按权重映射，不表示实际文件体积。
-
-[查看文件星系迭代复盘与防回归清单](docs/skill-evolution/ORRERY-LESSONS.md)
+文件星球把当前 2.5.0 的 90 个 Skill 文件按契约核心、流程、排障、调校、升级、运行脚本和验证网络组织成可旋转、可缩放的三维式总览；文件大小按权重映射，不表示实际文件体积。
 
 ## Why this project exists
 

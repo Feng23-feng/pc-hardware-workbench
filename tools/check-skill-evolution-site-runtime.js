@@ -466,8 +466,8 @@ async function testHomeViewport(siteUrl, name, width, height) {
     );
     check(
       initial.technicalClosed &&
-      initial.technicalSummary.includes("查看版本与发布说明") &&
-      initial.technicalSummary.includes("107") &&
+      initial.technicalSummary.includes("了解这个 Skill") &&
+      initial.technicalSummary.includes("功能说明、测试状态与历史版本") &&
       initial.technicalExpanded === "false" &&
       initial.technicalHeight >= 44,
       `${prefix}technical archive is not folded.`
@@ -611,7 +611,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       opened.versionCodeSize >= 16 &&
       opened.versionButtons === 107 &&
       opened.summaryExpanded === "true" &&
-      opened.actionText.includes("收起版本与发布说明"),
+      opened.actionText.includes("收起说明"),
       `${prefix}technical archive does not open correctly (${JSON.stringify(opened)}).`
     );
     const homeFontSizes = await evaluate(connection, fontSizeExpression());

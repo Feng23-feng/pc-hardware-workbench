@@ -7830,8 +7830,8 @@
     <details class="dse-home-technical" id="dse-home-technical" data-reveal>
       <summary id="dse-home-technical-summary"
         aria-controls="dse-home-technical-content" aria-expanded="false">
-        <span data-technical-action>查看版本与发布说明</span>
-        <small>107 个版本 · 能力地图、历史记录与发布状态</small>
+        <span data-technical-action>了解这个 Skill</span>
+        <small>功能说明、测试状态与历史版本</small>
         <i data-technical-indicator aria-hidden="true">展开</i>
       </summary>
 
@@ -11196,7 +11196,7 @@
         homeTechnicalSummary?.setAttribute("aria-expanded", String(open));
         const technicalAction = homeTechnicalSummary?.querySelector("[data-technical-action]");
         const technicalIndicator = homeTechnicalSummary?.querySelector("[data-technical-indicator]");
-        if (technicalAction) technicalAction.textContent = open ? "收起版本与发布说明" : "查看版本与发布说明";
+        if (technicalAction) technicalAction.textContent = open ? "收起说明" : "了解这个 Skill";
         if (technicalIndicator) technicalIndicator.textContent = open ? "收起" : "展开";
       }
       homeTechnical?.addEventListener("toggle", syncHomeTechnicalDisclosure);
