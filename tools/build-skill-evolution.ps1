@@ -1,6 +1,7 @@
 param(
-    [Parameter(Mandatory = $true)]
-    [string]$Source,
+    [string]$HomeSource,
+
+    [string]$InteractiveSource,
 
     [Parameter(Mandatory = $true)]
     [string]$OutputRoot
@@ -9,8 +10,19 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+if ([string]::IsNullOrWhiteSpace($HomeSource)) {
+    $HomeSource = Join-Path $PSScriptRoot "templates\skill-evolution-home.html"
+}
+if ([string]::IsNullOrWhiteSpace($InteractiveSource)) {
+    $InteractiveSource = Join-Path $PSScriptRoot "templates\skill-evolution-interactive.html"
+}
+foreach ($sourcePath in @($HomeSource, $InteractiveSource)) {
+    if (-not (Test-Path -LiteralPath $sourcePath -PathType Leaf)) {
+        throw "Missing Skill evolution source template: $sourcePath"
+    }
+}
+
 $utf8Strict = [System.Text.UTF8Encoding]::new($false, $true)
-$fragment = [System.IO.File]::ReadAllText($Source, $utf8Strict)
 $utf8NoBom = [System.Text.UTF8Encoding]::new($false)
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $skillPath = Join-Path $repositoryRoot "skill\pc-hardware-workbench\SKILL.md"
@@ -26,9 +38,18 @@ function Write-SitePage {
         [string]$Path,
         [string]$SiteView,
         [string]$Title,
-        [string]$Description
+        [string]$Description,
+        [string]$Source,
+        [string]$BaseHref = ""
     )
 
+    $fragment = [System.IO.File]::ReadAllText($Source, $utf8Strict)
+    $baseTag = if ([string]::IsNullOrWhiteSpace($BaseHref)) {
+        ""
+    }
+    else {
+        "  <base href=`"$BaseHref`">"
+    }
     $html = @"
 <!doctype html>
 <html lang="zh-CN" data-site-view="$SiteView">
@@ -38,6 +59,7 @@ function Write-SitePage {
   <meta name="color-scheme" content="dark">
   <meta name="description" content="$Description">
   <link rel="icon" href="data:,">
+$baseTag
   <title>$Title</title>
 </head>
 <body>
@@ -61,13 +83,15 @@ $interactiveRoot = Join-Path $OutputRoot "interactive"
 Write-SitePage `
     -Path (Join-Path $OutputRoot "index.html") `
     -SiteView "index" `
-    -Title "pc-hardware-workbench · 电脑硬件工作台" `
-    -Description "电脑硬件工作台 $skillVersion 本地候选：只读硬件证据、故障排查、遥测分析与版本档案。"
+    -Title "pc-hardware-workbench &#183; &#30005;&#33041;&#30828;&#20214;&#24037;&#20316;&#21488;" `
+    -Description "PC Hardware Workbench ${skillVersion}: read-only hardware evidence and practical next-step guidance." `
+    -Source $HomeSource
 
 Write-SitePage `
     -Path (Join-Path $interactiveRoot "index.html") `
     -SiteView "interactive" `
-    -Title "交互实验室 · pc-hardware-workbench" `
-    -Description "电脑硬件工作台 $skillVersion 候选交互实验室：从单一步骤开始理解证据、排障与调校门禁。"
+    -Title "&#39640;&#32423;&#27169;&#24335; &#183; pc-hardware-workbench" `
+    -Description "PC Hardware Workbench ${skillVersion} advanced tools: terminology, tuning, triage, baseline identity and evidence." `
+    -Source $InteractiveSource
 
 Write-Host "Built index.html and interactive/index.html under $OutputRoot"

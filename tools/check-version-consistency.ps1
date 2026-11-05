@@ -60,11 +60,11 @@ if ($errors.Count -eq 0) {
         $errors.Add("Portable start title does not match $version.") | Out-Null
     }
 
-    $siteChipPattern = "\u5DE5\u4F5C\u53F0 " + [regex]::Escape($version)
+    $siteVersionRecordPattern = '\["' + [regex]::Escape($version) + '"[^\r\n]*CURRENT CANDIDATE'
     foreach ($path in @($indexFile, $interactiveFile)) {
         $html = Get-Content -Raw -LiteralPath $path -Encoding UTF8
-        if ($html -notmatch $siteChipPattern) {
-            $errors.Add("Site current chip does not match $version : $path") | Out-Null
+        if ($html -notmatch $siteVersionRecordPattern) {
+            $errors.Add("Site version archive does not contain current record $version : $path") | Out-Null
         }
     }
 

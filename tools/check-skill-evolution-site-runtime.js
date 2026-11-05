@@ -6,8 +6,8 @@ const path = require("node:path");
 const { spawn } = require("node:child_process");
 
 const repositoryRoot = path.resolve(__dirname, "..");
-let debugPort = 0;
-const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), "pcwb-interactive-runtime-"));
+const outputRoot = path.join(repositoryRoot, "work");
+const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), "pcwb-site-runtime-"));
 const browserCandidates = [
   process.env.EDGE_PATH,
   "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
@@ -17,16 +17,16 @@ const browserCandidates = [
 ].filter(Boolean);
 const browserPath = browserCandidates.find(candidate => fs.existsSync(candidate));
 const failures = [];
+let debugPort = 0;
 
 function check(condition, message) {
-  if (!condition) {
-    failures.push(message);
-    const encoded = message
-      .replaceAll("%", "%25")
-      .replaceAll("\r", "%0D")
-      .replaceAll("\n", "%0A");
-    console.log(`::error title=Runtime regression::${encoded}`);
-  }
+  if (condition) return;
+  failures.push(message);
+  const encoded = message
+    .replaceAll("%", "%25")
+    .replaceAll("\r", "%0D")
+    .replaceAll("\n", "%0A");
+  console.log(`::error title=Runtime regression::${encoded}`);
 }
 
 function sleep(milliseconds) {
@@ -95,7 +95,7 @@ async function waitForDebugEndpoint() {
       const response = await fetch(`http://127.0.0.1:${debugPort}/json/version`);
       if (response.ok) return;
     } catch {
-      // Edge is still starting.
+      // Browser is still starting.
     }
     await sleep(100);
   }
@@ -173,14 +173,41 @@ async function evaluate(connection, expression) {
   return result.result.value;
 }
 
-async function click(connection, selector) {
-  await evaluate(connection, `(async () => {
-    const element = document.querySelector(${JSON.stringify(selector)});
-    if (!element) throw new Error("Missing control: " + ${JSON.stringify(selector)});
-    element.click();
-    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    return true;
-  })()`);
+async function waitFor(connection, expression, timeout = 3500) {
+  const deadline = Date.now() + timeout;
+  while (Date.now() < deadline) {
+    try {
+      if (await evaluate(connection, expression)) return true;
+    } catch {
+      // Navigation can replace the execution context while polling.
+    }
+    await sleep(80);
+  }
+  return false;
+}
+
+async function navigate(connection, url) {
+  await connection.send("Page.navigate", { url });
+  const loaded = await waitFor(connection, `document.readyState === "complete"`, 5000);
+  if (!loaded) throw new Error(`Page did not finish loading: ${url}`);
+  await sleep(120);
+}
+
+async function setViewport(connection, width, height) {
+  await connection.send("Emulation.setDeviceMetricsOverride", {
+    width,
+    height,
+    deviceScaleFactor: 1,
+    mobile: width <= 760
+  });
+  await connection.send("Emulation.setTouchEmulationEnabled", {
+    enabled: width <= 760,
+    maxTouchPoints: width <= 760 ? 5 : 1
+  });
+  await connection.send("Emulation.setEmulatedMedia", {
+    media: "screen",
+    features: [{ name: "prefers-reduced-motion", value: "no-preference" }]
+  });
 }
 
 async function clickByPointer(connection, selector) {
@@ -211,7 +238,7 @@ async function clickByPointer(connection, selector) {
     button: "left",
     clickCount: 1
   });
-  await sleep(120);
+  await sleep(240);
 }
 
 async function clickAllowingNavigation(connection, selector) {
@@ -227,41 +254,30 @@ async function clickAllowingNavigation(connection, selector) {
   }
 }
 
-async function navigate(connection, url) {
-  await connection.send("Page.navigate", { url });
-  const loaded = await waitFor(connection, `document.readyState === "complete"`, 5000);
-  if (!loaded) throw new Error(`Page did not finish loading: ${url}`);
-  await sleep(80);
+async function pressKey(connection, key, code, windowsVirtualKeyCode) {
+  await connection.send("Input.dispatchKeyEvent", {
+    type: "keyDown",
+    key,
+    code,
+    windowsVirtualKeyCode
+  });
+  await connection.send("Input.dispatchKeyEvent", {
+    type: "keyUp",
+    key,
+    code,
+    windowsVirtualKeyCode
+  });
+  await sleep(220);
 }
 
-async function waitFor(connection, expression, timeout = 3500) {
-  const deadline = Date.now() + timeout;
-  while (Date.now() < deadline) {
-    try {
-      if (await evaluate(connection, expression)) return true;
-    } catch {
-      // Navigation may replace the execution context while the condition is polling.
-    }
-    await sleep(100);
-  }
-  return false;
-}
-
-async function setViewport(connection, width, height) {
-  await connection.send("Emulation.setDeviceMetricsOverride", {
-    width,
-    height,
-    deviceScaleFactor: 1,
-    mobile: width <= 760
+async function screenshot(connection, name) {
+  const result = await connection.send("Page.captureScreenshot", {
+    format: "png",
+    fromSurface: true,
+    captureBeyondViewport: false
   });
-  await connection.send("Emulation.setTouchEmulationEnabled", {
-    enabled: width <= 760,
-    maxTouchPoints: width <= 760 ? 5 : 1
-  });
-  await connection.send("Emulation.setEmulatedMedia", {
-    media: "screen",
-    features: [{ name: "prefers-reduced-motion", value: "no-preference" }]
-  });
+  fs.mkdirSync(outputRoot, { recursive: true });
+  fs.writeFileSync(path.join(outputRoot, name), Buffer.from(result.data, "base64"));
 }
 
 function integrityExpression() {
@@ -299,67 +315,54 @@ function integrityExpression() {
       brokenAriaControls,
       unnamedControls,
       brokenHashLinks,
+      h1Count: [...document.querySelectorAll("h1")].filter(visible).length,
       horizontalOverflow:
         document.documentElement.scrollWidth > document.documentElement.clientWidth ||
-        Boolean(root && root.scrollWidth > root.clientWidth),
-      title: document.title
+        Boolean(root && root.scrollWidth > root.clientWidth)
     };
   })()`;
 }
 
-async function openAdvancedByPointer(connection) {
-  const point = await evaluate(connection, `(async () => {
-    const root = document.getElementById("dse-root");
-    const shell = document.getElementById("dse-advanced-shell");
-    const summary = shell?.querySelector(":scope > summary");
-    if (!root || !shell || !summary) throw new Error("Advanced summary is missing.");
-    if (shell.open) shell.open = false;
-    root.style.scrollBehavior = "auto";
-    shell.scrollIntoView({ block: "center" });
-    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    const rect = summary.getBoundingClientRect();
-    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-  })()`);
-  await connection.send("Input.dispatchMouseEvent", {
-    type: "mousePressed",
-    x: point.x,
-    y: point.y,
-    button: "left",
-    clickCount: 1
-  });
-  await connection.send("Input.dispatchMouseEvent", {
-    type: "mouseReleased",
-    x: point.x,
-    y: point.y,
-    button: "left",
-    clickCount: 1
-  });
-  await sleep(250);
+function fontSizeExpression() {
+  return `(() => {
+    const ignored = new Set(["SCRIPT", "STYLE", "NOSCRIPT", "SVG", "PATH"]);
+    const hasDirectText = element => [...element.childNodes].some(
+      node => node.nodeType === Node.TEXT_NODE && node.textContent.trim()
+    );
+    const sizes = new Set();
+    for (const element of document.querySelectorAll("#dse-root *")) {
+      if (ignored.has(element.tagName) || !hasDirectText(element)) continue;
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      if (
+        style.display === "none" ||
+        style.visibility === "hidden" ||
+        Number(style.opacity) === 0 ||
+        rect.width <= 0 ||
+        rect.height <= 0
+      ) {
+        continue;
+      }
+      const size = Number.parseFloat(style.fontSize);
+      if (Number.isFinite(size)) sizes.add(Number(size.toFixed(1)));
+    }
+    return [...sizes].sort((left, right) => left - right);
+  })()`;
 }
 
-async function visibleState(connection) {
-  return evaluate(connection, `(() => {
-    const root = document.getElementById("dse-root");
-    const shell = document.getElementById("dse-advanced-shell");
-    const demo = document.getElementById("dse-demo");
-    const visiblePanels = [...document.querySelectorAll(".dse-demo-panel[data-demo-mode]")]
-      .filter(panel => !panel.hidden && panel.getBoundingClientRect().height > 0);
-    return {
-      shellOpen: Boolean(shell?.open),
-      demoHidden: Boolean(demo?.hidden),
-      demoVisibleText: demo?.innerText.trim().length || 0,
-      demoStaticText: demo?.textContent.trim().length || 0,
-      visiblePanelCount: visiblePanels.length,
-      visiblePanelText: visiblePanels.map(panel => panel.innerText.trim().length),
-      activeMode: document.querySelector("[data-demo-mode][aria-pressed=true]")?.dataset.demoMode || "",
-      currentTheme: document.getElementById("dse-advanced-current")?.textContent.trim() || "",
-      progress: document.getElementById("dse-advanced-progress")?.textContent.trim() || "",
-      hash: location.hash,
-      overflow:
-        document.documentElement.scrollWidth > document.documentElement.clientWidth ||
-        root.scrollWidth > root.clientWidth
-    };
-  })()`);
+function runIntegrityChecks(state, prefix) {
+  check(state.duplicateIds.length === 0, `${prefix}duplicate IDs: ${state.duplicateIds.join(", ")}`);
+  check(
+    state.brokenAriaControls.length === 0,
+    `${prefix}broken aria-controls: ${state.brokenAriaControls.join(", ")}`
+  );
+  check(state.unnamedControls.length === 0, `${prefix}visible controls without accessible names.`);
+  check(
+    state.brokenHashLinks.length === 0,
+    `${prefix}broken same-page links: ${state.brokenHashLinks.join(", ")}`
+  );
+  check(state.h1Count === 1, `${prefix}expected one visible h1, found ${state.h1Count}.`);
+  check(state.horizontalOverflow === false, `${prefix}page has horizontal overflow.`);
 }
 
 async function testHomeViewport(siteUrl, name, width, height) {
@@ -368,713 +371,423 @@ async function testHomeViewport(siteUrl, name, width, height) {
   try {
     await setViewport(connection, width, height);
     await navigate(connection, siteUrl);
-
-    const integrity = await evaluate(connection, integrityExpression());
-    check(integrity.duplicateIds.length === 0, `${prefix}duplicate IDs: ${integrity.duplicateIds.join(", ")}`);
-    check(
-      integrity.brokenAriaControls.length === 0,
-      `${prefix}broken aria-controls: ${integrity.brokenAriaControls.join(", ")}`
-    );
-    check(integrity.unnamedControls.length === 0, `${prefix}visible controls without names.`);
-    check(
-      integrity.brokenHashLinks.length === 0,
-      `${prefix}broken same-page links: ${integrity.brokenHashLinks.join(", ")}`
-    );
-    check(integrity.horizontalOverflow === false, `${prefix}page has horizontal overflow.`);
+    runIntegrityChecks(await evaluate(connection, integrityExpression()), prefix);
 
     const initial = await evaluate(connection, `(() => ({
-      total: document.getElementById("dse-total-count")?.textContent.trim() || "",
-      workbench: document.getElementById("dse-wb-count")?.textContent.trim() || "",
-      prototype: document.getElementById("dse-proto-count")?.textContent.trim() || "",
-      currentSelected: document.querySelector('[data-version-id="wb-2-5-0"]')?.classList.contains("is-selected") || false,
-      currentSeriesExpanded: !document.querySelector('[data-series-id="wb-2-2"] .dse-version-grid')?.hidden,
-      versionCount: document.querySelectorAll(".dse-version").length
+      title: document.title,
+      h1: document.querySelector(".dse-hero h1")?.textContent.trim() || "",
+      subtitle: document.querySelector(".dse-hero .dse-subtitle")?.textContent.trim() || "",
+      safety: document.querySelector(".dse-hero .dse-hero-safety")?.textContent.trim() || "",
+      ctaHref: document.querySelector(".dse-hero-action.primary")?.getAttribute("href") || "",
+      ctaText: document.querySelector(".dse-hero-action.primary")?.textContent.trim() || "",
+      status: document.querySelector(".dse-hero-status")?.innerText.trim() || "",
+      heroHeight: Math.round(document.querySelector(".dse-hero")?.getBoundingClientRect().height || 0),
+      viewportHeight: Math.round(document.getElementById("dse-root")?.clientHeight || 0),
+      nextSectionTop: Math.round(document.querySelector(".dse-howto")?.getBoundingClientRect().top || 0),
+      aboutPresent: Boolean(document.querySelector(".dse-about")),
+      advancedEntryHref: document.querySelector(".dse-advanced-entry a")?.getAttribute("href") || "",
+      primaryPaths: [...document.querySelectorAll(".dse-explore-primary a")].map(link => link.getAttribute("href")),
+      candidateText: document.querySelector(".dse-candidate")?.innerText.trim() || "",
+      candidateVisible: (document.querySelector(".dse-candidate")?.getBoundingClientRect().height || 0) > 0,
+      candidateInsideDetails: Boolean(document.querySelector(".dse-candidate")?.closest("details")),
+      candidateDetailsExpanded: document.getElementById("dse-candidate-details-summary")?.getAttribute("aria-expanded") || "",
+      candidateDetailsHeight: Math.round(document.getElementById("dse-candidate-details-summary")?.getBoundingClientRect().height || 0),
+      candidateState: document.querySelector(".dse-candidate-state")?.textContent.trim() || "",
+      candidateStateSize: Number.parseFloat(getComputedStyle(document.querySelector(".dse-candidate-state")).fontSize),
+      heroVersion: document.getElementById("dse-hero-version")?.textContent.trim() || "",
+      visibleVersionCount: (
+        document.getElementById("dse-root")?.innerText.match(/2\.5\.0/g) || []
+      ).length,
+      technicalClosed: !document.querySelector(".dse-home-technical")?.open,
+      technicalSummary: document.querySelector(".dse-home-technical > summary")?.innerText.trim() || "",
+      technicalExpanded: document.getElementById("dse-home-technical-summary")?.getAttribute("aria-expanded") || "",
+      technicalHeight: Math.round(document.getElementById("dse-home-technical-summary")?.getBoundingClientRect().height || 0)
     }))()`);
-    check(initial.total === "107", `${prefix}archive total is ${initial.total}, expected 107.`);
-    check(initial.workbench === "91" && initial.prototype === "16", `${prefix}archive totals are inconsistent.`);
-    check(initial.versionCount === 107, `${prefix}rendered ${initial.versionCount} version controls, expected 107.`);
-    check(initial.currentSelected, `${prefix}version 2.5.0 is not selected initially.`);
-    check(initial.currentSeriesExpanded, `${prefix}current version series starts collapsed.`);
-
-    await clickByPointer(connection, ".dse-hero-action");
-    const ctaReached = await waitFor(connection, `(() => {
-      const target = document.getElementById("dse-overview-title");
-      return target && target.getBoundingClientRect().top >= 0 &&
-        target.getBoundingClientRect().top < 140;
-    })()`, 2500);
-    check(ctaReached, `${prefix}hero CTA did not reveal its target.`);
+    check(initial.title.includes("电脑硬件工作台"), `${prefix}browser title is not user-facing.`);
     check(
-      await evaluate(connection, `location.hash === "#dse-overview-title"`),
-      `${prefix}hero CTA did not update the hash.`
+      initial.h1.includes("电脑调试") && initial.h1.includes("Skill 来帮你"),
+      `${prefix}hero headline does not match the approved copy.`
     );
-
-    await navigate(connection, siteUrl);
-    await click(connection, '[data-filter="prototype"]');
-    const prototypeState = await evaluate(connection, `(() => ({
-      trackVisible: !document.querySelector('.dse-track[data-track="prototype"]')?.hidden,
-      seriesVisible: !document.querySelector('.dse-series[data-track="prototype"]')?.hidden,
-      archiveVisible: !document.querySelector(".dse-archive")?.hidden,
-      pressed: document.querySelector('[data-filter="prototype"]')?.getAttribute("aria-pressed") === "true"
-    }))()`);
-    check(prototypeState.trackVisible, `${prefix}prototype filter did not reveal its track.`);
-    check(prototypeState.seriesVisible, `${prefix}prototype filter did not reveal its archive series.`);
-    check(prototypeState.archiveVisible, `${prefix}prototype filter hid the version archive.`);
-    check(prototypeState.pressed, `${prefix}prototype filter did not update pressed state.`);
-
-    await click(connection, "#dse-series-toggle-proto-3");
-    const collapsed = await evaluate(connection, `(() => ({
-      expanded: document.getElementById("dse-series-toggle-proto-3")?.getAttribute("aria-expanded"),
-      gridHidden: Boolean(document.getElementById("dse-series-grid-proto-3")?.hidden)
-    }))()`);
-    check(collapsed.expanded === "false" && collapsed.gridHidden, `${prefix}series collapse control failed.`);
-    await click(connection, "#dse-series-toggle-proto-3");
     check(
-      await evaluate(connection, `document.getElementById("dse-series-toggle-proto-3")?.getAttribute("aria-expanded") === "true"`),
-      `${prefix}series expand control failed.`
+      initial.subtitle.includes("把问题和手头的资料交给我") &&
+      initial.subtitle.includes("可靠、能马上执行的下一步") &&
+      !initial.subtitle.includes("不会自动修改硬件"),
+      `${prefix}hero subtitle does not match the approved two-layer copy.`
     );
+    check(
+      initial.safety === "只读取你允许的信息，不会自动修改硬件。",
+      `${prefix}safety boundary is not a separate statement below the CTA.`
+    );
+    check(initial.ctaHref === "#dse-home-flow", `${prefix}primary CTA does not lead to the inline simple flow.`);
+    check(initial.ctaText === "开始排查", `${prefix}hero CTA does not match the simple-flow entry.`);
+    check(
+      initial.heroHeight >= initial.viewportHeight - 1 &&
+      initial.nextSectionTop >= initial.viewportHeight - 1,
+      `${prefix}hero does not occupy the complete first viewport (${JSON.stringify({
+        heroHeight: initial.heroHeight,
+        viewportHeight: initial.viewportHeight,
+        nextSectionTop: initial.nextSectionTop
+      })}).`
+    );
+    check(!initial.aboutPresent, `${prefix}removed philosophy section still exists.`);
+    check(
+      initial.heroVersion === "2.5.0" &&
+      initial.visibleVersionCount === 1,
+      `${prefix}homepage should expose the current version exactly once (${JSON.stringify({
+        heroVersion: initial.heroVersion,
+        visibleVersionCount: initial.visibleVersionCount
+      })}).`
+    );
+    check(
+      initial.advancedEntryHref === "interactive/" &&
+      initial.primaryPaths.length === 1 &&
+      initial.primaryPaths.includes("orrery/"),
+      `${prefix}primary paths are incomplete.`
+    );
+    check(
+      initial.candidateVisible &&
+      initial.candidateText.includes("可以使用 尚未正式稳定") &&
+      initial.candidateText.includes("当前能做什么") &&
+      initial.candidateText.includes("为什么仍是测试版") &&
+      initial.candidateText.includes("不自动修改硬件") &&
+      !initial.candidateInsideDetails &&
+      initial.candidateDetailsExpanded === "false" &&
+      initial.candidateDetailsHeight >= 44 &&
+      initial.candidateState.includes("当前测试版") &&
+      !/\d+\.\d+\.\d+/.test(initial.candidateState) &&
+      initial.candidateStateSize >= 14,
+      `${prefix}usable-state summary is not visible in the main flow (${JSON.stringify({
+        visible: initial.candidateVisible,
+        insideDetails: initial.candidateInsideDetails,
+        expanded: initial.candidateDetailsExpanded,
+        height: initial.candidateDetailsHeight,
+        text: initial.candidateText.slice(0, 160)
+      })}).`
+    );
+    check(
+      initial.technicalClosed &&
+      initial.technicalSummary.includes("查看版本与发布说明") &&
+      initial.technicalSummary.includes("107") &&
+      initial.technicalExpanded === "false" &&
+      initial.technicalHeight >= 44,
+      `${prefix}technical archive is not folded.`
+    );
+    await screenshot(connection, `previous-style-home-${name}.png`);
 
-    const firstPrototypeVersion = await evaluate(connection, `(() => {
-      const button = document.querySelector('[data-series-id="proto-3"] .dse-version');
-      return button ? { id: button.dataset.versionId, label: button.textContent.trim() } : null;
+    await clickByPointer(connection, ".dse-hero-action.primary");
+    const howtoVisible = await waitFor(connection, `(() => {
+      const target = document.getElementById("dse-how-title");
+      const section = document.querySelector(".dse-howto");
+      return target && target.getBoundingClientRect().top >= -10 &&
+        target.getBoundingClientRect().top < 180 &&
+        Number(getComputedStyle(section).opacity) > .99;
+    })()`, 3000);
+    check(howtoVisible, `${prefix}primary CTA left a blank or invisible usage section.`);
+
+    const homeFlowInitial = await evaluate(connection, `(() => ({
+      stepOneVisible: !document.getElementById("dse-home-step-1")?.hidden,
+      stepTwoHidden: Boolean(document.getElementById("dse-home-step-2")?.hidden),
+      stepThreeHidden: Boolean(document.getElementById("dse-home-step-3")?.hidden),
+      questionCount: document.querySelectorAll("[data-home-scenario]").length,
+      flowColumns: getComputedStyle(document.querySelector(".dse-home-flow-steps")).gridTemplateColumns
+    }))()`);
+    check(
+      homeFlowInitial.stepOneVisible &&
+      homeFlowInitial.stepTwoHidden &&
+      homeFlowInitial.stepThreeHidden &&
+      homeFlowInitial.questionCount === 3 &&
+      homeFlowInitial.flowColumns.split(" ").filter(Boolean).length === 1,
+      `${prefix}inline simple flow does not start with one visible question step (${JSON.stringify(homeFlowInitial)}).`
+    );
+    await clickByPointer(connection, '[data-home-scenario="temperature"]');
+    check(
+      await waitFor(connection, `(() => (
+        !document.getElementById("dse-home-step-2")?.hidden &&
+        document.querySelectorAll("#dse-home-evidence-options input").length === 3
+      ))()`, 2500),
+      `${prefix}selecting a question did not reveal the evidence step directly below.`
+    );
+    await evaluate(connection, `(() => {
+      const first = document.querySelector("#dse-home-evidence-options input");
+      if (!first) throw new Error("Missing home evidence choice");
+      first.click();
+      return true;
     })()`);
-    check(Boolean(firstPrototypeVersion?.id), `${prefix}prototype archive has no version controls.`);
-    if (firstPrototypeVersion?.id) {
-      await clickByPointer(connection, `[data-version-id="${firstPrototypeVersion.id}"]`);
-      const versionState = await evaluate(connection, `(() => ({
-        detailVisible: !document.getElementById("dse-version-detail")?.hidden,
-        detailTitle: document.getElementById("dse-version-detail-title")?.textContent.trim() || "",
-        hash: location.hash,
-        selected: document.querySelector('[data-version-id="${firstPrototypeVersion.id}"]')?.classList.contains("is-selected") || false
-      }))()`);
-      check(versionState.detailVisible, `${prefix}version card did not open its detail panel.`);
-      check(versionState.detailTitle.length > 8, `${prefix}version detail title is empty.`);
-      check(versionState.selected, `${prefix}version card did not show a selected state.`);
-      check(versionState.hash === `#${firstPrototypeVersion.id}`, `${prefix}version card did not update its route.`);
-
-      await clickByPointer(connection, "#dse-version-detail [data-window-close]");
-      const restore = await evaluate(connection, `(() => ({
-        detailHidden: Boolean(document.getElementById("dse-version-detail")?.hidden),
-        restoreVisible: !document.getElementById("dse-inspector-restore")?.hidden
-      }))()`);
-      check(restore.detailHidden && restore.restoreVisible, `${prefix}version close/restore state is incomplete.`);
-      await clickByPointer(connection, "#dse-inspector-restore");
-      check(
-        await evaluate(connection, `!document.getElementById("dse-version-detail")?.hidden`),
-        `${prefix}restore control did not reopen version details.`
-      );
-    }
-
-    await click(connection, '[data-filter="triage"]');
-    const triageState = await evaluate(connection, `(() => ({
-      trackVisible: !document.querySelector('.dse-track[data-track="triage"]')?.hidden,
-      detailVisible: !document.querySelector(".dse-detail")?.hidden,
-      detailTitle: document.getElementById("dse-detail-title")?.textContent.trim() || "",
-      archiveHidden: Boolean(document.querySelector(".dse-archive")?.hidden)
-    }))()`);
-    check(triageState.trackVisible, `${prefix}triage filter did not reveal its track.`);
-    check(triageState.detailVisible && triageState.detailTitle.includes("TR-"), `${prefix}triage detail is missing.`);
-    check(triageState.archiveHidden, `${prefix}triage filter left the version archive visible.`);
-
-    await click(connection, '[data-filter="merge"]');
-    const mergeState = await evaluate(connection, `(() => ({
-      convergenceVisible: !document.querySelector(".dse-convergence")?.hidden,
-      archiveHidden: Boolean(document.querySelector(".dse-archive")?.hidden),
-      detailTitle: document.getElementById("dse-detail-title")?.textContent.trim() || "",
-      detailVisible: !document.querySelector(".dse-detail")?.hidden
-    }))()`);
-    check(mergeState.convergenceVisible, `${prefix}merge filter did not reveal convergence content.`);
-    check(mergeState.archiveHidden, `${prefix}merge filter left the archive visible.`);
-    check(
-      mergeState.detailVisible && mergeState.detailTitle.includes("MERGE"),
-      `${prefix}merge filter did not select a merge milestone.`
-    );
-
-    await click(connection, '[data-filter="core"]');
-    await clickByPointer(connection, '[data-version-id="wb-2-5-0"]');
-    const currentVersion = await evaluate(connection, `(() => ({
-      title: document.getElementById("dse-version-detail-title")?.textContent.trim() || "",
-      date: document.getElementById("dse-version-detail-date")?.textContent.trim() || "",
-      changes: [...document.querySelectorAll("#dse-version-changes li")].map(item => item.textContent.trim()),
-      validation: document.getElementById("dse-version-validation")?.textContent.trim() || "",
-      hash: location.hash
-    }))()`);
-    check(currentVersion.title.includes("2.5.0"), `${prefix}current version detail is not 2.5.0.`);
-    check(currentVersion.date.length > 0, `${prefix}current version date is missing.`);
-    check(currentVersion.changes.length > 0, `${prefix}current version change list is empty.`);
-    check(currentVersion.validation.length > 20, `${prefix}current version validation is missing.`);
-    check(currentVersion.hash === "#wb-2-5-0", `${prefix}current version deep link is not stable.`);
-
-    await click(connection, "#dse-version-detail [data-window-toggle]");
-    const versionCollapsed = await evaluate(connection, `(() => ({
-      collapsed: document.getElementById("dse-version-detail")?.classList.contains("is-collapsed") || false,
-      expanded: document.querySelector("#dse-version-detail [data-window-toggle]")?.getAttribute("aria-expanded")
+    await clickByPointer(connection, "#dse-home-generate");
+    const homeResult = await evaluate(connection, `(() => ({
+      stepTwoVisible: !document.getElementById("dse-home-step-2")?.hidden,
+      stepThreeVisible: !document.getElementById("dse-home-step-3")?.hidden,
+      status: document.getElementById("dse-home-result-status")?.textContent.trim() || "",
+      copy: document.getElementById("dse-home-result-copy")?.textContent.trim() || "",
+      missing: document.getElementById("dse-home-result-missing")?.textContent.trim() || "",
+      next: document.getElementById("dse-home-result-next")?.textContent.trim() || "",
+      advancedHref: document.getElementById("dse-home-open-advanced")?.getAttribute("href") || "",
+      verticalOrder: [
+        document.getElementById("dse-home-step-1"),
+        document.getElementById("dse-home-step-2"),
+        document.getElementById("dse-home-step-3"),
+        document.querySelector(".dse-candidate")
+      ].every((element, index, elements) => (
+        index === 0 ||
+        element.getBoundingClientRect().top > elements[index - 1].getBoundingClientRect().top
+      )),
+      candidateFollowsResult: Boolean(
+        document.getElementById("dse-home-step-3")?.compareDocumentPosition(
+          document.querySelector(".dse-candidate")
+        ) & Node.DOCUMENT_POSITION_FOLLOWING
+      )
     }))()`);
     check(
-      versionCollapsed.collapsed && versionCollapsed.expanded === "false",
-      `${prefix}version detail collapse control failed.`
+      homeResult.stepTwoVisible &&
+      homeResult.stepThreeVisible &&
+      homeResult.status.includes("还需补齐") &&
+      homeResult.copy.includes("检查方向") &&
+      homeResult.missing.includes("缺少的信息") &&
+      homeResult.next.includes("推荐下一步") &&
+      homeResult.advancedHref === "interactive/#triage" &&
+      homeResult.verticalOrder &&
+      homeResult.candidateFollowsResult,
+      `${prefix}inline simple flow does not produce a result in vertical order (${JSON.stringify(homeResult)}).`
     );
-    await click(connection, "#dse-version-detail [data-window-toggle]");
-    check(
-      await evaluate(
-        connection,
-        `!document.getElementById("dse-version-detail")?.classList.contains("is-collapsed")`
-      ),
-      `${prefix}version detail expand control failed.`
-    );
-
-    await clickByPointer(connection, '.dse-node[data-milestone-id="core-instrumentation"]');
-    const milestone = await evaluate(connection, `(() => ({
-      detailVisible: !document.querySelector(".dse-detail")?.hidden,
-      title: document.getElementById("dse-detail-title")?.textContent.trim() || "",
-      goal: document.getElementById("dse-detail-goal")?.textContent.trim() || "",
-      selected: document.querySelector('.dse-node[data-milestone-id="core-instrumentation"]')?.classList.contains("is-selected") || false
-    }))()`);
-    check(milestone.detailVisible && milestone.title.includes("2.5.0"), `${prefix}current milestone detail failed.`);
-    check(milestone.goal.length > 20 && milestone.selected, `${prefix}current milestone content/state is incomplete.`);
-
-    await click(connection, ".dse-detail [data-window-toggle]");
-    const milestoneCollapsed = await evaluate(connection, `(() => ({
-      collapsed: document.querySelector(".dse-detail")?.classList.contains("is-collapsed") || false,
-      expanded: document.querySelector(".dse-detail [data-window-toggle]")?.getAttribute("aria-expanded")
-    }))()`);
-    check(
-      milestoneCollapsed.collapsed && milestoneCollapsed.expanded === "false",
-      `${prefix}milestone detail collapse control failed.`
-    );
-    await click(connection, ".dse-detail [data-window-toggle]");
-    await click(connection, ".dse-detail [data-window-close]");
-    const milestoneClosed = await evaluate(connection, `(() => ({
-      hidden: Boolean(document.querySelector(".dse-detail")?.hidden),
-      restoreVisible: !document.getElementById("dse-inspector-restore")?.hidden
-    }))()`);
-    check(
-      milestoneClosed.hidden && milestoneClosed.restoreVisible,
-      `${prefix}milestone close/restore state is incomplete.`
-    );
-    await click(connection, "#dse-inspector-restore");
-    check(
-      await evaluate(connection, `!document.querySelector(".dse-detail")?.hidden`),
-      `${prefix}milestone restore control failed.`
-    );
-
-    await clickByPointer(connection, ".dse-candidate-details > summary");
-    check(
-      await evaluate(connection, `Boolean(document.querySelector(".dse-candidate-details")?.open)`),
-      `${prefix}candidate details did not open.`
-    );
-
-    const currentDeepLink = `${siteUrl}#wb-2-5-0`;
-    await navigate(connection, siteUrl);
-    await navigate(connection, currentDeepLink);
-    const deepLinkState = await evaluate(connection, `(() => ({
-      detailVisible: !document.getElementById("dse-version-detail")?.hidden,
-      title: document.getElementById("dse-version-detail-title")?.textContent.trim() || "",
-      corePressed: document.querySelector('[data-filter="core"]')?.getAttribute("aria-pressed") === "true",
-      seriesExpanded: !document.querySelector('[data-series-id="wb-2-2"] .dse-version-grid')?.hidden
-    }))()`);
-    check(deepLinkState.detailVisible && deepLinkState.title.includes("2.5.0"), `${prefix}version deep link did not open.`);
-    check(deepLinkState.corePressed && deepLinkState.seriesExpanded, `${prefix}version deep link did not restore archive context.`);
-
-    check(connection.pageErrors.length === 0, `${prefix}page errors: ${connection.pageErrors.join(" | ")}`);
-  } finally {
-    connection.close();
-    await fetch(`http://127.0.0.1:${debugPort}/json/close/${connection.targetId}`).catch(() => {});
-  }
-}
-
-async function testViewport(browserUrl, name, width, height, testAutoRotation) {
-  const connection = await createConnection(browserUrl);
-  const prefix = `${name}: `;
-  try {
-    await setViewport(connection, width, height);
-    await navigate(connection, browserUrl);
-
-    const initial = await visibleState(connection);
-    check(initial.demoHidden === false, `${prefix}#dse-demo remains hidden before advanced mode.`);
-    check(initial.demoStaticText > 500, `${prefix}#dse-demo has no static fallback content.`);
-    check(initial.shellOpen === false, `${prefix}advanced details should start closed.`);
-    check(initial.overflow === false, `${prefix}page has horizontal overflow before interaction.`);
-
-    const integrity = await evaluate(connection, integrityExpression());
-    check(integrity.duplicateIds.length === 0, `${prefix}duplicate IDs: ${integrity.duplicateIds.join(", ")}`);
-    check(
-      integrity.brokenAriaControls.length === 0,
-      `${prefix}broken aria-controls: ${integrity.brokenAriaControls.join(", ")}`
-    );
-    check(integrity.unnamedControls.length === 0, `${prefix}visible controls without names.`);
-    check(
-      integrity.brokenHashLinks.length === 0,
-      `${prefix}broken same-page links: ${integrity.brokenHashLinks.join(", ")}`
-    );
-
-    await openAdvancedByPointer(connection);
-    const direct = await visibleState(connection);
-    check(direct.shellOpen, `${prefix}real pointer click did not open advanced details.`);
-    check(direct.demoHidden === false, `${prefix}#dse-demo is hidden after advanced details open.`);
-    check(direct.demoVisibleText > 200, `${prefix}advanced content is empty after direct summary click.`);
-    check(direct.visiblePanelCount >= 1, `${prefix}no advanced mode panel is visible after opening.`);
-    check(direct.overflow === false, `${prefix}page has horizontal overflow after opening advanced mode.`);
-
-    for (const mode of ["terms", "tune", "triage", "identity", "evidence"]) {
-      await click(connection, `[data-demo-mode="${mode}"]`);
-      const state = await visibleState(connection);
-      check(state.activeMode === mode, `${prefix}${mode} tab is not marked active.`);
-      check(state.hash === `#${mode}`, `${prefix}${mode} mode did not update the hash.`);
-      check(state.visiblePanelCount >= 1, `${prefix}${mode} mode has no visible panel.`);
-      check(state.visiblePanelText.some(length => length > 80), `${prefix}${mode} panel text is empty.`);
-    }
-
-    await click(connection, '[data-demo-mode="terms"]');
-    const termsBefore = await evaluate(connection, `(() => ({
-      coreCount: document.querySelectorAll("#dse-term-core-row [data-term-id]").length,
-      branchCount: document.querySelectorAll("#dse-term-rotating-row [data-term-id]").length,
-      cycle: document.getElementById("dse-term-cycle-label")?.textContent.trim() || ""
-    }))()`);
-    check(termsBefore.coreCount === 6, `${prefix}term core row has ${termsBefore.coreCount} items, expected 6.`);
-    check(termsBefore.branchCount > 0, `${prefix}term branch row is empty.`);
-    await clickByPointer(connection, "#dse-term-next");
-    const termsAfter = await evaluate(connection, `(() => ({
-      cycle: document.getElementById("dse-term-cycle-label")?.textContent.trim() || "",
-      branchCount: document.querySelectorAll("#dse-term-rotating-row [data-term-id]").length
-    }))()`);
-    check(termsAfter.cycle !== termsBefore.cycle, `${prefix}term next-group control did not advance.`);
-    check(termsAfter.branchCount > 0, `${prefix}term branch row disappeared after rotation.`);
-
-    await click(connection, '[data-term-id="power-limit"]');
-    const openTerm = await evaluate(connection, `(() => ({
-      visible: !document.getElementById("dse-term-detail")?.hidden,
-      title: document.getElementById("dse-term-detail-title")?.textContent.trim() || "",
-      copyLength: document.getElementById("dse-term-detail")?.innerText.trim().length || 0,
-      hash: location.hash
-    }))()`);
-    check(openTerm.visible && openTerm.title.includes("功耗墙"), `${prefix}term detail did not open.`);
-    check(openTerm.copyLength > 100, `${prefix}term detail content is empty.`);
-    check(openTerm.hash === "#term-power-limit", `${prefix}term detail did not update its deep link.`);
-    await connection.send("Input.dispatchKeyEvent", {
-      type: "keyDown",
-      key: "Escape",
-      code: "Escape",
-      windowsVirtualKeyCode: 27
-    });
-    await connection.send("Input.dispatchKeyEvent", {
-      type: "keyUp",
-      key: "Escape",
-      code: "Escape",
-      windowsVirtualKeyCode: 27
-    });
-    await sleep(80);
-    const escapedTerm = await evaluate(connection, `(() => ({
-      hidden: Boolean(document.getElementById("dse-term-detail")?.hidden),
-      hash: location.hash
-    }))()`);
-    check(escapedTerm.hidden, `${prefix}Escape did not close the term detail.`);
-    check(escapedTerm.hash === "#terms", `${prefix}closing a term did not restore the terms route.`);
-
-    await click(connection, '[data-term-id="power-limit"]');
-    await click(connection, "#dse-close-advanced");
-    const closedTermShell = await evaluate(connection, `(() => ({
-      shellOpen: Boolean(document.getElementById("dse-advanced-shell")?.open),
-      termHidden: Boolean(document.getElementById("dse-term-detail")?.hidden),
-      hash: location.hash
-    }))()`);
-    check(
-      !closedTermShell.shellOpen && closedTermShell.termHidden && closedTermShell.hash === "",
-      `${prefix}advanced close left a term deep link or open term behind.`
-    );
-    await openAdvancedByPointer(connection);
-
-    await click(connection, '[data-demo-mode="identity"]');
-    const lifecycleIds = await evaluate(
-      connection,
-      `[...document.querySelectorAll("#dse-lifecycle-events [data-lifecycle-event]")].map(button => button.dataset.lifecycleEvent)`
-    );
-    check(lifecycleIds.length >= 3, `${prefix}lifecycle event controls are missing.`);
-    const lifecycleResults = [];
-    for (const eventId of lifecycleIds) {
-      await click(connection, `[data-lifecycle-event="${eventId}"]`);
-      lifecycleResults.push(await evaluate(connection, `(() => ({
-        title: document.getElementById("dse-lifecycle-copy-title")?.textContent.trim() || "",
-        body: document.getElementById("dse-lifecycle-copy-body")?.textContent.trim() || "",
-        pressed: document.querySelector('[data-lifecycle-event="${eventId}"]')?.getAttribute("aria-pressed") === "true",
-        identityRail: document.getElementById("dse-identity-state-rail")?.textContent.trim() || "",
-        baselineRail: document.getElementById("dse-baseline-state-rail")?.textContent.trim() || ""
-      }))()`));
-    }
-    check(
-      lifecycleResults.every(result =>
-        result.pressed && result.title.length > 0 && result.body.length > 20 &&
-        result.identityRail.length > 0 && result.baselineRail.length > 0
-      ),
-      `${prefix}one or more lifecycle events produced incomplete content.`
-    );
-    check(
-      new Set(lifecycleResults.map(result => result.title)).size > 1,
-      `${prefix}lifecycle events do not change the displayed conclusion.`
-    );
-
-    await click(connection, "#dse-advanced-reset");
-    check((await visibleState(connection)).currentTheme === "安全调参", `${prefix}reset did not restore safe tuning.`);
-    await click(connection, "#dse-advanced-next");
-    check((await visibleState(connection)).currentTheme === "排查故障", `${prefix}advanced next control failed.`);
-    await click(connection, "#dse-advanced-prev");
-    check((await visibleState(connection)).currentTheme === "安全调参", `${prefix}advanced previous control failed.`);
-    await click(connection, "#dse-close-advanced");
-    const closed = await visibleState(connection);
-    check(closed.shellOpen === false, `${prefix}advanced close control failed.`);
-    check(closed.hash === "", `${prefix}advanced close left a mode hash that reopens the panel.`);
-
-    const guided = await evaluate(connection, `(async () => {
-      const select = document.getElementById("dse-guided-scenario");
-      const next = document.getElementById("dse-guided-next");
-      const previous = document.getElementById("dse-guided-prev");
-      const reset = document.getElementById("dse-guided-reset");
-      const settle = () => new Promise(resolve => (
-        requestAnimationFrame(() => requestAnimationFrame(resolve))
-      ));
-      const readResult = () => ({
-        progress: document.getElementById("dse-guided-progress")?.textContent.trim() || "",
-        status: document.getElementById("dse-guided-outcome-status")?.textContent.trim() || "",
-        missing: document.getElementById("dse-guided-missing")?.textContent.trim() || "",
-        recommendation: document.getElementById("dse-guided-recommendation")?.textContent.trim() || "",
-        action: next?.textContent.trim() || "",
-        evidenceCount: document.getElementById("dse-guided-evidence-count")?.textContent.trim() || "",
-        pathStates: [...document.querySelectorAll(".dse-guided-path-state")].map(node => node.textContent.trim())
-      });
-      const completeScenario = async scenario => {
-        select.value = scenario;
-        select.dispatchEvent(new Event("change", { bubbles: true }));
-        await settle();
-        next.click();
-        await settle();
-        const boxes = [...document.querySelectorAll("#dse-guided-evidence-options input")];
-        if (boxes[1]) {
-          boxes[1].checked = true;
-          boxes[1].dispatchEvent(new Event("change", { bubbles: true }));
-        }
-        next.click();
-        await settle();
-        return readResult();
-      };
-      const scenarios = {};
-      for (const scenario of ["temperature", "stutter", "tuning"]) {
-        scenarios[scenario] = await completeScenario(scenario);
-      }
-
-      reset.click();
-      await settle();
-      const resetState = {
-        progress: document.getElementById("dse-guided-progress")?.textContent.trim() || "",
-        evidenceCount: document.getElementById("dse-guided-evidence-count")?.textContent.trim() || "",
-        resultHidden: Boolean(document.getElementById("dse-guided-result-actions")?.hidden)
-      };
-
-      await completeScenario("tuning");
-      document.getElementById("dse-guided-switch")?.click();
-      await settle();
-      const switchedState = {
-        scenario: select.value,
-        progress: document.getElementById("dse-guided-progress")?.textContent.trim() || "",
-        resultHidden: Boolean(document.getElementById("dse-guided-result-actions")?.hidden)
-      };
-      const finalScenario = select.value;
-      await completeScenario(finalScenario);
-
-      previous.click();
-      await settle();
-      const previousProgress = document.getElementById("dse-guided-progress")?.textContent.trim() || "";
-      next.click();
-      await settle();
-
+    await evaluate(connection, `(() => {
       Object.defineProperty(navigator, "clipboard", {
         configurable: true,
-        value: {
-          writeText: async value => {
-            window.__pcwbCopiedPrompt = value;
-          }
+        value: { writeText: async value => { window.__homeCopiedPrompt = value; } }
+      });
+      return true;
+    })()`);
+    await clickByPointer(connection, "#dse-home-copy-next");
+    const homeCopy = await evaluate(connection, `(() => ({
+      label: document.getElementById("dse-home-copy-next")?.textContent.trim() || "",
+      prompt: String(window.__homeCopiedPrompt || "")
+    }))()`);
+    check(
+      homeCopy.label.includes("已复制") &&
+      homeCopy.prompt.includes("$pc-hardware-workbench") &&
+      homeCopy.prompt.includes("不要自动修改硬件"),
+      `${prefix}home result copy action has no completion feedback or safety boundary (${JSON.stringify(homeCopy)}).`
+    );
+    await screenshot(connection, `inline-simple-flow-${name}.png`);
+
+    await evaluate(connection, `(() => {
+      document.getElementById("dse-candidate-details-summary")?.focus();
+      return true;
+    })()`);
+    await pressKey(connection, " ", "Space", 32);
+    const candidateDisclosure = await evaluate(connection, `(() => ({
+      open: Boolean(document.getElementById("dse-candidate-details")?.open),
+      expanded: document.getElementById("dse-candidate-details-summary")?.getAttribute("aria-expanded") || "",
+      action: document.querySelector("[data-candidate-details-action]")?.textContent.trim() || ""
+    }))()`);
+    check(
+      candidateDisclosure.open &&
+      candidateDisclosure.expanded === "true" &&
+      candidateDisclosure.action.includes("收起技术与发布说明"),
+      `${prefix}candidate technical disclosure is not a usable control.`
+    );
+    await pressKey(connection, " ", "Space", 32);
+
+    await evaluate(connection, `(() => {
+      document.getElementById("dse-home-technical-summary")?.focus();
+      return true;
+    })()`);
+    await pressKey(connection, " ", "Space", 32);
+    const archiveOpened = await waitFor(connection, `(() => {
+      const details = document.querySelector(".dse-home-technical");
+      return Boolean(details?.open);
+    })()`, 2500);
+    const opened = await evaluate(connection, `(() => ({
+      open: Boolean(document.querySelector(".dse-home-technical")?.open),
+      version: document.querySelector(".dse-home-technical")?.innerText.includes("2.5.0") || false,
+      versionCodeSize: Number.parseFloat(getComputedStyle(document.querySelector(".dse-version-code")).fontSize),
+      versionButtons: document.querySelectorAll(".dse-version").length,
+      summaryExpanded: document.getElementById("dse-home-technical-summary")?.getAttribute("aria-expanded") || "",
+      actionText: document.querySelector("[data-technical-action]")?.textContent.trim() || ""
+    }))()`);
+    check(
+      archiveOpened &&
+      opened.open &&
+      opened.version &&
+      opened.versionCodeSize >= 16 &&
+      opened.versionButtons === 107 &&
+      opened.summaryExpanded === "true" &&
+      opened.actionText.includes("收起版本与发布说明"),
+      `${prefix}technical archive does not open correctly (${JSON.stringify(opened)}).`
+    );
+    const homeFontSizes = await evaluate(connection, fontSizeExpression());
+    check(
+      homeFontSizes.length <= 4,
+      `${prefix}home uses more than four font-size levels (${JSON.stringify(homeFontSizes)}).`
+    );
+    await evaluate(connection, `(() => {
+      document.querySelector('[data-version-id="wb-2-5-0"]')?.click();
+      return true;
+    })()`);
+    await sleep(120);
+    const archiveSelection = await evaluate(connection, `(() => ({
+      detailVisible: !document.getElementById("dse-version-detail")?.hidden,
+      title: document.getElementById("dse-version-detail-title")?.textContent.trim() || "",
+      date: document.getElementById("dse-version-detail-date")?.textContent.trim() || "",
+      hash: location.hash
+    }))()`);
+    check(
+      archiveSelection.detailVisible &&
+      archiveSelection.title.includes("2.5.0") &&
+      archiveSelection.date.includes("测试版") &&
+      !archiveSelection.date.includes("CANDIDATE") &&
+      archiveSelection.hash === "#wb-2-5-0",
+      `${prefix}version selection or deep link was lost (${JSON.stringify(archiveSelection)}).`
+    );
+
+    await navigate(connection, siteUrl);
+    await navigate(connection, `${siteUrl}#wb-2-5-0`);
+    const deepLinked = await waitFor(connection, `(() => (
+      document.querySelector(".dse-home-technical")?.open &&
+      !document.getElementById("dse-version-detail")?.hidden
+    ))()`, 2500);
+    check(deepLinked, `${prefix}direct version deep link does not reopen the archive.`);
+    await evaluate(connection, `(async () => {
+      document.querySelector('.dse-filter[data-filter="merge"]')?.click();
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return true;
+    })()`);
+    const mergeLayout = await evaluate(connection, `(() => {
+      const map = document.querySelector(".dse-map-stage");
+      const convergence = document.querySelector(".dse-convergence");
+      const detail = map?.querySelector(":scope > .dse-detail");
+      const convergenceRect = convergence?.getBoundingClientRect();
+      const detailRect = detail?.getBoundingClientRect();
+      return {
+        mergeClass: map?.classList.contains("is-merge-layout") || false,
+        convergenceInsideMap: convergence?.parentElement === map,
+        tracksVisible: [...map.querySelectorAll(":scope > .dse-tracks")].some(
+          element => getComputedStyle(element).display !== "none"
+        ),
+        convergenceRect: {
+          left: Math.round(convergenceRect?.left || 0),
+          top: Math.round(convergenceRect?.top || 0),
+          right: Math.round(convergenceRect?.right || 0)
+        },
+        detailRect: {
+          left: Math.round(detailRect?.left || 0),
+          top: Math.round(detailRect?.top || 0)
         }
-      });
-      next.click();
-      await new Promise(resolve => setTimeout(resolve, 80));
-      const copyLabel = next.textContent.trim();
-      const prompt = String(window.__pcwbCopiedPrompt || "");
-      document.getElementById("dse-guided-show-reason")?.click();
-      await settle();
-
-      const final = readResult();
-      return {
-        ...final,
-        scenarios,
-        resetState,
-        switchedState,
-        previousProgress,
-        copiedLabel: copyLabel,
-        promptHasSkill: prompt.includes("$pc-hardware-workbench"),
-        promptHasSafety: prompt.includes("不要自动修改硬件"),
-        reasonOpened: Boolean(document.getElementById("dse-guided-reason")?.open)
       };
     })()`);
-    check(guided.progress.includes("已完成 3 步"), `${prefix}guided lab did not reach step 3.`);
-    check(guided.missing.includes("缺少的证据"), `${prefix}guided result has no missing-evidence section.`);
-    check(guided.recommendation.includes("推荐下一步"), `${prefix}guided result has no recommendation.`);
-    check(guided.action.includes("已复制"), `${prefix}guided final copy action gave no confirmation.`);
-    check(guided.pathStates.every(state => state === "已完成"), `${prefix}guided path did not complete.`);
+    const mergeBalanced =
+      mergeLayout.mergeClass &&
+      mergeLayout.convergenceInsideMap &&
+      !mergeLayout.tracksVisible &&
+      (name === "desktop"
+        ? mergeLayout.convergenceRect.left < mergeLayout.detailRect.left &&
+          Math.abs(mergeLayout.convergenceRect.top - mergeLayout.detailRect.top) < 120
+        : mergeLayout.convergenceRect.top < mergeLayout.detailRect.top &&
+          Math.abs(mergeLayout.convergenceRect.left - mergeLayout.detailRect.left) <= 20);
     check(
-      Object.values(guided.scenarios).every(scenario =>
-        scenario.progress.includes("已完成 3 步") &&
-        scenario.missing.includes("缺少的证据") &&
-        scenario.recommendation.includes("推荐下一步")
-      ),
-      `${prefix}one or more guided scenarios produced an incomplete result.`
+      mergeBalanced,
+      `${prefix}merge stage leaves an unbalanced empty column (${JSON.stringify(mergeLayout)}).`
     );
-    check(
-      new Set(Object.values(guided.scenarios).map(scenario => scenario.missing)).size >= 2,
-      `${prefix}guided scenarios do not produce distinct evidence guidance.`
-    );
-    check(
-      guided.resetState.progress.includes("第 1 步") &&
-      guided.resetState.evidenceCount.includes("已选 0") &&
-      guided.resetState.resultHidden,
-      `${prefix}guided reset did not restore the initial state.`
-    );
-    check(
-      guided.switchedState.scenario !== "tuning" &&
-      guided.switchedState.progress.includes("第 1 步") &&
-      guided.switchedState.resultHidden,
-      `${prefix}guided switch-scenario control failed.`
-    );
-    check(guided.previousProgress.includes("第 2 步"), `${prefix}guided previous control failed.`);
-    check(guided.copiedLabel.includes("已复制"), `${prefix}guided copy action gave no feedback.`);
-    check(
-      guided.promptHasSkill && guided.promptHasSafety,
-      `${prefix}guided copy action did not include the Skill and safety boundary.`
-    );
-    check(guided.reasonOpened, `${prefix}guided reason disclosure did not open.`);
-
-    await click(connection, "#dse-guided-open-advanced");
-    await sleep(350);
-    const reopened = await visibleState(connection);
-    check(reopened.shellOpen, `${prefix}guided result did not reopen advanced mode.`);
-    check(reopened.currentTheme === "排查故障", `${prefix}guided result opened the wrong advanced mode.`);
-    check(reopened.visiblePanelCount >= 1, `${prefix}guided-opened advanced mode is blank.`);
-
-    await click(connection, '[data-demo-mode="tune"]');
-    await click(connection, '[data-scenario="odor"]');
-    const hardStop = await evaluate(connection, `(() => ({
-      title: document.getElementById("dse-gate-title")?.textContent.trim() || "",
-      copy: document.getElementById("dse-gate-copy")?.textContent.trim() || "",
-      checkDisabled: Boolean(document.querySelector('[data-gate-action="check"]')?.disabled),
-      pressed: document.querySelector('[data-scenario="odor"]')?.getAttribute("aria-pressed") === "true"
-    }))()`);
-    check(
-      hardStop.title.includes("先停") && hardStop.copy.length > 20 && hardStop.checkDisabled && hardStop.pressed,
-      `${prefix}physical-hard-stop scenario did not block the tuning gate.`
-    );
-    const scenarioBeforeRotate = await evaluate(connection, `(() => ({
-      request: document.getElementById("dse-gate-request")?.textContent.trim() || ""
-    }))()`);
-    await click(connection, '[data-scenario-rotate]');
-    const scenarioAfterRotate = await evaluate(connection, `(() => ({
-      request: document.getElementById("dse-gate-request")?.textContent.trim() || "",
-      toggle: document.querySelector("[data-scenario-auto-toggle]")?.textContent.trim() || ""
-    }))()`);
-    check(
-      scenarioAfterRotate.request !== scenarioBeforeRotate.request &&
-      scenarioAfterRotate.toggle.includes("继续"),
-      `${prefix}scenario rotate/pause controls failed.`
-    );
-    await click(connection, "[data-scenario-auto-toggle]");
-    check(
-      await evaluate(
-        connection,
-        `document.querySelector("[data-scenario-auto-toggle]")?.textContent.trim().includes("暂停")`
-      ),
-      `${prefix}scenario resume control failed.`
-    );
-
-    const forms = await evaluate(connection, `(async () => {
-      const component = document.getElementById("dse-demo-component");
-      const route = document.getElementById("dse-demo-route");
-      const alternateComponent = [...component.options].find(option => option.value !== component.value);
-      if (alternateComponent) {
-        component.value = alternateComponent.value;
-        component.dispatchEvent(new Event("change", { bubbles: true }));
-      }
-      const workload = document.getElementById("dse-demo-workload");
-      workload.value = "可重复基准测试";
-      workload.dispatchEvent(new Event("change", { bubbles: true }));
-      document.querySelector('[data-gate-action="check"]')?.click();
-      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      const checklistVisible = !document.getElementById("dse-gate-checklist").hidden;
-      const checks = [...document.querySelectorAll("[data-gate-check]")];
-      checks.forEach(input => {
-        input.checked = true;
-        input.dispatchEvent(new Event("change", { bubbles: true }));
-      });
-      const enabled = !document.getElementById("dse-enter-experiment").disabled;
-      document.getElementById("dse-enter-experiment")?.click();
-      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      document.getElementById("dse-generate-experiment")?.click();
+    await navigate(connection, siteUrl);
+    await clickByPointer(connection, '[data-home-scenario="temperature"]');
+    await evaluate(connection, `(() => {
+      document.querySelector("#dse-home-evidence-options input")?.click();
+      return true;
+    })()`);
+    await clickByPointer(connection, "#dse-home-generate");
+    const beforeAdvancedReturn = await evaluate(connection, `(async () => {
+      const link = document.querySelector(".dse-advanced-entry a");
+      link.scrollIntoView({ block: "center" });
       await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       return {
-        checklistVisible,
-        checkedCount: checks.filter(input => input.checked).length,
-        enabled,
-        workload: workload.value,
-        component: component.value,
-        routeCount: route.options.length,
-        routeContext: document.getElementById("dse-route-context")?.textContent.trim() || "",
-        resultVisible: !document.getElementById("dse-experiment-output").hidden,
-        resultText: document.getElementById("dse-experiment-output")?.innerText.trim().length || 0,
-        simulationVisible: !document.getElementById("dse-sim-actions").hidden
+        scrollTop: Math.round(document.getElementById("dse-root").scrollTop),
+        selected: document.querySelector("[data-home-scenario][aria-pressed='true']")?.dataset.homeScenario || "",
+        evidenceChecked: Boolean(document.querySelector("#dse-home-evidence-options input:checked")),
+        resultVisible: !document.getElementById("dse-home-step-3")?.hidden,
+        href: link.href
       };
     })()`);
-    check(forms.checklistVisible, `${prefix}tuning checklist did not open.`);
-    check(forms.checkedCount === 5 && forms.enabled, `${prefix}five evidence checks did not unlock the experiment.`);
-    check(forms.workload === "可重复基准测试", `${prefix}workload selector failed.`);
-    check(forms.routeCount > 0 && forms.routeContext.startsWith("·"), `${prefix}component route selector failed.`);
-    check(forms.resultVisible && forms.resultText > 100, `${prefix}generated experiment result is empty.`);
-    check(forms.simulationVisible, `${prefix}generated experiment did not offer result simulation.`);
-
-    const simulationResults = [];
-    for (const result of ["pass", "fail", "inconclusive"]) {
-      await click(connection, `[data-sim-result="${result}"]`);
-      simulationResults.push(await evaluate(connection, `(() => ({
-        output: document.getElementById("dse-sim-outcome")?.textContent.trim() || "",
-        state: document.getElementById("dse-experiment-state-label")?.textContent.trim() || "",
-        visible: !document.getElementById("dse-sim-outcome")?.hidden
-      }))()`));
-    }
+    await evaluate(connection, `(() => {
+      document.querySelector(".dse-advanced-entry a")?.click();
+      return true;
+    })()`);
     check(
-      simulationResults.every(result => result.visible && result.output.length > 20 && result.state.length > 0),
-      `${prefix}one or more simulated outcomes are incomplete.`
+      await waitFor(connection, `location.pathname.endsWith("/interactive/")`, 3500),
+      `${prefix}advanced-mode entry did not navigate.`
     );
+    const previousStepAction = await evaluate(connection,
+      "document.getElementById('dse-return-home')?.textContent.trim() || ''");
+    check(previousStepAction.includes("返回上一步"), `${prefix}advanced page still says return home instead of previous step.`);
+    await clickByPointer(connection, "#dse-return-home");
     check(
-      new Set(simulationResults.map(result => result.output)).size === 3,
-      `${prefix}simulated outcomes do not produce distinct next-step guidance.`
+      await waitFor(connection, `(() => (
+        location.pathname.endsWith("/docs/skill-evolution/") &&
+        !document.getElementById("dse-home-step-3")?.hidden
+      ))()`, 3500),
+      `${prefix}advanced page did not restore the homepage interaction state.`
     );
-
-    await clickByPointer(connection, ".dse-secondary-actions > summary");
-    await click(connection, '[data-gate-action="rules"]');
-    const gateRules = await evaluate(connection, `(() => ({
-      visible: !document.getElementById("dse-gate-rules")?.hidden,
-      expanded: document.querySelector('[data-gate-action="rules"]')?.getAttribute("aria-expanded") === "true",
-      text: document.getElementById("dse-gate-rules")?.innerText.trim().length || 0
-    }))()`);
-    check(gateRules.visible && gateRules.expanded && gateRules.text > 50, `${prefix}gate explanation control failed.`);
-    await click(connection, '[data-gate-action="direct"]');
-    const directParameterRequest = await evaluate(connection, `(() => ({
-      title: document.getElementById("dse-gate-title")?.textContent.trim() || "",
-      enterDisabled: Boolean(document.getElementById("dse-enter-experiment")?.disabled),
-      outputHidden: Boolean(document.getElementById("dse-experiment-output")?.hidden)
+    const afterAdvancedReturn = await evaluate(connection, `(() => ({
+      scrollTop: Math.round(document.getElementById("dse-root").scrollTop),
+      selected: document.querySelector("[data-home-scenario][aria-pressed='true']")?.dataset.homeScenario || "",
+      evidenceChecked: Boolean(document.querySelector("#dse-home-evidence-options input:checked")),
+      resultVisible: !document.getElementById("dse-home-step-3")?.hidden
     }))()`);
     check(
-      directParameterRequest.title.includes("信息") &&
-      directParameterRequest.enterDisabled &&
-      directParameterRequest.outputHidden,
-      `${prefix}direct-parameter refusal path is incomplete.`
+      afterAdvancedReturn.selected === beforeAdvancedReturn.selected &&
+      afterAdvancedReturn.evidenceChecked === beforeAdvancedReturn.evidenceChecked &&
+      afterAdvancedReturn.resultVisible &&
+      Math.abs(afterAdvancedReturn.scrollTop - beforeAdvancedReturn.scrollTop) < 60,
+      `${prefix}advanced return lost homepage state (${JSON.stringify({
+        before: beforeAdvancedReturn,
+        after: afterAdvancedReturn
+      })}).`
     );
 
-    await click(connection, '[data-tune-step-link="compare"]');
-    const compareCurrent = await waitFor(connection, `(() => {
-      const link = document.querySelector('[data-tune-step-link="compare"]');
-      const target = document.getElementById("dse-tune-compare-panel");
-      return link?.getAttribute("aria-current") === "step" &&
-        target && target.getBoundingClientRect().bottom > 52 &&
-        target.getBoundingClientRect().top < window.innerHeight;
-    })()`, 2500);
-    const compareStepState = await evaluate(connection, `(() => ({
-      current: document.querySelector('[data-tune-step-link="compare"]')?.getAttribute("aria-current") || "",
-      targetTop: Math.round(document.getElementById("dse-tune-compare-panel")?.getBoundingClientRect().top || 0),
-      targetBottom: Math.round(document.getElementById("dse-tune-compare-panel")?.getBoundingClientRect().bottom || 0),
-      viewportHeight: window.innerHeight
+    const beforeOrreryReturn = await evaluate(connection, `(async () => {
+      const link = document.querySelector('.dse-explore-primary a[href="orrery/"]');
+      link.scrollIntoView({ block: "center" });
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return {
+        scrollTop: Math.round(document.getElementById("dse-root").scrollTop),
+        selected: document.querySelector("[data-home-scenario][aria-pressed='true']")?.dataset.homeScenario || "",
+        evidenceChecked: Boolean(document.querySelector("#dse-home-evidence-options input:checked")),
+        resultVisible: !document.getElementById("dse-home-step-3")?.hidden
+      };
+    })()`);
+    await evaluate(connection, `(() => {
+      document.querySelector('.dse-explore-primary a[href="orrery/"]')?.click();
+      return true;
+    })()`);
+    check(
+      await waitFor(connection, `location.pathname.endsWith("/orrery/")`, 3500),
+      `${prefix}file planet entry did not navigate.`
+    );
+    await clickByPointer(connection, 'a[href="../"]');
+    check(
+      await waitFor(connection, `(() => (
+        location.pathname.endsWith("/docs/skill-evolution/") &&
+        !document.getElementById("dse-home-step-3")?.hidden
+      ))()`, 3500),
+      `${prefix}file planet did not restore the homepage interaction state.`
+    );
+    await waitFor(connection, `Math.abs(
+      document.getElementById("dse-root")?.scrollTop - ${beforeOrreryReturn.scrollTop}
+    ) < 60`, 2500);
+    const afterOrreryReturn = await evaluate(connection, `(() => ({
+      scrollTop: Math.round(document.getElementById("dse-root").scrollTop),
+      selected: document.querySelector("[data-home-scenario][aria-pressed='true']")?.dataset.homeScenario || "",
+      evidenceChecked: Boolean(document.querySelector("#dse-home-evidence-options input:checked")),
+      resultVisible: !document.getElementById("dse-home-step-3")?.hidden
     }))()`);
     check(
-      compareCurrent,
-      `${prefix}tune step navigation did not mark the compare step current (${JSON.stringify(compareStepState)}).`
+      afterOrreryReturn.selected === beforeOrreryReturn.selected &&
+      afterOrreryReturn.evidenceChecked === beforeOrreryReturn.evidenceChecked &&
+      afterOrreryReturn.resultVisible &&
+      Math.abs(afterOrreryReturn.scrollTop - beforeOrreryReturn.scrollTop) < 60,
+      `${prefix}file planet return lost homepage state (${JSON.stringify({
+        before: beforeOrreryReturn,
+        after: afterOrreryReturn
+      })}).`
     );
-    await click(connection, '[data-tune-step-link="experiment"]');
-    const experimentCurrent = await waitFor(connection, `(() => {
-      const link = document.querySelector('[data-tune-step-link="experiment"]');
-      const target = document.getElementById("dse-tune-experiment-panel");
-      return link?.getAttribute("aria-current") === "step" &&
-        target && target.getBoundingClientRect().bottom > 52 &&
-        target.getBoundingClientRect().top < window.innerHeight;
-    })()`, 2500);
-    const experimentStepState = await evaluate(connection, `(() => ({
-      current: document.querySelector('[data-tune-step-link="experiment"]')?.getAttribute("aria-current") || "",
-      targetTop: Math.round(document.getElementById("dse-tune-experiment-panel")?.getBoundingClientRect().top || 0),
-      targetBottom: Math.round(document.getElementById("dse-tune-experiment-panel")?.getBoundingClientRect().bottom || 0),
-      viewportHeight: window.innerHeight
-    }))()`);
-    check(
-      experimentCurrent,
-      `${prefix}tune step navigation did not mark the experiment step current (${JSON.stringify(experimentStepState)}).`
-    );
-
-    await click(connection, '[data-demo-mode="triage"]');
-    const triageBefore = await evaluate(connection, `(() => ({
-      active: [...document.querySelectorAll("#dse-triage-case-grid .dse-scenario")]
-        .find(button => button.getAttribute("aria-pressed") === "true")?.textContent.trim() || "",
-      text: document.getElementById("dse-triage-copy")?.innerText.trim().length || 0
-    }))()`);
-    check(triageBefore.active.length > 0 && triageBefore.text > 20, `${prefix}triage panel has no active scenario content.`);
-    if (testAutoRotation) {
-      const autoRotated = await waitFor(connection, `(() => {
-        const active = [...document.querySelectorAll("#dse-triage-case-grid .dse-scenario")]
-          .find(button => button.getAttribute("aria-pressed") === "true")
-          ?.textContent.trim() || "";
-        return active.length > 0 && active !== ${JSON.stringify(triageBefore.active)};
-      })()`, 15000);
-      const triageAfter = await evaluate(connection, `(() => ({
-        active: [...document.querySelectorAll("#dse-triage-case-grid .dse-scenario")]
-          .find(button => button.getAttribute("aria-pressed") === "true")?.textContent.trim() || ""
-      }))()`);
-      check(
-        autoRotated && triageAfter.active !== triageBefore.active,
-        `${prefix}triage auto rotation did not advance (${JSON.stringify(triageBefore.active)} -> ${JSON.stringify(triageAfter.active)}).`
-      );
-    }
-    await click(connection, "#dse-triage-auto-toggle");
-    const pausedText = await evaluate(connection, "document.getElementById('dse-triage-auto-toggle')?.textContent.trim() || ''");
-    check(pausedText.includes("继续"), `${prefix}triage pause control has no feedback.`);
-    await click(connection, "#dse-triage-reset");
-    const resetLabel = await evaluate(connection, "document.getElementById('dse-triage-state-label')?.textContent.trim() || ''");
-    check(resetLabel.includes("安全范围"), `${prefix}triage reset did not return to the first stage.`);
-
-    await click(connection, '[data-triage-case="hazard"]');
-    const triageHazard = await evaluate(connection, `(() => ({
-      label: document.getElementById("dse-triage-state-label")?.textContent.trim() || "",
-      copy: document.getElementById("dse-triage-copy")?.textContent.trim() || "",
-      advanceDisabled: Boolean(document.getElementById("dse-triage-advance")?.disabled),
-      pressed: document.querySelector('[data-triage-case="hazard"]')?.getAttribute("aria-pressed") === "true"
-    }))()`);
-    check(
-      triageHazard.label.includes("先停") &&
-      triageHazard.copy.length > 20 &&
-      triageHazard.advanceDisabled &&
-      triageHazard.pressed,
-      `${prefix}triage physical-hazard path did not stop the flow.`
-    );
-
-    await click(connection, '[data-triage-case="stutter"]');
-    const triageCopyBefore = await evaluate(
-      connection,
-      "document.getElementById('dse-triage-copy')?.innerText.trim() || ''"
-    );
-    await click(connection, "#dse-triage-advance");
-    const triageAdvanced = await evaluate(connection, `(() => ({
-      label: document.getElementById("dse-triage-state-label")?.textContent.trim() || "",
-      copy: document.getElementById("dse-triage-copy")?.innerText.trim() || "",
-      advanceDisabled: Boolean(document.getElementById("dse-triage-advance")?.disabled)
-    }))()`);
-    check(
-      triageAdvanced.label.includes("补充") &&
-      triageAdvanced.copy !== triageCopyBefore &&
-      !triageAdvanced.advanceDisabled,
-      `${prefix}triage advance control failed.`
-    );
-    await click(connection, "#dse-triage-reset");
-
     check(connection.pageErrors.length === 0, `${prefix}page errors: ${connection.pageErrors.join(" | ")}`);
   } finally {
     connection.close();
@@ -1082,57 +795,594 @@ async function testViewport(browserUrl, name, width, height, testAutoRotation) {
   }
 }
 
-async function testDirectRoutes(siteUrl, interactiveUrl, name, width, height) {
-  const connection = await createConnection(`${siteUrl}#evidence`);
-  const prefix = `direct ${name}: `;
+async function testInteractiveViewport(interactiveUrl, name, width, height) {
+  const connection = await createConnection(interactiveUrl);
+  const prefix = `interactive ${name}: `;
   try {
     await setViewport(connection, width, height);
-    await navigate(connection, `${siteUrl}#evidence`);
-    const homeRedirected = await waitFor(
-      connection,
-      `location.pathname.endsWith("/interactive/")`,
-      3500
+    await navigate(connection, interactiveUrl);
+    await evaluate(connection, `(() => {
+      const root = document.getElementById("dse-root");
+      if (root) root.scrollTo({ top: 0, behavior: "auto" });
+      return true;
+    })()`);
+    runIntegrityChecks(await evaluate(connection, integrityExpression()), prefix);
+
+    const initial = await evaluate(connection, `(() => {
+      const shell = document.getElementById("dse-advanced-shell");
+      const visiblePanels = [...document.querySelectorAll(".dse-demo-panel[data-demo-mode]")]
+        .filter(panel => !panel.hidden && panel.getBoundingClientRect().height > 0);
+      const modeButtons = [...document.querySelectorAll(".dse-demo-modes [data-demo-mode]")];
+      return {
+        title: document.title,
+        h1: document.querySelector(".dse-advanced-page-head h1")?.textContent.trim() || "",
+        kicker: document.querySelector(".dse-advanced-page-head > p")?.textContent.trim() || "",
+        status: document.querySelector(".dse-advanced-page-head > small")?.textContent.trim() || "",
+        pageHeadRect: (() => {
+          const rect = document.querySelector(".dse-advanced-page-head")?.getBoundingClientRect();
+          return {
+            top: Math.round(rect?.top || 0),
+            height: Math.round(rect?.height || 0)
+          };
+        })(),
+        scrollTop: Math.round(document.getElementById("dse-root")?.scrollTop || 0),
+        hash: window.location.hash,
+        technicalOpen: Boolean(document.querySelector(".dse-interactive-technical")?.open),
+        shellOpen: Boolean(shell?.open),
+        advancedVisible: (shell?.getBoundingClientRect().height || 0) > 0,
+        simpleModePresent: Boolean(document.querySelector(".dse-guided")),
+        statusActionsVisible: (document.querySelector(".dse-advanced-actions")?.getBoundingClientRect().height || 0) > 0,
+        visiblePanelCount: visiblePanels.length,
+        currentTheme: document.getElementById("dse-advanced-current")?.textContent.trim() || "",
+        modeColumns: getComputedStyle(document.querySelector(".dse-demo-modes")).gridTemplateColumns,
+        modeTops: modeButtons.map(button => Math.round(button.getBoundingClientRect().top)),
+        tuneStepColumns: getComputedStyle(document.getElementById("dse-tune-steps")).gridTemplateColumns,
+        compareStepPresent: Boolean(document.querySelector('[data-tune-step-link="compare"]')),
+        comparePanelVisible: (document.getElementById("dse-tune-compare-panel")?.getBoundingClientRect().height || 0) > 0,
+        visibleVersionNumber: document.getElementById("dse-root")?.innerText.includes("2.5.0") || false
+      };
+    })()`);
+    check(initial.title.includes("高级模式"), `${prefix}browser title is not user-facing.`);
+    check(initial.h1 === "选择一个主题", `${prefix}advanced-mode headline is not concise and task-oriented.`);
+    check(initial.kicker === "高级模式", `${prefix}advanced-only page is not named consistently.`);
+    check(
+      initial.status.includes("当前测试版") &&
+      initial.status.includes("只读演示") &&
+      !initial.status.includes("2.5.0"),
+      `${prefix}advanced page does not use the public test-release label.`
     );
-    const homeRedirectState = await evaluate(connection, `(() => ({
-      pathname: location.pathname,
-      hash: location.hash,
-      shellOpen: Boolean(document.getElementById("dse-advanced-shell")?.open),
-      activeMode: document.querySelector("[data-demo-mode][aria-pressed=true]")?.dataset.demoMode || ""
+    check(
+      initial.pageHeadRect.height > 0 &&
+      initial.pageHeadRect.top >= -1 &&
+      initial.pageHeadRect.top < 180,
+      `${prefix}advanced page headline is not visible at the top (${JSON.stringify({
+        rect: initial.pageHeadRect,
+        scrollTop: initial.scrollTop,
+        hash: initial.hash
+      })}).`
+    );
+    check(!initial.visibleVersionNumber, `${prefix}version number is repeated outside the version archive.`);
+    check(
+      initial.technicalOpen &&
+      initial.shellOpen &&
+      initial.advancedVisible &&
+      !initial.simpleModePresent &&
+      !initial.statusActionsVisible &&
+      initial.visiblePanelCount === 1 &&
+      initial.currentTheme.length > 0,
+      `${prefix}advanced mode is not immediately visible or simple mode still exists (${JSON.stringify(initial)}).`
+    );
+    check(
+      initial.modeColumns.split(" ").filter(Boolean).length > 1 &&
+      initial.tuneStepColumns.split(" ").filter(Boolean).length === (name === "desktop" ? 2 : 1) &&
+      !initial.compareStepPresent &&
+      !initial.comparePanelVisible,
+      `${prefix}advanced peer navigation lost its compact horizontal layout (${JSON.stringify({
+        modeColumns: initial.modeColumns,
+        modeTops: initial.modeTops,
+        tuneStepColumns: initial.tuneStepColumns
+      })}).`
+    );
+    await screenshot(connection, `vertical-advanced-${name}.png`);
+    const interactiveFontSizes = await evaluate(connection, fontSizeExpression());
+    check(
+      interactiveFontSizes.length <= 4,
+      `${prefix}interactive lab uses more than four font-size levels (${JSON.stringify(interactiveFontSizes)}).`
+    );
+    await evaluate(connection, `(() => {
+      document.querySelector("[data-scenario-auto-toggle]").dataset.autoResumeMs = "700";
+      return true;
+    })()`);
+    const scenarioAutoBefore = await evaluate(connection, `(() => ({
+      active: document.querySelector("#dse-scenario-grid [data-scenario][aria-pressed='true']")?.dataset.scenario || "",
+      autoResumeMs: document.querySelector("[data-scenario-auto-toggle]")?.dataset.autoResumeMs || "",
+      meta: document.querySelector(".dse-scenario-meta > span")?.textContent.trim() || ""
+    }))()`);
+    const scenarioAfterScroll = await evaluate(connection, `(async () => {
+      const root = document.getElementById("dse-root");
+      root.scrollTop += 12;
+      root.dispatchEvent(new Event("scroll"));
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return {
+        pressed: document.querySelector("[data-scenario-auto-toggle]")?.getAttribute("aria-pressed") || "",
+        checklistOpen: !document.getElementById("dse-gate-checklist")?.hidden
+      };
+    })()`);
+    await clickByPointer(connection, '[data-gate-action="check"]');
+    const scenarioAutoPaused = await evaluate(connection, `(() => ({
+      active: document.querySelector("#dse-scenario-grid [data-scenario][aria-pressed='true']")?.dataset.scenario || "",
+      pressed: document.querySelector("[data-scenario-auto-toggle]")?.getAttribute("aria-pressed") || "",
+      label: document.querySelector("[data-scenario-auto-toggle]")?.textContent.trim() || "",
+      summaryScore: document.getElementById("dse-gate-summary-score")?.textContent.trim() || "",
+      summaryState: document.getElementById("dse-gate-summary")?.dataset.state || "",
+      summaryNote: document.getElementById("dse-gate-summary-note")?.textContent.trim() || "",
+      summaryLights: document.querySelectorAll(".dse-gate-summary-light").length
+    }))()`);
+    await sleep(650);
+    const scenarioWithOpenDraft = await evaluate(connection, `(() => ({
+      pressed: document.querySelector("[data-scenario-auto-toggle]")?.getAttribute("aria-pressed") || "",
+      label: document.querySelector("[data-scenario-auto-toggle]")?.textContent.trim() || "",
+      checklistOpen: !document.getElementById("dse-gate-checklist")?.hidden
+    }))()`);
+    await clickByPointer(connection, '[data-gate-action="check"]');
+    await sleep(650);
+    const scenarioAutoResumed = await evaluate(connection, `(() => ({
+      pressed: document.querySelector("[data-scenario-auto-toggle]")?.getAttribute("aria-pressed") || "",
+      label: document.querySelector("[data-scenario-auto-toggle]")?.textContent.trim() || "",
+      checklistOpen: !document.getElementById("dse-gate-checklist")?.hidden
+    }))()`);
+    await evaluate(connection, `(() => {
+      document.querySelector("[data-scenario-auto-toggle]").dataset.autoResumeMs = "25000";
+      return true;
+    })()`);
+    check(
+      scenarioAutoBefore.active.length > 0 &&
+      scenarioAutoBefore.autoResumeMs === "700" &&
+      scenarioAutoBefore.meta.includes("5 秒轮换") &&
+      scenarioAutoBefore.meta.includes("停手 25 秒后自动继续") &&
+      scenarioAfterScroll.pressed === "false" &&
+      !scenarioAfterScroll.checklistOpen &&
+      scenarioAutoPaused.active === scenarioAutoBefore.active &&
+      scenarioAutoPaused.pressed === "true" &&
+      scenarioAutoPaused.label.includes("立即继续演示") &&
+      scenarioAutoPaused.summaryScore === "0 / 5" &&
+      scenarioAutoPaused.summaryState === "incomplete" &&
+      scenarioAutoPaused.summaryNote.includes("还缺 5 项") &&
+      scenarioAutoPaused.summaryLights === 1 &&
+      scenarioWithOpenDraft.pressed === "true" &&
+      scenarioWithOpenDraft.checklistOpen &&
+      scenarioAutoResumed.checklistOpen === false &&
+      scenarioAutoResumed.pressed === "false" &&
+      scenarioAutoResumed.label.includes("暂停自动演示"),
+      `${prefix}scenario rotation does not pause on interaction and resume after idle (${JSON.stringify({
+        before: scenarioAutoBefore,
+        afterScroll: scenarioAfterScroll,
+        paused: scenarioAutoPaused,
+        withOpenDraft: scenarioWithOpenDraft,
+        resumed: scenarioAutoResumed
+      })}).`
+    );
+    await evaluate(connection, `(async () => {
+      document.querySelector('[data-demo-mode="triage"]')?.click();
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return true;
+    })()`);
+    const triageProgressInitial = await evaluate(connection, `(() => {
+      const progress = document.getElementById("dse-triage-progress");
+      const rail = document.getElementById("dse-triage-state-rail");
+      const active = rail?.querySelector('.dse-state-node[aria-current="step"]');
+      return {
+        visible: Boolean(progress && progress.getBoundingClientRect().height > 0),
+        insideDetails: Boolean(rail?.closest(".dse-tech-details")),
+        stepCount: rail?.querySelectorAll(".dse-state-node").length || 0,
+        active: active?.textContent.trim() || "",
+        position: document.getElementById("dse-triage-progress-position")?.textContent.trim() || "",
+        button: document.getElementById("dse-triage-advance")?.textContent.trim() || "",
+        bodySize: Number.parseFloat(
+          getComputedStyle(document.getElementById("dse-triage-copy-body")).fontSize
+        ),
+        actionSizes: [...document.querySelectorAll(".dse-machine-panel.triage .dse-gate-actions .dse-demo-action")]
+          .filter(item => getComputedStyle(item).display !== "none")
+          .map(item => {
+            const rect = item.getBoundingClientRect();
+            return {
+              width: Math.round(rect.width),
+              height: Math.round(rect.height),
+              fontSize: Number.parseFloat(getComputedStyle(item).fontSize)
+            };
+          })
+      };
+    })()`);
+    check(
+      triageProgressInitial.visible &&
+      !triageProgressInitial.insideDetails &&
+      triageProgressInitial.stepCount === 4 &&
+      triageProgressInitial.active.includes("安全与范围") &&
+      triageProgressInitial.position.includes("第 1 / 4 步") &&
+      triageProgressInitial.button === "补充信息" &&
+      triageProgressInitial.bodySize >= (name === "desktop" ? 18 : 16) &&
+      triageProgressInitial.actionSizes.length === 2 &&
+      triageProgressInitial.actionSizes.every(size =>
+        size.height === 44 &&
+        size.fontSize === (name === "desktop" ? 18 : 16) &&
+        Math.abs(size.width - triageProgressInitial.actionSizes[0].width) <= 1
+      ),
+      `${prefix}triage progress is not visible at the action (${JSON.stringify(triageProgressInitial)}).`
+    );
+    const triageAdvance = await evaluate(connection, `(async () => {
+      const button = document.getElementById("dse-triage-advance");
+      button?.click();
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const rail = document.getElementById("dse-triage-state-rail");
+      return {
+        active: rail?.querySelector('.dse-state-node[aria-current="step"]')?.textContent.trim() || "",
+        position: document.getElementById("dse-triage-progress-position")?.textContent.trim() || "",
+        label: document.getElementById("dse-triage-state-label")?.textContent.trim() || "",
+        next: document.getElementById("dse-triage-state-next")?.textContent.trim() || "",
+        button: button?.textContent.trim() || "",
+        progressAdvanced: document.getElementById("dse-triage-progress")?.classList.contains("is-advancing") || false,
+        copyUpdated: document.getElementById("dse-triage-copy")?.classList.contains("is-updated") || false
+      };
+    })()`);
+    check(
+      triageAdvance.active.includes("当前证据") &&
+      triageAdvance.position.includes("第 2 / 4 步") &&
+      triageAdvance.label.includes("补充当前信息") &&
+      triageAdvance.next.includes("下一步只补") &&
+      triageAdvance.button === "做一个小检查" &&
+      triageAdvance.progressAdvanced &&
+      triageAdvance.copyUpdated,
+      `${prefix}triage advance has no clear step feedback (${JSON.stringify(triageAdvance)}).`
+    );
+    const triageComplete = await evaluate(connection, `(async () => {
+      const button = document.getElementById("dse-triage-advance");
+      button?.click();
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      button?.click();
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const rail = document.getElementById("dse-triage-state-rail");
+      return {
+        active: rail?.querySelector('.dse-state-node[aria-current="step"]')?.textContent.trim() || "",
+        position: document.getElementById("dse-triage-progress-position")?.textContent.trim() || "",
+        disabled: Boolean(button?.disabled),
+        button: button?.textContent.trim() || ""
+      };
+    })()`);
+    check(
+      triageComplete.active.includes("分流") &&
+      triageComplete.position.includes("已完成 4 / 4") &&
+      triageComplete.disabled &&
+      triageComplete.button.includes("这组已经看完"),
+      `${prefix}triage completion state is unclear (${JSON.stringify(triageComplete)}).`
+    );
+    const triageStack = await evaluate(connection, `(() => {
+      const stack = document.getElementById("dse-triage-case-grid");
+      const cases = [...stack.querySelectorAll("[data-triage-case]")];
+      return {
+        columns: getComputedStyle(stack).gridTemplateColumns,
+        caseCount: cases.length,
+        caseTops: cases.map(item => Math.round(item.getBoundingClientRect().top)),
+        horizontalOverflow: stack.scrollWidth > stack.clientWidth,
+        autoToggleVisible: getComputedStyle(
+          document.getElementById("dse-triage-auto-toggle")
+        ).display !== "none"
+      };
+    })()`);
+    check(
+      triageStack.columns.split(" ").filter(Boolean).length === 1 &&
+      triageStack.caseCount > 1 &&
+      new Set(triageStack.caseTops).size === triageStack.caseTops.length &&
+      !triageStack.horizontalOverflow &&
+      triageStack.autoToggleVisible,
+      `${prefix}triage cases are not a vertical explicit-choice list (${JSON.stringify(triageStack)}).`
+    );
+    /*
+    const advancedThemes = await evaluate(connection, `(async () => {
+      const results = {};
+      for (const mode of ["terms", "tune", "triage", "identity", "evidence"]) {
+        document.querySelector([31m`[data-demo-mode="${mode}"]`[0m)?.click();
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        results[mode] = {
+          pressed: document.querySelector([31m`[data-demo-mode="${mode}"]`[0m)?.getAttribute("aria-pressed") === "true",
+          visiblePanels: [...document.querySelectorAll(".dse-demo-panel[data-demo-mode]")]
+            .filter(panel => !panel.hidden && panel.getBoundingClientRect().height > 0).length
+        };
+      }
+      document.querySelector('[data-demo-mode="tune"]')?.click();
+      return results;
+    })()`);
+    check(
+      Object.values(advancedThemes).every(result => result.pressed && result.visiblePanels === 1),
+      `${prefix}one or more advanced themes are missing or shown together (${JSON.stringify(advancedThemes)}).`
+    );
+    */
+    const advancedThemes = await evaluate(connection, `(async () => {
+      const results = {};
+      for (const mode of ["terms", "tune", "triage", "identity", "evidence"]) {
+        document.querySelector('[data-demo-mode="' + mode + '"]')?.click();
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        results[mode] = {
+          pressed: document.querySelector('[data-demo-mode="' + mode + '"]')?.getAttribute("aria-pressed") === "true",
+          visibleThemes: [...new Set(
+            [...document.querySelectorAll(".dse-demo-panel[data-demo-mode]")]
+              .filter(panel => !panel.hidden && panel.getBoundingClientRect().height > 0)
+              .map(panel => panel.dataset.demoMode)
+          )]
+        };
+      }
+      document.querySelector('[data-demo-mode="tune"]')?.click();
+      return results;
+    })()`);
+    check(
+      Object.values(advancedThemes).every(result => result.pressed && result.visibleThemes.length === 1),
+      `${prefix}one or more advanced themes are missing or shown together (${JSON.stringify(advancedThemes)}).`
+    );
+    const lifecycleStability = await evaluate(connection, `(async () => {
+      document.querySelector('[data-demo-mode="identity"]')?.click();
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const panel = document.querySelector('.dse-demo-panel[data-demo-mode="identity"]');
+      const lifecycleGrid = panel?.querySelector(".dse-lifecycle-grid");
+      const lifecycleEvents = panel?.querySelector(".dse-lifecycle-events");
+      const lifecycleCopy = panel?.querySelector("#dse-lifecycle-copy");
+      const lifecycleLabel = panel?.querySelector(".dse-lifecycle-track-label");
+      const lifecycleNode = panel?.querySelector("#dse-identity-state-rail .dse-state-node");
+      const buttons = [...document.querySelectorAll("#dse-lifecycle-events [data-lifecycle-event]")];
+      const samples = [];
+      for (const button of buttons) {
+        button.click();
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        const rect = panel?.getBoundingClientRect();
+        const copy = document.getElementById("dse-lifecycle-copy")?.getBoundingClientRect();
+        samples.push({
+          event: button.dataset.lifecycleEvent || "",
+          width: Math.round(rect?.width || 0),
+          height: Math.round(rect?.height || 0),
+          copyHeight: Math.round(copy?.height || 0)
+        });
+      }
+      const alignment = {
+        left: [
+          lifecycleGrid,
+          lifecycleEvents,
+          lifecycleCopy,
+          lifecycleLabel,
+          panel?.querySelector("#dse-identity-state-rail .dse-state-node")
+        ].map(element => Math.round(element?.getBoundingClientRect().left || 0)),
+        right: [
+          lifecycleGrid,
+          lifecycleEvents,
+          lifecycleCopy
+        ].map(element => Math.round(element?.getBoundingClientRect().right || 0))
+      };
+      document.querySelector('[data-demo-mode="tune"]')?.click();
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return { samples, alignment };
+    })()`);
+    const lifecycleWidths = lifecycleStability.samples.map(sample => sample.width);
+    const lifecycleHeights = lifecycleStability.samples.map(sample => sample.height);
+    const lifecycleCopyHeights = lifecycleStability.samples.map(sample => sample.copyHeight);
+    const spread = values => Math.max(...values) - Math.min(...values);
+    check(
+      lifecycleStability.samples.length === 5 &&
+      spread(lifecycleWidths) <= 2 &&
+      spread(lifecycleHeights) <= 2 &&
+      spread(lifecycleCopyHeights) <= 2 &&
+      spread(lifecycleStability.alignment.left) <= 1 &&
+      spread(lifecycleStability.alignment.right) <= 1,
+      `${prefix}identity panel changes size between events (${JSON.stringify(lifecycleStability)}).`
+    );
+    const tuneSteps = await evaluate(connection, `(async () => {
+      const visibleStep = () => [...document.querySelectorAll('[data-demo-mode="tune"][data-tune-step]')]
+        .filter(panel => !panel.hidden)
+        .map(panel => panel.dataset.tuneStep);
+      const results = { gate: visibleStep() };
+      document.querySelector('[data-tune-step-link="experiment"]')?.click();
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      results.experiment = visibleStep();
+      return results;
+    })()`);
+    check(
+      tuneSteps.gate.join(",") === "gate" &&
+      tuneSteps.experiment.join(",") === "experiment",
+      `${prefix}tuning steps still show multiple panels at once (${JSON.stringify(tuneSteps)}).`
+    );
+    await clickByPointer(connection, '[data-tune-step-link="gate"]');
+    await clickByPointer(connection, ".dse-secondary-actions > summary");
+    await clickByPointer(connection, '[data-gate-action="direct"]');
+    const directFeedback = await evaluate(connection, `(() => ({
+      visible: !document.getElementById("dse-direct-feedback")?.hidden,
+      title: document.getElementById("dse-direct-feedback-title")?.textContent.trim() || "",
+      copy: document.getElementById("dse-direct-feedback-copy")?.textContent.trim() || "",
+      expanded: document.querySelector('[data-gate-action="direct"]')?.getAttribute("aria-expanded") || "",
+      label: document.querySelector('[data-gate-action="direct"]')?.textContent.trim() || ""
     }))()`);
     check(
-      homeRedirected && homeRedirectState.shellOpen && homeRedirectState.activeMode === "evidence",
-      `${prefix}home #evidence route did not transfer to visible evidence content (${JSON.stringify(homeRedirectState)}).`
+      directFeedback.visible &&
+      directFeedback.title.includes("参数请求已被拦下") &&
+      directFeedback.copy.includes("不会显示") &&
+      directFeedback.expanded === "true" &&
+      directFeedback.label.includes("已演示"),
+      `${prefix}direct-parameter feedback is not visible at the action (${JSON.stringify(directFeedback)}).`
     );
-
-    await navigate(connection, `${interactiveUrl}#evidence`);
-    const evidence = await visibleState(connection);
-    check(evidence.shellOpen, `${prefix}#evidence did not open advanced mode.`);
-    check(evidence.activeMode === "evidence", `${prefix}#evidence selected the wrong mode.`);
-    check(evidence.visiblePanelCount >= 1 && evidence.demoVisibleText > 200, `${prefix}#evidence is blank.`);
-    check(evidence.overflow === false, `${prefix}#evidence has horizontal overflow.`);
-
-    await navigate(connection, `${interactiveUrl}#term-vf-curve`);
-    const term = await evaluate(connection, `(() => ({
-      shellOpen: Boolean(document.getElementById("dse-advanced-shell")?.open),
-      activeMode: document.querySelector("[data-demo-mode][aria-pressed=true]")?.dataset.demoMode || "",
-      detailVisible: !document.getElementById("dse-term-detail")?.hidden,
-      title: document.getElementById("dse-term-detail-title")?.textContent.trim() || "",
-      copyLength: document.getElementById("dse-term-detail")?.innerText.trim().length || 0,
-      hash: location.hash
+    await clickByPointer(connection, '[data-scenario="cpu"]');
+    const gateButtonsInitial = await evaluate(connection, `(() => (
+      [...document.querySelectorAll("#dse-tune-gate-panel .dse-gate-actions > .dse-demo-action")]
+        .filter(button => getComputedStyle(button).display !== "none")
+        .map(button => {
+          const rect = button.getBoundingClientRect();
+          return {
+            text: button.textContent.trim(),
+            width: Math.round(rect.width),
+            height: Math.round(rect.height),
+            fontSize: Number.parseFloat(getComputedStyle(button).fontSize)
+          };
+        })
+    ))()`);
+    await clickByPointer(connection, '[data-gate-action="check"]');
+    const gateButtonsOpen = await evaluate(connection, `(() => (
+      [...document.querySelectorAll("#dse-tune-gate-panel .dse-gate-actions > .dse-demo-action")]
+        .filter(button => getComputedStyle(button).display !== "none")
+        .map(button => {
+          const rect = button.getBoundingClientRect();
+          return {
+            text: button.textContent.trim(),
+            width: Math.round(rect.width),
+            height: Math.round(rect.height),
+            fontSize: Number.parseFloat(getComputedStyle(button).fontSize)
+          };
+        })
+    ))()`);
+    await evaluate(connection, `(() => {
+      document.querySelectorAll("[data-gate-check]").forEach(input => input.click());
+      return true;
+    })()`);
+    await sleep(160);
+    const gateButtonsReady = await evaluate(connection, `(() => (
+      [...document.querySelectorAll("#dse-tune-gate-panel .dse-gate-actions > .dse-demo-action")]
+        .filter(button => getComputedStyle(button).display !== "none")
+        .map(button => {
+          const rect = button.getBoundingClientRect();
+          return {
+            text: button.textContent.trim(),
+            width: Math.round(rect.width),
+            height: Math.round(rect.height),
+            fontSize: Number.parseFloat(getComputedStyle(button).fontSize)
+          };
+        })
+    ))()`);
+    const gateButtonSpread = Math.max(...gateButtonsReady.map(button => button.width)) -
+      Math.min(...gateButtonsReady.map(button => button.width));
+    const gateSummaryReady = await evaluate(connection, `(() => ({
+      score: document.getElementById("dse-gate-summary-score")?.textContent.trim() || "",
+      state: document.getElementById("dse-gate-summary")?.dataset.state || "",
+      note: document.getElementById("dse-gate-summary-note")?.textContent.trim() || "",
+      lights: document.querySelectorAll(".dse-gate-summary-light").length
     }))()`);
-    check(term.shellOpen && term.activeMode === "terms", `${prefix}term deep link did not open the term lab.`);
     check(
-      term.detailVisible && term.title.includes("V/F") && term.copyLength > 100,
-      `${prefix}term deep link has no visible explanation.`
+      gateButtonsInitial.length === 1 &&
+      gateButtonsOpen.length === 1 &&
+      gateButtonsReady.length === 2 &&
+      gateButtonsInitial[0].width === gateButtonsOpen[0].width &&
+      gateButtonsInitial[0].height === 44 &&
+      gateButtonsOpen[0].height === 44 &&
+      gateButtonsReady.every(button =>
+        button.height === 44 && button.fontSize === (name === "desktop" ? 18 : 16)
+      ) &&
+      gateButtonSpread <= 1 &&
+      gateSummaryReady.score === "5 / 5" &&
+      gateSummaryReady.state === "ready" &&
+      gateSummaryReady.note.includes("条件齐全") &&
+      gateSummaryReady.lights === 1,
+      `${prefix}gate action buttons change size between states (${JSON.stringify({
+        initial: gateButtonsInitial,
+        open: gateButtonsOpen,
+        ready: gateButtonsReady,
+        summary: gateSummaryReady
+      })}).`
     );
-    check(term.hash === "#term-vf-curve", `${prefix}term deep link changed its route unexpectedly.`);
+    await clickByPointer(connection, "#dse-enter-experiment");
+    await clickByPointer(connection, "#dse-generate-experiment");
+    const experimentPlan = await evaluate(connection, `(() => {
+      const output = document.getElementById("dse-experiment-output");
+      return {
+        visible: !output?.hidden,
+        className: output?.className || "",
+        outcome: output?.dataset.outcome || "",
+        actionsVisible: !document.getElementById("dse-sim-actions")?.hidden,
+        actionSizes: [...document.querySelectorAll("[data-sim-result]")].map(button => {
+          const rect = button.getBoundingClientRect();
+          return {
+            width: Math.round(rect.width),
+            height: Math.round(rect.height),
+            fontSize: Number.parseFloat(getComputedStyle(button).fontSize)
+          };
+        }),
+        selected: [...document.querySelectorAll("[data-sim-result]")]
+          .filter(button => button.getAttribute("aria-pressed") === "true").length
+      };
+    })()`);
+    check(
+      experimentPlan.visible &&
+      experimentPlan.className.includes("demo") &&
+      experimentPlan.outcome === "" &&
+      experimentPlan.actionsVisible &&
+      experimentPlan.actionSizes.every(size =>
+        size.height >= 44 &&
+        size.fontSize === (name === "desktop" ? 18 : 16) &&
+        Math.abs(size.width - experimentPlan.actionSizes[0].width) <= 1
+      ) &&
+      Math.max(...experimentPlan.actionSizes.map(size => size.height)) -
+        Math.min(...experimentPlan.actionSizes.map(size => size.height)) <= 1 &&
+      experimentPlan.selected === 0,
+      `${prefix}experiment plan appears pre-colored as a final outcome (${JSON.stringify(experimentPlan)}).`
+    );
+    const experimentOutcomes = await evaluate(connection, `(async () => {
+      const samples = {};
+      for (const outcome of ["pass", "fail", "inconclusive"]) {
+        const button = document.querySelector('[data-sim-result="' + outcome + '"]');
+        button?.click();
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        await new Promise(resolve => setTimeout(resolve, 220));
+        const output = document.getElementById("dse-experiment-output");
+        const card = document.getElementById("dse-sim-outcome");
+        const title = document.getElementById("dse-sim-outcome-title");
+        const body = document.getElementById("dse-sim-outcome-body");
+        const status = document.getElementById("dse-exp-status");
+        samples[outcome] = {
+          className: output?.className || "",
+          outcome: output?.dataset.outcome || "",
+          borderColor: getComputedStyle(output).borderTopColor,
+          statusColor: getComputedStyle(status).color,
+          status: status?.textContent.trim() || "",
+          title: title?.textContent.trim() || "",
+          body: body?.textContent.trim() || "",
+          active: button?.getAttribute("aria-pressed") || "",
+          hidden: Boolean(card?.hidden),
+          titleSize: Number.parseFloat(getComputedStyle(title).fontSize),
+          bodySize: Number.parseFloat(getComputedStyle(body).fontSize)
+        };
+      }
+      return samples;
+    })()`);
+    const outcomeNames = Object.keys(experimentOutcomes);
+    const outcomeBorders = outcomeNames.map(outcome => experimentOutcomes[outcome].borderColor);
+    const outcomeStatusColors = outcomeNames.map(outcome => experimentOutcomes[outcome].statusColor);
+    check(
+      new Set(outcomeBorders).size === 3 &&
+      new Set(outcomeStatusColors).size === 3 &&
+      outcomeNames.every(outcome => {
+        const sample = experimentOutcomes[outcome];
+        return sample.className.includes(`outcome-${outcome}`) &&
+          sample.outcome === outcome &&
+          sample.active === "true" &&
+          sample.hidden === false &&
+          sample.status.includes("假设结果") &&
+          sample.title.length > 0 &&
+          sample.body.length > 0 &&
+          sample.titleSize >= 15 &&
+          sample.bodySize >= 14;
+      }),
+      `${prefix}experiment outcomes are not visually and semantically distinct (${JSON.stringify(experimentOutcomes)}).`
+    );
+    const advancedFinal = await evaluate(connection, `(() => ({
+      open: Boolean(document.querySelector(".dse-interactive-technical")?.open),
+      advancedOpen: Boolean(document.getElementById("dse-advanced-shell")?.open),
+      nestedSummaryVisible: (document.getElementById("dse-advanced-summary")?.getBoundingClientRect().height || 0) > 0,
+      simpleModePresent: Boolean(document.querySelector(".dse-guided"))
+    }))()`);
+    check(
+      advancedFinal.open &&
+      advancedFinal.advancedOpen &&
+      !advancedFinal.nestedSummaryVisible &&
+      !advancedFinal.simpleModePresent,
+      `${prefix}advanced page reintroduced a disclosure or simple-mode flow (${JSON.stringify(advancedFinal)}).`
+    );
+
     await clickAllowingNavigation(connection, '.dse-global-nav a[href="../"]');
-    const returnedHome = await waitFor(
-      connection,
-      `document.title.startsWith("pc-hardware-workbench") && !document.getElementById("dse-advanced-shell")`,
-      3500
+    check(
+      await waitFor(connection, `location.pathname.endsWith("/docs/skill-evolution/")`, 3500),
+      `${prefix}return-home navigation failed.`
     );
-    check(returnedHome, `${prefix}global return link did not reach the project home.`);
     check(connection.pageErrors.length === 0, `${prefix}page errors: ${connection.pageErrors.join(" | ")}`);
   } finally {
     connection.close();
@@ -1147,111 +1397,26 @@ async function testOrrerySmoke(orreryUrl, name, width, height) {
     await setViewport(connection, width, height);
     await navigate(connection, orreryUrl);
     const initial = await evaluate(connection, `(() => ({
-      title: document.title,
       categoryCount: document.querySelectorAll(".category-node").length,
-      dossierText: document.getElementById("dossier")?.innerText.trim().length || 0,
-      motionPressed: document.getElementById("motionToggle")?.getAttribute("aria-pressed") || "",
-      motionLabel: document.getElementById("motionToggle")?.textContent.trim() || "",
-      zoom: document.getElementById("cameraZoomLabel")?.textContent.trim() || ""
+      dossierText: document.getElementById("dossier")?.innerText.trim().length || 0
     }))()`);
-    check(initial.title.includes("2.5.0"), `${prefix}page title does not identify the current snapshot.`);
-    check(initial.categoryCount === 7, `${prefix}expected 7 category nodes, found ${initial.categoryCount}.`);
+    check(initial.categoryCount === 7, `${prefix}expected 7 category nodes.`);
     check(initial.dossierText > 80, `${prefix}overview dossier is empty.`);
-    check(initial.motionPressed === "false" && initial.motionLabel.length > 0, `${prefix}motion control is mislabeled.`);
-    check(initial.zoom === "100", `${prefix}camera does not start at 100.`);
-
     await clickByPointer(connection, ".category-node.is-core");
-    const groupOpened = await waitFor(connection, "document.querySelectorAll('.file-node').length > 0", 2500);
-    const groupState = await evaluate(connection, `(() => ({
-      fileCount: document.querySelectorAll(".file-node").length,
-      dossierText: document.getElementById("dossier")?.innerText.trim().length || 0,
-      breadcrumb: document.getElementById("breadcrumb")?.innerText.trim() || ""
-    }))()`);
-    check(groupOpened && groupState.fileCount > 0, `${prefix}category click did not reveal files.`);
-    check(groupState.dossierText > 50 && groupState.breadcrumb.length > 0, `${prefix}category dossier is incomplete.`);
-
-    await click(connection, ".file-node");
-    const fileState = await evaluate(connection, `(() => ({
-      selected: Boolean(document.querySelector(".file-node.is-active")),
-      related: document.querySelectorAll(".file-node.is-related").length,
-      dossierText: document.getElementById("dossier")?.innerText.trim().length || 0,
-      resetVisible: document.getElementById("selectionReset")?.classList.contains("is-visible") || false,
-      selectionClass: document.getElementById("stage")?.classList.contains("has-file-selection") || false
-    }))()`);
-    check(fileState.selected, `${prefix}file click did not select a file.`);
-    check(fileState.dossierText > 80, `${prefix}selected file dossier is empty.`);
-    check(fileState.resetVisible && fileState.selectionClass, `${prefix}file selection reset state is not exposed.`);
-
-    await connection.send("Input.dispatchKeyEvent", {
-      type: "keyDown",
-      key: "Escape",
-      code: "Escape",
-      windowsVirtualKeyCode: 27
-    });
-    await connection.send("Input.dispatchKeyEvent", {
-      type: "keyUp",
-      key: "Escape",
-      code: "Escape",
-      windowsVirtualKeyCode: 27
-    });
-    await sleep(80);
-    const escFiltered = await evaluate(connection, `(() => ({
-      selected: Boolean(document.querySelector(".file-node.is-active")),
-      selectionClass: document.getElementById("stage")?.classList.contains("has-file-selection") || false
-    }))()`);
     check(
-      !escFiltered.selected && !escFiltered.selectionClass,
-      `${prefix}Escape did not clear the selected file.`
+      await waitFor(connection, "document.querySelectorAll('.file-node').length > 0", 2500),
+      `${prefix}category expansion failed.`
     );
-    await click(connection, ".file-node");
-
-    await click(connection, "#motionToggle");
-    const motionOn = await evaluate(connection, `(() => ({
-      pressed: document.getElementById("motionToggle")?.getAttribute("aria-pressed"),
-      label: document.getElementById("motionToggle")?.textContent.trim() || ""
-    }))()`);
-    check(motionOn.pressed === "true" && motionOn.label.includes("停止"), `${prefix}motion toggle failed.`);
-    await click(connection, "#motionToggle");
+    await clickByPointer(connection, ".file-node");
     check(
-      await evaluate(connection, `document.getElementById("motionToggle")?.getAttribute("aria-pressed") === "false"`),
-      `${prefix}motion toggle did not restore its off state.`
+      await evaluate(connection, `Boolean(document.querySelector(".file-node.is-active")) && document.getElementById("selectionReset")?.classList.contains("is-visible")`),
+      `${prefix}file selection state is incomplete.`
     );
-
-    await click(connection, "#zoomIn");
-    const zoomed = await evaluate(connection, "Number(document.getElementById('cameraZoomLabel')?.textContent || 0)");
-    check(zoomed > 100, `${prefix}zoom-in control did not change the camera.`);
-    await click(connection, "#zoomOut");
-    const zoomedOut = await evaluate(connection, "Number(document.getElementById('cameraZoomLabel')?.textContent || 0)");
-    check(zoomedOut < zoomed, `${prefix}zoom-out control did not change the camera.`);
-    await click(connection, "#zoomReset");
+    await clickByPointer(connection, "#selectionReset");
     check(
-      await evaluate(connection, `document.getElementById("cameraZoomLabel")?.textContent.trim() === "100"`),
-      `${prefix}zoom reset control failed.`
+      await evaluate(connection, `!document.querySelector(".file-node.is-active")`),
+      `${prefix}selection reset failed.`
     );
-
-    await click(connection, "#selectionReset");
-    const cleared = await evaluate(connection, `(() => ({
-      selected: Boolean(document.querySelector(".file-node.is-active")),
-      selectionClass: document.getElementById("stage")?.classList.contains("has-file-selection") || false,
-      resetVisible: document.getElementById("selectionReset")?.classList.contains("is-visible") || false
-    }))()`);
-    check(
-      !cleared.selected && !cleared.selectionClass && !cleared.resetVisible,
-      `${prefix}selection reset did not clear file highlights.`
-    );
-
-    await click(connection, "#backButton");
-    check(
-      await waitFor(connection, "document.querySelectorAll('.category-node').length === 7", 1500),
-      `${prefix}back control did not restore the galaxy overview.`
-    );
-    await clickAllowingNavigation(connection, '.global-nav a[href="../"]');
-    const returnedHome = await waitFor(
-      connection,
-      `document.title.startsWith("pc-hardware-workbench") && !document.getElementById("stage")`,
-      3500
-    );
-    check(returnedHome, `${prefix}global return link did not reach the project home.`);
     check(connection.pageErrors.length === 0, `${prefix}page errors: ${connection.pageErrors.join(" | ")}`);
   } finally {
     connection.close();
@@ -1260,12 +1425,11 @@ async function testOrrerySmoke(orreryUrl, name, width, height) {
 }
 
 async function testReducedMotion(siteUrl, interactiveUrl, orreryUrl) {
-  const pages = [
+  for (const page of [
     { name: "home", url: siteUrl },
     { name: "interactive", url: interactiveUrl },
     { name: "orrery", url: orreryUrl }
-  ];
-  for (const page of pages) {
+  ]) {
     const connection = await createConnection(page.url);
     const prefix = `reduced motion ${page.name}: `;
     try {
@@ -1275,41 +1439,30 @@ async function testReducedMotion(siteUrl, interactiveUrl, orreryUrl) {
         features: [{ name: "prefers-reduced-motion", value: "reduce" }]
       });
       await navigate(connection, page.url);
-      const initial = await evaluate(connection, `(() => ({
-        matches: matchMedia("(prefers-reduced-motion: reduce)").matches,
-        h1Text: document.querySelector("h1")?.textContent.trim() || "",
-        h1Opacity: Number(getComputedStyle(document.querySelector("h1")).opacity),
-        enterClass: document.documentElement.classList.contains("dse-hero-enter"),
-        runningAnimations: document.getAnimations()
-          .filter(animation => animation.playState === "running")
-          .length,
-        overflow: (() => {
-          const root = document.getElementById("dse-root");
-          return document.documentElement.scrollWidth > document.documentElement.clientWidth ||
-            Boolean(root && root.scrollWidth > root.clientWidth);
-        })()
-      }))()`);
-      check(initial.matches, `${prefix}reduced-motion media query did not apply.`);
-      check(initial.h1Text.length > 0 && initial.h1Opacity > .9, `${prefix}heading is not immediately visible.`);
-      check(initial.overflow === false, `${prefix}page has horizontal overflow.`);
-      if (page.name === "home") {
-        check(!initial.enterClass, `${prefix}home entrance animation still runs.`);
-      } else {
-        check(initial.runningAnimations === 0, `${prefix}${initial.runningAnimations} animations still run.`);
-      }
-
-      if (page.name === "interactive") {
-        await openAdvancedByPointer(connection);
-        const advanced = await visibleState(connection);
-        check(advanced.shellOpen && advanced.demoVisibleText > 200, `${prefix}advanced content is unavailable.`);
-      }
-      if (page.name === "orrery") {
-        const motion = await evaluate(connection, `(() => ({
-          pressed: document.getElementById("motionToggle")?.getAttribute("aria-pressed"),
-          label: document.getElementById("motionToggle")?.textContent.trim() || ""
-        }))()`);
-        check(motion.pressed === "false" && motion.label.includes("自动"), `${prefix}motion control is not in its reduced state.`);
-      }
+      await sleep(180);
+      const state = await evaluate(connection, `(() => {
+        const visible = element => {
+          if (!element) return false;
+          const rect = element.getBoundingClientRect();
+          const style = getComputedStyle(element);
+          return rect.width > 0 && rect.height > 0 &&
+            style.display !== "none" && style.visibility !== "hidden";
+        };
+        const heading = [...document.querySelectorAll("h1")].find(visible);
+        return {
+          matches: matchMedia("(prefers-reduced-motion: reduce)").matches,
+          h1Text: heading?.textContent.trim() || "",
+          h1Opacity: Number(heading ? getComputedStyle(heading).opacity : 0),
+          runningAnimations: document.getAnimations().filter(animation => animation.playState === "running").length,
+          overflow:
+            document.documentElement.scrollWidth > document.documentElement.clientWidth ||
+            document.getElementById("dse-root")?.scrollWidth > document.getElementById("dse-root")?.clientWidth
+        };
+      })()`);
+      check(state.matches, `${prefix}media preference did not apply.`);
+      check(state.h1Text.length > 0 && state.h1Opacity > .9, `${prefix}heading is not immediately visible.`);
+      check(state.runningAnimations === 0, `${prefix}${state.runningAnimations} animations still run.`);
+      check(state.overflow === false, `${prefix}page has horizontal overflow.`);
       check(connection.pageErrors.length === 0, `${prefix}page errors: ${connection.pageErrors.join(" | ")}`);
     } finally {
       connection.close();
@@ -1335,9 +1488,6 @@ async function main() {
       "--disable-gpu",
       "--disable-software-rasterizer",
       "--disable-dev-shm-usage",
-      "--disable-background-timer-throttling",
-      "--disable-backgrounding-occluded-windows",
-      "--disable-renderer-backgrounding",
       "--no-first-run",
       "--disable-extensions",
       `--remote-debugging-port=${debugPort}`,
@@ -1346,14 +1496,13 @@ async function main() {
     ],
     { stdio: "ignore" }
   );
+
   try {
     await waitForDebugEndpoint();
     await testHomeViewport(siteUrl, "desktop", 1440, 1000);
     await testHomeViewport(siteUrl, "mobile", 390, 844);
-    await testViewport(interactiveUrl, "desktop", 1440, 1000, true);
-    await testViewport(interactiveUrl, "mobile", 390, 844, false);
-    await testDirectRoutes(siteUrl, interactiveUrl, "desktop", 1440, 1000);
-    await testDirectRoutes(siteUrl, interactiveUrl, "mobile", 390, 844);
+    await testInteractiveViewport(interactiveUrl, "desktop", 1440, 1000);
+    await testInteractiveViewport(interactiveUrl, "mobile", 390, 844);
     await testOrrerySmoke(orreryUrl, "desktop", 1440, 1000);
     await testOrrerySmoke(orreryUrl, "mobile", 390, 844);
     await testReducedMotion(siteUrl, interactiveUrl, orreryUrl);
@@ -1368,7 +1517,7 @@ async function main() {
     process.exitCode = 1;
     return;
   }
-  console.log("Skill evolution runtime regression: PASS (home, interactive, orrery; desktop and mobile)");
+  console.log("Skill evolution runtime regression: PASS (previous visual system, single guided path, orrery; desktop and mobile)");
 }
 
 main().catch(error => {

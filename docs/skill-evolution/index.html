@@ -4,24 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <meta name="description" content="电脑硬件工作台 2.5.0 本地候选：只读硬件证据、故障排查、遥测分析与版本档案。">
+  <meta name="description" content="PC Hardware Workbench 2.5.0: read-only hardware evidence and practical next-step guidance.">
   <link rel="icon" href="data:,">
-  <title>pc-hardware-workbench · 电脑硬件工作台</title>
-  <script>
-    try {
-      const entryKey = "pc-hardware-workbench:home-entry:v2";
-      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (!reducedMotion && sessionStorage.getItem(entryKey) !== "complete") {
-        sessionStorage.setItem(entryKey, "complete");
-        document.documentElement.classList.add("dse-hero-enter");
-        window.setTimeout(() => {
-          document.documentElement.classList.remove("dse-hero-enter");
-        }, 1500);
-      }
-    } catch {
-      // Storage may be unavailable; show the page immediately.
-    }
-  </script>
+
+  <title>pc-hardware-workbench &#183; &#30005;&#33041;&#30828;&#20214;&#24037;&#20316;&#21488;</title>
 </head>
 <body>
 <main id="dse-root" class="dse">
@@ -579,7 +565,7 @@
 
     #dse-root .dse-convergence {
       display: grid;
-      grid-template-columns: 1fr 52px minmax(240px, .75fr) 52px 1fr;
+      grid-template-columns: minmax(0, 1fr) 52px minmax(280px, .9fr) 52px minmax(0, 1fr);
       align-items: center;
       gap: 0;
       margin-top: 14px;
@@ -627,6 +613,7 @@
       margin-top: 4px;
       font-size: 11px;
       line-height: 1.35;
+      text-wrap: balance;
     }
 
     #dse-root .dse-detail {
@@ -5970,7 +5957,8 @@
       flex-direction: column;
       justify-content: center;
       max-width: 980px;
-      min-height: min(820px, 82svh);
+      min-height: 100vh;
+      min-height: 100svh;
       margin: 0 auto;
       padding: 76px 0 104px;
       border: 0;
@@ -5995,6 +5983,18 @@
       font-weight: 500;
       letter-spacing: .015em;
       text-transform: none;
+    }
+
+    #dse-root .dse-hero-version {
+      color: var(--dse-amber);
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #dse-root .dse-hero-version:not(:empty)::after {
+      margin-left: 8px;
+      color: #5f6871;
+      content: "·";
     }
 
     #dse-root .dse-skill-kicker code,
@@ -6085,6 +6085,25 @@
       min-height: 36px;
       color: #aab1b9;
       text-decoration: none;
+    }
+
+    #dse-root .dse-hero-safety {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      margin: 22px 0 0;
+      color: #858e97;
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    #dse-root .dse-hero-safety::before {
+      width: 4px;
+      height: 4px;
+      background: var(--dse-lime);
+      border-radius: 50%;
+      content: "";
     }
 
     #dse-root .dse-section-continue {
@@ -6514,18 +6533,22 @@
       color: #aab1b9;
       font-size: 13px;
       cursor: pointer;
+      list-style: none;
     }
 
     #dse-root .dse-candidate-details summary::after {
-      margin-left: auto;
-      color: var(--dse-cyan);
-      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
-      font-size: 15px;
-      content: "+";
+      display: none;
     }
 
-    #dse-root .dse-candidate-details[open] summary::after {
-      content: "−";
+    #dse-root .dse-candidate-details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    #dse-root .dse-candidate-details summary i {
+      margin-left: auto;
+      color: var(--dse-cyan);
+      font-size: 11px;
+      font-style: normal;
     }
 
     #dse-root .dse-candidate-details .dse-candidate-facts {
@@ -6660,6 +6683,25 @@
       font-size: var(--dse-type-label);
     }
 
+    #dse-root .dse-candidate-state {
+      color: #aeb6bd;
+      font-size: 14px;
+      font-weight: 560;
+      letter-spacing: .01em;
+    }
+
+    #dse-root .dse-version-code {
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.4;
+      letter-spacing: .015em;
+    }
+
+    #dse-root .dse-version-title {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
     #dse-root .dse-header,
     #dse-root .dse-orientation,
     #dse-root .dse-toolbar,
@@ -6723,7 +6765,8 @@
       }
 
       #dse-root .dse-hero {
-        min-height: min(720px, 86svh);
+        min-height: 100vh;
+        min-height: 100svh;
         padding: 44px 0 70px;
       }
 
@@ -6864,6 +6907,756 @@
       }
     }
 
+    #dse-root .dse-howto-cta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      width: fit-content;
+      min-height: 48px;
+      margin: 34px auto 0;
+      padding: 0 22px;
+      color: #080b0e;
+      background: #e9edef;
+      border: 1px solid #e9edef;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 560;
+      text-decoration: none;
+      transition: background-color .16s ease, border-color .16s ease;
+    }
+
+    #dse-root .dse-howto-cta:hover,
+    #dse-root .dse-howto-cta:focus-visible {
+      background: #fff;
+      border-color: #fff;
+    }
+
+    #dse-root .dse-howto-cta:active {
+      transform: translateY(1px);
+    }
+
+    #dse-root .dse-howto-cta span {
+      font-size: 17px;
+      line-height: 1;
+    }
+
+    #dse-root .dse-explore-primary {
+      grid-template-columns: minmax(0, 1fr);
+      margin-top: 58px;
+      border: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-explore-primary a {
+      position: relative;
+      min-height: 116px;
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    #dse-root .dse-explore-primary a:last-child {
+      background:
+        radial-gradient(circle at 78% 48%, rgba(129, 207, 223, .1), transparent 28%),
+        #0b0e11;
+    }
+
+    #dse-root .dse-explore-primary a:last-child::before,
+    #dse-root .dse-explore-primary a:last-child::after {
+      position: absolute;
+      top: 50%;
+      right: 11%;
+      content: "";
+      border: 1px solid rgba(129, 207, 223, .2);
+      border-radius: 50%;
+      transform: translateY(-50%) rotate(-12deg);
+      pointer-events: none;
+    }
+
+    #dse-root .dse-explore-primary a:last-child::before {
+      width: 122px;
+      height: 48px;
+    }
+
+    #dse-root .dse-explore-primary a:last-child::after {
+      width: 70px;
+      height: 28px;
+      border-color: rgba(215, 149, 185, .18);
+      transform: translateY(-50%) rotate(18deg);
+    }
+
+    #dse-root .dse-explore-primary a:last-child strong,
+    #dse-root .dse-explore-primary a:last-child small {
+      position: relative;
+      z-index: 1;
+      max-width: 58%;
+    }
+
+    #dse-root .dse-home-technical {
+      margin-top: 52px;
+      border-top: 1px solid var(--dse-line);
+      border-bottom: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-home-technical > summary {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-rows: auto auto;
+      align-items: center;
+      gap: 2px 20px;
+      min-height: 64px;
+      padding: 16px 0;
+      color: #b8bec4;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    #dse-root .dse-home-technical > summary:active {
+      color: var(--dse-text);
+    }
+
+    #dse-root .dse-home-technical > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    #dse-root .dse-home-technical > summary span {
+      grid-column: 1;
+      grid-row: 1;
+      color: var(--dse-text);
+      font-size: 13px;
+      font-weight: 560;
+    }
+
+    #dse-root .dse-home-technical > summary small {
+      grid-column: 1;
+      grid-row: 2;
+      color: var(--dse-muted);
+      font-size: 12px;
+    }
+
+    #dse-root .dse-home-technical > summary i {
+      grid-column: 2;
+      grid-row: 1 / 3;
+      color: var(--dse-cyan);
+      font-size: 11px;
+      font-style: normal;
+    }
+
+    #dse-root .dse-home-technical[open] > summary {
+      border-bottom: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-toolbar {
+      gap: 16px;
+      margin-top: 28px;
+      padding: 16px 18px;
+      background: rgba(8, 9, 11, .98);
+      border-top: 1px solid var(--dse-line);
+      border-bottom: 1px solid #39424a;
+    }
+
+    #dse-root .dse-filters {
+      gap: 8px;
+      align-items: center;
+    }
+
+    #dse-root .dse-filter {
+      min-height: 44px;
+      padding: 0 14px;
+      color: #b7c0c7;
+      background: #11151a;
+      border-color: #303840;
+      border-radius: 5px;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0;
+    }
+
+    #dse-root .dse-filter:hover,
+    #dse-root .dse-filter:focus-visible {
+      color: #f1f4f5;
+      background: #181d22;
+      border-color: #5a6872;
+    }
+
+    #dse-root .dse-filter[aria-pressed="true"] {
+      color: #090c0f;
+      background: #e7ebee;
+      border-color: #e7ebee;
+    }
+
+    #dse-root .dse-filter.dse-lab-link {
+      color: #b8dfe5;
+      border-color: #31515a;
+    }
+
+    #dse-root .dse-filter.dse-lab-link:hover,
+    #dse-root .dse-filter.dse-lab-link:focus-visible {
+      color: #effafb;
+      border-color: #72b7c4;
+    }
+
+    #dse-root .dse-legend {
+      gap: 14px;
+      color: #a6b0b7;
+      font-size: 11px;
+    }
+
+    #dse-root .dse-dot {
+      width: 7px;
+      height: 7px;
+    }
+
+    @media (max-width: 760px) {
+      #dse-root .dse-explore-primary {
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root .dse-howto-cta {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      #dse-root .dse-explore-primary a:last-child strong,
+      #dse-root .dse-explore-primary a:last-child small {
+        max-width: 72%;
+      }
+
+      #dse-root .dse-home-technical > summary {
+        grid-template-columns: minmax(0, 1fr) auto;
+      }
+
+      #dse-root .dse-toolbar {
+        align-items: flex-start;
+        padding: 14px;
+      }
+
+      #dse-root .dse-filter {
+        min-height: 42px;
+        font-size: 12px;
+      }
+
+      #dse-root .dse-home-technical {
+        margin-top: 38px;
+      }
+    }
+
+    /* Home simple flow: one vertical action column, one decision at a time. */
+    #dse-root .dse-home-flow {
+      max-width: 980px;
+      margin: 120px auto 0;
+      scroll-margin-top: 24px;
+    }
+
+    #dse-root .dse-home-flow-steps {
+      display: grid;
+      gap: 72px;
+      width: min(100%, 840px);
+      margin: 0 auto;
+    }
+
+    #dse-root .dse-home-flow-step {
+      display: grid;
+      gap: 28px;
+      padding: 34px;
+      background:
+        radial-gradient(circle at 88% 0, rgba(129, 207, 223, .055), transparent 34%),
+        #0d1013;
+      border: 1px solid #293038;
+      border-radius: 18px;
+      box-shadow:
+        0 24px 64px rgba(0, 0, 0, .24),
+        inset 0 1px 0 rgba(255, 255, 255, .025);
+    }
+
+    #dse-root .dse-home-flow-step:not([hidden]) {
+      animation: dse-home-step-enter .36s cubic-bezier(.22, 1, .36, 1) both;
+    }
+
+    @keyframes dse-home-step-enter {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    #dse-root .dse-home-flow-step-head {
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr);
+      align-items: start;
+      gap: 16px;
+    }
+
+    #dse-root .dse-home-flow-step-head > b {
+      display: inline-grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      color: #84c7d5;
+      border: 1px solid #36505a;
+      border-radius: 50%;
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-weight: 560;
+    }
+
+    #dse-root .dse-home-flow-step-head p {
+      margin: 0 0 5px;
+      color: #8faeb5;
+      letter-spacing: .02em;
+    }
+
+    #dse-root .dse-home-flow-step-head h3 {
+      margin: 0;
+      color: #eef2f4;
+      font-weight: 590;
+      line-height: 1.4;
+    }
+
+    #dse-root .dse-home-flow-lead {
+      max-width: 680px;
+      margin: -10px 0 0 68px;
+      color: #a5adb5;
+      line-height: 1.78;
+    }
+
+    #dse-root .dse-home-question-options,
+    #dse-root #dse-home-evidence-options {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 12px;
+    }
+
+    #dse-root .dse-home-question-option {
+      display: grid;
+      gap: 6px;
+      width: 100%;
+      min-height: 78px;
+      padding: 17px 18px;
+      color: #d6dce0;
+      background: #11161a;
+      border: 1px solid #303840;
+      border-radius: 10px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-home-question-option strong {
+      color: #f0f3f5;
+      font-weight: 580;
+    }
+
+    #dse-root .dse-home-question-option small {
+      color: #969fa8;
+      line-height: 1.6;
+    }
+
+    #dse-root .dse-home-question-option:hover,
+    #dse-root .dse-home-question-option:focus-visible {
+      border-color: #5a6872;
+      background: #161c21;
+    }
+
+    #dse-root .dse-home-question-option[aria-pressed="true"] {
+      border-color: rgba(129, 207, 223, .68);
+      background: rgba(129, 207, 223, .075);
+      box-shadow: inset 3px 0 0 var(--dse-cyan);
+    }
+
+    #dse-root .dse-home-evidence {
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    #dse-root .dse-home-evidence legend {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 14px;
+      color: #dce1e5;
+      font-weight: 560;
+    }
+
+    #dse-root .dse-home-evidence legend span {
+      color: #99a2ab;
+    }
+
+    #dse-root .dse-home-evidence-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 58px;
+      padding: 13px 15px;
+      color: #b7c0c7;
+      background: #0f1418;
+      border: 1px solid #2d353d;
+      border-radius: 9px;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-home-evidence-option:has(input:checked) {
+      color: #eef2f4;
+      border-color: rgba(129, 207, 223, .48);
+      background: rgba(129, 207, 223, .055);
+    }
+
+    #dse-root .dse-home-evidence-option input {
+      flex: none;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-home-reason {
+      border-top: 1px solid #293139;
+      border-bottom: 1px solid #293139;
+    }
+
+    #dse-root .dse-home-reason summary {
+      display: flex;
+      align-items: center;
+      min-height: 48px;
+      color: #a4adb5;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    #dse-root .dse-home-reason summary::after {
+      margin-left: auto;
+      color: var(--dse-cyan);
+      content: "+";
+    }
+
+    #dse-root .dse-home-reason[open] summary::after {
+      content: "−";
+    }
+
+    #dse-root .dse-home-reason summary::-webkit-details-marker {
+      display: none;
+    }
+
+    #dse-root .dse-home-reason > div {
+      display: grid;
+      gap: 14px;
+      padding: 4px 0 20px;
+      color: #a5adb5;
+    }
+
+    #dse-root .dse-home-reason p {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 18px;
+      margin: 0;
+      line-height: 1.7;
+    }
+
+    #dse-root .dse-home-reason strong {
+      color: #dce1e5;
+      font-weight: 560;
+    }
+
+    #dse-root .dse-home-flow-actions {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+      width: min(100%, 360px);
+      margin-top: 4px;
+    }
+
+    #dse-root .dse-home-flow-actions button,
+    #dse-root .dse-home-flow-actions a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 16px;
+      color: #d3d9dd;
+      background: #14191d;
+      border: 1px solid #343d45;
+      border-radius: 9px;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-home-flow-actions .primary {
+      color: #0a0d0f;
+      background: #e7ebee;
+      border-color: #e7ebee;
+      font-weight: 590;
+    }
+
+    #dse-root .dse-home-flow-actions button:hover,
+    #dse-root .dse-home-flow-actions button:focus-visible,
+    #dse-root .dse-home-flow-actions a:hover,
+    #dse-root .dse-home-flow-actions a:focus-visible {
+      border-color: #697680;
+      background: #1a2025;
+    }
+
+    #dse-root .dse-home-flow-actions .primary:hover,
+    #dse-root .dse-home-flow-actions .primary:focus-visible {
+      background: #fff;
+      border-color: #fff;
+    }
+
+    #dse-root .dse-home-result {
+      display: grid;
+      gap: 14px;
+      padding: 20px;
+      color: #c4cbd1;
+      background: rgba(129, 207, 223, .045);
+      border: 1px solid rgba(129, 207, 223, .22);
+      border-left: 4px solid var(--dse-cyan);
+      border-radius: 0 11px 11px 0;
+    }
+
+    #dse-root .dse-home-result header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    #dse-root .dse-home-result header small {
+      color: #8fc5d0;
+    }
+
+    #dse-root .dse-home-result header strong {
+      color: #e3f1f4;
+      font-weight: 580;
+    }
+
+    #dse-root .dse-home-result p {
+      margin: 0;
+      line-height: 1.75;
+    }
+
+    #dse-root .dse-home-result .is-missing {
+      color: var(--dse-amber);
+    }
+
+    #dse-root .dse-home-result .is-next {
+      color: #eef2f4;
+    }
+
+    #dse-root .dse-advanced-entry {
+      width: min(100% - 40px, 840px);
+      margin: 96px auto 0;
+    }
+
+    #dse-root .dse-advanced-entry a {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      align-items: center;
+      gap: 18px;
+      min-height: 70px;
+      padding: 16px 20px;
+      color: #adb5bc;
+      background: #0d1114;
+      border: 1px solid #293139;
+      border-radius: 10px;
+      text-decoration: none;
+    }
+
+    #dse-root .dse-advanced-entry strong {
+      color: #f0f3f5;
+      font-weight: 580;
+    }
+
+    #dse-root .dse-advanced-entry a:hover,
+    #dse-root .dse-advanced-entry a:focus-visible {
+      border-color: #53616b;
+      background: #14191d;
+    }
+
+    #dse-root .dse-map-stage.is-merge-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 310px;
+      align-items: center;
+      gap: 30px;
+    }
+
+    #dse-root .dse-map-stage.is-merge-layout > .dse-tracks {
+      display: none;
+    }
+
+    #dse-root .dse-map-stage.is-merge-layout > .dse-convergence {
+      grid-column: 1;
+      grid-row: 1;
+      align-self: center;
+      margin: 0;
+    }
+
+    #dse-root .dse-map-stage.is-merge-layout > .dse-detail {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    @media (max-width: 760px) {
+      #dse-root .dse-home-flow {
+        margin-top: 82px;
+      }
+
+      #dse-root .dse-home-flow-steps {
+        gap: 52px;
+      }
+
+      #dse-root .dse-home-flow-step {
+        gap: 22px;
+        padding: 22px 18px;
+        border-radius: 14px;
+      }
+
+      #dse-root .dse-home-flow-step-head {
+        grid-template-columns: 44px minmax(0, 1fr);
+        gap: 12px;
+      }
+
+      #dse-root .dse-home-flow-step-head > b {
+        width: 40px;
+        height: 40px;
+      }
+
+      #dse-root .dse-home-flow-lead {
+        margin-left: 0;
+      }
+
+      #dse-root .dse-home-reason p {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 4px;
+      }
+
+      #dse-root .dse-home-result header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      #dse-root .dse-map-stage.is-merge-layout {
+        grid-template-columns: minmax(0, 1fr);
+        align-items: stretch;
+        gap: 20px;
+      }
+
+      #dse-root .dse-map-stage.is-merge-layout > .dse-convergence,
+      #dse-root .dse-map-stage.is-merge-layout > .dse-detail {
+        grid-column: 1;
+      }
+
+      #dse-root .dse-map-stage.is-merge-layout > .dse-convergence {
+        grid-row: 1;
+      }
+
+      #dse-root .dse-map-stage.is-merge-layout > .dse-detail {
+        grid-row: 2;
+      }
+
+      #dse-root .dse-advanced-entry {
+        width: min(100% - 26px, 840px);
+        margin-top: 72px;
+      }
+
+      #dse-root .dse-advanced-entry a {
+        grid-template-columns: minmax(0, 1fr) auto;
+      }
+
+      #dse-root .dse-advanced-entry a > span:first-child {
+        grid-column: 1 / -1;
+      }
+    }
+
+    #dse-root {
+      --dse-type-display: 72px;
+      --dse-type-title: 42px;
+      --dse-type-body: 16px;
+      --dse-type-meta: 14px;
+      font-size: var(--dse-type-body);
+    }
+
+    #dse-root :is(
+      p, li, dd, dt, th, td, button, a, summary, select, option, textarea,
+      label, blockquote, legend, figcaption, div
+    ) {
+      font-size: var(--dse-type-body) !important;
+    }
+
+    #dse-root :where(span, strong, em, b, i, mark) {
+      font-size: inherit !important;
+    }
+
+    #dse-root :where(small, code, time) {
+      font-size: var(--dse-type-meta) !important;
+    }
+
+    #dse-root :where(small, code, time) :where(*) {
+      font-size: inherit !important;
+    }
+
+    #dse-root h1,
+    #dse-root h1 :where(*) {
+      font-size: var(--dse-type-display) !important;
+    }
+
+    #dse-root h2,
+    #dse-root h2 :where(*) {
+      font-size: var(--dse-type-title) !important;
+    }
+
+    #dse-root :where(h3, h4, h5, h6),
+    #dse-root :where(h3, h4, h5, h6) :where(*) {
+      font-size: var(--dse-type-body) !important;
+    }
+
+    #dse-root :is(
+      .dse-kicker,
+      .dse-intro-kicker,
+      .dse-orientation-kicker,
+      .dse-track-kicker,
+      .dse-demo-kicker,
+      .dse-demo-step,
+      .dse-demo-badge,
+      .dse-track-badge,
+      .dse-node-code,
+      .dse-node-state,
+      .dse-node-summary,
+      .dse-state-code,
+      .dse-state-meta,
+      .dse-version-title,
+      .dse-series-label,
+      .dse-series-count,
+      .dse-archive-kicker,
+      .dse-archive-total,
+      .dse-hero-status,
+      .dse-hero-safety,
+      .dse-invoke-example,
+      .dse-candidate-details summary i,
+      .dse-footer span
+    ) {
+      font-size: var(--dse-type-meta) !important;
+    }
+
+    @media (max-width: 1100px) {
+      #dse-root {
+        --dse-type-display: 56px;
+        --dse-type-title: 36px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      #dse-root {
+        --dse-type-display: 40px;
+        --dse-type-title: 30px;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       html.dse-motion-ready #dse-root [data-reveal] {
         opacity: 1;
@@ -6887,104 +7680,99 @@
   <div class="dse-shell">
     <header class="dse-header dse-hero">
       <div class="dse-header-copy">
-        <p class="dse-kicker dse-skill-kicker"><span>Codex Skill</span><code>pc-hardware-workbench</code></p>
-        <h1>先看证据<br>再决定调校</h1>
-        <p class="dse-subtitle">读取配置、统一遥测、核对资料、解读截图与照片，并规划升级。在你同意后可读取正在运行的监控数据；不会自动修改硬件。</p>
+        <p class="dse-kicker dse-skill-kicker"><span class="dse-hero-version" id="dse-hero-version"></span><span>电脑硬件工作台</span><code>pc-hardware-workbench</code></p>
+        <h1>电脑调试<br>Skill 来帮你</h1>
+        <p class="dse-subtitle">把问题和手头的资料交给我。我会读取配置、日志、截图和监测数据，分清哪些已经确认、哪些还需要补充，再给出可靠、能马上执行的下一步。</p>
         <p class="dse-invoke-example">在 Codex 中调用：<code>$pc-hardware-workbench</code></p>
         <nav class="dse-hero-actions" aria-label="主要入口">
-          <a class="dse-hero-action primary" href="#dse-overview-title">看看怎么用</a>
+          <a class="dse-hero-action primary" href="#dse-home-flow">开始排查</a>
         </nav>
-        <div class="dse-hero-status" aria-label="当前版本状态">
-          <span>工作台 2.5.0 · 本地测试候选</span>
-          <a href="#dse-archive-title">107 个版本记录 →</a>
-        </div>
+        <p class="dse-hero-safety">只读取你允许的信息，不会自动修改硬件。</p>
       </div>
     </header>
 
-    <section class="dse-about" data-reveal aria-labelledby="dse-overview-title">
+    <section class="dse-howto dse-home-flow" id="dse-home-flow"
+      data-reveal aria-labelledby="dse-how-title">
       <div class="dse-section-intro">
-        <h2 id="dse-overview-title">先看懂 再动手</h2>
-        <p>把当前配置、故障现象、遥测与官方资料整理成可追溯证据。只读采集，不自动改硬件。</p>
+        <h2 id="dse-how-title">一次只处理一个问题</h2>
+        <p>演示处理流程：先选一个最接近的问题，再补上你已经知道的信息。每完成一步，下一段才在下方出现。</p>
       </div>
-      <div class="dse-about-grid">
-        <div class="dse-about-points">
-          <article>
-            <strong>只读</strong>
-            <p>读取当前可见的硬件信息，不猜测缺失型号。</p>
-          </article>
-          <article>
-            <strong>有证据</strong>
-            <p>把截图、日志、官方资料与固定负载记录分开保留。</p>
-          </article>
-          <article>
-            <strong>不越界</strong>
-            <p>先给检查和测试计划，所有硬件设置由你确认后操作。</p>
-          </article>
-        </div>
-        <div class="dse-about-visual" aria-hidden="true">
-          <div class="dse-window-bar">
-            <i></i><i></i><i></i>
-            <span>证据视图 · 只读</span>
-          </div>
-          <div class="dse-visual-flow">
-            <div><small>问题</small><strong>游戏偶发卡顿</strong></div>
-            <span></span>
-            <div><small>证据</small><strong>固定负载 · 日志 · 事件</strong></div>
-            <span></span>
-            <div class="is-result"><small>下一步</small><strong>补一段可复现记录</strong></div>
-          </div>
-          <p>不确定项会保留，不会被一句话包装成结论。</p>
-        </div>
-      </div>
-      <a class="dse-section-continue" href="#dse-how-title">继续：看怎么用 →</a>
-    </section>
-
-    <section class="dse-howto" data-reveal aria-labelledby="dse-how-title">
-      <div class="dse-section-intro">
-        <h2 id="dse-how-title">三步得到下一步</h2>
-        <p>不用先背参数。说清问题，补齐与当前判断真正相关的证据，再决定下一步。</p>
-      </div>
-      <div class="dse-howto-grid">
-        <ol class="dse-howto-steps">
-          <li class="dse-howto-step">
+      <div class="dse-home-flow-steps" aria-live="polite">
+        <section class="dse-home-flow-step" id="dse-home-step-1" data-home-step="1"
+          aria-labelledby="dse-home-step-1-title">
+          <header class="dse-home-flow-step-head">
             <b>01</b>
-            <strong>描述问题</strong>
-            <p>卡顿、温度、崩溃、续航，或是否值得升级。</p>
-          </li>
-          <li class="dse-howto-step">
-            <b>02</b>
-            <strong>提供证据</strong>
-            <p>只读快照、日志、截图，或经你同意的实时数据。</p>
-          </li>
-          <li class="dse-howto-step">
-            <b>03</b>
-            <strong>得到下一步</strong>
-            <p>看清已知、未知与限制，再决定检查、测试或等待。</p>
-          </li>
-        </ol>
-        <div class="dse-preview-card" aria-hidden="true">
-          <div class="dse-window-bar">
-            <i></i><i></i><i></i>
-            <span>示例 · 游戏卡顿</span>
-          </div>
-          <div class="dse-preview-body">
-            <small>你这样说</small>
-            <p>“玩同一个游戏时偶尔卡一下。”</p>
-            <div class="dse-preview-checks">
-              <span class="is-ready">游戏与场景已记录</span>
-              <span class="is-ready">驱动版本已确认</span>
-              <span>还需要一段帧时间记录</span>
+            <div>
+              <p>选择问题</p>
+              <h3 id="dse-home-step-1-title">你现在遇到什么</h3>
             </div>
-            <div class="dse-preview-next">下一步：固定画质，记录一分钟帧时间 <b>→</b></div>
+          </header>
+          <p class="dse-home-flow-lead">选一个最接近的情况。这里不会读取或修改你的电脑。</p>
+          <div class="dse-home-question-options" id="dse-home-question-options"
+            role="group" aria-label="选择一个问题"></div>
+        </section>
+
+        <section class="dse-home-flow-step" id="dse-home-step-2" data-home-step="2"
+          aria-labelledby="dse-home-step-2-title" hidden>
+          <header class="dse-home-flow-step-head">
+            <b>02</b>
+            <div>
+              <p>补充信息</p>
+              <h3 id="dse-home-step-2-title">你已经有哪些信息</h3>
+            </div>
+          </header>
+          <p class="dse-home-flow-lead">只勾选你确实有的内容，不知道的可以留空。</p>
+          <fieldset class="dse-home-evidence" id="dse-home-evidence">
+            <legend>
+              当前证据
+              <span id="dse-home-evidence-count">已选 0 项</span>
+            </legend>
+            <div id="dse-home-evidence-options"></div>
+          </fieldset>
+          <details class="dse-home-reason">
+            <summary>为什么先问这些？</summary>
+            <div>
+              <p><strong>需要什么</strong><span id="dse-home-evidence-detail"></span></p>
+              <p><strong>为什么要看这些</strong><span id="dse-home-evidence-why"></span></p>
+            </div>
+          </details>
+          <div class="dse-home-flow-actions">
+            <button type="button" id="dse-home-back">返回选择问题</button>
+            <button type="button" class="primary" id="dse-home-generate">生成下一步</button>
           </div>
-        </div>
+        </section>
+
+        <section class="dse-home-flow-step" id="dse-home-step-3" data-home-step="3"
+          aria-labelledby="dse-home-step-3-title" hidden>
+          <header class="dse-home-flow-step-head">
+            <b>03</b>
+            <div>
+              <p>得到下一步</p>
+              <h3 id="dse-home-step-3-title">先做这一件事</h3>
+            </div>
+          </header>
+          <div class="dse-home-result" id="dse-home-result" role="status"
+            aria-live="polite" aria-atomic="true">
+            <header>
+              <small>本次检查结果</small>
+              <strong id="dse-home-result-status"></strong>
+            </header>
+            <p id="dse-home-result-copy"></p>
+            <p class="is-missing" id="dse-home-result-missing"></p>
+            <p class="is-next" id="dse-home-result-next"></p>
+          </div>
+          <div class="dse-home-flow-actions">
+            <button type="button" class="primary" id="dse-home-copy-next">复制下一步给 Codex</button>
+            <button type="button" id="dse-home-restart">重新选问题</button>
+            <a id="dse-home-open-advanced" href="interactive/#triage">需要更多工具？进入高级模式</a>
+          </div>
+        </section>
       </div>
-      <a class="dse-text-link" href="interactive/">体验单场景演示 →</a>
     </section>
 
     <section class="dse-candidate" data-reveal aria-labelledby="dse-candidate-title">
       <div class="dse-candidate-intro">
-        <p class="dse-candidate-state"><span>2.5.0</span>本地测试候选</p>
+        <p class="dse-candidate-state">当前测试版</p>
         <h2 id="dse-candidate-title">可以使用 尚未正式稳定</h2>
         <p class="dse-candidate-lead">自动测试已经通过，也能完成配置读取、排障、遥测、一键证据包和调参前后对比；还需要更多真实设备与人工体验验证。</p>
       </div>
@@ -6999,7 +7787,7 @@
           </ul>
         </article>
         <article>
-          <h3>为什么还是测试候选</h3>
+          <h3>为什么仍是测试版</h3>
           <ul>
             <li>真实设备覆盖仍在扩大，部分结论需要结合你的负载与记录。</li>
             <li>公开使用前的人工体验验证尚未全部完成。</li>
@@ -7007,12 +7795,17 @@
           </ul>
         </article>
       </div>
-      <details class="dse-candidate-details">
-        <summary>查看技术与发布说明</summary>
+      <details class="dse-candidate-details" id="dse-candidate-details">
+        <summary id="dse-candidate-details-summary"
+          aria-controls="dse-candidate-details-content" aria-expanded="false">
+          <span data-candidate-details-action>查看技术与发布说明</span>
+          <i data-candidate-details-indicator aria-hidden="true">展开</i>
+        </summary>
+        <div id="dse-candidate-details-content">
         <dl class="dse-candidate-facts">
           <div class="dse-candidate-fact">
             <dt>版本</dt>
-            <dd>工作台 2.5.0 · 本地候选；GitHub main 已同步。</dd>
+            <dd>当前测试版；GitHub main 已同步。</dd>
           </div>
           <div class="dse-candidate-fact">
             <dt>实时读取</dt>
@@ -7027,33 +7820,39 @@
             <dd>人工签署：PENDING；历史版本保留原验证语境。</dd>
           </div>
         </dl>
+        </div>
       </details>
     </section>
 
-    <nav class="dse-explore" data-reveal aria-label="深入入口">
-      <a href="#dse-map-title">
-        <strong>能力地图</strong>
-        <small>工作台与自动化原型的演进轨道</small>
-      </a>
-      <a href="#dse-archive-title">
-        <strong>107 个版本节点</strong>
-        <small>逐版改动、验证和发布状态</small>
-      </a>
+    <nav class="dse-advanced-entry" data-reveal aria-label="高级模式入口">
       <a href="interactive/">
-        <strong>交互实验室</strong>
-        <small>从单一步骤体验判断流程</small>
-      </a>
-      <a href="orrery/">
-        <strong>当前文件星系 · 2.5.0</strong>
-        <small>基于当前 Git 跟踪的 90 个 Skill 文件生成</small>
+        <span>需要术语、调参、排障和旧记录判断？</span>
+        <strong>进入高级模式</strong>
+        <span aria-hidden="true">→</span>
       </a>
     </nav>
 
+    <nav class="dse-explore dse-explore-primary" aria-label="主要入口">
+      <a href="orrery/">
+        <strong>查看文件星球</strong>
+        <small>可以理解为思维导图：把 Skill 的规则、脚本、测试和文档按 7 个职责分区展开；点开文件可以看到它在流程中的作用和关联文件。</small>
+      </a>
+    </nav>
+
+    <details class="dse-home-technical" id="dse-home-technical" data-reveal>
+      <summary id="dse-home-technical-summary"
+        aria-controls="dse-home-technical-content" aria-expanded="false">
+        <span data-technical-action>查看版本与发布说明</span>
+        <small>107 个版本 · 能力地图、历史记录与发布状态</small>
+        <i data-technical-indicator aria-hidden="true">展开</i>
+      </summary>
+
+    <div id="dse-home-technical-content">
     <section class="dse-orientation" aria-labelledby="dse-start-title" hidden>
       <div class="dse-orientation-copy">
         <p class="dse-orientation-kicker">START HERE / 第一次来</p>
         <h2 id="dse-start-title">先选一个目标</h2>
-        <p class="dse-orientation-summary">四个入口对应查看能力、追溯演进、体验判断流程和查看文件星系。先选你此刻最想解决的问题。</p>
+        <p class="dse-orientation-summary">四个入口对应查看能力、追溯演进、体验判断流程和查看文件星球。先选你此刻最想解决的问题。</p>
       </div>
       <nav class="dse-orientation-links" aria-label="快速导览">
         <a href="#dse-map-title">
@@ -7140,7 +7939,7 @@
           </span>
         </a>
         <a href="orrery/">
-          <span class="dse-orientation-index">04 / 文件星系</span>
+          <span class="dse-orientation-index">04 / 文件星球</span>
           <span class="dse-orientation-art" aria-hidden="true">
             <svg viewBox="0 0 240 160">
               <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
@@ -7170,7 +7969,7 @@
             </svg>
           </span>
           <span class="dse-orientation-link-copy">
-            <strong>看文件星系</strong>
+            <strong>查看文件星球</strong>
             <small>当前 90 个 Skill 文件如何组成 7 个职责分区与可交互轨道</small>
           </span>
         </a>
@@ -7193,7 +7992,7 @@
         <button type="button" class="dse-filter" data-filter="prototype" aria-pressed="false">自动超频原型</button>
         <button type="button" class="dse-filter" data-filter="triage" aria-pressed="false">Triage 排障</button>
         <a class="dse-filter dse-lab-link" href="interactive/" title="打开交互实验室页面">交互实验室页面 ↗</a>
-        <a class="dse-filter dse-lab-link" href="orrery/" title="打开 Skill 2.5.0 当前文件星系">当前文件星系页面（2.5.0）↗</a>
+        <a class="dse-filter dse-lab-link" href="orrery/" title="查看文件星球">查看文件星球</a>
         <button type="button" class="dse-filter" data-filter="merge" aria-pressed="false">融合阶段</button>
       </div>
       <div class="dse-legend">
@@ -7212,7 +8011,7 @@
               <span class="dse-track-kicker">主工作台</span>
               <h2 id="dse-map-title">电脑硬件工作台</h2>
             </div>
-            <span class="dse-track-badge">2.5.0 候选 · 签署 PENDING</span>
+            <span class="dse-track-badge">测试版 · 验收进行中</span>
           </div>
           <div class="dse-lane" id="dse-core-lane"></div>
         </section>
@@ -7652,7 +8451,7 @@
         <div>
           <p class="dse-archive-kicker">版本档案 / 全部已记录版本</p>
           <h2 id="dse-archive-title">逐版本迭代档案</h2>
-          <p class="dse-archive-summary">从统一工作台 1.0.0 到当前候选 2.5.0，再到自动超频原型的独立分叉、档位证据和有限验证。1.6.0 之后新增遥测标准化、动态 RAG、LHM 本机 Web、视觉证据、Doctor、入口减重和显存解释门禁。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。</p>
+          <p class="dse-archive-summary">从统一工作台 1.0.0 到 2.5.0 测试版，再到自动超频原型的独立分叉、档位证据和有限验证。1.6.0 之后新增遥测标准化、动态 RAG、LHM 本机 Web、视觉证据、Doctor、入口减重和显存解释门禁。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。</p>
         </div>
         <div class="dse-archive-totals" aria-label="版本档案统计">
           <span class="dse-archive-total"><b id="dse-wb-count">0</b>工作台版本</span>
@@ -7692,6 +8491,9 @@
         </div>
       </section>
     </section>
+
+    </div>
+    </details>
 
     <button type="button" class="dse-inspector-restore" id="dse-inspector-restore" hidden>说明</button>
 
@@ -7734,6 +8536,7 @@
       const mapStage = root.querySelector(".dse-map-stage");
       const convergenceSection = root.querySelector(".dse-convergence");
       const archiveSection = root.querySelector(".dse-archive");
+      const homeTechnical = root.querySelector(".dse-home-technical");
       const demoSection = document.getElementById("dse-demo");
       const tuneSteps = document.getElementById("dse-tune-steps");
       const tuneStepLinks = [...root.querySelectorAll("[data-tune-step-link]")];
@@ -8204,7 +9007,7 @@
           ]
         },
         {
-          id: "wb-2-2", track: "core", label: "工作台 / 1.6 → 2.5", sub: "标准化 · 证据 · 实时适配 · 视觉 · Doctor · 当前候选",
+          id: "wb-2-2", track: "core", label: "工作台 / 1.6 → 2.5", sub: "标准化 · 证据 · 实时适配 · 视觉 · Doctor · 测试版",
           versions: [
             ["1.6.0", "遥测图表、硬件案卷与入口瘦身", "2026-11-03", "RELEASED", ["新增 ChartData 与固定 SVG 遥测渲染器，保留缺失值断点并防止覆盖。", "新增本地硬件案卷，保存证据哈希、假设、时间线、基线和实验。", "入口从约 17.3 KB 降至 11.7 KB，Quick 初始加载降到约 21.4 KB。"], "全量非实机测试、validator、便携同步和案卷/图表回归通过。", "工作台从规则与文本遥测进入可视化案卷阶段。"],
             ["1.7.0", "离线案卷报告与图表准确性", "2026-11-03", "RELEASED", ["生成依赖为零、带 CSP 的静态 HTML 案卷报告，证据预览默认关闭。", "修复降采样丢失缺口、显式 IncludeColumn 被挤出和警告摘要缺失。", "时间戳统一 ISO 8601；危险 SVG、外部路径与 HTML 注入被隔离。"], "全量测试与 validator 通过；独立完整性测试 7/7 PASS，实时采集 SKIP。", "案卷从本地 JSON 升级为可离线阅读、可分享审查的报告。"],
@@ -8213,9 +9016,9 @@
             ["2.0.0", "LibreHardwareMonitor 只读适配器", "2026-11-03", "RELEASED", ["读取已运行 LHM 的 root/LibreHardwareMonitor WMI，必须显式 AllowLiveCollector。", "支持单次快照与最长 300 秒有界采样，输出统一 SensorSnapshot。", "不安装、不启动、不提权、不联网、不后台常驻，也不写硬件设置。"], "独立复核 19 PASS / 0 FAIL / 1 SKIP；真实 WMI 因未授权保持 SKIP。", "实时数据接入不影响 CSV 和标准 JSON 的同一后处理路径。"],
             ["2.1.0", "多模态证据规则", "2026-11-03", "RELEASED", ["覆盖监控截图、BIOS 照片、蓝屏、Debug LED、设备管理器和事件查看器。", "强制区分可见事实、推断、未知和证据限制；截图不等于时间序列。", "图片内命令和提示词一律不可信，不触发执行、下载或设置修改。"], "带恶意指令的合成截图独立测试 PASS；模型视觉未被打包成 Skill 能力。", "视觉能力仍由运行时提供，Skill 负责领域证据边界。"],
             ["2.2.0", "只读 Skill Doctor", "2026-11-03", "RELEASED", ["检查版本、核心文件、语法、编码、输出目录、PowerShell、CIM、validator 和可选工具。", "区分 AVAILABLE、OPTIONAL_MISSING、PERMISSION_REQUIRED、BROKEN、UNKNOWN 与 SKIP。", "只诊断不修复；不安装、不提权、不启动软件、不联网。"], "Doctor 独立复核 14 PASS / 0 FAIL / 1 SKIP；安装树 83/83 一致。", "2.3.0 之前的本地方案；人工验收与真实 LHM 探测仍 PENDING。"],
-            ["2.3.0", "入口减重与跨能力验收", "2026-11-03", "PREVIOUS LOCAL", ["SKILL.md 从 13,310 B 降至约 12,284 B，Quick 初始加载降至约 22.2 KB。", "遥测、LHM 和视觉证据按当前输入只加载匹配 reference；预算收紧为 12.5 KB / 23 KB。", "新增 6 个跨能力场景：模糊症状、CSV+截图、官方冲突、LHM 缺失、图像矛盾、权限绕过。"], "完整自动回归通过；3 个独立行为对话 6/6 PASS。", "2.4.0 之前的本地候选；独立人工签署仍 PENDING。"],
-            ["2.4.0", "LHM Web 与显存证据门禁", "2026-11-03", "PREVIOUS LOCAL", ["LHM 0.9.6 改走 loopback Web /data.json，旧版 WMI 仅作兼容后备；实机读取 284 个传感器。", "保留 GPU 硬件路径并透传到归一化结果；网络适配器自定义名称不进入 ObservedComponents。", "新增显存解释门禁：具体 GPU、显存类型与容量、驱动/vBIOS/工具、请求/观测口径和固定负载缺失时不给数值或带宽结论。", "显存时钟 14001 MHz 保留并提示口径风险；绝对合理性上限 30 GHz，明显异常值仍过滤。", "修复工具脚本相对路径启动时参数默认阶段 PSScriptRoot 为空的问题。", "文件星系同步为 86 文件当前视图并恢复旧版同心轨道；旧版快照只在本机保留，不进入公开网页。"], "完整自动回归与 validator PASS；显存建议门禁、LHM 未运行、LHM Web 实读三个独立行为对话 3/3 PASS；文件星球桌面、960px 与手机截图验通过；独立人工签署仍 PENDING。", "2.5.0 之前的本地候选；107 个版本记录，Pages 由 main 自动部署，CI 必须在最新提交通过。"],
-            ["2.5.0", "一键证据包与前后对比", "2026-11-04", "CURRENT CANDIDATE", ["新增一条命令完成 CSV 分析、标准化、SVG 图表、基线与候选对比、结果卡和证据包 JSON。", "对比要求声明固定负载，并检查窗口、采样、指标名称和单位；温度使用绝对变化。", "无共同指标返回 retest，有采样或指标限制返回 review，不自动宣称 PASS。", "结果卡自包含，包含两轮图表、P95/极值变化、输入 SHA-256 和下一步。"], "完整自动回归与 validator PASS；证据流水线、Doctor、便携同步、结果卡和站点检查通过；独立人工签署仍 PENDING。", "当前本地候选，GitHub main 已同步；107 个版本记录，Pages 由 main 自动部署，CI 必须在最新提交通过。"]
+            ["2.3.0", "入口减重与跨能力验收", "2026-11-03", "PREVIOUS LOCAL", ["SKILL.md 从 13,310 B 降至约 12,284 B，Quick 初始加载降至约 22.2 KB。", "遥测、LHM 和视觉证据按当前输入只加载匹配 reference；预算收紧为 12.5 KB / 23 KB。", "新增 6 个跨能力场景：模糊症状、CSV+截图、官方冲突、LHM 缺失、图像矛盾、权限绕过。"], "完整自动回归通过；3 个独立行为对话 6/6 PASS。", "2.4.0 之前的测试版；独立人工签署仍 PENDING。"],
+            ["2.4.0", "LHM Web 与显存证据门禁", "2026-11-03", "PREVIOUS LOCAL", ["LHM 0.9.6 改走 loopback Web /data.json，旧版 WMI 仅作兼容后备；实机读取 284 个传感器。", "保留 GPU 硬件路径并透传到归一化结果；网络适配器自定义名称不进入 ObservedComponents。", "新增显存解释门禁：具体 GPU、显存类型与容量、驱动/vBIOS/工具、请求/观测口径和固定负载缺失时不给数值或带宽结论。", "显存时钟 14001 MHz 保留并提示口径风险；绝对合理性上限 30 GHz，明显异常值仍过滤。", "修复工具脚本相对路径启动时参数默认阶段 PSScriptRoot 为空的问题。", "文件星球同步为 86 文件当前视图并恢复旧版同心轨道；旧版快照只在本机保留，不进入公开网页。"], "完整自动回归与 validator PASS；显存建议门禁、LHM 未运行、LHM Web 实读三个独立行为对话 3/3 PASS；文件星球桌面、960px 与手机截图验通过；独立人工签署仍 PENDING。", "2.5.0 之前的测试版；107 个版本记录，Pages 由 main 自动部署，CI 必须在最新提交通过。"],
+            ["2.5.0", "一键证据包与前后对比", "2026-11-04", "CURRENT CANDIDATE", ["新增一条命令完成 CSV 分析、标准化、SVG 图表、基线与候选对比、结果卡和证据包 JSON。", "对比要求声明固定负载，并检查窗口、采样、指标名称和单位；温度使用绝对变化。", "无共同指标返回 retest，有采样或指标限制返回 review，不自动宣称 PASS。", "结果卡自包含，包含两轮图表、P95/极值变化、输入 SHA-256 和下一步。"], "完整自动回归与 validator PASS；证据流水线、Doctor、便携同步、结果卡和站点检查通过；独立人工签署仍 PENDING。", "当前测试版，GitHub main 已同步；107 个版本记录，Pages 由 main 自动部署，CI 必须在最新提交通过。"]
           ]
         },
         {
@@ -8262,6 +9065,13 @@
       );
 
       const versionById = Object.fromEntries(versionRecords.map(item => [item.id, item]));
+      const currentReleaseRecord = versionRecords.find(
+        item => item.track === "core" && item.state === "CURRENT CANDIDATE"
+      );
+      const heroVersion = document.getElementById("dse-hero-version");
+      if (currentReleaseRecord && heroVersion) {
+        heroVersion.textContent = currentReleaseRecord.version;
+      }
       const lastMilestoneByTrack = {
         core: "core-entry",
         prototype: "proto-seed",
@@ -9263,9 +10073,9 @@
           proof: "GitHub release、MIT License、README、package sync 验证；1.5.2 是后续证据系统的历史公开基线。"
         },
         {
-          id: "core-instrumentation", track: "core", code: "WB-08", title: "可信证据系统 2.5.0",
+          id: "core-instrumentation", track: "core", code: "WB-08", title: "可信证据系统",
           summary: "统一遥测 · RAG · LHM · 视觉 · Doctor · 简单入口",
-          status: "done", state: "CURRENT 2.5.0",
+          status: "done", state: "CURRENT",
           goal: "把 CSV、结构化快照、官方资料、实时只读传感器和图片统一到可追溯、可降级、可诊断的证据体系。",
           action: "先标准化来源与时间，再记录证据卡和缺失；网页图片不再等于时间序列，Doctor 把权限问题与损坏问题分开。",
           proof: "各子系统独立复核通过；入口 12,284 B、Quick 22,218 B；LHM Web 实读三组行为对话 3/3 PASS；广泛发布人工签署仍 PENDING；版本已进入 GitHub main。"
@@ -9531,6 +10341,14 @@
       document.getElementById("dse-proto-count").textContent = prototypeCount;
       document.getElementById("dse-total-count").textContent = versionRecords.length;
 
+      function userFacingReleaseState(state) {
+        return {
+          "CURRENT CANDIDATE": "2.5.0 测试版",
+          "PREVIOUS LOCAL": "历史测试版",
+          RELEASED: "已发布"
+        }[state] || state;
+      }
+
       function selectVersion(id, shouldReveal = false, updateRoute = false) {
         const item = versionById[id];
         if (!item) return;
@@ -9539,7 +10357,7 @@
         });
         versionDetail.classList.toggle("prototype", item.track === "prototype");
         versionDetailTitle.textContent = `${item.version} · ${item.title}`;
-        versionDetailDate.textContent = `${item.date} / ${item.state}`;
+        versionDetailDate.textContent = `${item.date} / ${userFacingReleaseState(item.state)}`;
         versionValidation.textContent = item.validation;
         versionLineage.textContent = item.lineage;
         versionChanges.replaceChildren();
@@ -10249,6 +11067,7 @@
           return;
         }
         if (raw.startsWith("wb-") || raw.startsWith("ao-")) {
+          if (homeTechnical) homeTechnical.open = true;
           const track = raw.startsWith("wb-") ? "core" : "prototype";
           applyFilter(track, false);
           const record = versionById[raw];
@@ -10269,8 +11088,18 @@
           button.setAttribute("aria-pressed", String(button.dataset.filter === filter));
         });
         const demoMode = filter === "demo";
+        const mergeMode = filter === "merge";
+        root.dataset.mapFilter = filter;
         mapStage.hidden = demoMode;
         demoSection.hidden = !demoMode;
+        mapStage.classList.toggle("is-merge-layout", mergeMode);
+        if (mergeMode) {
+          if (convergenceSection.parentElement !== mapStage) {
+            mapStage.insertBefore(convergenceSection, milestoneDetail);
+          }
+        } else if (convergenceSection.parentElement === mapStage) {
+          mapStage.after(convergenceSection);
+        }
         root.querySelectorAll(".dse-track").forEach(track => {
           track.hidden = track.dataset.track !== filter;
         });
@@ -10331,26 +11160,72 @@
         }
         const items = [...root.querySelectorAll("[data-reveal]")];
         if (!items.length) return;
+
         document.documentElement.classList.add("dse-motion-ready");
+        const reveal = item => item.classList.add("is-visible");
         const observer = new IntersectionObserver(entries => {
           entries.forEach(entry => {
             if (!entry.isIntersecting) return;
-            entry.target.classList.add("is-visible");
+            reveal(entry.target);
             observer.unobserve(entry.target);
           });
         }, {
           root,
-          threshold: .12,
-          rootMargin: "0px 0px -10%"
+          threshold: .01,
+          rootMargin: "180px 0px 180px"
         });
         items.forEach(item => observer.observe(item));
+
+        let revealFrame = 0;
+        function revealPassedSections() {
+          revealFrame = 0;
+          const rootBottom = root.getBoundingClientRect().bottom + 180;
+          items.forEach(item => {
+            if (item.classList.contains("is-visible")) return;
+            if (item.getBoundingClientRect().top <= rootBottom) {
+              reveal(item);
+              observer.unobserve(item);
+            }
+          });
+        }
+        root.addEventListener("scroll", () => {
+          if (revealFrame) return;
+          revealFrame = window.requestAnimationFrame(revealPassedSections);
+        }, { passive: true });
+        window.requestAnimationFrame(revealPassedSections);
+
         reduceMotionQuery.addEventListener?.("change", event => {
           if (!event.matches) return;
           document.documentElement.classList.remove("dse-motion-ready");
-          items.forEach(item => item.classList.add("is-visible"));
+          items.forEach(reveal);
           observer.disconnect();
         });
       }
+
+      const homeTechnicalSummary = homeTechnical?.querySelector(":scope > summary");
+      function syncHomeTechnicalDisclosure() {
+        const open = Boolean(homeTechnical?.open);
+        homeTechnicalSummary?.setAttribute("aria-expanded", String(open));
+        const technicalAction = homeTechnicalSummary?.querySelector("[data-technical-action]");
+        const technicalIndicator = homeTechnicalSummary?.querySelector("[data-technical-indicator]");
+        if (technicalAction) technicalAction.textContent = open ? "收起版本与发布说明" : "查看版本与发布说明";
+        if (technicalIndicator) technicalIndicator.textContent = open ? "收起" : "展开";
+      }
+      homeTechnical?.addEventListener("toggle", syncHomeTechnicalDisclosure);
+      syncHomeTechnicalDisclosure();
+
+      const candidateDetails = document.getElementById("dse-candidate-details");
+      const candidateDetailsSummary = document.getElementById("dse-candidate-details-summary");
+      function syncCandidateDetails() {
+        const open = Boolean(candidateDetails?.open);
+        candidateDetailsSummary?.setAttribute("aria-expanded", String(open));
+        const action = candidateDetailsSummary?.querySelector("[data-candidate-details-action]");
+        const indicator = candidateDetailsSummary?.querySelector("[data-candidate-details-indicator]");
+        if (action) action.textContent = open ? "收起技术与发布说明" : "查看技术与发布说明";
+        if (indicator) indicator.textContent = open ? "收起" : "展开";
+      }
+      candidateDetails?.addEventListener("toggle", syncCandidateDetails);
+      syncCandidateDetails();
 
       setupSectionReveal();
       setDemoMode("tune", { updateRoute: false });
@@ -10367,8 +11242,348 @@
       window.addEventListener("hashchange", handleRoute);
     })();
   </script>
+  <script>
+    (() => {
+      const root = document.getElementById("dse-root");
+      const questionOptions = document.getElementById("dse-home-question-options");
+      const stepOne = document.getElementById("dse-home-step-1");
+      const stepTwo = document.getElementById("dse-home-step-2");
+      const stepThree = document.getElementById("dse-home-step-3");
+      const evidenceOptions = document.getElementById("dse-home-evidence-options");
+      const evidenceCount = document.getElementById("dse-home-evidence-count");
+      const evidenceDetail = document.getElementById("dse-home-evidence-detail");
+      const evidenceWhy = document.getElementById("dse-home-evidence-why");
+      const backButton = document.getElementById("dse-home-back");
+      const generateButton = document.getElementById("dse-home-generate");
+      const restartButton = document.getElementById("dse-home-restart");
+      const copyButton = document.getElementById("dse-home-copy-next");
+      const advancedLink = document.getElementById("dse-home-open-advanced");
+      const resultStatus = document.getElementById("dse-home-result-status");
+      const resultCopy = document.getElementById("dse-home-result-copy");
+      const resultMissing = document.getElementById("dse-home-result-missing");
+      const resultNext = document.getElementById("dse-home-result-next");
+      if (
+        !root ||
+        !questionOptions ||
+        !stepOne ||
+        !stepTwo ||
+        !stepThree ||
+        !evidenceOptions ||
+        !evidenceCount ||
+        !evidenceDetail ||
+        !evidenceWhy ||
+        !backButton ||
+        !generateButton ||
+        !restartButton ||
+        !copyButton ||
+        !advancedLink ||
+        !resultStatus ||
+        !resultCopy ||
+        !resultMissing ||
+        !resultNext
+      ) {
+        return;
+      }
+
+      const scenarios = {
+        temperature: {
+          label: "电脑温度偏高",
+          description: "温度高、风扇响，或不确定当前散热是否正常。",
+          conclusion: "目前只能确定检查方向，不能仅凭一个温度读数判断散热或调校问题。",
+          finalAction: "在同一固定负载下复测，先比较温度、功耗和频率，再检查风道与环境。",
+          advancedMode: "triage",
+          evidence: [
+            { id: "load", label: "固定负载和持续时间" },
+            { id: "sensors", label: "温度、功耗与频率记录" },
+            { id: "context", label: "环境温度和机箱风道" }
+          ],
+          evidenceDetail: "具体部件、固定负载、环境条件、监测工具，以及同一负载下的多点记录。",
+          why: "温度必须和负载、功耗与散热条件一起解释；缺少上下文时，升级散热或直接调压都只是猜测。"
+        },
+        stutter: {
+          label: "游戏掉帧或卡顿",
+          description: "帧数不低但会突然卡一下，或同一场景表现不稳定。",
+          conclusion: "目前还不能把卡顿归因到某一个硬件，需要同一场景下的时间序列证据。",
+          finalAction: "固定同一场景，对照基线和异常段，再检查驱动、后台任务与温度/功耗记录。",
+          advancedMode: "triage",
+          evidence: [
+            { id: "scene", label: "固定游戏、画质和地图" },
+            { id: "frames", label: "帧时间或 FPS 记录" },
+            { id: "context", label: "驱动版本与系统事件" }
+          ],
+          evidenceDetail: "游戏名称、画质、驱动版本、同一场景的帧时间，以及异常发生时间。",
+          why: "平均 FPS 可能掩盖短暂卡顿；只有同一场景的时间序列才能区分负载、驱动、温度和后台任务。"
+        },
+        tuning: {
+          label: "想调校 GPU / CPU",
+          description: "想降温、降噪或提高持续性能，但还不确定是否具备条件。",
+          conclusion: "可以开始整理测试，但缺少条件时仍不会给出可直接套用的设置。",
+          finalAction: "先确认目标和恢复方式，只改一个主变量，再用同一负载检查结果与重启后的稳定性。",
+          advancedMode: "tune",
+          evidence: [
+            { id: "goal", label: "目标和当前稳定基线" },
+            { id: "recovery", label: "恢复方法和恢复顺序" },
+            { id: "workload", label: "固定负载与可操作控制项" }
+          ],
+          evidenceDetail: "目标、设备与部件、当前稳定基线、恢复路径、固定负载和可操作控制项。",
+          why: "缺少目标或恢复方式时，任何数值都只是别人的配置，不是适合你的实验计划。"
+        }
+      };
+
+      const evidenceSelections = Object.fromEntries(
+        Object.keys(scenarios).map(id => [id, new Set()])
+      );
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const homeReturnStateKey = "pcwb:skill-evolution:home-return";
+      let selectedScenarioId = "";
+      let flowStep = 1;
+      let copyResetTimer = 0;
+
+      function currentScenario() {
+        return scenarios[selectedScenarioId] || null;
+      }
+
+      function selectedEvidenceLabels(scenario) {
+        const selected = evidenceSelections[selectedScenarioId];
+        return scenario.evidence.filter(item => selected.has(item.id)).map(item => item.label);
+      }
+
+      function missingEvidenceItems(scenario) {
+        const selected = evidenceSelections[selectedScenarioId];
+        return scenario.evidence.filter(item => !selected.has(item.id));
+      }
+
+      function saveHomeReturnState() {
+        const state = {
+          savedAt: Date.now(),
+          scrollTop: root.scrollTop,
+          selectedScenarioId,
+          flowStep,
+          evidence: Object.fromEntries(
+            Object.entries(evidenceSelections).map(([id, values]) => [id, [...values]])
+          )
+        };
+        try {
+          sessionStorage.setItem(homeReturnStateKey, JSON.stringify(state));
+        } catch {
+          // Session storage can be unavailable in restricted local previews.
+        }
+      }
+
+      function clearHomeReturnState() {
+        try {
+          sessionStorage.removeItem(homeReturnStateKey);
+        } catch {
+          // Nothing to clear when storage is unavailable.
+        }
+      }
+
+      function readHomeReturnState() {
+        try {
+          const raw = sessionStorage.getItem(homeReturnStateKey);
+          if (!raw) return null;
+          clearHomeReturnState();
+          const state = JSON.parse(raw);
+          if (
+            !state ||
+            typeof state !== "object" ||
+            Date.now() - Number(state.savedAt || 0) > 15 * 60 * 1000
+          ) {
+            return null;
+          }
+          return state;
+        } catch {
+          return null;
+        }
+      }
+
+      function scrollToStep(step) {
+        window.requestAnimationFrame(() => {
+          step.scrollIntoView({
+            block: "start",
+            behavior: reduceMotion.matches ? "auto" : "smooth"
+          });
+        });
+      }
+
+      function renderQuestions() {
+        questionOptions.replaceChildren();
+        Object.entries(scenarios).forEach(([id, scenario]) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "dse-home-question-option";
+          button.dataset.homeScenario = id;
+          button.setAttribute("aria-pressed", String(id === selectedScenarioId));
+          const title = document.createElement("strong");
+          title.textContent = scenario.label;
+          const description = document.createElement("small");
+          description.textContent = scenario.description;
+          button.append(title, description);
+          button.addEventListener("click", () => selectScenario(id));
+          questionOptions.appendChild(button);
+        });
+      }
+
+      function renderEvidence(scenario) {
+        const selected = evidenceSelections[selectedScenarioId];
+        evidenceOptions.replaceChildren();
+        scenario.evidence.forEach(item => {
+          const label = document.createElement("label");
+          label.className = "dse-home-evidence-option";
+          const input = document.createElement("input");
+          input.type = "checkbox";
+          input.value = item.id;
+          input.checked = selected.has(item.id);
+          input.addEventListener("change", () => {
+            if (input.checked) selected.add(item.id);
+            else selected.delete(item.id);
+            updateEvidenceCount(scenario);
+          });
+          const text = document.createElement("span");
+          text.textContent = item.label;
+          label.append(input, text);
+          evidenceOptions.appendChild(label);
+        });
+        evidenceDetail.textContent = scenario.evidenceDetail;
+        evidenceWhy.textContent = scenario.why;
+        updateEvidenceCount(scenario);
+      }
+
+      function updateEvidenceCount(scenario) {
+        const selected = evidenceSelections[selectedScenarioId];
+        evidenceCount.textContent = `已选 ${selected.size} / ${scenario.evidence.length} 项`;
+      }
+
+      function selectScenario(id) {
+        const scenario = scenarios[id];
+        if (!scenario) return;
+        selectedScenarioId = id;
+        flowStep = 2;
+        stepThree.hidden = true;
+        renderQuestions();
+        renderEvidence(scenario);
+        stepTwo.hidden = false;
+        scrollToStep(stepTwo);
+      }
+
+      function generateResult({ scroll = true } = {}) {
+        const scenario = currentScenario();
+        if (!scenario) return;
+        const selected = selectedEvidenceLabels(scenario);
+        const missing = missingEvidenceItems(scenario);
+        resultStatus.textContent = missing.length
+          ? `还需补齐 ${missing.length} 项`
+          : "信息已齐，可以复测";
+        resultCopy.textContent = scenario.conclusion;
+        resultMissing.textContent = missing.length
+          ? `缺少的信息：${missing.map(item => item.label).join("、")}`
+          : `已有信息：${selected.join("、")}。仍需要在真实设备上复核。`;
+        resultNext.textContent = `推荐下一步：${scenario.finalAction}`;
+        advancedLink.href = `interactive/#${scenario.advancedMode}`;
+        flowStep = 3;
+        stepThree.hidden = false;
+        if (scroll) scrollToStep(stepThree);
+      }
+
+      async function copyPrompt() {
+        const scenario = currentScenario();
+        if (!scenario) return;
+        const selected = selectedEvidenceLabels(scenario);
+        const missing = missingEvidenceItems(scenario).map(item => item.label);
+        const prompt = [
+          `请使用 $pc-hardware-workbench 继续分析：${scenario.label}。`,
+          `已有信息：${selected.length ? selected.join("、") : "暂无"}。`,
+          `缺少或待确认：${missing.length ? missing.join("、") : "无"}。`,
+          "请先给出最小下一步，并说明仍需验证什么；不要自动修改硬件。"
+        ].join("\n");
+        let copied = false;
+        try {
+          await navigator.clipboard.writeText(prompt);
+          copied = true;
+        } catch {
+          const fallback = document.createElement("textarea");
+          fallback.value = prompt;
+          fallback.setAttribute("readonly", "");
+          fallback.style.position = "fixed";
+          fallback.style.left = "-9999px";
+          document.body.appendChild(fallback);
+          fallback.select();
+          copied = document.execCommand("copy");
+          fallback.remove();
+        }
+        window.clearTimeout(copyResetTimer);
+        copyButton.textContent = copied ? "已复制，可粘贴到 Codex" : "复制失败，请手动选择";
+        copyResetTimer = window.setTimeout(() => {
+          copyButton.textContent = "复制下一步给 Codex";
+        }, 1800);
+      }
+
+      function restartFlow() {
+        selectedScenarioId = "";
+        flowStep = 1;
+        Object.values(evidenceSelections).forEach(selection => selection.clear());
+        stepTwo.hidden = true;
+        stepThree.hidden = true;
+        renderQuestions();
+        scrollToStep(stepOne);
+      }
+
+      backButton.addEventListener("click", () => {
+        flowStep = 1;
+        stepTwo.hidden = true;
+        stepThree.hidden = true;
+        scrollToStep(stepOne);
+      });
+      generateButton.addEventListener("click", generateResult);
+      restartButton.addEventListener("click", restartFlow);
+      copyButton.addEventListener("click", copyPrompt);
+
+      renderQuestions();
+      document.addEventListener("click", event => {
+        const link = event.target.closest("a[href]");
+        if (!link) return;
+        const target = new URL(link.href, window.location.href);
+        if (
+          target.pathname.includes("/docs/skill-evolution/interactive/") ||
+          target.pathname.includes("/docs/skill-evolution/orrery/")
+        ) {
+          saveHomeReturnState();
+        }
+      }, true);
+
+      const savedReturnState = readHomeReturnState();
+      if (savedReturnState?.selectedScenarioId && scenarios[savedReturnState.selectedScenarioId]) {
+        if ("scrollRestoration" in window.history) {
+          window.history.scrollRestoration = "manual";
+        }
+        selectedScenarioId = savedReturnState.selectedScenarioId;
+        flowStep = Math.min(3, Math.max(1, Number(savedReturnState.flowStep) || 1));
+        Object.entries(savedReturnState.evidence || {}).forEach(([id, values]) => {
+          if (!evidenceSelections[id] || !Array.isArray(values)) return;
+          evidenceSelections[id].clear();
+          values.forEach(value => evidenceSelections[id].add(value));
+        });
+        renderQuestions();
+        if (flowStep >= 2) {
+          renderEvidence(currentScenario());
+          stepTwo.hidden = false;
+          if (flowStep === 3) generateResult({ scroll: false });
+        }
+        const restoreScrollPosition = () => {
+          root.scrollTop = Number(savedReturnState.scrollTop) || 0;
+        };
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(restoreScrollPosition);
+        });
+        window.setTimeout(restoreScrollPosition, 120);
+      }
+      window.addEventListener("pageshow", event => {
+        if (event.persisted) clearHomeReturnState();
+      });
+    })();
+  </script>
 </main>
 
-<noscript>此页面需要 JavaScript 才能显示交互内容。</noscript>
+<noscript>This page requires JavaScript to show the interactive content.</noscript>
 </body>
 </html>

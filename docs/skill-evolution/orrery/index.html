@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <meta name="description" content="电脑硬件工作台 Skill 2.5.0 当前 Git 跟踪文件结构，共 90 个文件">
+  <meta name="description" content="电脑硬件工作台 Skill 2.5.0 文件星球，共 90 个文件">
   <link rel="icon" href="data:,">
-  <title>当前文件星系 · Skill 2.5.0</title>
+  <title>文件星球 · Skill 2.5.0</title>
   <style>
     :root {
       --void: #07090c;
@@ -1623,27 +1623,27 @@
   <main class="app">
     <nav class="global-nav" aria-label="全局导航">
       <a href="../">← 返回项目地图</a>
-      <span aria-current="page">当前文件星系 · 2.5.0</span>
+      <span aria-current="page">文件星球 · 2.5.0</span>
     </nav>
     <header class="app-header">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true"></div>
         <div>
-          <h1>当前文件星系</h1>
-          <p>电脑硬件工作台 · Skill 2.5.0 的 90 文件结构</p>
+          <h1>文件星球</h1>
+          <p>电脑硬件工作台 · 90 个 Skill 文件组成 7 个职责分区</p>
         </div>
       </div>
       <div class="header-stats" aria-label="项目概况">
         <span>90 个文件</span>
         <span>7 个星体系统</span>
-        <span>当前候选 · Skill 2.5.0</span>
+        <span>2.5.0 测试版</span>
       </div>
     </header>
 
     <div class="snapshot-banner" role="note"><span><strong>当前快照：</strong>清单直接取自 Git 跟踪的 90 个文件；逐文件 SHA 与结构权重由生成器计算。文件集摘要 <code>052B8EF241C7</code> 仅用于确认页面与清单对应，不读取或识别你的设备。</span></div>
 
     <div class="workspace">
-      <section class="stage-shell" aria-label="Skill 2.5.0 当前文件星系">
+      <section class="stage-shell" aria-label="Skill 2.5.0 文件星球">
         <div class="stage-toolbar">
           <div class="breadcrumb" id="breadcrumb" aria-live="polite"></div>
           <div class="toolbar-actions">
@@ -2595,8 +2595,8 @@
       dossier.innerHTML = `
         <div class="dossier-inner">
           <div class="dossier-kicker">当前 Git 清单 · Skill 2.5.0</div>
-          <h2>当前文件星系，先看系统</h2>
-          <p class="dossier-lead">当前星系盘点 90 个文件：入口、调用元数据、参考、脚本和测试资料。点击任意分区，让它的文件沿职责轨道展开。</p>
+          <h2>文件星球，先看整体结构</h2>
+          <p class="dossier-lead">文件星球包含 90 个文件：入口、调用元数据、参考、脚本和测试资料。点击任意分区，让它的文件沿职责轨道展开。</p>
           <div class="overview-list">
             ${Object.entries(GROUPS).sort((a, b) => a[1].ring - b[1].ring).map(([id, group]) => `
               <div class="overview-row" style="--row-color:${group.color}">
