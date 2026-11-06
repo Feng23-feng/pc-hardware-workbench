@@ -1063,6 +1063,7 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
         caseCount: cases.length,
         caseTops: cases.map(item => Math.round(item.getBoundingClientRect().top)),
         horizontalOverflow: stack.scrollWidth > stack.clientWidth,
+        touchAction: getComputedStyle(stack).touchAction,
         autoToggleVisible: getComputedStyle(
           document.getElementById("dse-triage-auto-toggle")
         ).display !== "none"
@@ -1073,9 +1074,49 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       triageStack.caseCount > 1 &&
       new Set(triageStack.caseTops).size === triageStack.caseTops.length &&
       !triageStack.horizontalOverflow &&
+      triageStack.touchAction === "pan-y" &&
       triageStack.autoToggleVisible,
       `${prefix}triage cases are not a vertical explicit-choice list (${JSON.stringify(triageStack)}).`
     );
+    if (name === "mobile") {
+      const swipePoint = await evaluate(connection, `(async () => {
+        const firstCase = document.querySelector("#dse-triage-case-grid [data-triage-case]");
+        firstCase.scrollIntoView({ block: "center" });
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        const rect = firstCase.getBoundingClientRect();
+        return {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+          before: document.getElementById("dse-root").scrollTop
+        };
+      })()`);
+      const touchPoint = (x, y) => [{ x, y, radiusX: 2, radiusY: 2, force: 1, id: 1 }];
+      await connection.send("Input.dispatchTouchEvent", {
+        type: "touchStart",
+        touchPoints: touchPoint(swipePoint.x, swipePoint.y)
+      });
+      for (let step = 1; step <= 4; step += 1) {
+        await connection.send("Input.dispatchTouchEvent", {
+          type: "touchMove",
+          touchPoints: touchPoint(swipePoint.x, swipePoint.y - step * 32)
+        });
+        await sleep(35);
+      }
+      await connection.send("Input.dispatchTouchEvent", {
+        type: "touchEnd",
+        touchPoints: []
+      });
+      await sleep(260);
+      const afterTouchScroll = await evaluate(connection,
+        "Math.round(document.getElementById('dse-root').scrollTop)");
+      check(
+        afterTouchScroll > swipePoint.before + 60,
+        `${prefix}touching a triage option prevents vertical page scrolling (${JSON.stringify({
+          before: swipePoint.before,
+          after: afterTouchScroll
+        })}).`
+      );
+    }
     /*
     const advancedThemes = await evaluate(connection, `(async () => {
       const results = {};

@@ -6791,7 +6791,7 @@
       overscroll-behavior-inline: contain;
       scrollbar-width: none;
       -ms-overflow-style: none;
-      touch-action: pan-x;
+      touch-action: pan-x pan-y;
       background: #080a0c;
       border: 1px solid var(--dse-line);
       border-radius: 8px;
@@ -7693,6 +7693,9 @@
       padding: 0;
       overflow: visible;
       scrollbar-width: auto;
+      scroll-snap-type: none;
+      touch-action: pan-y;
+      overscroll-behavior: auto;
     }
 
     html[data-site-view="interactive"] #dse-root #dse-triage-case-grid .dse-scenario {
