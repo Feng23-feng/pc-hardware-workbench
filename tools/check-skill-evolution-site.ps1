@@ -283,11 +283,14 @@ if ($errors.Count -eq 0) {
     else {
         $segment = $homeTemplate.Substring($start, $end - $start)
         $versionCount = [regex]::Matches($segment, '(?m)^\s*\["\d+\.\d+\.\d+(?:-r\d+)?",').Count
-        if ($versionCount -ne 107) {
-            $errors.Add("Home source version count is $versionCount, expected 107.") | Out-Null
+        if ($versionCount -ne 108) {
+            $errors.Add("Home source version count is $versionCount, expected 108.") | Out-Null
         }
-        if ($segment -notmatch '\["2\.5\.0"[^\r\n]*CURRENT CANDIDATE') {
-            $errors.Add("Home source current 2.5.0 archive record is missing.") | Out-Null
+        if ($segment -notmatch '\["2\.5\.1"[^\r\n]*CURRENT CANDIDATE') {
+            $errors.Add("Home source current 2.5.1 archive record is missing.") | Out-Null
+        }
+        if ($segment -notmatch '\["2\.5\.0"[^\r\n]*PREVIOUS LOCAL') {
+            $errors.Add("Home source previous 2.5.0 archive record is missing.") | Out-Null
         }
     }
 
@@ -335,8 +338,8 @@ if ($errors.Count -eq 0) {
     if ($orreryHtml -notmatch '\u5F53\u524D\u6587\u4EF6\u661F\u7CFB|\u5F53\u524D\u5FEB\u7167') {
         $errors.Add("Orrery does not identify its current snapshot.") | Out-Null
     }
-    if ($orreryHtml -notmatch '90 \u4E2A\u6587\u4EF6|\u5F53\u524D\u5019\u9009 \u00B7 Skill 2\.5\.0') {
-        $errors.Add("Orrery does not expose the current 90-file snapshot.") | Out-Null
+    if ($orreryHtml -notmatch '94 \u4E2A\u6587\u4EF6|\u5F53\u524D Git \u6E05\u5355 \u00B7 Skill 2\.5\.1') {
+        $errors.Add("Orrery does not expose the current 94-file snapshot.") | Out-Null
     }
     if ($orreryHtml -match 'archive/1\.5\.2/') {
         $errors.Add("Orrery still exposes the local-only 1.5.2 archive.") | Out-Null
@@ -368,7 +371,7 @@ if ($errors.Count -eq 0) {
     finally {
         $sha256.Dispose()
     }
-    if ($frozen.version -ne "2.5.0" -or $frozen.status -ne "frozen" -or [int]$frozen.fileCount -ne 90) {
+    if ($frozen.version -ne "2.5.1" -or $frozen.status -ne "frozen" -or [int]$frozen.fileCount -ne 94) {
         $errors.Add("Orrery FROZEN.json version/status/file count is unexpected.") | Out-Null
     }
     if ([int]$frozen.bytes -ne $orreryBytes.Length -or $frozen.sha256 -ne $orreryHash) {
@@ -384,4 +387,4 @@ if ($errors.Count -gt 0) {
     exit 1
 }
 
-Write-Host "Skill evolution site check: PASS (two canonical templates, single visible path, technical archives folded, 90-file orrery, JavaScript syntax)" -ForegroundColor Green
+Write-Host "Skill evolution site check: PASS (two canonical templates, single visible path, technical archives folded, 94-file orrery, JavaScript syntax)" -ForegroundColor Green

@@ -47,7 +47,7 @@ function findFreePort() {
   });
 }
 
-function startServer() {
+function startServer(rootDirectory) {
   const contentTypes = {
     ".html": "text/html; charset=utf-8",
     ".json": "application/json; charset=utf-8",
@@ -58,8 +58,8 @@ function startServer() {
   };
   const server = http.createServer((request, response) => {
     const requestPath = decodeURIComponent(new URL(request.url, "http://localhost").pathname);
-    let filePath = path.resolve(repositoryRoot, `.${requestPath}`);
-    if (!filePath.startsWith(`${repositoryRoot}${path.sep}`) && filePath !== repositoryRoot) {
+    let filePath = path.resolve(rootDirectory, `.${requestPath}`);
+    if (!filePath.startsWith(`${rootDirectory}${path.sep}`) && filePath !== rootDirectory) {
       response.writeHead(400).end("Bad request");
       return;
     }
@@ -430,7 +430,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       candidateStateSize: Number.parseFloat(getComputedStyle(document.querySelector(".dse-candidate-state")).fontSize),
       heroVersion: document.getElementById("dse-hero-version")?.textContent.trim() || "",
       visibleVersionCount: (
-        document.getElementById("dse-root")?.innerText.match(/2\.5\.0/g) || []
+        document.getElementById("dse-root")?.innerText.match(/2\.5\.1/g) || []
       ).length,
       technicalClosed: !document.querySelector(".dse-home-technical")?.open,
       technicalSummary: document.querySelector(".dse-home-technical > summary")?.innerText.trim() || "",
@@ -466,7 +466,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
     );
     check(!initial.aboutPresent, `${prefix}removed philosophy section still exists.`);
     check(
-      initial.heroVersion === "2.5.0" &&
+      initial.heroVersion === "2.5.1" &&
       initial.visibleVersionCount === 1,
       `${prefix}homepage should expose the current version exactly once (${JSON.stringify({
         heroVersion: initial.heroVersion,
@@ -528,7 +528,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       };
     })()`);
     check(
-      filePlanetCard.title.includes("90 个文件") &&
+      filePlanetCard.title.includes("94 个文件") &&
       filePlanetCard.cta.includes("进入文件星球") &&
       filePlanetCard.previewWidth >= 280 &&
       filePlanetCard.previewHeight >= (name === "desktop" ? 300 : 160) &&
@@ -699,7 +699,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
     })()`, 2500);
     const opened = await evaluate(connection, `(() => ({
       open: Boolean(document.querySelector(".dse-home-technical")?.open),
-      version: document.querySelector(".dse-home-technical")?.innerText.includes("2.5.0") || false,
+      version: document.querySelector(".dse-home-technical")?.innerText.includes("2.5.1") || false,
       versionCodeSize: Number.parseFloat(getComputedStyle(document.querySelector(".dse-version-code")).fontSize),
       versionButtons: document.querySelectorAll(".dse-version").length,
       summaryExpanded: document.getElementById("dse-home-technical-summary")?.getAttribute("aria-expanded") || "",
@@ -710,7 +710,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       opened.open &&
       opened.version &&
       opened.versionCodeSize >= 16 &&
-      opened.versionButtons === 107 &&
+      opened.versionButtons === 108 &&
       opened.summaryExpanded === "true" &&
       opened.actionText.includes("收起说明"),
       `${prefix}technical archive does not open correctly (${JSON.stringify(opened)}).`
@@ -721,7 +721,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       `${prefix}home uses more than four font-size levels (${JSON.stringify(homeFontSizes)}).`
     );
     await evaluate(connection, `(() => {
-      document.querySelector('[data-version-id="wb-2-5-0"]')?.click();
+      document.querySelector('[data-version-id="wb-2-5-1"]')?.click();
       return true;
     })()`);
     await sleep(120);
@@ -733,15 +733,15 @@ async function testHomeViewport(siteUrl, name, width, height) {
     }))()`);
     check(
       archiveSelection.detailVisible &&
-      archiveSelection.title.includes("2.5.0") &&
+      archiveSelection.title.includes("2.5.1") &&
       archiveSelection.date.includes("测试版") &&
       !archiveSelection.date.includes("CANDIDATE") &&
-      archiveSelection.hash === "#wb-2-5-0",
+      archiveSelection.hash === "#wb-2-5-1",
       `${prefix}version selection or deep link was lost (${JSON.stringify(archiveSelection)}).`
     );
 
     await navigate(connection, siteUrl);
-    await navigate(connection, `${siteUrl}#wb-2-5-0`);
+    await navigate(connection, `${siteUrl}#wb-2-5-1`);
     const deepLinked = await waitFor(connection, `(() => (
       document.querySelector(".dse-home-technical")?.open &&
       !document.getElementById("dse-version-detail")?.hidden
@@ -1000,6 +1000,89 @@ async function testHomeViewport(siteUrl, name, width, height) {
   }
 }
 
+async function testPreviewRootReturn(siteUrl) {
+  const connection = await createConnection("about:blank");
+  const prefix = "preview root return: ";
+  const homePath = new URL("./", siteUrl).pathname;
+  const interactivePath = new URL("interactive/", siteUrl).pathname;
+  try {
+    await setViewport(connection, 1440, 1000);
+    await navigate(connection, siteUrl);
+    runIntegrityChecks(await evaluate(connection, integrityExpression()), prefix);
+    const beforeReturn = await evaluate(connection, `(async () => {
+      const root = document.getElementById("dse-root");
+      const link = document.querySelector(".dse-advanced-entry a");
+      root.style.scrollBehavior = "auto";
+      link.scrollIntoView({ block: "center" });
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const linkRect = link.getBoundingClientRect();
+      return {
+        path: location.pathname,
+        scrollTop: Math.round(root.scrollTop),
+        entryVisible: linkRect.height > 0 && linkRect.top >= 0 && linkRect.bottom <= innerHeight
+      };
+    })()`);
+    await clickByPointer(connection, ".dse-advanced-entry a");
+    check(
+      await waitFor(connection, `(() => (
+        document.readyState === "complete" &&
+        location.pathname === ${JSON.stringify(interactivePath)} &&
+        Boolean(document.getElementById("dse-return-home"))
+      ))()`, 5000),
+      `${prefix}advanced-mode entry did not navigate (${JSON.stringify(beforeReturn)}).`
+    );
+    await waitForViewTransition(connection);
+    await sleep(600);
+    await clickByPointer(connection, "#dse-return-home");
+    check(
+      await waitFor(connection, `(() => (
+        document.readyState === "complete" &&
+        location.pathname === ${JSON.stringify(homePath)} &&
+        Boolean(document.getElementById("dse-root"))
+      ))()`, 5000),
+      `${prefix}return did not reach the preview homepage.`
+    );
+    await waitForViewTransition(connection);
+    await sleep(600);
+    await waitFor(connection, `Math.abs(
+      Number(document.getElementById("dse-root")?.scrollTop || 0) - ${beforeReturn.scrollTop}
+    ) < 60`, 2500);
+    const afterReturn = await evaluate(connection, `(() => {
+      const link = document.querySelector(".dse-advanced-entry a");
+      const linkRect = link?.getBoundingClientRect();
+      return {
+        path: location.pathname,
+        scrollTop: Math.round(document.getElementById("dse-root")?.scrollTop || 0),
+        entryVisible: Boolean(
+          linkRect &&
+          linkRect.height > 0 &&
+          linkRect.top >= 0 &&
+          linkRect.bottom <= innerHeight
+        )
+      };
+    })()`);
+    check(
+      beforeReturn.path === homePath &&
+      beforeReturn.scrollTop > 100 &&
+      beforeReturn.entryVisible &&
+      afterReturn.path === homePath &&
+      afterReturn.entryVisible &&
+      Math.abs(afterReturn.scrollTop - beforeReturn.scrollTop) < 60,
+      `${prefix}advanced-mode return lost the originating scroll position (${JSON.stringify({
+        before: beforeReturn,
+        after: afterReturn
+      })}).`
+    );
+    const unexpectedPageErrors = connection.pageErrors.filter(error =>
+      !error.includes("Transition was aborted because of invalid state. ViewTransition opt-in disabled")
+    );
+    check(unexpectedPageErrors.length === 0, `${prefix}page errors: ${unexpectedPageErrors.join(" | ")}`);
+  } finally {
+    connection.close();
+    await fetch(`http://127.0.0.1:${debugPort}/json/close/${connection.targetId}`).catch(() => {});
+  }
+}
+
 async function testInteractiveViewport(interactiveUrl, name, width, height) {
   const connection = await createConnection("about:blank");
   const prefix = `interactive ${name}: `;
@@ -1047,7 +1130,7 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
         backdropScene: document.documentElement.dataset.crtSceneIntent || "",
         compareStepPresent: Boolean(document.querySelector('[data-tune-step-link="compare"]')),
         comparePanelVisible: (document.getElementById("dse-tune-compare-panel")?.getBoundingClientRect().height || 0) > 0,
-        visibleVersionNumber: document.getElementById("dse-root")?.innerText.includes("2.5.0") || false
+        visibleVersionNumber: document.getElementById("dse-root")?.innerText.includes("2.5.1") || false
       };
     })()`);
     check(initial.title.includes("高级模式"), `${prefix}browser title is not user-facing.`);
@@ -1055,7 +1138,7 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
     check(
       initial.status.includes("当前测试版") &&
       initial.status.includes("只读演示") &&
-      !initial.status.includes("2.5.0"),
+      !initial.status.includes("2.5.1"),
       `${prefix}advanced page does not use the public test-release label.`
     );
     check(
@@ -1754,8 +1837,11 @@ async function main() {
     throw new Error("Microsoft Edge or Google Chrome was not found. Set EDGE_PATH to its executable.");
   }
   debugPort = await findFreePort();
-  const { server, port } = await startServer();
+  const siteRoot = path.join(repositoryRoot, "docs", "skill-evolution");
+  const { server, port } = await startServer(repositoryRoot);
+  const { server: previewServer, port: previewPort } = await startServer(siteRoot);
   const siteUrl = `http://127.0.0.1:${port}/docs/skill-evolution/`;
+  const previewRootUrl = `http://127.0.0.1:${previewPort}/`;
   const interactiveUrl = `${siteUrl}interactive/`;
   const orreryUrl = `${siteUrl}orrery/`;
   const browser = spawn(
@@ -1779,6 +1865,7 @@ async function main() {
     await waitForDebugEndpoint();
     await testHomeViewport(siteUrl, "desktop", 1440, 1000);
     await testHomeViewport(siteUrl, "mobile", 390, 844);
+    await testPreviewRootReturn(previewRootUrl);
     await testInteractiveViewport(interactiveUrl, "desktop", 1440, 1000);
     await testInteractiveViewport(interactiveUrl, "mobile", 390, 844);
     await testOrrerySmoke(orreryUrl, "desktop", 1440, 1000);
@@ -1787,6 +1874,7 @@ async function main() {
   } finally {
     browser.kill();
     server.close();
+    previewServer.close();
   }
 
   if (failures.length) {
