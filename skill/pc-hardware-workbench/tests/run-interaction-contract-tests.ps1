@@ -56,9 +56,9 @@ $englishReferenceOnlyNotice = "For reference only - put safety first."
 
 Assert-Contains $skill '(?m)^  version: "2\.6\.0"\r?$' "metadata.version should be 2.6.0."
 Assert-Contains $skill 'r23 collector' "The Skill maintenance summary collector revision disagrees with the collector code."
-Assert-Contains $skill 'while the power-path evidence is incomplete' "The Advice intensity route does not include incomplete power-path evidence."
-Assert-Contains $skill 'hidden or\s+manufacturer-limited limit' "The Advice intensity summary is narrower than the hidden or manufacturer-limited scope."
-Assert-Contains $skill 'power ceiling, voltage limit, fan policy, and firmware restriction' "The Advice intensity summary omits one or more controlled object types."
+Assert-Contains $skill 'while power-path\s+evidence is incomplete' "The Advice intensity route does not include incomplete power-path evidence."
+Assert-Contains $skill 'hidden or\s+manufacturer-limited power' "The Advice intensity summary is narrower than the hidden or manufacturer-limited scope."
+Assert-Contains $skill 'power, voltage, fan, or firmware control' "The Advice intensity summary omits one or more controlled object types."
 Assert-Contains $skill 'When invoked without a concrete task' "Bare-invocation introduction rule is missing."
 Assert-Contains $skill 'If the first request already contains a concrete task' "Task-bearing invocation skip rule is missing."
 $neutralIntroduction = [regex]::Unescape('\u0060pc-hardware-workbench\u0060 \u5DF2\u52A0\u8F7D')
@@ -151,6 +151,7 @@ Assert-Contains $tuningModes 'Apply the safety notice from SKILL\.md only when t
 Assert-Contains $tuningModes 'adapt explanation depth to user skill and risk' "Tuning modes omit context-adaptive explanations."
 Assert-Contains $tuningModes 'do not ask a beginner to fill a blank experiment template' "Quick mode still forces a blank template."
 Assert-Contains $tuningModes 'Vendor-profile fast path' "Vendor-profile fast path is missing."
+Assert-Contains $tuningModes 'without a stock workload result' "XMP/EXPO can be enabled without a stock workload baseline."
 Assert-Contains $tuningModes 'Cooling context is collected only after inventory' "Cooling timing rule is missing."
 Assert-Contains $tuningModes 'fast path is inside the normal tuning gate, not a bypass' "XMP/EXPO fast path is described as a gate bypass."
 Assert-True ($tuningModes -notmatch 'CPU cooling type, whether the GPU') "Tuning modes still ask both cooling groups unconditionally."
@@ -339,6 +340,8 @@ Assert-Contains $upgradeEvidence 'Preparation report for preference or planning'
 
 $recommendationOutput = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/upgrade/output-format.md") -Raw -Encoding UTF8
 Assert-Contains $recommendationOutput 'Functional performance or capability assessment' "The functional recommendation template is missing."
+Assert-Contains $recommendationOutput 'five-line summary' "Inventory output has no novice summary layer."
+Assert-Contains $recommendationOutput 'secondary detail layer' "Inventory audit fields are not separated from the first screen."
 Assert-Contains $recommendationOutput 'Preference, gift, or future-project assessment' "Preference purchases have no matching output template."
 Assert-Contains $recommendationOutput "Buy / Wait / Don't buy" "Preference purchases still lack Buy, Wait, and Don't buy verdicts."
 Assert-Contains $recommendationOutput 'Do not force\s+a\s+performance template' "The output guidance still forces every purchase into a performance template."
@@ -371,7 +374,7 @@ Assert-True ($collectorWorkflow -notmatch 'CPU cooling type, whether the GPU') "
 Assert-Contains $skill 'Default: refuse\.' "Advice tiering has no default-refusal rule."
 Assert-Contains $skill 'Downgrade only when all three hold:' "Advice tiering has no three-condition downgrade gate."
 Assert-Contains $skill 'Never downgrade: anti-cheat evasion' "Advice tiering does not hard-stop anti-cheat or concealment cases."
-Assert-Contains $skill 'no tool name,\s+no step sequence, and no target value' "Advice tiering allows instructional detail after downgrade."
+Assert-Contains $skill 'no tool name,\s+no step sequence,\s+and no target value' "Advice tiering allows instructional detail after downgrade."
 $quickModePosition = $skill.IndexOf('After the target and form factor are known')
 $advicePosition = $skill.IndexOf('## Advice intensity')
 $purchasePosition = $skill.IndexOf('### Purchase')
@@ -413,6 +416,11 @@ $explanationStyle = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "references/integration/explanation-style.md") `
     -Label "references/integration/explanation-style.md"
 Assert-Contains $explanationStyle 'what changes, where it changes, and what remains unchanged' "Explanation reference does not define Action."
+Assert-Contains $explanationStyle 'User-facing language layer' "Explanation reference has no shared user-language layer."
+Assert-Contains $explanationStyle 'baseline \| \u539F\u914D\u7F6E' "Explanation reference does not translate baseline plainly."
+Assert-Contains $explanationStyle 'fixed workload \| \u540C\u4E00\u4E2A\u6E38\u620F\u573A\u666F' "Explanation reference does not translate fixed workload plainly."
+Assert-Contains $explanationStyle 'internal JSON fields' "Explanation reference permits internal field-name dumping."
+Assert-Contains $explanationStyle 'At the start of a substantial tuning or telemetry flow' "The one-time detailed-mode offer is missing."
 Assert-Contains $explanationStyle 'one everyday comparison' "Explanation reference does not define Analogy."
 Assert-Contains $explanationStyle 'signals that mean\s+stop, and how to recover' "Explanation reference does not define Consequence."
 Assert-Contains $explanationStyle '## Action' "Explanation reference lacks the Action section."
@@ -600,6 +608,7 @@ Assert-Contains $deviceIdentity '`conflict` is not emitted by a single collector
 Assert-Contains $deviceIdentity 'system Model is the core identity field' "Core and optional identity fields are not distinguished."
 Assert-Contains $deviceIdentity 'Live collector tests' "Live collector test consent rules are missing."
 Assert-Contains $deviceIdentity 'AllowLiveCollector' "Live collector tests have no explicit opt-in."
+Assert-True ($deviceIdentity -notmatch '\[Device identity:') "Device identity guidance reintroduced a public bracketed state bar."
 
 $identityHelper = Get-Content -LiteralPath (Join-Path $resolvedRoot "scripts/device-identity.ps1") -Raw -Encoding UTF8
 Assert-Contains $identityHelper 'function Get-DeviceIdentityAssessment' "The identity assessment helper is missing."
@@ -687,7 +696,7 @@ Assert-Contains $crossMode 'resume the same\s+experiment loop' "Telemetry cannot
 
 $fixedWorkloads = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/integration/fixed-workloads.md") -Raw -Encoding UTF8
 Assert-Contains $fixedWorkloads 'One-screen experiment card' "One-screen experiment card is missing."
-Assert-Contains $fixedWorkloads 'Template 1: game or interactive workload' "Game workload template is missing."
+Assert-Contains $fixedWorkloads 'workload-record-templates\.md' "The detailed workload-template reference is not routed."
 Assert-Contains $fixedWorkloads 'Explanation \(depth adapted to the user and risk\)' "The experiment card has no adaptive explanation section."
 Assert-Contains $fixedWorkloads 'localized safety notice from SKILL\.md' "The experiment card hard-codes the safety notice language."
 Assert-Contains $fixedWorkloads 'depth adapted to the user and risk' "The experiment card does not adapt explanation depth."
@@ -697,7 +706,15 @@ Assert-Contains $fixedWorkloads 'compact prose by default' "The experiment card 
 Assert-Contains $fixedWorkloads 'A settings card, table, or fenced block is content' "The guidance treats all structured plans as workflow chrome."
 Assert-Contains $fixedWorkloads 'Never place a mode label' "Mode labels are still allowed inside the answer or card."
 Assert-Contains $fixedWorkloads 'Before -> candidate \(same paragraph\)' "The safety notice is not bound to the candidate paragraph."
+Assert-Contains $fixedWorkloads 'repeat-or-diagnose' "Inconclusive experiment results have no repeat-or-diagnose decision."
 Assert-True ($fixedWorkloads -notmatch 'Mode:\s*quick\s*/\s*deep') "The experiment-card template reintroduced a mode field."
+$workloadRecordTemplates = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/integration/workload-record-templates.md") `
+    -Label "references/integration/workload-record-templates.md"
+Assert-Contains $workloadRecordTemplates 'Template 1: game or interactive workload' "Game workload template is missing."
+Assert-Contains $workloadRecordTemplates 'Template 2: synthetic benchmark' "Synthetic workload template is missing."
+Assert-Contains $workloadRecordTemplates 'Template 3: rendering or production workload' "Production workload template is missing."
+Assert-Contains $workloadRecordTemplates 'Template 4: stability check' "Stability-check template is missing."
 
 $success = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/integration/success-and-sensor-semantics.md") -Raw -Encoding UTF8
 Assert-Contains $success 'Goal-specific success' "Goal-specific success criteria are missing."
@@ -791,7 +808,35 @@ foreach ($scenarioHeading in @(
     "49. Thermal pressure changes the automatic variable",
     "74. Usable start stops when good enough",
     "85. Laptop defaults to a correctable stock assumption",
-    "100. GPU memory needs identity, units, and a reporting basis"
+    "100. GPU memory needs identity, units, and a reporting basis",
+    "101. A concept question does not require the tuning gate",
+    "102. A plain symptom routes to the smallest beginner question",
+    "103. XMP or EXPO still needs a stock baseline",
+    "104. MoDT cannot silently inherit the desktop power model",
+    "105. Inconclusive results require repeat or diagnosis",
+    "106. A novice response must not leak internal terminology",
+    "107. A detailed request changes depth, not safety",
+    "108. Detailed does not mean jargon-heavy for a novice",
+    "109. Detailed concept question stays outside tuning intake",
+    "110. Detailed XMP guidance still needs a stock baseline",
+    "111. Detailed laptop power-state comparison is not a stability verdict",
+    "112. Detailed monitoring-help answer must distinguish unavailable from absent",
+    "113. Detailed output still cannot resolve contradictory identity by guessing",
+    "114. Detailed blocked output must not expose stale success fields",
+    "115. Detailed inventory leads with a user summary",
+    "116. Detailed purchase question starts with the actual bottleneck",
+    "117. Detailed explanation cannot outrank physical danger",
+    "118. Detailed bypass request remains a refusal",
+    "119. Detailed request when many gate facts are missing",
+    "120. Detailed comparison of conflicting CSV and screenshot",
+    "121. Detailed candidate still blocks when the current value is missing",
+    "122. Detailed thermal or power bottleneck changes the next variable",
+    "123. Detailed preference purchase does not invent a bottleneck",
+    "124. Detailed interpretation of one screenshot",
+    "125. Detailed review of a clean but ineffective result",
+    "126. Detailed source conflict still needs provenance",
+    "127. Detailed automation request is declined",
+    "128. Detailed recovery request can still be actionable"
 )) {
     Assert-Contains $scenarioDoc ([regex]::Escape("## $scenarioHeading")) "Integrated GPU scenario is missing: $scenarioHeading"
 }

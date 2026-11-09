@@ -154,15 +154,14 @@ without that consent.
 ## Response template
 
 ```text
-[Device identity: Unreadable | Mode: Tuning | Next: Confirm exact model]
-
-The device text cannot be interpreted reliably, so I will not guess the model
-or treat it as confirmed. If this Windows system is available, run the bundled
-read-only collector after choosing standard or privacy-redacted output.
-Otherwise, provide the readable model code from the chassis label or system
-About page. Symptom-first diagnosis can continue now; personalized tuning
-remains blocked until the platform facts that control safety are known.
+我没能可靠识别这台电脑的型号，所以我不会猜，也不会把它当成已确认设备。
+如果这台 Windows 电脑现在能正常使用，我可以先带你做一次只读配置读取；
+你也可以提供机箱标签或系统“关于”页面里的型号。普通的症状排查现在可以继续，
+但涉及型号的个性化超调校会先暂停，直到影响安全的关键信息确认。
 ```
 
+This is the user-facing example. Do not add an internal status bar combining
+identity, mode, and next action; keep state labels internal unless the user is
+reviewing a saved case or explicitly debugging the workflow.
 State why identity matters for the current decision. Do not overstate the same
 warning in unrelated tasks or repeat it on every turn.

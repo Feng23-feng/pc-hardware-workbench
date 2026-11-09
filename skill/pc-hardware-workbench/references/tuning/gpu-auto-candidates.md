@@ -119,6 +119,9 @@ Use `scripts/suggest-gpu-overclock.ps1` when all of the following are known:
 - a verified baseline, stable starting state, and saved recovery;
 - vendor, readable model or family, desktop/laptop form factor, goal, dominant
   limit, and thermal headroom;
+- MoDT may use the desktop-like candidate path only with its board, cooling,
+  exposed power path, and platform limits recorded; `Other` blocks numeric
+  candidates instead of silently becoming Desktop;
 - whether the next control is actually exposed;
 - whether a core/memory control is a direct offset, actual-clock target, curve,
   or mode;

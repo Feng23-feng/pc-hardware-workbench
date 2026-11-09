@@ -5,7 +5,7 @@ param(
     [string]$Vendor,
 
     [Parameter(Mandatory = $true)]
-    [ValidateSet("Desktop", "Laptop")]
+    [ValidateSet("Desktop", "Laptop", "MoDT", "Other")]
     [string]$FormFactor,
 
     [string]$GpuModel = "",
@@ -395,10 +395,21 @@ $modelTokenCount = Get-GpuModelTokenCount -Model $GpuModel
 $consumerModelRecognized = Test-ConsumerGpuClass -VendorName $Vendor -Model $GpuModel
 $targetValidation = Test-GpuTargetComponent -Target $TargetComponent -Model $GpuModel
 
-if ($FormFactor -eq "Desktop") {
+if ($FormFactor -in @("Desktop", "MoDT")) {
     $resolvedPowerLimitState = "not-applicable"
-    $powerLimitMode = "desktop"
-    $powerLimitAssumptionNote = "Desktop power-path behavior is handled separately from laptop power-limit assumptions."
+    $powerLimitMode = if ($FormFactor -eq "MoDT") { "desktop-like-modt" } else { "desktop" }
+    $powerLimitAssumptionNote = if ($FormFactor -eq "MoDT") {
+        "MoDT is treated as a desktop-like control path only for bounded candidate generation; verify the board, cooling, and exposed power path first."
+    }
+    else {
+        "Desktop power-path behavior is handled separately from laptop power-limit assumptions."
+    }
+}
+elseif ($FormFactor -eq "Other") {
+    $resolvedPowerLimitState = "blocked"
+    $powerLimitMode = "blocked"
+    $powerLimitAssumptionNote = "A generic Other form factor has no reliable desktop/laptop control model."
+    $classificationIssues.Add("Other form factor blocks numeric candidate generation; identify Desktop, Laptop, or MoDT and its exposed controls")
 }
 else {
     if ([string]::IsNullOrWhiteSpace($BoardModel)) {
@@ -617,6 +628,7 @@ $result = [ordered]@{
     PriorRuleVersion = $family.PriorRuleVersion
     PriorUnitAssumption = $family.PriorUnitAssumption
     GpuModel = $GpuModel
+    FormFactor = $FormFactor
     BoardModel = $BoardModel
     StockPowerLimitWatts = if ($StockPowerLimitWatts -gt 0) { $StockPowerLimitWatts } else { $null }
     CurrentPowerLimitWatts = if ($CurrentPowerLimitWatts -gt 0) { $CurrentPowerLimitWatts } else { $null }
@@ -658,7 +670,8 @@ $result = [ordered]@{
     PredictedDirection = $null
     ExpectedMagnitude = "unknown"
     ExpectedBenefitBand = "unknown"
-    ExpectedPassLikelihood = "low"
+    ExpectedPassLikelihood = "uncalibrated"
+    PassLikelihoodMeaning = "Qualitative only; no calibrated probability is implied."
     TuningIntent = $TuningIntent
     CandidateType = "experiment-plan"
     CandidateRole = $null
@@ -761,6 +774,7 @@ function Complete-BlockedResult {
     $Value.PowerAcceptable = "Unknown"
     $Value.Artifacts = "Unknown"
     $Value.ExpectedPassLikelihood = "none"
+    $Value.PassLikelihoodMeaning = "No candidate exists while the request is blocked."
     $Value.Change = $null
     $Value.InitialStep = $null
     $Value.FollowupStep = $null
@@ -793,6 +807,13 @@ function Get-ClassificationBlockGuidance {
             Reason = "The readable GPU model conflicts with the selected desktop/laptop form factor."
             Missing = "one consistent GPU model and form factor"
             Action = "Correct whichever is wrong: the GPU model or the desktop/laptop form factor."
+        }
+    }
+    if ($Issue -match 'Other form factor') {
+        return [pscustomobject]@{
+            Reason = "The Other form factor has no reliable automatic GPU constraint model."
+            Missing = "a confirmed Desktop, Laptop, or MoDT form factor"
+            Action = "Identify the actual form factor and its exposed power/cooling controls; Other cannot receive a numeric candidate."
         }
     }
     if ($Issue -match 'laptop power-limit|current laptop power-limit|declared-unlocked laptop') {
@@ -892,14 +913,7 @@ else {
     "Local in-workload baseline only; no repeated pass/fail history is available."
 }
 $result.EvidenceQuality = if ($hasStageEvidence) { "local-pass" } else { "local-baseline" }
-$result.ExpectedPassLikelihood = if ($ThermalHeadroom -eq "Good" -and
-    $consumerModelRecognized -and
-    $BaselineRecorded) {
-    "medium"
-}
-else {
-    "low"
-}
+$result.ExpectedPassLikelihood = "uncalibrated"
 if ($familyKey -match '-Generic$') {
     $result.EvidenceBasis = if ($hasStageEvidence) { "LocalPass + LocalBaseline + GenericRule" } else { "LocalBaseline + GenericRule" }
     $result.Confidence = "very-low"

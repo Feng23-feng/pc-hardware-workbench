@@ -31,7 +31,7 @@ Explore the Workbench and integrated GPU candidate workflow through the recorded
 
 [查看文件星球](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/orrery/)
 
-文件星球把当前 2.6.0 的 105 个 Skill 文件按契约核心、流程、排障、调校、升级、运行脚本和验证网络组织成可旋转、可缩放的三维式总览；文件大小按权重映射，不表示实际文件体积。
+文件星球把当前 2.6.0 的 106 个 Skill 文件按契约核心、流程、排障、调校、升级、运行脚本和验证网络组织成可旋转、可缩放的三维式总览；文件大小按权重映射，不表示实际文件体积。
 
 ## Why this project exists
 

@@ -8,12 +8,13 @@ Do not expose the internal mode names first. Ask what the user wants as an outco
 
 > 你现在最想解决哪件事？
 > 1. 我只想知道这台电脑是什么配置
-> 2. 电脑有故障，比如黑屏、重启、卡顿或过热
-> 3. 我想用监测软件查看温度、频率、功耗等数据，但还没有记录
-> 4. 我有一份监控软件导出的记录，想分析结果
-> 5. 我想超频或降压
-> 6. 我想判断该不该升级
+> 2. 电脑有故障、卡顿、重启或过热
+> 3. 我想调校、降压，或分析监控记录
+> 4. 我想判断该不该升级
 > 0. 我还是不知道，帮我选
+
+If the user already gives a concrete symptom such as “电脑卡” or “游戏掉帧”,
+skip the menu and ask the smallest question that separates the likely route.
 
 Explain only the choice needed for the next step. Ask one question at a time. If the user cannot answer an optional field, state the safe default and continue; do not make them learn jargon before receiving any help.
 
@@ -28,7 +29,7 @@ If a fresh hardware snapshot is already available, reuse it in later tuning or t
 - **Configuration only:** explain the privacy output choice as “只给自己看” versus “要发给别人看”; then use the inventory route after consent.
 - **Fault or instability:** begin with the observable symptom and whether Windows starts. Use the triage route. Stop escalation for burning smell, liquid, arcing, damaged connectors, or visible electrical damage; do not tell the user to keep power-cycling it.
 - **No monitoring record yet:** use the monitoring-software onboarding below. Do not ask the user to select a file or explain CSV columns first.
-- **Monitoring analysis:** before asking for a file, confirm the user has monitoring software and an exported record. If the software is installed but no record exists, teach the HWiNFO Sensors-only logging steps. When the user does not yet have the software installed, also give the download card rules from the HWiNFO section below: mirror order, the advertisement blocks, the network-dependent CDN caveat, and the raw-CSV metadata warning. With a record available, explain that it is commonly a `.csv` file and use the telemetry route. If the user cannot specify warm-up or duration, analyze the whole file and label the result as mixing idle, loading, load, or recovery phases. Do not call a mixed window stable evidence.
+- **Monitoring analysis:** before asking for a file, confirm the user has monitoring software and an exported record. If the software is installed but no record exists, teach the HWiNFO Sensors-only logging steps. When the user does not yet have the software installed, first give only the official download page and the first Installer action; retain the download card rules, mirror order, advertisement warnings, and CDN caveat for later troubleshooting. With a record available, explain that it is commonly a `.csv` file and use the telemetry route. If the user cannot specify warm-up or duration, analyze the whole file and label the result as mixing idle, loading, load, or recovery phases. Do not call a mixed window stable evidence.
 - **Tuning:** explain that a beginner can still inventory and monitor, but no voltage, frequency, timing, power, fan, BIOS, or firmware setting is issued before the exact machine, known-good baseline, fixed workload, and rollback route are known. For a concrete GPU overclock request, read [../tuning/beginner-gpu-auto-oc.md](../tuning/beginner-gpu-auto-oc.md) and assist evidence collection before presenting one user action. If the user does not know another gate item, teach them how to obtain it using the matching section of `references/tuning/intake.md`; do not end with only “not possible.” Prefer quick evidence only after those facts exist.
 - **Purchase:** first classify the goal as functional, capability, repair, preference, or future planning. For a functional need, ask what currently feels inadequate and establish the workload; for an explicit preference purchase, do not invent a performance problem or call “keep” the default.
 
@@ -88,7 +89,14 @@ Translate terms when first needed:
 - CSV -> “监控软件保存成表格的记录，文件名通常以 `.csv` 结尾”;
 - privacy-redacted -> “隐藏型号，适合发给别人”;
 - quick/deep tuning -> “先做一轮简单尝试” / “需要更完整的验证记录”;
-- baseline -> “现在没改设置时是否稳定”;
+- baseline -> “原配置、没改设置时，在同一场景下重复测到的正常表现”;
+- fixed workload -> “同一游戏场景、设置和测试步骤，重复比较前后结果”;
+- thermal headroom -> “温度和散热还剩多少余量”;
+- effective clock -> “实际持续跑到的频率或性能，不是软件里请求的目标值”;
 - rollback -> “出问题时怎么恢复原来的设置”.
+
+Use [explanation-style.md](explanation-style.md) for the fuller user-facing
+glossary and first-occurrence rule. Do not translate a whole glossary at the
+user; explain only the term needed now.
 
 After routing, name the task only when the user could otherwise confuse the current and previous requests. Do not prefix the reply with a mode label, keep calling the user a beginner, or repeat the same explanation in every reply.

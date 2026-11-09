@@ -1,10 +1,10 @@
 ﻿# Fixed workloads and one-screen experiment card
 
-A fixed workload makes before/after comparisons meaningful. Define it once for the user's goal, then reuse it for the stock and candidate rounds.
+Define one fixed workload and reuse it for both rounds.
 
 ## Required fixed conditions
 
-Record only conditions relevant to the workload:
+Record only relevant conditions:
 
 - exact application/game and version or build;
 - GPU driver and tuning-tool version;
@@ -18,77 +18,9 @@ Record only conditions relevant to the workload:
 
 Do not change an unrelated test condition between baseline and candidate. If it must change, mark the comparison as inconclusive and repeat the baseline.
 
-## Template 1: game or interactive workload
-
-```text
-Workload ID:
-Game and build:
-Store/launcher:
-Resolution and refresh:
-Window/fullscreen:
-Graphics preset:
-RT/upscaling/frame generation:
-V-Sync/VRR/frame cap:
-Fan/power mode:
-Cooling baseline:
-Official/measured power envelope:
-Noise measurement:
-AC/battery and ambient:
-Relevant background apps:
-Warm-up:
-Start point and route:
-Sample duration:
-Primary metric:
-Guard metrics:
-Known failure signs:
-```
-
-Use a save point, replay, fixed route, benchmark scene, or training mode that the user can reproduce. Record frame time or minimum/percentile FPS when available.
-
-## Template 2: synthetic benchmark
-
-```text
-Benchmark name and exact version:
-Preset/resolution:
-Run count:
-Score:
-Minimum/average FPS or frame time:
-GPU/CPU behavior:
-Temperatures/power/clocks:
-Errors or artifacts:
-```
-
-A synthetic result is evidence for that benchmark, not proof of general application or daily stability.
-
-## Template 3: rendering or production workload
-
-```text
-Application and version:
-Project or representative sample:
-Render/export/compile settings:
-Caches or shader state:
-Input/export duration:
-Warm-up:
-Measured wall time or throughput:
-Power/temperature/clocks:
-Errors or correctness check:
-```
-
-Use a non-sensitive sample when the record will be shared.
-
-## Template 4: stability check
-
-```text
-Tool and version:
-Test mode/resolution:
-Duration:
-Pass criteria:
-Artifacts/errors:
-Maximum temperature/power/clock behavior:
-Recovery observed:
-```
-
-The stress check supports one round. It does not replace the target workload, reboot, sleep/wake, or normal-use validation.
+For a deep record, read
+[workload-record-templates.md](workload-record-templates.md) only when the user
+needs the full game, synthetic, production, or stability template.
 
 ## One-screen experiment card
 
@@ -96,7 +28,7 @@ Use this before the user applies a candidate. Present the required information
 as compact prose by default. When the user asks for a plan, card, or comparison,
 a compact table, card, or fenced block is valid content.
 
-For the beginner GPU route, use the smaller user-facing card in
+For the beginner GPU route, use the compact card in
 `references/tuning/beginner-gpu-auto-oc.md`. This full template is a data
 checklist, not a form to dump on a novice.
 
@@ -115,13 +47,15 @@ Expected improvement:
 Pass criteria:
 Abort signals:
 Rollback:
-Required persistence: session-only / reboot-verified / daily-verified
+Required persistence: test-only / survives reboot / normal-use validated
 Sensor limitations:
 Noise measurement limitations:
-Decision after test: keep / continue / revert / stop
+Decision after test: keep / continue / repeat-or-diagnose / revert / stop
 ```
 
-For quick mode, fill the smallest useful set. For deep mode, attach the workload record and telemetry summary.
+Quick mode uses the smallest useful set; deep mode also attaches the record.
+
+Inconclusive -> repeat-or-diagnose; do not force a final decision.
 
 A settings card, table, or fenced block is content when the user asked for a
 plan, a card, or a comparison; keep it. Never place a mode label (`模式：X`,

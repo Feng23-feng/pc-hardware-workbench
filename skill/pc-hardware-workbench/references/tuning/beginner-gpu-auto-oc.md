@@ -129,9 +129,10 @@ only when telemetry cannot establish them, using a short prompt such as:
 
 > 这一轮画面正常吗？有没有花屏、闪烁、黑屏、驱动报错，或者比原来更卡？
 
-Then state keep, continue, revert, or stop, with the reason in one or two
-sentences. If continuing, present exactly one next action. If evidence is
-inconclusive, repeat the same baseline or stop; do not raise the value to
+Then state keep, continue, repeat/diagnose, revert, or stop, with the reason in
+one or two sentences. If continuing, present exactly one next action. If
+evidence is inconclusive, repeat the same baseline or stop; do not force the
+result into keep/continue just to move forward and do not raise the value to
 “make the result clearer.”
 
 For a request for a practical first candidate or daily-use goal, read
@@ -146,7 +147,7 @@ just because the core value did not crash.
 | Missing input | Beginner response |
 | --- | --- |
 | GPU or laptop model | Offer read-only inventory; accept a cropped system or GPU utility screenshot if collection is declined. |
-| Tuning tool or current offset | Ask for a cropped screenshot of the relevant control; do not guess from the model. |
+| Tuning tool or current setting value | Ask for a cropped screenshot of the relevant control; do not guess from the model. |
 | Recovery route | Stop tuning and guide the user to the visible default/restore control; do not accept “I accept the risk” as a substitute. |
 | Repeatable workload | Choose a built-in game benchmark or a saved game route; explain the choice before asking. |
 | Monitoring record | Help create one HWiNFO Sensors-only CSV rather than asking the user to interpret columns. |
@@ -171,10 +172,14 @@ just because the core value did not crash.
 
 Use one short result sentence, then one action. Translate terms in context:
 
-- baseline: “这台电脑目前没改设置时的正常表现”;
+- baseline: “原配置、没改设置时，在同一场景下重复测到的正常表现”;
 - offset: “现在设置值向上或向下加多少”;
 - dominant limit: “现在主要卡在功耗还是温度”;
 - rollback: “出问题时点哪里恢复原样”.
+
+For the fuller glossary and first-occurrence rule, read
+[explanation-style.md](../integration/explanation-style.md). Do not expose
+internal JSON fields or numbers-to-remember status labels in a beginner reply.
 
 Do not keep calling the user a beginner, dump a questionnaire, repeat the
 safety model, or require a quiz. If the user becomes more comfortable, reduce

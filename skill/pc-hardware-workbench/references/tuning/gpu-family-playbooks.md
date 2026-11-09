@@ -5,6 +5,9 @@ laptop form factor, exposed controls, and a stable local baseline. A family
 prior narrows the next experiment; it never replaces local measurements. Do not
 describe a public-range number or an automatic boundary as a safe maximum.
 
+MoDT uses a desktop-like control path only after the board, cooling, and power
+path are verified; `Other` form factors receive no automatic numeric candidate.
+
 ## Two layers
 
 Keep these layers separate:
@@ -33,8 +36,9 @@ Prefer evidence in this order:
 4. a conservative same-vendor family prior;
 5. a generic conservative rule.
 
-The helper currently uses layers 2, 4, and 5; its `EvidenceBasis` field makes
-that explicit. It must not imply layer 1 or 3 without the corresponding record.
+The helper uses layers 2 and 4 for a numeric candidate; layer 5 is not a numeric
+fallback. Its `EvidenceBasis` field makes the distinction explicit, and it must
+not imply layer 1 or 3 without the corresponding record.
 
 ## Prior provenance
 

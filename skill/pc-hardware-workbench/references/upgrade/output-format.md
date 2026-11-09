@@ -76,6 +76,13 @@ require a fabricated bottleneck or an already-tested non-purchase remedy.
 
 ## Inventory-only output
 
+For a general or novice reader, lead with a five-line summary: system,
+CPU, GPU, memory, and storage. Then provide only the technical detail needed for
+the user's stated next decision. Keep PnP state, EDID, DXGI color-space,
+advanced-color-pipeline, and similar audit fields in a secondary detail layer;
+do not place them in the first screen unless they change the answer or the user
+explicitly asks for a full inventory.
+
 When the user only asked to inspect the local hardware, use one consolidated response:
 
 ```markdown

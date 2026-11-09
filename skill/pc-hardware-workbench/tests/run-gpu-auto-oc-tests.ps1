@@ -754,7 +754,8 @@ Assert-True ($ada.TuningIntent -eq "usable-start") "The default tuning intent sh
 Assert-True ($ada.CandidateRole -eq "usable-start") "A first consumer candidate should be labelled usable-start."
 Assert-True ($null -ne $ada.FallbackCandidate) "A ready first candidate must include a fallback."
 Assert-True ($ada.StopWhenGoodEnough -eq $true) "usable-start should stop after a good-enough result."
-Assert-True ($ada.ExpectedPassLikelihood -eq "medium") "A recognized family with good thermal evidence should use medium qualitative pass likelihood."
+Assert-True ($ada.ExpectedPassLikelihood -eq "uncalibrated") "Pass likelihood must remain explicitly uncalibrated."
+Assert-True ($ada.PassLikelihoodMeaning -match 'no calibrated probability') "Pass likelihood must explain that no probability is implied."
 Assert-True ($ada.ExpectedMagnitude -eq "unknown") "No calibrated history may claim a numeric expected magnitude."
 
 $keepParams = $adaParams.Clone()
@@ -1107,6 +1108,19 @@ $desktopPower = Invoke-Suggestion $desktopPowerParams
 Assert-True ($desktopPower.PowerLimitModificationState -eq "not-applicable") "Desktop cards must not enter the laptop power-limit state machine."
 Assert-True ($desktopPower.PowerLimitMode -eq "desktop") "Desktop cards must keep the desktop power mode."
 Assert-True ($null -eq $desktopPower.StockPowerLimitWatts) "A desktop request must not invent a laptop stock watt limit."
+
+$modtParams = $base.Clone()
+$modtParams.FormFactor = "MoDT"
+$modt = Invoke-Suggestion $modtParams
+Assert-True ($modt.Status -eq "Ready") "MoDT should use the desktop-like candidate path after the same gate."
+Assert-True ($modt.PowerLimitMode -eq "desktop-like-modt") "MoDT must not be silently relabeled as Desktop."
+Assert-True ($modt.PowerLimitAssumptionNote -match 'board, cooling, and exposed power path') "MoDT must retain its platform caveat."
+
+$otherFormFactorParams = $base.Clone()
+$otherFormFactorParams.FormFactor = "Other"
+$otherFormFactor = Invoke-Suggestion $otherFormFactorParams
+Assert-BlockedContract $otherFormFactor "Other form factor"
+Assert-True ($otherFormFactor.Reason -match 'Other form factor') "Other form factor should receive an explicit blocker."
 
 $firstRoundCoreCandidates = @(
     $core,

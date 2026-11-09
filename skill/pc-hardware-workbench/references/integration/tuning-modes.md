@@ -4,7 +4,9 @@ Tuning has one entry. Offer the two operating depths only after the user has cho
 
 ## How to choose
 
-Use **quick mode** by default when the user wants a practical daily profile, asks for a first experiment, or does not want a long measurement campaign.
+Use **quick mode** by default when the user wants a practical first candidate,
+states a daily-use goal, asks for a first experiment, or does not want a long
+measurement campaign. A quick pass is not a daily-validated profile.
 
 Use **deep mode** when the user wants the highest repeatable profile, a benchmark-only result, a hard-to-reproduce failure, a formal comparison, or explicitly asks for extensive records.
 
@@ -16,7 +18,7 @@ Cooling context is collected only after inventory establishes the device form an
 
 ### Vendor-profile fast path
 
-When the request is only to enable an official one-toggle profile such as XMP, EXPO, or a vendor performance mode, use a compact setup plan instead of a full deep-tuning record. Confirm that the system currently boots reliably and that the user can restore BIOS defaults or clear CMOS if necessary. Give one toggle, its action/analogy/consequence, the expected gain, the failure signals, the recovery route, and a short reboot plus representative-workload check. Do not turn this into permission to stack manual timings, voltage offsets, or benchmark-only profiles. If the machine fails to boot, revert instead of forcing it through.
+When the request is only to enable an official one-toggle profile such as XMP, EXPO, or a vendor performance mode, use a compact setup plan instead of a full deep-tuning record. First record the stock/known-good boot state, a repeatable target-workload result, and the recovery route; without a stock workload result, do not enable the profile yet. Confirm that the system currently boots reliably and that the user can restore BIOS defaults or clear CMOS if necessary. Give one toggle, its action/analogy/consequence, the expected gain, the failure signals, the recovery route, and a short reboot plus representative-workload check. Do not turn this into permission to stack manual timings, voltage offsets, or benchmark-only profiles. If the machine fails to boot, revert instead of forcing it through.
 
 This fast path is inside the normal tuning gate, not a bypass. Its single “experiment unit” is the complete vendor profile, not each frequency, timing, and voltage it changes. Attribute a result to the profile as a whole; do not claim a specific timing or voltage caused the improvement. If the prerequisite gate facts are missing, teach the user how to obtain them before applying the profile.
 

@@ -191,6 +191,11 @@
       "role": "固定负载与实验卡",
       "summary": "定义单变量实验的基线、通过、中止、回滚和持久化目标。"
     },
+    "references/integration/workload-record-templates.md": {
+      "cluster": "integration/evidence",
+      "role": "按需详细工作负载模板",
+      "summary": "仅在需要详细实验记录、深入验证或显式模板时加载；Quick 首屏继续使用简版卡片。"
+    },
     "references/integration/lhm-adapter.md": {
       "cluster": "integration/evidence",
       "role": "LHM 只读适配",
