@@ -114,21 +114,41 @@
           </g>
 
           <g class="dse-crt-scene" data-scene="gpu">
-            <g class="dse-crt-scene-lines" data-crt-reveal transform="translate(58 0)">
-              <path d="M318 180H982Q1010 180 1010 208V452Q1010 480 982 480H318Q290 480 290 452V208Q290 180 318 180Z"></path>
-              <path d="M248 204V456H290M248 238H290M248 422H290"></path>
-              <path d="M330 480H808V496H330Z"></path>
-              <path d="M700 152H812V180M826 160H924V180"></path>
-              <path d="M710 159V175M722 159V175M734 159V175M746 159V175M758 159V175M770 159V175M782 159V175M794 159V175"></path>
-              <circle cx="402" cy="330" r="104"></circle>
-              <circle cx="650" cy="330" r="104"></circle>
-              <circle cx="898" cy="330" r="104"></circle>
-              <circle cx="402" cy="330" r="97"></circle>
-              <circle cx="650" cy="330" r="97"></circle>
-              <circle cx="898" cy="330" r="97"></circle>
-              <use href="#dseCrtGpuFanRotor" transform="translate(402 330)"></use>
-              <use href="#dseCrtGpuFanRotor" transform="translate(650 330)"></use>
-              <use href="#dseCrtGpuFanRotor" transform="translate(898 330)"></use>
+            <g class="dse-crt-scene-lines" data-crt-reveal transform="translate(-20 0)">
+              <path class="dse-crt-gpu-shell" d="M304 178H968L1008 216V430L988 470H328L292 438V216Z"></path>
+              <path class="dse-crt-gpu-panel" d="M312 198H958L986 228V418L970 450H340L314 426V228Z"></path>
+              <path class="dse-crt-gpu-shell" d="M276 208V458H244V422H262V248H244V218Z"></path>
+              <path class="dse-crt-gpu-detail" d="M274 234H322M274 416H326"></path>
+
+              <path class="dse-crt-gpu-accent-fill" d="M370 190H486L502 204H386Z"></path>
+              <path class="dse-crt-gpu-accent-fill" d="M538 190H654L670 204H554Z"></path>
+              <path class="dse-crt-gpu-accent-fill" d="M704 190H850L880 210H730Z"></path>
+              <path class="dse-crt-gpu-detail" d="M676 178 704 206M888 184H952L980 208"></path>
+              <path class="dse-crt-gpu-detail" d="M920 212V230M934 212V230M948 212V230M962 212V230M976 212V230"></path>
+
+              <path class="dse-crt-gpu-detail" d="M324 222H348L326 250H306Z"></path>
+              <path class="dse-crt-gpu-detail" d="M498 204 532 234V264M724 204 752 232V260"></path>
+              <path class="dse-crt-gpu-detail" d="M518 402 536 424H506M734 402 754 424H724"></path>
+              <path class="dse-crt-gpu-metal" d="M766 226 810 198H870M932 198H968L990 220"></path>
+              <path class="dse-crt-gpu-metal" d="M766 430 806 450H864M930 450H968L990 430"></path>
+
+              <circle class="dse-crt-gpu-well" cx="410" cy="326" r="106"></circle>
+              <circle class="dse-crt-gpu-ring" cx="410" cy="326" r="106"></circle>
+              <circle class="dse-crt-gpu-detail" cx="410" cy="326" r="98"></circle>
+              <circle class="dse-crt-gpu-well" cx="630" cy="326" r="106"></circle>
+              <circle class="dse-crt-gpu-ring" cx="630" cy="326" r="106"></circle>
+              <circle class="dse-crt-gpu-detail" cx="630" cy="326" r="98"></circle>
+              <circle class="dse-crt-gpu-well" cx="862" cy="326" r="115"></circle>
+              <circle class="dse-crt-gpu-ring dse-crt-gpu-metal" cx="862" cy="326" r="115"></circle>
+              <circle class="dse-crt-gpu-ring" cx="862" cy="326" r="106"></circle>
+              <circle class="dse-crt-gpu-detail" cx="862" cy="326" r="96"></circle>
+              <use href="#dseCrtGpuFanRotor" transform="translate(410 326)"></use>
+              <use href="#dseCrtGpuFanRotor" transform="translate(630 326)"></use>
+              <use href="#dseCrtGpuFanRotor" transform="translate(862 326) scale(1.035)"></use>
+
+              <path class="dse-crt-gpu-detail" d="M336 438V456M346 438V456M356 438V456M944 438V456M954 438V456M964 438V456"></path>
+              <path class="dse-crt-gpu-accent-fill" d="M352 470H568V490H544V498H516V490H388V498H352Z"></path>
+              <path class="dse-crt-gpu-detail" d="M532 470V490M586 470H628V480H586Z"></path>
             </g>
           </g>
 
@@ -277,7 +297,7 @@
     root.prepend(backdrop);
 
     document.getElementById("dseCrtGpuFanBlade")
-      .setAttribute("d", createFanBlade(24, 93, 34, 5, 14));
+      .setAttribute("d", createFanBlade(24, 96, 48, 4, 12));
     document.getElementById("dseCrtCaseFanBlade")
       .setAttribute("d", createFanBlade(32, 158, 36, 6, 16));
 

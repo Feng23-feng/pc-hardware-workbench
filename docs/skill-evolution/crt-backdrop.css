@@ -109,6 +109,47 @@
   vector-effect: non-scaling-stroke;
 }
 
+#dse-crt-backdrop .dse-crt-gpu-shell {
+  stroke: rgba(115, 214, 165, .34);
+  stroke-linejoin: round;
+}
+
+#dse-crt-backdrop .dse-crt-gpu-panel {
+  fill: rgba(160, 242, 199, .014);
+  stroke: rgba(115, 214, 165, .18);
+  stroke-linejoin: round;
+}
+
+#dse-crt-backdrop .dse-crt-gpu-detail {
+  stroke: rgba(115, 214, 165, .17);
+  stroke-linecap: round;
+}
+
+#dse-crt-backdrop .dse-crt-gpu-ring {
+  stroke: rgba(115, 214, 165, .3);
+}
+
+#dse-crt-backdrop .dse-crt-gpu-well {
+  fill: rgba(160, 242, 199, .018);
+  stroke: rgba(115, 214, 165, .14);
+}
+
+#dse-crt-backdrop .dse-crt-gpu-metal {
+  fill: rgba(160, 242, 199, .045);
+  stroke: rgba(160, 242, 199, .4);
+}
+
+#dse-crt-backdrop .dse-crt-gpu-accent {
+  stroke: rgba(160, 242, 199, .42);
+  stroke-linecap: round;
+}
+
+#dse-crt-backdrop .dse-crt-gpu-accent-fill {
+  fill: rgba(160, 242, 199, .045);
+  stroke: rgba(160, 242, 199, .46);
+  stroke-linejoin: round;
+}
+
 #dse-crt-backdrop .dse-crt-ecliptic {
   stroke: rgba(160, 242, 199, .3);
   stroke-dasharray: 4 8;

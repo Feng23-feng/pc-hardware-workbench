@@ -6206,6 +6206,109 @@
       content: "";
     }
 
+    #dse-root .dse-hero-result {
+      width: 100%;
+      max-width: 820px;
+      margin: 30px auto 0;
+      padding: 0;
+    }
+
+    #dse-root .dse-hero-result figcaption {
+      display: grid;
+      grid-template-columns: minmax(24px, 1fr) auto minmax(24px, 1fr);
+      align-items: center;
+      gap: 12px;
+      color: #7f8992;
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 400;
+      line-height: 1.5;
+      letter-spacing: .02em;
+    }
+
+    #dse-root .dse-hero-result figcaption::before,
+    #dse-root .dse-hero-result figcaption::after {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #343c44);
+      content: "";
+    }
+
+    #dse-root .dse-hero-result figcaption::after {
+      background: linear-gradient(90deg, #343c44, transparent);
+    }
+
+    #dse-root .dse-hero-result-flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+      color: #abb3bb;
+      font-size: 12px;
+      line-height: 1.55;
+      white-space: nowrap;
+    }
+
+    #dse-root .dse-hero-result-pair {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #dse-root .dse-hero-result-step,
+    #dse-root .dse-hero-result-next {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    #dse-root .dse-hero-result-step::before,
+    #dse-root .dse-hero-result-next::before {
+      flex: none;
+      width: 5px;
+      height: 5px;
+      background: #69737d;
+      border: 1px solid #69737d;
+      border-radius: 50%;
+      content: "";
+    }
+
+    #dse-root .dse-hero-result-step[data-tone="read"]::before {
+      background: var(--dse-cyan);
+      border-color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-hero-result-step[data-tone="gap"] {
+      color: #c7b184;
+    }
+
+    #dse-root .dse-hero-result-step[data-tone="gap"]::before {
+      background: transparent;
+      border-color: var(--dse-amber);
+    }
+
+    #dse-root .dse-hero-result-next {
+      color: #e4e9ec;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-hero-result-next::before {
+      background: var(--dse-lime);
+      border-color: var(--dse-lime);
+    }
+
+    #dse-root .dse-hero-result-inline-arrow,
+    #dse-root .dse-hero-result-arrow {
+      color: #59636c;
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      font-weight: 400;
+    }
+
+    #dse-root .dse-hero-result + .dse-hero-safety {
+      margin-top: 18px;
+    }
+
     #dse-root .dse-section-continue {
       display: flex;
       align-items: center;
@@ -6889,6 +6992,27 @@
 
       #dse-root .dse-hero-status a {
         min-height: 44px;
+      }
+
+      #dse-root .dse-hero-result {
+        margin-top: 26px;
+      }
+
+      #dse-root .dse-hero-result-flow {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        justify-items: start;
+        gap: 7px;
+        margin-top: 9px;
+        text-align: left;
+      }
+
+      #dse-root .dse-hero-result-arrow {
+        display: none;
+      }
+
+      #dse-root .dse-hero-result + .dse-hero-safety {
+        margin-top: 16px;
       }
 
       #dse-root .dse-about,
@@ -8071,6 +8195,20 @@
         <nav class="dse-hero-actions" aria-label="主要入口">
           <a class="dse-hero-action primary" href="#dse-home-flow">选择你要做的事</a>
         </nav>
+        <figure class="dse-hero-result" aria-labelledby="dse-hero-result-label">
+          <figcaption id="dse-hero-result-label">示例结果</figcaption>
+          <div class="dse-hero-result-flow">
+            <span class="dse-hero-result-pair">
+              <span class="dse-hero-result-step">游戏偶发卡顿</span>
+              <span class="dse-hero-result-inline-arrow" aria-hidden="true">→</span>
+              <span class="dse-hero-result-step" data-tone="read">已读取配置</span>
+            </span>
+            <span class="dse-hero-result-arrow" aria-hidden="true">→</span>
+            <span class="dse-hero-result-step" data-tone="gap">还缺同场景帧时间记录</span>
+            <span class="dse-hero-result-arrow" aria-hidden="true">→</span>
+            <strong class="dse-hero-result-next">下一步：固定设置复测</strong>
+          </div>
+        </figure>
         <p class="dse-hero-safety">只读取你允许的信息。页面提供判断和测试计划，不会自动修改硬件。</p>
       </div>
     </header>
