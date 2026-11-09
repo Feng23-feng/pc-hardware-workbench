@@ -6,6 +6,7 @@
   <meta name="color-scheme" content="dark">
   <meta name="description" content="PC Hardware Workbench 2.5.0 advanced tools: terminology, tuning, triage, baseline identity and evidence.">
   <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../crt-backdrop.css">
 
   <title>&#39640;&#32423;&#27169;&#24335; &#183; pc-hardware-workbench</title>
 </head>
@@ -31,6 +32,20 @@
       --dse-lime: #a6d7a2;
       --dse-amber: #d8b47a;
       --dse-red: #dc838b;
+      --dse-cyan-rgb: 129 207 223;
+      --dse-magenta-rgb: 215 149 185;
+      --dse-lime-rgb: 166 215 162;
+      --dse-amber-rgb: 216 180 122;
+      --dse-red-rgb: 220 131 139;
+      --dse-white-rgb: 255 255 255;
+      --dse-black-rgb: 0 0 0;
+      --dse-surface-deep: #0a0c0e;
+      --dse-surface-control: #15181b;
+      --dse-text-strong: #eef2f4;
+      --dse-text-muted-soft: #8b929c;
+      --dse-text-faint: #7f8790;
+      --dse-line-soft: #292e34;
+      --dse-line-strong: #343941;
       --dse-action-height: 44px;
       --dse-action-font: 15px;
       --dse-control-font: 14px;
@@ -85,7 +100,7 @@
       color: var(--dse-cyan);
       font-size: 11px;
       letter-spacing: .14em;
-      text-transform: uppercase;
+      text-transform: none;
     }
 
     #dse-root h1 {
@@ -120,7 +135,7 @@
       background: rgba(8, 16, 26, .88);
       border: 1px solid #223142;
       border-radius: 12px;
-      box-shadow: 0 14px 34px rgba(0, 0, 0, .2);
+      box-shadow: 0 14px 34px rgb(var(--dse-black-rgb) / .2);
     }
 
     #dse-root .dse-intro-kicker {
@@ -236,23 +251,23 @@
       width: 5px;
       height: 5px;
       background: var(--dse-cyan);
-      box-shadow: 0 0 8px var(--dse-cyan);
+      box-shadow: none;
     }
 
     #dse-root .dse-chip.prototype::before {
       background: var(--dse-magenta);
-      box-shadow: 0 0 8px var(--dse-magenta);
+      box-shadow: none;
     }
 
     #dse-root .dse-chip.next::before {
       background: var(--dse-amber);
-      box-shadow: 0 0 8px var(--dse-amber);
+      box-shadow: none;
     }
 
     #dse-root .dse-chip.triage::before,
     #dse-root .dse-chip.demo::before {
       background: var(--dse-lime);
-      box-shadow: 0 0 8px var(--dse-lime);
+      box-shadow: none;
     }
 
     #dse-root .dse-toolbar {
@@ -347,7 +362,7 @@
       width: 6px;
       height: 6px;
       background: currentColor;
-      box-shadow: 0 0 7px currentColor;
+      box-shadow: none;
     }
 
     #dse-root .dse-tracks {
@@ -376,15 +391,15 @@
     }
 
     #dse-root .dse-track.core {
-      box-shadow: inset 0 2px 0 rgba(73, 230, 255, .42);
+      box-shadow: inset 0 1px 0 rgb(var(--dse-white-rgb) / .08);
     }
 
     #dse-root .dse-track.prototype {
-      box-shadow: inset 0 2px 0 rgba(255, 85, 184, .48);
+      box-shadow: inset 0 1px 0 rgb(var(--dse-white-rgb) / .08);
     }
 
     #dse-root .dse-track.triage {
-      box-shadow: inset 0 2px 0 rgba(156, 255, 87, .46);
+      box-shadow: inset 0 1px 0 rgb(var(--dse-white-rgb) / .08);
     }
 
     #dse-root .dse-track-head {
@@ -400,7 +415,7 @@
       color: var(--dse-muted);
       font-size: 8px;
       letter-spacing: .12em;
-      text-transform: uppercase;
+      text-transform: none;
     }
 
     #dse-root .dse-track h2 {
@@ -462,18 +477,18 @@
       text-align: left;
       background: rgba(6, 15, 26, .96);
       border: 1px solid #1d4057;
-      box-shadow: inset 2px 0 0 #276079;
+      box-shadow: none;
       transition: opacity .16s ease, border-color .16s ease, box-shadow .16s ease;
     }
 
     #dse-root .dse-track.prototype .dse-node {
       border-color: rgba(143, 53, 113, .6);
-      box-shadow: inset 2px 0 0 var(--dse-magenta);
+      box-shadow: none;
     }
 
     #dse-root .dse-track.triage .dse-node {
       border-color: rgba(95, 145, 53, .62);
-      box-shadow: inset 2px 0 0 var(--dse-lime);
+      box-shadow: none;
     }
 
     #dse-root .dse-node::before {
@@ -486,32 +501,32 @@
       background: #06111c;
       border: 1px solid var(--dse-cyan);
       transform: rotate(45deg);
-      box-shadow: 0 0 9px rgba(73, 230, 255, .2);
+      box-shadow: none;
     }
 
     #dse-root .dse-track.prototype .dse-node::before {
       border-color: var(--dse-magenta);
-      box-shadow: 0 0 9px rgba(255, 85, 184, .2);
+      box-shadow: none;
     }
 
     #dse-root .dse-track.triage .dse-node::before {
       border-color: var(--dse-lime);
-      box-shadow: 0 0 9px rgba(156, 255, 87, .2);
+      box-shadow: none;
     }
 
     #dse-root .dse-node.is-selected {
       border-color: var(--dse-cyan);
-      box-shadow: inset 2px 0 0 var(--dse-cyan), 0 0 18px rgba(73, 230, 255, .18);
+      box-shadow: none;
     }
 
     #dse-root .dse-track.prototype .dse-node.is-selected {
       border-color: var(--dse-magenta);
-      box-shadow: inset 2px 0 0 var(--dse-magenta), 0 0 18px rgba(255, 85, 184, .18);
+      box-shadow: none;
     }
 
     #dse-root .dse-track.triage .dse-node.is-selected {
       border-color: var(--dse-lime);
-      box-shadow: inset 2px 0 0 var(--dse-lime), 0 0 18px rgba(156, 255, 87, .16);
+      box-shadow: none;
     }
 
     #dse-root .dse-node.is-dimmed {
@@ -596,7 +611,7 @@
       text-align: center;
       font: inherit;
       cursor: pointer;
-      box-shadow: 0 0 20px rgba(255, 198, 90, .1);
+      box-shadow: none;
     }
 
     #dse-root .dse-merge-kicker {
@@ -630,7 +645,7 @@
       border: 1px solid #223b4f;
       border-left: 2px solid var(--dse-cyan);
       border-radius: 12px;
-      box-shadow: 0 16px 34px rgba(0, 0, 0, .22);
+      box-shadow: 0 16px 34px rgb(var(--dse-black-rgb) / .22);
     }
 
     #dse-root .dse-detail[hidden],
@@ -658,7 +673,7 @@
       width: 62px;
       height: 2px;
       background: var(--dse-amber);
-      box-shadow: 0 0 10px var(--dse-amber);
+      box-shadow: none;
     }
 
     #dse-root .dse-detail-kicker {
@@ -666,7 +681,7 @@
       color: var(--dse-cyan);
       font-size: 7px;
       letter-spacing: .15em;
-      text-transform: uppercase;
+      text-transform: none;
     }
 
     #dse-root .dse-detail.prototype .dse-detail-kicker {
@@ -801,7 +816,7 @@
       color: var(--dse-muted);
       font-size: 8px;
       letter-spacing: .1em;
-      text-transform: uppercase;
+      text-transform: none;
     }
 
     #dse-root .dse-value {
@@ -1012,14 +1027,14 @@
       color: #031116;
       background: var(--dse-cyan);
       border-color: var(--dse-cyan);
-      box-shadow: 0 0 14px rgba(73, 230, 255, .2);
+      box-shadow: none;
     }
 
     #dse-root .dse-version.prototype.is-selected {
       color: #180611;
       background: var(--dse-magenta);
       border-color: var(--dse-magenta);
-      box-shadow: 0 0 14px rgba(255, 85, 184, .2);
+      box-shadow: none;
     }
 
     #dse-root .dse-version-code {
@@ -1062,7 +1077,7 @@
       border: 1px solid #223b4f;
       border-left: 2px solid var(--dse-cyan);
       border-radius: 12px;
-      box-shadow: 0 16px 34px rgba(0, 0, 0, .22);
+      box-shadow: 0 16px 34px rgb(var(--dse-black-rgb) / .22);
     }
 
     #dse-root .dse-version-detail.prototype {
@@ -1074,7 +1089,7 @@
       color: var(--dse-cyan);
       font-size: 7px;
       letter-spacing: .15em;
-      text-transform: uppercase;
+      text-transform: none;
     }
 
     #dse-root .dse-version-detail.prototype .dse-version-detail-kicker {
@@ -1297,7 +1312,7 @@
       color: var(--dse-cyan);
       font-size: 8px;
       letter-spacing: .1em;
-      text-transform: uppercase;
+      text-transform: none;
     }
 
     #dse-root .dse-term-rail.branch .dse-term-rail-label {
@@ -1399,7 +1414,7 @@
       color: var(--dse-cyan);
       font-size: 8px;
       letter-spacing: .1em;
-      text-transform: uppercase;
+      text-transform: none;
     }
 
     #dse-root .dse-term-detail h4 {
@@ -1509,7 +1524,7 @@
     #dse-root .dse-scenario[aria-pressed="true"] {
       color: var(--dse-text);
       border-color: var(--dse-cyan);
-      box-shadow: inset 2px 0 0 var(--dse-cyan);
+      box-shadow: none;
     }
 
     #dse-root .dse-state-rail {
@@ -1540,7 +1555,7 @@
       color: var(--dse-text);
       border-color: rgba(73, 230, 255, .58);
       border-top-color: var(--dse-cyan);
-      box-shadow: 0 0 16px rgba(73, 230, 255, .1);
+      box-shadow: none;
     }
 
     #dse-root .dse-state-node.is-warning,
@@ -1672,7 +1687,7 @@
       color: var(--dse-muted);
       font-size: 8px;
       letter-spacing: .08em;
-      text-transform: uppercase;
+      text-transform: none;
     }
 
     #dse-root .dse-lifecycle-events {
@@ -1730,17 +1745,17 @@
 
     #dse-root .dse-gate-output[data-tone="stop"] {
       border-color: rgba(255, 98, 108, .62);
-      box-shadow: inset 2px 0 0 var(--dse-red);
+      box-shadow: none;
     }
 
     #dse-root .dse-gate-output[data-tone="blocked"] {
       border-color: rgba(255, 198, 90, .55);
-      box-shadow: inset 2px 0 0 var(--dse-amber);
+      box-shadow: none;
     }
 
     #dse-root .dse-gate-output[data-tone="ready"] {
       border-color: rgba(156, 255, 87, .5);
-      box-shadow: inset 2px 0 0 var(--dse-lime);
+      box-shadow: none;
     }
 
     #dse-root .dse-gate-title {
@@ -1923,8 +1938,8 @@
         linear-gradient(rgba(73, 230, 255, .25) 1px, transparent 1px),
         linear-gradient(90deg, rgba(73, 230, 255, .25) 1px, transparent 1px);
       background-size: 22px 22px;
-      -webkit-mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
-      mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
+      -webkit-mask-image: linear-gradient(to bottom, transparent, rgb(var(--dse-black-rgb)) 18%, rgb(var(--dse-black-rgb)) 82%, transparent);
+      mask-image: linear-gradient(to bottom, transparent, rgb(var(--dse-black-rgb)) 18%, rgb(var(--dse-black-rgb)) 82%, transparent);
     }
 
     #dse-root .dse-compare-spine {
@@ -2043,7 +2058,7 @@
 
     #dse-root .dse-compare-audit-item.is-present::before {
       background: var(--dse-lime);
-      box-shadow: 0 0 8px rgba(156, 255, 87, .5);
+      box-shadow: none;
     }
 
     #dse-root .dse-compare-audit-note {
@@ -2170,7 +2185,7 @@
       color: var(--dse-text);
       background: #091827;
       border: 1px solid var(--dse-cyan);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, .35), 0 0 18px rgba(73, 230, 255, .12);
+      box-shadow: 0 10px 25px rgb(var(--dse-black-rgb) / .35), 0 0 18px rgba(73, 230, 255, .12);
       font: inherit;
       font-size: 9px;
       letter-spacing: .08em;
@@ -2252,7 +2267,7 @@
     #dse-root h1 {
       font-size: 40px;
       font-weight: 600;
-      letter-spacing: -.035em;
+      letter-spacing: -.02em;
     }
 
     #dse-root .dse-title-sub {
@@ -2299,8 +2314,8 @@
       min-height: 30px;
       padding: 0 10px;
       color: var(--dse-muted);
-      background: #0b0d0f;
-      border-color: #2b3036;
+      background: var(--dse-surface-deep);
+      border-color: var(--dse-line-soft);
       border-radius: 7px;
       letter-spacing: .055em;
     }
@@ -2309,7 +2324,7 @@
       width: 5px;
       height: 5px;
       border-radius: 50%;
-      box-shadow: 0 0 5px currentColor;
+      box-shadow: none;
     }
 
     #dse-root .dse-orientation {
@@ -2322,7 +2337,7 @@
 
     #dse-root .dse-orientation h2 {
       font-size: 16px;
-      font-weight: 550;
+      font-weight: 500;
     }
 
     #dse-root .dse-orientation-links {
@@ -2332,19 +2347,19 @@
     #dse-root .dse-orientation-links a {
       min-height: 64px;
       padding: 13px 14px;
-      background: #0a0c0e;
+      background: var(--dse-surface-deep);
       border-color: #292d32;
       border-radius: 8px;
       transition: background .16s ease, border-color .16s ease;
     }
 
     #dse-root .dse-orientation-links a:hover {
-      background: #14171a;
-      border-color: #3a4048;
+      background: var(--dse-surface-control);
+      border-color: var(--dse-line-strong);
     }
 
     #dse-root .dse-orientation-links a:focus-visible {
-      background: #14171a;
+      background: var(--dse-surface-control);
       border-color: var(--dse-cyan);
     }
 
@@ -2356,7 +2371,7 @@
     #dse-root .dse-orientation-links strong {
       margin-top: 5px;
       font-size: 12px;
-      font-weight: 550;
+      font-weight: 500;
     }
 
     #dse-root .dse-orientation-links small {
@@ -2409,8 +2424,8 @@
       width: 22px;
       height: 22px;
       color: var(--dse-muted);
-      background: #0a0c0e;
-      border: 1px solid #30353b;
+      background: var(--dse-surface-deep);
+      border: 1px solid var(--dse-line-strong);
       border-radius: 50%;
       font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
       font-size: 8px;
@@ -2419,7 +2434,7 @@
 
     #dse-root .dse-process-step:last-child b {
       color: var(--dse-cyan);
-      border-color: rgba(129, 207, 223, .5);
+      border-color: rgb(var(--dse-cyan-rgb) / .5);
     }
 
     #dse-root .dse-process-step:not(:last-child)::after {
@@ -2442,8 +2457,8 @@
       min-height: 31px;
       padding: 0 11px;
       color: var(--dse-muted);
-      background: #111316;
-      border-color: #2b3036;
+      background: var(--dse-surface-control);
+      border-color: var(--dse-line-soft);
       border-radius: 7px;
       letter-spacing: .025em;
       transition: color .16s ease, background .16s ease, border-color .16s ease;
@@ -2452,18 +2467,18 @@
     #dse-root .dse-filter:hover {
       color: var(--dse-text);
       background: #181b1f;
-      border-color: #3a4048;
+      border-color: var(--dse-line-strong);
     }
 
     #dse-root .dse-filter[aria-pressed="true"] {
-      color: #0a0c0e;
+      color: var(--dse-surface-deep);
       background: #e9ebee;
       border-color: #e9ebee;
     }
 
     #dse-root .dse-lab-link {
       color: var(--dse-text);
-      border-color: #30353b;
+      border-color: var(--dse-line-strong);
     }
 
     #dse-root .dse-lab-link:hover,
@@ -2482,7 +2497,7 @@
       width: 5px;
       height: 5px;
       border-radius: 50%;
-      box-shadow: 0 0 5px currentColor;
+      box-shadow: none;
     }
 
     #dse-root .dse-tracks {
@@ -2503,17 +2518,17 @@
     }
 
     #dse-root .dse-track.core {
-      border-top-color: rgba(129, 207, 223, .72);
+      border-top-color: rgb(var(--dse-cyan-rgb) / .72);
       box-shadow: none;
     }
 
     #dse-root .dse-track.prototype {
-      border-top-color: rgba(215, 149, 185, .72);
+      border-top-color: rgb(var(--dse-magenta-rgb) / .72);
       box-shadow: none;
     }
 
     #dse-root .dse-track.triage {
-      border-top-color: rgba(166, 215, 162, .72);
+      border-top-color: rgb(var(--dse-lime-rgb) / .72);
       box-shadow: none;
     }
 
@@ -2531,13 +2546,13 @@
     #dse-root .dse-track h2 {
       margin-top: 6px;
       font-size: 17px;
-      font-weight: 550;
+      font-weight: 500;
     }
 
     #dse-root .dse-track-badge {
       padding: 4px 7px;
-      background: #0a0c0e;
-      border-color: rgba(129, 207, 223, .35);
+      background: var(--dse-surface-deep);
+      border-color: rgb(var(--dse-cyan-rgb) / .35);
       border-radius: 999px;
       font-size: 8px;
     }
@@ -2550,15 +2565,15 @@
     #dse-root .dse-track.prototype .dse-lane::before,
     #dse-root .dse-track.triage .dse-lane::before {
       left: 8px;
-      background: linear-gradient(to bottom, transparent, #343941 5%, #343941 95%, transparent);
+      background: linear-gradient(to bottom, transparent, var(--dse-line-strong) 5%, var(--dse-line-strong) 95%, transparent);
     }
 
     #dse-root .dse-node {
       min-height: 72px;
       margin-bottom: 10px;
       padding: 11px 12px 11px 13px;
-      background: #0b0d0f;
-      border: 1px solid #2a2f35;
+      background: var(--dse-surface-deep);
+      border: 1px solid var(--dse-line-soft);
       border-left: 2px solid #52606a;
       border-radius: 9px;
       clip-path: none;
@@ -2567,20 +2582,20 @@
     }
 
     #dse-root .dse-track.prototype .dse-node {
-      border-color: #2a2f35;
+      border-color: var(--dse-line-soft);
       border-left-color: var(--dse-magenta);
       box-shadow: none;
     }
 
     #dse-root .dse-track.triage .dse-node {
-      border-color: #2a2f35;
+      border-color: var(--dse-line-soft);
       border-left-color: var(--dse-lime);
       box-shadow: none;
     }
 
     #dse-root .dse-node:hover {
       background: #121518;
-      border-color: #3a4048;
+      border-color: var(--dse-line-strong);
     }
 
     #dse-root .dse-node::before,
@@ -2602,15 +2617,15 @@
     #dse-root .dse-track.triage .dse-node.is-selected {
       background: #14181b;
       border-color: #3d444c;
-      box-shadow: 0 0 0 1px rgba(129, 207, 223, .26);
+      box-shadow: 0 0 0 1px rgb(var(--dse-cyan-rgb) / .26);
     }
 
     #dse-root .dse-track.prototype .dse-node.is-selected {
-      box-shadow: 0 0 0 1px rgba(215, 149, 185, .24);
+      box-shadow: 0 0 0 1px rgb(var(--dse-magenta-rgb) / .24);
     }
 
     #dse-root .dse-track.triage .dse-node.is-selected {
-      box-shadow: 0 0 0 1px rgba(166, 215, 162, .22);
+      box-shadow: 0 0 0 1px rgb(var(--dse-lime-rgb) / .22);
     }
 
     #dse-root .dse-node.is-selected::before {
@@ -2642,7 +2657,7 @@
       margin-top: 5px;
       padding-right: 66px;
       font-size: 13px;
-      font-weight: 550;
+      font-weight: 500;
       line-height: 1.4;
     }
 
@@ -2668,11 +2683,11 @@
     }
 
     #dse-root .dse-convergence-line {
-      background: linear-gradient(90deg, rgba(129, 207, 223, .6), #343941);
+      background: linear-gradient(90deg, rgb(var(--dse-cyan-rgb) / .6), var(--dse-line-strong));
     }
 
     #dse-root .dse-convergence-line.reverse {
-      background: linear-gradient(90deg, #343941, rgba(215, 149, 185, .58));
+      background: linear-gradient(90deg, var(--dse-line-strong), rgb(var(--dse-magenta-rgb) / .58));
     }
 
     #dse-root .dse-merge-stack {
@@ -2681,8 +2696,8 @@
 
     #dse-root .dse-merge-button {
       min-height: 58px;
-      background: #0b0d0f;
-      border-color: #343941;
+      background: var(--dse-surface-deep);
+      border-color: var(--dse-line-strong);
       border-radius: 9px;
       clip-path: none;
       box-shadow: none;
@@ -2691,8 +2706,8 @@
 
     #dse-root .dse-merge-button:hover,
     #dse-root .dse-merge-button:focus-visible {
-      background: #15181b;
-      border-color: rgba(216, 180, 122, .6);
+      background: var(--dse-surface-control);
+      border-color: rgb(var(--dse-amber-rgb) / .6);
     }
 
     #dse-root .dse-merge-title {
@@ -2707,7 +2722,7 @@
       border: 1px solid var(--dse-line);
       border-left: 2px solid var(--dse-cyan);
       border-radius: 12px;
-      box-shadow: 0 16px 36px rgba(0, 0, 0, .22);
+      box-shadow: 0 16px 36px rgb(var(--dse-black-rgb) / .22);
     }
 
     #dse-root .dse-detail.prototype,
@@ -2737,8 +2752,8 @@
     #dse-root .dse-window-control {
       min-width: 27px;
       min-height: 27px;
-      background: #0b0d0f;
-      border-color: #30353b;
+      background: var(--dse-surface-deep);
+      border-color: var(--dse-line-strong);
       border-radius: 6px;
     }
 
@@ -2750,12 +2765,12 @@
 
     #dse-root .dse-detail h3 {
       font-size: 18px;
-      font-weight: 550;
+      font-weight: 500;
     }
 
     #dse-root .dse-detail-status {
       padding: 4px 7px;
-      background: rgba(216, 180, 122, .06);
+      background: rgb(var(--dse-amber-rgb) / .06);
       border-radius: 999px;
     }
 
@@ -2779,7 +2794,7 @@
     }
 
     #dse-root .dse-footer span {
-      color: #8f97a0;
+      color: var(--dse-text-muted-soft);
       font-size: var(--dse-type-label);
       line-height: 1.6;
     }
@@ -2811,7 +2826,7 @@
 
     #dse-root .dse-archive h2 {
       font-size: 20px;
-      font-weight: 550;
+      font-weight: 500;
     }
 
     #dse-root .dse-archive-summary {
@@ -2827,8 +2842,8 @@
     #dse-root .dse-archive-total {
       min-width: 88px;
       padding: 8px 10px;
-      background: #0b0d0f;
-      border: 1px solid #2b3036;
+      background: var(--dse-surface-deep);
+      border: 1px solid var(--dse-line-soft);
       border-left: 2px solid var(--dse-cyan);
       border-radius: 8px;
       font-size: 9px;
@@ -2838,7 +2853,7 @@
     #dse-root .dse-archive-total b {
       margin-bottom: 3px;
       font-size: 16px;
-      font-weight: 550;
+      font-weight: 500;
     }
 
     #dse-root .dse-series {
@@ -2866,8 +2881,8 @@
 
     #dse-root .dse-series-count {
       padding: 4px 8px;
-      background: #111316;
-      border: 1px solid #2b3036;
+      background: var(--dse-surface-control);
+      border: 1px solid var(--dse-line-soft);
       border-radius: 999px;
       font-size: 9px;
     }
@@ -2885,20 +2900,20 @@
     #dse-root .dse-version {
       min-height: 48px;
       padding: 8px 9px;
-      background: #0b0d0f;
-      border-color: #2a2f35;
+      background: var(--dse-surface-deep);
+      border-color: var(--dse-line-soft);
       border-radius: 8px;
       clip-path: none;
       transition: background .16s ease, border-color .16s ease, opacity .16s ease;
     }
 
     #dse-root .dse-version.prototype {
-      border-color: #2a2f35;
+      border-color: var(--dse-line-soft);
     }
 
     #dse-root .dse-version:hover,
     #dse-root .dse-version:focus-visible {
-      background: #15181b;
+      background: var(--dse-surface-control);
       border-color: #3b424a;
     }
 
@@ -2943,7 +2958,7 @@
 
     #dse-root .dse-version-detail h3 {
       font-size: 16px;
-      font-weight: 550;
+      font-weight: 500;
     }
 
     #dse-root .dse-version-change-list li {
@@ -2971,7 +2986,7 @@
 
     #dse-root .dse-demo h2 {
       font-size: 20px;
-      font-weight: 550;
+      font-weight: 500;
     }
 
     #dse-root .dse-demo-summary {
@@ -2982,8 +2997,8 @@
 
     #dse-root .dse-demo-badge {
       padding: 5px 8px;
-      background: rgba(216, 180, 122, .05);
-      border-color: rgba(216, 180, 122, .38);
+      background: rgb(var(--dse-amber-rgb) / .05);
+      border-color: rgb(var(--dse-amber-rgb) / .38);
       border-radius: 999px;
     }
 
@@ -2993,7 +3008,7 @@
       gap: 22px;
       margin-top: 14px;
       padding: 16px 18px;
-      background: #0a0c0e;
+      background: var(--dse-surface-deep);
       border: 1px solid var(--dse-line);
       border-left: 2px solid var(--dse-cyan);
       border-radius: 10px;
@@ -3014,7 +3029,7 @@
     #dse-root .dse-mode-guide-title {
       margin: 0;
       font-size: 15px;
-      font-weight: 550;
+      font-weight: 500;
       line-height: 1.45;
     }
 
@@ -3064,7 +3079,7 @@
       height: 20px;
       color: var(--dse-cyan);
       background: #101518;
-      border: 1px solid rgba(129, 207, 223, .38);
+      border: 1px solid rgb(var(--dse-cyan-rgb) / .38);
       border-radius: 50%;
       font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
       font-size: 8px;
@@ -3080,7 +3095,7 @@
       display: block;
       color: var(--dse-text);
       font-size: 11px;
-      font-weight: 550;
+      font-weight: 500;
       line-height: 1.4;
     }
 
@@ -3115,7 +3130,7 @@
 
     #dse-root .dse-demo-panel h3 {
       font-size: 14px;
-      font-weight: 550;
+      font-weight: 500;
     }
 
     #dse-root .dse-demo-panel-sub {
@@ -3140,13 +3155,13 @@
 
     #dse-root .dse-term-rail {
       padding: 10px;
-      background: #0a0c0e;
-      border-color: #292e34;
+      background: var(--dse-surface-deep);
+      border-color: var(--dse-line-soft);
       border-radius: 8px;
     }
 
     #dse-root .dse-term-rail.branch {
-      border-color: #292e34;
+      border-color: var(--dse-line-soft);
     }
 
     #dse-root .dse-term-rail-label,
@@ -3163,15 +3178,15 @@
     #dse-root .dse-term-token {
       min-height: 32px;
       padding: 0 10px;
-      background: #111316;
-      border-color: #30353b;
+      background: var(--dse-surface-control);
+      border-color: var(--dse-line-strong);
       border-radius: 7px;
       clip-path: none;
       font-size: 11px;
     }
 
     #dse-root .dse-term-token.branch {
-      border-color: #343a41;
+      border-color: var(--dse-line-strong);
     }
 
     #dse-root .dse-term-token:hover,
@@ -3181,7 +3196,7 @@
     }
 
     #dse-root .dse-term-token[aria-expanded="true"] {
-      color: #0a0c0e;
+      color: var(--dse-surface-deep);
       background: var(--dse-cyan);
       border-color: var(--dse-cyan);
     }
@@ -3193,15 +3208,15 @@
     }
 
     #dse-root .dse-term-detail {
-      background: #0a0c0e;
-      border: 1px solid #292e34;
+      background: var(--dse-surface-deep);
+      border: 1px solid var(--dse-line-soft);
       border-left: 2px solid var(--dse-cyan);
       border-radius: 8px;
     }
 
     #dse-root .dse-term-detail h4 {
       font-size: 16px;
-      font-weight: 550;
+      font-weight: 500;
     }
 
     #dse-root .dse-term-detail-label {
@@ -3216,8 +3231,8 @@
 
     #dse-root .dse-scenario {
       padding: 9px 10px;
-      background: #0a0c0e;
-      border-color: #292e34;
+      background: var(--dse-surface-deep);
+      border-color: var(--dse-line-soft);
       border-radius: 8px;
       font-size: 10px;
       line-height: 1.55;
@@ -3225,14 +3240,14 @@
 
     #dse-root .dse-scenario:hover {
       color: var(--dse-text);
-      background: #15181b;
-      border-color: #3a4048;
+      background: var(--dse-surface-control);
+      border-color: var(--dse-line-strong);
     }
 
     #dse-root .dse-scenario[aria-pressed="true"] {
       color: var(--dse-text);
       background: #15191c;
-      border-color: rgba(129, 207, 223, .65);
+      border-color: rgb(var(--dse-cyan-rgb) / .65);
       box-shadow: none;
     }
 
@@ -3242,15 +3257,15 @@
 
     #dse-root .dse-state-node {
       padding: 9px;
-      background: #0a0c0e;
-      border-color: #292e34;
+      background: var(--dse-surface-deep);
+      border-color: var(--dse-line-soft);
       border-top-color: #46515b;
       border-radius: 8px;
     }
 
     #dse-root .dse-state-node.is-current {
       background: #12181b;
-      border-color: rgba(129, 207, 223, .6);
+      border-color: rgb(var(--dse-cyan-rgb) / .6);
       box-shadow: none;
     }
 
@@ -3290,14 +3305,14 @@
     #dse-root .dse-state-live,
     #dse-root .dse-machine-copy,
     #dse-root .dse-gate-request {
-      background: #0a0c0e;
+      background: var(--dse-surface-deep);
       border-radius: 0 7px 7px 0;
       font-size: 11px;
     }
 
     #dse-root .dse-gate-output {
       padding: 10px;
-      background: #0a0c0e;
+      background: var(--dse-surface-deep);
       border-radius: 8px;
     }
 
@@ -3313,8 +3328,8 @@
     #dse-root .dse-state-action {
       min-height: 32px;
       padding: 0 10px;
-      background: #15181b;
-      border-color: #343a41;
+      background: var(--dse-surface-control);
+      border-color: var(--dse-line-strong);
       border-radius: 7px;
       font-size: 10px;
       letter-spacing: .015em;
@@ -3329,7 +3344,7 @@
     }
 
     #dse-root .dse-demo-action.primary {
-      color: #0a0c0e;
+      color: var(--dse-surface-deep);
       background: #dceef2;
       border-color: #dceef2;
     }
@@ -3341,7 +3356,7 @@
     }
 
     #dse-root .dse-state-action[aria-pressed="true"] {
-      color: #0a0c0e;
+      color: var(--dse-surface-deep);
       background: var(--dse-cyan);
       border-color: var(--dse-cyan);
     }
@@ -3349,14 +3364,14 @@
     #dse-root .dse-demo-action:disabled,
     #dse-root .dse-state-action:disabled {
       color: #656c75;
-      background: #0b0d0f;
+      background: var(--dse-surface-deep);
       border-color: #24282d;
     }
 
     #dse-root .dse-gate-check,
     #dse-root .dse-compare-audit-item {
-      background: #0a0c0e;
-      border-color: #292e34;
+      background: var(--dse-surface-deep);
+      border-color: var(--dse-line-soft);
       border-radius: 8px;
     }
 
@@ -3390,7 +3405,7 @@
     }
 
     #dse-root .dse-rule-list li {
-      background: #0a0c0e;
+      background: var(--dse-surface-deep);
       border-left-color: #36414a;
       border-radius: 0 7px 7px 0;
       font-size: 10px;
@@ -3403,8 +3418,8 @@
 
     #dse-root .dse-compare-card {
       padding: 11px;
-      background: #0a0c0e;
-      border-color: #292e34;
+      background: var(--dse-surface-deep);
+      border-color: var(--dse-line-soft);
       border-radius: 8px;
     }
 
@@ -3413,7 +3428,7 @@
     }
 
     #dse-root .dse-compare-spine span {
-      background: linear-gradient(transparent, rgba(129, 207, 223, .45), transparent);
+      background: linear-gradient(transparent, rgb(var(--dse-cyan-rgb) / .45), transparent);
     }
 
     #dse-root .dse-demo-field {
@@ -3423,8 +3438,8 @@
     #dse-root .dse-demo-field select {
       min-height: 34px;
       padding: 0 9px;
-      background: #0a0c0e;
-      border-color: #30353b;
+      background: var(--dse-surface-deep);
+      border-color: var(--dse-line-strong);
       border-radius: 7px;
       font-size: 10px;
     }
@@ -3437,7 +3452,7 @@
     }
 
     #dse-root .dse-demo-field-label small {
-      color: #8b929c;
+      color: var(--dse-text-muted-soft);
       font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
       font-size: 8px;
       line-height: 1.4;
@@ -3446,7 +3461,7 @@
 
     #dse-root .dse-experiment-output,
     #dse-root .dse-gate-output {
-      background: #0a0c0e;
+      background: var(--dse-surface-deep);
       border-radius: 8px;
     }
 
@@ -3477,16 +3492,16 @@
       min-height: 40px;
       padding: 0 14px;
       color: var(--dse-text);
-      background: #15181b;
-      border-color: #3a4048;
+      background: var(--dse-surface-control);
+      border-color: var(--dse-line-strong);
       border-radius: 999px;
       clip-path: none;
-      box-shadow: 0 10px 24px rgba(0, 0, 0, .26);
+      box-shadow: 0 10px 24px rgb(var(--dse-black-rgb) / .26);
       font-size: 10px;
     }
 
     #dse-root :where(button, a, input, select, summary):focus-visible {
-      outline: 2px solid rgba(129, 207, 223, .9);
+      outline: 2px solid rgb(var(--dse-cyan-rgb) / .9);
       outline-offset: 2px;
     }
 
@@ -3510,7 +3525,7 @@
 
     #dse-root .dse-kicker {
       margin-bottom: 18px;
-      color: #8b929c;
+      color: var(--dse-text-muted-soft);
       font-size: 10px;
       letter-spacing: .12em;
     }
@@ -3518,9 +3533,9 @@
     #dse-root h1 {
       max-width: 900px;
       font-size: 54px;
-      font-weight: 580;
+      font-weight: 600;
       line-height: 1.06;
-      letter-spacing: -.055em;
+      letter-spacing: -.03em;
     }
 
     #dse-root .dse-title-primary {
@@ -3533,8 +3548,8 @@
       margin-top: 8px;
       color: #666c75;
       font-size: 43px;
-      font-weight: 520;
-      letter-spacing: -.045em;
+      font-weight: 500;
+      letter-spacing: -.025em;
       line-height: 1.12;
     }
 
@@ -3556,7 +3571,7 @@
 
     #dse-root .dse-intro-kicker {
       margin-bottom: 12px;
-      color: #8b929c;
+      color: var(--dse-text-muted-soft);
       font-size: 9px;
     }
 
@@ -3580,7 +3595,7 @@
     #dse-root .dse-chip::before {
       width: 4px;
       height: 4px;
-      box-shadow: 0 0 4px currentColor;
+      box-shadow: none;
     }
 
     #dse-root .dse-orientation {
@@ -3605,7 +3620,7 @@
       grid-column: 1;
       margin: 0 0 8px;
       align-self: end;
-      color: #8b929c;
+      color: var(--dse-text-muted-soft);
       font-size: 9px;
     }
 
@@ -3613,8 +3628,8 @@
       grid-column: 1;
       margin: 0;
       font-size: 30px;
-      font-weight: 560;
-      letter-spacing: -.035em;
+      font-weight: 500;
+      letter-spacing: -.02em;
     }
 
     #dse-root .dse-orientation-summary {
@@ -3654,14 +3669,14 @@
     }
 
     #dse-root .dse-orientation-links a:hover {
-      background: rgba(255, 255, 255, .022);
+      background: rgb(var(--dse-white-rgb) / .022);
       border-color: var(--dse-line);
       transform: none;
     }
 
     #dse-root .dse-orientation-links .dse-orientation-index {
       display: block;
-      color: #8b929c;
+      color: var(--dse-text-muted-soft);
       font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
       font-size: 9px;
       letter-spacing: .08em;
@@ -3689,7 +3704,7 @@
     }
 
     #dse-root .dse-orientation-links a:hover .dse-orientation-art svg {
-      transform: scale(1.025);
+      transform: none;
     }
 
     #dse-root .dse-art-accent {
@@ -3710,9 +3725,7 @@
       --dse-art-lift: -8px;
       stroke: currentColor;
       opacity: .42;
-      animation:
-        dse-art-layer-light 5.4s ease-in-out infinite,
-        dse-art-layer-float 5.2s ease-in-out infinite;
+      animation: none;
     }
 
     #dse-root .dse-art-layer-2 {
@@ -3732,24 +3745,24 @@
 
     #dse-root .dse-art-chip,
     #dse-root .dse-art-chip-detail {
-      animation: dse-art-chip-pulse 5.2s ease-in-out infinite;
+      animation: none;
     }
 
     #dse-root .dse-art-chip-group {
       --dse-art-lift: -8px;
-      animation: dse-art-layer-float 5.2s ease-in-out infinite;
+      animation: none;
     }
 
     #dse-root .dse-art-version-stack {
       transform-box: fill-box;
       transform-origin: center;
-      animation: dse-art-version-stack-drift 6.2s ease-in-out infinite;
+      animation: none;
     }
 
     #dse-root .dse-art-version-plane {
       stroke: currentColor;
       opacity: .38;
-      animation: dse-art-version-plane-light 5.8s ease-in-out infinite;
+      animation: none;
     }
 
     #dse-root .dse-art-plane-1 {
@@ -3773,7 +3786,7 @@
     }
 
     #dse-root .dse-art-version-links {
-      animation: dse-art-version-links 4.4s ease-in-out infinite;
+      animation: none;
     }
 
     #dse-root .dse-art-version-link-signal {
@@ -3782,12 +3795,12 @@
       stroke-linecap: round;
       stroke-dasharray: 3 10;
       opacity: .72;
-      animation: dse-art-version-link-signal 3.2s linear infinite;
-      filter: drop-shadow(0 0 2px rgba(129, 207, 223, .38));
+      animation: none;
+      filter: none;
     }
 
     #dse-root .dse-art-pulse {
-      animation: dse-art-pulse 4.2s ease-in-out infinite;
+      animation: none;
     }
 
     #dse-root .dse-art-data-row {
@@ -3811,8 +3824,8 @@
       stroke-dasharray: 6 94;
       stroke-linecap: round;
       opacity: .94;
-      animation: dse-art-flow-signal 2.8s linear infinite;
-      filter: drop-shadow(0 0 2.5px rgba(129, 207, 223, .52));
+      animation: none;
+      filter: none;
     }
 
     #dse-root .dse-art-flow-lane-2 {
@@ -3838,14 +3851,14 @@
     #dse-root .dse-art-flow-gate-ring {
       stroke: var(--dse-cyan);
       opacity: .3;
-      animation: dse-art-flow-gate 3.6s ease-in-out infinite;
+      animation: none;
     }
 
     #dse-root .dse-art-flow-gate {
       fill: var(--dse-cyan);
       stroke: none;
       opacity: .9;
-      filter: drop-shadow(0 0 4px rgba(129, 207, 223, .48));
+      filter: none;
     }
 
     #dse-root .dse-art-orbit-motion {
@@ -3860,7 +3873,7 @@
       stroke: currentColor;
       stroke-dasharray: 2 7;
       opacity: .34;
-      animation: dse-art-orbit-rays 9s linear infinite;
+      animation: none;
     }
 
     #dse-root .dse-art-planet-halo {
@@ -3868,7 +3881,7 @@
       opacity: .22;
       transform-box: fill-box;
       transform-origin: center;
-      animation: dse-art-planet-halo 4.8s ease-in-out infinite;
+      animation: none;
     }
 
     #dse-root .dse-orientation-links a:hover .dse-art-flow-signal {
@@ -3887,7 +3900,7 @@
         opacity: .42;
         stroke: currentColor;
         stroke-width: 1;
-        filter: drop-shadow(0 0 0 rgba(129, 207, 223, 0));
+        filter: none;
       }
 
       3%,
@@ -3895,7 +3908,7 @@
         opacity: 1;
         stroke: var(--dse-cyan);
         stroke-width: 1.45;
-        filter: drop-shadow(0 0 2.5px rgba(129, 207, 223, .5));
+        filter: none;
       }
     }
 
@@ -3952,7 +3965,7 @@
         opacity: .38;
         stroke: currentColor;
         stroke-width: 1;
-        filter: drop-shadow(0 0 0 rgba(129, 207, 223, 0));
+        filter: none;
       }
 
       2.5%,
@@ -3960,7 +3973,7 @@
         opacity: 1;
         stroke: var(--dse-cyan);
         stroke-width: 1.3;
-        filter: drop-shadow(0 0 2.5px rgba(129, 207, 223, .5));
+        filter: none;
       }
     }
 
@@ -4037,7 +4050,7 @@
 
     #dse-root .dse-orientation-link-copy strong {
       font-size: 16px;
-      font-weight: 580;
+      font-weight: 600;
       letter-spacing: -.015em;
     }
 
@@ -4118,20 +4131,20 @@
       padding: 18px 0 0;
       background: transparent;
       border: 0;
-      border-top: 1px solid #30353b;
+      border-top: 1px solid var(--dse-line-strong);
       border-radius: 0;
     }
 
     #dse-root .dse-track.core {
-      border-top-color: rgba(129, 207, 223, .7);
+      border-top-color: rgb(var(--dse-cyan-rgb) / .7);
     }
 
     #dse-root .dse-track.prototype {
-      border-top-color: rgba(215, 149, 185, .66);
+      border-top-color: rgb(var(--dse-magenta-rgb) / .66);
     }
 
     #dse-root .dse-track.triage {
-      border-top-color: rgba(166, 215, 162, .62);
+      border-top-color: rgb(var(--dse-lime-rgb) / .62);
     }
 
     #dse-root .dse-track-head {
@@ -4142,7 +4155,7 @@
     #dse-root .dse-track h2 {
       margin-top: 7px;
       font-size: 32px;
-      font-weight: 570;
+      font-weight: 500;
       letter-spacing: -.025em;
     }
 
@@ -4165,7 +4178,7 @@
       left: 6px;
       top: 4px;
       bottom: 4px;
-      background: #292e34;
+      background: var(--dse-line-soft);
     }
 
     #dse-root .dse-node {
@@ -4187,7 +4200,7 @@
     }
 
     #dse-root .dse-node:hover {
-      background: rgba(255, 255, 255, .022);
+      background: rgb(var(--dse-white-rgb) / .022);
       border-color: #2d3238;
       transform: none;
     }
@@ -4207,21 +4220,21 @@
     #dse-root .dse-track.triage .dse-node.is-selected {
       background: #101317;
       border-color: #282d33;
-      box-shadow: inset 2px 0 0 var(--dse-cyan);
+      box-shadow: none;
     }
 
     #dse-root .dse-track.prototype .dse-node.is-selected {
-      box-shadow: inset 2px 0 0 var(--dse-magenta);
+      box-shadow: none;
     }
 
     #dse-root .dse-track.triage .dse-node.is-selected {
-      box-shadow: inset 2px 0 0 var(--dse-lime);
+      box-shadow: none;
     }
 
     #dse-root .dse-node-title {
       padding-right: 90px;
       font-size: 15px;
-      font-weight: 560;
+      font-weight: 500;
     }
 
     #dse-root .dse-node-summary {
@@ -4263,8 +4276,8 @@
 
     #dse-root .dse-archive h2 {
       font-size: 36px;
-      font-weight: 560;
-      letter-spacing: -.035em;
+      font-weight: 500;
+      letter-spacing: -.02em;
     }
 
     #dse-root .dse-archive-summary {
@@ -4289,7 +4302,7 @@
     #dse-root .dse-archive-total b {
       margin-bottom: 5px;
       font-size: 22px;
-      font-weight: 540;
+      font-weight: 500;
     }
 
     #dse-root .dse-archive-total.prototype {
@@ -4329,7 +4342,7 @@
 
     #dse-root .dse-version:hover,
     #dse-root .dse-version:focus-visible {
-      background: rgba(255, 255, 255, .025);
+      background: rgb(var(--dse-white-rgb) / .025);
       border-color: #3b424a;
       transform: none;
     }
@@ -4368,7 +4381,7 @@
     }
 
     #dse-root .dse-demo-kicker {
-      color: #8b929c;
+      color: var(--dse-text-muted-soft);
       font-size: 9px;
     }
 
@@ -4376,15 +4389,15 @@
       max-width: 430px;
       margin-top: 17px;
       font-size: 36px;
-      font-weight: 570;
+      font-weight: 500;
       line-height: 1.1;
-      letter-spacing: -.045em;
+      letter-spacing: -.025em;
     }
 
     #dse-root .dse-demo-summary {
       max-width: 650px;
       margin: 0;
-      color: #8b929c;
+      color: var(--dse-text-muted-soft);
       font-size: 15px;
       line-height: 1.72;
     }
@@ -4406,7 +4419,7 @@
     #dse-root .dse-demo-badge {
       margin-left: auto;
       padding: 0;
-      color: #8b929c;
+      color: var(--dse-text-muted-soft);
       background: transparent;
       border: 0;
       border-radius: 0;
@@ -4436,12 +4449,12 @@
     }
 
     #dse-root .dse-mode-guide-kicker {
-      color: #8b929c;
+      color: var(--dse-text-muted-soft);
     }
 
     #dse-root .dse-mode-guide-title {
       font-size: 20px;
-      font-weight: 560;
+      font-weight: 500;
     }
 
     html[data-site-view="interactive"] #dse-root .dse-demo-head {
@@ -4501,7 +4514,7 @@
 
     #dse-root .dse-tune-steps a:hover {
       color: var(--dse-text);
-      background: rgba(255, 255, 255, .025);
+      background: rgb(var(--dse-white-rgb) / .025);
     }
 
     #dse-root .dse-tune-steps a[aria-current="step"] {
@@ -4515,8 +4528,8 @@
       place-items: center;
       width: 22px;
       height: 22px;
-      color: #8b929c;
-      border: 1px solid #343a41;
+      color: var(--dse-text-muted-soft);
+      border: 1px solid var(--dse-line-strong);
       border-radius: 50%;
       font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
       font-size: 8px;
@@ -4539,11 +4552,11 @@
     #dse-root .dse-tune-steps strong {
       color: inherit;
       font-size: 12px;
-      font-weight: 560;
+      font-weight: 500;
     }
 
     #dse-root .dse-tune-steps small {
-      color: #8b929c;
+      color: var(--dse-text-muted-soft);
       font-size: 9px;
     }
 
@@ -4552,7 +4565,7 @@
       gap: 0;
       margin-top: 20px;
       overflow: hidden;
-      background: #080a0c;
+      background: var(--dse-surface-deep);
       border: 1px solid #20242a;
       border-radius: 12px;
     }
@@ -4577,11 +4590,11 @@
 
     #dse-root .dse-demo-panel h3 {
       font-size: 18px;
-      font-weight: 560;
+      font-weight: 500;
     }
 
     #dse-root .dse-demo-step {
-      color: #8b929c;
+      color: var(--dse-text-muted-soft);
       font-size: 9px;
       letter-spacing: .035em;
     }
@@ -4597,7 +4610,7 @@
       align-items: center;
       gap: 8px;
       padding: 10px 0 0;
-      color: #8b929c;
+      color: var(--dse-text-muted-soft);
       font-size: 10px;
       line-height: 1.45;
       list-style: none;
@@ -4690,7 +4703,7 @@
     #dse-root .dse-scenario-meta .dse-demo-action {
       min-height: 28px;
       padding: 0;
-      color: #8b929c;
+      color: var(--dse-text-muted-soft);
       background: transparent;
       border: 0;
     }
@@ -4719,7 +4732,7 @@
     #dse-root .dse-state-live strong {
       color: var(--dse-text);
       font-size: 11px;
-      font-weight: 560;
+      font-weight: 500;
       letter-spacing: 0;
       white-space: nowrap;
     }
@@ -4731,7 +4744,7 @@
     #dse-root .dse-compare-label {
       font-size: 10px;
       letter-spacing: .02em;
-      color: #8b929c;
+      color: var(--dse-text-muted-soft);
     }
 
     #dse-root .dse-compare-copy {
@@ -4756,13 +4769,13 @@
       margin-top: 14px;
       padding: 46px 14px 14px 46px;
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, .022), transparent 34%),
-        #080a0c;
+        linear-gradient(180deg, rgb(var(--dse-white-rgb) / .022), transparent 34%),
+        var(--dse-surface-deep);
       border: 1px solid var(--dse-line);
       border-radius: 10px;
       box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, .025),
-        0 18px 38px rgba(0, 0, 0, .14);
+        inset 0 1px 0 rgb(var(--dse-white-rgb) / .025),
+        0 18px 38px rgb(var(--dse-black-rgb) / .14);
       counter-reset: triage-file;
     }
 
@@ -4771,7 +4784,7 @@
       position: absolute;
       top: 13px;
       left: 46px;
-      color: #8b929c;
+      color: var(--dse-text-muted-soft);
       font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
       font-size: 8px;
       letter-spacing: .06em;
@@ -4784,7 +4797,7 @@
       bottom: 16px;
       left: 24px;
       width: 1px;
-      background: #252b31;
+      background: var(--dse-line-soft);
     }
 
     #dse-root #dse-triage-case-grid .dse-scenario {
@@ -4794,11 +4807,11 @@
       margin-top: -6px;
       padding: 12px 14px 12px 16px;
       background: #0d1013;
-      border: 1px solid #292e34;
+      border: 1px solid var(--dse-line-soft);
       border-radius: 5px 7px 7px 5px;
       box-shadow:
-        0 -1px 0 rgba(255, 255, 255, .025),
-        0 1px 0 rgba(0, 0, 0, .35);
+        0 -1px 0 rgb(var(--dse-white-rgb) / .025),
+        0 1px 0 rgb(var(--dse-black-rgb) / .35);
       transform-origin: bottom center;
       counter-increment: triage-file;
       transition:
@@ -4818,8 +4831,8 @@
       place-items: center;
       width: 22px;
       height: 22px;
-      color: #8b929c;
-      background: #080a0c;
+      color: var(--dse-text-muted-soft);
+      background: var(--dse-surface-deep);
       border: 1px solid #31373e;
       border-radius: 50%;
       font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
@@ -4875,10 +4888,8 @@
       z-index: 30;
       color: var(--dse-text);
       background: #151b1f;
-      border-color: rgba(129, 207, 223, .78);
-      box-shadow:
-        inset 2px 0 0 var(--dse-cyan),
-        0 18px 32px rgba(0, 0, 0, .42);
+      border-color: rgb(var(--dse-cyan-rgb) / .78);
+      box-shadow: none;
       transform: translateY(-26px) scale(1.004);
     }
 
@@ -5466,7 +5477,7 @@
     #dse-root .dse-evidence-note strong {
       margin-right: 6px;
       color: var(--dse-text);
-      font-weight: 560;
+      font-weight: 500;
     }
 
     #dse-root .dse-global-nav {
@@ -5497,7 +5508,7 @@
 
     #dse-root .dse-global-nav a:hover,
     #dse-root .dse-global-nav a:focus-visible {
-      color: #fff;
+      color: rgb(var(--dse-white-rgb));
     }
 
     #dse-root .dse-global-nav span {
@@ -5522,7 +5533,7 @@
 
     #dse-root .dse-chip.next {
       color: var(--dse-amber);
-      border-color: rgba(216, 180, 122, .34);
+      border-color: rgb(var(--dse-amber-rgb) / .34);
     }
 
     #dse-root .dse-track-badge {
@@ -5552,7 +5563,7 @@
 
     #dse-root .dse-guided-kicker {
       margin: 0 0 10px;
-      color: #8b929c;
+      color: var(--dse-text-muted-soft);
       font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
       font-size: 10px;
       letter-spacing: .11em;
@@ -5561,9 +5572,9 @@
     #dse-root .dse-guided h2 {
       margin: 0;
       font-size: 34px;
-      font-weight: 570;
+      font-weight: 500;
       line-height: 1.12;
-      letter-spacing: -.035em;
+      letter-spacing: -.02em;
     }
 
     #dse-root .dse-guided-head > p {
@@ -5587,7 +5598,7 @@
     #dse-root .dse-guided-select-label {
       grid-column: 2;
       grid-row: 1;
-      color: #8b929c;
+      color: var(--dse-text-muted-soft);
       font-size: 10px;
       letter-spacing: .06em;
     }
@@ -5624,7 +5635,7 @@
     #dse-root .dse-guided-copy h3 {
       margin: 10px 0 0;
       font-size: 24px;
-      font-weight: 570;
+      font-weight: 500;
       line-height: 1.25;
       letter-spacing: -.02em;
     }
@@ -5643,13 +5654,13 @@
       align-self: end;
       min-height: 44px;
       padding: 0 13px;
-      color: #080a0c;
+      color: var(--dse-surface-deep);
       background: var(--dse-text);
       border: 1px solid var(--dse-text);
       border-radius: 7px;
       font: inherit;
       font-size: 12px;
-      font-weight: 560;
+      font-weight: 500;
       cursor: pointer;
     }
 
@@ -5701,7 +5712,7 @@
 
     #dse-root .dse-guided-reason-body strong {
       color: #d3d8dd;
-      font-weight: 550;
+      font-weight: 500;
     }
 
     #dse-root .dse-advanced-shell {
@@ -5727,7 +5738,7 @@
 
     #dse-root .dse-advanced-shell > summary strong {
       font-size: 14px;
-      font-weight: 560;
+      font-weight: 500;
     }
 
     #dse-root .dse-advanced-shell > summary small {
@@ -5862,7 +5873,7 @@
 
     #dse-root .dse-hero .dse-kicker {
       margin: 0 0 18px;
-      color: #8f96a0;
+      color: var(--dse-text-muted-soft);
       font-family: "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI", sans-serif;
       font-size: 12px;
       font-weight: 500;
@@ -5876,7 +5887,7 @@
       color: #f4f6f8;
       font-family: "Segoe UI Variable Display", "Segoe UI", "Microsoft YaHei UI", sans-serif;
       font-size: var(--dse-type-title);
-      font-weight: 570;
+      font-weight: 500;
       line-height: 1.1;
       letter-spacing: -.012em;
       text-wrap: balance;
@@ -5910,7 +5921,7 @@
       border: 1px solid #353d45;
       border-radius: 999px;
       font-size: 13px;
-      font-weight: 560;
+      font-weight: 500;
       text-decoration: none;
     }
 
@@ -5922,7 +5933,7 @@
 
     #dse-root .dse-hero-action:hover,
     #dse-root .dse-hero-action:focus-visible {
-      color: #eef1f3;
+      color: var(--dse-text-strong);
       border-color: #56616c;
       background: #171c21;
     }
@@ -5934,7 +5945,7 @@
       flex-wrap: wrap;
       gap: 8px 18px;
       margin-top: 24px;
-      color: #7f8790;
+      color: var(--dse-text-faint);
       font-size: 11px;
       line-height: 1.5;
       letter-spacing: 0;
@@ -5984,7 +5995,7 @@
       color: #f1f3f5;
       font-family: "Segoe UI Variable Display", "Segoe UI", "Microsoft YaHei UI", sans-serif;
       font-size: var(--dse-type-section-title);
-      font-weight: 560;
+      font-weight: 500;
       line-height: 1.16;
       letter-spacing: -.012em;
       text-wrap: balance;
@@ -6109,7 +6120,7 @@
       margin-bottom: 12px;
       color: #d8dde2;
       font-size: 14px;
-      font-weight: 520;
+      font-weight: 500;
     }
 
     #dse-root .dse-guided-evidence legend span {
@@ -6132,7 +6143,7 @@
       padding: 8px 10px;
       color: #aeb6be;
       background: #0b0f13;
-      border: 1px solid #293039;
+      border: 1px solid var(--dse-line-soft);
       border-radius: 8px;
       font-size: 13px;
       line-height: 1.45;
@@ -6141,8 +6152,8 @@
 
     #dse-root .dse-guided-evidence-option:has(input:checked) {
       color: #e7ebee;
-      border-color: rgba(129, 207, 223, .42);
-      background: rgba(129, 207, 223, .055);
+      border-color: rgb(var(--dse-cyan-rgb) / .42);
+      background: rgb(var(--dse-cyan-rgb) / .055);
     }
 
     #dse-root .dse-guided-evidence-option input {
@@ -6171,7 +6182,7 @@
       min-height: 44px;
       color: #77808a;
       font-size: 13px;
-      font-weight: 520;
+      font-weight: 500;
     }
 
     #dse-root .dse-guided-path > span:not(:last-child)::after {
@@ -6200,7 +6211,7 @@
     }
 
     #dse-root .dse-guided-path > span.is-current {
-      color: #eef1f3;
+      color: var(--dse-text-strong);
     }
 
     #dse-root .dse-guided-path > span.is-current b {
@@ -6216,7 +6227,7 @@
     #dse-root .dse-guided-path > span.is-complete b {
       color: #cce5e9;
       border-color: #4b6870;
-      background: rgba(129, 207, 223, .08);
+      background: rgb(var(--dse-cyan-rgb) / .08);
     }
 
     #dse-root .dse-guided-path-state {
@@ -6239,13 +6250,13 @@
       margin: 0;
       padding: 30px;
       background:
-        radial-gradient(circle at 86% 8%, rgba(129, 207, 223, .065), transparent 34%),
+        radial-gradient(circle at 86% 8%, rgb(var(--dse-cyan-rgb) / .065), transparent 34%),
         linear-gradient(155deg, rgba(18, 22, 27, .98), rgba(8, 10, 13, .98));
       border: 1px solid #292f36;
       border-radius: 18px;
       box-shadow:
-        0 28px 76px rgba(0, 0, 0, .3),
-        inset 0 1px 0 rgba(255, 255, 255, .03);
+        0 28px 76px rgb(var(--dse-black-rgb) / .3),
+        inset 0 1px 0 rgb(var(--dse-white-rgb) / .03);
     }
 
     #dse-root .dse-guided-progress {
@@ -6259,7 +6270,7 @@
       margin-top: 12px;
       color: #edf0f2;
       font-size: 26px;
-      font-weight: 570;
+      font-weight: 500;
       line-height: 1.25;
       letter-spacing: -.015em;
     }
@@ -6302,8 +6313,8 @@
       margin: 0;
       padding: 16px 18px;
       color: #a8b0b8;
-      background: rgba(129, 207, 223, .035);
-      border: 1px solid rgba(129, 207, 223, .16);
+      background: rgb(var(--dse-cyan-rgb) / .035);
+      border: 1px solid rgb(var(--dse-cyan-rgb) / .16);
       border-radius: 10px;
     }
 
@@ -6317,13 +6328,13 @@
     #dse-root .dse-guided-outcome small {
       color: #8fc0cb;
       font-size: 13px;
-      font-weight: 520;
+      font-weight: 500;
     }
 
     #dse-root .dse-guided-outcome header strong {
       color: #d8e8eb;
       font-size: var(--dse-type-meta);
-      font-weight: 560;
+      font-weight: 500;
     }
 
     #dse-root .dse-guided-outcome p {
@@ -6334,7 +6345,7 @@
     }
 
     #dse-root .dse-guided-missing {
-      color: #d8b47a !important;
+      color: var(--dse-amber) !important;
     }
 
     #dse-root .dse-guided-recommendation {
@@ -6346,7 +6357,7 @@
       flex-wrap: wrap;
       gap: 7px 18px;
       padding-top: 7px;
-      border-top: 1px solid rgba(129, 207, 223, .12);
+      border-top: 1px solid rgb(var(--dse-cyan-rgb) / .12);
     }
 
     #dse-root .dse-guided-outcome.is-updated {
@@ -6368,7 +6379,7 @@
     #dse-root .dse-guided-reason {
       max-width: 980px;
       margin: 26px auto 0;
-      border-color: #252b31;
+      border-color: var(--dse-line-soft);
     }
 
     #dse-root .dse-advanced-shell {
@@ -6379,8 +6390,8 @@
 
     #dse-root .dse-advanced-shell > summary {
       min-height: 70px;
-      border-top: 1px solid #252b31;
-      border-bottom: 1px solid #252b31;
+      border-top: 1px solid var(--dse-line-soft);
+      border-bottom: 1px solid var(--dse-line-soft);
     }
 
     #dse-root .dse-hero-status,
@@ -6435,7 +6446,7 @@
       justify-content: space-between;
       gap: 24px;
       padding: 18px 0;
-      border-bottom: 1px solid #252b31;
+      border-bottom: 1px solid var(--dse-line-soft);
     }
 
     #dse-root .dse-advanced-status > div:first-child {
@@ -6452,9 +6463,9 @@
     }
 
     #dse-root .dse-advanced-status strong {
-      color: #eef1f3;
+      color: var(--dse-text-strong);
       font-size: 19px;
-      font-weight: 570;
+      font-weight: 500;
     }
 
     #dse-root .dse-advanced-status span {
@@ -6468,7 +6479,7 @@
     }
 
     #dse-root .dse-advanced-actions button {
-      min-height: 42px;
+      min-height: 44px;
       padding: 0 13px;
       color: #bdc4cb;
       background: #101419;
@@ -6739,8 +6750,8 @@
       min-height: 44px;
       padding: 0 10px;
       color: #bfe5eb;
-      background: rgba(129, 207, 223, .06);
-      border: 1px solid rgba(129, 207, 223, .2);
+      background: rgb(var(--dse-cyan-rgb) / .06);
+      border: 1px solid rgb(var(--dse-cyan-rgb) / .2);
       border-radius: 999px;
       text-decoration: none;
     }
@@ -6748,12 +6759,12 @@
     #dse-root .dse-guided-result-actions #dse-guided-open-advanced:hover,
     #dse-root .dse-guided-result-actions #dse-guided-open-advanced:focus-visible {
       color: #f2f7f8;
-      background: rgba(129, 207, 223, .12);
-      border-color: rgba(129, 207, 223, .42);
+      background: rgb(var(--dse-cyan-rgb) / .12);
+      border-color: rgb(var(--dse-cyan-rgb) / .42);
     }
 
     #dse-root .dse-guided-result-actions #dse-guided-open-advanced:active {
-      background: rgba(129, 207, 223, .18);
+      background: rgb(var(--dse-cyan-rgb) / .18);
       transform: translateY(1px);
     }
 
@@ -6792,7 +6803,7 @@
       scrollbar-width: none;
       -ms-overflow-style: none;
       touch-action: pan-x pan-y;
-      background: #080a0c;
+      background: var(--dse-surface-deep);
       border: 1px solid var(--dse-line);
       border-radius: 8px;
       scroll-snap-type: x proximity;
@@ -6830,7 +6841,7 @@
     }
 
     #dse-root #dse-triage-case-grid .dse-scenario[aria-pressed="true"] {
-      box-shadow: inset 2px 0 0 var(--dse-cyan);
+      box-shadow: none;
     }
 
     #dse-root .dse-advanced-shell .dse-demo-modes {
@@ -6873,44 +6884,43 @@
 
     #dse-root .dse-experiment-output {
       --dse-outcome-color: var(--dse-cyan);
-      --dse-outcome-border: rgba(129, 207, 223, .46);
-      --dse-outcome-wash: rgba(129, 207, 223, .055);
+      --dse-outcome-border: rgb(var(--dse-cyan-rgb) / .46);
+      --dse-outcome-wash: rgb(var(--dse-cyan-rgb) / .055);
       border-color: var(--dse-outcome-border);
-      box-shadow: inset 4px 0 0 var(--dse-outcome-color);
+      box-shadow: none;
       transition:
         border-color .18s ease,
-        box-shadow .18s ease,
         background-color .18s ease;
     }
 
     #dse-root .dse-experiment-output.blocked {
       --dse-outcome-color: var(--dse-amber);
-      --dse-outcome-border: rgba(216, 180, 122, .58);
-      --dse-outcome-wash: rgba(216, 180, 122, .055);
+      --dse-outcome-border: rgb(var(--dse-amber-rgb) / .58);
+      --dse-outcome-wash: rgb(var(--dse-amber-rgb) / .055);
     }
 
     #dse-root .dse-experiment-output.demo {
       --dse-outcome-color: var(--dse-cyan);
-      --dse-outcome-border: rgba(129, 207, 223, .4);
-      --dse-outcome-wash: rgba(129, 207, 223, .04);
+      --dse-outcome-border: rgb(var(--dse-cyan-rgb) / .4);
+      --dse-outcome-wash: rgb(var(--dse-cyan-rgb) / .04);
     }
 
     #dse-root .dse-experiment-output.outcome-pass {
       --dse-outcome-color: var(--dse-lime);
-      --dse-outcome-border: rgba(166, 215, 162, .66);
-      --dse-outcome-wash: rgba(166, 215, 162, .065);
+      --dse-outcome-border: rgb(var(--dse-lime-rgb) / .66);
+      --dse-outcome-wash: rgb(var(--dse-lime-rgb) / .065);
     }
 
     #dse-root .dse-experiment-output.outcome-fail {
       --dse-outcome-color: var(--dse-red);
-      --dse-outcome-border: rgba(220, 131, 139, .68);
-      --dse-outcome-wash: rgba(220, 131, 139, .07);
+      --dse-outcome-border: rgb(var(--dse-red-rgb) / .68);
+      --dse-outcome-wash: rgb(var(--dse-red-rgb) / .07);
     }
 
     #dse-root .dse-experiment-output.outcome-inconclusive {
       --dse-outcome-color: var(--dse-amber);
-      --dse-outcome-border: rgba(216, 180, 122, .68);
-      --dse-outcome-wash: rgba(216, 180, 122, .07);
+      --dse-outcome-border: rgb(var(--dse-amber-rgb) / .68);
+      --dse-outcome-wash: rgb(var(--dse-amber-rgb) / .07);
     }
 
     #dse-root .dse-experiment-output .dse-exp-status {
@@ -6919,7 +6929,7 @@
       gap: 8px;
       color: var(--dse-outcome-color);
       font-size: 13px;
-      font-weight: 570;
+      font-weight: 500;
       letter-spacing: 0;
     }
 
@@ -6929,7 +6939,7 @@
       height: 7px;
       background: var(--dse-outcome-color);
       border-radius: 50%;
-      box-shadow: 0 0 10px var(--dse-outcome-color);
+      box-shadow: none;
       content: "";
     }
 
@@ -6941,7 +6951,7 @@
 
     #dse-root .dse-sim-actions .dse-demo-action {
       --dse-sim-color: var(--dse-cyan);
-      --dse-sim-border: rgba(129, 207, 223, .36);
+      --dse-sim-border: rgb(var(--dse-cyan-rgb) / .36);
       width: 100%;
       min-height: 48px;
       padding: 8px 10px;
@@ -6954,17 +6964,17 @@
 
     #dse-root .dse-sim-actions [data-sim-result="pass"] {
       --dse-sim-color: var(--dse-lime);
-      --dse-sim-border: rgba(166, 215, 162, .38);
+      --dse-sim-border: rgb(var(--dse-lime-rgb) / .38);
     }
 
     #dse-root .dse-sim-actions [data-sim-result="fail"] {
       --dse-sim-color: var(--dse-red);
-      --dse-sim-border: rgba(220, 131, 139, .38);
+      --dse-sim-border: rgb(var(--dse-red-rgb) / .38);
     }
 
     #dse-root .dse-sim-actions [data-sim-result="inconclusive"] {
       --dse-sim-color: var(--dse-amber);
-      --dse-sim-border: rgba(216, 180, 122, .38);
+      --dse-sim-border: rgb(var(--dse-amber-rgb) / .38);
     }
 
     #dse-root .dse-sim-actions .dse-demo-action[aria-pressed="true"] {
@@ -6972,7 +6982,7 @@
       background: var(--dse-sim-color);
       border-color: var(--dse-sim-color);
       box-shadow: 0 0 0 1px var(--dse-sim-color);
-      font-weight: 650;
+      font-weight: 600;
     }
 
     #dse-root .dse-sim-outcome {
@@ -6995,7 +7005,7 @@
     #dse-root .dse-sim-outcome strong {
       color: var(--dse-outcome-color);
       font-size: 15px;
-      font-weight: 620;
+      font-weight: 600;
       line-height: 1.5;
     }
 
@@ -7094,7 +7104,7 @@
       margin-top: 16px;
       padding: 14px;
       background: #0d1013;
-      border: 1px solid #292e34;
+      border: 1px solid var(--dse-line-soft);
       border-radius: 8px;
     }
 
@@ -7111,7 +7121,7 @@
     #dse-root .dse-triage-progress-head strong {
       color: #c9f2f7;
       font-size: 12px;
-      font-weight: 560;
+      font-weight: 500;
       letter-spacing: .02em;
     }
 
@@ -7137,15 +7147,15 @@
 
     #dse-root #dse-triage-state-rail .dse-state-name {
       font-size: 13px;
-      font-weight: 520;
+      font-weight: 500;
       line-height: 1.4;
       text-wrap: balance;
     }
 
     #dse-root #dse-triage-state-rail .dse-state-node.is-current {
-      background: rgba(129, 207, 223, .12);
-      border-color: rgba(129, 207, 223, .72);
-      box-shadow: inset 0 2px 0 var(--dse-cyan);
+      background: rgb(var(--dse-cyan-rgb) / .12);
+      border-color: rgb(var(--dse-cyan-rgb) / .72);
+      box-shadow: inset 0 1px 0 rgb(var(--dse-white-rgb) / .08);
     }
 
     #dse-root #dse-triage-state-rail .dse-state-node.is-done {
@@ -7166,7 +7176,7 @@
       }
 
       45% {
-        background-color: rgba(129, 207, 223, .16);
+        background-color: rgb(var(--dse-cyan-rgb) / .16);
       }
 
       100% {
@@ -7296,7 +7306,7 @@
       height: 12px;
       background: var(--dse-amber);
       border-radius: 2px;
-      box-shadow: 0 0 10px rgba(216, 180, 122, .28);
+      box-shadow: none;
     }
 
     #dse-root .dse-gate-summary strong {
@@ -7312,12 +7322,12 @@
 
     #dse-root .dse-gate-summary[data-state="ready"] .dse-gate-summary-light {
       background: var(--dse-lime);
-      box-shadow: 0 0 10px rgba(166, 215, 162, .32);
+      box-shadow: none;
     }
 
     #dse-root .dse-gate-summary[data-state="stop"] .dse-gate-summary-light {
       background: var(--dse-red);
-      box-shadow: 0 0 10px rgba(220, 131, 139, .3);
+      box-shadow: none;
     }
 
     #dse-root .dse-advanced-shell .dse-secondary-actions > summary,
@@ -7337,8 +7347,8 @@
 
     #dse-root .dse-secondary-actions [data-gate-action="direct"][aria-expanded="true"] {
       color: #f2f6f7;
-      border-color: rgba(129, 207, 223, .72);
-      background: rgba(129, 207, 223, .08);
+      border-color: rgb(var(--dse-cyan-rgb) / .72);
+      background: rgb(var(--dse-cyan-rgb) / .08);
     }
 
     #dse-root .dse-direct-feedback {
@@ -7348,7 +7358,7 @@
       padding: 14px 16px;
       color: #cbd5d8;
       background: #121416;
-      border: 1px solid rgba(216, 180, 122, .42);
+      border: 1px solid rgb(var(--dse-amber-rgb) / .42);
       border-left: 3px solid var(--dse-amber);
       border-radius: 5px;
     }
@@ -7366,7 +7376,7 @@
     }
 
     #dse-root .dse-direct-feedback:focus {
-      outline: 2px solid rgba(129, 207, 223, .5);
+      outline: 2px solid rgb(var(--dse-cyan-rgb) / .5);
       outline-offset: 2px;
     }
 
@@ -7464,7 +7474,7 @@
       grid-row: 1;
       color: var(--dse-text);
       font-size: 13px;
-      font-weight: 560;
+      font-weight: 500;
     }
 
     #dse-root .dse-interactive-technical > summary small {
@@ -7532,16 +7542,10 @@
       border-bottom: 1px solid #252c33;
     }
 
-    #dse-root .dse-advanced-page-head > p {
-      margin: 0 0 12px;
-      color: #8fc6d1;
-      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
-    }
-
     #dse-root .dse-advanced-page-head h1 {
       margin: 0;
       color: #f3f5f6;
-      font-weight: 580;
+      font-weight: 600;
       line-height: 1.16;
       letter-spacing: -.015em;
       text-wrap: balance;
@@ -7558,7 +7562,74 @@
     #dse-root .dse-advanced-page-head > small {
       display: block;
       margin-top: 14px;
-      color: #808a93;
+      color: var(--dse-text-faint);
+    }
+
+    #dse-root .dse-context-bridge {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 22px;
+      width: min(100% - 40px, 880px);
+      margin: -14px auto 28px;
+      padding: 16px 18px;
+      background: rgba(12, 21, 29, .82);
+      border: 1px solid #26343e;
+      border-radius: 12px;
+    }
+
+    #dse-root .dse-context-bridge-copy {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    #dse-root .dse-context-bridge-copy small {
+      color: #8fc6d1;
+    }
+
+    #dse-root .dse-context-bridge-copy strong {
+      color: #edf2f4;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-context-bridge-copy span {
+      color: #9da7af;
+      line-height: 1.65;
+    }
+
+    #dse-root .dse-context-bridge-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    #dse-root .dse-context-bridge-actions a,
+    #dse-root .dse-context-bridge-actions button {
+      min-height: 44px;
+      padding: 0 13px;
+      color: #bcc6ce;
+      background: #10161b;
+      border: 1px solid #34414b;
+      border-radius: 999px;
+      font: inherit;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-context-bridge-actions a {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    #dse-root .dse-context-bridge-actions a:hover,
+    #dse-root .dse-context-bridge-actions a:focus-visible,
+    #dse-root .dse-context-bridge-actions button:hover,
+    #dse-root .dse-context-bridge-actions button:focus-visible {
+      color: #f2f5f6;
+      border-color: #61707b;
     }
 
     html[data-site-view="interactive"] #dse-root .dse-orientation,
@@ -7589,6 +7660,12 @@
       border: 0;
     }
 
+    html[data-site-view="interactive"] #dse-root .dse-advanced-page-head {
+      margin-top: 56px;
+      margin-bottom: 32px;
+      padding-bottom: 28px;
+    }
+
     html[data-site-view="interactive"] #dse-root #dse-advanced-content {
       padding-top: 0;
     }
@@ -7617,11 +7694,11 @@
 
     html[data-site-view="interactive"] #dse-root .dse-demo-modes {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 0;
       width: min(100%, 980px);
       margin: 0 auto 36px;
-      border-bottom: 1px solid #293039;
+      border-bottom: 1px solid var(--dse-line-soft);
     }
 
     html[data-site-view="interactive"] #dse-root .dse-demo-modes .dse-filter {
@@ -7640,7 +7717,7 @@
     html[data-site-view="interactive"] #dse-root .dse-demo-modes .dse-filter:hover,
     html[data-site-view="interactive"] #dse-root .dse-demo-modes .dse-filter:focus-visible {
       color: #f0f3f5;
-      background: rgba(255, 255, 255, .025);
+      background: rgb(var(--dse-white-rgb) / .025);
     }
 
     html[data-site-view="interactive"] #dse-root .dse-demo-modes .dse-filter[aria-pressed="true"] {
@@ -7656,8 +7733,8 @@
       gap: 0;
       width: min(100%, 900px);
       margin: 0 auto 38px;
-      border-top: 1px solid #293039;
-      border-bottom: 1px solid #293039;
+      border-top: 1px solid var(--dse-line-soft);
+      border-bottom: 1px solid var(--dse-line-soft);
     }
 
     html[data-site-view="interactive"] #dse-root .dse-tune-steps a {
@@ -7665,7 +7742,7 @@
       padding: 12px 16px;
       background: transparent;
       border: 0;
-      border-right: 1px solid #293039;
+      border-right: 1px solid var(--dse-line-soft);
       border-radius: 0;
     }
 
@@ -7674,12 +7751,28 @@
     }
 
     html[data-site-view="interactive"] #dse-root .dse-tune-steps a[aria-current="step"] {
-      background: rgba(129, 207, 223, .045);
+      background: rgb(var(--dse-cyan-rgb) / .045);
       box-shadow: inset 0 -2px 0 var(--dse-cyan);
     }
 
     html[data-site-view="interactive"] #dse-root .dse-demo-panel {
-      padding: 34px;
+      padding: 32px 0 36px;
+      background: transparent;
+      border: 0;
+      border-top: 1px solid var(--dse-line-soft);
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-grid {
+      overflow: visible;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-chooser {
+      padding-top: 26px;
     }
 
     html[data-site-view="interactive"] #dse-root .dse-scenario-grid,
@@ -7745,6 +7838,45 @@
       margin-left: auto;
     }
 
+    html[data-site-view="interactive"] #dse-root .dse-record-evidence {
+      width: min(100%, 820px);
+      margin: 22px auto 0;
+      border-top: 1px solid var(--dse-line);
+      border-bottom: 1px solid var(--dse-line);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-record-evidence > summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 52px;
+      color: #cfd6dc;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-record-evidence > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-record-evidence > summary::after {
+      color: #8fc6d1;
+      content: "展开";
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-record-evidence[open] > summary::after {
+      content: "收起";
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-record-evidence > summary small {
+      color: var(--dse-text-faint);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-record-evidence-body {
+      padding: 4px 0 22px;
+    }
+
     html[data-site-view="interactive"] #dse-root .dse-sim-actions {
       grid-template-columns: repeat(3, minmax(0, 1fr));
       width: min(100%, 760px);
@@ -7771,13 +7903,29 @@
     }
 
     @media (max-width: 760px) {
+      #dse-root .dse-filter {
+        min-height: 44px;
+      }
+
       #dse-root .dse-advanced-page-head,
+      #dse-root .dse-context-bridge,
       html[data-site-view="interactive"] #dse-root .dse-advanced-shell {
         width: min(100% - 26px, 980px);
       }
 
       #dse-root .dse-advanced-page-head {
         margin-top: 48px;
+      }
+
+      #dse-root .dse-context-bridge {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+        margin-top: -10px;
+      }
+
+      #dse-root .dse-context-bridge-actions {
+        flex-wrap: wrap;
+        white-space: normal;
       }
 
       html[data-site-view="interactive"] #dse-root .dse-demo-modes {
@@ -7807,7 +7955,11 @@
       }
 
       html[data-site-view="interactive"] #dse-root .dse-demo-panel {
-        padding: 22px 16px;
+        padding: 26px 0 30px;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-demo-chooser {
+        padding-top: 22px;
       }
     }
 
@@ -7841,6 +7993,11 @@
     #dse-root h1,
     #dse-root h1 :where(*) {
       font-size: var(--dse-type-display) !important;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-advanced-page-head h1 {
+      font-size: clamp(36px, 4.2vw, 44px) !important;
+      letter-spacing: -.02em;
     }
 
     #dse-root h2,
@@ -7916,7 +8073,7 @@
       #dse-root .dse-machine-panel.triage .dse-machine-copy-body,
       #dse-root .dse-machine-panel.triage .dse-state-live span {
         color: #c8d0d5;
-        font-weight: 460;
+        font-weight: 400;
         line-height: 1.75;
       }
     }
@@ -7943,17 +8100,28 @@
 
   <div class="dse-shell">
     <header class="dse-advanced-page-head">
-      <p>高级模式</p>
       <h1>选择一个主题</h1>
-      <span>术语、调参、排障、旧记录和证据系统一次只处理一个主题。这里只做演示，不会读取或修改你的电脑。</span>
+      <span>术语、调参、排障、记录与证据，一次只进入一个主题。这里只做演示，不会读取或修改你的电脑。</span>
       <small>当前测试版 · 只读演示</small>
     </header>
+
+    <section class="dse-context-bridge" id="dse-context-bridge" hidden aria-live="polite">
+      <div class="dse-context-bridge-copy">
+        <small>从首页继续</small>
+        <strong id="dse-context-title">当前问题</strong>
+        <span id="dse-context-summary"></span>
+      </div>
+      <div class="dse-context-bridge-actions">
+        <a href="../#dse-home-flow">返回修改问题</a>
+        <button type="button" id="dse-context-dismiss">在高级模式重新选择</button>
+      </div>
+    </section>
 
     <details class="dse-interactive-technical" id="dse-interactive-technical" open>
       <summary id="dse-interactive-technical-summary"
         aria-controls="dse-interactive-technical-content" aria-expanded="true">
-        <span data-interactive-technical-action>高级模式</span>
-        <small>当前测试版 · 术语、完整门禁、排障规则与版本档案</small>
+        <span data-interactive-technical-action>工具与说明</span>
+        <small>当前测试版 · 术语、调参、排障与记录证据</small>
         <i data-interactive-technical-indicator aria-hidden="true">展开</i>
       </summary>
 
@@ -8165,7 +8333,7 @@
     <details class="dse-advanced-shell" id="dse-advanced-shell" open>
       <summary id="dse-advanced-summary"
         aria-controls="dse-advanced-content" aria-expanded="false">
-        <span>高级模式</span>
+        <span>交互演示</span>
         <strong>完整术语、调校门禁、排障与证据实验</strong>
         <small data-advanced-indicator>当前</small>
       </summary>
@@ -8173,8 +8341,8 @@
     <div class="dse-advanced-status" aria-live="polite">
       <div>
         <small>当前高级主题</small>
-        <strong id="dse-advanced-current">安全调参</strong>
-        <span id="dse-advanced-progress">2 / 5 · 可随时切换</span>
+        <strong id="dse-advanced-current">尚未选择</strong>
+        <span id="dse-advanced-progress">0 / 4 · 先选一个主题</span>
       </div>
       <div class="dse-advanced-actions">
         <button id="dse-advanced-prev" type="button">上一步</button>
@@ -8185,8 +8353,8 @@
     <section class="dse-demo" id="dse-demo" aria-labelledby="dse-demo-title">
       <header class="dse-demo-head">
         <div class="dse-demo-heading">
-          <p class="dse-demo-kicker">从问题到测试计划</p>
-          <h2 id="dse-demo-title">从问题到测试计划</h2>
+          <p class="dse-demo-kicker">按主题查看流程</p>
+          <h2 id="dse-demo-title">按主题查看流程</h2>
         </div>
         <div class="dse-demo-lead">
           <p class="dse-demo-summary">选一个最接近你的情况，看看先要弄清楚什么，再决定要不要改设置。这里只做演示，不会读取或修改你的电脑。</p>
@@ -8199,10 +8367,9 @@
 
       <div class="dse-demo-modes" role="group" aria-label="交互实验室模式">
         <button type="button" class="dse-filter" data-demo-mode="terms" aria-pressed="false">看懂名词</button>
-        <button type="button" class="dse-filter" data-demo-mode="tune" aria-pressed="true">安全调参</button>
+        <button type="button" class="dse-filter" data-demo-mode="tune" aria-pressed="false">安全调参</button>
         <button type="button" class="dse-filter" data-demo-mode="triage" aria-pressed="false">排查故障</button>
-        <button type="button" class="dse-filter" data-demo-mode="identity" aria-pressed="false">旧记录还能用吗</button>
-        <button type="button" class="dse-filter" data-demo-mode="evidence" aria-pressed="false">证据系统</button>
+        <button type="button" class="dse-filter" data-demo-mode="record" aria-pressed="false">记录与证据</button>
       </div>
 
       <section class="dse-mode-guide" aria-labelledby="dse-mode-guide-title" aria-live="polite">
@@ -8229,6 +8396,15 @@
       </nav>
 
       <div class="dse-demo-grid">
+        <article class="dse-demo-panel wide dse-demo-chooser" data-demo-mode="choose" aria-labelledby="dse-choose-title">
+          <div class="dse-demo-panel-head">
+            <div>
+              <h3 id="dse-choose-title">先选择一个主题</h3>
+              <p class="dse-demo-panel-sub">四个主题各自只处理一类问题。选定后再显示对应流程，不把全部内容一次铺开。</p>
+            </div>
+          </div>
+        </article>
+
         <article class="dse-demo-panel wide dse-term-panel" data-demo-mode="terms" aria-labelledby="dse-term-title" hidden>
           <div class="dse-demo-panel-head">
             <div>
@@ -8503,41 +8679,6 @@
           </details>
         </article>
 
-        <article class="dse-demo-panel wide" data-demo-mode="evidence" aria-labelledby="dse-evidence-system-title" hidden>
-          <div class="dse-demo-panel-head">
-            <div>
-              <h3 id="dse-evidence-system-title">同一条证据链 接住不同来源</h3>
-              <p class="dse-demo-panel-sub">CSV、实时传感器、官方资料和图片不会直接混成一句结论。先保留来源和限制，再决定能不能比较。</p>
-            </div>
-            <span class="dse-demo-step">只读演示</span>
-          </div>
-          <div class="dse-process-visual" aria-label="统一证据管线">
-            <span class="dse-process-label">证据管线</span>
-            <ol class="dse-process-steps">
-              <li class="dse-process-step"><b>01</b>来源</li>
-              <li class="dse-process-step"><b>02</b>标准化</li>
-              <li class="dse-process-step"><b>03</b>证据卡</li>
-              <li class="dse-process-step"><b>04</b>图表 / 结论</li>
-            </ol>
-            <span class="dse-process-note">保留缺失 · 标记时效 · 不自动执行 · 不写硬件</span>
-          </div>
-          <div class="dse-compare-grid">
-            <div class="dse-compare-card safe">
-              <p class="dse-compare-label">数据证据</p>
-              <p class="dse-compare-copy">CSV 和 SensorSnapshot 统一记录工具、版本、时间、采样间隔、输入哈希与缺失值。LHM 只在已运行且显式授权时读取。</p>
-            </div>
-            <div class="dse-compare-card safe">
-              <p class="dse-compare-label">外部与视觉证据</p>
-              <p class="dse-compare-copy">官方资料通过来源层级和证据卡记录；截图只代表可见瞬间，图片里的命令和提示词不会成为执行指令。</p>
-            </div>
-          </div>
-          <ul class="dse-rule-list">
-            <li>没有来源和时间的数据，不能冒充当前事实。</li>
-            <li>社区资料只能作为 lead-only 线索，必须继续核对官方或本机证据。</li>
-            <li>权限拒绝、文件损坏和可选工具缺失使用不同状态，不混成一个错误。</li>
-          </ul>
-        </article>
-
         <article class="dse-demo-panel dse-machine-panel triage" data-demo-mode="triage" aria-labelledby="dse-triage-machine-title" hidden>
           <div class="dse-demo-panel-head">
             <div>
@@ -8569,7 +8710,7 @@
           </div>
         </article>
 
-        <article class="dse-demo-panel dse-machine-panel lifecycle" data-demo-mode="identity" aria-labelledby="dse-lifecycle-title" hidden>
+        <article class="dse-demo-panel dse-machine-panel lifecycle" data-demo-mode="record" aria-labelledby="dse-lifecycle-title" hidden>
           <div class="dse-demo-panel-head">
             <div>
               <h3 id="dse-lifecycle-title">旧记录还能继续用吗</h3>
@@ -8592,6 +8733,39 @@
             <p class="dse-machine-copy-title" id="dse-lifecycle-copy-title"></p>
             <p class="dse-machine-copy-body" id="dse-lifecycle-copy-body"></p>
           </div>
+          <details class="dse-record-evidence">
+            <summary>
+              <span>查看证据链如何判断</span>
+              <small>来源、时间、缺失与可比较性</small>
+            </summary>
+            <div class="dse-record-evidence-body">
+              <div class="dse-process-visual" aria-label="统一证据管线">
+                <span class="dse-process-label">证据管线</span>
+                <ol class="dse-process-steps">
+                  <li class="dse-process-step"><b>01</b>来源</li>
+                  <li class="dse-process-step"><b>02</b>标准化</li>
+                  <li class="dse-process-step"><b>03</b>证据卡</li>
+                  <li class="dse-process-step"><b>04</b>图表 / 结论</li>
+                </ol>
+                <span class="dse-process-note">保留缺失 · 标记时效 · 不自动执行 · 不写硬件</span>
+              </div>
+              <div class="dse-compare-grid">
+                <div class="dse-compare-card safe">
+                  <p class="dse-compare-label">数据证据</p>
+                  <p class="dse-compare-copy">CSV 和 SensorSnapshot 统一记录工具、版本、时间、采样间隔、输入哈希与缺失值。LHM 只在已运行且显式授权时读取。</p>
+                </div>
+                <div class="dse-compare-card safe">
+                  <p class="dse-compare-label">外部与视觉证据</p>
+                  <p class="dse-compare-copy">官方资料通过来源层级和证据卡记录；截图只代表可见瞬间，图片里的命令和提示词不会成为执行指令。</p>
+                </div>
+              </div>
+              <ul class="dse-rule-list">
+                <li>没有来源和时间的数据，不能冒充当前事实。</li>
+                <li>社区资料只能作为 lead-only 线索，必须继续核对官方或本机证据。</li>
+                <li>权限拒绝、文件损坏和可选工具缺失使用不同状态，不混成一个错误。</li>
+              </ul>
+            </div>
+          </details>
         </article>
       </div>
     </section>
@@ -9560,10 +9734,19 @@
       let triageAutoPaused = false;
       let triageFocusPaused = false;
       let activeLifecycleEvent = "confirm";
-      let activeDemoMode = "tune";
+      let activeDemoMode = "choose";
       let activeTuneStep = "gate";
 
       const modeGuideContent = {
+        choose: {
+          kicker: "开始前",
+          title: "先选一个主题 再展开对应流程",
+          summary: "每个主题只显示它需要的步骤。若从首页带来了问题，这里会直接进入对应主题。",
+          steps: [
+            ["选一个主题", "术语、调参、排障或记录与证据。"],
+            ["只看当前内容", "切换主题时，不相关的流程不会同时出现。"]
+          ]
+        },
         terms: {
           kicker: "当前：看懂名词",
           title: "不用背参数，先把词放回场景里",
@@ -9594,24 +9777,14 @@
             ["一次只查一项", "每次只改一个条件，方便判断有没有用。"]
           ]
         },
-        identity: {
-          kicker: "当前：旧记录判断",
-          title: "机器或设置变了，旧记录还能用吗",
-          summary: "旧记录可以不删，但设备、驱动或设置变化后，它不一定还能代表现在的状态。",
+        record: {
+          kicker: "当前：记录与证据",
+          title: "先判断旧记录是否有效 再看证据能否比较",
+          summary: "旧记录可以保留；设备、驱动或设置变化后，要先确认它是否仍能代表现在，再检查证据来源和时间。",
           steps: [
             ["点一个发生过的变化", "例如换了硬件、更新驱动或改了功耗限制。"],
             ["看旧记录还能做什么", "是可以继续比较，还是只能留作历史。"],
-            ["决定下一步", "继续用、重新记录，或者先不用旧数据。"]
-          ]
-        },
-        evidence: {
-          kicker: "当前：证据系统",
-          title: "不同来源 先走同一条证据链",
-          summary: "遥测、官方资料、实时只读传感器和图片各有边界。系统先记录来源、时间和缺失，再决定能否比较或下结论。",
-          steps: [
-            ["确认来源", "工具、版本、设备、时间和输入哈希必须能追溯。"],
-            ["保留限制", "缺失值、采样变化、社区线索和图片可见范围都要标注。"],
-            ["再输出", "图表与结论共享同一证据，不用一张图替代完整过程。"]
+            ["需要时展开证据链", "查看来源、时间、缺失和可比较性，再决定是否继续。"]
           ]
         }
       };
@@ -11391,14 +11564,72 @@
         });
       }
 
-      const advancedModeOrder = ["terms", "tune", "triage", "identity", "evidence"];
+      const advancedModeOrder = ["terms", "tune", "triage", "record"];
       const advancedModeLabels = {
         terms: "看懂名词",
         tune: "安全调参",
         triage: "排查故障",
-        identity: "旧记录判断",
-        evidence: "证据系统"
+        record: "记录与证据"
       };
+      const demoModeScenes = {
+        terms: "space",
+        tune: "cpu",
+        triage: "fan",
+        record: "gpu"
+      };
+      const demoModeAliases = {
+        identity: "record",
+        evidence: "record"
+      };
+      const validDemoModes = new Set(["choose", ...advancedModeOrder]);
+
+      function normalizeDemoMode(mode) {
+        return demoModeAliases[mode] || mode;
+      }
+
+      function setBackdropSceneIntent(scene) {
+        document.documentElement.dataset.crtSceneIntent = scene || "";
+        window.dispatchEvent(new CustomEvent("pcwb:crt-scene-intent", {
+          detail: { scene: scene || "" }
+        }));
+      }
+
+      const homeHandoffStorageKey = "pcwb:skill-evolution:home-return";
+
+      function readHomeHandoffState() {
+        try {
+          const raw = sessionStorage.getItem(homeHandoffStorageKey);
+          if (!raw) return null;
+          const state = JSON.parse(raw);
+          if (
+            !state ||
+            typeof state !== "object" ||
+            Date.now() - Number(state.savedAt || 0) > 15 * 60 * 1000
+          ) {
+            return null;
+          }
+          return state.context && typeof state.context === "object"
+            ? state.context
+            : null;
+        } catch {
+          return null;
+        }
+      }
+
+      const homeHandoffState = isInteractiveView ? readHomeHandoffState() : null;
+
+      function renderHomeHandoffContext(context) {
+        const bridge = document.getElementById("dse-context-bridge");
+        if (!bridge || !context?.scenarioLabel) return;
+        const title = document.getElementById("dse-context-title");
+        const summary = document.getElementById("dse-context-summary");
+        const evidenceCount = Array.isArray(context.evidenceLabels) ? context.evidenceLabels.length : 0;
+        const missingCount = Array.isArray(context.missingLabels) ? context.missingLabels.length : 0;
+        const stepLabel = Number(context.flowStep) >= 3 ? "已生成下一步" : "正在补充信息";
+        title.textContent = `继续处理：${context.scenarioLabel}`;
+        summary.textContent = `${stepLabel} · 已选 ${evidenceCount} 项信息${missingCount ? ` · 还缺 ${missingCount} 项` : " · 信息已齐"}`;
+        bridge.hidden = false;
+      }
 
       function syncAdvancedProgress(mode) {
         const current = document.getElementById("dse-advanced-current");
@@ -11407,6 +11638,13 @@
         const next = document.getElementById("dse-advanced-next");
         if (!current || !progress || !previous || !next) return;
         const index = advancedModeOrder.indexOf(mode);
+        if (mode === "choose" || index < 0) {
+          current.textContent = "尚未选择";
+          progress.textContent = `0 / ${advancedModeOrder.length} · 先选一个主题`;
+          previous.disabled = true;
+          next.disabled = true;
+          return;
+        }
         current.textContent = advancedModeLabels[mode] || mode;
         progress.textContent = `${index + 1} / ${advancedModeOrder.length} · 可切换主题`;
         previous.disabled = index <= 0;
@@ -11414,18 +11652,20 @@
       }
 
       function setDemoMode(mode, options = {}) {
-        if (!["terms", "tune", "triage", "identity", "evidence"].includes(mode)) return;
+        mode = normalizeDemoMode(mode);
+        if (!validDemoModes.has(mode)) return;
         const previousMode = activeDemoMode;
         activeDemoMode = mode;
         if (advancedShellElement) demoSection.hidden = false;
+        if (isInteractiveView) setBackdropSceneIntent(demoModeScenes[mode] || "");
         syncAdvancedProgress(mode);
         renderModeGuide(mode);
         tuneSteps.hidden = mode !== "tune";
         root.querySelectorAll(".dse-demo-panel[data-demo-mode]").forEach(panel => {
-          panel.hidden = panel.dataset.demoMode !== mode;
+          panel.hidden = normalizeDemoMode(panel.dataset.demoMode) !== mode;
         });
         root.querySelectorAll(".dse-demo-modes [data-demo-mode]").forEach(button => {
-          button.setAttribute("aria-pressed", String(button.dataset.demoMode === mode));
+          button.setAttribute("aria-pressed", String(normalizeDemoMode(button.dataset.demoMode) === mode));
         });
         if (mode === "tune") {
           showTuneStep(previousMode === "tune" ? activeTuneStep : "gate");
@@ -11446,11 +11686,12 @@
       function handleRoute() {
         const raw = decodeURIComponent(window.location.hash.replace(/^#/, ""));
         if (!raw) return;
+        const routedMode = normalizeDemoMode(raw);
         if (isInteractiveView) {
           const advancedShell = document.getElementById("dse-advanced-shell");
           if (
             raw.startsWith("term-") ||
-            ["terms", "tune", "triage", "identity", "evidence"].includes(raw)
+            validDemoModes.has(routedMode)
           ) {
             if (interactiveTechnicalElement) interactiveTechnicalElement.open = true;
             advancedShell?.setAttribute("open", "");
@@ -11463,8 +11704,8 @@
             openTerm(id, true);
             return;
           }
-          if (["terms", "tune", "triage", "identity", "evidence"].includes(raw)) {
-            setDemoMode(raw, { updateRoute: false });
+          if (validDemoModes.has(routedMode)) {
+            setDemoMode(routedMode, { updateRoute: false });
           }
           if (raw.startsWith("wb-") || raw.startsWith("ao-")) {
             if (interactiveTechnicalElement) interactiveTechnicalElement.open = true;
@@ -11479,7 +11720,7 @@
           }
           return;
         }
-        if (raw.startsWith("term-") || ["terms", "tune", "triage", "identity", "evidence"].includes(raw)) {
+        if (raw.startsWith("term-") || validDemoModes.has(routedMode)) {
           window.location.href = `interactive/#${raw}`;
           return;
         }
@@ -11553,7 +11794,23 @@
         const advancedShell = document.getElementById("dse-advanced-shell");
         if (advancedShell) advancedShell.open = true;
         activeTuneStep = "gate";
-        setDemoMode("tune", { updateRoute: true, scroll: false });
+        setDemoMode("choose", { updateRoute: false, scroll: false });
+        try {
+          history.replaceState(null, "", `${location.pathname}${location.search}`);
+        } catch {
+          // Local file previews may not expose history state.
+        }
+      });
+      document.getElementById("dse-context-dismiss")?.addEventListener("click", () => {
+        const bridge = document.getElementById("dse-context-bridge");
+        if (bridge) bridge.hidden = true;
+        setDemoMode("choose", { updateRoute: false, scroll: false });
+        try {
+          history.replaceState(null, "", `${location.pathname}${location.search}`);
+        } catch {
+          // Local file previews may not expose history state.
+        }
+        root.querySelector(".dse-demo-modes [data-demo-mode]")?.focus({ preventScroll: true });
       });
       document.getElementById("dse-close-advanced")?.addEventListener("click", () => {
         const advancedShell = document.getElementById("dse-advanced-shell");
@@ -11565,7 +11822,7 @@
         if (
           isInteractiveView &&
           (
-            advancedModeOrder.includes(routeHash) ||
+            validDemoModes.has(normalizeDemoMode(routeHash)) ||
             previousHash.startsWith("term-") ||
             routeHash.startsWith("term-")
           )
@@ -11589,7 +11846,7 @@
         const hasVisiblePanel = [...root.querySelectorAll(".dse-demo-panel[data-demo-mode]")]
           .some(panel => !panel.hidden);
         if (!hasVisiblePanel) {
-          setDemoMode("tune", { updateRoute: false, scroll: false });
+          setDemoMode("choose", { updateRoute: false, scroll: false });
         }
         window.requestAnimationFrame(() => {
           const status = advancedShellElement.querySelector(".dse-advanced-status");
@@ -12000,11 +12257,16 @@
       }
 
       setupGuidedLab();
-      setDemoMode("tune", { updateRoute: false });
+      setDemoMode("choose", { updateRoute: false });
       if (isInteractiveView) {
         initTermLab();
         applyFilter("demo", false);
         handleRoute();
+        renderHomeHandoffContext(homeHandoffState);
+        const handoffMode = normalizeDemoMode(homeHandoffState?.advancedMode);
+        if (!window.location.hash && advancedModeOrder.includes(handoffMode)) {
+          setDemoMode(handoffMode, { updateRoute: false, scroll: false });
+        }
         if (!window.location.hash) {
           const resetScrollTop = () => {
             if (!window.location.hash) root.scrollTop = 0;
@@ -12023,6 +12285,7 @@
   </script>
 </main>
 
+<script src="../crt-backdrop.js" defer></script>
 <noscript>This page requires JavaScript to show the interactive content.</noscript>
 </body>
 </html>

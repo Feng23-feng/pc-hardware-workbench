@@ -14,6 +14,8 @@ $indexPath = Join-Path $siteRoot "index.html"
 $interactivePath = Join-Path $siteRoot "interactive\index.html"
 $homeTemplatePath = Join-Path $RepositoryRoot "tools\templates\skill-evolution-home.html"
 $interactiveTemplatePath = Join-Path $RepositoryRoot "tools\templates\skill-evolution-interactive.html"
+$crtCssPath = Join-Path $siteRoot "crt-backdrop.css"
+$crtJsPath = Join-Path $siteRoot "crt-backdrop.js"
 $orreryPath = Join-Path $siteRoot "orrery\index.html"
 $frozenPath = Join-Path $siteRoot "orrery\FROZEN.json"
 
@@ -22,6 +24,8 @@ foreach ($path in @(
     $interactivePath,
     $homeTemplatePath,
     $interactiveTemplatePath,
+    $crtCssPath,
+    $crtJsPath,
     $orreryPath,
     $frozenPath
 )) {
@@ -34,8 +38,8 @@ if ($errors.Count -eq 0) {
     $homeTemplate = Get-Content -Raw -LiteralPath $homeTemplatePath -Encoding UTF8
     $interactiveTemplate = Get-Content -Raw -LiteralPath $interactiveTemplatePath -Encoding UTF8
     $pages = @(
-        @{ Name = "Index"; Path = $indexPath; Template = $homeTemplate; SiteView = "index" },
-        @{ Name = "Interactive"; Path = $interactivePath; Template = $interactiveTemplate; SiteView = "interactive" }
+        @{ Name = "Index"; Path = $indexPath; Template = $homeTemplate; SiteView = "index"; AssetPrefix = "." },
+        @{ Name = "Interactive"; Path = $interactivePath; Template = $interactiveTemplate; SiteView = "interactive"; AssetPrefix = ".." }
     )
 
     foreach ($entry in $pages) {
@@ -48,6 +52,14 @@ if ($errors.Count -eq 0) {
         }
         if ($html -notmatch '<main id="dse-root"') {
             $errors.Add("$($entry.Name) does not use a main landmark for the site root.") | Out-Null
+        }
+        $styleHref = "$($entry.AssetPrefix)/crt-backdrop.css"
+        $scriptSrc = "$($entry.AssetPrefix)/crt-backdrop.js"
+        if ($html -notmatch [regex]::Escape("href=`"$styleHref`"")) {
+            $errors.Add("$($entry.Name) does not load the shared CRT backdrop stylesheet.") | Out-Null
+        }
+        if ($html -notmatch [regex]::Escape("src=`"$scriptSrc`"")) {
+            $errors.Add("$($entry.Name) does not load the shared CRT backdrop script.") | Out-Null
         }
         if ($html -notmatch '2\.5\.0' -or $html -notmatch 'PENDING') {
             $errors.Add("$($entry.Name) does not preserve version-archive metadata or pending verification status.") | Out-Null
@@ -73,6 +85,26 @@ if ($errors.Count -eq 0) {
             if ($headingText -match '[\u3001\u3002\x21\x3F\uFF01\uFF1F\uFF0C\uFF1B\uFF1A]') {
                 $errors.Add("$($entry.Name) display heading contains sentence punctuation: $headingText") | Out-Null
             }
+        }
+        $invalidWeights = [regex]::Matches($html, 'font-weight:\s*(\d+)', 'IgnoreCase') |
+            ForEach-Object { $_.Groups[1].Value } |
+            Where-Object { $_ -notin @('400', '500', '600') } |
+            Sort-Object -Unique
+        if ($invalidWeights.Count -gt 0) {
+            $errors.Add("$($entry.Name) uses unsupported font weights: $($invalidWeights -join ', ').") | Out-Null
+        }
+        foreach ($spacingMatch in [regex]::Matches($html, 'letter-spacing:\s*(-\d*\.\d+)em', 'IgnoreCase')) {
+            $spacingValue = [double]::Parse($spacingMatch.Groups[1].Value, [Globalization.CultureInfo]::InvariantCulture)
+            if ($spacingValue -lt -0.03) {
+                $errors.Add("$($entry.Name) uses excessively tight letter spacing: $($spacingValue)em.") | Out-Null
+                break
+            }
+        }
+        if ($html -match 'text-transform:\s*uppercase') {
+            $errors.Add("$($entry.Name) still contains uppercase label styling.") | Out-Null
+        }
+        if ($html -match 'animation:[^;]*infinite|repeatCount="indefinite"') {
+            $errors.Add("$($entry.Name) still contains an infinite decorative animation.") | Out-Null
         }
 
         $ids = [regex]::Matches($html, '(?i)\sid="([^"]+)"') |
@@ -137,6 +169,8 @@ if ($errors.Count -eq 0) {
         'class="dse-candidate-columns"',
         'class="dse-advanced-entry"',
         'class="dse-explore dse-explore-primary"',
+        'class="dse-file-map"',
+        'SKILL.md',
         'href="interactive/"',
         'href="orrery/"',
         'aria-controls="dse-home-technical-content"',
@@ -177,8 +211,11 @@ if ($errors.Count -eq 0) {
         'data-demo-mode="terms"',
         'data-demo-mode="tune"',
         'data-demo-mode="triage"',
-        'data-demo-mode="identity"',
-        'data-demo-mode="evidence"',
+        'data-demo-mode="record"',
+        'data-demo-mode="choose"',
+        'id="dse-context-bridge"',
+        'id="dse-context-title"',
+        'id="dse-context-summary"',
         'id="dse-direct-feedback"',
         'id="dse-direct-feedback-title"',
         'data-gate-action="direct"',
@@ -190,6 +227,15 @@ if ($errors.Count -eq 0) {
     }
     if ($interactiveHtml -match 'class="dse-guided"|id="dse-guided-(?:scenario|next|prev|reset|evidence|outcome|recommendation|show-reason|open-advanced)') {
         $errors.Add("Interactive page still contains the migrated simple-mode flow.") | Out-Null
+    }
+    $demoModeButtons = [regex]::Matches($interactiveHtml, '<button[^>]*class="dse-filter"[^>]*data-demo-mode="([^"]+)"')
+    $demoModeNames = @($demoModeButtons | ForEach-Object { $_.Groups[1].Value })
+    if (
+        $demoModeButtons.Count -ne 4 -or
+        @($demoModeNames | Sort-Object -Unique).Count -ne 4 -or
+        @($demoModeNames | Where-Object { $_ -match '^(identity|evidence)$' }).Count -gt 0
+    ) {
+        $errors.Add("Interactive page must expose exactly four consolidated demo themes.") | Out-Null
     }
     if ($interactiveHtml -match 'class="dse-guided-reason"[^>]*\sopen(?:\s|>)') {
         $errors.Add("Interactive evidence reasoning must be collapsed by default.") | Out-Null
@@ -233,6 +279,10 @@ if ($errors.Count -eq 0) {
                     Remove-Item -LiteralPath $temporary -Force
                 }
             }
+        }
+        & $node.Source --check $crtJsPath
+        if ($LASTEXITCODE -ne 0) {
+            $errors.Add("CRT backdrop JavaScript syntax check failed: $crtJsPath") | Out-Null
         }
     }
 

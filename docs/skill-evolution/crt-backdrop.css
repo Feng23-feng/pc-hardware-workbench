@@ -1,0 +1,251 @@
+#dse-crt-backdrop {
+  --dse-crt-bg: #080a0b;
+  --dse-crt-line: rgba(115, 214, 165, .2);
+  --dse-crt-tick: rgba(160, 242, 199, .23);
+  --dse-crt-bright: #a0f2c7;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 58% 28%, rgba(115, 214, 165, .025), transparent 42%),
+    var(--dse-crt-bg);
+  contain: layout paint style;
+  isolation: isolate;
+}
+
+#dse-crt-backdrop * {
+  box-sizing: border-box;
+}
+
+#dse-crt-backdrop .dse-crt-grid,
+#dse-crt-backdrop .dse-crt-raster,
+#dse-crt-backdrop .dse-crt-scan-beam,
+#dse-crt-backdrop .dse-crt-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+#dse-crt-backdrop .dse-crt-grid {
+  z-index: 0;
+  opacity: .33;
+  transition: opacity .36s ease-out;
+}
+
+#dse-crt-backdrop .dse-crt-grid svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  filter: drop-shadow(0 0 1.5px rgba(115, 214, 165, .11));
+}
+
+#dse-crt-backdrop .dse-crt-scene {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .32s ease, visibility 0s linear .32s;
+}
+
+#dse-crt-backdrop .dse-crt-scene.is-active {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .32s ease;
+}
+
+#dse-crt-backdrop .dse-crt-chart-lines {
+  fill: none;
+  stroke: var(--dse-crt-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+#dse-crt-backdrop .dse-crt-scene-lines {
+  fill: none;
+  stroke: rgba(115, 214, 165, .24);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+#dse-crt-backdrop .dse-crt-ecliptic {
+  stroke: rgba(160, 242, 199, .3);
+  stroke-dasharray: 4 8;
+}
+
+#dse-crt-backdrop .dse-crt-axis {
+  stroke: rgba(115, 214, 165, .1);
+  stroke-dasharray: 2 10;
+}
+
+#dse-crt-backdrop .dse-crt-ticks line {
+  stroke: var(--dse-crt-tick);
+  stroke-width: .75;
+  vector-effect: non-scaling-stroke;
+}
+
+#dse-crt-backdrop .dse-crt-nodes circle {
+  fill: var(--dse-crt-bright);
+  opacity: .34;
+}
+
+#dse-crt-backdrop .dse-crt-fan-blade {
+  fill: rgba(160, 242, 199, .032);
+}
+
+#dse-crt-backdrop .dse-crt-rotor-cap {
+  fill: rgba(160, 242, 199, .06);
+}
+
+#dse-crt-backdrop .dse-crt-amd-ihs {
+  fill: rgba(160, 242, 199, .035);
+}
+
+#dse-crt-backdrop .dse-crt-amd-inset {
+  stroke: rgba(160, 242, 199, .14);
+}
+
+#dse-crt-backdrop .dse-crt-amd-dimple {
+  fill: rgba(160, 242, 199, .07);
+}
+
+#dse-crt-backdrop .dse-crt-focus-mask {
+  pointer-events: none;
+}
+
+#dse-crt-backdrop .dse-crt-raster {
+  z-index: 2;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(160, 242, 199, .1) 0,
+      rgba(160, 242, 199, .1) 1.5px,
+      rgba(3, 8, 6, .28) 1.5px,
+      rgba(3, 8, 6, .28) 4px,
+      rgba(3, 8, 6, .08) 4px,
+      rgba(3, 8, 6, .08) 7px
+    );
+  opacity: .32;
+  transition: opacity .36s ease-out;
+}
+
+#dse-crt-backdrop .dse-crt-raster::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 17px,
+      rgba(160, 242, 199, .025) 17px,
+      rgba(160, 242, 199, .025) 20px,
+      transparent 20px,
+      transparent 31px
+    );
+  mix-blend-mode: screen;
+}
+
+#dse-crt-backdrop .dse-crt-scan-beam {
+  z-index: 3;
+  top: -18%;
+  bottom: auto;
+  height: min(112px, 18vh);
+  opacity: 0;
+  background:
+    linear-gradient(to bottom, transparent, rgba(115, 214, 165, .05) 74%, rgba(160, 242, 199, .085), transparent),
+    linear-gradient(to right, transparent 2%, rgba(160, 242, 199, .16) 48%, rgba(115, 214, 165, .1) 68%, transparent 98%);
+  border-bottom: 2px solid rgba(160, 242, 199, .36);
+  box-shadow: 0 5px 14px rgba(115, 214, 165, .065);
+  filter: blur(.15px);
+}
+
+#dse-crt-backdrop .dse-crt-vignette {
+  z-index: 1;
+  background:
+    radial-gradient(ellipse at 54% 44%, transparent 0 22%, rgba(8, 10, 11, .3) 54%, rgba(8, 10, 11, .78) 100%);
+  box-shadow: inset 0 0 90px rgba(0, 0, 0, .55);
+}
+
+#dse-crt-backdrop [data-crt-reveal] {
+  clip-path: none;
+}
+
+#dse-crt-backdrop.is-scanning .dse-crt-grid {
+  opacity: .58;
+}
+
+#dse-crt-backdrop.is-scanning .dse-crt-raster {
+  opacity: .65;
+}
+
+#dse-crt-backdrop.is-scanning .dse-crt-scene.is-active [data-crt-reveal] {
+  animation: dse-crt-raster-reveal 1.55s linear both;
+}
+
+#dse-crt-backdrop.is-scanning .dse-crt-scan-beam {
+  animation: dse-crt-scan 2.2s cubic-bezier(.36, 0, .2, 1) both;
+}
+
+#dse-crt-backdrop.is-replaying .dse-crt-scene.is-active [data-crt-reveal],
+#dse-crt-backdrop.is-replaying .dse-crt-scan-beam {
+  animation: none;
+}
+
+#dse-crt-backdrop.is-replaying .dse-crt-scene.is-active [data-crt-reveal] {
+  clip-path: inset(0 0 100% 0);
+}
+
+@keyframes dse-crt-raster-reveal {
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@keyframes dse-crt-scan {
+  from {
+    top: -22%;
+    opacity: 0;
+  }
+
+  12% {
+    opacity: 1;
+  }
+
+  to {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  #dse-crt-backdrop .dse-crt-grid {
+    opacity: .26;
+  }
+
+  #dse-crt-backdrop .dse-crt-grid svg {
+    transform: translateX(4%) scale(1.05);
+    transform-origin: 54% 44%;
+  }
+
+  #dse-crt-backdrop.is-scanning .dse-crt-grid {
+    opacity: .52;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #dse-crt-backdrop [data-crt-reveal] {
+    clip-path: none;
+    animation: none;
+  }
+
+  #dse-crt-backdrop .dse-crt-grid,
+  #dse-crt-backdrop .dse-crt-raster,
+  #dse-crt-backdrop .dse-crt-scene {
+    transition: none;
+  }
+
+  #dse-crt-backdrop .dse-crt-scan-beam {
+    display: none;
+  }
+}

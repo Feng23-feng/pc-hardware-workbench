@@ -350,6 +350,30 @@ function fontSizeExpression() {
   })()`;
 }
 
+function mobileControlSizeExpression() {
+  return `(() => {
+    const visible = element => {
+      const rect = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      return rect.width > 0 && rect.height > 0 &&
+        style.display !== "none" && style.visibility !== "hidden";
+    };
+    return [...document.querySelectorAll(
+      "#dse-root button, #dse-root summary, #dse-root a.dse-filter, #dse-root [role='button']"
+    )]
+      .filter(visible)
+      .map(element => {
+        const rect = element.getBoundingClientRect();
+        return {
+          text: (element.getAttribute("aria-label") || element.innerText || "").trim().slice(0, 70),
+          width: Math.round(rect.width),
+          height: Math.round(rect.height)
+        };
+      })
+      .filter(target => target.width < 44 || target.height < 44);
+  })()`;
+}
+
 function runIntegrityChecks(state, prefix) {
   check(state.duplicateIds.length === 0, `${prefix}duplicate IDs: ${state.duplicateIds.join(", ")}`);
   check(
@@ -415,8 +439,10 @@ async function testHomeViewport(siteUrl, name, width, height) {
       `${prefix}hero subtitle does not match the approved two-layer copy.`
     );
     check(
-      initial.safety === "只读取你允许的信息，不会自动修改硬件。",
-      `${prefix}safety boundary is not a separate statement below the CTA.`
+      initial.safety.includes("先选择现象") &&
+      initial.safety.includes("只读取你允许的信息") &&
+      initial.safety.includes("不会自动修改硬件"),
+      `${prefix}hero action result and safety boundary are not explicit.`
     );
     check(initial.ctaHref === "#dse-home-flow", `${prefix}primary CTA does not lead to the inline simple flow.`);
     check(initial.ctaText === "开始排查", `${prefix}hero CTA does not match the simple-flow entry.`);
@@ -500,12 +526,29 @@ async function testHomeViewport(siteUrl, name, width, height) {
       `${prefix}inline simple flow does not start with one visible question step (${JSON.stringify(homeFlowInitial)}).`
     );
     await clickByPointer(connection, '[data-home-scenario="temperature"]');
+    const selectedQuestionState = await evaluate(connection, `(() => ({
+      optionsHidden: Boolean(document.getElementById("dse-home-question-options")?.hidden),
+      leadHidden: Boolean(document.getElementById("dse-home-question-lead")?.hidden),
+      summaryVisible: !document.getElementById("dse-home-question-summary")?.hidden,
+      summary: document.getElementById("dse-home-question-summary-label")?.textContent.trim() || "",
+      backdropScene: document.documentElement.dataset.crtSceneIntent || "",
+      backdropScanning: document.getElementById("dse-crt-backdrop")?.classList.contains("is-scanning") || false
+    }))()`);
     check(
       await waitFor(connection, `(() => (
         !document.getElementById("dse-home-step-2")?.hidden &&
         document.querySelectorAll("#dse-home-evidence-options input").length === 3
       ))()`, 2500),
       `${prefix}selecting a question did not reveal the evidence step directly below.`
+    );
+    check(
+      selectedQuestionState.optionsHidden &&
+      selectedQuestionState.leadHidden &&
+      selectedQuestionState.summaryVisible &&
+      selectedQuestionState.summary.includes("电脑温度偏高") &&
+      selectedQuestionState.backdropScene === "fan" &&
+      selectedQuestionState.backdropScanning === false,
+      `${prefix}completed question step did not collapse or drive the background (${JSON.stringify(selectedQuestionState)}).`
     );
     await evaluate(connection, `(() => {
       const first = document.querySelector("#dse-home-evidence-options input");
@@ -517,6 +560,9 @@ async function testHomeViewport(siteUrl, name, width, height) {
     const homeResult = await evaluate(connection, `(() => ({
       stepTwoVisible: !document.getElementById("dse-home-step-2")?.hidden,
       stepThreeVisible: !document.getElementById("dse-home-step-3")?.hidden,
+      evidenceEditorHidden: Boolean(document.getElementById("dse-home-evidence-editor")?.hidden),
+      evidenceSummaryVisible: !document.getElementById("dse-home-evidence-summary")?.hidden,
+      evidenceSummaryCount: document.getElementById("dse-home-evidence-summary-count")?.textContent.trim() || "",
       status: document.getElementById("dse-home-result-status")?.textContent.trim() || "",
       copy: document.getElementById("dse-home-result-copy")?.textContent.trim() || "",
       missing: document.getElementById("dse-home-result-missing")?.textContent.trim() || "",
@@ -540,6 +586,9 @@ async function testHomeViewport(siteUrl, name, width, height) {
     check(
       homeResult.stepTwoVisible &&
       homeResult.stepThreeVisible &&
+      homeResult.evidenceEditorHidden &&
+      homeResult.evidenceSummaryVisible &&
+      homeResult.evidenceSummaryCount === "1 / 3 项" &&
       homeResult.status.includes("还需补齐") &&
       homeResult.copy.includes("检查方向") &&
       homeResult.missing.includes("缺少的信息") &&
@@ -568,6 +617,22 @@ async function testHomeViewport(siteUrl, name, width, height) {
       `${prefix}home result copy action has no completion feedback or safety boundary (${JSON.stringify(homeCopy)}).`
     );
     await screenshot(connection, `inline-simple-flow-${name}.png`);
+    await clickByPointer(connection, "#dse-home-change-question");
+    const changedQuestion = await evaluate(connection, `(() => ({
+      optionsVisible: !document.getElementById("dse-home-question-options")?.hidden,
+      questionSummaryHidden: Boolean(document.getElementById("dse-home-question-summary")?.hidden),
+      evidenceStepHidden: Boolean(document.getElementById("dse-home-step-2")?.hidden),
+      resultHidden: Boolean(document.getElementById("dse-home-step-3")?.hidden),
+      backdropScene: document.documentElement.dataset.crtSceneIntent || ""
+    }))()`);
+    check(
+      changedQuestion.optionsVisible &&
+      changedQuestion.questionSummaryHidden &&
+      changedQuestion.evidenceStepHidden &&
+      changedQuestion.resultHidden &&
+      changedQuestion.backdropScene === "",
+      `${prefix}changing the question does not reopen the collapsed choice step (${JSON.stringify(changedQuestion)}).`
+    );
 
     await evaluate(connection, `(() => {
       document.getElementById("dse-candidate-details-summary")?.focus();
@@ -714,6 +779,23 @@ async function testHomeViewport(siteUrl, name, width, height) {
       await waitFor(connection, `location.pathname.endsWith("/interactive/")`, 3500),
       `${prefix}advanced-mode entry did not navigate.`
     );
+    const advancedContext = await evaluate(connection, `(() => {
+      const bridge = document.getElementById("dse-context-bridge");
+      return {
+        visible: Boolean(bridge && !bridge.hidden),
+        title: document.getElementById("dse-context-title")?.textContent.trim() || "",
+        summary: document.getElementById("dse-context-summary")?.textContent.trim() || "",
+        selectedMode: document.querySelector(".dse-demo-modes [data-demo-mode][aria-pressed='true']")?.dataset.demoMode || ""
+      };
+    })()`);
+    check(
+      advancedContext.visible &&
+      advancedContext.title.includes("电脑温度偏高") &&
+      advancedContext.summary.includes("已生成下一步") &&
+      advancedContext.summary.includes("已选 1 项信息") &&
+      advancedContext.selectedMode === "triage",
+      `${prefix}advanced page did not carry the home task context (${JSON.stringify(advancedContext)}).`
+    );
     const previousStepAction = await evaluate(connection,
       "document.getElementById('dse-return-home')?.textContent.trim() || ''");
     check(previousStepAction.includes("返回上一步"), `${prefix}advanced page still says return home instead of previous step.`);
@@ -816,7 +898,6 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       return {
         title: document.title,
         h1: document.querySelector(".dse-advanced-page-head h1")?.textContent.trim() || "",
-        kicker: document.querySelector(".dse-advanced-page-head > p")?.textContent.trim() || "",
         status: document.querySelector(".dse-advanced-page-head > small")?.textContent.trim() || "",
         pageHeadRect: (() => {
           const rect = document.querySelector(".dse-advanced-page-head")?.getBoundingClientRect();
@@ -833,10 +914,15 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
         simpleModePresent: Boolean(document.querySelector(".dse-guided")),
         statusActionsVisible: (document.querySelector(".dse-advanced-actions")?.getBoundingClientRect().height || 0) > 0,
         visiblePanelCount: visiblePanels.length,
+        visiblePanelMode: visiblePanels[0]?.dataset.demoMode || "",
         currentTheme: document.getElementById("dse-advanced-current")?.textContent.trim() || "",
+        modeButtonCount: modeButtons.length,
+        pressedModeCount: modeButtons.filter(button => button.getAttribute("aria-pressed") === "true").length,
         modeColumns: getComputedStyle(document.querySelector(".dse-demo-modes")).gridTemplateColumns,
         modeTops: modeButtons.map(button => Math.round(button.getBoundingClientRect().top)),
-        tuneStepColumns: getComputedStyle(document.getElementById("dse-tune-steps")).gridTemplateColumns,
+        tuneStepsHidden: Boolean(document.getElementById("dse-tune-steps")?.hidden),
+        contextBridgeVisible: !document.getElementById("dse-context-bridge")?.hidden,
+        backdropScene: document.documentElement.dataset.crtSceneIntent || "",
         compareStepPresent: Boolean(document.querySelector('[data-tune-step-link="compare"]')),
         comparePanelVisible: (document.getElementById("dse-tune-compare-panel")?.getBoundingClientRect().height || 0) > 0,
         visibleVersionNumber: document.getElementById("dse-root")?.innerText.includes("2.5.0") || false
@@ -844,7 +930,6 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
     })()`);
     check(initial.title.includes("高级模式"), `${prefix}browser title is not user-facing.`);
     check(initial.h1 === "选择一个主题", `${prefix}advanced-mode headline is not concise and task-oriented.`);
-    check(initial.kicker === "高级模式", `${prefix}advanced-only page is not named consistently.`);
     check(
       initial.status.includes("当前测试版") &&
       initial.status.includes("只读演示") &&
@@ -869,19 +954,41 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       !initial.simpleModePresent &&
       !initial.statusActionsVisible &&
       initial.visiblePanelCount === 1 &&
-      initial.currentTheme.length > 0,
-      `${prefix}advanced mode is not immediately visible or simple mode still exists (${JSON.stringify(initial)}).`
+      initial.visiblePanelMode === "choose" &&
+      initial.currentTheme === "尚未选择" &&
+      initial.modeButtonCount === 4 &&
+      initial.pressedModeCount === 0 &&
+      initial.tuneStepsHidden &&
+      !initial.contextBridgeVisible &&
+      initial.backdropScene === "",
+      `${prefix}advanced mode does not start with a neutral task chooser (${JSON.stringify(initial)}).`
     );
     check(
       initial.modeColumns.split(" ").filter(Boolean).length > 1 &&
-      initial.tuneStepColumns.split(" ").filter(Boolean).length === (name === "desktop" ? 2 : 1) &&
       !initial.compareStepPresent &&
       !initial.comparePanelVisible,
       `${prefix}advanced peer navigation lost its compact horizontal layout (${JSON.stringify({
         modeColumns: initial.modeColumns,
-        modeTops: initial.modeTops,
-        tuneStepColumns: initial.tuneStepColumns
+        modeTops: initial.modeTops
       })}).`
+    );
+    await clickByPointer(connection, '[data-demo-mode="tune"]');
+    const selectedTune = await evaluate(connection, `(() => ({
+      pressed: document.querySelector('[data-demo-mode="tune"]')?.getAttribute("aria-pressed") || "",
+      tunePanelVisible: (document.querySelector('.dse-demo-panel[data-demo-mode="tune"]')?.getBoundingClientRect().height || 0) > 0,
+      tuneStepsHidden: Boolean(document.getElementById("dse-tune-steps")?.hidden),
+      tuneStepColumns: getComputedStyle(document.getElementById("dse-tune-steps")).gridTemplateColumns,
+      backdropScene: document.documentElement.dataset.crtSceneIntent || "",
+      backdropScanning: document.getElementById("dse-crt-backdrop")?.classList.contains("is-scanning") || false
+    }))()`);
+    check(
+      selectedTune.pressed === "true" &&
+      selectedTune.tunePanelVisible &&
+      !selectedTune.tuneStepsHidden &&
+      selectedTune.backdropScene === "cpu" &&
+      selectedTune.backdropScanning === false &&
+      selectedTune.tuneStepColumns.split(" ").filter(Boolean).length === (name === "desktop" ? 2 : 1),
+      `${prefix}tuning theme does not reveal its step rail (${JSON.stringify(selectedTune)}).`
     );
     await screenshot(connection, `vertical-advanced-${name}.png`);
     const interactiveFontSizes = await evaluate(connection, fontSizeExpression());
@@ -1120,7 +1227,7 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
     /*
     const advancedThemes = await evaluate(connection, `(async () => {
       const results = {};
-      for (const mode of ["terms", "tune", "triage", "identity", "evidence"]) {
+      for (const mode of ["terms", "tune", "triage", "record"]) {
         document.querySelector([31m`[data-demo-mode="${mode}"]`[0m)?.click();
         await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
         results[mode] = {
@@ -1139,11 +1246,12 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
     */
     const advancedThemes = await evaluate(connection, `(async () => {
       const results = {};
-      for (const mode of ["terms", "tune", "triage", "identity", "evidence"]) {
+      for (const mode of ["terms", "tune", "triage", "record"]) {
         document.querySelector('[data-demo-mode="' + mode + '"]')?.click();
         await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
         results[mode] = {
           pressed: document.querySelector('[data-demo-mode="' + mode + '"]')?.getAttribute("aria-pressed") === "true",
+          backdropScene: document.documentElement.dataset.crtSceneIntent || "",
           visibleThemes: [...new Set(
             [...document.querySelectorAll(".dse-demo-panel[data-demo-mode]")]
               .filter(panel => !panel.hidden && panel.getBoundingClientRect().height > 0)
@@ -1155,13 +1263,17 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       return results;
     })()`);
     check(
-      Object.values(advancedThemes).every(result => result.pressed && result.visibleThemes.length === 1),
+      Object.values(advancedThemes).every(result => result.pressed && result.visibleThemes.length === 1) &&
+      advancedThemes.terms.backdropScene === "space" &&
+      advancedThemes.tune.backdropScene === "cpu" &&
+      advancedThemes.triage.backdropScene === "fan" &&
+      advancedThemes.record.backdropScene === "gpu",
       `${prefix}one or more advanced themes are missing or shown together (${JSON.stringify(advancedThemes)}).`
     );
     const lifecycleStability = await evaluate(connection, `(async () => {
-      document.querySelector('[data-demo-mode="identity"]')?.click();
+      document.querySelector('[data-demo-mode="record"]')?.click();
       await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      const panel = document.querySelector('.dse-demo-panel[data-demo-mode="identity"]');
+      const panel = document.querySelector('.dse-demo-panel[data-demo-mode="record"]');
       const lifecycleGrid = panel?.querySelector(".dse-lifecycle-grid");
       const lifecycleEvents = panel?.querySelector(".dse-lifecycle-events");
       const lifecycleCopy = panel?.querySelector("#dse-lifecycle-copy");

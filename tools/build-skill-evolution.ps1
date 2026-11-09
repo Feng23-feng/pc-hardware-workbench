@@ -40,7 +40,8 @@ function Write-SitePage {
         [string]$Title,
         [string]$Description,
         [string]$Source,
-        [string]$BaseHref = ""
+        [string]$BaseHref = "",
+        [string]$AssetPrefix = "."
     )
 
     $fragment = [System.IO.File]::ReadAllText($Source, $utf8Strict)
@@ -50,6 +51,8 @@ function Write-SitePage {
     else {
         "  <base href=`"$BaseHref`">"
     }
+    $styleHref = "$AssetPrefix/crt-backdrop.css"
+    $scriptSrc = "$AssetPrefix/crt-backdrop.js"
     $html = @"
 <!doctype html>
 <html lang="zh-CN" data-site-view="$SiteView">
@@ -59,11 +62,13 @@ function Write-SitePage {
   <meta name="color-scheme" content="dark">
   <meta name="description" content="$Description">
   <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="$styleHref">
 $baseTag
   <title>$Title</title>
 </head>
 <body>
 $fragment
+<script src="$scriptSrc" defer></script>
 <noscript>This page requires JavaScript to show the interactive content.</noscript>
 </body>
 </html>
@@ -85,13 +90,15 @@ Write-SitePage `
     -SiteView "index" `
     -Title "pc-hardware-workbench &#183; &#30005;&#33041;&#30828;&#20214;&#24037;&#20316;&#21488;" `
     -Description "PC Hardware Workbench ${skillVersion}: read-only hardware evidence and practical next-step guidance." `
-    -Source $HomeSource
+    -Source $HomeSource `
+    -AssetPrefix "."
 
 Write-SitePage `
     -Path (Join-Path $interactiveRoot "index.html") `
     -SiteView "interactive" `
     -Title "&#39640;&#32423;&#27169;&#24335; &#183; pc-hardware-workbench" `
     -Description "PC Hardware Workbench ${skillVersion} advanced tools: terminology, tuning, triage, baseline identity and evidence." `
-    -Source $InteractiveSource
+    -Source $InteractiveSource `
+    -AssetPrefix ".."
 
 Write-Host "Built index.html and interactive/index.html under $OutputRoot"
