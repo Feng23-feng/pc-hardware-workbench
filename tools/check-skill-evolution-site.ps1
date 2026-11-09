@@ -84,6 +84,17 @@ if ($errors.Count -eq 0) {
         if ($html -match '\u5B9E\u673A\u8BFB\u53D6\s*\d+\s*\u4E2A\u4F20\u611F\u5668|\u663E\u5B58\u65F6\u949F\s*\d{3,}\s*MHz|LHM Web \u5B9E\u8BFB|\u53EA\u5728\u672C\u673A\u4FDD\u7559') {
             $errors.Add("$($entry.Name) still exposes machine-specific observation copy.") | Out-Null
         }
+        foreach ($privateMarker in @(
+            "14700KF",
+            "i7-14700K",
+            "284 effective",
+            ("284 " + [char]0x4E2A + [char]0x4F20 + [char]0x611F + [char]0x5668),
+            "concrete GPU hardware path"
+        )) {
+            if ($html.IndexOf($privateMarker, [StringComparison]::OrdinalIgnoreCase) -ge 0) {
+                $errors.Add("$($entry.Name) contains blocked private marker '$privateMarker'.") | Out-Null
+            }
+        }
         foreach ($headingMatch in [regex]::Matches($html, '(?is)<h[1-4][^>]*>(.*?)</h[1-4]>')) {
             $headingText = [regex]::Replace($headingMatch.Groups[1].Value, '<[^>]+>', '')
             $headingText = [Net.WebUtility]::HtmlDecode($headingText)
