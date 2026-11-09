@@ -4524,6 +4524,10 @@
       font-variant-numeric: tabular-nums;
       letter-spacing: .02em;
       line-height: 1;
+      transition:
+        color var(--dse-motion-fast) var(--dse-motion-ease),
+        background-color var(--dse-motion-fast) var(--dse-motion-ease),
+        border-color var(--dse-motion-fast) var(--dse-motion-ease);
     }
 
     #dse-root .dse-tune-steps a[aria-current="step"] b {
@@ -7702,6 +7706,10 @@
       border-bottom: 2px solid transparent;
       border-radius: 0;
       text-align: center;
+      transition:
+        color var(--dse-motion-fast) var(--dse-motion-ease),
+        background-color var(--dse-motion-fast) var(--dse-motion-ease),
+        border-color var(--dse-motion-fast) var(--dse-motion-ease);
     }
 
     html[data-site-view="interactive"] #dse-root .dse-demo-modes .dse-filter:hover,
@@ -7752,6 +7760,10 @@
       border-top: 1px solid var(--dse-line-soft);
       border-radius: 0;
       box-shadow: none;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-panel:not([hidden]) {
+      animation: none;
     }
 
     html[data-site-view="interactive"] #dse-root .dse-demo-grid {
@@ -8829,12 +8841,6 @@
       if (isInteractiveView && "scrollRestoration" in window.history) {
         window.history.scrollRestoration = "manual";
       }
-      document.getElementById("dse-return-home")?.addEventListener("click", event => {
-        if (window.history.length > 1 && document.referrer.startsWith(window.location.origin)) {
-          event.preventDefault();
-          window.history.back();
-        }
-      });
       const coreLane = document.getElementById("dse-core-lane");
       const prototypeLane = document.getElementById("dse-prototype-lane");
       const triageLane = document.getElementById("dse-triage-lane");
@@ -9716,6 +9722,7 @@
       ];
 
       const reduceMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const advancedEntryAnimations = new WeakMap();
       let tuneGateReady = false;
       let activeTuneState = "input";
       let activeExperimentState = "";
@@ -9726,6 +9733,35 @@
       let activeLifecycleEvent = "confirm";
       let activeDemoMode = "choose";
       let activeTuneStep = "gate";
+
+      function animateAdvancedEntry(element, { distance = 6, duration = 200 } = {}) {
+        if (
+          !element ||
+          reduceMotionQuery.matches ||
+          typeof element.animate !== "function"
+        ) {
+          return;
+        }
+        advancedEntryAnimations.get(element)?.cancel();
+        const animation = element.animate(
+          [
+            { opacity: 0, transform: `translateY(${distance}px)` },
+            { opacity: 1, transform: "translateY(0)" }
+          ],
+          {
+            duration,
+            easing: "cubic-bezier(0.2, 0, 0, 1)"
+          }
+        );
+        advancedEntryAnimations.set(element, animation);
+        animation.finished
+          .catch(() => {})
+          .finally(() => {
+            if (advancedEntryAnimations.get(element) === animation) {
+              advancedEntryAnimations.delete(element);
+            }
+          });
+      }
 
       const modeGuideContent = {
         choose: {
@@ -11237,7 +11273,7 @@
         });
         enterExperimentButton.disabled = true;
         syncExperimentReadiness();
-        showTuneStep("experiment");
+        showTuneStep("experiment", { animate: true });
         const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         document.getElementById("dse-experiment-demo-title").scrollIntoView({
           behavior: reduceMotion ? "auto" : "smooth",
@@ -11527,8 +11563,12 @@
         activeTuneStep = step;
         tuneStepSections.forEach(section => {
           section.hidden = section.dataset.tuneStep !== step;
+          if (section.hidden) advancedEntryAnimations.get(section)?.cancel();
         });
         setCurrentTuneStep(step);
+        if (options.animate) {
+          animateAdvancedEntry(target, { distance: 6, duration: 180 });
+        }
         if (options.scroll) {
           window.requestAnimationFrame(() => {
             target.scrollIntoView({
@@ -11653,12 +11693,18 @@
         tuneSteps.hidden = mode !== "tune";
         root.querySelectorAll(".dse-demo-panel[data-demo-mode]").forEach(panel => {
           panel.hidden = normalizeDemoMode(panel.dataset.demoMode) !== mode;
+          if (panel.hidden) advancedEntryAnimations.get(panel)?.cancel();
         });
         root.querySelectorAll(".dse-demo-modes [data-demo-mode]").forEach(button => {
           button.setAttribute("aria-pressed", String(normalizeDemoMode(button.dataset.demoMode) === mode));
         });
         if (mode === "tune") {
           showTuneStep(previousMode === "tune" ? activeTuneStep : "gate");
+        }
+        if (options.animate && previousMode !== mode) {
+          const visiblePanel = [...root.querySelectorAll(".dse-demo-panel[data-demo-mode]")]
+            .find(panel => !panel.hidden);
+          animateAdvancedEntry(visiblePanel, { distance: 6, duration: 200 });
         }
         if (mode === "terms") {
           if (!demoSection.hidden) startTermRotationTimer();
@@ -11766,25 +11812,26 @@
         button.addEventListener("click", () => {
           setDemoMode(button.dataset.demoMode, {
             updateRoute: isInteractiveView,
-            scroll: true
+            scroll: true,
+            animate: true
           });
         });
       });
       document.getElementById("dse-advanced-prev")?.addEventListener("click", () => {
         const index = advancedModeOrder.indexOf(activeDemoMode);
         const mode = advancedModeOrder[Math.max(0, index - 1)];
-        if (mode) setDemoMode(mode, { updateRoute: true, scroll: false });
+        if (mode) setDemoMode(mode, { updateRoute: true, scroll: false, animate: true });
       });
       document.getElementById("dse-advanced-next")?.addEventListener("click", () => {
         const index = advancedModeOrder.indexOf(activeDemoMode);
         const mode = advancedModeOrder[Math.min(advancedModeOrder.length - 1, index + 1)];
-        if (mode) setDemoMode(mode, { updateRoute: true, scroll: false });
+        if (mode) setDemoMode(mode, { updateRoute: true, scroll: false, animate: true });
       });
       document.getElementById("dse-advanced-reset")?.addEventListener("click", () => {
         const advancedShell = document.getElementById("dse-advanced-shell");
         if (advancedShell) advancedShell.open = true;
         activeTuneStep = "gate";
-        setDemoMode("choose", { updateRoute: false, scroll: false });
+        setDemoMode("choose", { updateRoute: false, scroll: false, animate: true });
         try {
           history.replaceState(null, "", `${location.pathname}${location.search}`);
         } catch {
@@ -11794,7 +11841,7 @@
       document.getElementById("dse-context-dismiss")?.addEventListener("click", () => {
         const bridge = document.getElementById("dse-context-bridge");
         if (bridge) bridge.hidden = true;
-        setDemoMode("choose", { updateRoute: false, scroll: false });
+        setDemoMode("choose", { updateRoute: false, scroll: false, animate: true });
         try {
           history.replaceState(null, "", `${location.pathname}${location.search}`);
         } catch {
@@ -11854,7 +11901,7 @@
       tuneStepLinks.forEach(link => {
         link.addEventListener("click", event => {
           event.preventDefault();
-          showTuneStep(link.dataset.tuneStepLink, { scroll: true });
+          showTuneStep(link.dataset.tuneStepLink, { scroll: true, animate: true });
         });
       });
       root.addEventListener("scroll", scheduleTuneStepNavigation, { passive: true });

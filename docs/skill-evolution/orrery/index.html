@@ -24,6 +24,39 @@
       --rust: #e78f73;
       --core: #eef4f7;
       --radius: 18px;
+      --motion-ease: cubic-bezier(.2, 0, 0, 1);
+      --motion-page-exit: 140ms;
+      --motion-page-enter: 240ms;
+    }
+
+    @view-transition {
+      navigation: auto;
+    }
+
+    ::view-transition-old(root) {
+      animation: orrery-view-out var(--motion-page-exit) cubic-bezier(.4, 0, 1, 1) both;
+      mix-blend-mode: normal;
+    }
+
+    ::view-transition-new(root) {
+      animation: orrery-view-in var(--motion-page-enter) var(--motion-ease) both;
+      mix-blend-mode: normal;
+    }
+
+    @keyframes orrery-view-out {
+      to {
+        opacity: 0;
+      }
+    }
+
+    @keyframes orrery-view-in {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
 
     * {
@@ -1533,6 +1566,11 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation: none !important;
+      }
+
       *,
       *::before,
       *::after {

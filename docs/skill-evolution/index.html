@@ -6725,7 +6725,7 @@
     @keyframes dse-home-hero-enter {
       from {
         opacity: 0;
-        transform: translateY(12px);
+        transform: translateY(8px);
       }
 
       to {
@@ -6736,23 +6736,23 @@
 
     html.dse-hero-enter #dse-root .dse-hero .dse-skill-kicker,
     html.dse-hero-enter #dse-root .dse-hero h1 {
-      animation: dse-home-hero-enter .9s cubic-bezier(.22, 1, .36, 1) .06s backwards;
+      animation: dse-home-hero-enter 360ms var(--dse-motion-ease) backwards;
       will-change: opacity, transform;
     }
 
     html.dse-hero-enter #dse-root .dse-hero .dse-subtitle,
     html.dse-hero-enter #dse-root .dse-hero .dse-invoke-example {
-      animation: dse-home-hero-enter .9s cubic-bezier(.22, 1, .36, 1) .14s backwards;
+      animation: dse-home-hero-enter 360ms var(--dse-motion-ease) 40ms backwards;
       will-change: opacity, transform;
     }
 
     html.dse-hero-enter #dse-root .dse-hero-actions {
-      animation: dse-home-hero-enter .9s cubic-bezier(.22, 1, .36, 1) .22s backwards;
+      animation: dse-home-hero-enter 360ms var(--dse-motion-ease) 80ms backwards;
       will-change: opacity, transform;
     }
 
     html.dse-hero-enter #dse-root .dse-hero-status {
-      animation: dse-home-hero-enter .9s cubic-bezier(.22, 1, .36, 1) .3s backwards;
+      animation: dse-home-hero-enter 360ms var(--dse-motion-ease) 120ms backwards;
       will-change: opacity, transform;
     }
 
@@ -6967,10 +6967,31 @@
       min-height: 112px;
       padding: 24px 28px;
       overflow: hidden;
+      transition:
+        background-color var(--dse-motion-fast) var(--dse-motion-ease),
+        border-color var(--dse-motion-fast) var(--dse-motion-ease);
     }
 
     #dse-root .dse-explore-primary a:last-child {
       background: var(--dse-surface-deep);
+    }
+
+    #dse-root .dse-explore-primary a:hover,
+    #dse-root .dse-explore-primary a:focus-visible {
+      background: var(--dse-surface-control);
+      border-color: var(--dse-line-strong);
+    }
+
+    #dse-root .dse-howto-cta span,
+    #dse-root .dse-advanced-entry a > span:last-child {
+      transition: transform var(--dse-motion-fast) var(--dse-motion-ease);
+    }
+
+    #dse-root .dse-howto-cta:hover span,
+    #dse-root .dse-howto-cta:focus-visible span,
+    #dse-root .dse-advanced-entry a:hover > span:last-child,
+    #dse-root .dse-advanced-entry a:focus-visible > span:last-child {
+      transform: translateX(3px);
     }
 
     #dse-root .dse-explore-copy {
@@ -11431,10 +11452,40 @@
         Object.keys(scenarios).map(id => [id, new Set()])
       );
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const homeEntryAnimations = new WeakMap();
       const homeReturnStateKey = "pcwb:skill-evolution:home-return";
       let selectedScenarioId = "";
       let flowStep = 1;
       let copyResetTimer = 0;
+
+      function animateHomeEntry(element, { distance = 8, duration = 220 } = {}) {
+        if (
+          !element ||
+          reduceMotion.matches ||
+          typeof element.animate !== "function"
+        ) {
+          return;
+        }
+        homeEntryAnimations.get(element)?.cancel();
+        const animation = element.animate(
+          [
+            { opacity: 0, transform: `translateY(${distance}px)` },
+            { opacity: 1, transform: "translateY(0)" }
+          ],
+          {
+            duration,
+            easing: "cubic-bezier(0.2, 0, 0, 1)"
+          }
+        );
+        homeEntryAnimations.set(element, animation);
+        animation.finished
+          .catch(() => {})
+          .finally(() => {
+            if (homeEntryAnimations.get(element) === animation) {
+              homeEntryAnimations.delete(element);
+            }
+          });
+      }
 
       function currentScenario() {
         return scenarios[selectedScenarioId] || null;
@@ -11584,7 +11635,10 @@
         stepOneHeading.textContent = "你现在遇到什么";
         stepTwo.hidden = true;
         stepThree.hidden = true;
+        homeEntryAnimations.get(stepTwo)?.cancel();
+        homeEntryAnimations.get(stepThree)?.cancel();
         setBackdropScene("");
+        animateHomeEntry(questionOptions, { distance: 6 });
         scrollToStep(stepOne);
       }
 
@@ -11594,6 +11648,7 @@
         selectedScenarioId = id;
         flowStep = 2;
         stepThree.hidden = true;
+        homeEntryAnimations.get(stepThree)?.cancel();
         renderQuestions();
         collapseQuestionStep(scenario);
         renderEvidence(scenario);
@@ -11601,11 +11656,12 @@
         evidenceSummary.hidden = true;
         stepTwoHeading.textContent = "你已经有哪些信息";
         stepTwo.hidden = false;
+        animateHomeEntry(stepTwo);
         setBackdropScene(scenario.backdropScene);
         scrollToStep(stepTwo);
       }
 
-      function generateResult({ scroll = true } = {}) {
+      function generateResult({ scroll = true, animate = true } = {}) {
         const scenario = currentScenario();
         if (!scenario) return;
         const selected = selectedEvidenceLabels(scenario);
@@ -11624,6 +11680,10 @@
         evidenceSummary.hidden = false;
         stepTwoHeading.textContent = "当前信息";
         stepThree.hidden = false;
+        if (animate) {
+          animateHomeEntry(evidenceSummary, { distance: 4, duration: 160 });
+          animateHomeEntry(stepThree);
+        }
         if (scroll) scrollToStep(stepThree);
       }
 
@@ -11666,6 +11726,8 @@
         Object.values(evidenceSelections).forEach(selection => selection.clear());
         stepTwo.hidden = true;
         stepThree.hidden = true;
+        homeEntryAnimations.get(stepTwo)?.cancel();
+        homeEntryAnimations.get(stepThree)?.cancel();
         renderQuestions();
         questionLead.hidden = false;
         questionOptions.hidden = false;
@@ -11675,6 +11737,7 @@
         stepOneHeading.textContent = "你现在遇到什么";
         stepTwoHeading.textContent = "你已经有哪些信息";
         setBackdropScene("");
+        animateHomeEntry(questionOptions, { distance: 6 });
         scrollToStep(stepOne);
       }
 
@@ -11686,6 +11749,8 @@
         evidenceSummary.hidden = true;
         stepTwoHeading.textContent = "你已经有哪些信息";
         stepThree.hidden = true;
+        homeEntryAnimations.get(stepThree)?.cancel();
+        animateHomeEntry(evidenceEditor, { distance: 4, duration: 160 });
         scrollToStep(stepTwo);
       });
       generateButton.addEventListener("click", generateResult);
@@ -11724,7 +11789,7 @@
           stepTwo.hidden = false;
           setBackdropScene(currentScenario().backdropScene);
           if (flowStep === 3) {
-            generateResult({ scroll: false });
+            generateResult({ scroll: false, animate: false });
           } else {
             evidenceEditor.hidden = false;
             evidenceSummary.hidden = true;
@@ -11733,10 +11798,10 @@
         const restoreScrollPosition = () => {
           root.scrollTop = Number(savedReturnState.scrollTop) || 0;
         };
-        window.requestAnimationFrame(() => {
+        window.setTimeout(() => {
           window.requestAnimationFrame(restoreScrollPosition);
-        });
-        window.setTimeout(restoreScrollPosition, 120);
+        }, 420);
+        window.setTimeout(restoreScrollPosition, 520);
       }
       window.addEventListener("pageshow", event => {
         if (event.persisted) clearHomeReturnState();

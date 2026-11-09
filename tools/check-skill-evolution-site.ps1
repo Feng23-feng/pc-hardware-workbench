@@ -145,6 +145,10 @@ if ($errors.Count -eq 0) {
     }
 
     $indexHtml = Get-Content -Raw -LiteralPath $indexPath -Encoding UTF8
+    $crtCss = Get-Content -Raw -LiteralPath $crtCssPath -Encoding UTF8
+    if ($crtCss -notmatch '@view-transition' -or $crtCss -notmatch '::view-transition-new\(root\)') {
+        $errors.Add("Shared CRT stylesheet is missing the cross-document page transition.") | Out-Null
+    }
     if ($indexHtml -match '<section class="dse-about"') {
         $errors.Add("Index still contains the removed philosophy and three-column section.") | Out-Null
     }
@@ -194,6 +198,9 @@ if ($errors.Count -eq 0) {
     }
 
     $interactiveHtml = Get-Content -Raw -LiteralPath $interactivePath -Encoding UTF8
+    if ($homeTemplate -notmatch 'animateHomeEntry' -or $interactiveTemplate -notmatch 'animateAdvancedEntry') {
+        $errors.Add("Motion helpers for home steps and advanced panels are missing.") | Out-Null
+    }
     if ($interactiveHtml -match '<base\b') {
         $errors.Add("Interactive page must not use a base tag that changes same-page hash navigation.") | Out-Null
     }
@@ -287,6 +294,9 @@ if ($errors.Count -eq 0) {
     }
 
     $orreryHtml = Get-Content -Raw -LiteralPath $orreryPath -Encoding UTF8
+    if ($orreryHtml -notmatch '@view-transition' -or $orreryHtml -notmatch 'orrery-view-in') {
+        $errors.Add("Orrery is missing the shared cross-document page transition.") | Out-Null
+    }
     $orreryIds = [regex]::Matches($orreryHtml, '(?i)\sid="([^"]+)"') |
         ForEach-Object { $_.Groups[1].Value }
     foreach ($duplicate in ($orreryIds | Group-Object | Where-Object { $_.Count -gt 1 })) {
