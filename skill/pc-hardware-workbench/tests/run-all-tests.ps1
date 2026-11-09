@@ -58,6 +58,11 @@ $testCases = @(
         Arguments = @("-AnalyzerPath", (Join-Path $resolvedRoot "scripts/analyze-telemetry.ps1"))
     },
     @{
+        Name = "VRAM knowledge"
+        Script = Join-Path $resolvedRoot "tests/run-vram-knowledge-tests.ps1"
+        Arguments = @("-SkillRoot", $resolvedRoot)
+    },
+    @{
         Name = "Telemetry analyzer"
         Script = Join-Path $resolvedRoot "tests/run-telemetry-analysis-tests.ps1"
         Arguments = @("-AnalyzerPath", (Join-Path $resolvedRoot "scripts/analyze-telemetry.ps1"))

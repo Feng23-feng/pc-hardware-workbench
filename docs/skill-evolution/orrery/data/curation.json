@@ -54,7 +54,7 @@
       "angle": -50,
       "speed": 0.57,
       "color": "#d99ab7",
-      "summary": "13 个参考把入口门禁、单变量实验、GPU 行为、恢复和记录串成闭环。",
+      "summary": "15 个参考把入口门禁、单变量实验、GPU 行为、显存机制、恢复和记录串成闭环。",
       "boundaries": ["设置由用户手动应用，Skill 不自动改硬件", "不绕过权限、限制或反作弊"]
     },
     "upgrade": {
@@ -82,7 +82,7 @@
       "angle": 70,
       "speed": 0.38,
       "color": "#7f9dff",
-      "summary": "18 个脚本与原生探针承担只读采集、遥测管线、证据包、案卷、适配与诊断。",
+      "summary": "19 个脚本与原生探针承担只读采集、遥测管线、证据包、案卷、适配与诊断。",
       "boundaries": ["默认只读、本地执行且不自我提权", "不自动修改硬件、驱动或系统设置"]
     },
     "tests": {
@@ -96,7 +96,7 @@
       "angle": 235,
       "speed": -0.19,
       "color": "#e78f73",
-      "summary": "24 个场景、测试与结果记录把契约、脚本、隐私和人工验收变成证据。",
+      "summary": "25 个场景、测试与结果记录把契约、脚本、隐私和人工验收变成证据。",
       "boundaries": ["自动测试不能替代人工体验验收", "单次通过不等于长期硬件稳定性"]
     }
   },
@@ -299,6 +299,16 @@
       "role": "GPU Boost 行为",
       "summary": "解释 NVIDIA Boost、AMD Game Clock、Intel Xe 的动态工作区与有效频率。"
     },
+    "references/tuning/vram-and-memory-bus.md": {
+      "cluster": "tuning/gpu",
+      "role": "显存机制与带宽",
+      "summary": "区分物理时钟、等效数据率、厂商缩放值和理论带宽，并约束 GDDR/HBM 跨代比较。"
+    },
+    "references/tuning/gpu-memory-playbook.md": {
+      "cluster": "tuning/gpu",
+      "role": "显存调参流程",
+      "summary": "把显存调校保持为单变量实验，并按概念、官方规格、本机读数和稳定结论分层回答。"
+    },
     "references/tuning/gpu-curve-baseline.md": {
       "cluster": "tuning/gpu",
       "role": "GPU 曲线基线",
@@ -410,6 +420,11 @@
       "cluster": "scripts/telemetry",
       "role": "遥测分析器",
       "summary": "读取本地监测记录，选择字段、处理窗口并输出统计与警告。"
+    },
+    "scripts/calculate-vram-bandwidth.ps1": {
+      "cluster": "scripts/telemetry",
+      "role": "显存带宽计算",
+      "summary": "用有来源的每引脚数据率和总线位宽计算理论峰值带宽，不把传感器 MHz 当作数据率。"
     },
     "scripts/normalize-telemetry.ps1": {
       "cluster": "scripts/telemetry",
@@ -571,6 +586,11 @@
       "cluster": "tests/components",
       "role": "LHM 适配回归",
       "summary": "验证显式同意、回环限制、快照形状、映射、采样和失败路径。"
+    },
+    "tests/run-vram-knowledge-tests.ps1": {
+      "cluster": "tests/components",
+      "role": "显存知识回归",
+      "summary": "验证分层门禁、带宽公式、GDDR 代际边界、LHM 口径和高频显存警告。"
     },
     "tests/run-rag-evidence-tests.ps1": {
       "cluster": "tests/components",

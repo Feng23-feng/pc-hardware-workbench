@@ -1489,7 +1489,7 @@ foreach ($spec in $specs) {
             [double]$statistics.Max -gt 12000
         ) {
             $warnings.Add(
-                "GPU memory clock exceeded the common GDDR6/GDDR6X clock range; verify whether the source reports a physical memory clock or an effective data rate. Do not infer bandwidth, performance, or tuning headroom from this value alone.")
+                "GPU memory clock is above the common legacy GDDR6/GDDR6X range; this can be valid on GDDR7 or reflect an effective or vendor-scaled reporting basis. Verify the exact GPU, memory generation, tool field, and clock basis before interpreting it. Do not infer bandwidth, performance, or tuning headroom from this value alone.")
         }
     }
 }
@@ -1594,7 +1594,7 @@ foreach ($pattern in $IncludeColumn) {
                 [double]$statistics.Max -gt 12000
             ) {
                 $warnings.Add(
-                    "GPU memory clock exceeded the common GDDR6/GDDR6X clock range; verify whether the source reports a physical memory clock or an effective data rate. Do not infer bandwidth, performance, or tuning headroom from this value alone.")
+                    "GPU memory clock is above the common legacy GDDR6/GDDR6X range; this can be valid on GDDR7 or reflect an effective or vendor-scaled reporting basis. Verify the exact GPU, memory generation, tool field, and clock basis before interpreting it. Do not infer bandwidth, performance, or tuning headroom from this value alone.")
             }
         }
     }

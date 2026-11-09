@@ -375,7 +375,7 @@ try {
     $gddr7Memory = @($gddr7.Metrics | Where-Object { $_.Metric -eq "GPU memory clock (MHz)" }) | Select-Object -First 1
     Assert-True ($null -ne $gddr7Memory) "A valid high-bandwidth GPU memory clock was rejected."
     Assert-True (
-        @($gddr7.Warnings | Where-Object { $_ -match "common GDDR6/GDDR6X clock range" }).Count -eq 1
+        @($gddr7.Warnings | Where-Object { $_ -match "can be valid on GDDR7" }).Count -eq 1
     ) "An unusually high memory clock did not receive a reporting-basis warning."
 
     $absurdMemoryClockPath = Join-Path $tempRoot "absurd-memory-clock.csv"

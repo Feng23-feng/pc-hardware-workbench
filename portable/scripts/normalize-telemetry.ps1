@@ -606,16 +606,20 @@ try {
                 $sensorTool = ConvertTo-CleanText (Get-PropertyValue $sensorValue "sourceTool" $tool)
                 $sensorVersion = ConvertTo-CleanText (Get-PropertyValue $sensorValue "sourceVersion" $version)
                 $sensorDevice = ConvertTo-CleanText (Get-PropertyValue $sensorValue "deviceId" $DeviceId)
-                $definitionKey = "$header|$category|$sensorTool|$sensorVersion|$sensorDevice"
+                $sourceName = ConvertTo-CleanText (Get-PropertyValue $sensorValue "sourceName" $name)
+                $clockBasis = ConvertTo-CleanText (Get-PropertyValue $sensorValue "clockBasis" "")
+                $definitionKey = "$header|$category|$sensorTool|$sensorVersion|$sensorDevice|$sourceName|$clockBasis"
                 if ($sensorDefinitionKeys.Add($definitionKey)) {
                     $sensorDefinitions.Add([pscustomobject]@{
                         Name = $name
+                        SourceName = if ([string]::IsNullOrWhiteSpace($sourceName)) { $null } else { $sourceName }
                         Category = $category
                         Unit = $unit
                         Header = $header
                         SourceTool = if ([string]::IsNullOrWhiteSpace($sensorTool)) { $null } else { $sensorTool }
                         SourceVersion = if ([string]::IsNullOrWhiteSpace($sensorVersion)) { $null } else { $sensorVersion }
                         DeviceId = if ([string]::IsNullOrWhiteSpace($sensorDevice)) { $null } else { $sensorDevice }
+                        ClockBasis = if ([string]::IsNullOrWhiteSpace($clockBasis)) { $null } else { $clockBasis }
                     }) | Out-Null
                 }
 

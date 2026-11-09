@@ -71,13 +71,14 @@ try {
         [pscustomobject]@{ Identifier = "/gpu-nvidia/0/temperature/0"; Name = "GPU Core"; SensorType = "Temperature"; Value = 61.5 },
         [pscustomobject]@{ Identifier = "/gpu-nvidia/0/power/0"; Name = "GPU Package"; SensorType = "Power"; Value = 120.0 },
         [pscustomobject]@{ Identifier = "/gpu-nvidia/0/clock/0"; Name = "GPU Core"; SensorType = "Clock"; Value = 2400.0 },
+        [pscustomobject]@{ Identifier = "/gpu-nvidia/0/clock/1"; Name = "GPU Memory"; SensorType = "Clock"; Value = 14001.0 },
         [pscustomobject]@{ Identifier = "/cpu/0/temperature/0"; Name = "CPU Package"; SensorType = "Temperature"; Value = 70.0 },
         [pscustomobject]@{ Identifier = "/gpu-nvidia/0/fan/0"; Name = "GPU Fan"; SensorType = "Fan"; Value = 1800.0 },
         [pscustomobject]@{ Identifier = "/motherboard/0/temperature/0"; Name = "System"; SensorType = "Temperature"; Value = 38.0 },
         [pscustomobject]@{ Identifier = "/gpu-nvidia/0/custom/0"; Name = "Vendor Metric"; SensorType = "UnknownType"; Value = 1.0 }
     )
     $converted = @(ConvertFrom-LhmSensorObjects -Sensors $sensorFixtures -MaxSensors 20)
-    Assert-True ($converted.Count -eq 7) "LHM sensor conversion omitted supported fixture sensors."
+    Assert-True ($converted.Count -eq 8) "LHM sensor conversion omitted supported fixture sensors."
     $gpuTemperature = @($converted | Where-Object { $_.identifier -eq "/gpu-nvidia/0/temperature/0" }) | Select-Object -First 1
     $gpuPower = @($converted | Where-Object { $_.identifier -eq "/gpu-nvidia/0/power/0" }) | Select-Object -First 1
     $gpuClock = @($converted | Where-Object { $_.identifier -eq "/gpu-nvidia/0/clock/0" }) | Select-Object -First 1
@@ -167,6 +168,8 @@ try {
     Assert-True ($webTemperature.category -eq "temperature" -and $webTemperature.value -eq 61.5) "LHM Web temperature parsing is wrong."
     Assert-True ($webTemperature.hardwarePath -match "NVIDIA RTX Fixture") "LHM Web hardware context was not retained."
     Assert-True ($null -ne $webMemoryClock -and [Math]::Abs([double]$webMemoryClock.value - 14001.0) -lt 0.001) "LHM Web GHz-to-MHz conversion is wrong."
+    Assert-True ($webMemoryClock.sourceName -eq "GPU Memory") "LHM Web memory-clock source name was not retained."
+    Assert-True ($webMemoryClock.clockBasis -eq "unknown") "LHM Web memory clock did not default to an unknown reporting basis."
     Assert-True ($null -ne $webGpuMemory -and [Math]::Abs([double]$webGpuMemory.value - 1536.0) -lt 0.001) "LHM Web GB-to-MB conversion is wrong."
     Assert-True ($null -ne $webSystemMemory -and [Math]::Abs([double]$webSystemMemory.value - 14540.8) -lt 0.001) "LHM Web system-memory conversion is wrong."
     $fahrenheitValue = ConvertFrom-LhmDisplayValue -Value "111.2 $([char]0x00B0)F" -TargetUnit "C"
@@ -197,6 +200,8 @@ try {
                     unit = $_.unit
                     value = if ($null -eq $_.value) { $null } else { [double]$_.value + 1 }
                     identifier = $_.identifier
+                    sourceName = $_.sourceName
+                    clockBasis = $_.clockBasis
                 }
             })
         }
@@ -230,6 +235,9 @@ try {
     Assert-True ($normalized.Source.Tool -eq "LibreHardwareMonitor") "Normalized LHM provenance was lost."
     Assert-True (($normalized.Warnings -join " ") -match "Synthetic LHM fixture warning") "LHM adapter warning was not propagated."
     Assert-True (@($normalized.ChartData.Series | Where-Object { $_.Metric -eq "GPU temperature (C)" }).Count -eq 1) "LHM GPU temperature series was not normalized. metrics=$(@($normalized.ChartData.Series.Metric) -join ',')"
+    $normalizedMemoryClock = @($normalized.Sensors | Where-Object { $_.SourceName -eq "GPU Memory" }) | Select-Object -First 1
+    Assert-True ($null -ne $normalizedMemoryClock) "Normalized LHM sensor metadata lost the memory-clock source name."
+    Assert-True ($normalizedMemoryClock.ClockBasis -eq "unknown") "Normalized LHM sensor metadata lost the memory clock basis."
 
     $withoutConsentPath = Join-Path $tempRoot "lhm-without-consent.json"
     $withoutConsent = Invoke-Process -ScriptPath $resolvedCollector -Arguments @(

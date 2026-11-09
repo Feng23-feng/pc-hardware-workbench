@@ -161,9 +161,12 @@ tuning-entry gate. They become tuning safety rules when the user asks for a
 candidate value, a curve edit, or a conclusion about whether to keep a profile.
 
 Memory tuning follows the GPU memory interpretation gate in
-[intake.md](intake.md). A family name such as “RTX 50” or “GDDR7” is not a
-substitute for the installed card, VRAM configuration, firmware, and observed
-clock basis.
+[intake.md](intake.md) and the detailed rules in
+[vram-and-memory-bus.md](vram-and-memory-bus.md). A high memory-clock reading is
+not automatically an error: GDDR7, effective-clock reporting, and vendor
+scaling can all produce values above older GDDR6/GDDR6X displays. A family name
+such as “RTX 50” or “GDDR7” is not a substitute for the installed card, VRAM
+configuration, firmware, and observed clock basis.
 
 ## Sources reviewed
 

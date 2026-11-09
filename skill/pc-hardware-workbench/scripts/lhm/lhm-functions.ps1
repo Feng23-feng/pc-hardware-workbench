@@ -359,13 +359,25 @@ function ConvertFrom-LhmSensorObjects {
         else {
             ConvertTo-LhmCleanText $hardwarePathProperty.Value
         }
+        $sourceName = ConvertTo-LhmCleanText $sensor.Name
+        $clockBasis = if (
+            $mapping.Category -eq "clock" -and
+            $sourceName -match '(?i)\bmemory\b|\u663E\u5B58|vram'
+        ) {
+            "unknown"
+        }
+        else {
+            $null
+        }
         $result.Add([pscustomobject]@{
             name = $uniqueName
+            sourceName = $sourceName
             category = $mapping.Category
             unit = $mapping.Unit
             value = ConvertTo-LhmFiniteNumber $sensor.Value
             identifier = ConvertTo-LhmCleanText $sensor.Identifier
             hardwarePath = $hardwarePath
+            clockBasis = $clockBasis
         }) | Out-Null
     }
     return [object[]]$result.ToArray()

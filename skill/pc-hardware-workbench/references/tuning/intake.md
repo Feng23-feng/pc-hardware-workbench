@@ -50,25 +50,28 @@ After coaching, return to the same missing gate item first. Preserve every answe
 
 For GPU curve work, the in-workload baseline must include the representative voltage/frequency point or range observed in the fixed workload. If voltage is not exposed or no stable load point can be identified, do not invent a voltage-point method; use a supported offset-only route or continue monitoring.
 
-## GPU memory interpretation gate
+## GPU memory question tiers
 
-Before interpreting memory clocks, comparing bandwidth, proposing a memory
-offset, or claiming a stable memory range, require:
+For terminology, formulas, and reporting-basis rules, read
+[vram-and-memory-bus.md](vram-and-memory-bus.md). Do not apply the full tuning
+gate to every memory question.
 
-- the exact GPU model, SKU, form factor, and board or laptop model when the same
-  GPU name has materially different firmware or power behavior;
-- reported VRAM type (`GDDR6`, `GDDR6X`, `GDDR7`, `HBM`, or a source-backed
-  equivalent), capacity, and bus width when making a bandwidth calculation;
-- graphics driver, vBIOS/firmware, and monitoring or tuning-tool versions;
-- the requested/configured value, the active profile, and the observed memory
-  clock with its unit and reporting basis;
-- a fixed workload plus frame-time, throughput, artifact, and temperature
-  evidence.
+- **Concept explanation:** explain physical/effective/scaled clocks, data rate,
+  bus width, and the bandwidth formula without requiring machine evidence.
+- **Official theoretical bandwidth:** require the exact GPU/SKU and a dated,
+  source-backed VRAM type, bus width, and per-pin data rate. Mark the result as
+  theoretical, not measured.
+- **Local sensor interpretation:** require the exact GPU, raw sensor label,
+  tool/version, unit, and reporting basis when known. If the basis is unknown,
+  say so; do not call a high or differing value wrong or compute bandwidth from
+  it.
+- **Memory tuning or stable-range claim:** complete the universal tuning gate,
+  then follow [gpu-memory-playbook.md](gpu-memory-playbook.md). Keep memory
+  separate from core-curve and power-limit changes.
 
-If any item needed for the claim is missing, continue read-only identification
-or explain how to collect it. Do not substitute a GPU family guess for the
-installed card, compare raw clocks across memory generations, infer bandwidth
-from clock alone, or issue a memory target from a single sensor value.
+Never infer bandwidth from clock alone, compare raw clocks across memory
+generations, convert a tool offset into a data rate without a documented
+mapping, or issue a memory target from one sensor value.
 
 ## Device and objective
 

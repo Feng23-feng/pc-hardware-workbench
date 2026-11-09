@@ -114,9 +114,11 @@ by the analyzer. Report them as unavailable rather than guessing a role.
 - Web or WMI polling can conflict with other monitoring software; compare source
   and timestamp before combining data.
 - Different LHM versions or hardware can expose different sensors.
-- A memory-clock label may expose a physical clock, an effective data rate, or a
-  vendor-scaled value. Never infer bandwidth or tuning headroom from that number
-  alone, and never compare raw values across GDDR generations.
+- Memory-clock sensors retain their original LHM name and set
+  `clockBasis: unknown`; a later interpreter may change the basis only when the
+  tool and architecture establish it. Never infer bandwidth or tuning headroom
+  from the displayed number alone, and never compare raw values across GDDR
+  generations.
 
 The normalizer records missing values, sampling consistency, source identity, and
 the snapshot SHA-256. Those fields remain supporting evidence, not a guarantee of
