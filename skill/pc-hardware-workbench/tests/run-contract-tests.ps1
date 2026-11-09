@@ -47,6 +47,36 @@ function Invoke-CapturedProcess {
 
 try {
     New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
+    $retiredPublicExamples = @(
+        ("14700" + "KF"),
+        ("i7-" + "14700K"),
+        ("284" + " effective"),
+        ("284 " + [char]0x4E2A + [char]0x4F20 + [char]0x611F + [char]0x5668)
+    )
+    $publicTextExtensions = @(
+        ".md", ".txt", ".json", ".ps1", ".psm1", ".psd1",
+        ".html", ".css", ".js", ".yml", ".yaml", ".xml"
+    )
+    $publicContentFiles = @(
+        Get-ChildItem -LiteralPath $resolvedRoot -File -Recurse |
+            Where-Object { $publicTextExtensions -contains $_.Extension.ToLowerInvariant() }
+    )
+    foreach ($retiredExample in $retiredPublicExamples) {
+        foreach ($publicFile in $publicContentFiles) {
+            $publicText = [IO.File]::ReadAllText(
+                $publicFile.FullName,
+                [Text.Encoding]::UTF8
+            )
+            Assert-True (
+                -not [regex]::IsMatch(
+                    $publicText,
+                    [regex]::Escape($retiredExample),
+                    [Text.RegularExpressions.RegexOptions]::IgnoreCase
+                )
+            ) "Public Skill content still contains retired machine-specific example '$retiredExample': $($publicFile.FullName)"
+        }
+    }
+
     $collectorText = Get-Content -Raw -LiteralPath $collector
     $expectedWarningCodes = @(
         "native-probe-load-failed",

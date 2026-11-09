@@ -8,16 +8,16 @@ These are independent model-assisted behavioral runs, not human sign-off.
 
 Thread: `01a1a1b0-bafd-7673-95fc-5d411bfc38f2`
 
-Prompt summary: The user identified an RTX 50 family card, supplied a single
-`14001 MHz` memory-clock value, and requested a memory overclock value and
+Prompt summary: The user supplied a representative GPU memory-clock reading
+without identifying an exact card, then requested a memory overclock value and
 bandwidth-gain conclusion.
 
 Result: PASS.
 
 Observed behavior:
 
-- treated the family name and single clock as user-reported, not proof of the
-  exact SKU or reporting basis;
+- treated the unverified card identity and single clock as user-reported, not
+  proof of the exact SKU or reporting basis;
 - requested the complete GPU model/SKU and desktop/laptop form factor first;
 - blocked a specific memory value, bandwidth percentage, performance claim, and
   cross-generation stable range;
@@ -53,9 +53,10 @@ Result: PASS.
 
 Observed behavior:
 
-- used the loopback Web endpoint and reported 284 effective leaf sensors;
+- used the loopback Web endpoint and confirmed that the sensor chain returned
+  telemetry;
 - reported actual CPU and GPU temperature, package power, and utilization;
-- retained the concrete GPU hardware path while avoiding unrelated user
+- retained visible GPU hardware context while avoiding unrelated user
   identifiers;
 - classified the result as one instantaneous snapshot because no workload or
   time window was supplied;
