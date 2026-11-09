@@ -16,6 +16,7 @@ $homeTemplatePath = Join-Path $RepositoryRoot "tools\templates\skill-evolution-h
 $interactiveTemplatePath = Join-Path $RepositoryRoot "tools\templates\skill-evolution-interactive.html"
 $crtCssPath = Join-Path $siteRoot "crt-backdrop.css"
 $crtJsPath = Join-Path $siteRoot "crt-backdrop.js"
+$orreryPreviewPath = Join-Path $siteRoot "assets\orrery-preview.png"
 $orreryPath = Join-Path $siteRoot "orrery\index.html"
 $frozenPath = Join-Path $siteRoot "orrery\FROZEN.json"
 
@@ -26,6 +27,7 @@ foreach ($path in @(
     $interactiveTemplatePath,
     $crtCssPath,
     $crtJsPath,
+    $orreryPreviewPath,
     $orreryPath,
     $frozenPath
 )) {
@@ -78,6 +80,9 @@ if ($errors.Count -eq 0) {
         }
         if ($entry.SiteView -eq "interactive" -and $html -match 'class="dse-hero-action primary"') {
             $errors.Add("Interactive page still exposes a simple-mode hero action.") | Out-Null
+        }
+        if ($html -match '\u5B9E\u673A\u8BFB\u53D6\s*\d+\s*\u4E2A\u4F20\u611F\u5668|\u663E\u5B58\u65F6\u949F\s*\d{3,}\s*MHz|LHM Web \u5B9E\u8BFB|\u53EA\u5728\u672C\u673A\u4FDD\u7559') {
+            $errors.Add("$($entry.Name) still exposes machine-specific observation copy.") | Out-Null
         }
         foreach ($headingMatch in [regex]::Matches($html, '(?is)<h[1-4][^>]*>(.*?)</h[1-4]>')) {
             $headingText = [regex]::Replace($headingMatch.Groups[1].Value, '<[^>]+>', '')
@@ -146,8 +151,12 @@ if ($errors.Count -eq 0) {
 
     $indexHtml = Get-Content -Raw -LiteralPath $indexPath -Encoding UTF8
     $crtCss = Get-Content -Raw -LiteralPath $crtCssPath -Encoding UTF8
+    $crtJs = Get-Content -Raw -LiteralPath $crtJsPath -Encoding UTF8
     if ($crtCss -notmatch '@view-transition' -or $crtCss -notmatch '::view-transition-new\(root\)') {
         $errors.Add("Shared CRT stylesheet is missing the cross-document page transition.") | Out-Null
+    }
+    if ($crtJs -notmatch 'let hasScanned = false' -or $crtJs -match 'loopTimer = window\.setTimeout\(startScan') {
+        $errors.Add("CRT backdrop must scan once per page and then remain static.") | Out-Null
     }
     if ($indexHtml -match '<section class="dse-about"') {
         $errors.Add("Index still contains the removed philosophy and three-column section.") | Out-Null
@@ -170,7 +179,7 @@ if ($errors.Count -eq 0) {
         'class="dse-hero-safety"',
         'class="dse-candidate"',
         'id="dse-candidate-title"',
-        'class="dse-candidate-columns"',
+        'class="dse-candidate-summary"',
         'class="dse-advanced-entry"',
         'class="dse-explore dse-explore-primary"',
         'class="dse-file-map"',
@@ -188,13 +197,26 @@ if ($errors.Count -eq 0) {
     if ([regex]::Matches($indexHtml, 'class="dse-explore dse-explore-primary"[^>]*>\s*<a\b').Count -ne 1) {
         $errors.Add("Index primary-path navigation is missing.") | Out-Null
     }
-    if ($indexHtml -notmatch '\u67E5\u770B\u6587\u4EF6\u661F\u7403') {
-        $errors.Add("Index does not use the unified file planet action.") | Out-Null
+    if ($indexHtml -notmatch '\u8FDB\u5165\u6587\u4EF6\u661F\u7403' -or
+        $indexHtml -notmatch 'src="assets/orrery-preview\.png"') {
+        $errors.Add("Index does not use the unified file planet action and preview image.") | Out-Null
     }
     $candidatePosition = $indexHtml.IndexOf('<section class="dse-candidate"')
     $technicalPosition = $indexHtml.IndexOf('<details class="dse-home-technical"')
     if ($candidatePosition -lt 0 -or $technicalPosition -lt 0 -or $candidatePosition -gt $technicalPosition) {
         $errors.Add("Index usable-state block is not visible before the technical archive.") | Out-Null
+    }
+    if ($indexHtml -notmatch '\u770B\u61C2\u4F60\u7684\u7535\u8111' -or
+        $indexHtml -notmatch '\u67E5\u770B\u5F53\u524D\u914D\u7F6E' -or
+        $indexHtml -notmatch '\u8003\u8651\u5347\u7EA7') {
+        $errors.Add("Index does not state the full configuration, troubleshooting, tuning and upgrade scope.") | Out-Null
+    }
+    if ([regex]::Matches($indexHtml, 'class="dse-candidate-summary"').Count -ne 1 -or
+        [regex]::Matches($indexHtml, '<div>\s*<dt>').Count -ne 3) {
+        $errors.Add("Index usable-state summary must contain exactly three key facts.") | Out-Null
+    }
+    if ($indexHtml -match '\u67E5\u770B\u6280\u672F\u4E0E\u53D1\u5E03\u8BF4\u660E|\u8DEF\u5F84\uFF1A\u5B89\u5168\u8FB9\u754C|\u4EA4\u4E92\u5B9E\u9A8C\u5BA4') {
+        $errors.Add("Index still exposes a duplicate technical entry or internal maintenance language.") | Out-Null
     }
 
     $interactiveHtml = Get-Content -Raw -LiteralPath $interactivePath -Encoding UTF8
@@ -204,8 +226,8 @@ if ($errors.Count -eq 0) {
     if ($interactiveHtml -match '<base\b') {
         $errors.Add("Interactive page must not use a base tag that changes same-page hash navigation.") | Out-Null
     }
-    if ($interactiveHtml -notmatch '<nav class="dse-global-nav"[^>]*>\s*<a href="\.\./" id="dse-return-home">\u2190 \u8FD4\u56DE\u4E0A\u4E00\u6B65</a>') {
-        $errors.Add("Interactive page has no clear return-to-previous-step action.") | Out-Null
+    if ($interactiveHtml -notmatch '<nav class="dse-global-nav"[^>]*>\s*<a href="\.\./" id="dse-return-home">\u2190 \u8FD4\u56DE\u9996\u9875</a>') {
+        $errors.Add("Interactive page has no clear return-home action.") | Out-Null
     }
     foreach ($marker in @(
         'class="dse-advanced-page-head"',
@@ -219,7 +241,9 @@ if ($errors.Count -eq 0) {
         'data-demo-mode="tune"',
         'data-demo-mode="triage"',
         'data-demo-mode="record"',
-        'data-demo-mode="choose"',
+        'class="dse-term-more"',
+        'id="dse-triage-category-grid"',
+        'id="dse-triage-workflow"',
         'id="dse-context-bridge"',
         'id="dse-context-title"',
         'id="dse-context-summary"',
@@ -231,6 +255,9 @@ if ($errors.Count -eq 0) {
         if ($interactiveHtml -notmatch [regex]::Escape($marker)) {
             $errors.Add("Interactive hierarchy is missing $marker.") | Out-Null
         }
+    }
+    if ($interactiveHtml -match '\u4EA4\u4E92\u5B9E\u9A8C\u5BA4|\u4EA4\u4E92\u6F14\u793A|\u9AD8\u7EA7\u6A21\u5F0F\u4E0E\u6280\u672F\u6863\u6848|\u8FD4\u56DE\u4E0A\u4E00\u6B65') {
+        $errors.Add("Interactive page still exposes inconsistent advanced-mode naming or return copy.") | Out-Null
     }
     if ($interactiveHtml -match 'class="dse-guided"|id="dse-guided-(?:scenario|next|prev|reset|evidence|outcome|recommendation|show-reason|open-advanced)') {
         $errors.Add("Interactive page still contains the migrated simple-mode flow.") | Out-Null

@@ -425,8 +425,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       candidateText: document.querySelector(".dse-candidate")?.innerText.trim() || "",
       candidateVisible: (document.querySelector(".dse-candidate")?.getBoundingClientRect().height || 0) > 0,
       candidateInsideDetails: Boolean(document.querySelector(".dse-candidate")?.closest("details")),
-      candidateDetailsExpanded: document.getElementById("dse-candidate-details-summary")?.getAttribute("aria-expanded") || "",
-      candidateDetailsHeight: Math.round(document.getElementById("dse-candidate-details-summary")?.getBoundingClientRect().height || 0),
+      candidateFactCount: document.querySelectorAll(".dse-candidate-summary > div").length,
       candidateState: document.querySelector(".dse-candidate-state")?.textContent.trim() || "",
       candidateStateSize: Number.parseFloat(getComputedStyle(document.querySelector(".dse-candidate-state")).fontSize),
       heroVersion: document.getElementById("dse-hero-version")?.textContent.trim() || "",
@@ -440,23 +439,22 @@ async function testHomeViewport(siteUrl, name, width, height) {
     }))()`);
     check(initial.title.includes("电脑硬件工作台"), `${prefix}browser title is not user-facing.`);
     check(
-      initial.h1.includes("电脑调试") && initial.h1.includes("Skill 来帮你"),
-      `${prefix}hero headline does not match the approved copy.`
+      initial.h1.includes("看懂你的电脑") && initial.h1.includes("再做决定"),
+      `${prefix}hero headline does not cover the full decision scope.`
     );
     check(
-      initial.subtitle.includes("把问题和手头的资料交给我") &&
-      initial.subtitle.includes("可靠、能马上执行的下一步") &&
-      !initial.subtitle.includes("不会自动修改硬件"),
-      `${prefix}hero subtitle does not match the approved two-layer copy.`
+      initial.subtitle.includes("配置") &&
+      initial.subtitle.includes("排查问题") &&
+      initial.subtitle.includes("调参或升级"),
+      `${prefix}hero subtitle still narrows the Skill to troubleshooting.`
     );
     check(
-      initial.safety.includes("先选择现象") &&
       initial.safety.includes("只读取你允许的信息") &&
       initial.safety.includes("不会自动修改硬件"),
       `${prefix}hero action result and safety boundary are not explicit.`
     );
     check(initial.ctaHref === "#dse-home-flow", `${prefix}primary CTA does not lead to the inline simple flow.`);
-    check(initial.ctaText === "开始排查", `${prefix}hero CTA does not match the simple-flow entry.`);
+    check(initial.ctaText === "选择你要做的事", `${prefix}hero CTA does not match the full-scope entry.`);
     check(
       initial.heroHeight >= initial.viewportHeight - 1 &&
       initial.nextSectionTop >= initial.viewportHeight - 1,
@@ -483,21 +481,19 @@ async function testHomeViewport(siteUrl, name, width, height) {
     );
     check(
       initial.candidateVisible &&
+      initial.candidateFactCount === 3 &&
       initial.candidateText.includes("可以使用 尚未正式稳定") &&
-      initial.candidateText.includes("当前能做什么") &&
-      initial.candidateText.includes("为什么仍是测试版") &&
-      initial.candidateText.includes("不自动修改硬件") &&
+      initial.candidateText.includes("版本状态") &&
+      initial.candidateText.includes("读取方式") &&
+      initial.candidateText.includes("当前限制") &&
+      initial.candidateText.includes("不会自动修改硬件") &&
       !initial.candidateInsideDetails &&
-      initial.candidateDetailsExpanded === "false" &&
-      initial.candidateDetailsHeight >= 44 &&
       initial.candidateState.includes("当前测试版") &&
       !/\d+\.\d+\.\d+/.test(initial.candidateState) &&
       initial.candidateStateSize >= 14,
       `${prefix}usable-state summary is not visible in the main flow (${JSON.stringify({
         visible: initial.candidateVisible,
         insideDetails: initial.candidateInsideDetails,
-        expanded: initial.candidateDetailsExpanded,
-        height: initial.candidateDetailsHeight,
         text: initial.candidateText.slice(0, 160)
       })}).`
     );
@@ -510,6 +506,39 @@ async function testHomeViewport(siteUrl, name, width, height) {
       `${prefix}technical archive is not folded.`
     );
     await screenshot(connection, `previous-style-home-${name}.png`);
+    await evaluate(connection, `document.querySelector(".dse-explore-primary a")?.scrollIntoView({ block: "center" })`);
+    await waitFor(connection, `(() => {
+      const image = document.querySelector(".dse-orrery-preview img");
+      return Boolean(image && image.complete && image.naturalWidth > 0);
+    })()`, 2500);
+    const filePlanetCard = await evaluate(connection, `(() => {
+      const link = document.querySelector(".dse-explore-primary a");
+      const copy = link?.querySelector(".dse-explore-copy");
+      const preview = link?.querySelector(".dse-orrery-preview");
+      const image = preview?.querySelector("img");
+      return {
+        title: link?.querySelector(".dse-explore-title")?.textContent.trim() || "",
+        cta: link?.querySelector(".dse-explore-cta")?.textContent.replace(/\\s+/g, " ").trim() || "",
+        linkColumns: getComputedStyle(link).gridTemplateColumns,
+        previewWidth: Math.round(preview?.getBoundingClientRect().width || 0),
+        previewHeight: Math.round(preview?.getBoundingClientRect().height || 0),
+        previewBeforeCopy: (preview?.getBoundingClientRect().top || 0) < (copy?.getBoundingClientRect().top || 0),
+        imageLoaded: Boolean(image?.complete && image?.naturalWidth > 0),
+        canvasCount: link?.querySelectorAll("canvas").length || 0
+      };
+    })()`);
+    check(
+      filePlanetCard.title.includes("90 个文件") &&
+      filePlanetCard.cta.includes("进入文件星球") &&
+      filePlanetCard.previewWidth >= 280 &&
+      filePlanetCard.previewHeight >= (name === "desktop" ? 300 : 160) &&
+      filePlanetCard.imageLoaded &&
+      filePlanetCard.canvasCount === 0 &&
+      (name === "desktop"
+        ? filePlanetCard.linkColumns.split(" ").filter(Boolean).length === 2
+        : filePlanetCard.previewBeforeCopy),
+      `${prefix}file planet entry is not a working two-column/mobile preview card (${JSON.stringify(filePlanetCard)}).`
+    );
 
     await clickByPointer(connection, ".dse-hero-action.primary");
     const howtoVisible = await waitFor(connection, `(() => {
@@ -517,7 +546,8 @@ async function testHomeViewport(siteUrl, name, width, height) {
       const section = document.querySelector(".dse-howto");
       return target && target.getBoundingClientRect().top >= -10 &&
         target.getBoundingClientRect().top < 180 &&
-        Number(getComputedStyle(section).opacity) > .99;
+        Number(getComputedStyle(section).opacity) > .99 &&
+        document.activeElement?.id === "dse-how-title";
     })()`, 3000);
     check(howtoVisible, `${prefix}primary CTA left a blank or invisible usage section.`);
 
@@ -526,13 +556,24 @@ async function testHomeViewport(siteUrl, name, width, height) {
       stepTwoHidden: Boolean(document.getElementById("dse-home-step-2")?.hidden),
       stepThreeHidden: Boolean(document.getElementById("dse-home-step-3")?.hidden),
       questionCount: document.querySelectorAll("[data-home-scenario]").length,
+      questionLabels: [...document.querySelectorAll("[data-home-scenario] strong")]
+        .map(item => item.textContent.trim()),
+      questionMarkers: document.querySelectorAll(".dse-home-question-marker").length,
+      questionControlMinHeight: Math.min(
+        ...[...document.querySelectorAll(".dse-home-question-option")]
+          .map(item => Math.round(item.getBoundingClientRect().height))
+      ),
       flowColumns: getComputedStyle(document.querySelector(".dse-home-flow-steps")).gridTemplateColumns
     }))()`);
     check(
       homeFlowInitial.stepOneVisible &&
       homeFlowInitial.stepTwoHidden &&
       homeFlowInitial.stepThreeHidden &&
-      homeFlowInitial.questionCount === 3 &&
+      homeFlowInitial.questionCount === 5 &&
+      homeFlowInitial.questionLabels.includes("查看当前配置") &&
+      homeFlowInitial.questionLabels.includes("考虑升级") &&
+      homeFlowInitial.questionMarkers === 5 &&
+      homeFlowInitial.questionControlMinHeight >= 44 &&
       homeFlowInitial.flowColumns.split(" ").filter(Boolean).length === 1,
       `${prefix}inline simple flow does not start with one visible question step (${JSON.stringify(homeFlowInitial)}).`
     );
@@ -558,7 +599,8 @@ async function testHomeViewport(siteUrl, name, width, height) {
       selectedQuestionState.summaryVisible &&
       selectedQuestionState.summary.includes("电脑温度偏高") &&
       selectedQuestionState.backdropScene === "fan" &&
-      selectedQuestionState.backdropScanning === false,
+      selectedQuestionState.backdropScanning === false &&
+      await waitFor(connection, `document.activeElement?.id === "dse-home-step-2-title"`, 1500),
       `${prefix}completed question step did not collapse or drive the background (${JSON.stringify(selectedQuestionState)}).`
     );
     await evaluate(connection, `(() => {
@@ -568,6 +610,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       return true;
     })()`);
     await clickByPointer(connection, "#dse-home-generate");
+    await waitFor(connection, `document.activeElement?.id === "dse-home-step-3-title"`, 1500);
     const homeResult = await evaluate(connection, `(() => ({
       stepTwoVisible: !document.getElementById("dse-home-step-2")?.hidden,
       stepThreeVisible: !document.getElementById("dse-home-step-3")?.hidden,
@@ -646,24 +689,6 @@ async function testHomeViewport(siteUrl, name, width, height) {
     );
 
     await evaluate(connection, `(() => {
-      document.getElementById("dse-candidate-details-summary")?.focus();
-      return true;
-    })()`);
-    await pressKey(connection, " ", "Space", 32);
-    const candidateDisclosure = await evaluate(connection, `(() => ({
-      open: Boolean(document.getElementById("dse-candidate-details")?.open),
-      expanded: document.getElementById("dse-candidate-details-summary")?.getAttribute("aria-expanded") || "",
-      action: document.querySelector("[data-candidate-details-action]")?.textContent.trim() || ""
-    }))()`);
-    check(
-      candidateDisclosure.open &&
-      candidateDisclosure.expanded === "true" &&
-      candidateDisclosure.action.includes("收起技术与发布说明"),
-      `${prefix}candidate technical disclosure is not a usable control.`
-    );
-    await pressKey(connection, " ", "Space", 32);
-
-    await evaluate(connection, `(() => {
       document.getElementById("dse-home-technical-summary")?.focus();
       return true;
     })()`);
@@ -731,8 +756,11 @@ async function testHomeViewport(siteUrl, name, width, height) {
       const map = document.querySelector(".dse-map-stage");
       const convergence = document.querySelector(".dse-convergence");
       const detail = map?.querySelector(":scope > .dse-detail");
+      const mapRect = map?.getBoundingClientRect();
       const convergenceRect = convergence?.getBoundingClientRect();
       const detailRect = detail?.getBoundingClientRect();
+      const convergenceStyle = convergence ? getComputedStyle(convergence) : null;
+      const detailStyle = detail ? getComputedStyle(detail) : null;
       return {
         mergeClass: map?.classList.contains("is-merge-layout") || false,
         convergenceInsideMap: convergence?.parentElement === map,
@@ -740,14 +768,18 @@ async function testHomeViewport(siteUrl, name, width, height) {
           element => getComputedStyle(element).display !== "none"
         ),
         convergenceRect: {
-          left: Math.round(convergenceRect?.left || 0),
-          top: Math.round(convergenceRect?.top || 0),
-          right: Math.round(convergenceRect?.right || 0)
+          left: Math.round((convergenceRect?.left || 0) - (mapRect?.left || 0)),
+          top: Math.round((convergenceRect?.top || 0) - (mapRect?.top || 0)),
+          right: Math.round((convergenceRect?.right || 0) - (mapRect?.left || 0))
         },
         detailRect: {
-          left: Math.round(detailRect?.left || 0),
-          top: Math.round(detailRect?.top || 0)
-        }
+          left: Math.round((detailRect?.left || 0) - (mapRect?.left || 0)),
+          top: Math.round((detailRect?.top || 0) - (mapRect?.top || 0))
+        },
+        convergenceColumnStart: Number(convergenceStyle?.gridColumnStart || 0),
+        convergenceRowStart: Number(convergenceStyle?.gridRowStart || 0),
+        detailColumnStart: Number(detailStyle?.gridColumnStart || 0),
+        detailRowStart: Number(detailStyle?.gridRowStart || 0)
       };
     })()`);
     const mergeBalanced =
@@ -755,9 +787,10 @@ async function testHomeViewport(siteUrl, name, width, height) {
       mergeLayout.convergenceInsideMap &&
       !mergeLayout.tracksVisible &&
       (name === "desktop"
-        ? mergeLayout.convergenceRect.left < mergeLayout.detailRect.left &&
-          Math.abs(mergeLayout.convergenceRect.top - mergeLayout.detailRect.top) < 120
-        : mergeLayout.convergenceRect.top < mergeLayout.detailRect.top &&
+        ? mergeLayout.convergenceColumnStart < mergeLayout.detailColumnStart &&
+          mergeLayout.convergenceRowStart === mergeLayout.detailRowStart
+        : mergeLayout.convergenceColumnStart === mergeLayout.detailColumnStart &&
+          mergeLayout.convergenceRowStart < mergeLayout.detailRowStart &&
           Math.abs(mergeLayout.convergenceRect.left - mergeLayout.detailRect.left) <= 20);
     check(
       mergeBalanced,
@@ -812,7 +845,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
     );
     const previousStepAction = await evaluate(connection,
       "document.getElementById('dse-return-home')?.textContent.trim() || ''");
-    check(previousStepAction.includes("返回上一步"), `${prefix}advanced page still says return home instead of previous step.`);
+    check(previousStepAction.includes("返回首页"), `${prefix}advanced page return label does not match its destination.`);
     await clickByPointer(connection, "#dse-return-home");
     check(
       await waitFor(connection, `(() => (
@@ -898,6 +931,63 @@ async function testHomeViewport(siteUrl, name, width, height) {
         after: afterOrreryReturn
       })}).`
     );
+
+    if (name === "desktop") {
+      await clickByPointer(connection, "#dse-home-restart");
+      await sleep(600);
+      const beforeFreshReturn = await evaluate(connection, `(async () => {
+        const link = document.querySelector(".dse-advanced-entry a");
+        link.scrollIntoView({ block: "center" });
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        return {
+          scrollTop: Math.round(document.getElementById("dse-root").scrollTop),
+          selected: document.querySelector("[data-home-scenario][aria-pressed='true']")?.dataset.homeScenario || "",
+          resultVisible: !document.getElementById("dse-home-step-3")?.hidden
+        };
+      })()`);
+      await clickByPointer(connection, ".dse-advanced-entry a");
+      check(
+        await waitFor(connection, `(() => (
+          document.readyState === "complete" &&
+          location.pathname.endsWith("/interactive/")
+        ))()`, 5000),
+        `${prefix}fresh advanced-mode entry did not navigate.`
+      );
+      await waitForViewTransition(connection);
+      await sleep(600);
+      await clickByPointer(connection, "#dse-return-home");
+      check(
+        await waitFor(connection, `(() => (
+          document.readyState === "complete" &&
+          location.pathname.endsWith("/docs/skill-evolution/") &&
+          document.getElementById("dse-home-step-3")?.hidden &&
+          !document.querySelector("[data-home-scenario][aria-pressed='true']")
+        ))()`, 5000),
+        `${prefix}fresh advanced return did not restore the homepage without fabricating interaction state.`
+      );
+      await waitForViewTransition(connection);
+      await sleep(600);
+      await waitFor(connection, `Math.abs(
+        Number(document.getElementById("dse-root")?.scrollTop || 0) - ${beforeFreshReturn.scrollTop}
+      ) < 60`, 2500);
+      const afterFreshReturn = await evaluate(connection, `(() => ({
+        scrollTop: Math.round(document.getElementById("dse-root").scrollTop),
+        selected: document.querySelector("[data-home-scenario][aria-pressed='true']")?.dataset.homeScenario || "",
+        resultVisible: !document.getElementById("dse-home-step-3")?.hidden
+      }))()`);
+      check(
+        beforeFreshReturn.scrollTop > 100 &&
+        beforeFreshReturn.selected === "" &&
+        !beforeFreshReturn.resultVisible &&
+        afterFreshReturn.selected === "" &&
+        !afterFreshReturn.resultVisible &&
+        Math.abs(afterFreshReturn.scrollTop - beforeFreshReturn.scrollTop) < 60,
+        `${prefix}fresh advanced return lost the homepage scroll position (${JSON.stringify({
+          before: beforeFreshReturn,
+          after: afterFreshReturn
+        })}).`
+      );
+    }
     // Programmatic CDP navigation can race an in-flight cross-document transition.
     // The real browser click path is covered separately; ignore only that abort.
     const unexpectedPageErrors = connection.pageErrors.filter(error =>
@@ -947,7 +1037,6 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
         simpleModePresent: Boolean(document.querySelector(".dse-guided")),
         statusActionsVisible: (document.querySelector(".dse-advanced-actions")?.getBoundingClientRect().height || 0) > 0,
         visiblePanelCount: visiblePanels.length,
-        visiblePanelMode: visiblePanels[0]?.dataset.demoMode || "",
         currentTheme: document.getElementById("dse-advanced-current")?.textContent.trim() || "",
         modeButtonCount: modeButtons.length,
         pressedModeCount: modeButtons.filter(button => button.getAttribute("aria-pressed") === "true").length,
@@ -962,7 +1051,7 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       };
     })()`);
     check(initial.title.includes("高级模式"), `${prefix}browser title is not user-facing.`);
-    check(initial.h1 === "选择一个主题", `${prefix}advanced-mode headline is not concise and task-oriented.`);
+    check(initial.h1 === "高级模式", `${prefix}advanced-mode headline is not named consistently.`);
     check(
       initial.status.includes("当前测试版") &&
       initial.status.includes("只读演示") &&
@@ -986,8 +1075,7 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       initial.advancedVisible &&
       !initial.simpleModePresent &&
       !initial.statusActionsVisible &&
-      initial.visiblePanelCount === 1 &&
-      initial.visiblePanelMode === "choose" &&
+      initial.visiblePanelCount === 0 &&
       initial.currentTheme === "尚未选择" &&
       initial.modeButtonCount === 4 &&
       initial.pressedModeCount === 0 &&
@@ -1004,6 +1092,18 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
         modeColumns: initial.modeColumns,
         modeTops: initial.modeTops
       })}).`
+    );
+    await clickByPointer(connection, '[data-demo-mode="terms"]');
+    const initialTerms = await evaluate(connection, `(() => ({
+      coreCount: document.querySelectorAll("#dse-term-core-row [data-term-id]").length,
+      moreClosed: !document.querySelector(".dse-term-more")?.open,
+      moreSummaryHeight: Math.round(document.querySelector(".dse-term-more > summary")?.getBoundingClientRect().height || 0)
+    }))()`);
+    check(
+      initialTerms.coreCount === 6 &&
+      initialTerms.moreClosed &&
+      initialTerms.moreSummaryHeight >= 44,
+      `${prefix}terms do not start with six core choices and a secondary disclosure (${JSON.stringify(initialTerms)}).`
     );
     await clickByPointer(connection, '[data-demo-mode="tune"]');
     const selectedTune = await evaluate(connection, `(() => ({
@@ -1029,28 +1129,21 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       interactiveFontSizes.length <= 4,
       `${prefix}interactive lab uses more than four font-size levels (${JSON.stringify(interactiveFontSizes)}).`
     );
-    await evaluate(connection, `(() => {
-      document.querySelector("[data-scenario-auto-toggle]").dataset.autoResumeMs = "700";
-      return true;
-    })()`);
-    const scenarioAutoBefore = await evaluate(connection, `(() => ({
-      active: document.querySelector("#dse-scenario-grid [data-scenario][aria-pressed='true']")?.dataset.scenario || "",
-      autoResumeMs: document.querySelector("[data-scenario-auto-toggle]")?.dataset.autoResumeMs || "",
+    const scenarioToolsBefore = await evaluate(connection, `(() => ({
+      detailsOpen: Boolean(document.querySelector(".dse-scenario-tools")?.open),
+      pressed: document.querySelector("[data-scenario-auto-toggle]")?.getAttribute("aria-pressed") || "",
+      label: document.querySelector("[data-scenario-auto-toggle]")?.textContent.trim() || "",
       meta: document.querySelector(".dse-scenario-meta > span")?.textContent.trim() || ""
     }))()`);
-    const scenarioAfterScroll = await evaluate(connection, `(async () => {
-      const root = document.getElementById("dse-root");
-      root.scrollTop += 12;
-      root.dispatchEvent(new Event("scroll"));
-      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      return {
-        pressed: document.querySelector("[data-scenario-auto-toggle]")?.getAttribute("aria-pressed") || "",
-        checklistOpen: !document.getElementById("dse-gate-checklist")?.hidden
-      };
-    })()`);
+    await clickByPointer(connection, ".dse-scenario-tools > summary");
+    await clickByPointer(connection, "[data-scenario-auto-toggle]");
+    const scenarioToolsManual = await evaluate(connection, `(() => ({
+      pressed: document.querySelector("[data-scenario-auto-toggle]")?.getAttribute("aria-pressed") || "",
+      label: document.querySelector("[data-scenario-auto-toggle]")?.textContent.trim() || "",
+      checklistOpen: !document.getElementById("dse-gate-checklist")?.hidden
+    }))()`);
     await clickByPointer(connection, '[data-gate-action="check"]');
     const scenarioAutoPaused = await evaluate(connection, `(() => ({
-      active: document.querySelector("#dse-scenario-grid [data-scenario][aria-pressed='true']")?.dataset.scenario || "",
       pressed: document.querySelector("[data-scenario-auto-toggle]")?.getAttribute("aria-pressed") || "",
       label: document.querySelector("[data-scenario-auto-toggle]")?.textContent.trim() || "",
       summaryScore: document.getElementById("dse-gate-summary-score")?.textContent.trim() || "",
@@ -1058,48 +1151,24 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       summaryNote: document.getElementById("dse-gate-summary-note")?.textContent.trim() || "",
       summaryLights: document.querySelectorAll(".dse-gate-summary-light").length
     }))()`);
-    await sleep(650);
-    const scenarioWithOpenDraft = await evaluate(connection, `(() => ({
-      pressed: document.querySelector("[data-scenario-auto-toggle]")?.getAttribute("aria-pressed") || "",
-      label: document.querySelector("[data-scenario-auto-toggle]")?.textContent.trim() || "",
-      checklistOpen: !document.getElementById("dse-gate-checklist")?.hidden
-    }))()`);
-    await clickByPointer(connection, '[data-gate-action="check"]');
-    await sleep(650);
-    const scenarioAutoResumed = await evaluate(connection, `(() => ({
-      pressed: document.querySelector("[data-scenario-auto-toggle]")?.getAttribute("aria-pressed") || "",
-      label: document.querySelector("[data-scenario-auto-toggle]")?.textContent.trim() || "",
-      checklistOpen: !document.getElementById("dse-gate-checklist")?.hidden
-    }))()`);
-    await evaluate(connection, `(() => {
-      document.querySelector("[data-scenario-auto-toggle]").dataset.autoResumeMs = "25000";
-      return true;
-    })()`);
     check(
-      scenarioAutoBefore.active.length > 0 &&
-      scenarioAutoBefore.autoResumeMs === "700" &&
-      scenarioAutoBefore.meta.includes("5 秒轮换") &&
-      scenarioAutoBefore.meta.includes("停手 25 秒后自动继续") &&
-      scenarioAfterScroll.pressed === "false" &&
-      !scenarioAfterScroll.checklistOpen &&
-      scenarioAutoPaused.active === scenarioAutoBefore.active &&
+      !scenarioToolsBefore.detailsOpen &&
+      scenarioToolsBefore.pressed === "true" &&
+      scenarioToolsBefore.label.includes("继续自动演示") &&
+      scenarioToolsBefore.meta.includes("主动开启") &&
+      scenarioToolsManual.pressed === "false" &&
+      scenarioToolsManual.label.includes("暂停自动演示") &&
+      !scenarioToolsManual.checklistOpen &&
       scenarioAutoPaused.pressed === "true" &&
-      scenarioAutoPaused.label.includes("立即继续演示") &&
+      scenarioAutoPaused.label.includes("继续自动演示") &&
       scenarioAutoPaused.summaryScore === "0 / 5" &&
       scenarioAutoPaused.summaryState === "incomplete" &&
       scenarioAutoPaused.summaryNote.includes("还缺 5 项") &&
-      scenarioAutoPaused.summaryLights === 1 &&
-      scenarioWithOpenDraft.pressed === "true" &&
-      scenarioWithOpenDraft.checklistOpen &&
-      scenarioAutoResumed.checklistOpen === false &&
-      scenarioAutoResumed.pressed === "false" &&
-      scenarioAutoResumed.label.includes("暂停自动演示"),
-      `${prefix}scenario rotation does not pause on interaction and resume after idle (${JSON.stringify({
-        before: scenarioAutoBefore,
-        afterScroll: scenarioAfterScroll,
+      scenarioAutoPaused.summaryLights === 1,
+      `${prefix}scenario auto-demo is not a paused secondary tool (${JSON.stringify({
+        before: scenarioToolsBefore,
+        manual: scenarioToolsManual,
         paused: scenarioAutoPaused,
-        withOpenDraft: scenarioWithOpenDraft,
-        resumed: scenarioAutoResumed
       })}).`
     );
     await evaluate(connection, `(async () => {
@@ -1107,6 +1176,23 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       return true;
     })()`);
+    const triageCategoryInitial = await evaluate(connection, `(() => ({
+      categoryCount: document.querySelectorAll("[data-triage-category]").length,
+      categoryColumns: getComputedStyle(document.getElementById("dse-triage-category-grid")).gridTemplateColumns,
+      caseStageHidden: Boolean(document.getElementById("dse-triage-case-stage")?.hidden),
+      workflowHidden: Boolean(document.getElementById("dse-triage-workflow")?.hidden),
+      autoToolsOpen: Boolean(document.querySelector(".dse-triage-tools")?.open)
+    }))()`);
+    check(
+      triageCategoryInitial.categoryCount === 3 &&
+      triageCategoryInitial.categoryColumns.split(" ").filter(Boolean).length === (name === "desktop" ? 3 : 1) &&
+      triageCategoryInitial.caseStageHidden &&
+      triageCategoryInitial.workflowHidden &&
+      !triageCategoryInitial.autoToolsOpen,
+      `${prefix}triage does not start with symptom categories (${JSON.stringify(triageCategoryInitial)}).`
+    );
+    await clickByPointer(connection, '[data-triage-category="display"]');
+    await clickByPointer(connection, '#dse-triage-case-grid [data-triage-case="stutter"]');
     const triageProgressInitial = await evaluate(connection, `(() => {
       const progress = document.getElementById("dse-triage-progress");
       const rail = document.getElementById("dse-triage-state-rail");
@@ -1141,11 +1227,11 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       triageProgressInitial.position.includes("第 1 / 4 步") &&
       triageProgressInitial.button === "补充信息" &&
       triageProgressInitial.bodySize >= (name === "desktop" ? 18 : 16) &&
-      triageProgressInitial.actionSizes.length === 2 &&
+      triageProgressInitial.actionSizes.length === 1 &&
       triageProgressInitial.actionSizes.every(size =>
         size.height === 44 &&
         size.fontSize === (name === "desktop" ? 18 : 16) &&
-        Math.abs(size.width - triageProgressInitial.actionSizes[0].width) <= 1
+        size.width >= 44
       ),
       `${prefix}triage progress is not visible at the action (${JSON.stringify(triageProgressInitial)}).`
     );
@@ -1204,9 +1290,10 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
         caseTops: cases.map(item => Math.round(item.getBoundingClientRect().top)),
         horizontalOverflow: stack.scrollWidth > stack.clientWidth,
         touchAction: getComputedStyle(stack).touchAction,
-        autoToggleVisible: getComputedStyle(
-          document.getElementById("dse-triage-auto-toggle")
-        ).display !== "none"
+        autoToggleInDetails: Boolean(
+          document.getElementById("dse-triage-auto-toggle")?.closest(".dse-triage-tools")
+        ),
+        autoToolsOpen: Boolean(document.querySelector(".dse-triage-tools")?.open)
       };
     })()`);
     check(
@@ -1215,7 +1302,8 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       new Set(triageStack.caseTops).size === triageStack.caseTops.length &&
       !triageStack.horizontalOverflow &&
       triageStack.touchAction === "pan-y" &&
-      triageStack.autoToggleVisible,
+      triageStack.autoToggleInDetails &&
+      !triageStack.autoToolsOpen,
       `${prefix}triage cases are not a vertical explicit-choice list (${JSON.stringify(triageStack)}).`
     );
     if (name === "mobile") {
@@ -1373,7 +1461,11 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       `${prefix}tuning steps still show multiple panels at once (${JSON.stringify(tuneSteps)}).`
     );
     await clickByPointer(connection, '[data-tune-step-link="gate"]');
-    await clickByPointer(connection, ".dse-secondary-actions > summary");
+    await evaluate(connection, `(() => {
+      const details = document.querySelector('[data-gate-action="direct"]')?.closest("details");
+      if (details) details.open = true;
+      return Boolean(details);
+    })()`);
     await clickByPointer(connection, '[data-gate-action="direct"]');
     const directFeedback = await evaluate(connection, `(() => ({
       visible: !document.getElementById("dse-direct-feedback")?.hidden,

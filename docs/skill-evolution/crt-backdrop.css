@@ -19,9 +19,10 @@
   --dse-motion-ease: cubic-bezier(.2, 0, 0, 1);
   --dse-motion-fast: 120ms;
   --dse-motion-standard: 200ms;
-  --dse-motion-enter: 240ms;
+  --dse-motion-panel: 280ms;
+  --dse-motion-hero: 360ms;
   --dse-motion-page-exit: 140ms;
-  --dse-motion-page-enter: 240ms;
+  --dse-motion-page-enter: 280ms;
   --dse-motion-distance: 8px;
 }
 

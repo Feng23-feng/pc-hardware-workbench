@@ -15,6 +15,7 @@
   let loopTimer;
   let interactionTimer;
   let interactionPaused = false;
+  let hasScanned = false;
   let currentScene = 0;
   let backdrop;
   let scenes;
@@ -242,8 +243,17 @@
   }
 
   function startScan() {
-    if (reducedMotion.matches || interactionPaused || document.hidden || !backdrop) return;
+    if (
+      hasScanned ||
+      reducedMotion.matches ||
+      interactionPaused ||
+      document.hidden ||
+      !backdrop
+    ) {
+      return;
+    }
 
+    hasScanned = true;
     clearCycleTimers();
     backdrop.classList.remove("is-scanning");
     backdrop.classList.add("is-replaying");
@@ -253,10 +263,6 @@
 
     settleTimer = window.setTimeout(() => {
       backdrop.classList.remove("is-scanning");
-      sceneChangeTimer = window.setTimeout(() => {
-        showScene((currentScene + 1) % scenes.length);
-        loopTimer = window.setTimeout(startScan, pauseAfterScan);
-      }, 360);
     }, scanDuration);
   }
 

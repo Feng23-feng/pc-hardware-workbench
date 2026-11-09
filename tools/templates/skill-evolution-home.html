@@ -1273,9 +1273,60 @@
 
     #dse-root .dse-term-rails {
       display: grid;
-      grid-template-columns: minmax(0, .9fr) minmax(0, 1.35fr);
+      grid-template-columns: minmax(0, 1fr);
       gap: 9px;
       margin-top: 10px;
+    }
+
+    #dse-root .dse-term-more {
+      grid-column: 1 / -1;
+      border-top: 1px solid var(--dse-line-soft);
+    }
+
+    #dse-root .dse-term-more > summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 44px;
+      padding: 8px 0;
+      color: var(--dse-text-muted-soft);
+      cursor: pointer;
+      list-style: none;
+      transition: color var(--dse-motion-fast) var(--dse-motion-ease);
+    }
+
+    #dse-root .dse-term-more > summary:hover,
+    #dse-root .dse-term-more > summary:focus-visible {
+      color: var(--dse-text);
+    }
+
+    #dse-root .dse-term-more > summary:focus-visible {
+      outline: 2px solid rgb(var(--dse-cyan-rgb) / .8);
+      outline-offset: 2px;
+    }
+
+    #dse-root .dse-term-more > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    #dse-root .dse-term-more > summary::after {
+      flex: none;
+      color: var(--dse-cyan);
+      content: "展开";
+    }
+
+    #dse-root .dse-term-more[open] > summary::after {
+      content: "收起";
+    }
+
+    #dse-root .dse-term-more > summary small {
+      margin-left: auto;
+      color: var(--dse-text-faint);
+    }
+
+    #dse-root .dse-term-more > .dse-term-rail {
+      margin-top: 8px;
     }
 
     #dse-root .dse-term-rail {
@@ -1301,7 +1352,7 @@
       margin: 0;
       color: var(--dse-cyan);
       font-size: 8px;
-      letter-spacing: .1em;
+      letter-spacing: 0;
       text-transform: none;
     }
 
@@ -4603,6 +4654,11 @@
       display: none;
     }
 
+    #dse-root .dse-secondary-actions summary:focus-visible {
+      outline: 2px solid rgb(var(--dse-cyan-rgb) / .8);
+      outline-offset: 2px;
+    }
+
     #dse-root .dse-tech-details summary::after,
     #dse-root .dse-secondary-actions summary::after {
       content: "+";
@@ -5728,6 +5784,35 @@
       line-height: 1.65;
     }
 
+    #dse-root .dse-candidate-summary {
+      display: grid;
+      align-content: center;
+      gap: 0;
+      margin: 0;
+      border-top: 1px solid var(--dse-line);
+    }
+
+    #dse-root .dse-candidate-summary > div {
+      display: grid;
+      grid-template-columns: 96px minmax(0, 1fr);
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--dse-line-soft);
+    }
+
+    #dse-root .dse-candidate-summary dt {
+      color: var(--dse-text-muted-soft);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-candidate-summary dd {
+      margin: 0;
+      color: #d1d5da;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
     #dse-root .dse-explore {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -6087,18 +6172,22 @@
 
     #dse-root .dse-hero-safety {
       display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      margin: 22px 0 0;
-      color: var(--dse-text-faint);
-      font-size: 11px;
-      line-height: 1.55;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 8px;
+      max-width: 620px;
+      margin: 24px auto 0;
+      color: var(--dse-muted);
+      font-size: 13px;
+      line-height: 1.65;
+      text-align: left;
     }
 
     #dse-root .dse-hero-safety::before {
+      flex: none;
       width: 4px;
       height: 4px;
+      margin-top: .62em;
       background: var(--dse-lime);
       border-radius: 50%;
       content: "";
@@ -6114,17 +6203,6 @@
       color: #aab1b9;
       font-size: 12px;
       text-decoration: none;
-    }
-
-    html.dse-motion-ready #dse-root [data-reveal] {
-      opacity: 0;
-      transform: translateY(18px);
-      transition: opacity .46s ease, transform .46s cubic-bezier(.22, 1, .36, 1);
-    }
-
-    html.dse-motion-ready #dse-root [data-reveal].is-visible {
-      opacity: 1;
-      transform: translateY(0);
     }
 
     #dse-root .dse-about,
@@ -6723,23 +6801,23 @@
 
     html.dse-hero-enter #dse-root .dse-hero .dse-skill-kicker,
     html.dse-hero-enter #dse-root .dse-hero h1 {
-      animation: dse-home-hero-enter 360ms var(--dse-motion-ease) backwards;
+      animation: dse-home-hero-enter var(--dse-motion-hero) var(--dse-motion-ease) backwards;
       will-change: opacity, transform;
     }
 
     html.dse-hero-enter #dse-root .dse-hero .dse-subtitle,
     html.dse-hero-enter #dse-root .dse-hero .dse-invoke-example {
-      animation: dse-home-hero-enter 360ms var(--dse-motion-ease) 40ms backwards;
+      animation: dse-home-hero-enter var(--dse-motion-hero) var(--dse-motion-ease) 40ms backwards;
       will-change: opacity, transform;
     }
 
     html.dse-hero-enter #dse-root .dse-hero-actions {
-      animation: dse-home-hero-enter 360ms var(--dse-motion-ease) 80ms backwards;
+      animation: dse-home-hero-enter var(--dse-motion-hero) var(--dse-motion-ease) 80ms backwards;
       will-change: opacity, transform;
     }
 
     html.dse-hero-enter #dse-root .dse-hero-status {
-      animation: dse-home-hero-enter 360ms var(--dse-motion-ease) 120ms backwards;
+      animation: dse-home-hero-enter var(--dse-motion-hero) var(--dse-motion-ease) 120ms backwards;
       will-change: opacity, transform;
     }
 
@@ -6940,20 +7018,22 @@
     }
 
     #dse-root .dse-explore-primary {
-      grid-template-columns: minmax(0, 1fr);
+      display: block;
       margin-top: 58px;
-      border: 1px solid var(--dse-line);
+      border: 0;
     }
 
     #dse-root .dse-explore-primary a {
       position: relative;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      align-items: center;
-      gap: 32px;
-      min-height: 112px;
-      padding: 24px 28px;
+      grid-template-columns: minmax(0, 1fr) minmax(400px, 48%);
+      align-items: stretch;
+      min-height: 344px;
+      padding: 0;
       overflow: hidden;
+      background: var(--dse-surface-deep);
+      border: 1px solid var(--dse-line-soft);
+      border-radius: 12px;
       transition:
         background-color var(--dse-motion-fast) var(--dse-motion-ease),
         border-color var(--dse-motion-fast) var(--dse-motion-ease);
@@ -6965,32 +7045,75 @@
 
     #dse-root .dse-explore-primary a:hover,
     #dse-root .dse-explore-primary a:focus-visible {
-      background: var(--dse-surface-control);
+      background: #101419;
       border-color: var(--dse-line-strong);
     }
 
+    #dse-root .dse-explore-primary a:focus-visible {
+      outline: 2px solid rgb(var(--dse-cyan-rgb) / .8);
+      outline-offset: 3px;
+    }
+
     #dse-root .dse-howto-cta span,
-    #dse-root .dse-advanced-entry a > span:last-child {
+    #dse-root .dse-advanced-entry a > span:last-child,
+    #dse-root .dse-explore-cta span {
       transition: transform var(--dse-motion-fast) var(--dse-motion-ease);
     }
 
     #dse-root .dse-howto-cta:hover span,
     #dse-root .dse-howto-cta:focus-visible span,
     #dse-root .dse-advanced-entry a:hover > span:last-child,
-    #dse-root .dse-advanced-entry a:focus-visible > span:last-child {
-      transform: translateX(3px);
+    #dse-root .dse-advanced-entry a:focus-visible > span:last-child,
+    #dse-root .dse-explore-primary a:hover .dse-explore-cta span,
+    #dse-root .dse-explore-primary a:focus-visible .dse-explore-cta span {
+      transform: translateX(2px);
     }
 
     #dse-root .dse-explore-copy {
       position: relative;
       z-index: 1;
+      display: grid;
+      align-content: center;
+      gap: 16px;
       min-width: 0;
+      padding: 36px;
+    }
+
+    #dse-root .dse-explore-kicker {
+      color: var(--dse-cyan);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-explore-title {
+      max-width: 560px;
+      color: var(--dse-text-strong);
+      font-size: clamp(26px, 2.4vw, 34px);
+      font-weight: 500;
+      line-height: 1.2;
+      letter-spacing: -.02em;
+    }
+
+    #dse-root .dse-explore-description {
+      max-width: 520px;
+      color: var(--dse-muted);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    #dse-root .dse-explore-bottom {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-top: 8px;
+      padding-top: 18px;
+      border-top: 1px solid var(--dse-line-soft);
     }
 
     #dse-root .dse-file-map {
       display: flex;
       align-items: center;
-      justify-content: flex-end;
       gap: 10px;
       min-width: 0;
       color: var(--dse-text-muted-soft);
@@ -7013,10 +7136,54 @@
       content: "·";
     }
 
+    #dse-root .dse-explore-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      color: var(--dse-text-strong);
+      font-size: 15px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    #dse-root .dse-explore-cta span {
+      color: var(--dse-cyan);
+      font-size: 18px;
+    }
+
+    #dse-root .dse-orrery-preview {
+      position: relative;
+      z-index: 0;
+      align-self: stretch;
+      min-width: 0;
+      min-height: 320px;
+      overflow: hidden;
+      background: #05080b;
+      border-left: 1px solid var(--dse-line-soft);
+      transition: transform 160ms var(--dse-motion-ease);
+      transform: translateY(0);
+    }
+
+    #dse-root .dse-orrery-preview img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 47% 48%;
+      opacity: .9;
+      mask-image: linear-gradient(90deg, transparent 0, rgb(var(--dse-black-rgb)) 12%, rgb(var(--dse-black-rgb)) 84%, transparent 100%);
+      -webkit-mask-image: linear-gradient(90deg, transparent 0, rgb(var(--dse-black-rgb)) 12%, rgb(var(--dse-black-rgb)) 84%, transparent 100%);
+    }
+
+    #dse-root .dse-explore-primary a:hover .dse-orrery-preview,
+    #dse-root .dse-explore-primary a:focus-visible .dse-orrery-preview {
+      transform: translateY(-3px);
+    }
+
     #dse-root .dse-home-technical {
       margin-top: 52px;
-      border-top: 1px solid var(--dse-line);
-      border-bottom: 1px solid var(--dse-line);
+      border: 0;
     }
 
     #dse-root .dse-home-technical > summary {
@@ -7025,15 +7192,30 @@
       grid-template-rows: auto auto;
       align-items: center;
       gap: 2px 20px;
-      min-height: 64px;
-      padding: 16px 0;
+      min-height: 72px;
+      padding: 16px 18px;
       color: #b8bec4;
+      background: #0d1114;
+      border: 1px solid var(--dse-line-soft);
+      border-radius: 10px;
       cursor: pointer;
       list-style: none;
+      transition:
+        color var(--dse-motion-fast) var(--dse-motion-ease),
+        background-color var(--dse-motion-fast) var(--dse-motion-ease),
+        border-color var(--dse-motion-fast) var(--dse-motion-ease);
     }
 
-    #dse-root .dse-home-technical > summary:active {
+    #dse-root .dse-home-technical > summary:hover,
+    #dse-root .dse-home-technical > summary:focus-visible {
       color: var(--dse-text);
+      background: var(--dse-surface-control);
+      border-color: var(--dse-line-strong);
+    }
+
+    #dse-root .dse-home-technical > summary:focus-visible {
+      outline: 2px solid rgb(var(--dse-cyan-rgb) / .8);
+      outline-offset: 2px;
     }
 
     #dse-root .dse-home-technical > summary::-webkit-details-marker {
@@ -7059,12 +7241,13 @@
       grid-column: 2;
       grid-row: 1 / 3;
       color: var(--dse-cyan);
-      font-size: 11px;
+      font-size: 13px;
       font-style: normal;
     }
 
     #dse-root .dse-home-technical[open] > summary {
-      border-bottom: 1px solid var(--dse-line);
+      border-radius: 10px 10px 0 0;
+      border-bottom-color: var(--dse-line-strong);
     }
 
     #dse-root .dse-toolbar {
@@ -7128,25 +7311,49 @@
       height: 7px;
     }
 
-    @media (max-width: 760px) {
-      #dse-root .dse-explore-primary {
-        grid-template-columns: 1fr;
+    @media (max-width: 900px) {
+      #dse-root .dse-explore-primary a {
+        grid-template-columns: minmax(0, 1fr);
+        min-height: 0;
+        padding: 0;
       }
 
+      #dse-root .dse-orrery-preview {
+        order: -1;
+        width: 100%;
+        min-height: 180px;
+        height: 180px;
+        border-bottom: 1px solid var(--dse-line-soft);
+        border-left: 0;
+      }
+
+      #dse-root .dse-explore-copy {
+        gap: 12px;
+        padding: 24px 20px 20px;
+      }
+
+      #dse-root .dse-explore-title {
+        font-size: 26px;
+      }
+
+      #dse-root .dse-explore-description {
+        font-size: 14px;
+      }
+
+      #dse-root .dse-explore-bottom {
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 14px 20px;
+      }
+    }
+
+    @media (max-width: 760px) {
       #dse-root .dse-howto-cta {
         width: 100%;
         justify-content: space-between;
       }
 
-      #dse-root .dse-explore-primary a {
-        grid-template-columns: minmax(0, 1fr);
-        gap: 18px;
-        min-height: 0;
-        padding: 22px 20px;
-      }
-
       #dse-root .dse-file-map {
-        justify-content: flex-start;
         flex-wrap: wrap;
         row-gap: 6px;
         white-space: normal;
@@ -7168,6 +7375,19 @@
 
       #dse-root .dse-home-technical {
         margin-top: 38px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      #dse-root .dse-orrery-preview {
+        min-height: 172px;
+        height: 172px;
+      }
+
+      #dse-root .dse-explore-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
       }
     }
 
@@ -7222,7 +7442,7 @@
     #dse-root .dse-home-flow-step-head h3 {
       margin: 0;
       color: var(--dse-text-strong);
-      font-weight: 600;
+      font-weight: 500;
       line-height: 1.4;
     }
 
@@ -7237,8 +7457,8 @@
     #dse-root #dse-home-evidence-options {
       display: grid;
       grid-template-columns: minmax(0, 1fr);
-      gap: 0;
-      border-top: 1px solid var(--dse-line-soft);
+      gap: 8px;
+      border-top: 0;
     }
 
     #dse-root .dse-home-selection-summary {
@@ -7269,21 +7489,40 @@
     }
 
     #dse-root .dse-home-selection-summary button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       flex: none;
       min-height: 44px;
-      padding: 0 14px;
+      padding: 0 16px;
       color: #cfd8de;
-      background: #11171b;
-      border: 1px solid #34414a;
-      border-radius: 999px;
+      background: var(--dse-surface-control);
+      border: 1px solid var(--dse-line-strong);
+      border-radius: 8px;
       font: inherit;
       cursor: pointer;
+      transition:
+        color var(--dse-motion-fast) var(--dse-motion-ease),
+        background-color var(--dse-motion-fast) var(--dse-motion-ease),
+        border-color var(--dse-motion-fast) var(--dse-motion-ease);
+    }
+
+    #dse-root .dse-home-selection-summary button::after {
+      content: "→";
+      color: var(--dse-cyan);
     }
 
     #dse-root .dse-home-selection-summary button:hover,
     #dse-root .dse-home-selection-summary button:focus-visible {
       color: #f3f6f7;
       border-color: #697882;
+      background: #1a2025;
+    }
+
+    #dse-root .dse-home-selection-summary button:focus-visible {
+      outline: 2px solid rgb(var(--dse-cyan-rgb) / .8);
+      outline-offset: 2px;
     }
 
     #dse-root #dse-home-evidence-editor {
@@ -7293,43 +7532,81 @@
 
     #dse-root .dse-home-question-option {
       display: grid;
-      gap: 6px;
+      grid-template-columns: minmax(0, 1fr) 20px;
+      grid-template-rows: auto auto;
+      align-items: start;
+      gap: 6px 12px;
       width: 100%;
       min-height: 72px;
-      padding: 16px 2px;
+      padding: 14px 16px;
       color: #d6dce0;
-      background: transparent;
-      border: 0;
-      border-bottom: 1px solid var(--dse-line-soft);
-      border-radius: 0;
+      background: #0d1114;
+      border: 1px solid var(--dse-line-soft);
+      border-radius: 8px;
       text-align: left;
       cursor: pointer;
+      transition:
+        color var(--dse-motion-fast) var(--dse-motion-ease),
+        background-color var(--dse-motion-fast) var(--dse-motion-ease),
+        border-color var(--dse-motion-fast) var(--dse-motion-ease);
     }
 
     #dse-root .dse-home-question-option strong {
+      grid-column: 1;
+      grid-row: 1;
       color: #f0f3f5;
-      font-weight: 600;
+      font-weight: 500;
     }
 
-    #dse-root .dse-home-question-option:last-child,
     #dse-root .dse-home-evidence-option:last-child {
       border-bottom: 0;
     }
 
     #dse-root .dse-home-question-option small {
+      grid-column: 1;
+      grid-row: 2;
       color: #969fa8;
       line-height: 1.6;
     }
 
     #dse-root .dse-home-question-option:hover,
     #dse-root .dse-home-question-option:focus-visible {
-      background: rgb(var(--dse-white-rgb) / .025);
+      background: var(--dse-surface-control);
+      border-color: var(--dse-line-strong);
+    }
+
+    #dse-root .dse-home-question-option:focus-visible {
+      outline: 2px solid rgb(var(--dse-cyan-rgb) / .8);
+      outline-offset: 2px;
     }
 
     #dse-root .dse-home-question-option[aria-pressed="true"] {
-      border-bottom-color: rgb(var(--dse-cyan-rgb) / .48);
+      border-color: rgb(var(--dse-cyan-rgb) / .72);
       background: rgb(var(--dse-cyan-rgb) / .055);
       box-shadow: none;
+    }
+
+    #dse-root .dse-home-question-marker {
+      grid-column: 2;
+      grid-row: 1 / 3;
+      align-self: center;
+      color: var(--dse-text-muted-soft);
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 14px;
+      line-height: 1;
+      text-align: right;
+    }
+
+    #dse-root .dse-home-question-marker::before {
+      content: "→";
+    }
+
+    #dse-root .dse-home-question-option[aria-pressed="true"] .dse-home-question-marker {
+      color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-home-question-option[aria-pressed="true"] .dse-home-question-marker::before {
+      content: "✓";
     }
 
     #dse-root .dse-home-evidence {
@@ -7457,7 +7734,7 @@
       color: #0a0d0f;
       background: #e7ebee;
       border-color: #e7ebee;
-      font-weight: 600;
+      font-weight: 500;
     }
 
     #dse-root .dse-home-flow-actions button:hover,
@@ -7498,7 +7775,7 @@
 
     #dse-root .dse-home-result header strong {
       color: #e3f1f4;
-      font-weight: 600;
+      font-weight: 500;
     }
 
     #dse-root .dse-home-result p {
@@ -7523,7 +7800,7 @@
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto auto;
       align-items: center;
-      gap: 18px;
+      gap: 16px;
       min-height: 70px;
       padding: 16px 20px;
       color: #adb5bc;
@@ -7531,17 +7808,35 @@
       border: 1px solid var(--dse-line-soft);
       border-radius: 10px;
       text-decoration: none;
+      transition:
+        color var(--dse-motion-fast) var(--dse-motion-ease),
+        background-color var(--dse-motion-fast) var(--dse-motion-ease),
+        border-color var(--dse-motion-fast) var(--dse-motion-ease),
+        transform var(--dse-motion-fast) var(--dse-motion-ease);
     }
 
     #dse-root .dse-advanced-entry strong {
       color: #f0f3f5;
-      font-weight: 600;
+      font-weight: 500;
     }
 
     #dse-root .dse-advanced-entry a:hover,
     #dse-root .dse-advanced-entry a:focus-visible {
       border-color: #53616b;
       background: #14191d;
+    }
+
+    #dse-root .dse-advanced-entry a:focus-visible {
+      outline: 2px solid rgb(var(--dse-cyan-rgb) / .8);
+      outline-offset: 2px;
+    }
+
+    #dse-root .dse-advanced-entry a:active {
+      transform: translateY(1px);
+    }
+
+    #dse-root .dse-advanced-entry a > span:last-child {
+      color: var(--dse-cyan);
     }
 
     #dse-root .dse-map-stage.is-merge-layout {
@@ -7568,6 +7863,12 @@
     }
 
     @media (max-width: 760px) {
+      #dse-root .dse-hero-safety {
+        max-width: 100%;
+        font-size: 14px;
+        line-height: 1.7;
+      }
+
       #dse-root .dse-home-flow {
         margin-top: 82px;
       }
@@ -7733,11 +8034,6 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      html.dse-motion-ready #dse-root [data-reveal] {
-        opacity: 1;
-        transform: none;
-      }
-
       #dse-root,
       #dse-root *,
       #dse-root *::before,
@@ -7756,21 +8052,21 @@
     <header class="dse-header dse-hero">
       <div class="dse-header-copy">
         <p class="dse-kicker dse-skill-kicker"><span class="dse-hero-version" id="dse-hero-version"></span><span>电脑硬件工作台</span><code>pc-hardware-workbench</code></p>
-        <h1>电脑调试<br>Skill 来帮你</h1>
-        <p class="dse-subtitle">把问题和手头的资料交给我。我会读取配置、日志、截图和监测数据，分清哪些已经确认、哪些还需要补充，再给出可靠、能马上执行的下一步。</p>
+        <h1>看懂你的电脑<br>再做决定</h1>
+        <p class="dse-subtitle">查看 Windows 硬件配置、排查问题、判断调参或升级；先分清已有证据和缺失信息，再给出下一步。</p>
         <p class="dse-invoke-example">在 Codex 中调用：<code>$pc-hardware-workbench</code></p>
         <nav class="dse-hero-actions" aria-label="主要入口">
-          <a class="dse-hero-action primary" href="#dse-home-flow">开始排查</a>
+          <a class="dse-hero-action primary" href="#dse-home-flow">选择你要做的事</a>
         </nav>
-        <p class="dse-hero-safety">开始后先选择现象，再补充已有信息；只读取你允许的信息，不会自动修改硬件。</p>
+        <p class="dse-hero-safety">只读取你允许的信息。页面提供判断和测试计划，不会自动修改硬件。</p>
       </div>
     </header>
 
     <section class="dse-howto dse-home-flow" id="dse-home-flow"
-      data-reveal aria-labelledby="dse-how-title">
+      aria-labelledby="dse-how-title">
       <div class="dse-section-intro">
-        <h2 id="dse-how-title">一次只处理一个问题</h2>
-        <p>演示处理流程：先选一个最接近的问题，再补上你已经知道的信息。每完成一步，下一段才在下方出现。</p>
+        <h2 id="dse-how-title">先选一个方向</h2>
+        <p>查看配置、排查问题、判断调参或升级。先选一个方向，再补上你已经知道的信息。</p>
       </div>
       <div class="dse-home-flow-steps" aria-live="polite">
         <section class="dse-home-flow-step" id="dse-home-step-1" data-home-step="1"
@@ -7778,18 +8074,18 @@
           <header class="dse-home-flow-step-head">
             <b>01</b>
             <div>
-              <h3 id="dse-home-step-1-title">你现在遇到什么</h3>
+              <h3 id="dse-home-step-1-title">你想先做什么</h3>
             </div>
           </header>
-          <p class="dse-home-flow-lead" id="dse-home-question-lead">选一个最接近的情况。这里不会读取或修改你的电脑。</p>
+          <p class="dse-home-flow-lead" id="dse-home-question-lead">选择一个方向。这里不会读取或修改你的电脑。</p>
           <div class="dse-home-question-options" id="dse-home-question-options"
-            role="group" aria-label="选择一个问题"></div>
+            role="group" aria-label="选择想处理的方向"></div>
           <div class="dse-home-selection-summary" id="dse-home-question-summary" hidden>
             <div>
-              <small>已选问题</small>
+              <small>已选方向</small>
               <strong id="dse-home-question-summary-label"></strong>
             </div>
-            <button type="button" id="dse-home-change-question">更改问题</button>
+            <button type="button" id="dse-home-change-question">更改方向</button>
           </div>
         </section>
 
@@ -7825,7 +8121,7 @@
             </div>
           </details>
           <div class="dse-home-flow-actions">
-            <button type="button" id="dse-home-back">返回选择问题</button>
+            <button type="button" id="dse-home-back">返回选择方向</button>
             <button type="button" class="primary" id="dse-home-generate">生成下一步</button>
           </div>
           </div>
@@ -7842,7 +8138,7 @@
           <div class="dse-home-result" id="dse-home-result" role="status"
             aria-live="polite" aria-atomic="true">
             <header>
-              <small>本次检查结果</small>
+              <small>本次判断结果</small>
               <strong id="dse-home-result-status"></strong>
             </header>
             <p id="dse-home-result-copy"></p>
@@ -7851,68 +8147,36 @@
           </div>
           <div class="dse-home-flow-actions">
             <button type="button" class="primary" id="dse-home-copy-next">复制下一步给 Codex</button>
-            <button type="button" id="dse-home-restart">重新选问题</button>
+            <button type="button" id="dse-home-restart">重新选择</button>
             <a id="dse-home-open-advanced" href="interactive/#triage">需要更多工具？进入高级模式</a>
           </div>
         </section>
       </div>
     </section>
 
-    <section class="dse-candidate" data-reveal aria-labelledby="dse-candidate-title">
+    <section class="dse-candidate" aria-labelledby="dse-candidate-title">
       <div class="dse-candidate-intro">
         <p class="dse-candidate-state">当前测试版</p>
         <h2 id="dse-candidate-title">可以使用 尚未正式稳定</h2>
-        <p class="dse-candidate-lead">自动测试已经通过，也能完成配置读取、排障、遥测、一键证据包和调参前后对比；还需要更多真实设备与人工体验验证。</p>
+        <p class="dse-candidate-lead">自动测试已通过，真实设备覆盖和人工体验仍在补充。页面只提供判断与测试计划，最终操作由你确认。</p>
       </div>
-      <div class="dse-candidate-columns">
-        <article>
-          <h3>当前能做什么</h3>
-          <ul>
-            <li>读取硬件配置，并整理故障与遥测证据。</li>
-            <li>把调参前后的 CSV 生成图表、差异表、结果卡和可追溯证据包。</li>
-            <li>在你同意后查看正在运行的监控数据，只读且不自动修改硬件。</li>
-            <li>给出可执行的下一步；涉及显存或调校时，明确还需要哪些条件。</li>
-          </ul>
-        </article>
-        <article>
-          <h3>为什么仍是测试版</h3>
-          <ul>
-            <li>真实设备覆盖仍在扩大，部分结论需要结合你的负载与记录。</li>
-            <li>公开使用前的人工体验验证尚未全部完成。</li>
-            <li>页面始终提供计划与边界，最终设置仍由你确认和操作。</li>
-          </ul>
-        </article>
-      </div>
-      <details class="dse-candidate-details" id="dse-candidate-details">
-        <summary id="dse-candidate-details-summary"
-          aria-controls="dse-candidate-details-content" aria-expanded="false">
-          <span data-candidate-details-action>查看技术与发布说明</span>
-          <i data-candidate-details-indicator aria-hidden="true">展开</i>
-        </summary>
-        <div id="dse-candidate-details-content">
-        <dl class="dse-candidate-facts">
-          <div class="dse-candidate-fact">
-            <dt>版本</dt>
-            <dd>当前测试版；GitHub main 已同步。</dd>
-          </div>
-          <div class="dse-candidate-fact">
-            <dt>实时读取</dt>
-            <dd>在你同意后，只读访问已运行 LHM 的本机回环 Web；旧版 WMI 保留为兼容后备。</dd>
-          </div>
-          <div class="dse-candidate-fact">
-            <dt>显存结论</dt>
-            <dd>先确认具体显卡、显存和实际负载；不会只凭一个频率推带宽或超频值。</dd>
-          </div>
-          <div class="dse-candidate-fact">
-            <dt>发布限制</dt>
-            <dd>人工签署：PENDING；历史版本保留原验证语境。</dd>
-          </div>
-        </dl>
+      <dl class="dse-candidate-summary">
+        <div>
+          <dt>版本状态</dt>
+          <dd>当前测试分支；GitHub main 已同步。</dd>
         </div>
-      </details>
+        <div>
+          <dt>读取方式</dt>
+          <dd>只在你明确允许时读取本地信息，不会自动修改硬件。</dd>
+        </div>
+        <div>
+          <dt>当前限制</dt>
+          <dd>自动测试已通过，真实设备覆盖和人工体验验收仍在补充。</dd>
+        </div>
+      </dl>
     </section>
 
-    <nav class="dse-advanced-entry" data-reveal aria-label="高级模式入口">
+    <nav class="dse-advanced-entry" aria-label="高级模式入口">
       <a href="interactive/">
         <span>需要术语、调参、排障和记录证据？</span>
         <strong>进入高级模式</strong>
@@ -7921,19 +8185,27 @@
     </nav>
 
     <nav class="dse-explore dse-explore-primary" aria-label="主要入口">
-      <a href="orrery/">
+      <a href="orrery/" aria-label="进入文件星球，查看 90 个文件如何组成一个 Skill">
         <span class="dse-explore-copy">
-          <strong>查看文件星球</strong>
-          <small>按规则、脚本和测试浏览文件，并查看它们在流程中的关系。</small>
+          <span class="dse-explore-kicker">文件星球</span>
+          <strong class="dse-explore-title">看清 90 个文件如何组成一个 Skill</strong>
+          <small class="dse-explore-description">按职责分区、轨道和关联，查看规则、脚本和测试如何协同。</small>
+          <span class="dse-explore-bottom">
+            <span class="dse-file-map" aria-hidden="true">
+              <span>90 个文件</span>
+              <span>7 个职责分区</span>
+            </span>
+            <span class="dse-explore-cta">进入文件星球 <span aria-hidden="true">→</span></span>
+          </span>
         </span>
-        <span class="dse-file-map" aria-hidden="true">
-          <span>90 个文件</span>
-          <span>7 个职责分区</span>
+        <span class="dse-orrery-preview" aria-hidden="true">
+          <img src="assets/orrery-preview.png"
+            width="1000" height="720" loading="lazy" decoding="async" alt="">
         </span>
       </a>
     </nav>
 
-    <details class="dse-home-technical" id="dse-home-technical" data-reveal>
+    <details class="dse-home-technical" id="dse-home-technical">
       <summary id="dse-home-technical-summary"
         aria-controls="dse-home-technical-content" aria-expanded="false">
         <span data-technical-action>了解这个 Skill</span>
@@ -7944,7 +8216,7 @@
     <div id="dse-home-technical-content">
     <section class="dse-orientation" aria-labelledby="dse-start-title" hidden>
       <div class="dse-orientation-copy">
-        <p class="dse-orientation-kicker">START HERE / 第一次来</p>
+        <p class="dse-orientation-kicker">第一次来</p>
         <h2 id="dse-start-title">先选一个目标</h2>
         <p class="dse-orientation-summary">四个入口对应查看能力、追溯演进、体验判断流程和查看文件星球。先选你此刻最想解决的问题。</p>
       </div>
@@ -8073,7 +8345,7 @@
         <button type="button" class="dse-filter" data-filter="core" aria-pressed="true">主工作台</button>
         <button type="button" class="dse-filter" data-filter="prototype" aria-pressed="false">自动超频原型</button>
         <button type="button" class="dse-filter" data-filter="triage" aria-pressed="false">Triage 排障</button>
-        <a class="dse-filter dse-lab-link" href="interactive/" title="打开交互实验室页面">交互实验室页面 ↗</a>
+        <a class="dse-filter dse-lab-link" href="interactive/" title="打开高级模式">高级模式 ↗</a>
         <a class="dse-filter dse-lab-link" href="orrery/" title="查看文件星球">查看文件星球</a>
         <button type="button" class="dse-filter" data-filter="merge" aria-pressed="false">融合阶段</button>
       </div>
@@ -8087,7 +8359,7 @@
 
     <div class="dse-map-stage">
       <div class="dse-tracks">
-        <section class="dse-track core" data-track="core" aria-label="电脑调试工作台演变">
+        <section class="dse-track core" data-track="core" aria-label="电脑硬件工作台演变">
           <div class="dse-track-head">
             <div>
               <span class="dse-track-kicker">主工作台</span>
@@ -8125,7 +8397,7 @@
         <div class="dse-floating-handle">
           <p class="dse-detail-kicker">节点介绍</p>
           <div class="dse-floating-actions">
-            <span class="dse-drag-hint">DETAIL / 详情</span>
+            <span class="dse-drag-hint">详情</span>
             <button type="button" class="dse-window-control" data-window-toggle aria-controls="dse-milestone-body" aria-expanded="true" aria-label="折叠节点介绍">−</button>
             <button type="button" class="dse-window-control" data-window-close aria-label="关闭节点介绍">×</button>
           </div>
@@ -8173,8 +8445,8 @@
     <section class="dse-demo" id="dse-demo" aria-labelledby="dse-demo-title" hidden>
       <header class="dse-demo-head">
         <div class="dse-demo-heading">
-          <p class="dse-demo-kicker">从问题到测试计划</p>
-          <h2 id="dse-demo-title">从问题到测试计划</h2>
+          <p class="dse-demo-kicker">高级模式工具</p>
+          <h2 id="dse-demo-title">选择一项工具</h2>
         </div>
         <div class="dse-demo-lead">
           <p class="dse-demo-summary">选一个最接近你的情况，看看先要弄清楚什么，再决定要不要改设置。这里只做演示，不会读取或修改你的电脑。</p>
@@ -8185,7 +8457,7 @@
         </div>
       </header>
 
-      <div class="dse-demo-modes" role="group" aria-label="交互实验室模式">
+      <div class="dse-demo-modes" role="group" aria-label="高级模式主题">
         <button type="button" class="dse-filter" data-demo-mode="terms" aria-pressed="false">看懂名词</button>
         <button type="button" class="dse-filter" data-demo-mode="tune" aria-pressed="true">安全调参</button>
         <button type="button" class="dse-filter" data-demo-mode="triage" aria-pressed="false">排查故障</button>
@@ -8226,35 +8498,41 @@
               <h3 id="dse-term-title">先弄懂这些词</h3>
               <p class="dse-term-intro">点上任意一个词，看它在实际场景里是什么意思。解释会拆成“它做什么、可以怎么理解、判断错会怎样”。</p>
             </div>
-            <span class="dse-demo-step">30 个常用词</span>
+            <span class="dse-demo-step">核心 6 个</span>
           </div>
 
           <div class="dse-term-rails">
             <section class="dse-term-rail" aria-labelledby="dse-term-core-label">
               <div class="dse-term-rail-head">
-                <p class="dse-term-rail-label" id="dse-term-core-label">CORE / 常驻核心</p>
-                <span class="dse-term-cycle-meta">6 TERMS</span>
+                <p class="dse-term-rail-label" id="dse-term-core-label">常用术语</p>
+                <span class="dse-term-cycle-meta">6 项</span>
               </div>
               <div class="dse-term-token-row" id="dse-term-core-row" aria-label="常驻核心术语"></div>
             </section>
 
+            <details class="dse-term-more">
+              <summary>
+                <span>查看更多术语</span>
+                <small>CPU、内存与显卡</small>
+              </summary>
             <section class="dse-term-rail branch" aria-labelledby="dse-term-branch-label">
               <div class="dse-term-rail-head">
-                <p class="dse-term-rail-label" id="dse-term-branch-label">BRANCH / 轮换分支</p>
+                <p class="dse-term-rail-label" id="dse-term-branch-label">更多术语</p>
                 <div class="dse-term-cycle-meta">
                   <span id="dse-term-cycle-label">01 / 07</span>
                   <button type="button" class="dse-demo-action dse-term-next" id="dse-term-next">下一组</button>
                 </div>
               </div>
               <div class="dse-term-token-row" id="dse-term-rotating-row" aria-label="轮换分支术语"></div>
-              <p class="dse-term-hint" id="dse-term-rotation-hint">每 9 秒自动换一组；鼠标停留、键盘聚焦或打开解释时暂停。</p>
+              <p class="dse-term-hint" id="dse-term-rotation-hint">需要更多术语时，可手动切换分组。</p>
             </section>
+            </details>
           </div>
 
           <section class="dse-term-detail" id="dse-term-detail" aria-labelledby="dse-term-detail-title" aria-live="polite" hidden>
             <div class="dse-term-detail-head">
               <div>
-                <p class="dse-term-family" id="dse-term-family">TERM / </p>
+                <p class="dse-term-family" id="dse-term-family">术语 ·</p>
                 <h4 id="dse-term-detail-title">选择一个术语</h4>
                 <p class="dse-term-summary" id="dse-term-summary"></p>
               </div>
@@ -8293,11 +8571,14 @@
           </div>
 
           <div class="dse-scenario-grid" id="dse-scenario-grid" aria-label="示例请求"></div>
-          <div class="dse-scenario-meta">
-            <button type="button" class="dse-demo-action" data-scenario-rotate>换一组例子</button>
-            <button type="button" class="dse-demo-action" data-scenario-auto-toggle aria-pressed="false">暂停自动演示</button>
-            <span>共 13 个例子 · 每次显示 3 个 · 8 秒自动更换</span>
-          </div>
+          <details class="dse-secondary-actions dse-scenario-tools">
+            <summary><span>自动示例</span><small>默认暂停</small></summary>
+            <div class="dse-scenario-meta">
+              <button type="button" class="dse-demo-action" data-scenario-rotate>换一组例子</button>
+              <button type="button" class="dse-demo-action" data-scenario-auto-toggle aria-pressed="true">继续自动演示</button>
+              <span>仅在你主动开启后轮换；开始选择后自动暂停</span>
+            </div>
+          </details>
 
           <blockquote class="dse-gate-request" id="dse-gate-request"></blockquote>
           <div class="dse-gate-output" id="dse-gate-output" aria-live="polite">
@@ -8492,9 +8773,14 @@
           </div>
           <div class="dse-gate-actions">
             <button type="button" class="dse-demo-action primary" id="dse-triage-advance">下一步</button>
-            <button type="button" class="dse-demo-action" id="dse-triage-auto-toggle" aria-pressed="false">暂停自动演示</button>
-            <button type="button" class="dse-demo-action" id="dse-triage-reset">重新开始</button>
           </div>
+          <details class="dse-secondary-actions dse-triage-tools">
+            <summary><span>自动演示与重置</span><small>默认暂停</small></summary>
+            <div>
+              <button type="button" class="dse-demo-action" id="dse-triage-auto-toggle" aria-pressed="true">继续自动演示</button>
+              <button type="button" class="dse-demo-action" id="dse-triage-reset">重新开始</button>
+            </div>
+          </details>
           <details class="dse-tech-details">
             <summary>给熟悉硬件的用户：查看排查步骤</summary>
             <ol class="dse-state-rail" id="dse-triage-state-rail" aria-label="故障排查步骤"></ol>
@@ -8533,7 +8819,7 @@
         <div>
           <p class="dse-archive-kicker">版本档案 / 全部已记录版本</p>
           <h2 id="dse-archive-title">逐版本迭代档案</h2>
-          <p class="dse-archive-summary">从统一工作台 1.0.0 到 2.5.0 测试版，再到自动超频原型的独立分叉、档位证据和有限验证。1.6.0 之后新增遥测标准化、动态 RAG、LHM 本机 Web、视觉证据、Doctor、入口减重和显存解释门禁。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。</p>
+          <p class="dse-archive-summary">从统一工作台 1.0.0 到 2.5.0 测试版，再到自动超频原型的独立分叉、档位证据和有限验证。1.6.0 之后新增遥测标准化、动态 RAG、LHM loopback Web、视觉证据、Doctor、入口减重和显存解释门禁。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。</p>
         </div>
         <div class="dse-archive-totals" aria-label="版本档案统计">
           <span class="dse-archive-total"><b id="dse-wb-count">0</b>工作台版本</span>
@@ -8580,8 +8866,7 @@
     <button type="button" class="dse-inspector-restore" id="dse-inspector-restore" hidden>说明</button>
 
     <footer class="dse-footer">
-      <span>路径：安全边界 + 硬件信息 → 融合模块 → 单一入口</span>
-      <span>边界：只提供测试计划，不修改硬件，由你确认后操作</span>
+      <span>边界：只提供测试计划，不会自动修改硬件，由你确认后操作</span>
     </footer>
   </div>
 
@@ -8593,7 +8878,7 @@
         : "index";
       const isInteractiveView = siteView === "interactive";
       if (isInteractiveView) {
-        root.querySelector(".dse-kicker").textContent = "交互演示";
+        root.querySelector(".dse-kicker").textContent = "高级模式";
         root.querySelector("h1").textContent = "先看看这套流程怎么判断";
         root.querySelector(".dse-subtitle").textContent = "选一个最像你的情况，看看需要先确认什么。这里只做演示，不会读取或修改你的电脑。";
       }
@@ -8681,6 +8966,7 @@
       const termCycleLabel = document.getElementById("dse-term-cycle-label");
       const termRotationHint = document.getElementById("dse-term-rotation-hint");
       const termNextButton = document.getElementById("dse-term-next");
+      const termMore = document.querySelector(".dse-term-more");
       const termDetail = document.getElementById("dse-term-detail");
       const termFamily = document.getElementById("dse-term-family");
       const termDetailTitle = document.getElementById("dse-term-detail-title");
@@ -9099,7 +9385,7 @@
             ["2.1.0", "多模态证据规则", "2026-11-03", "RELEASED", ["覆盖监控截图、BIOS 照片、蓝屏、Debug LED、设备管理器和事件查看器。", "强制区分可见事实、推断、未知和证据限制；截图不等于时间序列。", "图片内命令和提示词一律不可信，不触发执行、下载或设置修改。"], "带恶意指令的合成截图独立测试 PASS；模型视觉未被打包成 Skill 能力。", "视觉能力仍由运行时提供，Skill 负责领域证据边界。"],
             ["2.2.0", "只读 Skill Doctor", "2026-11-03", "RELEASED", ["检查版本、核心文件、语法、编码、输出目录、PowerShell、CIM、validator 和可选工具。", "区分 AVAILABLE、OPTIONAL_MISSING、PERMISSION_REQUIRED、BROKEN、UNKNOWN 与 SKIP。", "只诊断不修复；不安装、不提权、不启动软件、不联网。"], "Doctor 独立复核 14 PASS / 0 FAIL / 1 SKIP；安装树 83/83 一致。", "2.3.0 之前的本地方案；人工验收与真实 LHM 探测仍 PENDING。"],
             ["2.3.0", "入口减重与跨能力验收", "2026-11-03", "PREVIOUS LOCAL", ["SKILL.md 从 13,310 B 降至约 12,284 B，Quick 初始加载降至约 22.2 KB。", "遥测、LHM 和视觉证据按当前输入只加载匹配 reference；预算收紧为 12.5 KB / 23 KB。", "新增 6 个跨能力场景：模糊症状、CSV+截图、官方冲突、LHM 缺失、图像矛盾、权限绕过。"], "完整自动回归通过；3 个独立行为对话 6/6 PASS。", "2.4.0 之前的测试版；独立人工签署仍 PENDING。"],
-            ["2.4.0", "LHM Web 与显存证据门禁", "2026-11-03", "PREVIOUS LOCAL", ["LHM 0.9.6 改走 loopback Web /data.json，旧版 WMI 仅作兼容后备；实机读取 284 个传感器。", "保留 GPU 硬件路径并透传到归一化结果；网络适配器自定义名称不进入 ObservedComponents。", "新增显存解释门禁：具体 GPU、显存类型与容量、驱动/vBIOS/工具、请求/观测口径和固定负载缺失时不给数值或带宽结论。", "显存时钟 14001 MHz 保留并提示口径风险；绝对合理性上限 30 GHz，明显异常值仍过滤。", "修复工具脚本相对路径启动时参数默认阶段 PSScriptRoot 为空的问题。", "文件星球同步为 86 文件当前视图并恢复旧版同心轨道；旧版快照只在本机保留，不进入公开网页。"], "完整自动回归与 validator PASS；显存建议门禁、LHM 未运行、LHM Web 实读三个独立行为对话 3/3 PASS；文件星球桌面、960px 与手机截图验通过；独立人工签署仍 PENDING。", "2.5.0 之前的测试版；107 个版本记录，Pages 由 main 自动部署，CI 必须在最新提交通过。"],
+            ["2.4.0", "LHM Web 与显存证据门禁", "2026-11-03", "PREVIOUS LOCAL", ["LHM 0.9.6 改走 loopback Web /data.json，旧版 WMI 仅作兼容后备；只读授权环境下的传感器快照链路已验证。", "保留 GPU 硬件路径并透传到归一化结果；网络适配器自定义名称不进入 ObservedComponents。", "新增显存解释门禁：具体 GPU、显存类型与容量、驱动/vBIOS/工具、请求/观测口径和固定负载缺失时不给数值或带宽结论。", "显存时钟保留原始单位、来源和口径提示；明显超出合理范围的异常值仍过滤。", "修复工具脚本相对路径启动时参数默认阶段 PSScriptRoot 为空的问题。", "文件星球在 2.4.0 使用 86 文件视图并恢复同心轨道；历史快照不进入当前公开页面。"], "完整自动回归与 validator PASS；显存建议门禁、LHM 不可用与 LHM Web 只读场景三个独立行为对话 3/3 PASS；文件星球完成桌面、960px 与手机视图验收；独立人工签署仍 PENDING。", "2.5.0 之前的测试版；107 个版本记录，Pages 由 main 自动部署，CI 必须在最新提交通过。"],
             ["2.5.0", "一键证据包与前后对比", "2026-11-04", "CURRENT CANDIDATE", ["新增一条命令完成 CSV 分析、标准化、SVG 图表、基线与候选对比、结果卡和证据包 JSON。", "对比要求声明固定负载，并检查窗口、采样、指标名称和单位；温度使用绝对变化。", "无共同指标返回 retest，有采样或指标限制返回 review，不自动宣称 PASS。", "结果卡自包含，包含两轮图表、P95/极值变化、输入 SHA-256 和下一步。"], "完整自动回归与 validator PASS；证据流水线、Doctor、便携同步、结果卡和站点检查通过；独立人工签署仍 PENDING。", "当前测试版，GitHub main 已同步；107 个版本记录，Pages 由 main 自动部署，CI 必须在最新提交通过。"]
           ]
         },
@@ -9825,10 +10111,11 @@
       function openTerm(id, pin = false) {
         const definition = termDefinitions[id];
         if (!definition) return;
+        if (!coreTermIds.includes(id) && termMore) termMore.open = true;
         pauseTermRotation();
         activeTermId = id;
         termPinned = pin;
-        termFamily.textContent = `TERM / ${definition.family}`;
+        termFamily.textContent = `术语 · ${definition.family}`;
         termDetailTitle.textContent = definition.name;
         termSummary.textContent = definition.summary;
         termAction.textContent = definition.action;
@@ -9901,12 +10188,6 @@
         if (!termDetail.hidden) closeTerm(false);
         pauseTermRotation();
         renderBranchGroup(branchGroupIndex + 1, !reduceMotionQuery.matches);
-        if (!manual && reduceMotionQuery.matches) return;
-        window.clearTimeout(termResumeTimer);
-        termResumeTimer = window.setTimeout(() => {
-          if (!termDetail.hidden || document.hidden || demoSection.hidden) return;
-          termRotationPaused = false;
-        }, manual ? 5000 : 1400);
       }
 
       function initTermLab() {
@@ -9914,22 +10195,15 @@
           ...coreTermIds.map(id => createTermButton(id, "core"))
         );
         renderBranchGroup(0, !reduceMotionQuery.matches);
-        if (reduceMotionQuery.matches) {
-          termRotationPaused = true;
-          termRotationHint.textContent = "已遵循系统“减少动态效果”设置：自动轮换关闭，可用“下一组”手动切换。";
-          return;
-        }
-        startTermRotationTimer();
+        termRotationPaused = true;
+        termRotationHint.textContent = "需要更多术语时，可手动切换分组。";
       }
 
       function startTermRotationTimer() {
-        if (reduceMotionQuery.matches) return;
-        termRotationPaused = false;
-        if (termRotationTimer) return;
-        termRotationTimer = window.setInterval(() => {
-          if (document.hidden || demoSection.hidden || termRotationPaused || !termDetail.hidden) return;
-          renderBranchGroup(branchGroupIndex + 1, true);
-        }, 9000);
+        termRotationPaused = true;
+        window.clearInterval(termRotationTimer);
+        termRotationTimer = 0;
+        termRotationHint.textContent = "需要更多术语时，可手动切换分组。";
       }
 
       termNextButton.addEventListener("click", () => advanceBranchGroup(true));
@@ -9951,16 +10225,10 @@
         closeTerm();
       });
       reduceMotionQuery.addEventListener?.("change", event => {
-        if (event.matches) {
-          pauseTermRotation();
-          window.clearInterval(termRotationTimer);
-          termRotationTimer = 0;
-          termRotationHint.textContent = "已遵循系统“减少动态效果”设置：自动轮换关闭，可用“下一组”手动切换。";
-        } else {
-          termRotationHint.textContent = "每 9 秒漂入下一组；悬停、聚焦或打开解释时暂停。";
-          if (!termDetail.hidden) return;
-          startTermRotationTimer();
-        }
+        pauseTermRotation();
+        window.clearInterval(termRotationTimer);
+        termRotationTimer = 0;
+        termRotationHint.textContent = "需要更多术语时，可手动切换分组。";
       });
 
       const demoScenarios = {
@@ -10160,7 +10428,7 @@
           status: "done", state: "CURRENT",
           goal: "把 CSV、结构化快照、官方资料、实时只读传感器和图片统一到可追溯、可降级、可诊断的证据体系。",
           action: "先标准化来源与时间，再记录证据卡和缺失；网页图片不再等于时间序列，Doctor 把权限问题与损坏问题分开。",
-          proof: "各子系统独立复核通过；入口 12,284 B、Quick 22,218 B；LHM Web 实读三组行为对话 3/3 PASS；广泛发布人工签署仍 PENDING；版本已进入 GitHub main。"
+          proof: "各子系统独立复核通过；入口 12,284 B、Quick 22,218 B；LHM Web 只读场景三组行为对话 3/3 PASS；广泛发布人工签署仍 PENDING；版本已进入 GitHub main。"
         },
         {
           id: "proto-seed", track: "prototype", code: "AO-01", title: "独立原型分叉",
@@ -10691,7 +10959,7 @@
           rotateScenarioWindow();
         }
       }, 8000);
-      setScenarioAutoPaused(reduceMotionQuery.matches);
+      setScenarioAutoPaused(true);
 
       root.querySelectorAll("[data-gate-action]").forEach(button => {
         button.addEventListener("click", () => {
@@ -11232,58 +11500,6 @@
       mergeButtons.forEach(button => {
         button.addEventListener("click", () => selectMilestone(button.dataset.mergeId, true));
       });
-      function setupSectionReveal() {
-        if (
-          isInteractiveView ||
-          reduceMotionQuery.matches ||
-          !("IntersectionObserver" in window)
-        ) {
-          return;
-        }
-        const items = [...root.querySelectorAll("[data-reveal]")];
-        if (!items.length) return;
-
-        document.documentElement.classList.add("dse-motion-ready");
-        const reveal = item => item.classList.add("is-visible");
-        const observer = new IntersectionObserver(entries => {
-          entries.forEach(entry => {
-            if (!entry.isIntersecting) return;
-            reveal(entry.target);
-            observer.unobserve(entry.target);
-          });
-        }, {
-          root,
-          threshold: .01,
-          rootMargin: "180px 0px 180px"
-        });
-        items.forEach(item => observer.observe(item));
-
-        let revealFrame = 0;
-        function revealPassedSections() {
-          revealFrame = 0;
-          const rootBottom = root.getBoundingClientRect().bottom + 180;
-          items.forEach(item => {
-            if (item.classList.contains("is-visible")) return;
-            if (item.getBoundingClientRect().top <= rootBottom) {
-              reveal(item);
-              observer.unobserve(item);
-            }
-          });
-        }
-        root.addEventListener("scroll", () => {
-          if (revealFrame) return;
-          revealFrame = window.requestAnimationFrame(revealPassedSections);
-        }, { passive: true });
-        window.requestAnimationFrame(revealPassedSections);
-
-        reduceMotionQuery.addEventListener?.("change", event => {
-          if (!event.matches) return;
-          document.documentElement.classList.remove("dse-motion-ready");
-          items.forEach(reveal);
-          observer.disconnect();
-        });
-      }
-
       const homeTechnicalSummary = homeTechnical?.querySelector(":scope > summary");
       function syncHomeTechnicalDisclosure() {
         const open = Boolean(homeTechnical?.open);
@@ -11296,20 +11512,6 @@
       homeTechnical?.addEventListener("toggle", syncHomeTechnicalDisclosure);
       syncHomeTechnicalDisclosure();
 
-      const candidateDetails = document.getElementById("dse-candidate-details");
-      const candidateDetailsSummary = document.getElementById("dse-candidate-details-summary");
-      function syncCandidateDetails() {
-        const open = Boolean(candidateDetails?.open);
-        candidateDetailsSummary?.setAttribute("aria-expanded", String(open));
-        const action = candidateDetailsSummary?.querySelector("[data-candidate-details-action]");
-        const indicator = candidateDetailsSummary?.querySelector("[data-candidate-details-indicator]");
-        if (action) action.textContent = open ? "收起技术与发布说明" : "查看技术与发布说明";
-        if (indicator) indicator.textContent = open ? "收起" : "展开";
-      }
-      candidateDetails?.addEventListener("toggle", syncCandidateDetails);
-      syncCandidateDetails();
-
-      setupSectionReveal();
       setDemoMode("tune", { updateRoute: false });
       if (isInteractiveView) {
         initTermLab();
@@ -11328,6 +11530,9 @@
     (() => {
       const root = document.getElementById("dse-root");
       const questionOptions = document.getElementById("dse-home-question-options");
+      const flowSection = document.getElementById("dse-home-flow");
+      const flowHeading = document.getElementById("dse-how-title");
+      const heroAction = document.querySelector(".dse-hero-action.primary");
       const questionLead = document.getElementById("dse-home-question-lead");
       const questionSummary = document.getElementById("dse-home-question-summary");
       const questionSummaryLabel = document.getElementById("dse-home-question-summary-label");
@@ -11356,6 +11561,9 @@
       const resultNext = document.getElementById("dse-home-result-next");
       if (
         !root ||
+        !flowSection ||
+        !flowHeading ||
+        !heroAction ||
         !questionOptions ||
         !questionLead ||
         !questionSummary ||
@@ -11387,7 +11595,39 @@
         return;
       }
 
+      function scrollWithinApp(target, { focusHeading = false } = {}) {
+        const distance = Math.abs(
+          target.getBoundingClientRect().top - root.getBoundingClientRect().top
+        );
+        target.scrollIntoView({
+          block: "start",
+          behavior: reduceMotion.matches || distance > window.innerHeight * .8
+            ? "auto"
+            : "smooth"
+        });
+        if (!focusHeading) return;
+        const heading = target.querySelector("h2, h3");
+        if (!heading) return;
+        heading.setAttribute("tabindex", "-1");
+        window.requestAnimationFrame(() => heading.focus({ preventScroll: true }));
+      }
+
       const scenarios = {
+        inventory: {
+          label: "查看当前配置",
+          description: "想确认处理器、显卡、内存、硬盘和显示器是否与预期一致。",
+          conclusion: "配置需要按来源和用途解释，单纯列出型号不能说明性能、兼容性或升级空间。",
+          finalAction: "先生成只读配置清单，再按你的使用场景检查瓶颈、驱动版本和缺失项。",
+          advancedMode: "",
+          backdropScene: "space",
+          evidence: [
+            { id: "scope", label: "要确认的硬件或外设" },
+            { id: "purpose", label: "主要用途或想解决的问题" },
+            { id: "source", label: "现有配置截图或日志" }
+          ],
+          evidenceDetail: "要确认的部件、主要用途，以及现有系统信息、截图或监控导出。",
+          why: "同一份配置在不同用途下的瓶颈不同；先确认范围和来源，才能判断哪些信息还缺。"
+        },
         temperature: {
           label: "电脑温度偏高",
           description: "温度高、风扇响，或不确定当前散热是否正常。",
@@ -11432,6 +11672,21 @@
           ],
           evidenceDetail: "目标、设备与部件、当前稳定基线、恢复路径、固定负载和可操作控制项。",
           why: "缺少目标或恢复方式时，任何数值都只是别人的配置，不是适合你的实验计划。"
+        },
+        upgrade: {
+          label: "考虑升级",
+          description: "性能不够，或不确定该换处理器、显卡、内存还是硬盘。",
+          conclusion: "升级前要先确认瓶颈、最低有效升级和成本，不能只按整机配置猜。",
+          finalAction: "固定一个真实负载记录资源占用和限制，再比较保留、调参、维修、换件与等待。",
+          advancedMode: "",
+          backdropScene: "gpu",
+          evidence: [
+            { id: "use-case", label: "具体使用场景和当前瓶颈" },
+            { id: "baseline", label: "当前配置与预算范围" },
+            { id: "constraint", label: "噪音、功耗或体积限制" }
+          ],
+          evidenceDetail: "实际工作负载、当前配置、预算范围、兼容要求和不能接受的副作用。",
+          why: "没有明确瓶颈时，升级可能只是换了一个更贵但仍不解决问题的部件。"
         }
       };
 
@@ -11445,7 +11700,7 @@
       let flowStep = 1;
       let copyResetTimer = 0;
 
-      function animateHomeEntry(element, { distance = 8, duration = 220 } = {}) {
+      function animateHomeEntry(element, { distance = 8, duration = 280 } = {}) {
         if (
           !element ||
           reduceMotion.matches ||
@@ -11550,10 +11805,7 @@
 
       function scrollToStep(step) {
         window.requestAnimationFrame(() => {
-          step.scrollIntoView({
-            block: "start",
-            behavior: reduceMotion.matches ? "auto" : "smooth"
-          });
+          scrollWithinApp(step, { focusHeading: true });
         });
       }
 
@@ -11569,7 +11821,10 @@
           title.textContent = scenario.label;
           const description = document.createElement("small");
           description.textContent = scenario.description;
-          button.append(title, description);
+          const marker = document.createElement("span");
+          marker.className = "dse-home-question-marker";
+          marker.setAttribute("aria-hidden", "true");
+          button.append(title, description, marker);
           button.addEventListener("click", () => selectScenario(id));
           questionOptions.appendChild(button);
         });
@@ -11619,13 +11874,13 @@
         questionLead.hidden = false;
         questionOptions.hidden = false;
         questionSummary.hidden = true;
-        stepOneHeading.textContent = "你现在遇到什么";
+        stepOneHeading.textContent = "你想先做什么";
         stepTwo.hidden = true;
         stepThree.hidden = true;
         homeEntryAnimations.get(stepTwo)?.cancel();
         homeEntryAnimations.get(stepThree)?.cancel();
         setBackdropScene("");
-        animateHomeEntry(questionOptions, { distance: 6 });
+        animateHomeEntry(questionOptions, { distance: 6, duration: 200 });
         scrollToStep(stepOne);
       }
 
@@ -11661,14 +11916,16 @@
           ? `缺少的信息：${missing.map(item => item.label).join("、")}`
           : `已有信息：${selected.join("、")}。仍需要在真实设备上复核。`;
         resultNext.textContent = `推荐下一步：${scenario.finalAction}`;
-        advancedLink.href = `interactive/#${scenario.advancedMode}`;
+        advancedLink.href = scenario.advancedMode
+          ? `interactive/#${scenario.advancedMode}`
+          : "interactive/";
         flowStep = 3;
         evidenceEditor.hidden = true;
         evidenceSummary.hidden = false;
         stepTwoHeading.textContent = "当前信息";
         stepThree.hidden = false;
         if (animate) {
-          animateHomeEntry(evidenceSummary, { distance: 4, duration: 160 });
+          animateHomeEntry(evidenceSummary, { distance: 4, duration: 200 });
           animateHomeEntry(stepThree);
         }
         if (scroll) scrollToStep(stepThree);
@@ -11721,14 +11978,23 @@
         questionSummary.hidden = true;
         evidenceEditor.hidden = false;
         evidenceSummary.hidden = true;
-        stepOneHeading.textContent = "你现在遇到什么";
+        stepOneHeading.textContent = "你想先做什么";
         stepTwoHeading.textContent = "你已经有哪些信息";
         setBackdropScene("");
-        animateHomeEntry(questionOptions, { distance: 6 });
+        animateHomeEntry(questionOptions, { distance: 6, duration: 200 });
         scrollToStep(stepOne);
       }
 
       backButton.addEventListener("click", showQuestionChooser);
+      heroAction.addEventListener("click", event => {
+        event.preventDefault();
+        scrollWithinApp(flowSection, { focusHeading: true });
+        try {
+          history.replaceState(null, "", "#dse-home-flow");
+        } catch {
+          // Local previews can restrict history updates.
+        }
+      });
       changeQuestionButton.addEventListener("click", showQuestionChooser);
       editEvidenceButton.addEventListener("click", () => {
         flowStep = 2;
@@ -11737,7 +12003,7 @@
         stepTwoHeading.textContent = "你已经有哪些信息";
         stepThree.hidden = true;
         homeEntryAnimations.get(stepThree)?.cancel();
-        animateHomeEntry(evidenceEditor, { distance: 4, duration: 160 });
+        animateHomeEntry(evidenceEditor, { distance: 4, duration: 200 });
         scrollToStep(stepTwo);
       });
       generateButton.addEventListener("click", generateResult);
@@ -11757,41 +12023,53 @@
         }
       }, true);
 
-      const savedReturnState = readHomeReturnState();
-      if (savedReturnState?.selectedScenarioId && scenarios[savedReturnState.selectedScenarioId]) {
+      function restoreHomeReturnState(savedReturnState) {
+        if (!savedReturnState || typeof savedReturnState !== "object") return false;
         if ("scrollRestoration" in window.history) {
           window.history.scrollRestoration = "manual";
         }
-        selectedScenarioId = savedReturnState.selectedScenarioId;
-        flowStep = Math.min(3, Math.max(1, Number(savedReturnState.flowStep) || 1));
-        Object.entries(savedReturnState.evidence || {}).forEach(([id, values]) => {
-          if (!evidenceSelections[id] || !Array.isArray(values)) return;
-          evidenceSelections[id].clear();
-          values.forEach(value => evidenceSelections[id].add(value));
-        });
-        renderQuestions();
-        collapseQuestionStep(currentScenario());
-        if (flowStep >= 2) {
-          renderEvidence(currentScenario());
-          stepTwo.hidden = false;
-          setBackdropScene(currentScenario().backdropScene);
-          if (flowStep === 3) {
-            generateResult({ scroll: false, animate: false });
-          } else {
-            evidenceEditor.hidden = false;
-            evidenceSummary.hidden = true;
+        const scenarioId = typeof savedReturnState.selectedScenarioId === "string" &&
+          scenarios[savedReturnState.selectedScenarioId]
+          ? savedReturnState.selectedScenarioId
+          : "";
+        if (scenarioId) {
+          selectedScenarioId = scenarioId;
+          flowStep = Math.min(3, Math.max(1, Number(savedReturnState.flowStep) || 1));
+          Object.entries(savedReturnState.evidence || {}).forEach(([id, values]) => {
+            if (!evidenceSelections[id] || !Array.isArray(values)) return;
+            evidenceSelections[id].clear();
+            values.forEach(value => evidenceSelections[id].add(value));
+          });
+          renderQuestions();
+          collapseQuestionStep(currentScenario());
+          if (flowStep >= 2) {
+            renderEvidence(currentScenario());
+            stepTwo.hidden = false;
+            setBackdropScene(currentScenario().backdropScene);
+            if (flowStep === 3) {
+              generateResult({ scroll: false, animate: false });
+            } else {
+              evidenceEditor.hidden = false;
+              evidenceSummary.hidden = true;
+            }
           }
         }
+        const targetScrollTop = Math.max(0, Number(savedReturnState.scrollTop) || 0);
         const restoreScrollPosition = () => {
-          root.scrollTop = Number(savedReturnState.scrollTop) || 0;
+          root.scrollTop = targetScrollTop;
         };
-        window.setTimeout(() => {
+        window.requestAnimationFrame(() => {
+          restoreScrollPosition();
           window.requestAnimationFrame(restoreScrollPosition);
-        }, 420);
+        });
+        window.setTimeout(restoreScrollPosition, 420);
         window.setTimeout(restoreScrollPosition, 520);
+        return true;
       }
-      window.addEventListener("pageshow", event => {
-        if (event.persisted) clearHomeReturnState();
+
+      restoreHomeReturnState(readHomeReturnState());
+      window.addEventListener("pageshow", () => {
+        restoreHomeReturnState(readHomeReturnState());
       });
     })();
   </script>

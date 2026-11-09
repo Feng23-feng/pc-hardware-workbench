@@ -1270,9 +1270,60 @@
 
     #dse-root .dse-term-rails {
       display: grid;
-      grid-template-columns: minmax(0, .9fr) minmax(0, 1.35fr);
+      grid-template-columns: minmax(0, 1fr);
       gap: 9px;
       margin-top: 10px;
+    }
+
+    #dse-root .dse-term-more {
+      grid-column: 1 / -1;
+      border-top: 1px solid var(--dse-line-soft);
+    }
+
+    #dse-root .dse-term-more > summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 44px;
+      padding: 8px 0;
+      color: var(--dse-text-muted-soft);
+      cursor: pointer;
+      list-style: none;
+      transition: color var(--dse-motion-fast) var(--dse-motion-ease);
+    }
+
+    #dse-root .dse-term-more > summary:hover,
+    #dse-root .dse-term-more > summary:focus-visible {
+      color: var(--dse-text);
+    }
+
+    #dse-root .dse-term-more > summary:focus-visible {
+      outline: 2px solid rgb(var(--dse-cyan-rgb) / .8);
+      outline-offset: 2px;
+    }
+
+    #dse-root .dse-term-more > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    #dse-root .dse-term-more > summary::after {
+      flex: none;
+      color: var(--dse-cyan);
+      content: "展开";
+    }
+
+    #dse-root .dse-term-more[open] > summary::after {
+      content: "收起";
+    }
+
+    #dse-root .dse-term-more > summary small {
+      margin-left: auto;
+      color: var(--dse-text-faint);
+    }
+
+    #dse-root .dse-term-more > .dse-term-rail {
+      margin-top: 8px;
     }
 
     #dse-root .dse-term-rail {
@@ -1298,7 +1349,7 @@
       margin: 0;
       color: var(--dse-cyan);
       font-size: 8px;
-      letter-spacing: .1em;
+      letter-spacing: 0;
       text-transform: none;
     }
 
@@ -1316,9 +1367,9 @@
     }
 
     #dse-root .dse-term-next {
-      min-height: 27px;
-      padding: 0 8px;
-      font-size: 8px;
+      min-height: 44px;
+      padding: 0 12px;
+      font-size: 13px;
     }
 
     #dse-root .dse-term-token-row {
@@ -4616,6 +4667,11 @@
       display: none;
     }
 
+    #dse-root .dse-secondary-actions summary:focus-visible {
+      outline: 2px solid rgb(var(--dse-cyan-rgb) / .8);
+      outline-offset: 2px;
+    }
+
     #dse-root .dse-tech-details summary::after,
     #dse-root .dse-secondary-actions summary::after {
       content: "+";
@@ -7102,6 +7158,85 @@
       border-radius: 8px;
     }
 
+    #dse-root .dse-triage-category-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    #dse-root .dse-triage-category {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 4px 12px;
+      min-height: 76px;
+      padding: 12px 14px;
+      color: var(--dse-text);
+      background: var(--dse-surface-deep);
+      border: 1px solid var(--dse-line-soft);
+      border-radius: 8px;
+      text-align: left;
+      cursor: pointer;
+      transition:
+        color var(--dse-motion-fast) var(--dse-motion-ease),
+        background-color var(--dse-motion-fast) var(--dse-motion-ease),
+        border-color var(--dse-motion-fast) var(--dse-motion-ease);
+    }
+
+    #dse-root .dse-triage-category strong {
+      grid-column: 1;
+      font-size: 15px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    #dse-root .dse-triage-category small {
+      grid-column: 1;
+      color: var(--dse-muted);
+      line-height: 1.5;
+    }
+
+    #dse-root .dse-triage-category::after {
+      grid-column: 2;
+      grid-row: 1 / 3;
+      align-self: center;
+      color: var(--dse-text-muted-soft);
+      content: "→";
+    }
+
+    #dse-root .dse-triage-category:hover,
+    #dse-root .dse-triage-category:focus-visible {
+      background: var(--dse-surface-control);
+      border-color: var(--dse-line-strong);
+    }
+
+    #dse-root .dse-triage-category:focus-visible {
+      outline: 2px solid rgb(var(--dse-cyan-rgb) / .8);
+      outline-offset: 2px;
+    }
+
+    #dse-root .dse-triage-category[aria-pressed="true"] {
+      background: rgb(var(--dse-cyan-rgb) / .055);
+      border-color: rgb(var(--dse-cyan-rgb) / .62);
+    }
+
+    #dse-root .dse-triage-case-stage {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--dse-line-soft);
+    }
+
+    #dse-root .dse-triage-case-label {
+      margin: 0;
+      color: var(--dse-text-muted-soft);
+      font-size: 13px;
+    }
+
+    #dse-root .dse-triage-workflow {
+      display: grid;
+      gap: 18px;
+    }
+
     #dse-root .dse-triage-progress-head {
       display: flex;
       align-items: center;
@@ -7909,6 +8044,14 @@
         min-height: 44px;
       }
 
+      #dse-root .dse-term-token {
+        min-height: 44px;
+      }
+
+      #dse-root .dse-term-more > summary small {
+        display: none;
+      }
+
       #dse-root .dse-advanced-page-head,
       #dse-root .dse-context-bridge,
       html[data-site-view="interactive"] #dse-root .dse-advanced-shell {
@@ -7936,6 +8079,7 @@
 
       html[data-site-view="interactive"] #dse-root .dse-tune-steps,
       html[data-site-view="interactive"] #dse-root .dse-lifecycle-grid,
+      html[data-site-view="interactive"] #dse-root .dse-triage-category-grid,
       html[data-site-view="interactive"] #dse-root #dse-tune-gate-panel .dse-gate-actions,
       html[data-site-view="interactive"] #dse-root .dse-machine-panel.triage .dse-gate-actions {
         grid-template-columns: minmax(0, 1fr);
@@ -8096,14 +8240,14 @@
   </style>
 
   <nav class="dse-global-nav" aria-label="全局导航">
-    <a href="../" id="dse-return-home">← 返回上一步</a>
+    <a href="../" id="dse-return-home">← 返回首页</a>
     <span aria-current="page">高级模式</span>
   </nav>
 
   <div class="dse-shell">
     <header class="dse-advanced-page-head">
-      <h1>选择一个主题</h1>
-      <span>术语、调参、排障、记录与证据，一次只进入一个主题。这里只做演示，不会读取或修改你的电脑。</span>
+      <h1>高级模式</h1>
+      <span>术语、调参、排障与记录证据，一次处理一类问题。这里只做演示，不会读取或修改你的电脑。</span>
       <small>当前测试版 · 只读演示</small>
     </header>
 
@@ -8122,7 +8266,7 @@
     <details class="dse-interactive-technical" id="dse-interactive-technical" open>
       <summary id="dse-interactive-technical-summary"
         aria-controls="dse-interactive-technical-content" aria-expanded="true">
-        <span data-interactive-technical-action>工具与说明</span>
+        <span data-interactive-technical-action>高级模式</span>
         <small>当前测试版 · 术语、调参、排障与记录证据</small>
         <i data-interactive-technical-indicator aria-hidden="true">展开</i>
       </summary>
@@ -8130,7 +8274,7 @@
     <div id="dse-interactive-technical-content">
     <section class="dse-orientation" aria-labelledby="dse-start-title">
       <div class="dse-orientation-copy">
-        <p class="dse-orientation-kicker">START HERE / 第一次来</p>
+        <p class="dse-orientation-kicker">第一次来</p>
         <h2 id="dse-start-title">先选一个目标</h2>
         <p class="dse-orientation-summary">三个入口对应查看能力、追溯演进和体验判断流程。先选你此刻最想解决的问题。</p>
       </div>
@@ -8236,7 +8380,7 @@
         <button type="button" class="dse-filter" data-filter="core" aria-pressed="true">主工作台</button>
         <button type="button" class="dse-filter" data-filter="prototype" aria-pressed="false">自动超频原型</button>
         <button type="button" class="dse-filter" data-filter="triage" aria-pressed="false">Triage 排障</button>
-        <a class="dse-filter dse-lab-link" href="./" title="刷新当前交互实验室页面">交互实验室页面 ↗</a>
+        <a class="dse-filter dse-lab-link" href="./" title="刷新高级模式">高级模式 ↗</a>
         <button type="button" class="dse-filter" data-filter="merge" aria-pressed="false">融合阶段</button>
       </div>
       <div class="dse-legend">
@@ -8249,7 +8393,7 @@
 
     <div class="dse-map-stage">
       <div class="dse-tracks">
-        <section class="dse-track core" data-track="core" aria-label="电脑调试工作台演变">
+        <section class="dse-track core" data-track="core" aria-label="电脑硬件工作台演变">
           <div class="dse-track-head">
             <div>
               <span class="dse-track-kicker">主工作台</span>
@@ -8287,7 +8431,7 @@
         <div class="dse-floating-handle">
           <p class="dse-detail-kicker">节点介绍</p>
           <div class="dse-floating-actions">
-            <span class="dse-drag-hint">DETAIL / 详情</span>
+            <span class="dse-drag-hint">详情</span>
             <button type="button" class="dse-window-control" data-window-toggle aria-controls="dse-milestone-body" aria-expanded="true" aria-label="折叠节点介绍">−</button>
             <button type="button" class="dse-window-control" data-window-close aria-label="关闭节点介绍">×</button>
           </div>
@@ -8335,7 +8479,7 @@
     <details class="dse-advanced-shell" id="dse-advanced-shell" open>
       <summary id="dse-advanced-summary"
         aria-controls="dse-advanced-content" aria-expanded="false">
-        <span>交互演示</span>
+        <span>高级模式</span>
         <strong>完整术语、调校门禁、排障与证据实验</strong>
         <small data-advanced-indicator>当前</small>
       </summary>
@@ -8355,8 +8499,8 @@
     <section class="dse-demo" id="dse-demo" aria-labelledby="dse-demo-title">
       <header class="dse-demo-head">
         <div class="dse-demo-heading">
-          <p class="dse-demo-kicker">按主题查看流程</p>
-          <h2 id="dse-demo-title">按主题查看流程</h2>
+          <p class="dse-demo-kicker">高级模式工具</p>
+          <h2 id="dse-demo-title">选择一项工具</h2>
         </div>
         <div class="dse-demo-lead">
           <p class="dse-demo-summary">选一个最接近你的情况，看看先要弄清楚什么，再决定要不要改设置。这里只做演示，不会读取或修改你的电脑。</p>
@@ -8367,7 +8511,7 @@
         </div>
       </header>
 
-      <div class="dse-demo-modes" role="group" aria-label="交互实验室模式">
+      <div class="dse-demo-modes" role="group" aria-label="高级模式主题">
         <button type="button" class="dse-filter" data-demo-mode="terms" aria-pressed="false">看懂名词</button>
         <button type="button" class="dse-filter" data-demo-mode="tune" aria-pressed="false">安全调参</button>
         <button type="button" class="dse-filter" data-demo-mode="triage" aria-pressed="false">排查故障</button>
@@ -8398,50 +8542,47 @@
       </nav>
 
       <div class="dse-demo-grid">
-        <article class="dse-demo-panel wide dse-demo-chooser" data-demo-mode="choose" aria-labelledby="dse-choose-title">
-          <div class="dse-demo-panel-head">
-            <div>
-              <h3 id="dse-choose-title">先选择一个主题</h3>
-              <p class="dse-demo-panel-sub">四个主题各自只处理一类问题。选定后再显示对应流程，不把全部内容一次铺开。</p>
-            </div>
-          </div>
-        </article>
-
         <article class="dse-demo-panel wide dse-term-panel" data-demo-mode="terms" aria-labelledby="dse-term-title" hidden>
           <div class="dse-demo-panel-head">
             <div>
               <h3 id="dse-term-title">先弄懂这些词</h3>
               <p class="dse-term-intro">点上任意一个词，看它在实际场景里是什么意思。解释会拆成“它做什么、可以怎么理解、判断错会怎样”。</p>
             </div>
-            <span class="dse-demo-step">30 个常用词</span>
+            <span class="dse-demo-step">核心 6 个</span>
           </div>
 
           <div class="dse-term-rails">
             <section class="dse-term-rail" aria-labelledby="dse-term-core-label">
               <div class="dse-term-rail-head">
-                <p class="dse-term-rail-label" id="dse-term-core-label">CORE / 常驻核心</p>
-                <span class="dse-term-cycle-meta">6 TERMS</span>
+                <p class="dse-term-rail-label" id="dse-term-core-label">常用术语</p>
+                <span class="dse-term-cycle-meta">6 项</span>
               </div>
               <div class="dse-term-token-row" id="dse-term-core-row" aria-label="常驻核心术语"></div>
             </section>
 
+            <details class="dse-term-more">
+              <summary>
+                <span>查看更多术语</span>
+                <small>CPU、内存与显卡</small>
+              </summary>
             <section class="dse-term-rail branch" aria-labelledby="dse-term-branch-label">
               <div class="dse-term-rail-head">
-                <p class="dse-term-rail-label" id="dse-term-branch-label">BRANCH / 轮换分支</p>
+                <p class="dse-term-rail-label" id="dse-term-branch-label">更多术语</p>
                 <div class="dse-term-cycle-meta">
                   <span id="dse-term-cycle-label">01 / 07</span>
                   <button type="button" class="dse-demo-action dse-term-next" id="dse-term-next">下一组</button>
                 </div>
               </div>
               <div class="dse-term-token-row" id="dse-term-rotating-row" aria-label="轮换分支术语"></div>
-              <p class="dse-term-hint" id="dse-term-rotation-hint">每 9 秒自动换一组；鼠标停留、键盘聚焦或打开解释时暂停。</p>
+              <p class="dse-term-hint" id="dse-term-rotation-hint">需要更多术语时，可手动切换分组。</p>
             </section>
+            </details>
           </div>
 
           <section class="dse-term-detail" id="dse-term-detail" aria-labelledby="dse-term-detail-title" aria-live="polite" hidden>
             <div class="dse-term-detail-head">
               <div>
-                <p class="dse-term-family" id="dse-term-family">TERM / </p>
+                <p class="dse-term-family" id="dse-term-family">术语 ·</p>
                 <h4 id="dse-term-detail-title">选择一个术语</h4>
                 <p class="dse-term-summary" id="dse-term-summary"></p>
               </div>
@@ -8480,12 +8621,15 @@
           </div>
 
           <div class="dse-scenario-grid" id="dse-scenario-grid" aria-label="示例请求"></div>
-          <div class="dse-scenario-meta">
-            <button type="button" class="dse-demo-action" data-scenario-rotate>换一组例子</button>
-            <button type="button" class="dse-demo-action" data-scenario-auto-toggle
-              data-auto-resume-ms="25000" aria-pressed="false">暂停自动演示</button>
-            <span>共 13 个例子 · 每次显示 3 个 · 5 秒轮换，停手 25 秒后自动继续</span>
-          </div>
+          <details class="dse-secondary-actions dse-scenario-tools">
+            <summary><span>自动示例</span><small>默认暂停</small></summary>
+            <div class="dse-scenario-meta">
+              <button type="button" class="dse-demo-action" data-scenario-rotate>换一组例子</button>
+              <button type="button" class="dse-demo-action" data-scenario-auto-toggle
+                data-auto-resume-ms="25000" aria-pressed="true">继续自动演示</button>
+              <span>仅在你主动开启后轮换；开始选择后自动暂停</span>
+            </div>
+          </details>
 
           <blockquote class="dse-gate-request" id="dse-gate-request"></blockquote>
           <div class="dse-gate-output" id="dse-gate-output" aria-live="polite">
@@ -8689,26 +8833,38 @@
             </div>
             <span class="dse-demo-step">故障排查</span>
           </div>
-          <div class="dse-scenario-grid" id="dse-triage-case-grid" aria-label="故障案例"></div>
-          <div class="dse-triage-progress" id="dse-triage-progress">
-            <div class="dse-triage-progress-head">
-              <span>排查进度</span>
-              <strong id="dse-triage-progress-position" aria-live="polite">第 1 / 4 步</strong>
-            </div>
-            <ol class="dse-state-rail" id="dse-triage-state-rail" aria-label="故障排查步骤"></ol>
+          <div class="dse-triage-category-grid" id="dse-triage-category-grid" aria-label="症状类别"></div>
+          <div class="dse-triage-case-stage" id="dse-triage-case-stage" hidden>
+            <p class="dse-triage-case-label" id="dse-triage-case-label">选择具体症状</p>
+            <div class="dse-scenario-grid" id="dse-triage-case-grid" aria-label="故障案例"></div>
           </div>
           <div class="dse-state-live" aria-live="polite">
-            <strong id="dse-triage-state-label">现在：先看安全范围</strong>
-            <span id="dse-triage-state-next">选一个症状，然后按提示一步一步来。</span>
+            <strong id="dse-triage-state-label">现在：先选择症状类别</strong>
+            <span id="dse-triage-state-next">选一类最接近的问题，再选择具体症状。</span>
           </div>
-          <div class="dse-machine-copy" id="dse-triage-copy" data-tone="blocked" aria-live="polite">
-            <p class="dse-machine-copy-title" id="dse-triage-copy-title"></p>
-            <p class="dse-machine-copy-body" id="dse-triage-copy-body"></p>
-          </div>
-          <div class="dse-gate-actions">
-            <button type="button" class="dse-demo-action primary" id="dse-triage-advance"
-              aria-controls="dse-triage-copy">下一步</button>
-            <button type="button" class="dse-demo-action" id="dse-triage-auto-toggle" aria-pressed="false">暂停自动演示</button>
+          <div class="dse-triage-workflow" id="dse-triage-workflow" hidden>
+            <div class="dse-triage-progress" id="dse-triage-progress">
+              <div class="dse-triage-progress-head">
+                <span>排查进度</span>
+                <strong id="dse-triage-progress-position" aria-live="polite">第 1 / 4 步</strong>
+              </div>
+              <ol class="dse-state-rail" id="dse-triage-state-rail" aria-label="故障排查步骤"></ol>
+            </div>
+            <div class="dse-machine-copy" id="dse-triage-copy" data-tone="blocked" aria-live="polite">
+              <p class="dse-machine-copy-title" id="dse-triage-copy-title"></p>
+              <p class="dse-machine-copy-body" id="dse-triage-copy-body"></p>
+            </div>
+            <div class="dse-gate-actions">
+              <button type="button" class="dse-demo-action primary" id="dse-triage-advance"
+                aria-controls="dse-triage-copy">下一步</button>
+            </div>
+            <details class="dse-secondary-actions dse-triage-tools">
+              <summary><span>自动演示与重置</span><small>默认暂停</small></summary>
+              <div>
+                <button type="button" class="dse-demo-action" id="dse-triage-auto-toggle" aria-pressed="true">继续自动演示</button>
+                <button type="button" class="dse-demo-action" id="dse-triage-reset">重新开始</button>
+              </div>
+            </details>
           </div>
         </article>
 
@@ -8779,7 +8935,7 @@
         <div>
           <p class="dse-archive-kicker">版本档案 / 全部已记录版本</p>
           <h2 id="dse-archive-title">逐版本迭代档案</h2>
-          <p class="dse-archive-summary">从统一工作台 1.0.0 到 2.5.0 测试版，再到自动超频原型的独立分叉、档位证据和有限验证。1.6.0 之后新增遥测标准化、动态 RAG、LHM 本机 Web、视觉证据、Doctor、入口减重和显存解释门禁。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。</p>
+          <p class="dse-archive-summary">从统一工作台 1.0.0 到 2.5.0 测试版，再到自动超频原型的独立分叉、档位证据和有限验证。1.6.0 之后新增遥测标准化、动态 RAG、LHM loopback Web、视觉证据、Doctor、入口减重和显存解释门禁。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。</p>
         </div>
         <div class="dse-archive-totals" aria-label="版本档案统计">
           <span class="dse-archive-total"><b id="dse-wb-count">0</b>工作台版本</span>
@@ -8826,8 +8982,7 @@
     <button type="button" class="dse-inspector-restore" id="dse-inspector-restore" hidden>说明</button>
 
     <footer class="dse-footer">
-      <span>路径：安全边界 + 硬件信息 → 融合模块 → 单一入口</span>
-      <span>边界：只提供测试计划，不修改硬件，由你确认后操作</span>
+      <span>边界：只提供测试计划，不会自动修改硬件，由你确认后操作</span>
     </footer>
   </div>
 
@@ -8841,6 +8996,28 @@
       if (isInteractiveView && "scrollRestoration" in window.history) {
         window.history.scrollRestoration = "manual";
       }
+      const returnHomeLink = document.getElementById("dse-return-home");
+      function canRestoreHomeHistory() {
+        if (!returnHomeLink || window.history.length <= 1) return false;
+        try {
+          const raw = sessionStorage.getItem("pcwb:skill-evolution:home-return");
+          if (!raw) return false;
+          const state = JSON.parse(raw);
+          const savedAt = Number(state?.savedAt || 0);
+          return Boolean(
+            state &&
+            savedAt > 0 &&
+            Date.now() - savedAt <= 15 * 60 * 1000
+          );
+        } catch {
+          return false;
+        }
+      }
+      returnHomeLink?.addEventListener("click", event => {
+        if (!canRestoreHomeHistory()) return;
+        event.preventDefault();
+        window.history.back();
+      });
       const coreLane = document.getElementById("dse-core-lane");
       const prototypeLane = document.getElementById("dse-prototype-lane");
       const triageLane = document.getElementById("dse-triage-lane");
@@ -8914,6 +9091,10 @@
       const demoBaseline = document.getElementById("dse-demo-baseline");
       const demoRecovery = document.getElementById("dse-demo-recovery");
       const triageCaseGrid = document.getElementById("dse-triage-case-grid");
+      const triageCategoryGrid = document.getElementById("dse-triage-category-grid");
+      const triageCaseStage = document.getElementById("dse-triage-case-stage");
+      const triageCaseLabel = document.getElementById("dse-triage-case-label");
+      const triageWorkflow = document.getElementById("dse-triage-workflow");
       const triageProgress = document.getElementById("dse-triage-progress");
       const triageProgressPosition = document.getElementById("dse-triage-progress-position");
       const triageStateRail = document.getElementById("dse-triage-state-rail");
@@ -8924,6 +9105,7 @@
       const triageCopyBody = document.getElementById("dse-triage-copy-body");
       const triageAdvanceButton = document.getElementById("dse-triage-advance");
       const triageAutoToggle = document.getElementById("dse-triage-auto-toggle");
+      const triageResetButton = document.getElementById("dse-triage-reset");
       const identityStateRail = document.getElementById("dse-identity-state-rail");
       const baselineStateRail = document.getElementById("dse-baseline-state-rail");
       const lifecycleEvents = document.getElementById("dse-lifecycle-events");
@@ -8935,6 +9117,7 @@
       const termCycleLabel = document.getElementById("dse-term-cycle-label");
       const termRotationHint = document.getElementById("dse-term-rotation-hint");
       const termNextButton = document.getElementById("dse-term-next");
+      const termMore = document.querySelector(".dse-term-more");
       const termDetail = document.getElementById("dse-term-detail");
       const termFamily = document.getElementById("dse-term-family");
       const termDetailTitle = document.getElementById("dse-term-detail-title");
@@ -8952,7 +9135,7 @@
         document.getElementById("dse-guided-open-advanced")?.setAttribute("aria-expanded", String(open));
         const action = interactiveTechnicalSummary?.querySelector("[data-interactive-technical-action]");
         const indicator = interactiveTechnicalSummary?.querySelector("[data-interactive-technical-indicator]");
-        if (action) action.textContent = open ? "收起高级模式与技术档案" : "查看高级模式与技术档案";
+        if (action) action.textContent = open ? "收起高级模式" : "打开高级模式";
         if (indicator) indicator.textContent = open ? "收起" : "展开";
       }
 
@@ -9377,7 +9560,7 @@
             ["2.1.0", "多模态证据规则", "2026-11-03", "RELEASED", ["覆盖监控截图、BIOS 照片、蓝屏、Debug LED、设备管理器和事件查看器。", "强制区分可见事实、推断、未知和证据限制；截图不等于时间序列。", "图片内命令和提示词一律不可信，不触发执行、下载或设置修改。"], "带恶意指令的合成截图独立测试 PASS；模型视觉未被打包成 Skill 能力。", "视觉能力仍由运行时提供，Skill 负责领域证据边界。"],
             ["2.2.0", "只读 Skill Doctor", "2026-11-03", "RELEASED", ["检查版本、核心文件、语法、编码、输出目录、PowerShell、CIM、validator 和可选工具。", "区分 AVAILABLE、OPTIONAL_MISSING、PERMISSION_REQUIRED、BROKEN、UNKNOWN 与 SKIP。", "只诊断不修复；不安装、不提权、不启动软件、不联网。"], "Doctor 独立复核 14 PASS / 0 FAIL / 1 SKIP；安装树 83/83 一致。", "2.3.0 之前的本地方案；人工验收与真实 LHM 探测仍 PENDING。"],
             ["2.3.0", "入口减重与跨能力验收", "2026-11-03", "PREVIOUS LOCAL", ["SKILL.md 从 13,310 B 降至约 12,284 B，Quick 初始加载降至约 22.2 KB。", "遥测、LHM 和视觉证据按当前输入只加载匹配 reference；预算收紧为 12.5 KB / 23 KB。", "新增 6 个跨能力场景：模糊症状、CSV+截图、官方冲突、LHM 缺失、图像矛盾、权限绕过。"], "完整自动回归通过；3 个独立行为对话 6/6 PASS。", "2.4.0 之前的测试版；独立人工签署仍 PENDING。"],
-            ["2.4.0", "LHM Web 与显存证据门禁", "2026-11-03", "PREVIOUS LOCAL", ["LHM 0.9.6 改走 loopback Web /data.json，旧版 WMI 仅作兼容后备；实机读取 284 个传感器。", "保留 GPU 硬件路径并透传到归一化结果；网络适配器自定义名称不进入 ObservedComponents。", "新增显存解释门禁：具体 GPU、显存类型与容量、驱动/vBIOS/工具、请求/观测口径和固定负载缺失时不给数值或带宽结论。", "显存时钟 14001 MHz 保留并提示口径风险；绝对合理性上限 30 GHz，明显异常值仍过滤。", "修复工具脚本相对路径启动时参数默认阶段 PSScriptRoot 为空的问题。", "文件星球同步为 86 文件当前视图并恢复旧版同心轨道；旧版快照只在本机保留，不进入公开网页。"], "完整自动回归与 validator PASS；显存建议门禁、LHM 未运行、LHM Web 实读三个独立行为对话 3/3 PASS；文件星球桌面、960px 与手机截图验通过；独立人工签署仍 PENDING。", "2.5.0 之前的测试版；107 个版本记录，Pages 由 main 自动部署，CI 必须在最新提交通过。"],
+            ["2.4.0", "LHM Web 与显存证据门禁", "2026-11-03", "PREVIOUS LOCAL", ["LHM 0.9.6 改走 loopback Web /data.json，旧版 WMI 仅作兼容后备；只读授权环境下的传感器快照链路已验证。", "保留 GPU 硬件路径并透传到归一化结果；网络适配器自定义名称不进入 ObservedComponents。", "新增显存解释门禁：具体 GPU、显存类型与容量、驱动/vBIOS/工具、请求/观测口径和固定负载缺失时不给数值或带宽结论。", "显存时钟保留原始单位、来源和口径提示；明显超出合理范围的异常值仍过滤。", "修复工具脚本相对路径启动时参数默认阶段 PSScriptRoot 为空的问题。", "文件星球在 2.4.0 使用 86 文件视图并恢复同心轨道；历史快照不进入当前公开页面。"], "完整自动回归与 validator PASS；显存建议门禁、LHM 不可用与 LHM Web 只读场景三个独立行为对话 3/3 PASS；文件星球完成桌面、960px 与手机视图验收；独立人工签署仍 PENDING。", "2.5.0 之前的测试版；107 个版本记录，Pages 由 main 自动部署，CI 必须在最新提交通过。"],
             ["2.5.0", "一键证据包与前后对比", "2026-11-04", "CURRENT CANDIDATE", ["新增一条命令完成 CSV 分析、标准化、SVG 图表、基线与候选对比、结果卡和证据包 JSON。", "对比要求声明固定负载，并检查窗口、采样、指标名称和单位；温度使用绝对变化。", "无共同指标返回 retest，有采样或指标限制返回 review，不自动宣称 PASS。", "结果卡自包含，包含两轮图表、P95/极值变化、输入 SHA-256 和下一步。"], "完整自动回归与 validator PASS；证据流水线、Doctor、便携同步、结果卡和站点检查通过；独立人工签署仍 PENDING。", "当前测试版，GitHub main 已同步；107 个版本记录，Pages 由 main 自动部署，CI 必须在最新提交通过。"]
           ]
         },
@@ -9475,6 +9658,27 @@
         { id: "recovery", label: "怎么恢复" },
         { id: "workload", label: "怎么对比" },
         { id: "abort", label: "何时停止" }
+      ];
+
+      const triageCategoryGroups = [
+        {
+          id: "stability",
+          label: "安全与供电",
+          detail: "焦味、打火、高负载重启或断电",
+          caseIds: ["hazard", "reboot"]
+        },
+        {
+          id: "display",
+          label: "游戏与显示",
+          detail: "掉帧、闪退、驱动重置或黑屏",
+          caseIds: ["stutter", "driverReset", "display"]
+        },
+        {
+          id: "system",
+          label: "启动与外设",
+          detail: "开机慢、电池掉电或设备断连",
+          caseIds: ["startup", "battery", "peripheral"]
+        }
       ];
 
       const triageCases = {
@@ -9726,7 +9930,8 @@
       let tuneGateReady = false;
       let activeTuneState = "input";
       let activeExperimentState = "";
-      let activeTriageCase = "stutter";
+      let activeTriageCategory = "";
+      let activeTriageCase = "";
       let triageStageIndex = 0;
       let triageAutoPaused = false;
       let triageFocusPaused = false;
@@ -9734,7 +9939,7 @@
       let activeDemoMode = "choose";
       let activeTuneStep = "gate";
 
-      function animateAdvancedEntry(element, { distance = 6, duration = 200 } = {}) {
+      function animateAdvancedEntry(element, { distance = 6, duration = 280 } = {}) {
         if (
           !element ||
           reduceMotionQuery.matches ||
@@ -9761,6 +9966,23 @@
               advancedEntryAnimations.delete(element);
             }
           });
+      }
+
+      function scrollWithinRoot(target, { focusHeading = false } = {}) {
+        const distance = Math.abs(
+          target.getBoundingClientRect().top - root.getBoundingClientRect().top
+        );
+        target.scrollIntoView({
+          block: "start",
+          behavior: reduceMotionQuery.matches || distance > window.innerHeight * .8
+            ? "auto"
+            : "smooth"
+        });
+        if (!focusHeading) return;
+        const heading = target.querySelector("h2, h3");
+        if (!heading) return;
+        heading.setAttribute("tabindex", "-1");
+        window.requestAnimationFrame(() => heading.focus({ preventScroll: true }));
       }
 
       const modeGuideContent = {
@@ -10015,6 +10237,24 @@
 
       function renderTriageState() {
         const triageCase = triageCases[activeTriageCase];
+        if (!triageCase) {
+          const activeCategory = triageCategoryGroups.find(group => group.id === activeTriageCategory);
+          renderStateRail(triageStateRail, triageProgressStates, "");
+          triageStateLabel.textContent = activeCategory
+            ? "现在：选择一个具体症状"
+            : "现在：先选择症状类别";
+          triageStateNext.textContent = activeCategory
+            ? `在“${activeCategory.label}”中选择最接近的一项。`
+            : "先选一类最接近的问题，再选择具体症状。";
+          triageProgressPosition.textContent = "尚未开始";
+          triageAdvanceButton.disabled = true;
+          triageWorkflow.hidden = true;
+          triageCaseGrid.querySelectorAll("[data-triage-case]").forEach(button => {
+            button.setAttribute("aria-pressed", "false");
+          });
+          return;
+        }
+        triageWorkflow.hidden = false;
         const stageId = triageStateOrder[triageStageIndex];
         const stage = triageCase.stages[stageId];
         const isDanger = Boolean(triageCase.danger);
@@ -10084,9 +10324,12 @@
 
       function selectTriageCase(id, options = {}) {
         if (!triageCases[id]) return;
+        const activeCategory = triageCategoryGroups.find(group => group.id === activeTriageCategory);
+        if (activeCategory && !activeCategory.caseIds.includes(id)) return;
         activeTriageCase = id;
         triageStageIndex = 0;
         renderTriageState();
+        animateAdvancedEntry(triageWorkflow, { distance: 6, duration: 280 });
         window.requestAnimationFrame(() => {
           const activeButton = triageCaseGrid.querySelector(`[data-triage-case="${id}"]`);
           if (!activeButton) return;
@@ -10100,9 +10343,11 @@
         if (options.pauseAuto) setTriageAutoPaused(true);
       }
 
-      function renderTriageCases() {
+      function renderTriageCases(caseIds = []) {
         triageCaseGrid.replaceChildren();
-        Object.entries(triageCases).forEach(([id, triageCase]) => {
+        caseIds.forEach(id => {
+          const triageCase = triageCases[id];
+          if (!triageCase) return;
           const button = document.createElement("button");
           button.type = "button";
           button.className = "dse-scenario";
@@ -10112,6 +10357,39 @@
           button.addEventListener("click", () => selectTriageCase(id, { pauseAuto: true }));
           triageCaseGrid.appendChild(button);
         });
+      }
+
+      function renderTriageCategories() {
+        triageCategoryGrid.replaceChildren();
+        triageCategoryGroups.forEach(category => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "dse-triage-category";
+          button.dataset.triageCategory = category.id;
+          button.setAttribute("aria-pressed", String(category.id === activeTriageCategory));
+          const label = document.createElement("strong");
+          label.textContent = category.label;
+          const detail = document.createElement("small");
+          detail.textContent = category.detail;
+          button.append(label, detail);
+          button.addEventListener("click", () => selectTriageCategory(category.id));
+          triageCategoryGrid.appendChild(button);
+        });
+      }
+
+      function selectTriageCategory(id) {
+        const category = triageCategoryGroups.find(group => group.id === id);
+        if (!category) return;
+        activeTriageCategory = id;
+        activeTriageCase = "";
+        triageStageIndex = 0;
+        renderTriageCategories();
+        renderTriageCases(category.caseIds);
+        triageCaseLabel.textContent = `${category.label} · 选择具体症状`;
+        triageCaseStage.hidden = false;
+        renderTriageState();
+        setTriageAutoPaused(true);
+        animateAdvancedEntry(triageCaseStage, { distance: 6, duration: 280 });
       }
 
       function setLifecycleEvent(eventId) {
@@ -10167,10 +10445,11 @@
       function openTerm(id, pin = false) {
         const definition = termDefinitions[id];
         if (!definition) return;
+        if (!coreTermIds.includes(id) && termMore) termMore.open = true;
         pauseTermRotation();
         activeTermId = id;
         termPinned = pin;
-        termFamily.textContent = `TERM / ${definition.family}`;
+        termFamily.textContent = `术语 · ${definition.family}`;
         termDetailTitle.textContent = definition.name;
         termSummary.textContent = definition.summary;
         termAction.textContent = definition.action;
@@ -10243,12 +10522,6 @@
         if (!termDetail.hidden) closeTerm(false);
         pauseTermRotation();
         renderBranchGroup(branchGroupIndex + 1, !reduceMotionQuery.matches);
-        if (!manual && reduceMotionQuery.matches) return;
-        window.clearTimeout(termResumeTimer);
-        termResumeTimer = window.setTimeout(() => {
-          if (!termDetail.hidden || document.hidden || demoSection.hidden) return;
-          termRotationPaused = false;
-        }, manual ? 5000 : 1400);
       }
 
       function initTermLab() {
@@ -10256,22 +10529,15 @@
           ...coreTermIds.map(id => createTermButton(id, "core"))
         );
         renderBranchGroup(0, !reduceMotionQuery.matches);
-        if (reduceMotionQuery.matches) {
-          termRotationPaused = true;
-          termRotationHint.textContent = "已遵循系统“减少动态效果”设置：自动轮换关闭，可用“下一组”手动切换。";
-          return;
-        }
-        startTermRotationTimer();
+        termRotationPaused = true;
+        termRotationHint.textContent = "需要更多术语时，可手动切换分组。";
       }
 
       function startTermRotationTimer() {
-        if (reduceMotionQuery.matches) return;
-        termRotationPaused = false;
-        if (termRotationTimer) return;
-        termRotationTimer = window.setInterval(() => {
-          if (document.hidden || demoSection.hidden || termRotationPaused || !termDetail.hidden) return;
-          renderBranchGroup(branchGroupIndex + 1, true);
-        }, 9000);
+        termRotationPaused = true;
+        window.clearInterval(termRotationTimer);
+        termRotationTimer = 0;
+        termRotationHint.textContent = "需要更多术语时，可手动切换分组。";
       }
 
       termNextButton.addEventListener("click", () => advanceBranchGroup(true));
@@ -10293,16 +10559,10 @@
         closeTerm();
       });
       reduceMotionQuery.addEventListener?.("change", event => {
-        if (event.matches) {
-          pauseTermRotation();
-          window.clearInterval(termRotationTimer);
-          termRotationTimer = 0;
-          termRotationHint.textContent = "已遵循系统“减少动态效果”设置：自动轮换关闭，可用“下一组”手动切换。";
-        } else {
-          termRotationHint.textContent = "每 9 秒漂入下一组；悬停、聚焦或打开解释时暂停。";
-          if (!termDetail.hidden) return;
-          startTermRotationTimer();
-        }
+        pauseTermRotation();
+        window.clearInterval(termRotationTimer);
+        termRotationTimer = 0;
+        termRotationHint.textContent = "需要更多术语时，可手动切换分组。";
       });
 
       const demoScenarios = {
@@ -10502,7 +10762,7 @@
           status: "done", state: "CURRENT",
           goal: "把 CSV、结构化快照、官方资料、实时只读传感器和图片统一到可追溯、可降级、可诊断的证据体系。",
           action: "先标准化来源与时间，再记录证据卡和缺失；网页图片不再等于时间序列，Doctor 把权限问题与损坏问题分开。",
-          proof: "各子系统独立复核通过；入口 12,284 B、Quick 22,218 B；LHM Web 实读三组行为对话 3/3 PASS；广泛发布人工签署仍 PENDING；版本已进入 GitHub main。"
+          proof: "各子系统独立复核通过；入口 12,284 B、Quick 22,218 B；LHM Web 只读场景三组行为对话 3/3 PASS；广泛发布人工签署仍 PENDING；版本已进入 GitHub main。"
         },
         {
           id: "proto-seed", track: "prototype", code: "AO-01", title: "独立原型分叉",
@@ -11052,7 +11312,7 @@
         clearScenarioAutoResume();
         scenarioAutoPaused = paused;
         scenarioAutoToggle.setAttribute("aria-pressed", String(paused));
-        scenarioAutoToggle.textContent = paused ? "立即继续演示" : "暂停自动演示";
+        scenarioAutoToggle.textContent = paused ? "继续自动演示" : "暂停自动演示";
         if (paused && resumeAfterIdle && !reduceMotionQuery.matches) {
           scenarioAutoResumeTimer = window.setTimeout(() => {
             if (!document.hidden && !demoSection.hidden && activeDemoMode === "tune") {
@@ -11110,7 +11370,7 @@
           selectNextScenario();
         }
       }, 5000);
-      setScenarioAutoPaused(reduceMotionQuery.matches);
+      setScenarioAutoPaused(true);
 
       root.querySelectorAll("[data-gate-action]").forEach(button => {
         button.addEventListener("click", () => {
@@ -11274,11 +11534,9 @@
         enterExperimentButton.disabled = true;
         syncExperimentReadiness();
         showTuneStep("experiment", { animate: true });
-        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        document.getElementById("dse-experiment-demo-title").scrollIntoView({
-          behavior: reduceMotion ? "auto" : "smooth",
-          block: "start"
-        });
+        const experimentPanel = document.getElementById("dse-experiment-demo-title")
+          ?.closest(".dse-demo-panel");
+        if (experimentPanel) scrollWithinRoot(experimentPanel, { focusHeading: true });
       });
 
       root.querySelectorAll(".dse-demo-field select").forEach(select => {
@@ -11467,7 +11725,6 @@
         });
       });
 
-      const triageCaseIds = Object.keys(triageCases);
       triageAutoToggle.addEventListener("click", () => {
         setTriageAutoPaused(!triageAutoPaused);
       });
@@ -11482,11 +11739,15 @@
           !document.hidden &&
           !demoSection.hidden &&
           activeDemoMode === "triage" &&
+          activeTriageCategory &&
+          activeTriageCase &&
           !triageAutoPaused &&
           !triageFocusPaused
         ) {
-          const currentIndex = triageCaseIds.indexOf(activeTriageCase);
-          selectTriageCase(triageCaseIds[(currentIndex + 1) % triageCaseIds.length]);
+          const category = triageCategoryGroups.find(group => group.id === activeTriageCategory);
+          if (!category) return;
+          const currentIndex = category.caseIds.indexOf(activeTriageCase);
+          selectTriageCase(category.caseIds[(currentIndex + 1) % category.caseIds.length]);
         }
       }, 5000);
       setTriageAutoPaused(true);
@@ -11498,17 +11759,21 @@
 
       triageAdvanceButton.addEventListener("click", () => {
         const triageCase = triageCases[activeTriageCase];
+        if (!triageCase) return;
         if (triageCase.danger || triageStageIndex >= triageStateOrder.length - 1) return;
         setTriageAutoPaused(true);
         triageStageIndex += 1;
         renderTriageState();
         confirmTriageStepChange();
       });
-
-      renderTriageCases();
-      window.requestAnimationFrame(() => {
-        selectTriageCase(activeTriageCase);
+      triageResetButton.addEventListener("click", () => {
+        setTriageAutoPaused(true);
+        triageStageIndex = 0;
+        renderTriageState();
       });
+
+      renderTriageCategories();
+      renderTriageCases([]);
       renderTriageState();
       renderLifecycleEvents();
       setLifecycleEvent("confirm");
@@ -11567,14 +11832,11 @@
         });
         setCurrentTuneStep(step);
         if (options.animate) {
-          animateAdvancedEntry(target, { distance: 6, duration: 180 });
+          animateAdvancedEntry(target, { distance: 6, duration: 280 });
         }
         if (options.scroll) {
           window.requestAnimationFrame(() => {
-            target.scrollIntoView({
-              behavior: reduceMotionQuery.matches ? "auto" : "smooth",
-              block: "start"
-            });
+            scrollWithinRoot(target, { focusHeading: true });
           });
         }
       }
@@ -11704,7 +11966,7 @@
         if (options.animate && previousMode !== mode) {
           const visiblePanel = [...root.querySelectorAll(".dse-demo-panel[data-demo-mode]")]
             .find(panel => !panel.hidden);
-          animateAdvancedEntry(visiblePanel, { distance: 6, duration: 200 });
+          animateAdvancedEntry(visiblePanel, { distance: 6, duration: 280 });
         }
         if (mode === "terms") {
           if (!demoSection.hidden) startTermRotationTimer();
@@ -11715,7 +11977,9 @@
         if (mode === "tune") window.requestAnimationFrame(syncTuneStepNavigation);
         if (options.updateRoute) setRouteHash(mode);
         if (options.scroll) {
-          demoSection.scrollIntoView({ block: "start", behavior: reduceMotionQuery.matches ? "auto" : "smooth" });
+          scrollWithinRoot(demoSection, {
+            focusHeading: Boolean(demoSection.querySelector(".dse-demo-panel:not([hidden]) h3"))
+          });
         }
       }
 
@@ -11751,7 +12015,8 @@
             if (record) {
               expandSeries(record.seriesId);
               selectVersion(raw, true, false);
-              document.getElementById("dse-version-archive")?.scrollIntoView({ block: "start" });
+              const archive = document.getElementById("dse-version-archive");
+              if (archive) scrollWithinRoot(archive, { focusHeading: true });
             }
           }
           return;
@@ -11767,7 +12032,8 @@
           if (record) {
             expandSeries(record.seriesId);
             selectVersion(raw, true, false);
-            document.getElementById("dse-version-archive")?.scrollIntoView({ block: "start" });
+            const archive = document.getElementById("dse-version-archive");
+            if (archive) scrollWithinRoot(archive, { focusHeading: true });
           }
         }
       }
