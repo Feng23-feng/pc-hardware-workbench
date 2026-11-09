@@ -42,10 +42,10 @@ ratios, and confidence are maintained only in
 [gpu-auto-oc-tier-authority.json](gpu-auto-oc-tier-authority.json). This file
 records the public observations used to judge them.
 
-The RTX 3060 Ti sample is lower than its current tier start. The RTX 3080 and
-RTX 3090 Ti starts are active values near or at cited sample offsets. Those
-statuses are encoded in the authority and must not be described as
-conservative.
+The RTX 3060 Ti uses a model-specific bounded start below its cited sample
+maximum. The RTX 3080 and RTX 3090 Ti starts remain active values near or at
+their cited sample offsets. Those statuses are encoded in the authority and must
+not be described as conservative.
 
 Memory remains a separate round. Begin with core only and stock power. On GDDR6X,
 require memory-junction temperature evidence when exposed. Never copy a sheet's

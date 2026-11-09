@@ -117,10 +117,10 @@ param(
     [string]$MemoryControlKind = "Offset",
 
     [Alias("CurrentCoreValueMhz")]
-    [double]$CurrentCoreOffsetMhz = 0,
+    [Nullable[double]]$CurrentCoreOffsetMhz,
 
     [Alias("CurrentMemoryValueMhz")]
-    [double]$CurrentMemoryOffsetMhz = 0,
+    [Nullable[double]]$CurrentMemoryOffsetMhz,
 
     [Alias("BaselineCoreValueMhz")]
     [double]$BaselineCoreOffsetMhz = 0,
@@ -131,7 +131,7 @@ param(
     [double]$CurrentCoreVoltageMv = 0,
     [double]$CurrentCoreFrequencyMhz = 0,
 
-    [double]$CurrentPowerLimitPct = 100,
+    [Nullable[double]]$CurrentPowerLimitPct,
 
     [switch]$BaselineRecorded,
     [switch]$StableStartingState,
@@ -145,7 +145,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-if ($CurrentPowerLimitPct -le 0 -or $CurrentPowerLimitPct -gt 200) {
+if ($null -ne $CurrentPowerLimitPct -and
+    ($CurrentPowerLimitPct -le 0 -or $CurrentPowerLimitPct -gt 200)) {
     throw "CurrentPowerLimitPct must be greater than 0 and no more than 200."
 }
 
@@ -477,12 +478,11 @@ if ($normalizedModel -match '\b(?:VIRTUAL|MICROSOFT\s+BASIC)\b' -or
     $classificationIssues.Add("model indicates a virtual, integrated, professional, or otherwise unconfirmed consumer GPU class")
 }
 elseif (-not $consumerModelRecognized -and
-    -not $ConsumerGpuConfirmed -and
     -not [string]::IsNullOrWhiteSpace($GpuModel)) {
-    $classificationIssues.Add("model is not positively identified as a supported consumer GPU; generic numeric tuning requires explicit consumer-GPU confirmation")
+    $classificationIssues.Add("model is not positively identified as a supported consumer GPU; numeric tuning requires the exact model")
 }
-if ([string]::IsNullOrWhiteSpace($GpuModel) -and -not $ConsumerGpuConfirmed) {
-    $classificationIssues.Add("unreadable or missing GPU model requires explicit confirmation that the active target is one consumer GPU")
+if ([string]::IsNullOrWhiteSpace($GpuModel)) {
+    $classificationIssues.Add("unreadable or missing GPU model blocks numeric tuning; confirm the exact active consumer GPU model")
 }
 if ($Vendor -eq "NVIDIA" -and $normalizedModel -match '\b(?:AMD|RADEON|RX\s*\d{4})\b') {
     $classificationIssues.Add("model text identifies an AMD Radeon GPU, but Vendor is NVIDIA")
@@ -524,9 +524,16 @@ elseif ($modelRecognized) {
     $familyKey = $modelFamilyKey
     $familyConfidence = "model-pattern"
 }
+if ($familyKey -match '-Generic$') {
+    $classificationIssues.Add("GPU generation is not positively identified; generic profiles cannot generate a numeric candidate")
+}
 
 $family = $familyProfiles[$familyKey]
 $startEvidence = Resolve-StartEvidence -Profile $family -NormalizedModel $normalizedModel -DefaultEvidence $tierAuthority.DefaultStartEvidence
+if ($startEvidence.PSObject.Properties.Name -contains "CoreStartDesktop" -and
+    [int]$startEvidence.CoreStartDesktop -gt 0) {
+    $family.CoreStartDesktop = [int]$startEvidence.CoreStartDesktop
+}
 
 $hardwareFingerprintSource = @(
     $Vendor,
@@ -582,6 +589,9 @@ if ([string]::IsNullOrWhiteSpace($FixedWorkload)) { $missingGate.Add("fixed work
 if ([string]::IsNullOrWhiteSpace($PassCriteria)) { $missingGate.Add("pass criteria") }
 if ($AbortSignals.Count -eq 0 -or @($AbortSignals | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }).Count -eq 0) {
     $missingGate.Add("abort signals")
+}
+if ($ReportFreshness -ne "Fresh") {
+    $missingGate.Add("fresh current report or session baseline")
 }
 
 $result = [ordered]@{
@@ -732,6 +742,7 @@ function Complete-BlockedResult {
     $Value.UsesCurrentPowerLimit = $false
     $Value.Candidate = $null
     $Value.CandidateDisplayedValue = $null
+    $Value.CandidateType = "blocked"
     $Value.CandidateId = $null
     $Value.CandidateRole = $null
     $Value.FallbackCandidate = $null
@@ -742,6 +753,14 @@ function Complete-BlockedResult {
     $Value.BaselineStatus = "not-accepted"
     $Value.CandidateStatus = "none"
     $Value.FallbackStatus = "none"
+    $Value.ResultVerdict = "None"
+    $Value.MaterialBenefit = "Unknown"
+    $Value.NoiseExceeded = "Unknown"
+    $Value.EffectiveClockImproved = "Unknown"
+    $Value.ThermalAcceptable = "Unknown"
+    $Value.PowerAcceptable = "Unknown"
+    $Value.Artifacts = "Unknown"
+    $Value.ExpectedPassLikelihood = "none"
     $Value.Change = $null
     $Value.InitialStep = $null
     $Value.FollowupStep = $null
@@ -1189,6 +1208,7 @@ if ($chosenVariable -eq "Auto") {
     elseif ($CoreValidated -and
         $TuningIntent -eq "explore-limit" -and
         $ExposedCoreOffset -and
+        $null -ne $CurrentCoreOffsetMhz -and
         (($CurrentCoreOffsetMhz - $BaselineCoreOffsetMhz) -lt $(if ($FormFactor -eq "Laptop") { $family.CoreBoundaryLaptop } else { $family.CoreBoundaryDesktop }))) {
         $chosenVariable = "Core"
     }
@@ -1292,6 +1312,15 @@ switch ($chosenVariable) {
                     -Gaps @("A curve candidate cannot be derived without a local voltage/frequency anchor.") `
                     -Rollback "No curve edit. Keep the saved default curve."
             }
+            if ($null -eq $CurrentPowerLimitPct) {
+                Complete-BlockedResult `
+                    -Value $result `
+                    -Reason "The current displayed power-limit ceiling is missing, so a fixed-curve experiment cannot be bounded." `
+                    -MissingItems @("current displayed power-limit ceiling") `
+                    -UserAction "Record the current displayed power-limit percentage from the supported tuning tool; do not assume 100%." `
+                    -Gaps @("Curve-start output must preserve the current power ceiling.") `
+                    -Rollback "No curve edit. Keep the saved default curve and power state."
+            }
 
             $curveStep = $family.CoreStartDesktop
             $curveBoundary = $family.CoreBoundaryDesktop
@@ -1365,6 +1394,15 @@ switch ($chosenVariable) {
                 -UserAction "Record the stock/default displayed core clock target from the current profile." `
                 -Gaps @("The actual-clock delta cannot be calculated without the stock baseline clock.") `
                 -Rollback "No core setting change."
+        }
+        if ($null -eq $CurrentCoreOffsetMhz) {
+            Complete-BlockedResult `
+                -Value $result `
+                -Reason "The current displayed core value is missing, so the next relative step cannot be calculated safely." `
+                -MissingItems @("current displayed core offset or clock target") `
+                -UserAction "Record the current displayed core value in the supported tuning tool; zero is accepted only when it is actually displayed as zero." `
+                -Gaps @("An omitted current value must not be treated as zero.") `
+                -Rollback "No core setting change. Keep the current profile."
         }
 
         $coreDelta = $CurrentCoreOffsetMhz - $BaselineCoreOffsetMhz
@@ -1446,6 +1484,15 @@ switch ($chosenVariable) {
                 -Gaps @("The actual-clock delta cannot be calculated without the stock baseline clock.") `
                 -Rollback "No memory setting change."
         }
+        if ($null -eq $CurrentMemoryOffsetMhz) {
+            Complete-BlockedResult `
+                -Value $result `
+                -Reason "The current displayed memory value is missing, so the next relative step cannot be calculated safely." `
+                -MissingItems @("current displayed memory offset or clock target") `
+                -UserAction "Record the current displayed memory value in the supported tuning tool; zero is accepted only when it is actually displayed as zero." `
+                -Gaps @("An omitted current value must not be treated as zero.") `
+                -Rollback "No memory setting change. Keep the current profile."
+        }
 
         $memoryDelta = $CurrentMemoryOffsetMhz - $BaselineMemoryOffsetMhz
         $step = 0
@@ -1482,6 +1529,7 @@ switch ($chosenVariable) {
         $result.CandidateDisplayedValue = $candidate
         $result.Change = $candidate - $CurrentMemoryOffsetMhz
         $result.FollowupStep = if ($MemoryControlKind -eq "ClockTarget") { "$step MHz displayed clock target" } else { "$step displayed tool units" }
+        $result.InitialStep = $result.FollowupStep
         $result.ReferenceBoundary = if ($MemoryControlKind -eq "ClockTarget") { "$boundary MHz above the baseline displayed clock" } else { "$boundary displayed tool units above the baseline value" }
         $result.ExpectedDirection = "Higher bandwidth only for a memory-sensitive workload; keep the core control fixed and reject artifacts or correction-driven performance loss."
         $result.CandidateRole = if ($TuningIntent -eq "usable-start") { "incremental" } else { "limit-exploration" }
@@ -1497,6 +1545,15 @@ switch ($chosenVariable) {
                 -UserAction "Confirm the supported power or performance-mode control in the current vendor software." `
                 -Gaps @("No supported exposed power control is recorded.") `
                 -Rollback "Keep stock power behavior. Do not use a hidden control."
+        }
+        if ($null -eq $CurrentPowerLimitPct) {
+            Complete-BlockedResult `
+                -Value $result `
+                -Reason "The current displayed power-limit ceiling is missing, so an efficiency candidate cannot be calculated safely." `
+                -MissingItems @("current displayed power-limit ceiling percentage") `
+                -UserAction "Record the current displayed power-limit percentage from the supported tuning tool; do not assume 100%." `
+                -Gaps @("An omitted current power ceiling must not be treated as 100%.") `
+                -Rollback "No power setting change. Keep the current profile."
         }
 
         $floor = 65
@@ -1518,6 +1575,7 @@ switch ($chosenVariable) {
         $result.CurrentDisplayedValue = $CurrentPowerLimitPct
         $result.CandidateDisplayedValue = $candidate
         $result.Change = $candidate - $CurrentPowerLimitPct
+        $result.InitialStep = "-5 percentage points"
         $result.FollowupStep = "-5 percentage points"
         $result.ReferenceBoundary = "$floor percent displayed power limit"
         $result.ExpectedDirection = "Potentially steadier clocks, lower temperature, or lower noise when thermal/power pressure dominates on $($family.Label); throughput may fall."

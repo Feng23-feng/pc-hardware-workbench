@@ -62,7 +62,8 @@ practical difference once; never ask a bare “A or B?”.
 
 ### Beginner route
 
-If the user cannot choose or asks for step-by-step help, read
+If the user cannot choose, asks for step-by-step help, or describes a
+nontechnical symptom such as “电脑卡/怎么弄” without naming a task, read
 [beginner-guide.md](references/integration/beginner-guide.md). Use plain-language
 task choices, one decision at a time, and safe defaults. Presentation may change;
 the safety floor does not.
@@ -127,8 +128,10 @@ structured snapshots, consented live LHM, or images. Use
 ### Tune
 
 Read [tuning-modes.md](references/integration/tuning-modes.md) and
-[fixed-workloads.md](references/integration/fixed-workloads.md). Complete the
-mandatory **tuning entry gate** before giving any personalized setting:
+[fixed-workloads.md](references/integration/fixed-workloads.md). Concept-only
+questions such as “超频是什么” or “大概能快多少” bypass the entry gate; answer
+generally without requesting device or recovery data. Complete the mandatory
+**tuning entry gate** before giving any personalized setting:
 
 1. target component, platform, and actually exposed controls;
 2. usable stock/known-good state, in-workload baseline, and no unexplained

@@ -96,6 +96,10 @@ Use this before the user applies a candidate. Present the required information
 as compact prose by default. When the user asks for a plan, card, or comparison,
 a compact table, card, or fenced block is valid content.
 
+For the beginner GPU route, use the smaller user-facing card in
+`references/tuning/beginner-gpu-auto-oc.md`. This full template is a data
+checklist, not a form to dump on a novice.
+
 ```text
 Route: GPU / CPU / memory
 Goal:

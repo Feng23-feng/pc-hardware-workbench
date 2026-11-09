@@ -124,12 +124,14 @@ Use `scripts/suggest-gpu-overclock.ps1` when all of the following are known:
   or mode;
 - the current displayed value of that control;
 - whether the core or memory round has passed.
-- for an empty or unrecognized model, explicit confirmation that the active
-  target is one consumer GPU; otherwise the helper cannot use a numeric Generic
-  path.
+- one exact active consumer GPU model; an empty or unrecognized model blocks the
+  numeric candidate, and confirmation cannot replace the missing model.
 - the target component, fixed workload, pass criteria, and abort signals.
 - for a laptop, board model and power-limit state evidence; when no unlock is
   declared, use the correctable `assumed-stock` default.
+- a fresh current report or session baseline. An omitted current control value
+  is not treated as zero or 100%; the helper blocks until the displayed value is
+  recorded.
 
 Example:
 
@@ -149,6 +151,7 @@ Example:
   -FixedWorkload "Recorded game benchmark, same scene and settings" `
   -PassCriteria "Repeated result exceeds baseline noise with no artifact or error" `
   -AbortSignals "Artifact, black screen, driver reset, or rapid thermal rise" `
+  -ReportFreshness Fresh `
   -ExposedCoreOffset
 ```
 
@@ -217,10 +220,9 @@ card to fill the gate automatically. Do not turn the fields into a novice
 questionnaire.
 
 Consumer classification is a positive gate. A recognized single consumer model
-may continue without a generic override. `Generic` is allowed only for an empty
-or unresolved model when the captured evidence and user confirmation establish
-that there is one active consumer GPU. Use `-ConsumerGpuConfirmed` only for that
-confirmed case; it never overrides a known professional, data-center,
+may continue. Empty, unresolved, or generation-unknown models receive no numeric
+candidate. `-ConsumerGpuConfirmed` is compatibility metadata only; it cannot
+replace an exact model and never overrides a known professional, data-center,
 integrated, virtual, or multi-adapter product class.
 
 Adapter text is normalized before counting. Treat ASCII and full-width

@@ -49,6 +49,10 @@ After giving download or recording instructions, return to the monitoring-analys
 
 For the HWiNFO download card, teach this order instead of letting the user guess:
 
+For a first-time user, do not print this whole list. Give only the official page
+and the first Installer action; reveal the next fallback only if that action
+fails. The ordered list below is a troubleshooting reference, not a first reply.
+
 1. for a novice, choose **Installer** when available; use Portable only when the user needs no installation or the skill/tool specifically requires a portable file;
 2. in **Free Download**, choose **Local (U.S.)** first because it is the direct file on the official `hwinfo.com` host; “U.S.” describes the server location, not an eligibility restriction;
 3. if the official direct file is unreachable or unusually slow, choose **SAC ftp (SK)** next; it is another download source linked from the official page;

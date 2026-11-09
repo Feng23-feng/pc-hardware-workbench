@@ -28,6 +28,10 @@ function Assert-BlockedContract {
     Assert-True ($Result.Status -eq "Blocked") "$Label should be Blocked."
     Assert-True ($null -eq $Result.Candidate) "$Label must not expose a candidate object."
     Assert-True ($null -eq $Result.CandidateDisplayedValue) "$Label must not expose a numeric candidate."
+    Assert-True ($Result.ResultVerdict -eq "None") "$Label must not retain a pass/fail/inconclusive result verdict."
+    Assert-True ($Result.MaterialBenefit -eq "Unknown") "$Label must not retain a pass-like material-benefit claim."
+    Assert-True ($Result.Artifacts -eq "Unknown") "$Label must not retain a pass-like artifact claim."
+    Assert-True ($Result.ExpectedPassLikelihood -eq "none") "$Label must not expose a pass likelihood."
     Assert-True ($Result.NoHardwareChange -eq $true) "$Label must retain the no-hardware-write invariant."
     Assert-True ($Result.EvidenceBasis -eq "none") "$Label must not claim an accepted evidence basis."
     Assert-True ($Result.LocalEvidenceLevel -eq "none") "$Label must not claim local evidence."
@@ -80,6 +84,7 @@ foreach ($authorityProfile in $tierAuthority.Profiles.PSObject.Properties) {
 
 $base = @{
     Vendor = "NVIDIA"
+    GpuModel = "NVIDIA GeForce RTX 4070"
     FormFactor = "Desktop"
     Goal = "Balanced"
     DominantLimit = "None"
@@ -89,6 +94,7 @@ $base = @{
     PassCriteria = "Repeated result above noise with no artifact"
     AbortSignals = "Artifact, driver reset, black screen, or rapid thermal rise"
     ConsumerGpuConfirmed = $true
+    ReportFreshness = "Fresh"
     CurrentCoreOffsetMhz = 0
     CurrentMemoryOffsetMhz = 0
     CurrentPowerLimitPct = 100
@@ -103,19 +109,49 @@ $base = @{
 $core = Invoke-Suggestion $base
 Assert-True ($core.Status -eq "Ready") "A complete desktop baseline should produce a core candidate."
 Assert-True ($core.Variable -eq "Core offset") "The first round should be core-only."
-Assert-CoreFirstRound $core "NVIDIA-Generic" "Generic NVIDIA"
+Assert-CoreFirstRound $core "NVIDIA-Ada-Mainstream" "RTX 4070"
 Assert-True ($core.ScriptVersion -eq "2.0.3") "The candidate helper script version must be 2.0.3."
 Assert-True ($core.SuiteVersion -eq "2.6.0") "The candidate helper suite version must be 2.6.0."
 Assert-True ($core.PriorRuleVersion -eq "2.6.0") "The candidate helper prior version must be 2.6.0."
 Assert-True ($core.NoHardwareChange -eq $true) "The suggestion script must report that it changes no hardware."
-Assert-True ($core.GpuFamily -eq "NVIDIA-Generic") "A model without an NVIDIA generation should use the generic family."
-Assert-True ($core.FamilyConfidence -eq "generic") "An unclassified model must report generic family confidence."
-Assert-True ($core.ConsumerGpuConfirmed -eq $true) "The explicit generic consumer-GPU confirmation must be preserved."
+Assert-True ($core.GpuFamily -eq "NVIDIA-Ada-Mainstream") "A readable RTX 4070 should use its recognized Ada family."
+Assert-True ($core.FamilyConfidence -eq "model-pattern") "A recognized model should report model-pattern family confidence."
+Assert-True ($core.ConsumerGpuConfirmed -eq $true) "The consumer-GPU confirmation should be preserved."
 Assert-True ($core.ExpectedMagnitude -eq "unknown") "Uncalibrated predictions must report unknown magnitude."
 Assert-True ($core.Confidence -ne "high") "The helper must not claim high confidence without history."
 Assert-True ($core.HardwareWrite -eq "none") "The helper must report no hardware write path."
 Assert-True ($core.ReferenceBoundaryMeaning -match 'not a hardware-safe maximum') "The automatic boundary must not be described as a safe maximum."
 Assert-True (@($core.RequiredUserActions).Count -gt 0) "A ready candidate must list the current user actions."
+
+$missingCurrentCoreParams = $base.Clone()
+$missingCurrentCoreParams.Remove("CurrentCoreOffsetMhz")
+$missingCurrentCore = Invoke-Suggestion $missingCurrentCoreParams
+Assert-BlockedContract $missingCurrentCore "Missing current core value"
+Assert-True ($missingCurrentCore.Reason -match 'current displayed core value') "Missing current core value should name the actual missing control."
+
+$missingCurrentMemoryParams = $base.Clone()
+$missingCurrentMemoryParams.Variable = "Memory"
+$missingCurrentMemoryParams.CoreValidated = $true
+$missingCurrentMemoryParams.TuningIntent = "explore-limit"
+$missingCurrentMemoryParams.Remove("CurrentMemoryOffsetMhz")
+$missingCurrentMemory = Invoke-Suggestion $missingCurrentMemoryParams
+Assert-BlockedContract $missingCurrentMemory "Missing current memory value"
+Assert-True ($missingCurrentMemory.Reason -match 'current displayed memory value') "Missing current memory value should not be treated as zero."
+
+$missingPowerParams = $base.Clone()
+$missingPowerParams.Remove("CurrentPowerLimitPct")
+$missingPowerParams.Variable = "Power"
+$missingPowerParams.DominantLimit = "Thermal"
+$missingPowerParams.ThermalHeadroom = "Tight"
+$missingPower = Invoke-Suggestion $missingPowerParams
+Assert-BlockedContract $missingPower "Missing current power ceiling"
+Assert-True ($missingPower.Reason -match 'current displayed power-limit ceiling') "Missing current power ceiling should not be treated as 100%."
+
+$missingFreshnessParams = $base.Clone()
+$missingFreshnessParams.Remove("ReportFreshness")
+$missingFreshness = Invoke-Suggestion $missingFreshnessParams
+Assert-BlockedContract $missingFreshness "Missing report freshness"
+Assert-True ($missingFreshness.MissingGate -contains "fresh current report or session baseline") "Unknown report freshness must block a numeric candidate."
 
 $blockedParams = $base.Clone()
 $blockedParams.Remove("RecoverySaved")
@@ -148,7 +184,8 @@ $memoryParams.PowerAcceptable = "Yes"
 $memoryParams.Artifacts = "None"
 $memory = Invoke-Suggestion $memoryParams
 Assert-True ($memory.Variable -eq "Memory offset") "Memory should become next only after an accepted core result."
-Assert-True ($memory.CandidateDisplayedValue -eq 50) "An unclassified NVIDIA memory control should use the reduced generic step."
+Assert-True ($memory.CandidateDisplayedValue -eq 200) "RTX 4070 memory should use the Ada memory start."
+Assert-True ($memory.InitialStep -eq "200 displayed tool units") "Memory InitialStep must describe the current round."
 
 $unvalidatedMemoryParams = $base.Clone()
 $unvalidatedMemoryParams.Variable = "Memory"
@@ -162,6 +199,7 @@ $power = Invoke-Suggestion $powerParams
 Assert-True ($power.Status -eq "Ready") "A supported power reduction should be generated under power pressure."
 Assert-True ($power.Variable -eq "Power ceiling") "Power pressure should select the power/efficiency variable."
 Assert-True ($power.CandidateDisplayedValue -eq 95) "The power candidate should be one five-point reduction."
+Assert-True ($power.InitialStep -eq "-5 percentage points") "Power InitialStep must describe the current round."
 
 $tightCoreParams = $base.Clone()
 $tightCoreParams.Variable = "Core"
@@ -202,12 +240,14 @@ $ampere3060TiParams = $base.Clone()
 $ampere3060TiParams.GpuModel = "NVIDIA GeForce RTX 3060 Ti"
 $ampere3060Ti = Invoke-Suggestion $ampere3060TiParams
 Assert-True ($ampere3060Ti.GpuFamily -eq "NVIDIA-Ampere-Entry") "RTX 3060 Ti should map to Ampere Entry."
-Assert-CoreFirstRound $ampere3060Ti "NVIDIA-Ampere-Entry" "RTX 3060 Ti"
-Assert-True ($ampere3060Ti.StartEvidenceClass -eq "active-above-cited-sample") "RTX 3060 Ti must be labelled as an active above-sample start."
+Assert-True ($ampere3060Ti.CandidateDisplayedValue -eq 50) "RTX 3060 Ti should use its model-specific bounded start."
+Assert-True ($ampere3060Ti.InitialStep -eq "+50 MHz") "RTX 3060 Ti InitialStep must describe the bounded first round."
+Assert-True ($ampere3060Ti.FollowupStep -eq "+25 MHz") "RTX 3060 Ti must keep the normal follow-up step."
+Assert-True ($ampere3060Ti.StartEvidenceClass -eq "bounded-below-cited-sample-maximum") "RTX 3060 Ti must be labelled as below the cited sample maximum."
 Assert-True ($ampere3060Ti.StartConfidence -eq "very-low") "RTX 3060 Ti confidence must reflect weak exact-model coverage."
 Assert-True ($ampere3060Ti.PublicSourceCount -eq 1) "RTX 3060 Ti evidence must identify one public source."
 Assert-True ($ampere3060Ti.ObservedMaxCoreOffsetMhz -eq 70) "RTX 3060 Ti observed maximum offset must remain attached."
-Assert-True ($ampere3060Ti.StartToObservedMaxPercent -eq 143) "RTX 3060 Ti start-to-sample ratio must remain explicit."
+Assert-True ($ampere3060Ti.StartToObservedMaxPercent -eq 71) "RTX 3060 Ti start-to-sample ratio must remain explicit."
 
 $ampere3070Params = $base.Clone()
 $ampere3070Params.GpuModel = "NVIDIA GeForce RTX 3070"
@@ -408,7 +448,8 @@ $unknownAmdParams = $base.Clone()
 $unknownAmdParams.Vendor = "AMD"
 $unknownAmdParams.GpuModel = "AMD Radeon graphics"
 $unknownAmd = Invoke-Suggestion $unknownAmdParams
-Assert-True ($unknownAmd.GpuFamily -eq "AMD-Generic") "An unclassified AMD model must retain a generic AMD path."
+Assert-BlockedContract $unknownAmd "Unclassified AMD model"
+Assert-True ($unknownAmd.GpuFamily -eq "AMD-Generic") "An unclassified AMD model may retain a diagnostic generic family label."
 
 foreach ($requiredField in @("TargetComponent", "FixedWorkload", "PassCriteria", "AbortSignals")) {
     $missingExperiment = $base.Clone()
@@ -687,10 +728,21 @@ $unknownWithoutConfirmationParams.Remove("ConsumerGpuConfirmed")
 $unknownWithoutConfirmation = Invoke-Suggestion $unknownWithoutConfirmationParams
 Assert-BlockedContract $unknownWithoutConfirmation "Unrecognized model without consumer-GPU confirmation"
 
+$unknownWithConfirmationParams = $base.Clone()
+$unknownWithConfirmationParams.GpuModel = "NVIDIA GeForce RTX"
+$unknownWithConfirmation = Invoke-Suggestion $unknownWithConfirmationParams
+Assert-BlockedContract $unknownWithConfirmation "Unrecognized model with consumer-GPU confirmation"
+
 $emptyModelWithoutConfirmationParams = $base.Clone()
+$emptyModelWithoutConfirmationParams.Remove("GpuModel")
 $emptyModelWithoutConfirmationParams.Remove("ConsumerGpuConfirmed")
 $emptyModelWithoutConfirmation = Invoke-Suggestion $emptyModelWithoutConfirmationParams
 Assert-BlockedContract $emptyModelWithoutConfirmation "Missing model without consumer-GPU confirmation"
+
+$emptyModelWithConfirmationParams = $base.Clone()
+$emptyModelWithConfirmationParams.Remove("GpuModel")
+$emptyModelWithConfirmation = Invoke-Suggestion $emptyModelWithConfirmationParams
+Assert-BlockedContract $emptyModelWithConfirmation "Missing model with consumer-GPU confirmation"
 
 $a10gConfirmedParams = $base.Clone()
 $a10gConfirmedParams.GpuModel = "NVIDIA A10G"

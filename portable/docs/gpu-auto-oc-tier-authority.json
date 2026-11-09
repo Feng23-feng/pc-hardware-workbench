@@ -57,12 +57,13 @@
       "ModelStartEvidence": [
         {
           "Pattern": "\\bRTX\\s*3060\\s*Ti\\b",
-          "StartEvidenceClass": "active-above-cited-sample",
+          "CoreStartDesktop": 50,
+          "StartEvidenceClass": "bounded-below-cited-sample-maximum",
           "StartConfidence": "very-low",
           "PublicSourceCount": 1,
           "ObservedMaxCoreOffsetMhz": 70,
-          "StartToObservedMaxPercent": 143,
-          "StartEvidenceNote": "The +100 MHz tier start is 143% of the cited RTX 3060 Ti FE +70 MHz sample. Keep it only as an active usable starting experiment, not a conservative estimate."
+          "StartToObservedMaxPercent": 71,
+          "StartEvidenceNote": "The +50 MHz model-specific start is below the cited RTX 3060 Ti FE +70 MHz sample. It remains a bounded experiment, not a stability guarantee."
         }
       ]
     },

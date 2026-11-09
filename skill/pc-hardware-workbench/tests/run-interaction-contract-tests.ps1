@@ -233,6 +233,15 @@ $gpuTier = Get-Content -LiteralPath $gpuTierPath -Raw -Encoding UTF8 | ConvertFr
 $componentPlaybooks = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "references/tuning/component-playbooks.md") `
     -Label "references/tuning/component-playbooks.md"
+$beginnerGpu = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/tuning/beginner-gpu-auto-oc.md") `
+    -Label "references/tuning/beginner-gpu-auto-oc.md"
+$fixedWorkloads = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/integration/fixed-workloads.md") `
+    -Label "references/integration/fixed-workloads.md"
+$beginnerGuide = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/integration/beginner-guide.md") `
+    -Label "references/integration/beginner-guide.md"
 Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "references/tuning/beginner-gpu-auto-oc.md") `
     -Label "references/tuning/beginner-gpu-auto-oc.md" | Out-Null
@@ -257,10 +266,19 @@ Assert-Contains $gpuAutoCandidates 'sole\s+normative source' "GPU candidate valu
 Assert-Contains $gpuAutoCandidates 'never replaces local evidence' "GPU family priors can replace local evidence."
 Assert-True ($gpuAutoCandidates -notmatch '(?i)prototype') "Integrated GPU candidate guidance still calls itself a prototype."
 Assert-True ($gpuFamilyPlaybooks -notmatch '(?i)prototype') "Integrated GPU family guidance still calls itself a prototype."
+Assert-Contains $gpuAutoCandidates 'Empty, unresolved, or generation-unknown models receive no numeric' "GPU candidate guidance still permits a generic numeric fallback."
+Assert-Contains $gpuFamilyPlaybooks 'does not replace the exact\s+readable model' "GPU family guidance permits confirmation to replace a missing model."
 Assert-Contains $usableStartState 'FallbackCandidate' "Usable-start experiments have no fallback candidate."
 Assert-Contains $usableStartState 'session-only' "GPU candidate state is presented as persistent without a store."
 Assert-True ($usableStartState -notmatch '(?i)prototype') "Usable-start guidance still calls itself a prototype."
 Assert-Contains $usableStartState 'not a daily-stability claim' "A first-round candidate can still be mistaken for a daily-stability claim."
+Assert-Contains $beginnerGpu 'selected variable may be a core offset/clock target' "Beginner guidance does not state which one variable can change."
+Assert-Contains $beginnerGpu 'compact card takes precedence' "Beginner compact-card precedence over the full template is missing."
+Assert-True ($beginnerGpu -notmatch 'Keep memory, voltage, power ceiling') "Beginner guidance still claims the first round preserves voltage and power unconditionally."
+Assert-Contains $fixedWorkloads 'This full template is a data\s+checklist, not a form to dump on a novice' "The full workload card can still be dumped on a novice."
+Assert-Contains $beginnerGuide 'do not print this whole list' "A novice can still receive the entire HWiNFO fallback list in one turn."
+Assert-Contains $skill 'Concept-only\s+questions' "Concept-only questions are still forced through the tuning gate."
+Assert-Contains $skill 'nontechnical symptom' "Plain-language symptom requests do not trigger the beginner route."
 Assert-Contains $laptopPowerState 'power-limit ceiling[\s\S]+not the GPU[\s\S]+power draw' "Laptop power limits are not separated from measured draw."
 Assert-Contains $laptopPowerState 'assumed-stock' "An undeclared laptop power state lacks a correctable default."
 Assert-True ($gpuTier.PriorRuleVersion -eq "2.6.0") "GPU tier authority has the wrong integrated rule version."

@@ -13,7 +13,7 @@ baseline, recovery, one-variable, thermal, power-path, or anti-cheat rules.
 
 Explain briefly:
 
-> 我可以替你看数据和判断下一步。你只需要做三件事：允许我读配置、确认怎么恢复原样、在同一个游戏场景里测试一次。第一轮不会改电压，也不会让设置随开机自动应用。
+> 我可以替你看数据和判断下一步。你只需要配合三件关键操作：允许我读配置、确认怎么恢复原样、在同一个游戏场景里测试一次。需要安装监控或找工具时，我一次只带你做一步。第一轮只改一个变量，也不会让设置随开机自动应用。
 
 Do not promise that the hardware cannot be damaged. State that the workflow
 uses a saved restore point, one reversible variable, and a stop rule.
@@ -104,12 +104,20 @@ For the first round, show a compact card with no optional controls:
 - one plain-language analogy;
 - the expected direction and main tradeoff;
 - the saved restore action;
-- one test command expressed as a user action;
-- one visible stop signal and one performance signal.
+- one test action the user can repeat in the same game scene;
+- one visible warning sign and one result to compare.
 
-Keep memory, voltage, power ceiling, fan curves, and other variables unchanged.
-Keep the setting session-only unless a separate persistence check has passed.
+Keep every control other than this round's selected variable unchanged. The
+selected variable may be a core offset/clock target, a measured curve anchor, or
+a supported power-limit reduction when thermal/power pressure dominates. State
+exactly which one changes and explain the relevant term in plain language.
+Do not apply the setting at Windows startup unless a separate persistence check
+has passed.
 Start a new primary variable only after the prior round is reviewed.
+
+For a novice-facing response, this compact card takes precedence over the full
+one-screen template in `fixed-workloads.md`; use the full template internally as
+a data checklist, not as a form to recite to the user.
 
 The candidate paragraph must include the localized safety notice from
 `SKILL.md`.
@@ -126,10 +134,10 @@ sentences. If continuing, present exactly one next action. If evidence is
 inconclusive, repeat the same baseline or stop; do not raise the value to
 “make the result clearer.”
 
-For an ordinary daily-use request, read
+For a request for a practical first candidate or daily-use goal, read
 [usable-start-and-state.md](usable-start-and-state.md) and default to
 `usable-start`. A clean pass is not enough: a material benefit above noise plus
-acceptable thermal, power, artifact, and effective-clock evidence means `keep`
+acceptable heat, power, artifact, and actual-performance evidence means `keep`
 and stop frequency escalation. Do not automatically move from core to memory
 just because the core value did not crash.
 

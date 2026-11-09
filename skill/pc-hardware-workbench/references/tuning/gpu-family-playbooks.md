@@ -75,12 +75,10 @@ trusted local inventory or user evidence:
 Workstation, mobile, rebadged, virtual, integrated, unknown, or conflicting
 model strings need their exact exposed control evidence. Do not classify from a
 single marketing name when the form factor or product class is unclear.
-Professional, workstation, data-center, integrated, virtual, and
-multi-adapter-concatenated model text is blocked from numeric candidate
-generation. Generic is reserved for a single readable consumer-looking model
-whose generation cannot be resolved, or for an empty/unreadable model only
-after the user or collector confirms one active consumer GPU. Confirmation
-cannot override a known non-consumer class.
+Professional, workstation, data-center, integrated, virtual, multi-adapter,
+empty, and unrecognized model text is blocked from numeric candidate generation.
+A user confirmation that the target is a consumer GPU does not replace the exact
+readable model and cannot activate a generic numeric path.
 
 Multi-adapter splitting covers both ASCII and Chinese punctuation commonly
 pasted into hardware reports. Known variants such as `A10G` remain in the
@@ -166,5 +164,5 @@ firmware take precedence over architecture-specific desktop behavior.
 - AMD RDNA3/RDNA4: treat hotspot, power, and sustained clock as one review,
   then test memory separately. Prefer per-game profiles when available.
 
-If the family is unknown, use the generic conservative path and say that the
-candidate lacks generation-specific calibration.
+If the family or exact model is unknown, stop before a numeric candidate and ask
+for one exact active consumer GPU from a current local source.
