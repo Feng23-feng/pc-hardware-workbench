@@ -55,7 +55,7 @@ rule blindly to RTX 4090/5090, low-end card designs, unknown PSUs, or laptops.
 Use this when the user wants to learn on graphics or asks for GPU graphics performance.
 
 1. Record the GPU model, driver, tool version, default profile, and a repeatable workload.
-2. Choose one route: efficiency-oriented voltage/curve work, one core-frequency change, one memory change, or one power-limit change.
+2. After the tuning gate, derive the family direction and automatic candidate with [gpu-family-playbooks.md](gpu-family-playbooks.md) and [gpu-auto-candidates.md](gpu-auto-candidates.md); then choose one route: efficiency-oriented voltage/curve work, one core-frequency change, one memory change, or one power-limit change.
 3. Use one supported configurator and monitoring source; do not stack afterburner-style offsets with a vendor tool applying the same controls.
 4. Test artifacts, driver resets, black screens, effective clocks, power, fan behavior, temperatures, and frame time—not only the average benchmark score.
 5. On a laptop, rerun the combined CPU+GPU workload after the GPU-only pass.

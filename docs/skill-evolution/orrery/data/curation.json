@@ -111,8 +111,10 @@
     "triage/decision": {"name": "诊断决策", "when": "描述硬件故障、风险或需要最小下一诊断时。"},
     "tuning/gate": {"name": "门禁与边界", "when": "准备个性化调校，或请求触及隐藏、受限控制时。"},
     "tuning/gpu": {"name": "GPU 与预期", "when": "解释 GPU 曲线、频率、偏移、功耗或预期方向时。"},
+    "tuning/auto-candidates": {"name": "GPU 自动候选", "when": "从已验证基线生成、解释或阻断一个用户手动应用的单变量候选时。"},
     "tuning/experiment": {"name": "单变量实验", "when": "选择部件路线、应用候选、记录结果或恢复时。"},
     "tuning/evidence": {"name": "参考证据", "when": "需要外部案例、参考档位或特定平台风险说明时。"},
+    "tuning/public-evidence": {"name": "公开样本", "when": "解释公开显卡样本、代际差异和不可跨设备复制的边界时。"},
     "upgrade/assess": {"name": "决策与结论", "when": "判断保留、调校、维修或升级是否有正净值时。"},
     "upgrade/intake": {"name": "识别与需求", "when": "整理当前硬件、购买目标与最低有效升级证据时。"},
     "upgrade/market": {"name": "市场检查", "when": "需要当前价格、地区、币种与可比型号证据时。"},
@@ -120,10 +122,12 @@
     "scripts/telemetry": {"name": "遥测管线", "when": "分析 CSV、规范化快照或生成确定性图表时。"},
     "scripts/cases": {"name": "案卷与报告", "when": "保存本地证据连续性，或导出静态离线审查报告时。"},
     "scripts/adapters": {"name": "适配层", "when": "使用本地 LHM 回环接口或维护动态资料证据卡时。"},
+    "scripts/auto-candidates": {"name": "候选引擎", "when": "校验设备条件并生成或阻断 GPU 单变量起点时。"},
     "scripts/maintenance": {"name": "运行诊断", "when": "检查安装、语法、编码、输出路径和可选运行时能力时。"},
     "tests/behavior": {"name": "行为冻结", "when": "人工复验路由、语气、安全边界和跨能力行为时。"},
     "tests/harness": {"name": "测试入口", "when": "修改 Skill 后运行全量、契约、编码或解析检查时。"},
     "tests/telemetry": {"name": "遥测回归", "when": "修改采集、分析、规范化或图表输出时。"},
+    "tests/auto-candidates": {"name": "GPU 候选回归", "when": "修改 GPU 家族路由、阻断条件、功耗状态或候选输出时。"},
     "tests/components": {"name": "组件回归", "when": "修改身份、库存、诊断、LHM 或 RAG 组件时。"},
     "tests/cases": {"name": "案卷回归", "when": "修改案卷写入、证据导入或离线报告导出时。"}
   },
@@ -314,6 +318,51 @@
       "role": "GPU 曲线基线",
       "summary": "建立游戏内电压与频率区间、限流原因、恢复路径和候选实验路线。"
     },
+    "references/tuning/beginner-gpu-auto-oc.md": {
+      "cluster": "tuning/auto-candidates",
+      "role": "新手 GPU 自动调校路线",
+      "summary": "把明确授权、恢复点、单变量测试和停止条件整理成用户可以逐步执行的新手流程。"
+    },
+    "references/tuning/gpu-auto-candidates.md": {
+      "cluster": "tuning/auto-candidates",
+      "role": "GPU 自动候选",
+      "summary": "从已验证基线和可用控制生成一个确定性的单变量起点，由用户手动应用并重新测量。"
+    },
+    "references/tuning/gpu-family-playbooks.md": {
+      "cluster": "tuning/auto-candidates",
+      "role": "GPU 家族路由",
+      "summary": "按 NVIDIA、AMD、Intel 与代际选择方向和防护信号，家庭先验不替代本机证据。"
+    },
+    "references/tuning/laptop-power-state.md": {
+      "cluster": "tuning/auto-candidates",
+      "role": "笔记本功耗状态",
+      "summary": "区分 assumed-stock、declared-stock、declared-unlocked 与 mismatch，并保留状态变化的旧证据。"
+    },
+    "references/tuning/usable-start-and-state.md": {
+      "cluster": "tuning/auto-candidates",
+      "role": "可用起点与实验状态",
+      "summary": "把一次可日常使用的候选和继续探索分开，维护可恢复、可追踪的实验状态。"
+    },
+    "references/tuning/gpu-auto-oc-tier-authority.json": {
+      "cluster": "tuning/auto-candidates",
+      "role": "GPU 候选权威表",
+      "summary": "用单一分级表提供厂商、形态、起点、步长和边界；分级值是有界起点，不是校准后的稳定上限。"
+    },
+    "references/tuning/rtx-30-series-public-reference.md": {
+      "cluster": "tuning/public-evidence",
+      "role": "RTX 30 公开参考",
+      "summary": "整理 Ampere 公开受控样本、显存代际差异和供电风险，不跨设备预测收益。"
+    },
+    "references/tuning/rtx-40-series-public-reference.md": {
+      "cluster": "tuning/public-evidence",
+      "role": "RTX 40 公开参考",
+      "summary": "整理 Ada 各 SKU 的公开时钟与显存单位边界，避免把平均时钟当成软件偏移。"
+    },
+    "references/tuning/rtx-50-series-public-reference.md": {
+      "cluster": "tuning/public-evidence",
+      "role": "RTX 50 公开参考",
+      "summary": "整理 Blackwell 公开样本、显存请求夹取、有效频率和功耗墙差异。"
+    },
     "references/tuning/component-playbooks.md": {
       "cluster": "tuning/experiment",
       "role": "部件调校手册",
@@ -426,6 +475,11 @@
       "role": "显存带宽计算",
       "summary": "用有来源的每引脚数据率和总线位宽计算理论峰值带宽，不把传感器 MHz 当作数据率。"
     },
+    "scripts/suggest-gpu-overclock.ps1": {
+      "cluster": "scripts/auto-candidates",
+      "role": "GPU 自动候选引擎",
+      "summary": "校验厂商、形态、型号和功耗状态，从单一权威表返回阻断结果或一个手动应用的单变量候选。"
+    },
     "scripts/normalize-telemetry.ps1": {
       "cluster": "scripts/telemetry",
       "role": "遥测规范化器",
@@ -531,6 +585,11 @@
       "cluster": "tests/harness",
       "role": "交互契约检查",
       "summary": "检查入口路由、安全提示、调校门禁、术语、Schema 和版本引用。"
+    },
+    "tests/run-gpu-auto-oc-tests.ps1": {
+      "cluster": "tests/auto-candidates",
+      "role": "GPU 自动候选回归",
+      "summary": "覆盖厂商路由、专业卡与核显阻断、笔记本功耗状态和确定性候选输出。"
     },
     "tests/run-pwsh7-parse-tests.ps1": {
       "cluster": "tests/harness",

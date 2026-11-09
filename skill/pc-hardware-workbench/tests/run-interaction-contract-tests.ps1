@@ -54,10 +54,10 @@ $skill = Get-Content -LiteralPath $skillPath -Raw -Encoding UTF8
 $referenceOnlyNotice = [regex]::Unescape('\u53C2\u6570\u4EC5\u4F9B\u53C2\u8003\uFF0C\u8BF7\u4EE5\u5B89\u5168\u4E3A\u7B2C\u4E00\u8981\u52A1\u3002')
 $englishReferenceOnlyNotice = "For reference only - put safety first."
 
-Assert-Contains $skill '(?m)^  version: "2\.5\.1"\r?$' "metadata.version should be 2.5.1."
+Assert-Contains $skill '(?m)^  version: "2\.6\.0"\r?$' "metadata.version should be 2.6.0."
 Assert-Contains $skill 'r23 collector' "The Skill maintenance summary collector revision disagrees with the collector code."
 Assert-Contains $skill 'while the power-path evidence is incomplete' "The Advice intensity route does not include incomplete power-path evidence."
-Assert-Contains $skill 'hidden or manufacturer-limited limit' "The Advice intensity summary is narrower than the hidden or manufacturer-limited scope."
+Assert-Contains $skill 'hidden or\s+manufacturer-limited limit' "The Advice intensity summary is narrower than the hidden or manufacturer-limited scope."
 Assert-Contains $skill 'power ceiling, voltage limit, fan policy, and firmware restriction' "The Advice intensity summary omits one or more controlled object types."
 Assert-Contains $skill 'When invoked without a concrete task' "Bare-invocation introduction rule is missing."
 Assert-Contains $skill 'If the first request already contains a concrete task' "Task-bearing invocation skip rule is missing."
@@ -66,25 +66,17 @@ $codexIntroduction = [regex]::Unescape('\u0060$pc-hardware-workbench\u0060 \u5DF
 Assert-True (-not ($skill -match ("(?m)^> " + [regex]::Escape($codexIntroduction)))) "The spoken introduction still uses the Codex-only invocation sigil."
 Assert-Contains $skill ("(?m)^> " + [regex]::Escape($neutralIntroduction)) "The bare-invocation introduction lost its neutral skill name."
 Assert-Contains $skill 'Explain named choices' "Choice explanation rule is missing."
-Assert-Contains $skill 'Do not ask a bare' "Bare named-choice prohibition is missing."
+Assert-Contains $skill 'never ask a bare' "Bare named-choice prohibition is missing."
 Assert-Contains $skill 'Plain-language parameter explanations' "Plain-language parameter rule is missing."
 Assert-Contains $skill 'explanation-style\.md' "The detailed explanation-style reference is not linked."
-Assert-Contains $skill 'Do not give a bare number, offset, timing, profile, or instruction without the safety notice and an appropriately detailed explanation' "The bare-value rule lost its safety-notice binding."
+Assert-Contains $skill 'Never give a\s+bare number, offset, timing, profile, or instruction without the notice and an\s+appropriately detailed explanation' "The bare-value rule lost its safety-notice binding."
 Assert-Contains $skill ([regex]::Escape($referenceOnlyNotice)) "The mandatory reference-only safety notice is missing."
 Assert-Contains $skill ([regex]::Escape($englishReferenceOnlyNotice)) "The English safety notice is missing."
 Assert-Contains $skill 'Never mix the Chinese and English notices in one reply' "The language-mixing prohibition is missing."
-Assert-Contains $skill 'Choose explanation depth by user knowledge and risk' "Explanation detail is not context-adaptive."
 Assert-Contains $skill 'BIOS/UEFI tuning setting' "BIOS/UEFI tuning settings are not covered by the parameter safety rule."
 Assert-Contains $skill 'firmware, clock, voltage, power control' "Firmware and tuning controls are not covered by the parameter safety rule."
-Assert-Contains $skill 'exact visible menu/control label' "BIOS/UEFI guidance can invent an unverified menu path."
 Assert-Contains $skill 'Beginner route' "Beginner route is missing."
 Assert-Contains $skill 'beginner-guide\.md' "Beginner guide link is missing."
-Assert-Contains $skill 'Teaching objective' "Independent-reuse teaching objective is missing."
-Assert-Contains $skill 'independent reuse' "The teaching objective is not tied to independent reuse."
-Assert-Contains $skill 'Interaction closure' "The interaction-closure rule is missing."
-Assert-Contains $skill 'resume the original flow' "Post-collection flow resumption is missing."
-Assert-Contains $skill 'one short natural-language sentence' "Multi-step progress guidance is missing its natural-language form."
-Assert-Contains $skill 'single-turn response must not show a bracketed workflow-state template' "Single-turn replies can still emit the workflow-state template."
 Assert-True ($skill -notmatch '\[\u8BBE\u5907\uFF1A') "The workflow-state example was reintroduced into the entrypoint."
 Assert-Contains $skill 'Hard-stop precedence' "Physical-danger precedence is missing."
 Assert-Contains $skill 'burning smell' "Hard-stop examples are missing."
@@ -98,7 +90,7 @@ Assert-Contains $skill 'coaching branch, not a dead end' "Missing-gate coaching 
 Assert-Contains $skill 'collector-workflow\.md' "Collector workflow route is missing."
 Assert-Contains $skill 'cross-mode-handoffs\.md' "Cross-mode handoff reference is not linked from the entrypoint."
 Assert-Contains $skill '### Telemetry and logs' "Telemetry has no formal shared subflow."
-Assert-Contains $skill 'does not require the tuning entry gate' "Telemetry-only analysis is still forced through tuning intake."
+Assert-Contains $skill 'does not require the\s+tuning entry gate' "Telemetry-only analysis is still forced through tuning intake."
 Assert-Contains $skill 'collector is Windows-only' "Automatic collector scope is not limited to Windows."
 Assert-Contains $skill 'cooling-evidence\.md' "Cooling evidence route is missing."
 Assert-Contains $skill 'gpu-clock-behavior\.md' "GPU dynamic clock behavior reference is not linked from the entrypoint."
@@ -224,6 +216,55 @@ Assert-Contains $gpuClock 'GPU memory clock.*source-dependent' "GPU clock guidan
 Assert-Contains $gpuClock 'Memory bandwidth.*not a sensor' "GPU clock guidance can mistake bandwidth for a sensor."
 Assert-Contains $gpuClock 'vram-and-memory-bus\.md' "GPU clock guidance does not link the VRAM mechanism reference."
 Assert-Contains $gpuCurve 'gpu-clock-behavior\.md' "GPU curve guidance does not link the dynamic clock behavior reference."
+$gpuAutoCandidates = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/tuning/gpu-auto-candidates.md") `
+    -Label "references/tuning/gpu-auto-candidates.md"
+$gpuFamilyPlaybooks = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/tuning/gpu-family-playbooks.md") `
+    -Label "references/tuning/gpu-family-playbooks.md"
+$usableStartState = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/tuning/usable-start-and-state.md") `
+    -Label "references/tuning/usable-start-and-state.md"
+$laptopPowerState = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/tuning/laptop-power-state.md") `
+    -Label "references/tuning/laptop-power-state.md"
+$gpuTierPath = Join-Path $resolvedRoot "references/tuning/gpu-auto-oc-tier-authority.json"
+$gpuTier = Get-Content -LiteralPath $gpuTierPath -Raw -Encoding UTF8 | ConvertFrom-Json
+$componentPlaybooks = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/tuning/component-playbooks.md") `
+    -Label "references/tuning/component-playbooks.md"
+Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/tuning/beginner-gpu-auto-oc.md") `
+    -Label "references/tuning/beginner-gpu-auto-oc.md" | Out-Null
+Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/tuning/rtx-30-series-public-reference.md") `
+    -Label "references/tuning/rtx-30-series-public-reference.md" | Out-Null
+Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/tuning/rtx-40-series-public-reference.md") `
+    -Label "references/tuning/rtx-40-series-public-reference.md" | Out-Null
+Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/tuning/rtx-50-series-public-reference.md") `
+    -Label "references/tuning/rtx-50-series-public-reference.md" | Out-Null
+Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "scripts/suggest-gpu-overclock.ps1") `
+    -Label "scripts/suggest-gpu-overclock.ps1" | Out-Null
+Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "tests/run-gpu-auto-oc-tests.ps1") `
+    -Label "tests/run-gpu-auto-oc-tests.ps1" | Out-Null
+Assert-Contains $skill 'suggest-gpu-overclock\.ps1' "The Tune route does not invoke the integrated GPU candidate helper."
+Assert-Contains $skill 'multi-adapter identities receive no numeric candidate' "The GPU route permits an ambiguous multi-adapter candidate."
+Assert-Contains $gpuAutoCandidates 'sole\s+normative source' "GPU candidate values do not have one normative authority."
+Assert-Contains $gpuAutoCandidates 'never replaces local evidence' "GPU family priors can replace local evidence."
+Assert-Contains $usableStartState 'FallbackCandidate' "Usable-start experiments have no fallback candidate."
+Assert-Contains $usableStartState 'session-only' "GPU candidate state is presented as persistent without a store."
+Assert-Contains $laptopPowerState 'power-limit ceiling[\s\S]+not the GPU[\s\S]+power draw' "Laptop power limits are not separated from measured draw."
+Assert-Contains $laptopPowerState 'assumed-stock' "An undeclared laptop power state lacks a correctable default."
+Assert-True ($gpuTier.PriorRuleVersion -eq "2.6.0") "GPU tier authority has the wrong integrated rule version."
+Assert-True ($gpuTier.Profiles.'NVIDIA-Ada-Mainstream'.CoreStartDesktop -gt 0) "GPU tier authority has no NVIDIA Ada mainstream profile."
+Assert-True ($gpuTier.Profiles.'AMD-RDNA3'.CoreStartDesktop -gt 0) "GPU tier authority has no AMD RDNA3 profile."
+Assert-True ($gpuTier.Profiles.'Intel-Battlemage'.CoreStartDesktop -gt 0) "GPU tier authority has no Intel Battlemage profile."
+Assert-Contains $componentPlaybooks 'vram-and-memory-bus\.md' "GPU candidate integration removed the current VRAM mechanism gate."
+Assert-Contains $componentPlaybooks 'gpu-memory-playbook\.md' "GPU candidate integration removed the current VRAM tuning gate."
 Assert-Contains $gpuCurve 'do not require the exact MHz value\s+to recur' "GPU curve guidance still requires the exact target point."
 Assert-Contains $gpuCurve 'Do not say the curve failed solely because one intended\s+voltage/MHz coordinate never appeared' "GPU curve guidance can still infer curve failure from an absent point."
 Assert-Contains $gpuCurve 'Pure frequency overclock' "GPU guidance does not separate pure frequency overclocking."
@@ -309,7 +350,7 @@ Assert-Contains $skill 'Default: refuse\.' "Advice tiering has no default-refusa
 Assert-Contains $skill 'Downgrade only when all three hold:' "Advice tiering has no three-condition downgrade gate."
 Assert-Contains $skill 'Never downgrade: anti-cheat evasion' "Advice tiering does not hard-stop anti-cheat or concealment cases."
 Assert-Contains $skill 'no tool name,\s+no step sequence, and no target value' "Advice tiering allows instructional detail after downgrade."
-$quickModePosition = $skill.IndexOf('Quick mode starts with:')
+$quickModePosition = $skill.IndexOf('After the target and form factor are known')
 $advicePosition = $skill.IndexOf('## Advice intensity')
 $purchasePosition = $skill.IndexOf('### Purchase')
 Assert-True (
@@ -355,6 +396,8 @@ Assert-Contains $explanationStyle 'signals that mean\s+stop, and how to recover'
 Assert-Contains $explanationStyle '## Action' "Explanation reference lacks the Action section."
 Assert-Contains $explanationStyle '## Analogy' "Explanation reference lacks the Analogy section."
 Assert-Contains $explanationStyle '## Consequence' "Explanation reference lacks the Consequence section."
+Assert-Contains $explanationStyle 'exact visible menu or control label' "BIOS/UEFI guidance can invent an unverified menu path."
+Assert-Contains $explanationStyle 'For beginners[\s\S]+For experienced users' "Explanation detail is not context-adaptive."
 Assert-Contains $explanationStyle 'Only when the same paragraph contains a candidate value for one of those' "Explanation reference lacks the action-triggered safety boundary."
 Assert-Contains $explanationStyle 'Do not add this notice to location-only explanations, concept-only' "Explanation reference applies the safety notice to non-action answers."
 Assert-Contains $explanationStyle 'refusals without a candidate value, physical-safety stops' "Explanation reference still forces boilerplate onto refusals and safety stops."
@@ -608,7 +651,9 @@ Assert-Contains $allTests 'Live collector smoke: SKIP' "The all-tests runner hid
 
 $interactionClosure = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/integration/interaction-closure.md") -Raw -Encoding UTF8
 Assert-Contains $interactionClosure 'Required end state' "Interaction closure reference has no required end states."
+Assert-Contains $interactionClosure 'independent reuse' "The teaching objective is not tied to independent reuse."
 Assert-Contains $interactionClosure 'resume the original flow' "Interaction closure reference has no resumed-flow rule."
+Assert-Contains $interactionClosure 'one short natural-language sentence' "Multi-step progress guidance is missing its natural-language form."
 Assert-Contains $interactionClosure 'single-turn response must not show a bracketed workflow-state template' "Single-turn interaction closure still permits a workflow shell."
 
 $crossMode = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/integration/cross-mode-handoffs.md") -Raw -Encoding UTF8
@@ -638,7 +683,6 @@ Assert-Contains $success 'Sensor semantics' "Sensor semantics are missing."
 Assert-Contains $success 'Noise as evidence' "Noise-specific evidence rules are missing."
 Assert-Contains $success '## Promoting a profile to daily use' "Profile promotion guidance is missing its section heading."
 
-$componentPlaybooks = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/tuning/component-playbooks.md") -Raw -Encoding UTF8
 Assert-Contains $componentPlaybooks 'Use the daily-promotion checklist' "Component playbooks do not point at the profile promotion checklist."
 
 $riskTaxonomy = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/triage/risk-taxonomy.md") -Raw -Encoding UTF8
@@ -720,6 +764,16 @@ Assert-Contains $scenarioDoc 'Manual behavioral acceptance scenarios' "Interacti
 Assert-Contains $scenarioDoc 'do not prove that every scenario behaves' "Interaction scenarios overstate static test coverage."
 Assert-Contains $scenarioDoc '(?m)^## 47\. A dynamic boost point does not define curve activation' "Interaction scenarios omit the dynamic GPU operating-point case."
 Assert-Contains $scenarioDoc 'not conclude that the curve failed merely because one exact target' "The dynamic GPU scenario can still infer curve failure from an absent point."
+foreach ($scenarioHeading in @(
+    "48. Automatic candidate cannot skip recovery",
+    "49. Thermal pressure changes the automatic variable",
+    "74. Usable start stops when good enough",
+    "85. Laptop defaults to a correctable stock assumption",
+    "100. GPU memory needs identity, units, and a reporting basis"
+)) {
+    Assert-Contains $scenarioDoc ([regex]::Escape("## $scenarioHeading")) "Integrated GPU scenario is missing: $scenarioHeading"
+}
+Assert-True ($scenarioDoc -notmatch '14001\s*MHz') "The interaction scenarios reintroduced a concrete local memory reading."
 
 $toneScenarios = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "tests/tone-scenarios.md") `
@@ -749,6 +803,8 @@ Assert-Contains $manualAcceptance 'Approved for broad distribution: no' "Manual 
 Assert-Contains $manualAcceptance 'Any one round showing it means not fixed' "Manual acceptance omits the rule-driven any-round gate."
 Assert-Contains $manualAcceptance 'Fixed only when absent in all three rounds' "Manual acceptance omits the convention-driven three-round gate."
 Assert-Contains $manualAcceptance 'For the 1\.4\.3\+ tone layer' "Manual acceptance does not preserve the tone-layer acceptance baseline."
+Assert-Contains $manualAcceptance 'GPU automatic candidate generation and result evaluation' "Manual acceptance has no integrated GPU candidate area."
+Assert-Contains $manualAcceptance 'Laptop power state and candidate fallback' "Manual acceptance has no laptop power-state and fallback area."
 
 $auditTest = Join-Path $resolvedRoot "tests/run-telemetry-audit-tests.ps1"
 if (-not (Test-Path -LiteralPath $auditTest -PathType Leaf)) {

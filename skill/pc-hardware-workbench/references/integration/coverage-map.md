@@ -7,6 +7,7 @@ This integrated suite preserves the generic references and scripts from three in
 | hardware-triage-framework | 1.1.1 | `references/triage/` | All five reference files |
 | upgrade-purchase-brake | 1.0.0 | `references/upgrade/`, `scripts/` | All five references and the r14 collector |
 | guided-overclocking | 1.0.3 | `references/tuning/` | All eight reference files |
+| GPU automatic candidate integration | 3.0.3 prototype | `references/tuning/`, `scripts/suggest-gpu-overclock.ps1`, `tests/run-gpu-auto-oc-tests.ps1` | Deterministic integration-only candidates, one normative tier authority, NVIDIA/AMD/Intel family priors, laptop power-limit state, usable-start lineage, fallback semantics, public-reference provenance, and no hardware writes |
 | integration extensions | 1.6.0 | `references/integration/` | Shared local-path safety helper, access-before-reparse checks, hardware-independent path tests, friendly missing-file errors, offline/cloud hydration prevention, locale-independent access-denied detection, behavior-based restricted-agent classification, user-started elevated read-only inventory without automatic UAC, explicit collection-privilege context, IEC capacity formatting, merged EDID identity with active-display capabilities, independent requested-versus-effective nvidia-smi power queries, GPU PnP state and adapter-kind evidence, firmware memory-slot summary, PowerShell 5.1/7 cross-version parsing, instantaneous GPU telemetry, format-specific UTF-8 BOM reports, four-state battery diagnostics with stage-specific reasons, everyday-slowdown and stutter triage, Windows crash evidence guidance, peripheral/network scope handoff, laptop battery and adapter triage, screenshot evidence limits, AMD Tctl/Tdie, CPU die average and CPU PPT telemetry with offset/limit exclusion and rejected-candidate warnings, telemetry-inclusive cross-mode handoffs, cross-mode telemetry contract assertions, safe Markdown text for hardware-derived fields, complete Unicode control/format cleaning with variation-selector removal, synthetic inventory-redaction tests, consistent fixed/removable volume scope, explicit reported-device semantics, CPU core maximum and GPU core voltage telemetry, formal telemetry subflow, deterministic SVG telemetry charts, validated chart-data extraction and downsampling, no-overwrite chart output, local hardware-case continuity with hashed evidence, hypothesis states and change timeline, PSU blocking conditions, Windows collector scope, clarified risk taxonomy, dated HWiNFO observations, large-CSV limits, release-blocking manual acceptance, static-versus-manual test disclosure, device identity quality states, Intel 13th/14th-generation caution, external-reference disclosure, GPU baselines and desktop-specific routes, laptop safety boundaries, telemetry parsing and validation, privacy controls, purchase planning, recovery sequencing, mandatory reference-only safety notices, context-adaptive explanations, and dynamic GPU clock/VF interpretation |
 | hardware-case offline reports | 1.7.0 | `scripts/export-hardware-case-html.ps1` | Static dependency-free HTML reports with prior case validation, escaped case data, no remote resources, no external evidence source paths, overwrite protection, and opt-in size-limited artifact previews with active or external SVG rejection |
 | unified telemetry normalization | 1.8.0 | `scripts/normalize-telemetry.ps1`, `references/integration/telemetry-normalization.md` | CSV and structured sensor snapshots share a versioned provenance-aware JSON document; source/tool/device/capture metadata, input hash, sampling consistency, mixed-source and mixed-unit warnings, preserved missing values, and direct normalized-JSON chart rendering |
@@ -27,6 +28,9 @@ The integration intentionally revises these source-derived areas:
 - GPU clock guidance now separates requested, saved, active, sampled, and
   effective values and compares dynamic operating ranges instead of requiring
   one exact voltage/frequency point;
+- the GPU candidate prototype is integrated only under Tune; its older telemetry
+  implementations are excluded, the current VRAM interpretation gates remain
+  authoritative, and every numeric result remains a user-applied experiment;
 - collector and integration references share one consent, privacy, handoff, and calibration model.
 
 Treat the integrated versions in this package as authoritative. Record any future change here before replacing them from an upstream generic Skill.
@@ -50,6 +54,16 @@ Optional telemetry helper:
 - `scripts/analyze-telemetry.ps1`
 
 It reads an existing CSV/log without launching a monitoring utility or changing hardware. It is not part of the six-file collector set and requires only the local-path safety helper.
+
+Optional GPU candidate helper:
+
+- `scripts/suggest-gpu-overclock.ps1`
+- `references/tuning/gpu-auto-oc-tier-authority.json`
+
+Keep the helper and authority together. The helper reads the JSON authority and
+desktop/laptop power-state inputs, emits a session proposal, and performs no
+hardware read or write. It is usable only after the normal tuning gate and may
+not replace the current LHM, telemetry, or VRAM interpretation layers.
 
 ## Maintenance
 
@@ -81,6 +95,10 @@ The integrated router must continue to enforce these coverage invariants:
 - triage precedes tuning when stability is unexplained;
 - quick mode keeps the safety floor while reducing record-keeping;
 - every tuning round names goal-specific success criteria before applying a change;
+- GPU candidate numbers come only from the integrated authority after a verified
+  baseline and saved recovery; unknown or ambiguous adapters receive no number;
+- integrated GPU candidates never write, persist, or raise hidden limits and
+  never treat a good first round as daily stability;
 - every named mode or procedure choice is explained before the question is asked;
 - configuration persistence is classified rather than assumed;
 - sensor names and sampling limits are not confused with applied settings or completed work;

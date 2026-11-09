@@ -2,8 +2,8 @@
 
 An evidence-gated, read-only Windows hardware workbench for Codex and DeepSeek
 Harness. It routes inventory, troubleshooting, telemetry analysis, manual tuning
-guidance, and upgrade decisions through one Skill while keeping all hardware
-changes under the user's control.
+guidance, deterministic GPU starting candidates, and upgrade decisions through
+one Skill while keeping all hardware changes under the user's control.
 
 一个面向 Codex 与 DeepSeek Harness 的 Windows 只读硬件工作台，统一处理配置
 读取、故障排查、遥测分析、手动调校指导和升级判断；不会自动修改 BIOS、频率、
@@ -11,7 +11,7 @@ changes under the user's control.
 
 ## Project status
 
-- Current Skill candidate: **2.5.1**
+- Current Skill candidate: **2.6.0**
 - Automated non-live tests: passing
 - Live hardware collection: opt-in only
 - Broad release sign-off: pending
@@ -23,7 +23,7 @@ changes under the user's control.
 
 功能说明、测试状态与历史版本。
 
-Explore the Workbench and GPU auto-overclock prototype through 107 recorded versions.
+Explore the Workbench and integrated GPU candidate workflow through the recorded versions.
 
 [打开 Skill 交互实验室](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/interactive/)
 
@@ -31,7 +31,7 @@ Explore the Workbench and GPU auto-overclock prototype through 107 recorded vers
 
 [查看文件星球](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/orrery/)
 
-文件星球把当前 2.5.1 的 94 个 Skill 文件按契约核心、流程、排障、调校、升级、运行脚本和验证网络组织成可旋转、可缩放的三维式总览；文件大小按权重映射，不表示实际文件体积。
+文件星球把当前 2.6.0 的 105 个 Skill 文件按契约核心、流程、排障、调校、升级、运行脚本和验证网络组织成可旋转、可缩放的三维式总览；文件大小按权重映射，不表示实际文件体积。
 
 ## Why this project exists
 
@@ -95,6 +95,17 @@ entrypoint itself is held below 12.5 KB.
 Telemetry recognition includes Intel package sensors, AMD HWiNFO Tctl/Tdie
 temperature, CPU PPT package power, GPU core voltage, and CPU core maximum
 temperature where those columns are exposed.
+
+## GPU starting candidates
+
+For a concrete GPU tuning request, the Workbench first completes the normal
+five-item tuning gate. It then uses one machine-readable authority file to emit
+one bounded, user-applied starting experiment based on the exact readable GPU,
+desktop/laptop form, exposed control, thermal/power evidence, and saved recovery.
+Unknown, professional, integrated, virtual, or multi-adapter identities receive
+no numeric candidate. Laptop power limits are treated as board-specific ceiling
+state, not measured draw, and a passed first round does not automatically become
+a daily-stable profile.
 
 ## Collaboration model
 

@@ -109,6 +109,13 @@ $testCases = @(
         )
     },
     @{
+        Name = "GPU automatic overclock"
+        Script = Join-Path $resolvedRoot "tests/run-gpu-auto-oc-tests.ps1"
+        Arguments = @(
+            "-ScriptPath", (Join-Path $resolvedRoot "scripts/suggest-gpu-overclock.ps1")
+        )
+    },
+    @{
         Name = "LHM adapter"
         Script = Join-Path $resolvedRoot "tests/run-lhm-adapter-tests.ps1"
         Arguments = @(

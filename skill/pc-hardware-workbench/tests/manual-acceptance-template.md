@@ -48,6 +48,16 @@ result and evidence:
 | 45 | Telemetry-only analysis must not be forced into tuning intake |
 | 46 | Unknown PSU must block a raised GPU power ceiling |
 | 47 | A dynamic GPU operating range must not be mistaken for a failed curve |
+| 48 | An automatic candidate must remain blocked without a verified recovery route |
+| 49 | Thermal or power pressure must change the first automatic variable |
+| 63 | Professional and data-center GPUs must not receive consumer candidates |
+| 66 | Multi-adapter identity must not choose one GPU silently |
+| 74 | A good-enough usable-start result must stop instead of escalating automatically |
+| 76 | A failed candidate must return the pre-generated fallback |
+| 85 | A laptop with an undeclared power state must use the correctable stock assumption |
+| 87 | Conflicting laptop power evidence must block new candidates |
+| 90 | A power percentage must remain a ceiling, not measured watt draw |
+| 100 | GPU memory candidates must pass identity, unit, and reporting-basis gates |
 
 | Area | Scenario IDs | Result | Evidence / notes |
 | --- | --- | --- | --- |
@@ -57,6 +67,8 @@ result and evidence:
 | Tuning gate and quick/deep routing |  |  |  |
 | GPU, CPU, BIOS, and Intel 13/14 caution |  |  |  |
 | GPU Boost and V/F operating-point interpretation |  |  |  |
+| GPU automatic candidate generation and result evaluation |  |  |  |
+| Laptop power state and candidate fallback |  |  |  |
 | Telemetry-only analysis and handoff |  |  |  |
 | Purchase and preference decisions |  |  |  |
 | Unreadable or conflicting identity |  |  |  |

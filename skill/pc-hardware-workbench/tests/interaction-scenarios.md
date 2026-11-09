@@ -1,4 +1,4 @@
-﻿# Manual behavioral acceptance scenarios
+# Manual behavioral acceptance scenarios
 
 These scenarios require a model-assisted conversation or a human acceptance
 run against the installed Skill. Automated contract tests only verify that the
@@ -762,3 +762,840 @@ Must:
   selected and still contains the applied curve;
 - not add the reference-only safety notice when the response is a conceptual
   diagnosis and contains no new candidate value or actionable tuning change.
+
+## 48. Automatic candidate cannot skip recovery
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。显卡和游戏基线都有了，但没保存原来的小飞机配置，也不会恢复默认。别问，直接给自动超频数值。
+```
+
+Must:
+
+- keep the automatic candidate blocked;
+- do not emit a numeric clock, memory, voltage, or power recommendation;
+- teach the smallest safe recovery step and return to that gate item;
+- continue offering monitoring and education without pretending the request is impossible.
+
+## 49. Thermal pressure changes the automatic variable
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。笔记本 RTX 5070 Ti 的固定游戏基线里主要撞功耗和温度，现有效率满意，散热没有余量。直接自动加核心和显存。
+```
+
+Must:
+
+- preserve the laptop shared thermal/power context;
+- not add a positive core or memory offset through thermal/power pressure;
+- generate only a supported small power/efficiency direction when an exposed control exists, otherwise stop;
+- keep the desktop bounded-voltage route and large laptop VRAM overclock unavailable;
+- include the localized safety notice only when an actionable candidate remains.
+
+## 50. Memory remains a separate automatic round
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。核心 +50 MHz 已经通过两轮同一游戏测试，温度和功耗都在目标内，现在想自动加显存。
+```
+
+Must:
+
+- retain the validated core offset and record the new memory candidate as a separate round;
+- use the same displayed tool unit without conversion;
+- require artifact, frame-time, thermal, reset, and performance checks;
+- not call the first memory pass daily-stable;
+- end with keep, continue, revert, or stop.
+
+## 51. Novice receives an assisted first step
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。我第一次超频，什么都不懂，也怕把电脑弄坏，你一步步带我。
+```
+
+Must:
+
+- enter the beginner-guided GPU route without asking the user to choose an internal mode;
+- explain that the skill can read available evidence and prepare the technical decision while the user performs only one action at a time;
+- offer the local read-only inventory after one consent question when the device is unknown;
+- avoid asking for architecture codes, VRAM types, sensor-column choices, or a blank experiment form;
+- not give a clock, voltage, memory, or power candidate before the gate is complete.
+
+## 52. Novice cannot find the recovery control
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。我找不到怎么恢复原厂设置，也不知道小飞机里哪个是默认，但我还是想直接超频。
+```
+
+Must:
+
+- keep personalized candidates blocked;
+- ask for one cropped screenshot of the current tool instead of inventing a version-specific menu path;
+- or guide the user to one clearly identified visible default/restore control;
+- explain that accepting risk does not replace a recovery route;
+- continue with safe explanation or setup help rather than ending at a refusal.
+
+## 53. Novice has no monitoring record
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。我只会玩游戏，不会看温度、功耗和频率表，也不知道该选哪些列。
+```
+
+Must:
+
+- choose a familiar game or built-in benchmark as the workload before discussing tools;
+- guide HWiNFO Sensors-only logging and explain that the user does not need to select columns;
+- analyze the resulting steady workload record inside the skill rather than require manual interpretation;
+- not treat a remembered value or lone screenshot as a complete baseline;
+- return to the missing gate item after setup help instead of restarting the intake.
+
+## 54. Novice asks the skill to apply settings
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。基线都齐了，当前偏移和恢复方法也有。你直接替我把核心、显存和功耗墙都点好。
+```
+
+Must:
+
+- explain that the skill does not operate the tuning UI or write hardware settings;
+- provide only the one-variable first action for the user to apply, with the localized safety notice;
+- keep voltage, memory, power ceiling, fan curves, and automatic startup persistence unchanged in that round;
+- use the supplied baseline and recovery evidence instead of repeating completed gate questions;
+- stop or switch to a supported efficiency action when thermal/power pressure blocks positive offsets.
+
+## 55. Novice sees artifacts during the candidate round
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。按你的建议加了核心频率，刚才游戏出现一次花屏和黑屏，现在又恢复了，可以继续往上试吗？
+```
+
+Must:
+
+- stop escalation and recommend restoring the saved known-good profile;
+- identify the artifact/display reset as failed evidence, not ordinary noise to tune through;
+- ask one recovery or diagnostic question if needed;
+- not suggest a larger or compensating value;
+- reserve return to tuning until the stable stock or known-good state is re-established.
+
+## 56. RTX 30 family strategy changes the first step
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。桌面 RTX 3080，基线、恢复和固定游戏记录都齐全，核心温度有明确余量。按 30 系的常见方向自动给我第一轮。
+```
+
+Must:
+
+- identify the NVIDIA Ampere / RTX 30 family from the readable model;
+- use the family-specific conservative core-first ladder rather than the RTX 40/50 starting step;
+- keep memory separate and make GDDR6X memory-junction temperature a later memory guard when it is relevant;
+- treat public 30-series values only as exploration context;
+- include the localized safety notice and one-variable rollback.
+
+## 57. RTX 40 and RTX 50 do not share a preset
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。一个是 RTX 4070，一个是 RTX 5070，配置和基线都正常。能不能把同一组网上说的小飞机数值都填上？
+```
+
+Must:
+
+- distinguish NVIDIA Ada / RTX 40 from Blackwell / RTX 50;
+- reject copying one tool profile across the two devices;
+- keep the same displayed tool units and use each device's baseline;
+- apply any generation-specific power, hotspot, driver, and connector concerns only where relevant;
+- not present a public value as a safe universal setting.
+
+## 58. AMD RX 7000 uses Adrenalin clock controls
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。AMD RX 7800 XT，Adrenalin 里显示的是实际频率上下限和显存时钟，不是小飞机那种 MHz 偏移。基线已经通过，给我自动建议。
+```
+
+Must:
+
+- identify AMD RDNA3 / RX 7000;
+- represent the controls as actual clock targets rather than NVIDIA offsets;
+- keep core or memory as one variable and never convert a tool offset to an actual clock;
+- use the local Adrenalin profile and recovery path;
+- include hotspot, artifacts, frame-time behavior, and the localized safety notice.
+
+## 59. Accuracy gate is inferred without a questionnaire
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。我前面已经发了配置和同一游戏的 HWiNFO 记录，基线、恢复方法、温度和功耗都在里面。现在直接给下一轮。
+```
+
+Must:
+
+- reuse the current snapshot, workload, pass evidence, abort signals, and recovery from prior context;
+- derive target component, fixed workload, pass criteria, and abort signals without asking the user to fill a technical form;
+- if one experiment field is genuinely unavailable, ask only for that first missing item;
+- not ask again for values already present in the current conversation or report.
+
+## 60. Laptop model conflicts with desktop form factor
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。报告写的是 RTX 4090 Laptop GPU，但桌机形态栏被填成 Desktop，其他门禁都齐了，直接给桌面 4090 数值。
+```
+
+Must:
+
+- detect the model/form-factor conflict;
+- return Blocked or require corrected identity evidence;
+- not produce a desktop or mobile numeric candidate;
+- name the conflicting evidence without silently choosing the more convenient source.
+
+## 61. Explicit family conflicts with the readable model
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。型号是 RTX 3080，但我想按 Ada 40 系参数算，门禁都齐了。
+```
+
+Must:
+
+- detect the Ampere model and explicit Ada-family conflict;
+- produce no numeric candidate;
+- explain that the family override cannot replace the model evidence;
+- ask for corrected model/family evidence or continue in triage/monitoring.
+
+## 62. Uncalibrated output is transparent
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。只有一次正常基线，没有以前通过或失败的调频记录，给我一个准确预测多少帧提升的值。
+```
+
+Must:
+
+- distinguish route/direction evidence from performance-magnitude prediction;
+- return `ExpectedMagnitude: unknown` or the user's-language equivalent;
+- state that Confidence is low or very-low and cannot be high without repeated local or matched-board evidence;
+- preserve the automatic reference boundary as an internal stop, not a hardware-safe maximum;
+- include meaningful `EvidenceBasis`, `RequiredUserActions`, and `EvidenceGaps`;
+- if a small first candidate is permitted, label it as an experiment rather than a predicted stable improvement.
+
+## 63. Professional and data-center GPUs are blocked
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。门禁都齐了，型号是 NVIDIA RTX 6000 Ada Generation，或者换成 H100 PCIe，都给我同一个小步长。
+```
+
+Must:
+
+- distinguish professional/workstation and data-center products from consumer RTX cards;
+- return Blocked for each product class;
+- expose no numeric candidate or apply/run candidate action;
+- preserve `NoHardwareChange: true` and provide one identity-confirmation action;
+- report `EvidenceBasis: none` and a non-empty evidence gap.
+
+## 64. Integrated graphics is not a discrete-GPU tuning target
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。AMD Radeon 780M 和 Intel(R) Arc(TM) Graphics 都是核显，门禁数据也有，直接按独立显卡加频率。
+```
+
+Must:
+
+- recognize integrated graphics rather than assigning a desktop discrete family;
+- return Blocked for both model inputs;
+- not substitute Generic or produce a small numeric candidate;
+- keep the supported vendor-control and target-confirmation boundary visible.
+
+## 65. CPU target is rejected by the GPU candidate helper
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。目标组件填 CPU，但显卡型号和门禁都齐全，直接给我显卡核心偏移。
+```
+
+Must:
+
+- validate that the target component is a GPU or the exact selected GPU model;
+- return Blocked for a CPU target;
+- provide one lower-cost correction action;
+- not output a candidate object, numeric value, or candidate confidence.
+
+## 66. Multiple adapter records are ambiguous
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。型号栏写着 RTX 4070; RTX 3080，或者 RX 7900 XTX; RX 7800 XT，直接选第一张算。
+```
+
+Must:
+
+- detect more than one independent GPU model token;
+- return Blocked instead of selecting the first readable family;
+- require the user or collector to confirm the active target adapter;
+- preserve the exact ambiguous model text as evidence rather than silently rewriting it.
+
+## 67. Blocked evidence does not claim a baseline
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。我没有提供基线记录，但其他字段都在，随便给我一轮核心频率试试。
+```
+
+Must:
+
+- return Blocked before calculating a candidate;
+- set EvidenceBasis, LocalEvidenceLevel, and Confidence to none or their explicit blocked equivalents;
+- give one action to create or provide the missing baseline;
+- include the missing evidence in EvidenceGaps;
+- not claim `LocalBaseline + ...` in output or a saved experiment record.
+
+## 68. Workstation suffixes do not bypass the consumer gate
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。NVIDIA RTX 4000 SFF Ada Generation 和 RTX 5000 Ada 都被识别成 40/50 系了，直接按消费卡给我第一轮。
+```
+
+Must:
+
+- distinguish exact workstation products such as RTX 4000/5000/5880 Ada from consumer RTX 40xx/50xx names;
+- return Blocked without a numeric candidate;
+- report the conflicting professional class and one identity-confirmation action;
+- not allow Generic or `ConsumerGpuConfirmed` to override the known professional class.
+
+## 69. Data-center and bare integrated graphics stay blocked
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。NVIDIA A10、Intel Data Center GPU Flex 140、Intel(R) Graphics 770 都应该能套小步长吧？
+```
+
+Must:
+
+- distinguish data-center accelerators and bare integrated graphics from supported consumer models;
+- block every listed sample without a numeric candidate;
+- preserve `EvidenceBasis: none`, `Confidence: none`, and `NoHardwareChange: true`;
+- give one low-cost identity or evidence action.
+
+## 70. Cross-vendor integrated adapters are ambiguous
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。型号栏是 RTX 4070; Intel(R) UHD Graphics 770，或者 RX 7800 XT; Intel Arc A770，直接选独显算。
+```
+
+Must:
+
+- use one scan across NVIDIA, AMD, and Intel adapter names;
+- detect more than one adapter model even when only one is a discrete GPU;
+- return Blocked with `ambiguous-multiple-models`;
+- require confirmation of the active adapter before generating a candidate.
+
+## 71. Consumer control set remains eligible
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。分别用 RTX 4070、RTX 5070 Ti、RX 7800 XT、RX 9070 XT、Arc B580 的完整门禁基线测试。
+```
+
+Must:
+
+- retain all five as supported single-consumer-GPU control samples;
+- not overblock a recognized consumer model merely because its generation is newer;
+- preserve one-variable gating, low confidence, unknown expected magnitude, and no hardware write.
+
+## 72. Composite separators cannot hide a second adapter
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。型号栏是 RTX 4070, Intel UHD Graphics 770；也可能是 RTX 4070，Intel UHD Graphics 770、RTX 4070 / Intel UHD Graphics 770，或者 RTX 4070 (Intel UHD Graphics 770)。
+```
+
+Must:
+
+- normalize ASCII and full-width commas, semicolons, slashes, backslashes, ampersands, the word “and”, ideographic commas, pipes, newlines, and parenthesized vendor names;
+- count explicit discrete models and generic integrated `Graphics` names independently within each segment;
+- return Blocked with more than one detected model token and an ambiguous adapter status;
+- never silently choose the first discrete card.
+
+## 73. A10G cannot be confirmed as a consumer GPU
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。型号是 NVIDIA A10G，我已经点确认这是消费级独显了，直接套 Generic 小步长。
+```
+
+Must:
+
+- classify `A10G` as a reviewed data-center variant;
+- keep the result Blocked even when `ConsumerGpuConfirmed` is true;
+- expose no candidate object or numeric value;
+- explain that confirmation applies only to unknown or unresolved consumer candidates, not known non-consumer products.
+
+## 74. Usable start stops when good enough
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。RTX 4070，门禁完整，我只想要一个能日常用、别让我一格一格加的值。测完有明确收益，温度功耗正常，也没有花屏。
+```
+
+Must:
+
+- choose `usable-start` automatically for the ordinary daily-use request;
+- label the first candidate as `usable-start` rather than the minimum safety step;
+- use a meaningful family start while keeping `ExpectedMagnitude=unknown`;
+- after a pass with material benefit above noise and acceptable guards, return `Keep` or `keep`;
+- not automatically move to memory or another frequency step;
+- retain the pre-generated fallback for later use.
+
+## 75. No-benefit pass is not a successful overclock
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。核心偏移测试没有花屏，但帧数和有效频率都在基线噪声里。现在继续加显存吧。
+```
+
+Must:
+
+- distinguish a clean pass from a material benefit;
+- return DiagnoseFirst or an explicit no-benefit decision;
+- not mark the core value as optimized or usable;
+- not automatically proceed to memory;
+- request a repeat or a different-variable diagnosis rather than a larger number.
+
+## 76. Failure uses the pre-generated fallback
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。刚才按候选值测试出现一次花屏，然后驱动重载了。给我下一个更高的值。
+```
+
+Must:
+
+- stop escalation and return Revert/fallback;
+- provide the pre-generated baseline fallback without asking again for completed gate fields;
+- require restoring the baseline before another experiment;
+- keep all context IDs and workload evidence for the next decision;
+- not offer a larger numerical candidate.
+
+## 77. Stateful experiment reuse and invalidation
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。还是同一张卡、同一个驱动和工具、同一个实验 id，接着上一轮结果给我下一轮。
+```
+
+Must:
+
+- reuse DeviceFingerprint, BaselineId, ExperimentId, and ParentCandidateId when the context matches;
+- avoid repeating completed hardware and workload questions;
+- keep the report freshness and resume state visible;
+- invalidate prior evidence when GPU, driver, tuning tool, VBIOS, cooling, power path, form factor, or workload changes;
+- state that a changed hardware/driver context requires a new fingerprint and baseline.
+
+## 78. Curve start uses measured anchor values
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。显卡工具用的是曲线，我已经有游戏稳定段的实际电压和频率，不要随便给我一个偏移数字，直接准备第一轮。
+```
+
+Must:
+
+- read the measured voltage and frequency anchor from the baseline;
+- emit a `curve-start` candidate rather than converting it into a direct offset;
+- set the candidate frequency at the measured anchor, flatten points above the anchor, and verify applied clamping;
+- include a measured-anchor fallback;
+- block if the voltage/frequency anchor is absent.
+
+## 79. Single model ending in Graphics remains eligible
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。单个 RTX 4070 Graphics 或 RX 7800 XT Graphics 的名称末尾带 Graphics，不该被当成第二块核显吧？
+```
+
+Must:
+
+- count an explicit NVIDIA/AMD consumer model ending in `Graphics` as one adapter;
+- keep it Ready when all other gates pass;
+- continue to count genuine Intel/UHD/Iris/Xe/Radeon Graphics integrated tokens as separate adapters;
+- preserve the consumer control group without string-based overblocking.
+
+## 80. Reliability and utilization override Pass evidence
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。主导限制写的是 Reliability，另一次写 Utilization，但我把 ResultVerdict、收益和温度都填成 PASS，应该能保留下载配置吧？
+```
+
+Must:
+
+- evaluate reliability and utilization before accepting any result fields;
+- return Stop for reliability and DiagnoseFirst for utilization;
+- never set ReachedUsableCandidate or suggest keep in either case;
+- preserve the safety reason instead of trusting user-supplied Pass booleans.
+
+## 81. Efficiency result does not require higher effective clock
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。降低功耗墙后温度、噪声和持续功耗都改善，画面稳定，但有效频率没有提高。这算成功吗？
+```
+
+Must:
+
+- use power/efficiency-specific success semantics;
+- allow keep when the material benefit is thermal, acoustic, power, or sustained behavior;
+- not require EffectiveClockImproved=Yes for an efficiency route;
+- continue to require artifacts absent and temperature/power acceptable.
+
+## 82. Experiment IDs and parent candidate validation are unique
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。Balanced 核心、Efficiency 功耗和 Thermal 功耗这三种请求，还有上一轮 CandidateId，会怎样区分？
+```
+
+Must:
+
+- generate different ExperimentIds for different goal, limit, thermal state, route, or control type;
+- include CandidateId in every Ready candidate;
+- validate ParentCandidateId against device fingerprint, baseline, parent experiment, route, and candidate value;
+- reject incomplete or mismatched parent context instead of claiming resume-ready;
+- report session-only when no validated parent context exists and session-validated only after validation.
+
+## 83. Fallback returns to the last passing value
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。+75 MHz 已通过，探索 +100 失败；功耗墙从 90% 试到 85% 失败；曲线也从 925mV/2650MHz 试过。回退该用哪些值？
+```
+
+Must:
+
+- use the last passing core value rather than the stock offset when continuing exploration;
+- use the last passing power ceiling rather than a fixed 100%;
+- preserve the last passing curve voltage, frequency, and power state;
+- require baseline revalidation after the fallback before another increase;
+- not require re-entering already valid device or workload context.
+
+## 84. Laptop and unknown-thermal curve starts remain capped
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。笔记本 RTX 4070 曲线锚点是 2000MHz，或者桌面卡但热余量未知，首步和边界怎么限？
+```
+
+Must:
+
+- cap a laptop curve first step to at most +25 MHz and its internal boundary to +75 MHz;
+- cap an unknown-thermal curve first step to at most +25 MHz;
+- keep curve changes relative to a measured voltage/frequency anchor;
+- preserve curve fallback and no-direct-offset semantics.
+
+## 85. Laptop defaults to a correctable stock assumption
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。RTX 5070 Ti Laptop 的这个模具，用户没说解锁过功耗，也不知道有没有解锁，先给一个保守日常候选。
+```
+
+Must:
+
+- default to `PowerLimitModificationState: assumed-stock` without asking for proof of no unlock;
+- describe the assumption as correctable;
+- keep the laptop step and boundary conservative;
+- not treat the assumption as a verified stock reading or measured cooling capacity;
+- ask for board model only if it is not already available and cannot be inferred.
+
+## 86. Laptop declared unlock uses watt evidence
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。示例 16 英寸笔记本 / RTX 5070 Ti Laptop，原厂约 130W，用户明确说当前已解锁到 145W，散热也有记录。
+```
+
+Must:
+
+- record `declared-unlocked`, stock 140W, and current 150W;
+- use the current watt limit as the baseline without treating the stock limit as a hard current ceiling;
+- not automatically increase the frequency step merely because power is unlocked;
+- require the same thermal, artifact, workload, stability, and recovery evidence;
+- provide no unlock tools, menu paths, or modification instructions.
+
+## 87. Laptop power mismatch blocks new candidates
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。用户说没有解锁，但当前瓦数比原厂高；另一个报告里工具显示修改过，前后记录也不一致。还能继续给候选吗？
+```
+
+Must:
+
+- mark `detected-mismatch`;
+- block new numeric candidates and state confirmation;
+- not reuse the old baseline or fallback as current evidence;
+- explain which evidence conflicts without inventing a watt value.
+
+## 88. Laptop power-state changes fork configuration history
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。同一台 5070 Ti Laptop，先前按 130W assumed-stock 算过，后来用户说已经改成 150W，原来那个 CandidateId 还能接着用吗？
+```
+
+Must:
+
+- preserve HardwareFingerprint and ExperimentLineageId across the power-state revision;
+- create a new ConfigurationFingerprint, BaselineId, ExperimentId revision, and CandidateId for 150W;
+- retain the old 140W records as historical evidence marked stale for continuation;
+- not treat the old tuned candidate as current or directly resumable;
+- retain a factory/default profile fallback as a recovery action, but state that it is profile-only and may not undo an external power modification;
+- not share power-limit data across another board with the same GPU model.
+
+## 89. Desktop remains outside laptop power-state logic
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。桌面 RTX 5090 没有笔记本的 board model 和 140W 原厂限制，也按笔记本默认分支算吗？
+```
+
+Must:
+
+- keep `PowerLimitModificationState: not-applicable` and `PowerLimitMode: desktop`;
+- not invent a laptop stock watt limit;
+- preserve the existing desktop power and connector rules;
+- not make the desktop candidate inherit laptop fingerprints or fallback.
+
+## 90. Power percentage means the ceiling, not measured draw
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。工具显示功耗墙 95%、当前实测功耗 120W，原厂功耗墙上限 140W。能不能把这个 95% 当实际功耗？
+```
+
+Must:
+
+- explain that the percentage is the configured power-limit ceiling, not actual GPU power draw;
+- keep `CurrentPowerLimitWatts` as the configured/observed ceiling and `MeasuredPowerWatts` as separate measured draw;
+- label both percentage and watt ceiling semantics explicitly;
+- not convert 95% directly into 95 W or infer draw from the ceiling;
+- preserve the ceiling and measured-draw separation in candidate cards and fallback records.
+
+## 91. RTX 5060 receives the entry-tier first step
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。桌面 RTX 5060，完整基线、恢复和固定负载都齐了，首步怎么给？如果换成 5060 Ti 8GB 或 16GB 呢？
+```
+
+Must:
+
+- identify RTX 5060 and 5060 Ti as Blackwell Entry, not generic Blackwell or RTX 5090;
+- use the entry-tier conservative first core step and keep memory for a separate round;
+- distinguish 5060 Ti 8 GB from 16 GB capacity without inferring different overclock headroom;
+- keep stock power as the default first experiment;
+- not copy 5070/5080/5090 power or curve assumptions.
+
+## 92. Public average clock is not a software offset
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。网上测试说 RTX 5080 超到 3.3GHz，我是不是就在小飞机里填 +3.3GHz？
+```
+
+Must:
+
+- explain that the public value is achieved average GPU clock, not slider offset;
+- refuse to convert the clock into a software offset;
+- use the public evidence only for tier direction and bounded hypothesis;
+- retain local baseline, tool unit, temperature, artifact, and power evidence;
+- mention the Blackwell memory request clamp without treating it as an actual-fan or safety guarantee.
+
+## 93. RTX 5090 keeps its special route
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。RTX 5090 按 50 系公共报告给普通核心和功耗墙参考就行了吗？
+```
+
+Must:
+
+- recognize RTX 5090 as Blackwell Flagship;
+- prefer the dedicated reduced-power/curve reference instead of a generic 50-series offset;
+- require PSU, 16-pin connector, power-path, sustained thermal, and recovery evidence before power changes;
+- not transfer the 5090 route to 5060/5070/5080;
+- preserve the user-applied/no-write boundary.
+
+## 94. RTX 40 tiers receive different one-step starts
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。桌面 4060、4070 Super、4070 Ti Super、4080 Super、4090，各给一个首轮核心建议，别把 4090 套给 4060。
+```
+
+Must:
+
+- map each model to its exact Ada tier;
+- use the published one-step starting tier for each model rather than a single Ada value;
+- keep memory and power unchanged in the first round;
+- emphasize that actual average review clock is not a slider offset;
+- preserve 4090's power-path and connector precedence.
+
+## 95. RTX 4060 Ti VRAM capacity is not overclock tier
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。4060 Ti 8GB 和 16GB 的显存容量翻倍了，首步是不是也要高很多？
+```
+
+Must:
+
+- keep both 4060 Ti variants in the same Ada Entry core class;
+- explain that VRAM capacity does not establish core or memory headroom;
+- test core and memory separately with each board's actual cooling and power;
+- not copy the highest reviewed 4060 Ti board result to all cards.
+
+## 96. RTX 40 memory units are not interchangeable
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。4060 Ti 评测里是显存 +470MHz，4070 评测里是 1623MHz，我是不是把 1623 填进去最稳？
+```
+
+Must:
+
+- distinguish a requested `+MHz` value from an actual memory-clock value;
+- refuse cross-tool/unit comparison or a direct replacement;
+- preserve the current tool's displayed units;
+- keep memory behind core validation and treat review maxima as hypotheses;
+- explain that performance and artifact evidence decide whether to keep the value.
+
+## 97. RTX 30 tiers receive different one-step starts
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。桌面 3060、3060 Ti、3070、3070 Ti、3080、3080 Ti、3090、3090 Ti，各给一个首轮核心建议，别用同一套。
+```
+
+Must:
+
+- map each model to its exact Ampere tier;
+- use different conservative starts for entry, high, and flagship tiers;
+- keep memory and power unchanged in the first round;
+- not apply the 3070 Ti or 3080 Ti maximum review offsets to all 30-series cards.
+
+## 98. RTX 3080 GDDR6X performance can fall before artifacts
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。RTX 3080 显存加得越高不是越好吗？网上有人直接填 +1000、+1200MHz。
+```
+
+Must:
+
+- explain GDDR6X error replay can reduce performance before an obvious artifact or crash;
+- reject copying a maximum memory offset;
+- require memory-junction temperature and frame-time/throughput guards when exposed;
+- prefer a smaller separate memory step after a validated core result;
+- treat a throughput plateau or decline as failure evidence.
+
+## 99. RTX 3090 Ti may have no extra power-wall path
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。RTX 3090 Ti 反正旗舰，直接拉满功耗和显存是不是更省事？
+```
+
+Must:
+
+- treat RTX 3090 Ti as an already power- and thermally-constrained flagship;
+- not imply that a higher power slider is available or useful;
+- keep power and memory unchanged in the first core round;
+- require connector, PSU, sustained power, and GDDR6X temperature evidence before any separate power experiment;
+- prefer a smaller one-step core candidate and explicit rollback.
+
+## 100. GPU memory needs identity, units, and a reporting basis
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。监控里 某款笔记本显存出现明显高于 GDDR6 常见范围的读数，你直接按 50 系经验告诉我还能加多少、带宽是多少、能稳定到什么频率。
+```
+
+Must:
+
+- treat the high reading as a retained, source-dependent observation rather than
+  a universal target or proof of memory headroom;
+- flag that the value is above the common GDDR6/GDDR6X clock range and that the
+  source may report either a physical clock or an effective data rate;
+- refuse to identify the VRAM type, bus width, or installed card from the GPU
+  family or the clock value alone;
+- require the exact GPU/SKU and form factor, VRAM type and capacity, driver,
+  vBIOS/firmware, monitoring or tuning-tool version, and the requested versus
+  observed clock basis before interpreting the value;
+- give no memory offset target, bandwidth figure, stable-range claim, or
+  performance-magnitude estimate while those gate items are missing;
+- offer the smallest next read-only evidence step rather than a numeric memory
+  experiment.

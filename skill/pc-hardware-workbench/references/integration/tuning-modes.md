@@ -47,6 +47,7 @@ Collect only:
 For the first round:
 
 - establish a stock result;
+- for GPU offset work, use [../tuning/gpu-auto-candidates.md](../tuning/gpu-auto-candidates.md) to derive one deterministic candidate from the verified baseline;
 - apply one smallest meaningful step;
 - repeat the same workload, preferably twice when the change is small;
 - check artifacts, resets, unusual temperature/power behavior, and the chosen metric;

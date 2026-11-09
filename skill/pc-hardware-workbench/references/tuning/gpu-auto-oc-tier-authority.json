@@ -1,0 +1,588 @@
+{
+  "AuthorityVersion": "1.1.0",
+  "PriorRuleVersion": "2.6.0",
+  "PriorReviewedAt": "2026-11-10",
+  "PriorSourceClass": "internal-tiered-heuristic",
+  "PriorUnitAssumption": "Displayed MHz for a direct core offset or clock target; displayed tool unit for memory; displayed percent for power.",
+  "DefaultStartEvidence": {
+    "StartEvidenceClass": "tier-usable-start",
+    "StartConfidence": "low",
+    "PublicSourceCount": 0,
+    "ObservedMaxCoreOffsetMhz": null,
+    "StartToObservedMaxPercent": null,
+    "StartEvidenceNote": "The automatic tier value is a bounded starting experiment, not a calibrated stable maximum."
+  },
+  "Profiles": {
+    "NVIDIA-Ampere": {
+      "Label": "NVIDIA Ampere (RTX 30)",
+      "Vendor": "NVIDIA",
+      "CoreStartDesktop": 50,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 150,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 100,
+      "MemoryStep": 100,
+      "MemoryBoundaryDesktop": 500,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Use a small core step first; power, transient load, and GDDR6X memory-junction heat often dominate sustained behavior.",
+      "Caveats": [
+        "High-end Ampere cards may receive little sustained benefit from a core offset.",
+        "Check memory-junction temperature before memory escalation on GDDR6X cards."
+      ]
+    },
+    "NVIDIA-Ampere-Entry": {
+      "Label": "NVIDIA Ampere entry (RTX 3060 / 3060 Ti)",
+      "Vendor": "NVIDIA",
+      "CoreStartDesktop": 100,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 200,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 100,
+      "MemoryStep": 100,
+      "MemoryBoundaryDesktop": 500,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Use a practical GDDR6 entry-tier core start, then test memory separately.",
+      "Caveats": [
+        "The 3060 and 3060 Ti have different memory buses and sample behavior.",
+        "Do not copy one sample's maximum memory offset."
+      ],
+      "StartEvidence": {
+        "StartEvidenceClass": "mixed-tier-usable-start",
+        "StartConfidence": "low",
+        "PublicSourceCount": 2,
+        "ObservedMaxCoreOffsetMhz": null,
+        "StartToObservedMaxPercent": null,
+        "StartEvidenceNote": "The tier combines different RTX 3060 and RTX 3060 Ti samples; use the exact-model evidence below when available."
+      },
+      "ModelStartEvidence": [
+        {
+          "Pattern": "\\bRTX\\s*3060\\s*Ti\\b",
+          "StartEvidenceClass": "active-above-cited-sample",
+          "StartConfidence": "very-low",
+          "PublicSourceCount": 1,
+          "ObservedMaxCoreOffsetMhz": 70,
+          "StartToObservedMaxPercent": 143,
+          "StartEvidenceNote": "The +100 MHz tier start is 143% of the cited RTX 3060 Ti FE +70 MHz sample. Keep it only as an active usable starting experiment, not a conservative estimate."
+        }
+      ]
+    },
+    "NVIDIA-Ampere-Mainstream": {
+      "Label": "NVIDIA Ampere mainstream (RTX 3070 / 3070 Ti)",
+      "Vendor": "NVIDIA",
+      "CoreStartDesktop": 100,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 225,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 100,
+      "MemoryStep": 100,
+      "MemoryBoundaryDesktop": 500,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Use the mainstream Ampere start; power-limit exposure varies materially by board.",
+      "Caveats": [
+        "3070 and 3070 Ti have different memory and power paths.",
+        "Verify board-specific power behavior before raising limits."
+      ]
+    },
+    "NVIDIA-Ampere-High": {
+      "Label": "NVIDIA Ampere high tier (RTX 3080)",
+      "Vendor": "NVIDIA",
+      "CoreStartDesktop": 50,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 150,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 100,
+      "MemoryStep": 100,
+      "MemoryBoundaryDesktop": 500,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Use an active but bounded core start because core headroom can be limited and GDDR6X performance can degrade before artifacts.",
+      "Caveats": [
+        "Memory error replay can reduce performance without an immediate crash.",
+        "Require memory-junction and power-path evidence."
+      ],
+      "StartEvidence": {
+        "StartEvidenceClass": "active-near-cited-maximum",
+        "StartConfidence": "very-low",
+        "PublicSourceCount": 1,
+        "ObservedMaxCoreOffsetMhz": 60,
+        "StartToObservedMaxPercent": 83,
+        "StartEvidenceNote": "The +50 MHz start is 83% of the cited RTX 3080 FE +60 MHz sample. It is a practical active start, not a conservative one."
+      }
+    },
+    "NVIDIA-Ampere-UpperHigh": {
+      "Label": "NVIDIA Ampere upper-high tier (RTX 3080 Ti)",
+      "Vendor": "NVIDIA",
+      "CoreStartDesktop": 100,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 225,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 100,
+      "MemoryStep": 100,
+      "MemoryBoundaryDesktop": 500,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Use a moderate core start and keep GDDR6X memory as a separately validated round.",
+      "Caveats": [
+        "Power-target exposure varies substantially across boards.",
+        "Do not transfer the highest reviewed core offset."
+      ]
+    },
+    "NVIDIA-Ampere-Flagship": {
+      "Label": "NVIDIA Ampere flagship (RTX 3090)",
+      "Vendor": "NVIDIA",
+      "CoreStartDesktop": 50,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 150,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 100,
+      "MemoryStep": 100,
+      "MemoryBoundaryDesktop": 500,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Use a conservative flagship start; GDDR6X thermal and power behavior dominate.",
+      "Caveats": [
+        "Memory performance can fall before a visible crash.",
+        "Require sustained memory-temperature monitoring."
+      ]
+    },
+    "NVIDIA-Ampere-FlagshipTi": {
+      "Label": "NVIDIA Ampere flagship Ti (RTX 3090 Ti)",
+      "Vendor": "NVIDIA",
+      "CoreStartDesktop": 75,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 175,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 100,
+      "MemoryStep": 100,
+      "MemoryBoundaryDesktop": 500,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Use an active start only after acknowledging how little power and thermal headroom the RTX 3090 Ti may expose.",
+      "Caveats": [
+        "Some boards do not expose additional power-limit headroom.",
+        "Use sustained power and memory-temperature guards."
+      ],
+      "StartEvidence": {
+        "StartEvidenceClass": "active-at-lower-sample-maximum",
+        "StartConfidence": "very-low",
+        "PublicSourceCount": 1,
+        "ObservedMaxCoreOffsetMhz": 110,
+        "StartToObservedMaxPercent": 68,
+        "StartEvidenceNote": "The +75 MHz start is 68% of the cited +110 MHz high sample and equals the lower +75 MHz sample. It is an active start, not a conservative guarantee."
+      }
+    },
+    "NVIDIA-Ada": {
+      "Label": "NVIDIA Ada (RTX 40)",
+      "Vendor": "NVIDIA",
+      "CoreStartDesktop": 75,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 200,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 200,
+      "MemoryStep": 200,
+      "MemoryBoundaryDesktop": 1200,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Core then memory is a useful experiment order; reduced-power or curve tuning can be competitive on efficient cards.",
+      "Caveats": [
+        "Keep high-end connector and power-path evidence in scope.",
+        "Do not transfer Afterburner-style values to a different tool without checking its unit."
+      ]
+    },
+    "NVIDIA-Ada-Entry": {
+      "Label": "NVIDIA Ada entry (RTX 4060 / 4060 Ti)",
+      "Vendor": "NVIDIA",
+      "CoreStartDesktop": 100,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 200,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 200,
+      "MemoryStep": 200,
+      "MemoryBoundaryDesktop": 1200,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Use a practical core-first start; verify the specific 4060 or 4060 Ti board instead of copying the best review sample.",
+      "Caveats": [
+        "The 4060 Ti 8 GB and 16 GB remain separate configurations.",
+        "Do not infer core headroom from memory capacity."
+      ]
+    },
+    "NVIDIA-Ada-Mainstream": {
+      "Label": "NVIDIA Ada mainstream (RTX 4070 / 4070 Super)",
+      "Vendor": "NVIDIA",
+      "CoreStartDesktop": 125,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 250,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 200,
+      "MemoryStep": 200,
+      "MemoryBoundaryDesktop": 1200,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Use the mainstream Ada starting tier, then retain only measured benefits above noise.",
+      "Caveats": [
+        "Core and memory values from review tables use different units.",
+        "Power and cooling differ by board."
+      ]
+    },
+    "NVIDIA-Ada-UpperMid": {
+      "Label": "NVIDIA Ada upper-mid (RTX 4070 Ti / 4070 Ti Super)",
+      "Vendor": "NVIDIA",
+      "CoreStartDesktop": 150,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 300,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 200,
+      "MemoryStep": 200,
+      "MemoryBoundaryDesktop": 1200,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Use a larger one-step core start than 4070 while preserving one-variable testing.",
+      "Caveats": [
+        "4070 Ti and 4070 Ti Super are distinct SKUs.",
+        "Board power and cooling determine whether extra headroom is useful."
+      ]
+    },
+    "NVIDIA-Ada-High": {
+      "Label": "NVIDIA Ada high tier (RTX 4080 / 4080 Super)",
+      "Vendor": "NVIDIA",
+      "CoreStartDesktop": 175,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 325,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 200,
+      "MemoryStep": 200,
+      "MemoryBoundaryDesktop": 1200,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Use a practical high-tier core start and require connector, PSU, and sustained thermal evidence for power experiments.",
+      "Caveats": [
+        "Power-limit exposure varies significantly across custom cards.",
+        "Do not copy a maximum average clock as a slider offset."
+      ],
+      "StartEvidence": {
+        "StartEvidenceClass": "active-near-cited-maximum",
+        "StartConfidence": "very-low",
+        "PublicSourceCount": 2,
+        "ObservedMaxCoreOffsetMhz": 185,
+        "StartToObservedMaxPercent": 95,
+        "StartEvidenceNote": "The tier default is 95% of the cited RTX 4080 Super +185 MHz sample. It is an active start, not a conservative one."
+      },
+      "ModelStartEvidence": [
+        {
+          "Pattern": "\\bRTX\\s*4080\\b(?!\\s*SUPER)",
+          "StartEvidenceClass": "active-near-cited-maximum",
+          "StartConfidence": "very-low",
+          "PublicSourceCount": 2,
+          "ObservedMaxCoreOffsetMhz": 205,
+          "StartToObservedMaxPercent": 85,
+          "StartEvidenceNote": "The +175 MHz start is 85% of the cited RTX 4080 FE +205 MHz sample. It is an active start, not a conservative one."
+        }
+      ]
+    },
+    "NVIDIA-Ada-Flagship": {
+      "Label": "NVIDIA Ada flagship (RTX 4090)",
+      "Vendor": "NVIDIA",
+      "CoreStartDesktop": 100,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 200,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 200,
+      "MemoryStep": 200,
+      "MemoryBoundaryDesktop": 1200,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Start the simple-offset path more conservatively because the RTX 4090's power path is the controlling risk.",
+      "Caveats": [
+        "Require dedicated 16-pin connector and power-path checks.",
+        "Prefer a curve or reduced-power route where appropriate."
+      ]
+    },
+    "NVIDIA-Blackwell": {
+      "Label": "NVIDIA Blackwell (RTX 50)",
+      "Vendor": "NVIDIA",
+      "CoreStartDesktop": 100,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 250,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 100,
+      "MemoryStep": 100,
+      "MemoryBoundaryDesktop": 375,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Validate the exact SKU and driver behavior first; power and thermal headroom are not implied by the newer generation.",
+      "Caveats": [
+        "Desktop RTX 5090 has a separate coordinated curve/power reference route.",
+        "Newer tools and drivers may display different units or apply clamping."
+      ]
+    },
+    "NVIDIA-Blackwell-Entry": {
+      "Label": "NVIDIA Blackwell entry (RTX 5060 / 5060 Ti)",
+      "Vendor": "NVIDIA",
+      "CoreStartDesktop": 100,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 200,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 100,
+      "MemoryStep": 100,
+      "MemoryBoundaryDesktop": 375,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Start below the mainstream Blackwell tier; core first, memory separately, and stock power by default.",
+      "Caveats": [
+        "Do not transfer RTX 5070/5080/5090 power or curve assumptions.",
+        "The 8 GB and 16 GB 5060 Ti variants remain separate hardware configurations."
+      ]
+    },
+    "NVIDIA-Blackwell-Mainstream": {
+      "Label": "NVIDIA Blackwell mainstream (RTX 5070 / 5070 Ti)",
+      "Vendor": "NVIDIA",
+      "CoreStartDesktop": 150,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 300,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 100,
+      "MemoryStep": 100,
+      "MemoryBoundaryDesktop": 375,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Use the mainstream Blackwell starting tier; verify the actual board power ceiling before any power experiment.",
+      "Caveats": [
+        "Board power headroom varies substantially among non-reference designs.",
+        "Keep memory as a separate round and respect Blackwell request clamping."
+      ]
+    },
+    "NVIDIA-Blackwell-High": {
+      "Label": "NVIDIA Blackwell high tier (RTX 5080)",
+      "Vendor": "NVIDIA",
+      "CoreStartDesktop": 200,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 350,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 100,
+      "MemoryStep": 100,
+      "MemoryBoundaryDesktop": 375,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Use a bounded core start and require connector, PSU, and sustained thermal evidence before power-ceiling work.",
+      "Caveats": [
+        "Custom cards can expose much higher power ceilings than the reference design.",
+        "A higher exposed ceiling is not evidence of sufficient cooling or cabling."
+      ],
+      "StartEvidence": {
+        "StartEvidenceClass": "single-source-no-matched-offset",
+        "StartConfidence": "very-low",
+        "PublicSourceCount": 1,
+        "ObservedMaxCoreOffsetMhz": null,
+        "StartToObservedMaxPercent": null,
+        "StartEvidenceNote": "No normalized second-source RTX 5080 core-offset table was retained. The +200 MHz value is a single-source tier-level candidate with very-low prior confidence."
+      }
+    },
+    "NVIDIA-Blackwell-Flagship": {
+      "Label": "NVIDIA Blackwell flagship (RTX 5090)",
+      "Vendor": "NVIDIA",
+      "CoreStartDesktop": 100,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 200,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 100,
+      "MemoryStep": 100,
+      "MemoryBoundaryDesktop": 375,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Prefer the dedicated reduced-power/curve reference for RTX 5090; a simple-offset path starts more conservatively.",
+      "Caveats": [
+        "High board power makes connector and sustained power-path evidence controlling.",
+        "Do not transfer the RTX 5090 profile to other Blackwell cards."
+      ]
+    },
+    "NVIDIA-Turing": {
+      "Label": "NVIDIA Turing (RTX 20 / GTX 16)",
+      "Vendor": "NVIDIA",
+      "CoreStartDesktop": 50,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 150,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 100,
+      "MemoryStep": 100,
+      "MemoryBoundaryDesktop": 600,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Use small core steps and keep memory as a separate experiment.",
+      "Caveats": [
+        "Older firmware and tool support can vary by board."
+      ]
+    },
+    "NVIDIA-Pascal": {
+      "Label": "NVIDIA Pascal (GTX 10)",
+      "Vendor": "NVIDIA",
+      "CoreStartDesktop": 50,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 125,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 100,
+      "MemoryStep": 100,
+      "MemoryBoundaryDesktop": 500,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Treat the card conservatively and prioritize cooling and driver-supported controls.",
+      "Caveats": [
+        "Modern tuning-tool compatibility is not guaranteed."
+      ]
+    },
+    "NVIDIA-Generic": {
+      "Label": "NVIDIA generic",
+      "Vendor": "NVIDIA",
+      "CoreStartDesktop": 25,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 100,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 50,
+      "MemoryStep": 50,
+      "MemoryBoundaryDesktop": 250,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Use a reduced generic core-first ladder because generation-specific calibration is unavailable.",
+      "Caveats": [
+        "Record the exact GPU model before treating the result as family-specific."
+      ],
+      "StartEvidence": {
+        "StartEvidenceClass": "generic-fallback",
+        "StartConfidence": "very-low",
+        "PublicSourceCount": 0,
+        "ObservedMaxCoreOffsetMhz": null,
+        "StartToObservedMaxPercent": null,
+        "StartEvidenceNote": "No generation-specific calibration is available."
+      }
+    },
+    "AMD-RDNA1": {
+      "Label": "AMD RDNA1 (RX 5000)",
+      "Vendor": "AMD",
+      "CoreStartDesktop": 50,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 125,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 100,
+      "MemoryStep": 100,
+      "MemoryBoundaryDesktop": 400,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Use one supported Adrenalin clock or offset step and treat memory separately.",
+      "Caveats": [
+        "Confirm whether Adrenalin exposes an offset, actual clock, or profile."
+      ]
+    },
+    "AMD-RDNA2": {
+      "Label": "AMD RDNA2 (RX 6000)",
+      "Vendor": "AMD",
+      "CoreStartDesktop": 50,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 150,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 100,
+      "MemoryStep": 100,
+      "MemoryBoundaryDesktop": 500,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Efficiency and undervolt tuning are often competitive; memory-clock stability must be tested separately.",
+      "Caveats": [
+        "Watch hotspot and per-model firmware limits.",
+        "Do not convert NVIDIA memory offsets to AMD clock targets."
+      ]
+    },
+    "AMD-RDNA3": {
+      "Label": "AMD RDNA3 (RX 7000)",
+      "Vendor": "AMD",
+      "CoreStartDesktop": 75,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 200,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 100,
+      "MemoryStep": 100,
+      "MemoryBoundaryDesktop": 600,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Review core clock target, power, and hotspot together before testing memory.",
+      "Caveats": [
+        "Shared power and hotspot pressure can erase nominal clock gains.",
+        "Use the exact labels exposed by the installed Adrenalin version."
+      ]
+    },
+    "AMD-RDNA4": {
+      "Label": "AMD RDNA4 (RX 9000)",
+      "Vendor": "AMD",
+      "CoreStartDesktop": 50,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 150,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 100,
+      "MemoryStep": 100,
+      "MemoryBoundaryDesktop": 400,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Start conservatively with supported per-game profiles and current official controls.",
+      "Caveats": [
+        "Do not assume RDNA3 values transfer to RDNA4.",
+        "Model-specific firmware behavior may be newer and less documented."
+      ]
+    },
+    "AMD-Generic": {
+      "Label": "AMD generic",
+      "Vendor": "AMD",
+      "CoreStartDesktop": 25,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 100,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 50,
+      "MemoryStep": 50,
+      "MemoryBoundaryDesktop": 250,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Use a reduced generic control step because generation-specific calibration is unavailable and Adrenalin units can differ.",
+      "Caveats": [
+        "Generation-specific calibration is unavailable."
+      ],
+      "StartEvidence": {
+        "StartEvidenceClass": "generic-fallback",
+        "StartConfidence": "very-low",
+        "PublicSourceCount": 0,
+        "ObservedMaxCoreOffsetMhz": null,
+        "StartToObservedMaxPercent": null,
+        "StartEvidenceNote": "No generation-specific calibration is available."
+      }
+    },
+    "Intel-Alchemist": {
+      "Label": "Intel Arc Alchemist",
+      "Vendor": "Intel",
+      "CoreStartDesktop": 50,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 125,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 100,
+      "MemoryStep": 100,
+      "MemoryBoundaryDesktop": 400,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Use only controls exposed by the installed Intel Graphics Software and keep one variable under test.",
+      "Caveats": [
+        "Desktop-style NVIDIA and AMD settings are not transferable."
+      ]
+    },
+    "Intel-Battlemage": {
+      "Label": "Intel Arc Battlemage",
+      "Vendor": "Intel",
+      "CoreStartDesktop": 50,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 125,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 100,
+      "MemoryStep": 100,
+      "MemoryBoundaryDesktop": 400,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Use a conservative one-variable test with official Intel controls.",
+      "Caveats": [
+        "Driver and model support vary; do not assume an Alchemist profile transfers."
+      ]
+    },
+    "Intel-Generic": {
+      "Label": "Intel generic",
+      "Vendor": "Intel",
+      "CoreStartDesktop": 25,
+      "CoreStep": 25,
+      "CoreBoundaryDesktop": 75,
+      "CoreBoundaryLaptop": 75,
+      "MemoryStartDesktop": 50,
+      "MemoryStep": 50,
+      "MemoryBoundaryDesktop": 200,
+      "MemoryBoundaryLaptop": 200,
+      "Strategy": "Use a reduced conservative one-variable test with official Intel controls.",
+      "Caveats": [
+        "Generation-specific calibration is unavailable."
+      ],
+      "StartEvidence": {
+        "StartEvidenceClass": "generic-fallback",
+        "StartConfidence": "very-low",
+        "PublicSourceCount": 0,
+        "ObservedMaxCoreOffsetMhz": null,
+        "StartToObservedMaxPercent": null,
+        "StartEvidenceNote": "No generation-specific calibration is available."
+      }
+    }
+  }
+}

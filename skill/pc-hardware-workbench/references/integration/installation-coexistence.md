@@ -5,6 +5,9 @@ The integrated Workbench is the default entry when the user intentionally instal
 ## Recommended local policy
 
 - `$pc-hardware-workbench` may use implicit invocation.
+- Once the integrated candidate workflow is accepted, keep
+  `$pc-hardware-workbench-gpu-auto-oc-prototype` explicit-only or remove it;
+  two implicit Workbench entries create ambiguous routing.
 - Keep `$hardware-triage-framework`, `$upgrade-purchase-brake`, and `$guided-overclocking` available for explicit invocation as rollback or focused fallback.
 - Set those three original Skills to `allow_implicit_invocation: false` on a machine that also has this Workbench.
   (On DeepSeek Harness the same intent is expressed with the

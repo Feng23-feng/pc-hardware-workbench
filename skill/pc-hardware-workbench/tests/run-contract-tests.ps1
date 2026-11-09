@@ -51,7 +51,9 @@ try {
         ("14700" + "KF"),
         ("i7-" + "14700K"),
         ("284" + " effective"),
-        ("284 " + [char]0x4E2A + [char]0x4F20 + [char]0x611F + [char]0x5668)
+        ("284 " + [char]0x4E2A + [char]0x4F20 + [char]0x611F + [char]0x5668),
+        ("MSI " + "Vector 16 HX AI"),
+        ("A2X" + "WHG")
     )
     $publicTextExtensions = @(
         ".md", ".txt", ".json", ".ps1", ".psm1", ".psd1",

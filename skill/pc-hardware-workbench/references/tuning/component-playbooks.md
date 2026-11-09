@@ -23,6 +23,9 @@ Clarify whether the goal is lower temperature/noise at similar performance, high
 
 - Record the stock/known-good in-workload baseline and current curve before any candidate.
 - Read [gpu-clock-behavior.md](gpu-clock-behavior.md) before interpreting requested clocks, effective clocks, curve changes, or limit reasons.
+- After the tuning gate, use [gpu-auto-candidates.md](gpu-auto-candidates.md) and the bundled suggestion script for a deterministic first candidate; an automatic recommendation is still a user-applied test.
+- Use [gpu-family-playbooks.md](gpu-family-playbooks.md) to distinguish NVIDIA RTX generations from AMD RDNA and Intel Arc families before selecting the first step.
+- If the user lacks hands-on experience, use [beginner-gpu-auto-oc.md](beginner-gpu-auto-oc.md) to assist baseline collection and deliver one less-technical action at a time.
 - Read [gpu-curve-baseline.md](gpu-curve-baseline.md) for curve-based undervolting, combined undervolt/overclock, or pure frequency overclocking.
 - Read [vram-and-memory-bus.md](vram-and-memory-bus.md) for memory-clock, GDDR/HBM, bandwidth, or cross-tool interpretation; read [gpu-memory-playbook.md](gpu-memory-playbook.md) before tuning VRAM.
 - Improve one of core voltage/frequency curve, core offset, memory offset, or power limit per round; do not stack control classes.

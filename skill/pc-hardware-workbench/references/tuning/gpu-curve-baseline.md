@@ -4,6 +4,11 @@ Use this reference for GPU core-curve undervolting, combined undervolt and
 overclocking, or pure frequency overclocking. Do not treat a spot on the curve
 as a universal value for another GPU.
 
+For a deterministic first candidate from a verified baseline, read
+[gpu-auto-candidates.md](gpu-auto-candidates.md). Use its numeric ladder only
+for the matching exposed offset or actual-clock control; curve controls use one
+measured local curve step without cross-unit conversion.
+
 ## Compact route
 
 Use this as the shortest safe overall sequence:

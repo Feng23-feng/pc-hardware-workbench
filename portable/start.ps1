@@ -34,7 +34,7 @@ try {
 function Write-Title {
     Clear-Host
     Write-Host "==============================================" -ForegroundColor Cyan
-    Write-Host "       电脑硬件便携工具包 2.5.1" -ForegroundColor Cyan
+    Write-Host "       电脑硬件便携工具包 2.6.0" -ForegroundColor Cyan
     Write-Host "==============================================" -ForegroundColor Cyan
     Write-Host "本地、只读、无网络；不会修改 BIOS、频率、电压、功耗或风扇。" -ForegroundColor DarkGray
     Write-Host "目标：教你识别、验证和恢复，让下次可以自己完成调校闭环。" -ForegroundColor DarkGray
@@ -2618,7 +2618,13 @@ function Test-PortableKit {
     if ($null -eq (Get-Command Read-Intel13Or14CpuRiskNotice -ErrorAction SilentlyContinue)) {
         throw "缺少 Intel 13/14 代保修与稳定性检查。"
     }
-    $affectedIntel = [pscustomobject]@{ CPU = "Intel(R) Core(TM) i7-14700K"; IsLaptop = $false }
+    $gpuCandidateScript = Join-Path $scriptsRoot "suggest-gpu-overclock.ps1"
+    $gpuCandidateAuthority = Join-Path $appRoot "docs\gpu-auto-oc-tier-authority.json"
+    if (-not (Test-Path -LiteralPath $gpuCandidateScript -PathType Leaf) -or
+        -not (Test-Path -LiteralPath $gpuCandidateAuthority -PathType Leaf)) {
+        throw "缺少 GPU 自动候选脚本或权威表。"
+    }
+    $affectedIntel = [pscustomobject]@{ CPU = "Intel(R) Core(TM) i7-13700K"; IsLaptop = $false }
     $unaffectedCpu = [pscustomobject]@{ CPU = "AMD Ryzen 7 7800X3D"; IsLaptop = $false }
     if ($null -eq (Get-Intel13Or14CpuRisk -HardwareContext $affectedIntel) -or
         $null -ne (Get-Intel13Or14CpuRisk -HardwareContext $unaffectedCpu)) {
