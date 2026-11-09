@@ -209,8 +209,8 @@ Always preserve the candidate's evidence fields:
 - `DeviceFingerprint`, `BaselineId`, `ExperimentId`, `ParentCandidateId`,
   `ReportFreshness`, and `ResumeState` support state reuse without repeating
   completed questions. `CandidateId` identifies the concrete result; the
-  prototype otherwise reports `session-only` rather than pretending to have a
-  persistent experiment store.
+  integrated workflow otherwise reports `session-only` rather than pretending
+  to have a persistent experiment store.
 
 Use the user's current report, recent telemetry summary, and saved experiment
 card to fill the gate automatically. Do not turn the fields into a novice

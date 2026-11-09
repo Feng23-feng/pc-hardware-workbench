@@ -10,9 +10,9 @@ hardware maximum.
 
 Keep intent separate from performance goal:
 
-- `usable-start`: default for practical daily use. If a candidate passes with a
-  material benefit above noise and acceptable guards, stop and recommend
-  `keep`.
+- `usable-start`: default for a practical first-round candidate. If a candidate
+  passes with a material benefit above noise and acceptable guards, stop and
+  recommend `keep` for that tested context; this is not a daily-stability claim.
 - `explore-limit`: continue one-variable exploration after a validated benefit.
   The user must explicitly ask to find the limit or continue tuning.
 
@@ -24,7 +24,8 @@ benchmark or stable maximum.
 
 Every numeric or curve result identifies its role:
 
-- `usable-start`: useful first daily candidate;
+- `usable-start`: useful first-round candidate suitable for keeping only after
+  the stated tests pass;
 - `incremental`: a later one-variable addition after a validated result;
 - `fallback`: the saved baseline to restore after failure or ambiguity;
 - `limit-exploration`: a step that continues toward a boundary by explicit
@@ -112,8 +113,8 @@ laptop candidate.
 Power-limit percentages and watt fields are **ceiling settings**, not measured
 power use. Keep measured draw in a separate `MeasuredPowerWatts` field.
 
-Use stable IDs and preserve them across a conversation. This prototype does
-not write a persistent state store, so the default resume status must say
+Use stable IDs and preserve them across a conversation. The integrated workflow
+does not write a persistent state store, so the default resume status must say
 `session-only` rather than implying that a profile was loaded from disk:
 
 ```text
@@ -153,7 +154,7 @@ historical and marked stale for continuation. A default-profile fallback is
 still a recovery option, but it is profile-only and may not restore an external
 power-limit modification.
 
-The prototype's honest resume states are:
+The workflow's honest resume states are:
 
 - `session-only`: no validated parent candidate was supplied;
 - `session-validated`: parent candidate context matched;

@@ -38,7 +38,7 @@ that explicit. It must not imply layer 1 or 3 without the corresponding record.
 
 ## Prior provenance
 
-Every automatic tier in this prototype currently carries:
+Every automatic tier in the integrated candidate workflow carries:
 
 ```text
 PriorSourceClass: internal-tiered-heuristic
@@ -48,7 +48,7 @@ PriorUnitAssumption: displayed core MHz or clock target; displayed memory tool
                      unit; displayed power percent
 ```
 
-These values are reviewed with the prototype rules, not with a maintained
+These values are reviewed with the integrated candidate rules, not with a maintained
 catalogue of matched hardware samples. Re-evaluate them when the control model,
 architecture coverage, or available local evidence changes. Do not upgrade the
 source class merely because many devices share a family name.
@@ -89,7 +89,7 @@ data-center class even if the user confirms a consumer GPU by mistake.
 ## NVIDIA generation strategy
 
 The observations below are qualitative exploration priors. Because their source
-metadata is incomplete, no numeric public range from this prototype is treated
+metadata is incomplete, no numeric public range from this workflow is treated
 as validated evidence.
 
 For the current RTX 50 tier reference and source links, read
@@ -127,9 +127,9 @@ for NVIDIA. Read the actual labels and units in the installed version:
 
 | Family | Useful first tendency | Rough public exploration context | Main guard |
 | --- | --- | --- | --- |
-| AMD RDNA2 / RX 6000 | Undervolt and efficiency tuning are often more useful than blindly adding voltage; memory-clock tuning can be meaningful. | Public observations suggest modest clock increases and undervolts can help, but this prototype has no normalized cross-model evidence. | Hotspot, memory stability, driver resets, and per-model firmware limits. |
+| AMD RDNA2 / RX 6000 | Undervolt and efficiency tuning are often more useful than blindly adding voltage; memory-clock tuning can be meaningful. | Public observations suggest modest clock increases and undervolts can help, but this workflow has no normalized cross-model evidence. | Hotspot, memory stability, driver resets, and per-model firmware limits. |
 | AMD RDNA3 / RX 7000 | Treat core clock range, power, and hotspot as a coordinated system; memory is a separate later round. | Public observations suggest larger clock targets may be tried than on RDNA2, but sustained hotspot/power and firmware limits decide. | Hotspot, board power, shared limits, artifacts, and profile persistence. |
-| AMD RDNA4 / RX 9000 | Start conservatively because model-specific evidence and firmware behavior are newer; prefer vendor-supported per-game profiles. | The prototype has insufficient normalized model-level data; use local baseline and supported official controls only. | Driver/firmware version, hotspot, power behavior, memory errors, and profile reset. |
+| AMD RDNA4 / RX 9000 | Start conservatively because model-specific evidence and firmware behavior are newer; prefer vendor-supported per-game profiles. | The integrated workflow has insufficient normalized model-level data; use local baseline and supported official controls only. | Driver/firmware version, hotspot, power behavior, memory errors, and profile reset. |
 
 For AMD, “stable” memory clock or offset is decided by artifacts, application
 correctness, frame-time behavior, and repeated runs. A higher reported clock is

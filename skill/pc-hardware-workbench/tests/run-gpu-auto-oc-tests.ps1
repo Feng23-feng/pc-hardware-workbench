@@ -542,6 +542,8 @@ $multiNvidiaParams = $base.Clone()
 $multiNvidiaParams.GpuModel = "NVIDIA GeForce RTX 4070; NVIDIA GeForce RTX 3080"
 $multiNvidia = Invoke-Suggestion $multiNvidiaParams
 Assert-BlockedContract $multiNvidia "Multiple NVIDIA models"
+Assert-True ($multiNvidia.Reason -match 'active tuning target is ambiguous') "Multiple GPU models should expose the specific ambiguous-target reason."
+Assert-True (@($multiNvidia.RequiredUserActions)[0] -match 'Confirm the single GPU') "Multiple GPU models should request one active GPU instead of repeating the full intake."
 
 $multiAmdParams = $base.Clone()
 $multiAmdParams.Vendor = "AMD"
@@ -633,6 +635,7 @@ foreach ($sample in $multiAdapterSamples) {
     Assert-BlockedContract $sampleResult "Cross-vendor adapters $($sample.Model)"
     Assert-True ($sampleResult.DetectedModelTokenCount -gt 1) "Cross-vendor adapter text should expose more than one model token."
     Assert-True ($sampleResult.AdapterIdentityStatus -eq "ambiguous-multiple-models") "Cross-vendor adapter text should be marked ambiguous."
+    Assert-True (@($sampleResult.RequiredUserActions)[0] -match 'Confirm the single GPU') "Cross-vendor adapter text should ask only for the active GPU."
 }
 
 $fullWidthSemicolon = [char]0xFF1B
@@ -968,6 +971,13 @@ $laptopPowerBase.GpuModel = "NVIDIA GeForce RTX 5070 Ti Laptop"
 $laptopPowerBase.BoardModel = "Example 16-inch laptop / RTX 5070 Ti Laptop"
 $laptopPowerBase.StockPowerLimitWatts = 130
 $laptopPowerBase.CurrentPowerLimitWatts = 130
+
+$missingLaptopBoardParams = $laptopPowerBase.Clone()
+$missingLaptopBoardParams.Remove("BoardModel")
+$missingLaptopBoard = Invoke-Suggestion $missingLaptopBoardParams
+Assert-BlockedContract $missingLaptopBoard "Laptop without a board model"
+Assert-True ($missingLaptopBoard.Reason -match 'brand and board model are missing') "Missing laptop identity should expose the specific board-model reason."
+Assert-True (@($missingLaptopBoard.RequiredUserActions)[0] -match 'brand and exact model') "Missing laptop identity should request only the missing brand and model."
 
 $assumedStock = Invoke-Suggestion $laptopPowerBase
 Assert-True ($assumedStock.Status -eq "Ready") "A laptop with no unlock declaration should default to a usable candidate."

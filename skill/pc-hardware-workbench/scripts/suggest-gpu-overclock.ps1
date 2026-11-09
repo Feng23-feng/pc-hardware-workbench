@@ -752,6 +752,86 @@ function Complete-BlockedResult {
     Complete-Result $Value
 }
 
+function Get-ClassificationBlockGuidance {
+    param([string]$Issue)
+
+    if ($Issue -match 'multiple GPU model tokens|concatenate multiple adapter') {
+        return [pscustomobject]@{
+            Reason = "More than one GPU model is present, so the active tuning target is ambiguous."
+            Missing = "one confirmed active GPU model"
+            Action = "Confirm the single GPU that the current workload is using; do not choose from the combined adapter list."
+        }
+    }
+    if ($Issue -match 'laptop candidate requires a brand and board model') {
+        return [pscustomobject]@{
+            Reason = "The laptop brand and board model are missing, so board-specific power and cooling limits cannot be bounded."
+            Missing = "laptop brand and exact board model"
+            Action = "Provide the laptop brand and exact model; keep the already confirmed GPU and form factor."
+        }
+    }
+    if ($Issue -match 'mobile GPU.*FormFactor is Desktop|desktop GPU.*FormFactor is Laptop') {
+        return [pscustomobject]@{
+            Reason = "The readable GPU model conflicts with the selected desktop/laptop form factor."
+            Missing = "one consistent GPU model and form factor"
+            Action = "Correct whichever is wrong: the GPU model or the desktop/laptop form factor."
+        }
+    }
+    if ($Issue -match 'laptop power-limit|current laptop power-limit|declared-unlocked laptop') {
+        return [pscustomobject]@{
+            Reason = "The laptop power-limit state or watt evidence is incomplete or conflicting."
+            Missing = "confirmed stock/current watt ceilings and power-path state"
+            Action = "Confirm the stock and current watt ceilings and whether the power path was modified; a percentage is not a watt value."
+        }
+    }
+    if ($Issue -match 'virtual, integrated, professional') {
+        return [pscustomobject]@{
+            Reason = "The target is not a supported single consumer GPU."
+            Missing = "one supported consumer GPU"
+            Action = "Select a supported consumer GPU; professional, integrated, virtual, and multi-adapter targets are not eligible."
+        }
+    }
+    if ($Issue -match 'not positively identified|unreadable or missing GPU model') {
+        return [pscustomobject]@{
+            Reason = "The active consumer GPU cannot be confirmed from the supplied model text."
+            Missing = "one exact active consumer GPU model"
+            Action = "Confirm the exact active consumer GPU model and that it is the intended tuning target."
+        }
+    }
+    if ($Issue -match 'TargetComponent') {
+        return [pscustomobject]@{
+            Reason = "The target component is not a confirmed GPU."
+            Missing = "the exact active GPU as TargetComponent"
+            Action = "Set the target component to the exact GPU model being tuned; use the CPU or memory route for other targets."
+        }
+    }
+    if ($Issue -match 'stale') {
+        return [pscustomobject]@{
+            Reason = "The hardware, driver, tool, cooling, or baseline context is stale."
+            Missing = "a fresh current report and baseline"
+            Action = "Refresh the affected report or baseline, then retry without carrying old settings."
+        }
+    }
+    if ($Issue -match 'identifies an .* GPU, but Vendor') {
+        return [pscustomobject]@{
+            Reason = "The selected vendor conflicts with the readable GPU model."
+            Missing = "one consistent GPU vendor and model"
+            Action = "Correct the vendor/model mismatch before generating any candidate."
+        }
+    }
+    if ($Issue -match 'explicit GpuFamily') {
+        return [pscustomobject]@{
+            Reason = "The requested GPU family conflicts with or cannot be verified from the readable model."
+            Missing = "an Auto or model-verified GPU family"
+            Action = "Leave the family on Auto or correct it to the readable model generation."
+        }
+    }
+    return [pscustomobject]@{
+        Reason = "Candidate generation is blocked by an unresolved device-classification issue."
+        Missing = $Issue
+        Action = "Resolve the first listed classification issue, then retry with the same confirmed context."
+    }
+}
+
 if ($modelTokenCount -eq 1) {
     $result.ResolvedGpuModel = $GpuModel.Trim()
     $result.AdapterIdentityStatus = "single-readable-model"
@@ -764,11 +844,12 @@ else {
 }
 
 if ($classificationIssues.Count -gt 0) {
+    $classificationGuidance = Get-ClassificationBlockGuidance -Issue ([string]$classificationIssues[0])
     Complete-BlockedResult `
         -Value $result `
-        -Reason "GPU model, target component, form factor, or requested family could not be reconciled safely." `
-        -MissingItems @("one confirmed active consumer GPU target") `
-        -UserAction "Confirm the exact active GPU model, target component, and desktop/laptop form factor from one current local source." `
+        -Reason $classificationGuidance.Reason `
+        -MissingItems @($classificationGuidance.Missing) `
+        -UserAction $classificationGuidance.Action `
         -Gaps @($classificationIssues.ToArray()) `
         -Rollback "No candidate is available. Make no tuning change."
 }
