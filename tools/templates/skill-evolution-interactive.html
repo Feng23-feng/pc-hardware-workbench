@@ -4513,14 +4513,17 @@
     #dse-root .dse-tune-steps b {
       display: grid;
       place-items: center;
-      width: 22px;
-      height: 22px;
+      width: 28px;
+      height: 28px;
       color: var(--dse-text-muted-soft);
       border: 1px solid var(--dse-line-strong);
-      border-radius: 50%;
+      border-radius: 4px;
       font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
-      font-size: 8px;
+      font-size: 11px !important;
       font-weight: 500;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: .02em;
+      line-height: 1;
     }
 
     #dse-root .dse-tune-steps a[aria-current="step"] b {

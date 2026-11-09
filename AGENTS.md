@@ -69,3 +69,25 @@ The `orbital-visualization` Skill under `$CODEX_HOME/skills` is private and loca
 It is not part of this repository and must not be copied into the repository,
 release packages, Pages output, GitHub, or any public artifact unless the user
 explicitly reverses this policy.
+
+## Web Design Character
+
+- Treat `docs/skill-evolution/` as a product documentation and monitoring
+  interface for technical users. It must look deliberately designed, not like a
+  generic AI-generated landing page.
+- Keep the interface quiet and factual. Do not add decorative orbits, glows,
+  blobs, gradient text, ornamental diagrams, badges, or visual effects unless
+  they explain real product behavior.
+- State each fact once. An entry should show its destination, purpose, and at
+  most one compact supporting fact; do not repeat the same information as
+  prose, diagram labels, and metadata.
+- Use a diagram only when relationships are the content. If a short sentence is
+  clearer, omit the diagram.
+- Use a frontend design skill only when it materially helps with visual
+  direction, redesign, or a difficult polish pass. Routine bug fixes and small
+  copy or spacing corrections use the normal repository workflow.
+- Before a design-skill pass that may change visual direction, state whether it
+  is light-touch polish or a redesign. Ask for confirmation when that choice is
+  ambiguous.
+- After any visual change, verify the affected page at desktop and mobile
+  widths and run the repository site checks.

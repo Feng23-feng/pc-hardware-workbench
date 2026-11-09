@@ -6948,11 +6948,11 @@
     #dse-root .dse-explore-primary a {
       position: relative;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(280px, 46%);
+      grid-template-columns: minmax(0, 1fr) auto;
       align-items: center;
-      gap: 24px;
-      min-height: 164px;
-      padding: 24px;
+      gap: 32px;
+      min-height: 112px;
+      padding: 24px 28px;
       overflow: hidden;
     }
 
@@ -6967,102 +6967,29 @@
     }
 
     #dse-root .dse-file-map {
-      position: relative;
-      display: grid;
-      grid-template-rows: auto auto minmax(0, 1fr) auto;
-      gap: 8px;
-      width: 100%;
-      min-height: 156px;
-      padding: 2px 0 0;
-      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
-    }
-
-    #dse-root .dse-file-map-meta,
-    #dse-root .dse-file-map-side {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      color: var(--dse-text-faint);
-      font-size: 10px;
-      letter-spacing: 0;
-    }
-
-    #dse-root .dse-file-map-root {
-      display: inline-grid;
-      justify-self: start;
-      gap: 3px;
-      min-width: 128px;
-      padding: 8px 10px;
-      color: var(--dse-text-strong);
-      background: transparent;
-      border: 1px solid rgb(var(--dse-cyan-rgb) / .46);
-      border-radius: 4px;
-    }
-
-    #dse-root .dse-file-map-root b {
-      font-size: 12px;
-      font-weight: 500;
-    }
-
-    #dse-root .dse-file-map-root small {
-      color: #91a0a9;
-      font-size: 9px;
-    }
-
-    #dse-root .dse-file-map-branches {
-      position: relative;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-      padding-top: 15px;
-    }
-
-    #dse-root .dse-file-map-branches::before {
-      position: absolute;
-      top: 0;
-      right: calc(16.666% - 1px);
-      left: calc(16.666% - 1px);
-      height: 1px;
-      background: rgb(var(--dse-white-rgb) / .16);
-      content: "";
-    }
-
-    #dse-root .dse-file-map-branch {
-      position: relative;
-      display: grid;
-      gap: 3px;
+      justify-content: flex-end;
+      gap: 10px;
       min-width: 0;
-      padding-top: 9px;
-      color: #cbd4da;
-      border-top: 1px solid rgb(var(--dse-white-rgb) / .18);
-    }
-
-    #dse-root .dse-file-map-branch::before {
-      position: absolute;
-      top: -15px;
-      left: 50%;
-      height: 15px;
-      border-left: 1px solid rgb(var(--dse-white-rgb) / .16);
-      content: "";
-    }
-
-    #dse-root .dse-file-map-branch b {
-      overflow: hidden;
-      font-size: 10px;
-      font-weight: 500;
-      text-overflow: ellipsis;
+      color: var(--dse-text-muted-soft);
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: .01em;
       white-space: nowrap;
     }
 
-    #dse-root .dse-file-map-branch small {
-      color: #82909a;
-      font-size: 9px;
+    #dse-root .dse-file-map span {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    #dse-root .dse-file-map-side {
-      padding-top: 3px;
-      border-top: 1px solid var(--dse-line-soft);
+    #dse-root .dse-file-map span + span::before {
+      color: #5f6971;
+      content: "·";
     }
 
     #dse-root .dse-home-technical {
@@ -7192,12 +7119,16 @@
 
       #dse-root .dse-explore-primary a {
         grid-template-columns: minmax(0, 1fr);
-        gap: 20px;
-        padding: 20px;
+        gap: 18px;
+        min-height: 0;
+        padding: 22px 20px;
       }
 
       #dse-root .dse-file-map {
-        min-height: 172px;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        row-gap: 6px;
+        white-space: normal;
       }
 
       #dse-root .dse-home-technical > summary {
@@ -7972,35 +7903,11 @@
       <a href="orrery/">
         <span class="dse-explore-copy">
           <strong>查看文件星球</strong>
-          <small>可以理解为思维导图：把 Skill 的规则、脚本、测试和文档按 7 个职责分区展开；点开文件可以看到它在流程中的作用和关联文件。</small>
+          <small>按规则、脚本和测试浏览文件，并查看它们在流程中的关系。</small>
         </span>
         <span class="dse-file-map" aria-hidden="true">
-          <span class="dse-file-map-meta">
-            <span>7 个职责分区</span>
-            <span>90 个文件</span>
-          </span>
-          <span class="dse-file-map-root">
-            <b>SKILL.md</b>
-            <small>入口 · 路由 · 安全门禁</small>
-          </span>
-          <span class="dse-file-map-branches">
-            <span class="dse-file-map-branch">
-              <b>references/</b>
-              <small>45 个规则与证据文件</small>
-            </span>
-            <span class="dse-file-map-branch">
-              <b>scripts/</b>
-              <small>18 个只读执行入口</small>
-            </span>
-            <span class="dse-file-map-branch">
-              <b>tests/</b>
-              <small>24 个验证场景</small>
-            </span>
-          </span>
-          <span class="dse-file-map-side">
-            <span>agents/openai.yaml · 1</span>
-            <span>assets/ · 1</span>
-          </span>
+          <span>90 个文件</span>
+          <span>7 个职责分区</span>
         </span>
       </a>
     </nav>
