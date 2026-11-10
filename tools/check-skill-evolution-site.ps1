@@ -185,8 +185,13 @@ if ($errors.Count -eq 0) {
         'id="dse-home-step-2"',
         'id="dse-home-step-3"',
         'id="dse-home-question-options"',
+        'id="dse-home-quick-paths"',
+        'id="dse-home-unknown-panel"',
         'id="dse-home-evidence-options"',
+        'id="dse-home-evidence-priority"',
+        'id="dse-home-no-evidence"',
         'id="dse-home-result"',
+        'id="dse-home-result-detail"',
         'class="dse-hero-safety"',
         'class="dse-candidate"',
         'id="dse-candidate-title"',
@@ -229,6 +234,21 @@ if ($errors.Count -eq 0) {
     if ($indexHtml -match '\u67E5\u770B\u6280\u672F\u4E0E\u53D1\u5E03\u8BF4\u660E|\u8DEF\u5F84\uFF1A\u5B89\u5168\u8FB9\u754C|\u4EA4\u4E92\u5B9E\u9A8C\u5BA4') {
         $errors.Add("Index still exposes a duplicate technical entry or internal maintenance language.") | Out-Null
     }
+    $mapFilters = [regex]::Matches($indexHtml, '<button[^>]*class="dse-filter"[^>]*data-filter="([^"]+)"')
+    $mapFilterNames = @($mapFilters | ForEach-Object { $_.Groups[1].Value })
+    if (($mapFilterNames -join ",") -ne "core,triage") {
+        $errors.Add("Index public map must expose only the current Workbench and Triage tracks.") | Out-Null
+    }
+    if ($indexHtml -match '<section class="dse-track prototype"|data-merge-id=|class="dse-convergence"|data-filter="prototype"|data-filter="merge"') {
+        $errors.Add("Index still exposes the retired prototype or merge track as a public map entry.") | Out-Null
+    }
+    if ($indexHtml -notmatch '\u0047\u0050\u0055 \u81EA\u52A8\u5019\u9009\u6574\u5408\u53F2 / 3\.x' -or
+        $indexHtml -notmatch '\u0047\u0050\u0055 \u81EA\u52A8\u5019\u9009\u6574\u5408') {
+        $errors.Add("Index does not preserve GPU candidate history in the technical archive.") | Out-Null
+    }
+    if ($indexHtml -match 'NEXT / NOT STARTED|\u878D\u5408\u76EE\u6807|\u672A\u5B8C\u5584 \u00B7 \u5C1A\u672A\u53D1\u5E03') {
+        $errors.Add("Index still exposes stale pre-integration project-map status.") | Out-Null
+    }
 
     $interactiveHtml = Get-Content -Raw -LiteralPath $interactivePath -Encoding UTF8
     if ($homeTemplate -notmatch 'animateHomeEntry' -or $interactiveTemplate -notmatch 'animateAdvancedEntry') {
@@ -253,8 +273,21 @@ if ($errors.Count -eq 0) {
         'data-demo-mode="triage"',
         'data-demo-mode="record"',
         'class="dse-term-more"',
+        'id="dse-scenario-picker"',
+        'id="dse-gate-detail"',
+        'id="dse-gate-extra"',
+        'id="dse-gate-extra-checks"',
+        'data-tune-step-link="review"',
+        'id="dse-tune-review-panel"',
+        'id="dse-open-review"',
+        'data-sim-result="no-benefit"',
         'id="dse-triage-category-grid"',
         'id="dse-triage-workflow"',
+        'id="dse-triage-evidence-state"',
+        'class="dse-secondary-actions dse-triage-evidence-guide"',
+        'audioStutter',
+        'Windows Performance Analyzer',
+        'WinDbg',
         'id="dse-context-bridge"',
         'id="dse-context-title"',
         'id="dse-context-summary"',
@@ -272,6 +305,12 @@ if ($errors.Count -eq 0) {
     }
     if ($interactiveHtml -match 'class="dse-guided"|id="dse-guided-(?:scenario|next|prev|reset|evidence|outcome|recommendation|show-reason|open-advanced)') {
         $errors.Add("Interactive page still contains the migrated simple-mode flow.") | Out-Null
+    }
+    if ($interactiveHtml -match 'NEXT / NOT STARTED|\u878D\u5408\u76EE\u6807') {
+        $errors.Add("Interactive page still exposes stale pre-integration status.") | Out-Null
+    }
+    if ($interactiveHtml -notmatch 'name:\s*"MoDT"') {
+        $errors.Add("Interactive page does not expose a MoDT term definition.") | Out-Null
     }
     $demoModeButtons = [regex]::Matches($interactiveHtml, '<button[^>]*class="dse-filter"[^>]*data-demo-mode="([^"]+)"')
     $demoModeNames = @($demoModeButtons | ForEach-Object { $_.Groups[1].Value })

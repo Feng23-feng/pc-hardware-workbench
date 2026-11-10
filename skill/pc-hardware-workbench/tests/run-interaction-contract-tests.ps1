@@ -584,11 +584,43 @@ Assert-Contains $hardwareCaseReport 'Write-LocalOutputFile' "Hardware case repor
 Assert-Contains $hardwareCaseReport 'Artifact content not embedded' "Hardware case report does not default to metadata-only export."
 $pathSafety = Get-Content -LiteralPath (Join-Path $resolvedRoot "scripts/local-path-safety.ps1") -Raw -Encoding UTF8
 $triageChecklist = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/triage/triage-checklist.md") -Raw -Encoding UTF8
+$triageRisk = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/triage/risk-taxonomy.md") -Raw -Encoding UTF8
+$triageProtocol = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/triage/experiment-protocol.md") -Raw -Encoding UTF8
+$collectorHandoff = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/triage/collector-handoff.md") -Raw -Encoding UTF8
 $telemetryAnalysis = $telemetry
+Assert-Contains $triageChecklist 'First-contact state machine' "Triage has no first-contact priority ladder."
+Assert-Contains $triageChecklist 'Evidence states' "Triage does not separate evidence quality."
+Assert-Contains $triageChecklist 'Question selection' "Triage has no discriminating-question policy."
+Assert-Contains $triageChecklist 'Audio stutter, crackle, or dropout' "Audio dropout triage is missing."
+Assert-Contains $triageChecklist 'USB audio path and overload hypothesis' "USB audio topology and overload triage is missing."
+Assert-Contains $triageChecklist 'port count is not a measurement of traffic' "USB port occupancy can still be treated as a measured overload."
+Assert-Contains $triageChecklist 'USB host-controller or device timeout and\s+an NVIDIA' "USB and display-driver timeouts can still be conflated."
+Assert-Contains $triageChecklist 'Windows Performance Recorder' "Audio/event trace routing is missing."
+Assert-Contains $triageChecklist 'Windows Performance Analyzer' "Trace analysis routing is missing."
 Assert-Contains $triageChecklist 'Everyday slowdown or intermittent stutter' "Everyday performance triage is missing."
 Assert-Contains $triageChecklist 'Kernel-Power 41' "Windows crash evidence guidance is missing."
 Assert-Contains $triageChecklist 'Peripheral or network scope boundary' "Peripheral and network handoff guidance is missing."
 Assert-Contains $triageChecklist 'Laptop battery or power-adapter issue' "Laptop battery and adapter triage is missing."
+Assert-Contains $triageRisk '## Triage priority' "Triage risk priority ordering is missing."
+Assert-Contains $triageRisk 'Do not recommend registry cleaners' "Unsafe triage remediation recommendation is not blocked."
+Assert-Contains $triageRisk 'driver rollback is a real change' "Driver rollback is not treated as a controlled change."
+Assert-Contains $triageProtocol 'Controlled diagnostic or tuning experiment' "Diagnostic experiment protocol is missing."
+Assert-Contains $triageProtocol 'Windows Performance Recorder' "WPR trace handoff is missing."
+Assert-Contains $triageProtocol 'Windows Performance Analyzer' "WPA trace handoff is missing."
+Assert-Contains $triageProtocol 'WinDbg' "Crash-dump handoff is missing."
+Assert-Contains $triageProtocol 'Later analysis may implicate a driver' "Driver evidence can still become unsupported causal certainty."
+Assert-Contains $triageProtocol 'Tracing is not passive' "Trace capture is incorrectly presented as read-only."
+Assert-Contains $triageProtocol 'topology comparison is one experiment variable' "USB topology can still be changed with several variables at once."
+Assert-Contains $triageProtocol 'Port count does not measure traffic' "USB traffic can still be inferred from port occupancy."
+Assert-Contains $collectorHandoff 'Event and log handoff' "Triage has no event-log handoff."
+Assert-Contains $collectorHandoff '`eventvwr.msc`' "Event Viewer guidance is missing."
+Assert-Contains $collectorHandoff '\.etl' "ETL routing is missing."
+Assert-Contains $collectorHandoff '\.dmp' "Crash-dump routing is missing."
+Assert-Contains $collectorHandoff 'Windows Performance Analyzer' "WPA is not linked to ETL evidence."
+Assert-Contains $collectorHandoff 'WinDbg' "WinDbg is not linked to dump evidence."
+Assert-Contains $collectorHandoff 'Correlation is not causation' "Event correlation can be misreported as causation."
+Assert-Contains $collectorHandoff 'Devices by connection' "USB device-to-controller grouping is missing."
+Assert-Contains $collectorHandoff 'does not reliably map' "USB controller grouping can still be presented as physical-port identity."
 Assert-Contains $telemetryAnalysis 'Screenshots and one-off monitoring values' "Monitoring screenshot evidence limits are missing."
 Assert-Contains $pathSafety 'UNC and network paths are rejected' "Local path helper accepts UNC/network paths."
 Assert-Contains $analyzer 'ConvertTo-MarkdownCell \$result\.FileName' "Telemetry filename is not passed through Markdown sanitization."
@@ -775,8 +807,8 @@ Assert-Contains $coverageMap 'controlled integration revisions' "Coverage map st
 Assert-True ($coverageMap -notmatch 'byte-for-byte unchanged') "Coverage map still claims source files are byte-for-byte unchanged."
 
 $scenarioDoc = Get-Content -LiteralPath (Join-Path $resolvedRoot "tests/interaction-scenarios.md") -Raw -Encoding UTF8
-Assert-Contains $scenarioDoc 'no larger than 12\.5 KB' "Interaction scenario budget does not match the 12.5 KB entrypoint budget."
-Assert-Contains $scenarioDoc 'no larger than 23 KB' "Interaction scenario budget does not match the 23 KB quick-mode budget."
+Assert-Contains $scenarioDoc 'no larger than 11 KB' "Interaction scenario budget does not match the 11 KB entrypoint budget."
+Assert-Contains $scenarioDoc 'no larger than 20 KB' "Interaction scenario budget does not match the 20 KB quick-mode budget."
 $crossCapabilityScenarios = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "tests/cross-capability-scenarios.md") `
     -Label "tests/cross-capability-scenarios.md"
@@ -836,9 +868,29 @@ foreach ($scenarioHeading in @(
     "125. Detailed review of a clean but ineffective result",
     "126. Detailed source conflict still needs provenance",
     "127. Detailed automation request is declined",
-    "128. Detailed recovery request can still be actionable"
+    "128. Detailed recovery request can still be actionable",
+    "129. Compound symptoms preserve the safety priority",
+    "130. Lights and fans but no display",
+    "131. Black screen may be display-only or a full restart",
+    "132. Intermittent crash evidence is not a component diagnosis",
+    "133. Event Viewer export and analysis-tool routing",
+    "134. User cannot find Event Viewer",
+    "135. Conflicting Event Viewer and monitoring evidence",
+    "136. Desktop Battlefield audio stutter with driver evidence",
+    "137. Driver reset or visual artifact blocks tuning",
+    "138. Storage warning outranks performance work",
+    "139. Thermal evidence before a quieter fan curve",
+    "140. Composite troubleshooting request must not drift into tuning and purchase",
+    "141. User demands one failed component",
+    "142. Crowded USB audio must remain a hypothesis",
+    "143. USB and GPU-driver evidence conflict",
+    "144. USB symptoms cross functional families",
+    "145. Remembered USB load is not current evidence",
+    "146. USB path improvement is not motherboard failure",
+    "147. Low-tool USB triage still has a next step",
+    "148. Urgent demand cannot justify a blind driver disable"
 )) {
-    Assert-Contains $scenarioDoc ([regex]::Escape("## $scenarioHeading")) "Integrated GPU scenario is missing: $scenarioHeading"
+    Assert-Contains $scenarioDoc ([regex]::Escape("## $scenarioHeading")) "Required behavior scenario is missing: $scenarioHeading"
 }
 Assert-True ($scenarioDoc -notmatch '14001\s*MHz') "The interaction scenarios reintroduced a concrete local memory reading."
 
@@ -872,6 +924,9 @@ Assert-Contains $manualAcceptance 'Fixed only when absent in all three rounds' "
 Assert-Contains $manualAcceptance 'For the 1\.4\.3\+ tone layer' "Manual acceptance does not preserve the tone-layer acceptance baseline."
 Assert-Contains $manualAcceptance 'GPU automatic candidate generation and result evaluation' "Manual acceptance has no integrated GPU candidate area."
 Assert-Contains $manualAcceptance 'Laptop power state and candidate fallback' "Manual acceptance has no laptop power-state and fallback area."
+foreach ($triageScenarioId in @("129", "132", "133", "136", "138", "140", "141", "142", "143", "144", "145", "146", "148")) {
+    Assert-Contains $manualAcceptance ("(?m)^\\| " + $triageScenarioId + " \\|") "Manual acceptance is missing triage scenario $triageScenarioId."
+}
 
 $auditTest = Join-Path $resolvedRoot "tests/run-telemetry-audit-tests.ps1"
 if (-not (Test-Path -LiteralPath $auditTest -PathType Leaf)) {
@@ -879,8 +934,8 @@ if (-not (Test-Path -LiteralPath $auditTest -PathType Leaf)) {
 }
 
 $skillBytes = (Get-Item -LiteralPath $skillPath).Length
-if ($skillBytes -gt 12800) {
-    $failures.Add("SKILL.md exceeds the 12.5 KB entrypoint budget: $skillBytes bytes.")
+if ($skillBytes -gt 11264) {
+    $failures.Add("SKILL.md exceeds the 11 KB entrypoint budget: $skillBytes bytes.")
 }
 
 $quickFiles = @(
@@ -892,8 +947,8 @@ $quickBytes = 0
 foreach ($relative in $quickFiles) {
     $quickBytes += (Get-Item -LiteralPath (Join-Path $resolvedRoot $relative)).Length
 }
-if ($quickBytes -gt 23000) {
-    $failures.Add("Quick-mode initial load exceeds the 23 KB budget: $quickBytes bytes.")
+if ($quickBytes -gt 20480) {
+    $failures.Add("Quick-mode initial load exceeds the 20 KB budget: $quickBytes bytes.")
 }
 
 $oldValidation = Join-Path $resolvedRoot "references/integration/validation-and-telemetry.md"

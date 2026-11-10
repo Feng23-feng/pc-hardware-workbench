@@ -559,6 +559,8 @@ async function testHomeViewport(siteUrl, name, width, height) {
       questionLabels: [...document.querySelectorAll("[data-home-scenario] strong")]
         .map(item => item.textContent.trim()),
       questionMarkers: document.querySelectorAll(".dse-home-question-marker").length,
+      quickPathCount: document.querySelectorAll("#dse-home-quick-paths button, #dse-home-quick-paths a").length,
+      termHref: document.querySelector("#dse-home-quick-paths a")?.getAttribute("href") || "",
       questionControlMinHeight: Math.min(
         ...[...document.querySelectorAll(".dse-home-question-option")]
           .map(item => Math.round(item.getBoundingClientRect().height))
@@ -573,10 +575,13 @@ async function testHomeViewport(siteUrl, name, width, height) {
       homeFlowInitial.questionLabels.includes("查看当前配置") &&
       homeFlowInitial.questionLabels.includes("考虑升级") &&
       homeFlowInitial.questionMarkers === 5 &&
+      homeFlowInitial.quickPathCount === 2 &&
+      homeFlowInitial.termHref === "interactive/#terms" &&
       homeFlowInitial.questionControlMinHeight >= 44 &&
       homeFlowInitial.flowColumns.split(" ").filter(Boolean).length === 1,
       `${prefix}inline simple flow does not start with one visible question step (${JSON.stringify(homeFlowInitial)}).`
     );
+    await screenshot(connection, `home-flow-initial-${name}.png`);
     await clickByPointer(connection, '[data-home-scenario="temperature"]');
     const selectedQuestionState = await evaluate(connection, `(() => ({
       optionsHidden: Boolean(document.getElementById("dse-home-question-options")?.hidden),
@@ -584,7 +589,9 @@ async function testHomeViewport(siteUrl, name, width, height) {
       summaryVisible: !document.getElementById("dse-home-question-summary")?.hidden,
       summary: document.getElementById("dse-home-question-summary-label")?.textContent.trim() || "",
       backdropScene: document.documentElement.dataset.crtSceneIntent || "",
-      backdropScanning: document.getElementById("dse-crt-backdrop")?.classList.contains("is-scanning") || false
+      backdropScanning: document.getElementById("dse-crt-backdrop")?.classList.contains("is-scanning") || false,
+      priorityBadge: document.querySelector(".dse-home-priority-badge")?.textContent.trim() || "",
+      noEvidenceVisible: (document.getElementById("dse-home-no-evidence")?.getBoundingClientRect().height || 0) > 0
     }))()`);
     check(
       await waitFor(connection, `(() => (
@@ -600,6 +607,8 @@ async function testHomeViewport(siteUrl, name, width, height) {
       selectedQuestionState.summary.includes("电脑温度偏高") &&
       selectedQuestionState.backdropScene === "fan" &&
       selectedQuestionState.backdropScanning === false &&
+      selectedQuestionState.priorityBadge.includes("优先补这个") &&
+      selectedQuestionState.noEvidenceVisible &&
       await waitFor(connection, `document.activeElement?.id === "dse-home-step-2-title"`, 1500),
       `${prefix}completed question step did not collapse or drive the background (${JSON.stringify(selectedQuestionState)}).`
     );
@@ -609,6 +618,15 @@ async function testHomeViewport(siteUrl, name, width, height) {
       first.click();
       return true;
     })()`);
+    await clickByPointer(connection, "#dse-home-no-evidence");
+    const minimumEvidence = await evaluate(connection, `(() => ({
+      visible: !document.getElementById("dse-home-minimum-evidence")?.hidden,
+      text: document.getElementById("dse-home-minimum-evidence")?.textContent.trim() || ""
+    }))()`);
+    check(
+      minimumEvidence.visible && minimumEvidence.text.includes("最小起点"),
+      `${prefix}no-evidence help does not provide a smallest first step (${JSON.stringify(minimumEvidence)}).`
+    );
     await clickByPointer(connection, "#dse-home-generate");
     await waitFor(connection, `document.activeElement?.id === "dse-home-step-3-title"`, 1500);
     const homeResult = await evaluate(connection, `(() => ({
@@ -621,6 +639,8 @@ async function testHomeViewport(siteUrl, name, width, height) {
       copy: document.getElementById("dse-home-result-copy")?.textContent.trim() || "",
       missing: document.getElementById("dse-home-result-missing")?.textContent.trim() || "",
       next: document.getElementById("dse-home-result-next")?.textContent.trim() || "",
+      detailVisible: !document.getElementById("dse-home-result-detail")?.hidden,
+      detailOpen: Boolean(document.getElementById("dse-home-result-detail")?.open),
       advancedHref: document.getElementById("dse-home-open-advanced")?.getAttribute("href") || "",
       verticalOrder: [
         document.getElementById("dse-home-step-1"),
@@ -647,10 +667,26 @@ async function testHomeViewport(siteUrl, name, width, height) {
       homeResult.copy.includes("检查方向") &&
       homeResult.missing.includes("缺少的信息") &&
       homeResult.next.includes("推荐下一步") &&
+      homeResult.detailVisible &&
+      !homeResult.detailOpen &&
       homeResult.advancedHref === "interactive/#triage" &&
       homeResult.verticalOrder &&
       homeResult.candidateFollowsResult,
       `${prefix}inline simple flow does not produce a result in vertical order (${JSON.stringify(homeResult)}).`
+    );
+    await clickByPointer(connection, "#dse-home-result-detail > summary");
+    const homeDetail = await evaluate(connection, `(() => ({
+      open: Boolean(document.getElementById("dse-home-result-detail")?.open),
+      texts: [
+        "dse-home-detail-confirmed",
+        "dse-home-detail-unknown",
+        "dse-home-detail-why",
+        "dse-home-detail-terms"
+      ].map(id => document.getElementById(id)?.textContent.trim() || "")
+    }))()`);
+    check(
+      homeDetail.open && homeDetail.texts.every(text => text.length > 0),
+      `${prefix}home detailed judgment is missing or empty (${JSON.stringify(homeDetail)}).`
     );
     await evaluate(connection, `(() => {
       Object.defineProperty(navigator, "clipboard", {
@@ -677,6 +713,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       questionSummaryHidden: Boolean(document.getElementById("dse-home-question-summary")?.hidden),
       evidenceStepHidden: Boolean(document.getElementById("dse-home-step-2")?.hidden),
       resultHidden: Boolean(document.getElementById("dse-home-step-3")?.hidden),
+      pressedOptions: document.querySelectorAll('[data-home-scenario][aria-pressed="true"]').length,
       backdropScene: document.documentElement.dataset.crtSceneIntent || ""
     }))()`);
     check(
@@ -684,8 +721,25 @@ async function testHomeViewport(siteUrl, name, width, height) {
       changedQuestion.questionSummaryHidden &&
       changedQuestion.evidenceStepHidden &&
       changedQuestion.resultHidden &&
+      changedQuestion.pressedOptions === 0 &&
       changedQuestion.backdropScene === "",
       `${prefix}changing the question does not reopen the collapsed choice step (${JSON.stringify(changedQuestion)}).`
+    );
+    await clickByPointer(connection, "#dse-home-unknown-toggle");
+    await clickByPointer(connection, '[data-home-unknown="slowEveryday"]');
+    const unknownRoute = await evaluate(connection, `(() => ({
+      summary: document.getElementById("dse-home-question-summary-label")?.textContent.trim() || "",
+      evidenceVisible: !document.getElementById("dse-home-step-2")?.hidden,
+      evidenceLabels: [...document.querySelectorAll("#dse-home-evidence-options input")]
+        .map(input => input.closest("label")?.innerText.trim() || ""),
+      priorityBadge: document.querySelector(".dse-home-priority-badge")?.textContent.trim() || ""
+    }))()`);
+    check(
+      unknownRoute.summary.includes("平时用软件会卡") &&
+      unknownRoute.evidenceVisible &&
+      unknownRoute.evidenceLabels.length === 3 &&
+      unknownRoute.priorityBadge.includes("优先补这个"),
+      `${prefix}unknown-symptom entry does not route to a concrete plain-language flow (${JSON.stringify(unknownRoute)}).`
     );
 
     await evaluate(connection, `(() => {
@@ -747,55 +801,46 @@ async function testHomeViewport(siteUrl, name, width, height) {
       !document.getElementById("dse-version-detail")?.hidden
     ))()`, 2500);
     check(deepLinked, `${prefix}direct version deep link does not reopen the archive.`);
-    await evaluate(connection, `(async () => {
-      document.querySelector('.dse-filter[data-filter="merge"]')?.click();
-      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    const publicMap = await evaluate(connection, `(() => ({
+      filters: [...document.querySelectorAll(".dse-filters [data-filter]")]
+        .map(button => button.dataset.filter),
+      prototypeFilter: Boolean(document.querySelector('[data-filter="prototype"]')),
+      mergeFilter: Boolean(document.querySelector('[data-filter="merge"]')),
+      prototypeTrack: Boolean(document.querySelector('.dse-track[data-track="prototype"]')),
+      convergence: Boolean(document.querySelector(".dse-convergence")),
+      coreCodes: [...document.querySelectorAll("#dse-core-lane .dse-node-code")]
+        .map(node => node.textContent.trim()),
+      integrationTitle: [...document.querySelectorAll("#dse-core-lane .dse-node")]
+        .find(node => node.textContent.includes("GPU 自动候选整合"))?.innerText.trim() || "",
+      archiveSeries: [...document.querySelectorAll("#dse-version-archive .dse-series")]
+        .map(series => series.querySelector(".dse-series-label")?.innerText.replace(/\\s+/g, " ").trim() || "")
+    }))()`);
+    check(
+      publicMap.filters.join(",") === "core,triage" &&
+      !publicMap.prototypeFilter &&
+      !publicMap.mergeFilter &&
+      !publicMap.prototypeTrack &&
+      !publicMap.convergence &&
+      publicMap.coreCodes.includes("WB-09") &&
+      publicMap.integrationTitle.includes("2.6.0 测试版") &&
+      publicMap.archiveSeries.some(label => label.includes("GPU 自动候选整合史 / 3.x")),
+      `${prefix}public map still exposes the retired prototype as a parallel product (${JSON.stringify(publicMap)}).`
+    );
+    await evaluate(connection, `(() => {
+      const root = document.getElementById("dse-root");
+      const map = document.querySelector(".dse-map-stage");
+      if (root && map) root.scrollTop += map.getBoundingClientRect().top - root.getBoundingClientRect().top - 80;
       return true;
     })()`);
-    const mergeLayout = await evaluate(connection, `(() => {
-      const map = document.querySelector(".dse-map-stage");
-      const convergence = document.querySelector(".dse-convergence");
-      const detail = map?.querySelector(":scope > .dse-detail");
-      const mapRect = map?.getBoundingClientRect();
-      const convergenceRect = convergence?.getBoundingClientRect();
-      const detailRect = detail?.getBoundingClientRect();
-      const convergenceStyle = convergence ? getComputedStyle(convergence) : null;
-      const detailStyle = detail ? getComputedStyle(detail) : null;
-      return {
-        mergeClass: map?.classList.contains("is-merge-layout") || false,
-        convergenceInsideMap: convergence?.parentElement === map,
-        tracksVisible: [...map.querySelectorAll(":scope > .dse-tracks")].some(
-          element => getComputedStyle(element).display !== "none"
-        ),
-        convergenceRect: {
-          left: Math.round((convergenceRect?.left || 0) - (mapRect?.left || 0)),
-          top: Math.round((convergenceRect?.top || 0) - (mapRect?.top || 0)),
-          right: Math.round((convergenceRect?.right || 0) - (mapRect?.left || 0))
-        },
-        detailRect: {
-          left: Math.round((detailRect?.left || 0) - (mapRect?.left || 0)),
-          top: Math.round((detailRect?.top || 0) - (mapRect?.top || 0))
-        },
-        convergenceColumnStart: Number(convergenceStyle?.gridColumnStart || 0),
-        convergenceRowStart: Number(convergenceStyle?.gridRowStart || 0),
-        detailColumnStart: Number(detailStyle?.gridColumnStart || 0),
-        detailRowStart: Number(detailStyle?.gridRowStart || 0)
-      };
-    })()`);
-    const mergeBalanced =
-      mergeLayout.mergeClass &&
-      mergeLayout.convergenceInsideMap &&
-      !mergeLayout.tracksVisible &&
-      (name === "desktop"
-        ? mergeLayout.convergenceColumnStart < mergeLayout.detailColumnStart &&
-          mergeLayout.convergenceRowStart === mergeLayout.detailRowStart
-        : mergeLayout.convergenceColumnStart === mergeLayout.detailColumnStart &&
-          mergeLayout.convergenceRowStart < mergeLayout.detailRowStart &&
-          Math.abs(mergeLayout.convergenceRect.left - mergeLayout.detailRect.left) <= 20);
-    check(
-      mergeBalanced,
-      `${prefix}merge stage leaves an unbalanced empty column (${JSON.stringify(mergeLayout)}).`
-    );
+    await sleep(100);
+    await screenshot(connection, `public-map-${name}.png`);
+    await navigate(connection, `${siteUrl}#ao-3-0-2`);
+    const archivedPrototype = await waitFor(connection, `(() => (
+      document.querySelector(".dse-home-technical")?.open &&
+      !document.getElementById("dse-version-detail")?.hidden &&
+      (document.getElementById("dse-version-detail-title")?.textContent || "").includes("3.0.2")
+    ))()`, 2500);
+    check(archivedPrototype, `${prefix}archived GPU candidate history is no longer reachable by deep link.`);
     await navigate(connection, siteUrl);
     await clickByPointer(connection, '[data-home-scenario="temperature"]');
     await evaluate(connection, `(() => {
@@ -1179,15 +1224,42 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
     await clickByPointer(connection, '[data-demo-mode="terms"]');
     const initialTerms = await evaluate(connection, `(() => ({
       coreCount: document.querySelectorAll("#dse-term-core-row [data-term-id]").length,
+      coreLabels: [...document.querySelectorAll("#dse-term-core-row [data-term-id]")]
+        .map(item => item.textContent.trim()),
       moreClosed: !document.querySelector(".dse-term-more")?.open,
       moreSummaryHeight: Math.round(document.querySelector(".dse-term-more > summary")?.getBoundingClientRect().height || 0)
     }))()`);
     check(
       initialTerms.coreCount === 6 &&
+      initialTerms.coreLabels.some(label => label.includes("MoDT")) &&
+      initialTerms.coreLabels.some(label => label.includes("稳定基线")) &&
+      initialTerms.coreLabels.some(label => label.includes("恢复路径")) &&
       initialTerms.moreClosed &&
       initialTerms.moreSummaryHeight >= 44,
       `${prefix}terms do not start with six core choices and a secondary disclosure (${JSON.stringify(initialTerms)}).`
     );
+    const modtTerm = await evaluate(connection, `(async () => {
+      document.querySelector('#dse-term-core-row [data-term-id="modt"]')?.click();
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return {
+        visible: !document.getElementById("dse-term-detail")?.hidden,
+        title: document.getElementById("dse-term-detail-title")?.textContent.trim() || "",
+        summary: document.getElementById("dse-term-summary")?.textContent.trim() || "",
+        mistake: document.getElementById("dse-term-mistake")?.textContent.trim() || "",
+        hash: location.hash
+      };
+    })()`);
+    check(
+      modtTerm.visible &&
+      modtTerm.title === "MoDT" &&
+      modtTerm.summary.includes("Mobile on Desktop") &&
+      modtTerm.mistake.includes("不是") &&
+      modtTerm.hash === "#term-modt",
+      `${prefix}MoDT term does not explain its platform boundary (${JSON.stringify(modtTerm)}).`
+    );
+    await screenshot(connection, `term-modt-${name}.png`);
+    await clickByPointer(connection, "#dse-term-close");
+    await screenshot(connection, `advanced-terms-${name}.png`);
     await clickByPointer(connection, '[data-demo-mode="tune"]');
     const selectedTune = await evaluate(connection, `(() => ({
       pressed: document.querySelector('[data-demo-mode="tune"]')?.getAttribute("aria-pressed") || "",
@@ -1203,8 +1275,107 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       !selectedTune.tuneStepsHidden &&
       selectedTune.backdropScene === "cpu" &&
       selectedTune.backdropScanning === false &&
-      selectedTune.tuneStepColumns.split(" ").filter(Boolean).length === (name === "desktop" ? 2 : 1),
+      selectedTune.tuneStepColumns.split(" ").filter(Boolean).length === (name === "desktop" ? 3 : 1),
       `${prefix}tuning theme does not reveal its step rail (${JSON.stringify(selectedTune)}).`
+    );
+    const expandedScenarios = await evaluate(connection, `(async () => {
+      const picker = document.getElementById("dse-scenario-picker");
+      const choose = async id => {
+        picker.value = id;
+        picker.dispatchEvent(new Event("change", { bubbles: true }));
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      };
+      const read = id => ({
+        id,
+        copy: document.getElementById("dse-gate-copy")?.textContent.trim() || "",
+        missing: [...document.querySelectorAll("#dse-gate-missing span")]
+          .map(item => item.textContent.trim()),
+        detail: [...document.querySelectorAll("#dse-gate-detail [id]")]
+          .map(item => item.textContent.trim()),
+        checkLabel: document.querySelector('[data-gate-action="check"]')?.textContent.trim() || "",
+        enterDisabled: Boolean(document.getElementById("dse-enter-experiment")?.disabled)
+      });
+      await choose("concept");
+      document.querySelector('[data-gate-action="check"]')?.click();
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      const concept = {
+        ...read("concept"),
+        answerVisible: !document.getElementById("dse-concept-answer")?.hidden,
+        answerCount: document.querySelectorAll("#dse-concept-answer li").length,
+        controls: document.querySelector('[data-gate-action="check"]')?.getAttribute("aria-controls") || ""
+      };
+      document.querySelector('[data-gate-action="direct"]')?.click();
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      const conceptDirect = {
+        title: document.getElementById("dse-direct-feedback-title")?.textContent.trim() || "",
+        copy: document.getElementById("dse-direct-feedback-copy")?.textContent.trim() || "",
+        answerHidden: Boolean(document.getElementById("dse-concept-answer")?.hidden)
+      };
+      await choose("modt");
+      const modt = read("modt");
+      await choose("detailedMissing");
+      const detailed = read("detailedMissing");
+      await choose("xmp");
+      const xmp = read("xmp");
+      await choose("staleControl");
+      const stale = read("staleControl");
+      await choose("cpu");
+      return { concept, conceptDirect, modt, detailed, xmp, stale };
+    })()`);
+    check(
+      expandedScenarios.concept.answerVisible &&
+      expandedScenarios.concept.answerCount >= 3 &&
+      expandedScenarios.concept.checkLabel.includes("已解释") &&
+      expandedScenarios.concept.controls === "dse-concept-answer" &&
+      expandedScenarios.concept.enterDisabled &&
+      expandedScenarios.conceptDirect.title.includes("不需要设备门禁") &&
+      expandedScenarios.conceptDirect.copy.includes("只有继续判断") &&
+      expandedScenarios.conceptDirect.answerHidden &&
+      expandedScenarios.modt.copy.includes("MoDT") &&
+      expandedScenarios.modt.detail.join(" ").includes("MoDT") &&
+      expandedScenarios.modt.missing.some(item => item.includes("主板")) &&
+      expandedScenarios.modt.detail.every(text => text.length > 0) &&
+      expandedScenarios.detailed.detail.join(" ").includes("详细") &&
+      expandedScenarios.detailed.missing.some(item => item.includes("稳定状态")) &&
+      expandedScenarios.xmp.missing.some(item => item.includes("内存")) &&
+      expandedScenarios.stale.copy.includes("控制值") &&
+      expandedScenarios.stale.missing.some(item => item.includes("控制值")),
+      `${prefix}expanded scenarios do not expose concept, detailed, MoDT, XMP or stale-control guidance (${JSON.stringify(expandedScenarios)}).`
+    );
+    const scenarioSpecificGate = await evaluate(connection, `(async () => {
+      const picker = document.getElementById("dse-scenario-picker");
+      picker.value = "modt";
+      picker.dispatchEvent(new Event("change", { bubbles: true }));
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      document.querySelector('[data-gate-action="check"]')?.click();
+      [...document.querySelectorAll("[data-gate-check]")].forEach(input => input.click());
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      const genericOnly = {
+        extraCount: document.querySelectorAll("[data-gate-extra]").length,
+        extraVisible: !document.getElementById("dse-gate-extra")?.hidden,
+        enterDisabled: Boolean(document.getElementById("dse-enter-experiment")?.disabled),
+        score: document.getElementById("dse-gate-summary-score")?.textContent.trim() || "",
+        note: document.getElementById("dse-gate-summary-note")?.textContent.trim() || ""
+      };
+      [...document.querySelectorAll("[data-gate-extra]")].forEach(input => input.click());
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      const complete = {
+        enterDisabled: Boolean(document.getElementById("dse-enter-experiment")?.disabled),
+        score: document.getElementById("dse-gate-summary-score")?.textContent.trim() || "",
+        note: document.getElementById("dse-gate-summary-note")?.textContent.trim() || ""
+      };
+      picker.value = "cpu";
+      picker.dispatchEvent(new Event("change", { bubbles: true }));
+      return { genericOnly, complete };
+    })()`);
+    check(
+      scenarioSpecificGate.genericOnly.extraVisible &&
+      scenarioSpecificGate.genericOnly.extraCount >= 3 &&
+      scenarioSpecificGate.genericOnly.enterDisabled &&
+      scenarioSpecificGate.genericOnly.note.includes("本场景") &&
+      !scenarioSpecificGate.complete.enterDisabled &&
+      scenarioSpecificGate.complete.note.includes("都已确认"),
+      `${prefix}scenario-specific evidence does not participate in the gate (${JSON.stringify(scenarioSpecificGate)}).`
     );
     await screenshot(connection, `vertical-advanced-${name}.png`);
     const interactiveFontSizes = await evaluate(connection, fontSizeExpression());
@@ -1264,17 +1435,20 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       categoryColumns: getComputedStyle(document.getElementById("dse-triage-category-grid")).gridTemplateColumns,
       caseStageHidden: Boolean(document.getElementById("dse-triage-case-stage")?.hidden),
       workflowHidden: Boolean(document.getElementById("dse-triage-workflow")?.hidden),
-      autoToolsOpen: Boolean(document.querySelector(".dse-triage-tools")?.open)
+      autoToolsOpen: Boolean(document.querySelector(".dse-triage-tools")?.open),
+      evidenceGuideOpen: Boolean(document.querySelector(".dse-triage-evidence-guide")?.open)
     }))()`);
     check(
-      triageCategoryInitial.categoryCount === 3 &&
+      triageCategoryInitial.categoryCount === 6 &&
       triageCategoryInitial.categoryColumns.split(" ").filter(Boolean).length === (name === "desktop" ? 3 : 1) &&
       triageCategoryInitial.caseStageHidden &&
       triageCategoryInitial.workflowHidden &&
-      !triageCategoryInitial.autoToolsOpen,
+      !triageCategoryInitial.autoToolsOpen &&
+      !triageCategoryInitial.evidenceGuideOpen,
       `${prefix}triage does not start with symptom categories (${JSON.stringify(triageCategoryInitial)}).`
     );
-    await clickByPointer(connection, '[data-triage-category="display"]');
+    await screenshot(connection, `triage-categories-${name}.png`);
+    await clickByPointer(connection, '[data-triage-category="performance"]');
     await clickByPointer(connection, '#dse-triage-case-grid [data-triage-case="stutter"]');
     const triageProgressInitial = await evaluate(connection, `(() => {
       const progress = document.getElementById("dse-triage-progress");
@@ -1428,6 +1602,38 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
         })}).`
       );
     }
+    const audioTriage = await evaluate(connection, `(async () => {
+      document.querySelector('[data-triage-category="display"]')?.click();
+      document.querySelector('#dse-triage-case-grid [data-triage-case="audioStutter"]')?.click();
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const guide = document.querySelector(".dse-triage-evidence-guide");
+      if (guide) guide.open = true;
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return {
+        category: document.querySelector('[data-triage-category="display"] strong')?.textContent.trim() || "",
+        title: document.getElementById("dse-triage-copy-title")?.textContent.trim() || "",
+        body: document.getElementById("dse-triage-copy-body")?.textContent.trim() || "",
+        evidence: document.getElementById("dse-triage-evidence-state")?.textContent.trim() || "",
+        caseCount: document.querySelectorAll("#dse-triage-case-grid [data-triage-case]").length,
+        evidenceGuide: guide?.innerText || ""
+      };
+    })()`);
+    check(
+      audioTriage.category.includes("画面与声音") &&
+      audioTriage.caseCount === 3 &&
+      audioTriage.title.includes("声音路径") &&
+      audioTriage.body.includes("HDMI") &&
+      audioTriage.body.includes("USB") &&
+      audioTriage.body.includes("根控制器") &&
+      audioTriage.body.includes("供电") &&
+      audioTriage.evidence.includes("USB") &&
+      audioTriage.evidence.includes("NVIDIA") &&
+      audioTriage.evidence.includes("尚未") &&
+      audioTriage.evidenceGuide.includes("Windows Performance Analyzer") &&
+      audioTriage.evidenceGuide.includes("WinDbg"),
+      `${prefix}audio-stutter triage does not distinguish output paths and evidence (${JSON.stringify(audioTriage)}).`
+    );
+    await screenshot(connection, `triage-audio-${name}.png`);
     /*
     const advancedThemes = await evaluate(connection, `(async () => {
       const results = {};
@@ -1617,7 +1823,10 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       score: document.getElementById("dse-gate-summary-score")?.textContent.trim() || "",
       state: document.getElementById("dse-gate-summary")?.dataset.state || "",
       note: document.getElementById("dse-gate-summary-note")?.textContent.trim() || "",
-      lights: document.querySelectorAll(".dse-gate-summary-light").length
+      lights: document.querySelectorAll(".dse-gate-summary-light").length,
+      detailConfirmed: document.getElementById("dse-gate-detail-confirmed")?.textContent.trim() || "",
+      detailUnknown: document.getElementById("dse-gate-detail-unknown")?.textContent.trim() || "",
+      detailTerms: document.getElementById("dse-gate-detail-terms")?.textContent.trim() || ""
     }))()`);
     check(
       gateButtonsInitial.length === 1 &&
@@ -1633,7 +1842,10 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       gateSummaryReady.score === "5 / 5" &&
       gateSummaryReady.state === "ready" &&
       gateSummaryReady.note.includes("条件齐全") &&
-      gateSummaryReady.lights === 1,
+      gateSummaryReady.lights === 1 &&
+      gateSummaryReady.detailConfirmed.includes("通用条件") &&
+      gateSummaryReady.detailUnknown.includes("真实") &&
+      gateSummaryReady.detailTerms.includes("固定测试场景"),
       `${prefix}gate action buttons change size between states (${JSON.stringify({
         initial: gateButtonsInitial,
         open: gateButtonsOpen,
@@ -1645,41 +1857,77 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
     await clickByPointer(connection, "#dse-generate-experiment");
     const experimentPlan = await evaluate(connection, `(() => {
       const output = document.getElementById("dse-experiment-output");
+      const detail = document.getElementById("dse-experiment-detail");
       return {
         visible: !output?.hidden,
         className: output?.className || "",
         outcome: output?.dataset.outcome || "",
         actionsVisible: !document.getElementById("dse-sim-actions")?.hidden,
-        actionSizes: [...document.querySelectorAll("[data-sim-result]")].map(button => {
-          const rect = button.getBoundingClientRect();
-          return {
-            width: Math.round(rect.width),
-            height: Math.round(rect.height),
-            fontSize: Number.parseFloat(getComputedStyle(button).fontSize)
-          };
-        }),
-        selected: [...document.querySelectorAll("[data-sim-result]")]
-          .filter(button => button.getAttribute("aria-pressed") === "true").length
+        reviewEnabled: !document.getElementById("dse-open-review")?.disabled,
+        detailVisible: !detail?.hidden,
+        detailOpen: Boolean(detail?.open),
+        detailText: [
+          "dse-detail-confirmed",
+          "dse-detail-unknown",
+          "dse-detail-why",
+          "dse-detail-terms"
+        ].map(id => document.getElementById(id)?.textContent.trim() || "")
       };
     })()`);
     check(
       experimentPlan.visible &&
       experimentPlan.className.includes("demo") &&
       experimentPlan.outcome === "" &&
-      experimentPlan.actionsVisible &&
-      experimentPlan.actionSizes.every(size =>
-        size.height >= 44 &&
-        size.fontSize === (name === "desktop" ? 18 : 16) &&
-        Math.abs(size.width - experimentPlan.actionSizes[0].width) <= 1
-      ) &&
-      Math.max(...experimentPlan.actionSizes.map(size => size.height)) -
-        Math.min(...experimentPlan.actionSizes.map(size => size.height)) <= 1 &&
-      experimentPlan.selected === 0,
+      !experimentPlan.actionsVisible &&
+      experimentPlan.reviewEnabled &&
+      experimentPlan.detailVisible &&
+      !experimentPlan.detailOpen &&
+      experimentPlan.detailText.every(text => text.length > 0),
       `${prefix}experiment plan appears pre-colored as a final outcome (${JSON.stringify(experimentPlan)}).`
     );
+    await clickByPointer(connection, "#dse-open-review");
+    const reviewReady = await evaluate(connection, `(() => ({
+      panelVisible: (document.getElementById("dse-tune-review-panel")?.getBoundingClientRect().height || 0) > 0,
+      emptyHidden: Boolean(document.getElementById("dse-review-empty")?.hidden),
+      actionsVisible: !document.getElementById("dse-sim-actions")?.hidden,
+      actionCount: document.querySelectorAll("[data-sim-result]").length,
+      labels: [...document.querySelectorAll("[data-sim-result]")].map(button => button.textContent.trim()),
+      label: document.getElementById("dse-review-state-label")?.textContent.trim() || "",
+      choiceColumns: getComputedStyle(document.getElementById("dse-sim-actions")).gridTemplateColumns,
+      actionSizes: [...document.querySelectorAll("[data-sim-result]")].map(button => {
+        const rect = button.getBoundingClientRect();
+        return {
+          width: Math.round(rect.width),
+          height: Math.round(rect.height),
+          fontSize: Number.parseFloat(getComputedStyle(button).fontSize)
+        };
+      }),
+      selected: [...document.querySelectorAll("[data-sim-result]")]
+        .filter(button => button.getAttribute("aria-pressed") === "true").length
+    }))()`);
+    check(
+      reviewReady.panelVisible &&
+      reviewReady.emptyHidden &&
+      reviewReady.actionsVisible &&
+      reviewReady.actionCount === 4 &&
+      reviewReady.labels.some(label => label.includes("没收益")) &&
+      reviewReady.labels.some(label => label.includes("失败")) &&
+      reviewReady.label.includes("选择") &&
+      reviewReady.choiceColumns.split(" ").filter(Boolean).length === (name === "desktop" ? 4 : 2) &&
+      reviewReady.selected === 0 &&
+      reviewReady.actionSizes.every(size =>
+        size.height >= 44 &&
+        size.fontSize === (name === "desktop" ? 18 : 16) &&
+        size.width >= 44
+      ) &&
+      Math.max(...reviewReady.actionSizes.map(size => size.width)) -
+        Math.min(...reviewReady.actionSizes.map(size => size.width)) <= 1,
+      `${prefix}result-review step is not available after the plan (${JSON.stringify(reviewReady)}).`
+    );
+    await screenshot(connection, `result-review-${name}.png`);
     const experimentOutcomes = await evaluate(connection, `(async () => {
       const samples = {};
-      for (const outcome of ["pass", "fail", "inconclusive"]) {
+      for (const outcome of ["pass", "no-benefit", "fail", "inconclusive"]) {
         const button = document.querySelector('[data-sim-result="' + outcome + '"]');
         button?.click();
         await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
@@ -1709,8 +1957,8 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
     const outcomeBorders = outcomeNames.map(outcome => experimentOutcomes[outcome].borderColor);
     const outcomeStatusColors = outcomeNames.map(outcome => experimentOutcomes[outcome].statusColor);
     check(
-      new Set(outcomeBorders).size === 3 &&
-      new Set(outcomeStatusColors).size === 3 &&
+      new Set(outcomeBorders).size === 4 &&
+      new Set(outcomeStatusColors).size === 4 &&
       outcomeNames.every(outcome => {
         const sample = experimentOutcomes[outcome];
         return sample.className.includes(`outcome-${outcome}`) &&

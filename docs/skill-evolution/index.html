@@ -7598,6 +7598,96 @@
       border-top: 0;
     }
 
+    #dse-root .dse-home-quick-paths {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      align-items: center;
+    }
+
+    #dse-root .dse-home-quick-paths[hidden] {
+      display: none;
+    }
+
+    #dse-root .dse-home-quick-paths button,
+    #dse-root .dse-home-quick-paths a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 0;
+      color: #aab4bc;
+      background: transparent;
+      border: 0;
+      font: inherit;
+      text-align: left;
+      text-decoration: underline;
+      text-decoration-color: #4b5760;
+      text-underline-offset: 4px;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-home-quick-paths button:hover,
+    #dse-root .dse-home-quick-paths button:focus-visible,
+    #dse-root .dse-home-quick-paths a:hover,
+    #dse-root .dse-home-quick-paths a:focus-visible {
+      color: var(--dse-text-strong);
+      text-decoration-color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-home-quick-paths button:focus-visible,
+    #dse-root .dse-home-quick-paths a:focus-visible {
+      outline: 2px solid rgb(var(--dse-cyan-rgb) / .8);
+      outline-offset: 3px;
+    }
+
+    #dse-root .dse-home-unknown-panel {
+      display: grid;
+      gap: 14px;
+      padding: 18px 0;
+      border-top: 1px solid var(--dse-line-soft);
+      border-bottom: 1px solid var(--dse-line-soft);
+    }
+
+    #dse-root .dse-home-unknown-panel[hidden] {
+      display: none;
+    }
+
+    #dse-root .dse-home-unknown-panel p {
+      margin: 0;
+      color: #a5adb5;
+      line-height: 1.7;
+    }
+
+    #dse-root .dse-home-unknown-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    #dse-root .dse-home-unknown-options button {
+      min-height: 48px;
+      padding: 10px 14px;
+      color: #d6dce0;
+      background: #0d1114;
+      border: 1px solid var(--dse-line-soft);
+      border-radius: 8px;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-home-unknown-options button:hover,
+    #dse-root .dse-home-unknown-options button:focus-visible {
+      color: var(--dse-text-strong);
+      background: var(--dse-surface-control);
+      border-color: var(--dse-line-strong);
+    }
+
+    #dse-root .dse-home-unknown-options button:focus-visible {
+      outline: 2px solid rgb(var(--dse-cyan-rgb) / .8);
+      outline-offset: 2px;
+    }
+
     #dse-root .dse-home-selection-summary {
       display: flex;
       align-items: center;
@@ -7781,6 +7871,70 @@
       cursor: pointer;
     }
 
+    #dse-root .dse-home-evidence-option > span {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+      min-width: 0;
+    }
+
+    #dse-root .dse-home-evidence-priority {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      min-height: 46px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--dse-line-soft);
+    }
+
+    #dse-root .dse-home-evidence-priority p {
+      margin: 0;
+      color: #a5adb5;
+      line-height: 1.65;
+    }
+
+    #dse-root .dse-home-evidence-priority button {
+      min-height: 44px;
+      padding: 0;
+      color: #9fcbd4;
+      background: transparent;
+      border: 0;
+      font: inherit;
+      text-decoration: underline;
+      text-decoration-color: #3e656d;
+      text-underline-offset: 4px;
+      cursor: pointer;
+    }
+
+    #dse-root .dse-home-evidence-priority button:hover,
+    #dse-root .dse-home-evidence-priority button:focus-visible {
+      color: #e7f7fa;
+      text-decoration-color: var(--dse-cyan);
+    }
+
+    #dse-root .dse-home-evidence-priority button:focus-visible {
+      outline: 2px solid rgb(var(--dse-cyan-rgb) / .8);
+      outline-offset: 3px;
+    }
+
+    #dse-root .dse-home-evidence-priority .is-minimum {
+      flex-basis: 100%;
+      color: var(--dse-text);
+    }
+
+    #dse-root .dse-home-evidence-priority .is-minimum[hidden] {
+      display: none;
+    }
+
+    #dse-root .dse-home-priority-badge {
+      color: var(--dse-cyan);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
     #dse-root .dse-home-evidence-option:has(input:checked) {
       color: var(--dse-text-strong);
       background: rgb(var(--dse-cyan-rgb) / .055);
@@ -7928,6 +8082,58 @@
       color: var(--dse-text-strong);
     }
 
+    #dse-root .dse-home-detail {
+      border-top: 1px solid var(--dse-line-soft);
+    }
+
+    #dse-root .dse-home-detail summary {
+      display: flex;
+      align-items: center;
+      min-height: 48px;
+      color: #d4dde2;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    #dse-root .dse-home-detail summary::after {
+      margin-left: auto;
+      color: var(--dse-cyan);
+      content: "+";
+    }
+
+    #dse-root .dse-home-detail[open] summary::after {
+      content: "−";
+    }
+
+    #dse-root .dse-home-detail summary::-webkit-details-marker {
+      display: none;
+    }
+
+    #dse-root .dse-home-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px 24px;
+      padding: 4px 0 18px;
+    }
+
+    #dse-root .dse-home-detail-grid section {
+      min-width: 0;
+      padding-top: 10px;
+      border-top: 1px solid var(--dse-line-soft);
+    }
+
+    #dse-root .dse-home-detail-grid h4 {
+      margin: 0 0 5px;
+      color: var(--dse-text-strong);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-home-detail-grid p {
+      color: #aab3ba;
+      line-height: 1.7;
+    }
+
     #dse-root .dse-advanced-entry {
       width: min(100% - 40px, 840px);
       margin: 96px auto 0;
@@ -8051,6 +8257,22 @@
         align-items: flex-start;
         flex-direction: column;
         gap: 5px;
+      }
+
+      #dse-root .dse-home-quick-paths {
+        display: grid;
+        justify-items: start;
+        gap: 2px;
+      }
+
+      #dse-root .dse-home-unknown-options,
+      #dse-root .dse-home-detail-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      #dse-root .dse-home-evidence-priority {
+        align-items: flex-start;
+        flex-direction: column;
       }
 
       #dse-root .dse-map-stage.is-merge-layout {
@@ -8231,6 +8453,22 @@
           <p class="dse-home-flow-lead" id="dse-home-question-lead">选择一个方向。这里不会读取或修改你的电脑。</p>
           <div class="dse-home-question-options" id="dse-home-question-options"
             role="group" aria-label="选择想处理的方向"></div>
+          <div class="dse-home-quick-paths" id="dse-home-quick-paths" aria-label="不确定时可以直接描述">
+            <button type="button" id="dse-home-unknown-toggle"
+              aria-expanded="false" aria-controls="dse-home-unknown-panel">
+              我不知道怎么选，直接描述症状
+            </button>
+            <a href="interactive/#terms">我只是想先弄懂一个词</a>
+          </div>
+          <div class="dse-home-unknown-panel" id="dse-home-unknown-panel" hidden>
+            <p>不用先判断问题类型。只说最接近下面哪一种，再从一个最小记录开始。</p>
+            <div class="dse-home-unknown-options" role="group" aria-label="选择最接近的变慢情况">
+              <button type="button" data-home-unknown="slowStartup">开机或进桌面很慢</button>
+              <button type="button" data-home-unknown="slowEveryday">平时用软件会卡</button>
+              <button type="button" data-home-unknown="stutter">游戏里突然卡一下</button>
+              <button type="button" data-home-unknown="slowRender">渲染或导出变慢</button>
+            </div>
+          </div>
           <div class="dse-home-selection-summary" id="dse-home-question-summary" hidden>
             <div>
               <small>已选方向</small>
@@ -8264,6 +8502,11 @@
             </legend>
             <div id="dse-home-evidence-options"></div>
           </fieldset>
+          <div class="dse-home-evidence-priority" id="dse-home-evidence-priority" aria-live="polite">
+            <p id="dse-home-evidence-priority-copy"></p>
+            <button type="button" id="dse-home-no-evidence">我一项都没有</button>
+            <p class="is-minimum" id="dse-home-minimum-evidence" tabindex="-1" hidden></p>
+          </div>
           <details class="dse-home-reason">
             <summary>为什么先问这些？</summary>
             <div>
@@ -8295,6 +8538,27 @@
             <p id="dse-home-result-copy"></p>
             <p class="is-missing" id="dse-home-result-missing"></p>
             <p class="is-next" id="dse-home-result-next"></p>
+            <details class="dse-home-detail" id="dse-home-result-detail">
+              <summary>展开详细判断</summary>
+              <div class="dse-home-detail-grid">
+                <section>
+                  <h4>现在能确定</h4>
+                  <p id="dse-home-detail-confirmed"></p>
+                </section>
+                <section>
+                  <h4>还不能确定</h4>
+                  <p id="dse-home-detail-unknown"></p>
+                </section>
+                <section>
+                  <h4>为什么先做这一步</h4>
+                  <p id="dse-home-detail-why"></p>
+                </section>
+                <section>
+                  <h4>相关词是什么意思</h4>
+                  <p id="dse-home-detail-terms"></p>
+                </section>
+              </div>
+            </details>
           </div>
           <div class="dse-home-flow-actions">
             <button type="button" class="primary" id="dse-home-copy-next">复制下一步给 Codex</button>
@@ -8314,7 +8578,7 @@
       <dl class="dse-candidate-summary">
         <div>
           <dt>版本状态</dt>
-          <dd>当前测试分支；GitHub main 已同步。</dd>
+          <dd>当前测试版；本地验收完成前尚未推送。</dd>
         </div>
         <div>
           <dt>读取方式</dt>
@@ -8494,15 +8758,12 @@
     <div class="dse-toolbar">
       <div class="dse-filters" aria-label="演变轨道切换">
         <button type="button" class="dse-filter" data-filter="core" aria-pressed="true">主工作台</button>
-        <button type="button" class="dse-filter" data-filter="prototype" aria-pressed="false">自动超频原型</button>
         <button type="button" class="dse-filter" data-filter="triage" aria-pressed="false">Triage 排障</button>
         <a class="dse-filter dse-lab-link" href="interactive/" title="打开高级模式">高级模式 ↗</a>
         <a class="dse-filter dse-lab-link" href="orrery/" title="查看文件星球">查看文件星球</a>
-        <button type="button" class="dse-filter" data-filter="merge" aria-pressed="false">融合阶段</button>
       </div>
       <div class="dse-legend">
         <span style="color: var(--dse-cyan)"><i class="dse-dot"></i>核心流程</span>
-        <span style="color: var(--dse-magenta)"><i class="dse-dot"></i>原型模块</span>
         <span style="color: var(--dse-lime)"><i class="dse-dot"></i>排障证据</span>
         <span style="color: var(--dse-amber)"><i class="dse-dot"></i>待完成</span>
       </div>
@@ -8521,17 +8782,6 @@
           <div class="dse-lane" id="dse-core-lane"></div>
         </section>
 
-        <section class="dse-track prototype" data-track="prototype" aria-label="自动超频原型演变">
-          <div class="dse-track-head">
-            <div>
-              <span class="dse-track-kicker">自动超频原型</span>
-              <h2>自动超频原型</h2>
-            </div>
-            <span class="dse-track-badge">未完善 · 尚未发布</span>
-          </div>
-          <div class="dse-lane" id="dse-prototype-lane"></div>
-        </section>
-
         <section class="dse-track triage" data-track="triage" aria-label="通用排障支线" hidden>
           <div class="dse-track-head">
             <div>
@@ -8544,7 +8794,7 @@
         </section>
       </div>
 
-      <section class="dse-detail merge" aria-live="polite">
+      <section class="dse-detail core" aria-live="polite">
         <div class="dse-floating-handle">
           <p class="dse-detail-kicker">节点介绍</p>
           <div class="dse-floating-actions">
@@ -8555,43 +8805,26 @@
         </div>
         <div class="dse-floating-body" id="dse-milestone-body">
           <div class="dse-detail-head">
-            <h3 id="dse-detail-title">融合阶段</h3>
-            <span class="dse-detail-status" id="dse-detail-status">NEXT / NOT STARTED</span>
+            <h3 id="dse-detail-title">统一工作流入口</h3>
+            <span class="dse-detail-status" id="dse-detail-status">已完成</span>
           </div>
           <div class="dse-detail-grid">
             <div class="dse-detail-cell">
               <p class="dse-label">目标</p>
-              <p class="dse-value" id="dse-detail-goal">自动超频成为正式工作台 Tune 分支中的模块，而不是第二个顶层 Skill。</p>
+              <p class="dse-value" id="dse-detail-goal">把配置读取、排障、遥测、调校和升级判断收敛到一个按目标路由的入口。</p>
             </div>
             <div class="dse-detail-cell">
               <p class="dse-label">主要动作</p>
-              <p class="dse-value" id="dse-detail-action">差异审计 · 文件所有权 · 最小路由接合 · 回归测试 · 真机验收。</p>
+              <p class="dse-value" id="dse-detail-action">先识别任务，再只加载该任务需要的参考，避免每件事都走完整流程。</p>
             </div>
             <div class="dse-detail-cell">
               <p class="dse-label">验证与边界</p>
-              <p class="dse-value" id="dse-detail-proof">保留正式采集、遥测和安全门禁；不复制第二套核心脚本，不自动写入硬件。</p>
+              <p class="dse-value" id="dse-detail-proof">单一 Skill 入口、模式路由、跨模式交接和交互闭合规则。</p>
             </div>
           </div>
         </div>
       </section>
     </div>
-
-    <section class="dse-convergence" aria-label="两种能力的融合目标">
-      <div class="dse-convergence-line"></div>
-      <span aria-hidden="true" style="text-align:center;color:var(--dse-cyan)">SYS</span>
-      <div class="dse-merge-stack">
-        <button type="button" class="dse-merge-button" data-merge-id="merge">
-          <span class="dse-merge-kicker">融合目标</span>
-          <span class="dse-merge-title">融入正式工作台 · 单一用户入口</span>
-        </button>
-        <button type="button" class="dse-merge-button" data-merge-id="merge-release">
-          <span class="dse-merge-kicker">发布前检查</span>
-          <span class="dse-merge-title">融合版发布门禁 · 回归与回滚</span>
-        </button>
-      </div>
-      <span aria-hidden="true" style="text-align:center;color:var(--dse-magenta)">AUTO</span>
-      <div class="dse-convergence-line reverse"></div>
-    </section>
 
     <section class="dse-demo" id="dse-demo" aria-labelledby="dse-demo-title" hidden>
       <header class="dse-demo-head">
@@ -8970,11 +9203,11 @@
         <div>
           <p class="dse-archive-kicker">版本档案 / 全部已记录版本</p>
           <h2 id="dse-archive-title">逐版本迭代档案</h2>
-          <p class="dse-archive-summary">从统一工作台 1.0.0 到 2.6.0 测试版，再到自动超频原型的独立分叉、档位证据和有限验证。1.6.0 之后新增遥测标准化、动态 RAG、LHM loopback Web、视觉证据、Doctor、入口减重、显存解释、分层调参和 GPU 自动候选整合。点击任一版本查看这一版实际改了什么、验证到什么程度，以及它在后续版本中的位置。</p>
+          <p class="dse-archive-summary">从统一工作台 1.0.0 到 2.6.0 测试版，以及后来选择性并入正式路线的 GPU 自动候选历史。1.6.0 之后新增遥测标准化、动态 RAG、LHM loopback Web、视觉证据、Doctor、入口减重、显存解释、分层调参和 GPU 自动候选整合。自动候选原型不再作为独立产品入口，只在这里保留可追溯记录。</p>
         </div>
         <div class="dse-archive-totals" aria-label="版本档案统计">
           <span class="dse-archive-total"><b id="dse-wb-count">0</b>工作台版本</span>
-          <span class="dse-archive-total prototype"><b id="dse-proto-count">0</b>原型版本</span>
+          <span class="dse-archive-total prototype"><b id="dse-proto-count">0</b>自动候选历史版本</span>
           <span class="dse-archive-total"><b id="dse-total-count">0</b>全部版本记录</span>
         </div>
       </header>
@@ -9034,7 +9267,6 @@
         root.querySelector(".dse-subtitle").textContent = "选一个最像你的情况，看看需要先确认什么。这里只做演示，不会读取或修改你的电脑。";
       }
       const coreLane = document.getElementById("dse-core-lane");
-      const prototypeLane = document.getElementById("dse-prototype-lane");
       const triageLane = document.getElementById("dse-triage-lane");
       const detailTitle = document.getElementById("dse-detail-title");
       const detailStatus = document.getElementById("dse-detail-status");
@@ -9042,7 +9274,6 @@
       const detailAction = document.getElementById("dse-detail-action");
       const detailProof = document.getElementById("dse-detail-proof");
       const milestoneDetail = root.querySelector(".dse-detail");
-      const mergeButtons = root.querySelectorAll("[data-merge-id]");
       const versionArchive = document.getElementById("dse-version-archive");
       const versionDetail = document.getElementById("dse-version-detail");
       const versionDetailTitle = document.getElementById("dse-version-detail-title");
@@ -9052,7 +9283,6 @@
       const versionLineage = document.getElementById("dse-version-lineage");
       const restoreInspectorButton = document.getElementById("dse-inspector-restore");
       const mapStage = root.querySelector(".dse-map-stage");
-      const convergenceSection = root.querySelector(".dse-convergence");
       const archiveSection = root.querySelector(".dse-archive");
       const homeTechnical = root.querySelector(".dse-home-technical");
       const demoSection = document.getElementById("dse-demo");
@@ -9539,11 +9769,11 @@
             ["2.4.0", "LHM Web 与显存证据门禁", "2026-11-03", "PREVIOUS LOCAL", ["LHM 0.9.6 改走 loopback Web /data.json，旧版 WMI 仅作兼容后备；只读授权环境下的传感器快照链路已验证。", "保留 GPU 硬件路径并透传到归一化结果；网络适配器自定义名称不进入 ObservedComponents。", "新增显存解释门禁：具体 GPU、显存类型与容量、驱动/vBIOS/工具、请求/观测口径和固定负载缺失时不给数值或带宽结论。", "显存时钟保留原始单位、来源和口径提示；明显超出合理范围的异常值仍过滤。", "修复工具脚本相对路径启动时参数默认阶段 PSScriptRoot 为空的问题。", "文件星球在 2.4.0 使用 86 文件视图并恢复同心轨道；历史快照不进入当前公开页面。"], "完整自动回归与 validator PASS；显存建议门禁、LHM 不可用与 LHM Web 只读场景三个独立行为对话 3/3 PASS；文件星球完成桌面、960px 与手机视图验收；独立人工签署仍 PENDING。", "2.5.0 之前的测试版；107 个版本记录，Pages 由 main 自动部署，CI 必须在最新提交通过。"],
             ["2.5.0", "一键证据包与前后对比", "2026-11-04", "PREVIOUS LOCAL", ["新增一条命令完成 CSV 分析、标准化、SVG 图表、基线与候选对比、结果卡和证据包 JSON。", "对比要求声明固定负载，并检查窗口、采样、指标名称和单位；温度使用绝对变化。", "无共同指标返回 retest，有采样或指标限制返回 review，不自动宣称 PASS。", "结果卡自包含，包含两轮图表、P95/极值变化、输入 SHA-256 和下一步。"], "完整自动回归与 validator PASS；证据流水线、Doctor、便携同步、结果卡和站点检查通过；独立人工签署仍 PENDING。", "2.5.1 之前的测试版；107 个版本记录，Pages 由 main 自动部署，CI 必须在最新提交通过。"],
             ["2.5.1", "显存时钟、数据率与分层调参", "2026-11-09", "PREVIOUS LOCAL", ["把显存问题拆成概念解释、官方理论带宽、本机读数解释和调参稳定性四层；只收集当前判断真正需要的证据。", "区分物理时钟、有效数据率、总线宽度和工具缩放显示；新增理论带宽计算器，结果明确标记为规格推算，不代表实测吞吐。", "LHM 显存传感器保留原始字段名与 clockBasis；高显存时钟不再直接判为异常，GDDR7 或厂商缩放口径可以合法出现。", "显存调参与核心曲线、功耗墙分开实验；缺少固定负载、帧时间、伪影、温度和恢复证据时不宣称稳定。"], "完整自动回归、validator、交互契约、LHM 适配与 VRAM 知识测试通过；Codex 与 DSH 安装树 94/94 一致；独立人工签署仍 PENDING。", "2.6.0 之前的测试版；108 个版本记录。"],
-            ["2.6.0", "GPU 自动候选与正式 Skill 整合", "2026-11-10", "CURRENT CANDIDATE", ["选择性整合 GPU 自动候选原型：用单一权威表生成一个由用户手动应用的单变量候选，不自动写入硬件。", "未知或空型号不再进入 Generic 数字候选；NVIDIA、AMD、Intel 按家族路由，未知、专业卡、核显和多适配器在给出数值前阻断。", "生成候选时必须显式提供当前控制值和报告新鲜度；信息不足返回 Blocked，并清空 pass 类字段，避免把阻断写成通过。", "新手第一轮只承诺一个可回退的单变量，不承诺电压或功耗墙保持不变；RTX 3060 Ti 使用有界起点。", "概念解释可以绕过调参门禁；调参和稳定结论仍保留完整证据要求。", "统一用户可见语言层；新手可按需把术语翻译成日常语言，设备状态栏改为自然语言表达。", "Quick 不代表 daily-validated；XMP/EXPO 先建立 stock 基线；inventory 先给五项摘要；inconclusive 支持 repeat 与 diagnose。", "MoDT 独立处理；pass likelihood 明确标记为 uncalibrated，不包装成校准概率。", "完整工作负载模板改为按需加载；Quick 首屏保持简版，详细模式可选择“展开详细”。", "笔记本区分 assumed-stock、declared-stock 与 declared-unlocked；保留 LHM 只读采集、RAG、证据链和 2.5.1 显存解释；Skill 主入口约 11.8 KB。"], "完整自动回归、validator、contract、Doctor、LHM、VRAM 与 GPU auto candidate tests 通过；独立人工模型行为签署仍 PENDING，不宣称广泛发布稳定。", "当前测试版；工作台 2.6.0，文件星球 106 个文件；109 个版本记录。"]
+            ["2.6.0", "GPU 自动候选与正式 Skill 整合", "2026-11-10", "CURRENT CANDIDATE", ["选择性整合 GPU 自动候选原型：用单一权威表生成一个由用户手动应用的单变量候选，不自动写入硬件。", "未知或空型号不再进入 Generic 数字候选；NVIDIA、AMD、Intel 按家族路由，未知、专业卡、核显和多适配器在给出数值前阻断。", "生成候选时必须显式提供当前控制值和报告新鲜度；信息不足返回 Blocked，并清空 pass 类字段，避免把阻断写成通过。", "新手第一轮只承诺一个可回退的单变量，不承诺电压或功耗墙保持不变；RTX 3060 Ti 使用有界起点。", "概念解释可以绕过调参门禁；调参和稳定结论仍保留完整证据要求。", "统一用户可见语言层；新手可按需把术语翻译成日常语言，设备状态栏改为自然语言表达。", "Quick 不代表 daily-validated；XMP/EXPO 先建立 stock 基线；inventory 先给五项摘要；inconclusive 支持 repeat 与 diagnose。", "MoDT 独立处理；pass likelihood 明确标记为 uncalibrated，不包装成校准概率。", "完整工作负载模板改为按需加载；Quick 首屏保持简版，详细模式可选择“展开详细”。", "笔记本区分 assumed-stock、declared-stock 与 declared-unlocked；保留 LHM 只读采集、RAG、证据链和 2.5.1 显存解释；Skill 主入口控制在 11 KB 预算内；Quick 初始加载控制在 20 KB 预算内。", "高级交互补齐任务型术语分组、MoDT 与常用词解释、概念问答、精简/详细判断以及保留/复测/诊断/恢复三步处理。", "排障改为安全、数据、启动、稳定性、功能、性能优先级，补充证据状态与一次一个区分问题。", "事件日志、ETL、转储与遥测按 Event Viewer、WPR/WPA、WinDbg 和内置分析器分流；USB 音频按端口、Hub、根控制器、供电和并发设备继续分层；新增 20 个真实与对抗性排障场景。"], "完整自动回归、validator、contract、Doctor、LHM、VRAM 与 GPU auto candidate tests 通过；独立人工模型行为签署仍 PENDING，不宣称广泛发布稳定。", "当前测试版；工作台 2.6.0，文件星球 106 个文件；109 个版本记录。"]
           ]
         },
         {
-          id: "proto-2", track: "prototype", label: "AUTO-OC / 2.x", sub: "独立分叉 · 消费卡防火墙 · 可用起点",
+          id: "proto-2", track: "prototype", label: "GPU 自动候选整合史 / 2.x", sub: "独立试验 · 消费卡防火墙 · 可用起点",
           versions: [
             ["2.2.0", "族系先验基线", "2026-10-29", "INTERNAL BASELINE", ["覆盖 NVIDIA RTX 30/40/50、AMD RDNA 与 Intel Arc。", "族系先验给方向和首轮阶梯，本机实测决定具体值。", "区分 NVIDIA 偏移与 AMD 实际频率单位。"], "族系识别、AMD 单位与新手流程回归通过；原工作台未修改。", "自动超频原型线的内部已知起点，不是公开发布版本。"],
             ["2.3.0", "准确性 P0", "2026-10-29", "INTERNAL", ["缺少目标、固定负载、通过判据或中止信号时 Blocked。", "新增 EvidenceBasis、Confidence 与 ExpectedMagnitude。", "型号、形态、族系冲突在给数字前阻断。"], "官方 validator 与完整回归通过。", "把“给一个数”改为“先证明有条件给数”。"],
@@ -9561,7 +9791,7 @@
           ]
         },
         {
-          id: "proto-3", track: "prototype", label: "AUTO-OC / 3.x", sub: "内部同步 · 尚未发布 · 当前停点",
+          id: "proto-3", track: "prototype", label: "GPU 自动候选整合史 / 3.x", sub: "选择性并入 2.6.0 · 仅作历史记录",
           versions: [
             ["3.0.0", "RTX 30 与三档位证据", "2026-10-30", "INTERNAL MAJOR", ["补 RTX 30 公共研究与 SKU 首步。", "30/40/50 三份公开参照接入候选器。", "记录实际时钟与滑块偏移不可直接互换，并暴露来源薄弱项。"], "GPU 与交互测试通过；原工作台仍不变。", "原型进入 3.x 的完整 NVIDIA 三档位证据线。"],
             ["3.0.1", "冻结与有限验证", "2026-10-30", "INTERNAL FROZEN", ["候选器 2.0.1、权威表 1.0.0 固化。", "完成有限范围的固定负载重复性检查。", "候选流程生成过曲线起点，但没有应用到硬件。"], "只读验证在限定范围内通过；原厂收益比较、新候选验证、重启与日常稳定仍未完成。原型未完善，尚未发布。", "3.0.1 内部冻结停点；融合前仍需更完整的实机收益和人工行为验收。"],
@@ -9594,10 +9824,8 @@
         heroVersion.textContent = currentReleaseRecord.version;
       }
       const lastMilestoneByTrack = {
-        core: "core-entry",
-        prototype: "proto-seed",
-        triage: "triage-safety",
-        merge: "merge"
+        core: "core-gpu-integration",
+        triage: "triage-safety"
       };
 
       const tuneStates = [
@@ -10581,87 +10809,15 @@
           status: "done", state: "CURRENT",
           goal: "把 CSV、结构化快照、官方资料、实时只读传感器和图片统一到可追溯、可降级、可诊断的证据体系。",
           action: "先标准化来源与时间，再记录证据卡和缺失；网页图片不再等于时间序列，Doctor 把权限问题与损坏问题分开。",
-          proof: "各子系统独立复核通过；入口 12,284 B、Quick 22,218 B；LHM Web 只读场景三组行为对话 3/3 PASS；广泛发布人工签署仍 PENDING；版本已进入 GitHub main。"
+          proof: "各子系统独立复核通过；入口约 10.9 KB、Quick 约 19.9 KB；LHM Web 只读场景三组行为对话 3/3 PASS；广泛发布人工签署仍 PENDING；版本已进入 GitHub main。"
         },
         {
-          id: "proto-seed", track: "prototype", code: "AO-01", title: "独立原型分叉",
-          summary: "复用工作台，另起版本",
-          status: "done", state: "CLEARED",
-          goal: "在不影响正式工作台的前提下试验自动 GPU 候选。",
-          action: "复制能力面、建立独立 Skill ID 和测试环境。",
-          proof: "正式工作台哈希保持不变；原型独立安装。"
-        },
-        {
-          id: "proto-candidate", track: "prototype", code: "AO-02", title: "GPU 自动候选",
-          summary: "NVIDIA / AMD 家族与单变量实验卡",
-          status: "done", state: "CLEARED",
-          goal: "从设备、基线和控件自动推导下一步实验。",
-          action: "输出候选值、单位、通过条件、中止信号和回退。",
-          proof: "候选脚本、家族 playbook 和 GPU 专项测试。"
-        },
-        {
-          id: "proto-firewall", track: "prototype", code: "AO-03", title: "分类防火墙",
-          summary: "专业卡 · 核显 · 多适配器阻断",
-          status: "done", state: "CLEARED",
-          goal: "阻止错误产品类别进入消费级显卡候选。",
-          action: "正向消费级识别、跨厂商多卡检查、错误确认不可覆盖。",
-          proof: "RTX A/Ada workstation、A10G、Radeon 780M、Intel Graphics、多卡样本。"
-        },
-        {
-          id: "proto-usable", track: "prototype", code: "AO-04", title: "usable-start 与结果判定",
-          summary: "首轮可用起点 · Keep / Diagnose / Revert",
-          status: "done", state: "CLEARED",
-          goal: "减少机械小步试探，让首轮更接近可用的日常起点。",
-          action: "分离 InitialStep 与 FollowupStep；按结果判断保留、重复、诊断或回退。",
-          proof: "结果语义、fallback、曲线起点和 Reliability/Utilization 优先级。"
-        },
-        {
-          id: "proto-state", track: "prototype", code: "AO-05", title: "功耗状态与历史",
-          summary: "原厂/解锁功耗墙 · Profile fallback · Lineage",
-          status: "done", state: "CLEARED",
-          goal: "让旧记录保留历史价值，但不直接成为当前状态。",
-          action: "分离 HardwareFingerprint 与 ConfigurationFingerprint；声明解锁状态。",
-          proof: "assumed-stock / declared-unlocked、profile-only fallback、旧候选阻断。"
-        },
-        {
-          id: "proto-evidence", track: "prototype", code: "AO-06", title: "30 / 40 / 50 系证据",
-          summary: "公开样本 · 档位 · 证据等级",
-          status: "done", state: "CLEARED",
-          goal: "把不同代际的公开数据转成带单位和限制的档位先验。",
-          action: "建立 public references、SKU 档位和 StartEvidenceClass。",
-          proof: "RTX 30/40/50 参考、样本上限比例和单来源标记。"
-        },
-        {
-          id: "proto-authority", track: "prototype", code: "AO-07", title: "单一数值权威",
-          summary: "Authority JSON · 文档去重",
-          status: "done", state: "CLEARED",
-          goal: "消除多个 Markdown 文件各自维护候选值造成的漂移。",
-          action: "候选器直接加载 tier authority；公开资料只保留外部证据。",
-          proof: "跨文档一致性、InitialStep / FollowupStep 和证据字段测试。"
-        },
-        {
-          id: "proto-proof", track: "prototype", code: "AO-08", title: "自动化证明",
-          summary: "validator · 全量回归 · 代表卡复现",
-          status: "done", state: "CLEARED",
-          goal: "让每次修改都有可重复的工程验证。",
-          action: "运行官方 validator、完整 Skill 测试和独立代表卡输出。",
-          proof: "Skill is valid!；GPU、交互、身份、遥测与编码测试全部通过。"
-        },
-        {
-          id: "proto-reality", track: "prototype", code: "AO-09", title: "有限只读验证",
-          summary: "固定负载 · 重复性门槛 · 恢复门禁",
-          status: "done", state: "LIMITED PASS",
-          goal: "验证候选器、恢复门禁和历史隔离能在真实设备上正常工作。",
-          action: "在有限范围内重复固定负载并检查结果波动；候选生成后没有应用。",
-          proof: "重复性达到预设门槛，功耗、温度和恢复配置有记录；具体设备与原始测量值不公开。"
-        },
-        {
-          id: "proto-freeze", track: "prototype", code: "AO-10", title: "内部停点 3.0.2 · 未发布",
-          summary: "GPU Boost 语义同步 · 尚未发布 · 当前内部停点",
-          status: "blocked", state: "UNPUBLISHED",
-          goal: "保留 3.0.2 的 GPU Boost 语义同步、有限验证证据与已知限制，但不把内部迭代写成公开发布。",
-          action: "停止扩展发布面，保留实时采集 SKIP、人工行为验收 PENDING，以及尚未完成的实际收益和日常稳定性验证。",
-          proof: "结构校验、跨模式契约、候选器与全量非实时测试通过；候选生成未写入硬件，具体设备与原始测量值不公开。"
+          id: "core-gpu-integration", track: "core", code: "WB-09", title: "GPU 自动候选整合",
+          summary: "2.6.0 测试版 · 手动应用 · 可恢复",
+          status: "done", state: "已整合",
+          goal: "把经过分类防火墙和证据门禁验证的 GPU 自动候选并入正式安全调参路线，不再维护独立产品线。",
+          action: "用户只提出一个目标，Skill 在条件齐全后生成一张手动应用的单变量实验卡；失败时回到已验证的稳定配置。",
+          proof: "完整自动回归、GPU 候选、交互契约、站点和响应式测试通过；真实设备覆盖与独立人工签署仍在继续。"
         },
         {
           id: "triage-safety", track: "triage", code: "TR-01", title: "物理安全优先",
@@ -10710,22 +10866,6 @@
           goal: "排障完成后，只把已经验证的结论交给调校或购买判断。",
           action: "稳定性未解释时回到 Triage；调校后只有在用户明确询问时才进入购买。",
           proof: "配置、维修、单件替换与整机重建按证据和成本顺序判断。"
-        },
-        {
-          id: "merge", track: "merge", code: "MERGE-01", title: "融入正式工作台",
-          summary: "Tune 分支模块化接合",
-          status: "next", state: "NEXT",
-          goal: "自动超频成为正式工作台 Tune 分支中的模块，而不是第二个顶层 Skill。",
-          action: "差异审计 · 文件所有权 · 最小路由接合 · 回归测试 · 真机验收。",
-          proof: "保留正式采集、遥测和安全门禁；不复制第二套核心脚本，不自动写入硬件。"
-        },
-        {
-          id: "merge-release", track: "merge", code: "MERGE-02", title: "融合版发布门禁",
-          summary: "单入口 · 完整回归 · 回滚包",
-          status: "next", state: "LATER",
-          goal: "在主工作台内完成可安装、可回滚的统一版本。",
-          action: "打包、完整人工验收、发布说明、回滚测试和独立签署。",
-          proof: "只有自动测试、真机验收和公开分发批准同时完成才进入发布。"
         }
       ];
 
@@ -10749,7 +10889,6 @@
       }
 
       milestones.filter(item => item.track === "core").forEach(item => coreLane.appendChild(createNode(item)));
-      milestones.filter(item => item.track === "prototype").forEach(item => prototypeLane.appendChild(createNode(item)));
       milestones.filter(item => item.track === "triage").forEach(item => triageLane.appendChild(createNode(item)));
 
       function createVersionButton(item) {
@@ -10770,11 +10909,7 @@
         return button;
       }
 
-      const currentSeriesByTrack = {
-        core: "wb-2-2",
-        prototype: "proto-3"
-      };
-      const expandedSeries = new Set(Object.values(currentSeriesByTrack));
+      const expandedSeries = new Set(["wb-2-2"]);
       const seriesRegistry = new Map();
 
       versionSeries.forEach(series => {
@@ -11571,8 +11706,7 @@
         }
         if (raw.startsWith("wb-") || raw.startsWith("ao-")) {
           if (homeTechnical) homeTechnical.open = true;
-          const track = raw.startsWith("wb-") ? "core" : "prototype";
-          applyFilter(track, false);
+          applyFilter("core", false);
           const record = versionById[raw];
           if (record) {
             expandSeries(record.seriesId);
@@ -11587,30 +11721,21 @@
           window.location.href = "interactive/";
           return;
         }
+        if (filter === "prototype" || filter === "merge") filter = "core";
         root.querySelectorAll(".dse-filter[data-filter]").forEach(button => {
           button.setAttribute("aria-pressed", String(button.dataset.filter === filter));
         });
         const demoMode = filter === "demo";
-        const mergeMode = filter === "merge";
         root.dataset.mapFilter = filter;
         mapStage.hidden = demoMode;
         demoSection.hidden = !demoMode;
-        mapStage.classList.toggle("is-merge-layout", mergeMode);
-        if (mergeMode) {
-          if (convergenceSection.parentElement !== mapStage) {
-            mapStage.insertBefore(convergenceSection, milestoneDetail);
-          }
-        } else if (convergenceSection.parentElement === mapStage) {
-          mapStage.after(convergenceSection);
-        }
         root.querySelectorAll(".dse-track").forEach(track => {
           track.hidden = track.dataset.track !== filter;
         });
         root.querySelectorAll(".dse-series").forEach(series => {
-          series.hidden = series.dataset.track !== filter;
+          series.hidden = demoMode;
         });
-        convergenceSection.hidden = filter !== "merge";
-        archiveSection.hidden = filter !== "core" && filter !== "prototype";
+        archiveSection.hidden = demoMode;
         if (demoMode) {
           hideInspector(false);
           if (activeDemoMode === "terms" && termDetail.hidden) startTermRotationTimer();
@@ -11650,9 +11775,6 @@
       });
       root.addEventListener("scroll", scheduleTuneStepNavigation, { passive: true });
       window.addEventListener("resize", scheduleTuneStepNavigation);
-      mergeButtons.forEach(button => {
-        button.addEventListener("click", () => selectMilestone(button.dataset.mergeId, true));
-      });
       const homeTechnicalSummary = homeTechnical?.querySelector(":scope > summary");
       function syncHomeTechnicalDisclosure() {
         const open = Boolean(homeTechnical?.open);
@@ -11689,6 +11811,9 @@
       const questionLead = document.getElementById("dse-home-question-lead");
       const questionSummary = document.getElementById("dse-home-question-summary");
       const questionSummaryLabel = document.getElementById("dse-home-question-summary-label");
+      const quickPaths = document.getElementById("dse-home-quick-paths");
+      const unknownToggle = document.getElementById("dse-home-unknown-toggle");
+      const unknownPanel = document.getElementById("dse-home-unknown-panel");
       const stepOne = document.getElementById("dse-home-step-1");
       const stepOneHeading = document.getElementById("dse-home-step-1-title");
       const stepTwo = document.getElementById("dse-home-step-2");
@@ -11701,6 +11826,10 @@
       const evidenceCount = document.getElementById("dse-home-evidence-count");
       const evidenceDetail = document.getElementById("dse-home-evidence-detail");
       const evidenceWhy = document.getElementById("dse-home-evidence-why");
+      const evidencePriority = document.getElementById("dse-home-evidence-priority");
+      const evidencePriorityCopy = document.getElementById("dse-home-evidence-priority-copy");
+      const noEvidenceButton = document.getElementById("dse-home-no-evidence");
+      const minimumEvidence = document.getElementById("dse-home-minimum-evidence");
       const backButton = document.getElementById("dse-home-back");
       const generateButton = document.getElementById("dse-home-generate");
       const changeQuestionButton = document.getElementById("dse-home-change-question");
@@ -11712,6 +11841,11 @@
       const resultCopy = document.getElementById("dse-home-result-copy");
       const resultMissing = document.getElementById("dse-home-result-missing");
       const resultNext = document.getElementById("dse-home-result-next");
+      const resultDetail = document.getElementById("dse-home-result-detail");
+      const detailConfirmed = document.getElementById("dse-home-detail-confirmed");
+      const detailUnknown = document.getElementById("dse-home-detail-unknown");
+      const detailWhy = document.getElementById("dse-home-detail-why");
+      const detailTerms = document.getElementById("dse-home-detail-terms");
       if (
         !root ||
         !flowSection ||
@@ -11721,6 +11855,9 @@
         !questionLead ||
         !questionSummary ||
         !questionSummaryLabel ||
+        !quickPaths ||
+        !unknownToggle ||
+        !unknownPanel ||
         !stepOne ||
         !stepOneHeading ||
         !stepTwo ||
@@ -11733,6 +11870,10 @@
         !evidenceCount ||
         !evidenceDetail ||
         !evidenceWhy ||
+        !evidencePriority ||
+        !evidencePriorityCopy ||
+        !noEvidenceButton ||
+        !minimumEvidence ||
         !backButton ||
         !generateButton ||
         !changeQuestionButton ||
@@ -11743,7 +11884,12 @@
         !resultStatus ||
         !resultCopy ||
         !resultMissing ||
-        !resultNext
+        !resultNext ||
+        !resultDetail ||
+        !detailConfirmed ||
+        !detailUnknown ||
+        !detailWhy ||
+        !detailTerms
       ) {
         return;
       }
@@ -11771,6 +11917,9 @@
           description: "想确认处理器、显卡、内存、硬盘和显示器是否与预期一致。",
           conclusion: "配置需要按来源和用途解释，单纯列出型号不能说明性能、兼容性或升级空间。",
           finalAction: "先生成只读配置清单，再按你的使用场景检查瓶颈、驱动版本和缺失项。",
+          priorityId: "purpose",
+          minimumEvidence: "先写下最常做的 1～2 件事，以及现在最想确认的部件。",
+          detailTerms: "“配置清单”是硬件与系统的只读快照，不等于性能诊断，也不证明驱动、散热或稳定性没有问题。",
           advancedMode: "",
           backdropScene: "space",
           evidence: [
@@ -11786,6 +11935,9 @@
           description: "温度高、风扇响，或不确定当前散热是否正常。",
           conclusion: "目前只能确定检查方向，不能仅凭一个温度读数判断散热或调校问题。",
           finalAction: "在同一固定负载下复测，先比较温度、功耗和频率，再检查风道与环境。",
+          priorityId: "load",
+          minimumEvidence: "先选一个能重复的游戏场景或测试任务，记下名称、画质和大概运行时间。",
+          detailTerms: "“固定负载”是每次都重复同一场景和设置；温度必须和功耗、频率、环境温度一起解释。",
           advancedMode: "triage",
           backdropScene: "fan",
           evidence: [
@@ -11801,6 +11953,9 @@
           description: "帧数不低但会突然卡一下，或同一场景表现不稳定。",
           conclusion: "目前还不能把卡顿归因到某一个硬件，需要同一场景下的时间序列证据。",
           finalAction: "固定同一场景，对照基线和异常段，再检查驱动、后台任务与温度/功耗记录。",
+          priorityId: "frames",
+          minimumEvidence: "先用游戏内叠加层或监控软件记录同一段场景的帧时间或 FPS，至少保存发生卡顿的时间点。",
+          detailTerms: "平均 FPS 可能掩盖短卡顿；帧时间、1% low 和异常发生时间更适合判断卡顿发生在哪一层。",
           advancedMode: "triage",
           backdropScene: "gpu",
           evidence: [
@@ -11816,6 +11971,9 @@
           description: "想降温、降噪或提高持续性能，但还不确定是否具备条件。",
           conclusion: "可以开始整理测试，但缺少条件时仍不会给出可直接套用的设置。",
           finalAction: "先确认目标和恢复方式，只改一个主变量，再用同一负载检查结果与重启后的稳定性。",
+          priorityId: "recovery",
+          minimumEvidence: "先打开现在使用的调校工具或 BIOS，找到恢复默认/载入默认设置的方法，并确认黑屏时还能操作。",
+          detailTerms: "“恢复路径”是出问题时具体怎么回到原样；“稳定基线”是没改设置时同一场景的正常表现。",
           advancedMode: "tune",
           backdropScene: "cpu",
           evidence: [
@@ -11831,6 +11989,9 @@
           description: "性能不够，或不确定该换处理器、显卡、内存还是硬盘。",
           conclusion: "升级前要先确认瓶颈、最低有效升级和成本，不能只按整机配置猜。",
           finalAction: "固定一个真实负载记录资源占用和限制，再比较保留、调参、维修、换件与等待。",
+          priorityId: "use-case",
+          minimumEvidence: "先写一个最常遇到问题的软件或游戏，以及慢、卡、爆内存或导出变慢中的具体现象。",
+          detailTerms: "“瓶颈”是实际限制当前表现的主要部分；配置更低或更高本身不能证明该换哪个部件。",
           advancedMode: "",
           backdropScene: "gpu",
           evidence: [
@@ -11840,6 +12001,63 @@
           ],
           evidenceDetail: "实际工作负载、当前配置、预算范围、兼容要求和不能接受的副作用。",
           why: "没有明确瓶颈时，升级可能只是换了一个更贵但仍不解决问题的部件。"
+        },
+        slowStartup: {
+          label: "开机或进桌面很慢",
+          description: "按电源后等待很久，或者进入桌面后还要卡一段时间。",
+          conclusion: "现在的信息只说明变慢发生在启动或登录阶段，还不能直接归因到硬盘、内存、启动项或系统更新。",
+          finalAction: "记录从按下电源到可正常操作的时间，并区分固件、Windows 启动和登录后加载三个阶段。",
+          priorityId: "timing",
+          minimumEvidence: "先用手机计时并记下“按电源、看到 Windows、能正常打开软件”三个时间点，不需要先安装新工具。",
+          detailTerms: "“启动阶段”可以分成主板固件、Windows 启动和登录后加载；只看总时长无法知道该查哪一层。",
+          advancedMode: "triage",
+          backdropScene: "space",
+          hiddenFromPrimary: true,
+          evidence: [
+            { id: "timing", label: "三个启动时间点" },
+            { id: "context", label: "最近更新、驱动或启动项变化" },
+            { id: "health", label: "磁盘空间、健康告警或系统事件" }
+          ],
+          evidenceDetail: "启动各阶段耗时、近期变化、磁盘与系统事件。",
+          why: "同样叫“开机慢”，可能卡在固件、系统启动、登录加载或磁盘响应；阶段不同，下一步也不同。"
+        },
+        slowEveryday: {
+          label: "平时用软件会卡",
+          description: "打开浏览器、聊天、办公或切窗口时变慢，但不一定是游戏掉帧。",
+          conclusion: "“平时卡”还不能区分内存不足、后台任务、磁盘、电源模式、温度或软件自身问题。",
+          finalAction: "固定一个日常操作，记录卡顿发生在打开、切换、保存还是大量多任务时。",
+          priorityId: "operation",
+          minimumEvidence: "先选一个具体操作，例如同时开 10 个网页后再切换，并记下卡顿发生在哪一步。",
+          detailTerms: "“资源占用”要看时间顺序，不只看一个任务管理器的瞬间数字；内存、CPU、磁盘和 GPU 可能分别限制。",
+          advancedMode: "triage",
+          backdropScene: "space",
+          hiddenFromPrimary: true,
+          evidence: [
+            { id: "operation", label: "卡顿发生在哪一步" },
+            { id: "resources", label: "卡顿时的资源占用记录" },
+            { id: "changes", label: "最近软件、驱动或系统变化" }
+          ],
+          evidenceDetail: "具体操作、发生时间、资源占用和近期变化。",
+          why: "日常变慢可能来自软件、内存压力、磁盘、电源或温度；必须先复现一个具体动作，才能比较。"
+        },
+        slowRender: {
+          label: "渲染或导出变慢",
+          description: "同一项目以前更快，或渲染、剪辑、编译、导出时明显拖慢。",
+          conclusion: "生产力变慢需要先确认同一项目和设置，再判断 CPU、GPU、显存、磁盘、温度或后台任务。",
+          finalAction: "固定项目、设置和导出目标，记录耗时及过程中的 CPU/GPU、内存、磁盘和温度变化。",
+          priorityId: "benchmark",
+          minimumEvidence: "先记录同一项目、同一设置下的总耗时；若以前有记录，也一起写下当时日期和版本。",
+          detailTerms: "“固定负载”在这里是同一项目、同样设置和输出目标；换项目或更新软件后不能直接比较耗时。",
+          advancedMode: "triage",
+          backdropScene: "gpu",
+          hiddenFromPrimary: true,
+          evidence: [
+            { id: "benchmark", label: "同一项目和设置的总耗时" },
+            { id: "resources", label: "渲染时资源占用与温度" },
+            { id: "changes", label: "软件、驱动、项目或硬件变化" }
+          ],
+          evidenceDetail: "项目设置、历史耗时、资源占用和近期变化。",
+          why: "渲染和导出可能受 CPU、GPU、显存、磁盘或温度限制；没有同一项目的前后记录，只能猜。"
         }
       };
 
@@ -11964,7 +12182,9 @@
 
       function renderQuestions() {
         questionOptions.replaceChildren();
-        Object.entries(scenarios).forEach(([id, scenario]) => {
+        Object.entries(scenarios)
+          .filter(([, scenario]) => !scenario.hiddenFromPrimary)
+          .forEach(([id, scenario]) => {
           const button = document.createElement("button");
           button.type = "button";
           button.className = "dse-home-question-option";
@@ -11980,7 +12200,7 @@
           button.append(title, description, marker);
           button.addEventListener("click", () => selectScenario(id));
           questionOptions.appendChild(button);
-        });
+          });
       }
 
       function renderEvidence(scenario) {
@@ -11998,13 +12218,22 @@
             else selected.delete(item.id);
             updateEvidenceCount(scenario);
           });
+          const copy = document.createElement("span");
           const text = document.createElement("span");
           text.textContent = item.label;
-          label.append(input, text);
+          copy.appendChild(text);
+          if (item.id === scenario.priorityId) {
+            const badge = document.createElement("small");
+            badge.className = "dse-home-priority-badge";
+            badge.textContent = "优先补这个";
+            copy.appendChild(badge);
+          }
+          label.append(input, copy);
           evidenceOptions.appendChild(label);
         });
         evidenceDetail.textContent = scenario.evidenceDetail;
         evidenceWhy.textContent = scenario.why;
+        minimumEvidence.hidden = true;
         updateEvidenceCount(scenario);
       }
 
@@ -12012,6 +12241,10 @@
         const selected = evidenceSelections[selectedScenarioId];
         evidenceCount.textContent = `已选 ${selected.size} / ${scenario.evidence.length} 项`;
         evidenceSummaryCount.textContent = `${selected.size} / ${scenario.evidence.length} 项`;
+        const priority = scenario.evidence.find(item => item.id === scenario.priorityId);
+        evidencePriorityCopy.textContent = priority && !selected.has(priority.id)
+          ? `如果只能先补一项：${priority.label}`
+          : "你已经保留了最关键的一项；其余信息可以之后再补。";
       }
 
       function collapseQuestionStep(scenario) {
@@ -12024,9 +12257,15 @@
 
       function showQuestionChooser() {
         flowStep = 1;
+        selectedScenarioId = "";
+        renderQuestions();
         questionLead.hidden = false;
         questionOptions.hidden = false;
         questionSummary.hidden = true;
+        quickPaths.hidden = false;
+        unknownPanel.hidden = true;
+        unknownToggle.setAttribute("aria-expanded", "false");
+        unknownToggle.textContent = "我不知道怎么选，直接描述症状";
         stepOneHeading.textContent = "你想先做什么";
         stepTwo.hidden = true;
         stepThree.hidden = true;
@@ -12046,6 +12285,10 @@
         homeEntryAnimations.get(stepThree)?.cancel();
         renderQuestions();
         collapseQuestionStep(scenario);
+        quickPaths.hidden = true;
+        unknownPanel.hidden = true;
+        unknownToggle.setAttribute("aria-expanded", "false");
+        unknownToggle.textContent = "我不知道怎么选，直接描述症状";
         renderEvidence(scenario);
         evidenceEditor.hidden = false;
         evidenceSummary.hidden = true;
@@ -12056,6 +12299,12 @@
         scrollToStep(stepTwo);
       }
 
+      function selectUnknownSymptom(id) {
+        const targetScenario = id === "stutter" ? "stutter" : id;
+        if (!scenarios[targetScenario]) return;
+        selectScenario(targetScenario);
+      }
+
       function generateResult({ scroll = true, animate = true } = {}) {
         const scenario = currentScenario();
         if (!scenario) return;
@@ -12063,12 +12312,23 @@
         const missing = missingEvidenceItems(scenario);
         resultStatus.textContent = missing.length
           ? `还需补齐 ${missing.length} 项`
-          : "信息已齐，可以复测";
+          : "信息已齐，可以继续判断";
         resultCopy.textContent = scenario.conclusion;
         resultMissing.textContent = missing.length
           ? `缺少的信息：${missing.map(item => item.label).join("、")}`
           : `已有信息：${selected.join("、")}。仍需要在真实设备上复核。`;
         resultNext.textContent = `推荐下一步：${scenario.finalAction}`;
+        detailConfirmed.textContent = selected.length
+          ? `你已经提供：${selected.join("、")}。这些信息能用来缩小检查范围，但仍不等于已经找到原因。`
+          : "目前只确定了问题方向；还没有可以用于对比的现场信息。";
+        detailUnknown.textContent = missing.length
+          ? `还缺 ${missing.map(item => item.label).join("、")}；这些信息没有补齐前，不能把猜测当作诊断。`
+          : "输入信息已经齐了，但真实温度、性能和稳定性仍要在同一场景里复核。";
+        detailWhy.textContent = scenario.why;
+        detailTerms.textContent = scenario.detailTerms ||
+          "这里的记录、基线和固定场景都是为了比较同一台电脑的前后变化，不代表可以直接套用别人的参数。";
+        resultDetail.open = false;
+        resultDetail.hidden = false;
         advancedLink.href = scenario.advancedMode
           ? `interactive/#${scenario.advancedMode}`
           : "interactive/";
@@ -12129,6 +12389,10 @@
         questionLead.hidden = false;
         questionOptions.hidden = false;
         questionSummary.hidden = true;
+        quickPaths.hidden = false;
+        unknownPanel.hidden = true;
+        unknownToggle.setAttribute("aria-expanded", "false");
+        unknownToggle.textContent = "我不知道怎么选，直接描述症状";
         evidenceEditor.hidden = false;
         evidenceSummary.hidden = true;
         stepOneHeading.textContent = "你想先做什么";
@@ -12139,6 +12403,36 @@
       }
 
       backButton.addEventListener("click", showQuestionChooser);
+      unknownToggle.addEventListener("click", () => {
+        const open = unknownPanel.hidden;
+        unknownPanel.hidden = !open;
+        unknownToggle.setAttribute("aria-expanded", String(open));
+        unknownToggle.textContent = open
+          ? "先收起症状选择"
+          : "我不知道怎么选，直接描述症状";
+        if (open) {
+          animateHomeEntry(unknownPanel, { distance: 4, duration: 180 });
+          window.requestAnimationFrame(() => {
+            unknownPanel.querySelector("[data-home-unknown]")?.focus({ preventScroll: true });
+          });
+        }
+      });
+      unknownPanel.addEventListener("click", event => {
+        const button = event.target.closest("[data-home-unknown]");
+        if (!button) return;
+        selectUnknownSymptom(button.dataset.homeUnknown);
+      });
+      noEvidenceButton.addEventListener("click", () => {
+        const scenario = currentScenario();
+        if (!scenario) return;
+        minimumEvidence.textContent = `最小起点：${scenario.minimumEvidence}`;
+        minimumEvidence.hidden = false;
+        minimumEvidence.focus({ preventScroll: true });
+        minimumEvidence.scrollIntoView({
+          behavior: reduceMotion.matches ? "auto" : "smooth",
+          block: "nearest"
+        });
+      });
       heroAction.addEventListener("click", event => {
         event.preventDefault();
         scrollWithinApp(flowSection, { focusHeading: true });
@@ -12199,6 +12493,10 @@
           });
           renderQuestions();
           collapseQuestionStep(currentScenario());
+          quickPaths.hidden = true;
+          unknownPanel.hidden = true;
+          unknownToggle.setAttribute("aria-expanded", "false");
+          unknownToggle.textContent = "我不知道怎么选，直接描述症状";
           if (flowStep >= 2) {
             renderEvidence(currentScenario());
             stepTwo.hidden = false;

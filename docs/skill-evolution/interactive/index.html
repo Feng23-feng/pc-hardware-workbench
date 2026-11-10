@@ -7163,6 +7163,15 @@
       min-height: 1.7em;
     }
 
+    #dse-root .dse-triage-evidence-state {
+      margin: 8px 0 0;
+      padding-top: 8px;
+      color: #a0a8b0;
+      border-top: 1px solid var(--dse-line-soft);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
     #dse-root .dse-triage-progress {
       margin-top: 16px;
       padding: 14px;
@@ -8250,6 +8259,171 @@
         transition-delay: 0ms !important;
       }
     }
+
+    #dse-root .dse-term-detail-cell.is-wide {
+      grid-column: 1 / -1;
+    }
+
+    #dse-root .dse-scenario-picker {
+      margin-top: 12px;
+    }
+
+    #dse-root .dse-gate-extra {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+      padding-top: 12px;
+      border-top: 1px solid var(--dse-line-soft);
+    }
+
+    #dse-root .dse-gate-extra[hidden] {
+      display: none;
+    }
+
+    #dse-root .dse-gate-extra > p {
+      margin: 0;
+      color: var(--dse-text-strong);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    #dse-root #dse-gate-extra-checks {
+      display: grid;
+      gap: 7px;
+    }
+
+    #dse-root .dse-experiment-detail {
+      margin-top: 12px;
+      border-top: 1px solid var(--dse-line-soft);
+    }
+
+    #dse-root .dse-experiment-detail > summary {
+      min-height: 44px;
+      color: var(--dse-text);
+      cursor: pointer;
+    }
+
+    #dse-root .dse-experiment-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px 18px;
+      padding: 4px 0 14px;
+    }
+
+    #dse-root .dse-experiment-detail-grid section {
+      min-width: 0;
+      padding-top: 10px;
+      border-top: 1px solid var(--dse-line-soft);
+    }
+
+    #dse-root .dse-experiment-detail-grid h4 {
+      margin: 0 0 5px;
+      color: var(--dse-text-strong);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    #dse-root .dse-experiment-detail-grid p {
+      margin: 0;
+      color: var(--dse-muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    #dse-root .dse-experiment-output > #dse-open-review {
+      margin-top: 12px;
+    }
+
+    #dse-root .dse-review-empty {
+      display: grid;
+      justify-items: start;
+      gap: 10px;
+      margin-top: 12px;
+      padding: 14px 0;
+      border-top: 1px solid var(--dse-line-soft);
+      border-bottom: 1px solid var(--dse-line-soft);
+    }
+
+    #dse-root .dse-review-empty p {
+      max-width: 62ch;
+      margin: 0;
+      color: var(--dse-muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-review-panel .dse-sim-actions {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-review-panel .dse-sim-actions .dse-demo-action {
+      width: 100%;
+      justify-content: center;
+    }
+
+    #dse-root .dse-review-rules {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0 20px;
+      margin-top: 14px;
+      border-top: 1px solid var(--dse-line-soft);
+    }
+
+    #dse-root .dse-review-rules p {
+      display: grid;
+      grid-template-columns: minmax(7.5em, auto) minmax(0, 1fr);
+      gap: 12px;
+      margin: 0;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--dse-line-soft);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    #dse-root .dse-review-rules strong {
+      color: var(--dse-text-strong);
+      font-weight: 600;
+    }
+
+    #dse-root .dse-review-rules span {
+      color: var(--dse-muted);
+    }
+
+    #dse-root .dse-sim-outcome.outcome-no-benefit,
+    #dse-root .dse-experiment-output.outcome-no-benefit {
+      --dse-outcome-color: var(--dse-magenta);
+      --dse-outcome-border: rgb(var(--dse-magenta-rgb) / .62);
+      --dse-outcome-wash: rgb(var(--dse-magenta-rgb) / .06);
+    }
+
+    #dse-root .dse-sim-outcome.is-outcome-updated {
+      animation: dse-outcome-confirm .36s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-steps {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    @media (max-width: 760px) {
+      #dse-root .dse-experiment-detail-grid,
+      #dse-root .dse-review-rules {
+        grid-template-columns: 1fr;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-review-panel .dse-sim-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      #dse-root .dse-review-rules p {
+        grid-template-columns: 1fr;
+        gap: 3px;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-tune-steps {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 
   <nav class="dse-global-nav" aria-label="全局导航">
@@ -8394,7 +8568,7 @@
         <button type="button" class="dse-filter" data-filter="prototype" aria-pressed="false">自动超频原型</button>
         <button type="button" class="dse-filter" data-filter="triage" aria-pressed="false">Triage 排障</button>
         <a class="dse-filter dse-lab-link" href="./" title="刷新高级模式">高级模式 ↗</a>
-        <button type="button" class="dse-filter" data-filter="merge" aria-pressed="false">融合阶段</button>
+        <button type="button" class="dse-filter" data-filter="merge" aria-pressed="false">整合进度</button>
       </div>
       <div class="dse-legend">
         <span style="color: var(--dse-cyan)"><i class="dse-dot"></i>核心流程</span>
@@ -8423,7 +8597,7 @@
               <span class="dse-track-kicker">自动超频原型</span>
               <h2>自动超频原型</h2>
             </div>
-            <span class="dse-track-badge">未完善 · 尚未发布</span>
+            <span class="dse-track-badge">历史原型 · 已选择性整合</span>
           </div>
           <div class="dse-lane" id="dse-prototype-lane"></div>
         </section>
@@ -8451,38 +8625,38 @@
         </div>
         <div class="dse-floating-body" id="dse-milestone-body">
           <div class="dse-detail-head">
-            <h3 id="dse-detail-title">融合阶段</h3>
-            <span class="dse-detail-status" id="dse-detail-status">NEXT / NOT STARTED</span>
+            <h3 id="dse-detail-title">整合状态</h3>
+            <span class="dse-detail-status" id="dse-detail-status">已整合到 2.6.0 测试版</span>
           </div>
           <div class="dse-detail-grid">
             <div class="dse-detail-cell">
               <p class="dse-label">目标</p>
-              <p class="dse-value" id="dse-detail-goal">自动超频成为正式工作台 Tune 分支中的模块，而不是第二个顶层 Skill。</p>
+              <p class="dse-value" id="dse-detail-goal">GPU 自动候选已选择性进入正式工作台的安全调参路线，仍是手动应用和测试版。</p>
             </div>
             <div class="dse-detail-cell">
               <p class="dse-label">主要动作</p>
-              <p class="dse-value" id="dse-detail-action">差异审计 · 文件所有权 · 最小路由接合 · 回归测试 · 真机验收。</p>
+              <p class="dse-value" id="dse-detail-action">已完成候选路由、证据门禁、阻断字段清理、测试场景和自动回归；真实设备与人工作业验收仍在继续。</p>
             </div>
             <div class="dse-detail-cell">
               <p class="dse-label">验证与边界</p>
-              <p class="dse-value" id="dse-detail-proof">保留正式采集、遥测和安全门禁；不复制第二套核心脚本，不自动写入硬件。</p>
+              <p class="dse-value" id="dse-detail-proof">保留正式采集、遥测和安全门禁；不复制第二套核心脚本，不自动写入硬件，也不宣称已经是长期稳定版本。</p>
             </div>
           </div>
         </div>
       </section>
     </div>
 
-    <section class="dse-convergence" aria-label="两种能力的融合目标">
+    <section class="dse-convergence" aria-label="两种能力的当前整合状态">
       <div class="dse-convergence-line"></div>
       <span aria-hidden="true" style="text-align:center;color:var(--dse-cyan)">SYS</span>
       <div class="dse-merge-stack">
         <button type="button" class="dse-merge-button" data-merge-id="merge">
-          <span class="dse-merge-kicker">融合目标</span>
-          <span class="dse-merge-title">融入正式工作台 · 单一用户入口</span>
+          <span class="dse-merge-kicker">当前状态</span>
+          <span class="dse-merge-title">已选择性整合到 2.6.0 测试版</span>
         </button>
         <button type="button" class="dse-merge-button" data-merge-id="merge-release">
-          <span class="dse-merge-kicker">发布前检查</span>
-          <span class="dse-merge-title">融合版发布门禁 · 回归与回滚</span>
+          <span class="dse-merge-kicker">仍未完成</span>
+          <span class="dse-merge-title">正式稳定发布 · 人工验收与真实设备覆盖</span>
         </button>
       </div>
       <span aria-hidden="true" style="text-align:center;color:var(--dse-magenta)">AUTO</span>
@@ -8552,6 +8726,10 @@
           <b>02</b>
           <span><strong>再安排测试</strong><small>只看计划，不动电脑</small></span>
         </a>
+        <a href="#dse-tune-review-panel" data-tune-step-link="review">
+          <b>03</b>
+          <span><strong>看结果</strong><small>保留、复测或恢复</small></span>
+        </a>
       </nav>
 
       <div class="dse-demo-grid">
@@ -8559,7 +8737,7 @@
           <div class="dse-demo-panel-head">
             <div>
               <h3 id="dse-term-title">先弄懂这些词</h3>
-              <p class="dse-term-intro">点上任意一个词，看它在实际场景里是什么意思。解释会拆成“它做什么、可以怎么理解、判断错会怎样”。</p>
+              <p class="dse-term-intro">先按你现在要做的事找词：开始前、看懂机器、看懂监控，再看具体参数。点开后会解释它做什么、常见误解和判断错会怎样。</p>
             </div>
             <span class="dse-demo-step">核心 6 个</span>
           </div>
@@ -8567,7 +8745,7 @@
           <div class="dse-term-rails">
             <section class="dse-term-rail" aria-labelledby="dse-term-core-label">
               <div class="dse-term-rail-head">
-                <p class="dse-term-rail-label" id="dse-term-core-label">常用术语</p>
+                <p class="dse-term-rail-label" id="dse-term-core-label">开始调参前先懂这些</p>
                 <span class="dse-term-cycle-meta">6 项</span>
               </div>
               <div class="dse-term-token-row" id="dse-term-core-row" aria-label="常驻核心术语"></div>
@@ -8576,13 +8754,13 @@
             <details class="dse-term-more">
               <summary>
                 <span>查看更多术语</span>
-                <small>CPU、内存与显卡</small>
+                <small>电脑形态、记录、监控与调参</small>
               </summary>
             <section class="dse-term-rail branch" aria-labelledby="dse-term-branch-label">
               <div class="dse-term-rail-head">
                 <p class="dse-term-rail-label" id="dse-term-branch-label">更多术语</p>
                 <div class="dse-term-cycle-meta">
-                  <span id="dse-term-cycle-label">01 / 07</span>
+                  <span id="dse-term-cycle-label">01 / 11</span>
                   <button type="button" class="dse-demo-action dse-term-next" id="dse-term-next">下一组</button>
                 </div>
               </div>
@@ -8614,6 +8792,10 @@
               <p class="dse-term-detail-label">判断错会怎样</p>
                 <p class="dse-term-detail-copy" id="dse-term-consequence"></p>
               </div>
+              <div class="dse-term-detail-cell is-wide">
+                <p class="dse-term-detail-label">最容易误会的地方</p>
+                <p class="dse-term-detail-copy" id="dse-term-mistake"></p>
+              </div>
             </div>
             <p class="dse-term-boundary">这些词只是帮助你理解，不等于你的电脑可以直接套用参数。真正操作前，仍要先确认设备、现状和怎么恢复。</p>
           </section>
@@ -8634,6 +8816,9 @@
           </div>
 
           <div class="dse-scenario-grid" id="dse-scenario-grid" aria-label="示例请求"></div>
+          <label class="dse-demo-field dse-scenario-picker">直接选择其他情况
+            <select id="dse-scenario-picker" aria-label="选择其他调参案例"></select>
+          </label>
           <details class="dse-secondary-actions dse-scenario-tools">
             <summary><span>自动示例</span><small>默认暂停</small></summary>
             <div class="dse-scenario-meta">
@@ -8650,6 +8835,28 @@
             <p class="dse-gate-copy" id="dse-gate-copy"></p>
             <div class="dse-gate-missing" id="dse-gate-missing"></div>
           </div>
+          <ul class="dse-rule-list" id="dse-concept-answer" aria-live="polite" hidden></ul>
+          <details class="dse-experiment-detail" id="dse-gate-detail">
+            <summary>展开详细判断</summary>
+            <div class="dse-experiment-detail-grid">
+              <section>
+                <h4>现在能确定</h4>
+                <p id="dse-gate-detail-confirmed"></p>
+              </section>
+              <section>
+                <h4>还不能确定</h4>
+                <p id="dse-gate-detail-unknown"></p>
+              </section>
+              <section>
+                <h4>为什么先做这一步</h4>
+                <p id="dse-gate-detail-why"></p>
+              </section>
+              <section>
+                <h4>相关词是什么意思</h4>
+                <p id="dse-gate-detail-terms"></p>
+              </section>
+            </div>
+          </details>
 
           <div class="dse-gate-actions">
             <button type="button" class="dse-demo-action primary" data-gate-action="check" aria-controls="dse-gate-checklist" aria-expanded="false">开始检查</button>
@@ -8674,7 +8881,7 @@
             <div class="dse-gate-checklist" id="dse-gate-checklist" hidden>
               <label class="dse-gate-check">
                 <input type="checkbox" data-gate-check="platform">
-                <span class="dse-gate-check-copy"><strong>1. 这是哪台电脑</strong><small>先确认台式机还是笔记本，以及处理器、显卡和系统。不要套用别人电脑上的设置。</small></span>
+                <span class="dse-gate-check-copy"><strong>1. 这是哪台电脑</strong><small>先确认台式机、笔记本、MoDT 或其他形态，以及处理器、显卡和系统。不要套用别人电脑上的设置。</small></span>
               </label>
               <label class="dse-gate-check">
                 <input type="checkbox" data-gate-check="baseline">
@@ -8692,6 +8899,10 @@
                 <input type="checkbox" data-gate-check="abort">
                 <span class="dse-gate-check-copy"><strong>5. 什么情况马上停</strong><small>提前说清楚：出现黑屏、花屏、驱动重置、异常温度或性能下降时，马上恢复原样。</small></span>
               </label>
+              <div class="dse-gate-extra" id="dse-gate-extra" hidden>
+                <p>这个情况还要额外确认</p>
+                <div id="dse-gate-extra-checks"></div>
+              </div>
               <div class="dse-gate-summary" id="dse-gate-summary" data-state="incomplete"
                 role="status" aria-live="polite" aria-atomic="true">
                 <i class="dse-gate-summary-light" aria-hidden="true"></i>
@@ -8709,7 +8920,7 @@
             </ul>
           </div>
           <details class="dse-tech-details">
-            <summary>给熟悉硬件的用户：查看内部判断状态</summary>
+            <summary>查看判断依据与原始状态</summary>
             <ol class="dse-state-rail" id="dse-tune-state-rail" aria-label="调校状态"></ol>
           </details>
         </article>
@@ -8818,23 +9029,85 @@
             <p class="dse-exp-status" id="dse-exp-status"></p>
             <p class="dse-exp-title" id="dse-exp-title"></p>
             <div class="dse-exp-grid" id="dse-exp-grid"></div>
-            <div class="dse-sim-actions" id="dse-sim-actions" hidden>
-              <button type="button" class="dse-demo-action" data-sim-result="pass"
-                aria-pressed="false">假设测试成功</button>
-              <button type="button" class="dse-demo-action" data-sim-result="fail"
-                aria-pressed="false">假设测试失败</button>
-              <button type="button" class="dse-demo-action" data-sim-result="inconclusive"
-                aria-pressed="false">结果说不清</button>
-            </div>
-            <div class="dse-sim-outcome" id="dse-sim-outcome" role="status"
-              aria-live="polite" aria-atomic="true" hidden>
-              <strong id="dse-sim-outcome-title"></strong>
-              <span id="dse-sim-outcome-body"></span>
-            </div>
+            <details class="dse-experiment-detail" id="dse-experiment-detail" hidden>
+              <summary>展开详细判断</summary>
+              <div class="dse-experiment-detail-grid">
+                <section>
+                  <h4>现在能确定</h4>
+                  <p id="dse-detail-confirmed"></p>
+                </section>
+                <section>
+                  <h4>还不能确定</h4>
+                  <p id="dse-detail-unknown"></p>
+                </section>
+                <section>
+                  <h4>为什么先做这一步</h4>
+                  <p id="dse-detail-why"></p>
+                </section>
+                <section>
+                  <h4>相关词是什么意思</h4>
+                  <p id="dse-detail-terms"></p>
+                </section>
+              </div>
+            </details>
+            <button type="button" class="dse-demo-action primary" id="dse-open-review"
+              aria-controls="dse-tune-review-panel" disabled>
+              进入结果处理
+            </button>
           </div>
           <details class="dse-tech-details">
-            <summary>给熟悉硬件的用户：查看测试状态</summary>
+            <summary>查看判断依据与测试状态</summary>
             <ol class="dse-state-rail" id="dse-experiment-state-rail" aria-label="实验状态"></ol>
+          </details>
+        </article>
+
+        <article class="dse-demo-panel wide dse-review-panel" id="dse-tune-review-panel"
+          data-demo-mode="tune" data-tune-step="review" aria-labelledby="dse-review-title" hidden>
+          <div class="dse-demo-panel-head">
+            <div>
+              <h3 id="dse-review-title">测完以后先判断结果</h3>
+              <p class="dse-demo-panel-sub">成功运行和值得长期保留不是一回事。先选择最接近的结果，再看下一步应该保留、复测、诊断还是恢复。</p>
+            </div>
+            <span class="dse-demo-step">03 · 结果处理</span>
+          </div>
+
+          <div class="dse-state-live" aria-live="polite">
+            <strong id="dse-review-state-label">现在：先完成测试计划</strong>
+            <span id="dse-review-state-next">没有测试计划时，不预设这一轮成功或失败。</span>
+          </div>
+
+          <div class="dse-review-empty" id="dse-review-empty">
+            <p>先回到第 02 步生成一份可恢复的测试计划。测完后再按真实结果来判断。</p>
+            <button type="button" class="dse-demo-action" id="dse-review-back">← 返回测试计划</button>
+          </div>
+
+          <div class="dse-sim-actions" id="dse-sim-actions" hidden>
+            <button type="button" class="dse-demo-action" data-sim-result="pass"
+              aria-pressed="false">有实际收益</button>
+            <button type="button" class="dse-demo-action" data-sim-result="no-benefit"
+              aria-pressed="false">成功但没收益</button>
+            <button type="button" class="dse-demo-action" data-sim-result="inconclusive"
+              aria-pressed="false">结果说不清</button>
+            <button type="button" class="dse-demo-action" data-sim-result="fail"
+              aria-pressed="false">失败或异常</button>
+          </div>
+
+          <div class="dse-sim-outcome" id="dse-sim-outcome" role="status"
+            aria-live="polite" aria-atomic="true" hidden>
+            <strong id="dse-sim-outcome-title"></strong>
+            <span id="dse-sim-outcome-body"></span>
+          </div>
+
+          <div class="dse-review-rules" aria-label="结果处理规则">
+            <p><strong>还有收益</strong><span>可以暂时保留；仍要重启、睡眠唤醒和日常使用确认。</span></p>
+            <p><strong>没有收益</strong><span>不要因为“没有报错”就保留，转去诊断真正限制性能的原因。</span></p>
+            <p><strong>说不清</strong><span>只重复一次同一设置和同一场景；仍不清楚就诊断，不继续加值。</span></p>
+            <p><strong>失败或异常</strong><span>先恢复上一次确认稳定的配置，再检查原因，不在失败路径继续加参数。</span></p>
+          </div>
+
+          <details class="dse-tech-details">
+            <summary>给熟悉硬件的用户：查看判断依据</summary>
+            <ol class="dse-state-rail" id="dse-review-state-rail" aria-label="结果处理状态"></ol>
           </details>
         </article>
 
@@ -8847,6 +9120,15 @@
             <span class="dse-demo-step">故障排查</span>
           </div>
           <div class="dse-triage-category-grid" id="dse-triage-category-grid" aria-label="症状类别"></div>
+          <details class="dse-secondary-actions dse-triage-evidence-guide">
+            <summary>事件日志、跟踪和蓝屏文件怎么选工具</summary>
+            <div>
+              <p><strong>.evtx</strong>：Windows 事件日志，用系统的 Event Viewer 先按时间和来源筛选。</p>
+              <p><strong>.etl</strong>：Windows Performance Recorder 录制的跟踪，用 Windows Performance Analyzer 查看。</p>
+              <p><strong>.dmp</strong>：蓝屏转储，用 WinDbg 查看错误码、模块和调用栈。</p>
+              <p><strong>CSV / SensorSnapshot</strong>：用 Skill 内置遥测分析器查看趋势；日志相关性不自动等于因果。</p>
+            </div>
+          </details>
           <div class="dse-triage-case-stage" id="dse-triage-case-stage" hidden>
             <p class="dse-triage-case-label" id="dse-triage-case-label">选择具体症状</p>
             <div class="dse-scenario-grid" id="dse-triage-case-grid" aria-label="故障案例"></div>
@@ -8866,6 +9148,7 @@
             <div class="dse-machine-copy" id="dse-triage-copy" data-tone="blocked" aria-live="polite">
               <p class="dse-machine-copy-title" id="dse-triage-copy-title"></p>
               <p class="dse-machine-copy-body" id="dse-triage-copy-body"></p>
+              <p class="dse-triage-evidence-state" id="dse-triage-evidence-state"></p>
             </div>
             <div class="dse-gate-actions">
               <button type="button" class="dse-demo-action primary" id="dse-triage-advance"
@@ -9065,13 +9348,22 @@
       const modeGuideSummary = document.getElementById("dse-mode-guide-summary");
       const modeGuideSteps = document.getElementById("dse-mode-guide-steps");
       const scenarioGrid = document.getElementById("dse-scenario-grid");
+      const scenarioPicker = document.getElementById("dse-scenario-picker");
       const gateRequest = document.getElementById("dse-gate-request");
       const gateOutput = document.getElementById("dse-gate-output");
       const gateTitle = document.getElementById("dse-gate-title");
       const gateCopy = document.getElementById("dse-gate-copy");
       const gateMissing = document.getElementById("dse-gate-missing");
+      const gateDetail = document.getElementById("dse-gate-detail");
+      const gateDetailConfirmed = document.getElementById("dse-gate-detail-confirmed");
+      const gateDetailUnknown = document.getElementById("dse-gate-detail-unknown");
+      const gateDetailWhy = document.getElementById("dse-gate-detail-why");
+      const gateDetailTerms = document.getElementById("dse-gate-detail-terms");
       const gateChecklist = document.getElementById("dse-gate-checklist");
       const gateRules = document.getElementById("dse-gate-rules");
+      const conceptAnswer = document.getElementById("dse-concept-answer");
+      const gateExtra = document.getElementById("dse-gate-extra");
+      const gateExtraChecks = document.getElementById("dse-gate-extra-checks");
       const gateRulesButton = root.querySelector('[data-gate-action="rules"]');
       const directActionButton = root.querySelector('[data-gate-action="direct"]');
       const directFeedback = document.getElementById("dse-direct-feedback");
@@ -9090,6 +9382,17 @@
       const simOutcome = document.getElementById("dse-sim-outcome");
       const simOutcomeTitle = document.getElementById("dse-sim-outcome-title");
       const simOutcomeBody = document.getElementById("dse-sim-outcome-body");
+      const experimentDetail = document.getElementById("dse-experiment-detail");
+      const detailConfirmed = document.getElementById("dse-detail-confirmed");
+      const detailUnknown = document.getElementById("dse-detail-unknown");
+      const detailWhy = document.getElementById("dse-detail-why");
+      const detailTerms = document.getElementById("dse-detail-terms");
+      const openReviewButton = document.getElementById("dse-open-review");
+      const reviewEmpty = document.getElementById("dse-review-empty");
+      const reviewStateLabel = document.getElementById("dse-review-state-label");
+      const reviewStateNext = document.getElementById("dse-review-state-next");
+      const reviewBackButton = document.getElementById("dse-review-back");
+      const reviewStateRail = document.getElementById("dse-review-state-rail");
       const tuneStateRail = document.getElementById("dse-tune-state-rail");
       const tuneStateLabel = document.getElementById("dse-tune-state-label");
       const tuneStateNext = document.getElementById("dse-tune-state-next");
@@ -9116,6 +9419,7 @@
       const triageCopy = document.getElementById("dse-triage-copy");
       const triageCopyTitle = document.getElementById("dse-triage-copy-title");
       const triageCopyBody = document.getElementById("dse-triage-copy-body");
+      const triageEvidenceState = document.getElementById("dse-triage-evidence-state");
       const triageAdvanceButton = document.getElementById("dse-triage-advance");
       const triageAutoToggle = document.getElementById("dse-triage-auto-toggle");
       const triageResetButton = document.getElementById("dse-triage-reset");
@@ -9138,6 +9442,7 @@
       const termAction = document.getElementById("dse-term-action");
       const termAnalogy = document.getElementById("dse-term-analogy");
       const termConsequence = document.getElementById("dse-term-consequence");
+      const termMistake = document.getElementById("dse-term-mistake");
       const termCloseButton = document.getElementById("dse-term-close");
       let activeInspector = "milestone";
 
@@ -9166,6 +9471,159 @@
       syncAdvancedDisclosure();
 
       const termDefinitions = {
+        "baseline": {
+          name: "稳定基线 / 原厂状态",
+          family: "START / 记录",
+          summary: "没有改设置、机器稳定时，在同一场景里重复测到的正常表现。",
+          action: "保存当前原配置，并记录同一固定场景下的性能、温度、功耗、频率和异常。",
+          analogy: "像出发前先量一次正常体温，后面才知道变化是不是真的。",
+          consequence: "单张截图、最高分和凭记忆的状态都不是完整基线；没有基线就无法判断改动有没有收益。",
+          mistake: "稳定基线不是跑分最高的一次，也不是只截一张温度图。"
+        },
+        "fixed-workload": {
+          name: "固定测试场景",
+          family: "START / 对比",
+          summary: "每次都使用同一个游戏场景、设置和操作步骤，让前后结果能比较。",
+          action: "固定地图、画质、分辨率、帧率上限、后台程序和记录时间。",
+          analogy: "像在同一条路上测油耗，换路线后不能直接比较数字。",
+          consequence: "场景一变，温度、负载和帧时间都会变；结果可能来自场景差异，而不是这次设置。",
+          mistake: "固定场景不等于固定一款游戏就够，画质、地图和后台程序也要保持一致。"
+        },
+        "recovery": {
+          name: "恢复路径 / 回滚",
+          family: "START / 安全",
+          summary: "出现黑屏、花屏、崩溃或开不了机时，怎么回到上一次确认稳定的状态。",
+          action: "先保存原配置，确认工具里的恢复按钮、BIOS 默认项或 Clear CMOS 方法是否可用。",
+          analogy: "像出门前先确认回家的路，而不是迷路后再找出口。",
+          consequence: "口头接受风险不能代替恢复方式；没有恢复路径时，不应开始会让系统无法启动的改动。",
+          mistake: "“出问题再想办法”不是恢复路径；必须知道具体怎么恢复，并确认自己能操作。"
+        },
+        "fallback": {
+          name: "Fallback / 回退值",
+          family: "START / 安全值",
+          summary: "测试失败时恢复到的上一个确认稳定的设置值。",
+          action: "在测试前写下回退值和恢复顺序；失败时先回到它，再判断原因。",
+          analogy: "像楼梯旁的安全平台，踩空时先回到已经站稳的位置。",
+          consequence: "回退值必须是当前机器验证过的稳定状态，不能借用别人的设置或临时猜测的数字。",
+          mistake: "回退不是继续往上试；没有验证过的值也不能被叫作 fallback。"
+        },
+        "modt": {
+          name: "MoDT",
+          family: "MACHINE / 机器形态",
+          summary: "Mobile on Desktop：移动平台芯片装在桌面形态主板上的系统，常见于迷你主机和特殊主板。",
+          action: "先确认主板、散热、供电路径和固件实际开放的控制，再判断能否沿用桌面路线。",
+          analogy: "像把移动平台装进小机箱，外形像桌面，散热和供电仍要单独核对。",
+          consequence: "MoDT 不能自动套普通台式机的功耗和散热假设，也不能当作笔记本处理；条件不明时不应生成数字候选。",
+          mistake: "MoDT 不是“迷你主机”的同义词，也不是普通桌面或笔记本。"
+        },
+        "tgp-tdp": {
+          name: "TGP / TDP",
+          family: "MACHINE / 功率等级",
+          summary: "芯片或平台被设计成大约使用多少功率，不等于当前时刻的实测功耗。",
+          action: "把厂商功率等级当作配置背景，再用固定负载下的实际功耗和限制原因判断。",
+          analogy: "像汽车标称油耗，只是参考等级，不能代表你现在这一脚油门用了多少油。",
+          consequence: "同一型号可能因厂商设置、散热和电源策略有不同功率；用 TGP/TDP 代替实测功耗会误判瓶颈。",
+          mistake: "TGP/TDP 不是实时功耗，也不是越高就一定越快。"
+        },
+        "vbios": {
+          name: "vBIOS",
+          family: "MACHINE / 显卡固件",
+          summary: "显卡自己的固件版本，会影响功率、风扇、电压和部分控制项。",
+          action: "在识别显卡型号和恢复状态时记录 vBIOS 版本；更新后重新验证旧配置。",
+          analogy: "像显卡内部的一套出厂规则，版本变了，旧设置不一定还能照用。",
+          consequence: "不同板卡厂商和版本的功耗墙、风扇策略可能不同；把另一张卡的 vBIOS 配置直接搬用不可靠。",
+          mistake: "vBIOS 不是 Windows 显卡驱动，也不是可以随便跨型号刷写的配置文件。"
+        },
+        "vram": {
+          name: "显存 / VRAM",
+          family: "MACHINE / 显存",
+          summary: "显卡用来保存纹理、画面和临时数据的专用内存。",
+          action: "先看显存类型、容量、位宽和同一场景下的实际占用，再判断容量或带宽是否成为限制。",
+          analogy: "像工作台的台面，太小时要频繁来回搬东西，大了也不代表处理速度一定更快。",
+          consequence: "容量、带宽和显存频率是不同指标；显存没跑满不代表显存不是瓶颈，容量大也不保证帧数更高。",
+          mistake: "VRAM 不是系统内存，显存容量也不能单独代表显卡性能。"
+        },
+        "whea-driver-reset": {
+          name: "WHEA / 驱动重置",
+          family: "MACHINE / 稳定性证据",
+          summary: "WHEA 是 Windows 记录的硬件错误；驱动重置是显示驱动崩溃后恢复的现象。",
+          action: "记录发生时间、游戏或负载、驱动版本、事件日志和当时的温度/功耗，再判断是否继续测试。",
+          analogy: "像设备报警后又自己恢复，恢复不等于报警没发生。",
+          consequence: "一次驱动重置、WHEA 或花屏都应被视为稳定性失败；不要继续提高频率来“压住”它。",
+          mistake: "画面恢复正常不代表问题消失，WHEA 也不等于已经确定是哪一件硬件坏了。"
+        },
+        "bios-uefi": {
+          name: "BIOS / UEFI",
+          family: "START / 主板设置",
+          summary: "开机前加载的主板固件和设置界面，负责硬件初始化、启动顺序和部分调校选项。",
+          action: "只在确认主板型号和可见菜单后修改设置；不同主板的路径和名称可能不同。",
+          analogy: "像整台电脑的启动配置台，改错可能影响开机和恢复，不只影响一个游戏。",
+          consequence: "BIOS 改动可能影响启动、内存训练和稳定性；必须保留默认设置和恢复方式。",
+          mistake: "UEFI 是现在常见的 BIOS 形态；网页里看到的菜单名称不一定与你的主板相同。"
+        },
+        "clear-cmos": {
+          name: "Clear CMOS",
+          family: "START / 固件恢复",
+          summary: "清除主板固件设置，让它回到出厂默认状态。",
+          action: "先查主板说明，确认跳线、按钮或电池操作方式，以及操作后需要重新设置的启动项。",
+          analogy: "像把主板设置恢复成空白出厂页，能救回错误配置，也会丢掉原来的自定义设置。",
+          consequence: "不同主板的操作方式不同；盲试可能影响启动、风扇或安全设置，必须先确认具体主板说明。",
+          mistake: "Clear CMOS 不是普通重启，也不是所有主板都靠拔电池完成。"
+        },
+        "session-only": {
+          name: "只本次生效",
+          family: "START / 持久化",
+          summary: "设置只在这次运行或测试中生效，重启后不自动保留。",
+          action: "确认工具是否只应用当前会话，并在重启后重新核对实际值。",
+          analogy: "像临时贴一张便签，下一次开机不会自动贴回来。",
+          consequence: "本次生效适合做小范围试验，但不能当作长期配置；重启后值消失不代表已经恢复所有相关设置。",
+          mistake: "没有重启后仍然生效，不等于设置没有应用过。"
+        },
+        "hot-spot": {
+          name: "热点温度",
+          family: "MONITOR / 温度",
+          summary: "显卡局部传感点的最高温度，不等于整张卡或核心的平均温度。",
+          action: "在同一固定负载下看热点与核心温度的差值，并观察是否持续上升或伴随降频。",
+          analogy: "像房间平均温度正常，但某个角落已经很热。",
+          consequence: "不同厂商的传感器位置和上限不同；单次热点数字不能单独诊断硅脂、散热器或硬件故障。",
+          mistake: "热点温度不是核心温度，也不是所有显卡都暴露相同的传感器。"
+        },
+        "memory-junction": {
+          name: "显存结温",
+          family: "MONITOR / 显存温度",
+          summary: "显存芯片或封装内部的热点温度，不是显卡核心温度。",
+          action: "在高负载和显存测试中观察显存结温、错误、花屏和性能下降。",
+          analogy: "像仓库内部货架的局部温度，门口温度正常不代表里面也正常。",
+          consequence: "显存过热可能先表现为错误、花屏或性能下降；显存超频时必须把结温和数据正确性一起看。",
+          mistake: "显存结温不可见不代表安全，核心温度正常也不代表显存没有过热。"
+        },
+        "frame-time-p95": {
+          name: "帧时间 / P95",
+          family: "MONITOR / 结果",
+          summary: "帧时间表示每一帧花了多久；P95 看的是较慢的那部分帧，不只看平均 FPS。",
+          action: "在同一场景记录帧时间分布和 1% / 0.1% low；用 P95 观察卡顿尾部。",
+          analogy: "平均每分钟到达多少人不代表队伍里没有长时间停顿。",
+          consequence: "平均 FPS 上升但 P95 变差，实际体感仍可能更卡；不能只看一个更漂亮的平均数字。",
+          mistake: "P95 不是最高帧，也不是所有测试工具都用同一种窗口和单位。"
+        },
+        "material-benefit": {
+          name: "实际收益",
+          family: "RESULT / 判断",
+          summary: "在同一固定场景里，性能、温度或噪音出现值得保留的真实改善，并且没有新的异常。",
+          action: "和稳定基线比较性能、帧时间、有效频率、温度、功耗和错误，不只看是否成功开机。",
+          analogy: "像换了鞋垫后真的走得更稳，而不是只是因为鞋还能穿上。",
+          consequence: "能运行、没有报错或跑分单次变高都不等于值得保留；没有实际收益就应停止加码并转诊断。",
+          mistake: "成功结果不自动等于收益；性能提升也可能被噪声、降频或稳定性风险抵消。"
+        },
+        "inconclusive-result": {
+          name: "结果说不清",
+          family: "RESULT / 判断",
+          summary: "数据和噪声、场景变化或缺失证据混在一起，当前还不能判断成功还是失败。",
+          action: "保持同一个设置和场景复测一次；仍然说不清时转诊断，不继续加第二个变量。",
+          analogy: "像测体重时秤一直晃动，先重新站稳再量，不要先换一台秤。",
+          consequence: "把说不清当作通过会保留不可靠配置；继续加值则会让失败原因更难分离。",
+          mistake: "结果说不清既不是成功，也不是失败，更不是继续加大参数的许可。"
+        },
         "vf-curve": {
           name: "V/F 曲线",
           family: "CORE / GPU 动态",
@@ -9409,15 +9867,31 @@
       };
 
       const coreTermIds = [
-        "vf-curve",
-        "effective-clock",
-        "power-limit",
-        "perfcap",
+        "baseline",
+        "fixed-workload",
+        "recovery",
+        "modt",
         "memory-profile",
-        "thermal-throttle"
+        "perfcap"
       ];
 
       const branchTermGroups = [
+        {
+          label: "机器形态与硬件",
+          ids: ["tgp-tdp", "vbios", "vram", "whea-driver-reset"]
+        },
+        {
+          label: "记录、生效与恢复",
+          ids: ["bios-uefi", "clear-cmos", "session-only", "fallback"]
+        },
+        {
+          label: "监控读数与结果",
+          ids: ["effective-clock", "power-limit", "hot-spot", "memory-junction"]
+        },
+        {
+          label: "帧时间与处理",
+          ids: ["frame-time-p95", "material-benefit", "inconclusive-result", "thermal-throttle"]
+        },
         {
           label: "CPU / 供电与互连",
           ids: ["ac-loadline", "llc-vdroop", "vcore-offset", "ring-cache-ratio"]
@@ -9440,11 +9914,11 @@
         },
         {
           label: "GPU / 动态与显存",
-          ids: ["gpu-core-offset", "gpu-memory-offset", "gpu-hot-spot", "gpu-boost-afs"]
+          ids: ["vf-curve", "gpu-core-offset", "gpu-memory-offset", "gpu-boost-afs"]
         },
         {
-          label: "GPU / 电压与散热",
-          ids: ["gpu-voltage-offset", "fan-curve"]
+          label: "GPU / 电压、热点与散热",
+          ids: ["gpu-voltage-offset", "gpu-hot-spot", "fan-curve"]
         }
       ];
 
@@ -9576,7 +10050,7 @@
             ["2.4.0", "LHM Web 与显存证据门禁", "2026-11-03", "PREVIOUS LOCAL", ["LHM 0.9.6 改走 loopback Web /data.json，旧版 WMI 仅作兼容后备；只读授权环境下的传感器快照链路已验证。", "保留 GPU 硬件路径并透传到归一化结果；网络适配器自定义名称不进入 ObservedComponents。", "新增显存解释门禁：具体 GPU、显存类型与容量、驱动/vBIOS/工具、请求/观测口径和固定负载缺失时不给数值或带宽结论。", "显存时钟保留原始单位、来源和口径提示；明显超出合理范围的异常值仍过滤。", "修复工具脚本相对路径启动时参数默认阶段 PSScriptRoot 为空的问题。", "文件星球在 2.4.0 使用 86 文件视图并恢复同心轨道；历史快照不进入当前公开页面。"], "完整自动回归与 validator PASS；显存建议门禁、LHM 不可用与 LHM Web 只读场景三个独立行为对话 3/3 PASS；文件星球完成桌面、960px 与手机视图验收；独立人工签署仍 PENDING。", "2.5.0 之前的测试版；107 个版本记录，Pages 由 main 自动部署，CI 必须在最新提交通过。"],
             ["2.5.0", "一键证据包与前后对比", "2026-11-04", "PREVIOUS LOCAL", ["新增一条命令完成 CSV 分析、标准化、SVG 图表、基线与候选对比、结果卡和证据包 JSON。", "对比要求声明固定负载，并检查窗口、采样、指标名称和单位；温度使用绝对变化。", "无共同指标返回 retest，有采样或指标限制返回 review，不自动宣称 PASS。", "结果卡自包含，包含两轮图表、P95/极值变化、输入 SHA-256 和下一步。"], "完整自动回归与 validator PASS；证据流水线、Doctor、便携同步、结果卡和站点检查通过；独立人工签署仍 PENDING。", "2.5.1 之前的测试版；107 个版本记录，Pages 由 main 自动部署，CI 必须在最新提交通过。"],
             ["2.5.1", "显存时钟、数据率与分层调参", "2026-11-09", "PREVIOUS LOCAL", ["把显存问题拆成概念解释、官方理论带宽、本机读数解释和调参稳定性四层；只收集当前判断真正需要的证据。", "区分物理时钟、有效数据率、总线宽度和工具缩放显示；新增理论带宽计算器，结果明确标记为规格推算，不代表实测吞吐。", "LHM 显存传感器保留原始字段名与 clockBasis；高显存时钟不再直接判为异常，GDDR7 或厂商缩放口径可以合法出现。", "显存调参与核心曲线、功耗墙分开实验；缺少固定负载、帧时间、伪影、温度和恢复证据时不宣称稳定。"], "完整自动回归、validator、交互契约、LHM 适配与 VRAM 知识测试通过；Codex 与 DSH 安装树 94/94 一致；独立人工签署仍 PENDING。", "2.6.0 之前的测试版；108 个版本记录。"],
-            ["2.6.0", "GPU 自动候选与正式 Skill 整合", "2026-11-10", "CURRENT CANDIDATE", ["选择性整合 GPU 自动候选原型：用单一权威表生成一个由用户手动应用的单变量候选，不自动写入硬件。", "未知或空型号不再进入 Generic 数字候选；NVIDIA、AMD、Intel 按家族路由，未知、专业卡、核显和多适配器在给出数值前阻断。", "生成候选时必须显式提供当前控制值和报告新鲜度；信息不足返回 Blocked，并清空 pass 类字段，避免把阻断写成通过。", "新手第一轮只承诺一个可回退的单变量，不承诺电压或功耗墙保持不变；RTX 3060 Ti 使用有界起点。", "概念解释可以绕过调参门禁；调参和稳定结论仍保留完整证据要求。", "统一用户可见语言层；新手可按需把术语翻译成日常语言，设备状态栏改为自然语言表达。", "Quick 不代表 daily-validated；XMP/EXPO 先建立 stock 基线；inventory 先给五项摘要；inconclusive 支持 repeat 与 diagnose。", "MoDT 独立处理；pass likelihood 明确标记为 uncalibrated，不包装成校准概率。", "完整工作负载模板改为按需加载；Quick 首屏保持简版，详细模式可选择“展开详细”。", "笔记本区分 assumed-stock、declared-stock 与 declared-unlocked；保留 LHM 只读采集、RAG、证据链和 2.5.1 显存解释；Skill 主入口约 11.8 KB。"], "完整自动回归、validator、contract、Doctor、LHM、VRAM 与 GPU auto candidate tests 通过；独立人工模型行为签署仍 PENDING，不宣称广泛发布稳定。", "当前测试版；工作台 2.6.0，文件星球 106 个文件；109 个版本记录。"]
+            ["2.6.0", "GPU 自动候选与正式 Skill 整合", "2026-11-10", "CURRENT CANDIDATE", ["选择性整合 GPU 自动候选原型：用单一权威表生成一个由用户手动应用的单变量候选，不自动写入硬件。", "未知或空型号不再进入 Generic 数字候选；NVIDIA、AMD、Intel 按家族路由，未知、专业卡、核显和多适配器在给出数值前阻断。", "生成候选时必须显式提供当前控制值和报告新鲜度；信息不足返回 Blocked，并清空 pass 类字段，避免把阻断写成通过。", "新手第一轮只承诺一个可回退的单变量，不承诺电压或功耗墙保持不变；RTX 3060 Ti 使用有界起点。", "概念解释可以绕过调参门禁；调参和稳定结论仍保留完整证据要求。", "统一用户可见语言层；新手可按需把术语翻译成日常语言，设备状态栏改为自然语言表达。", "Quick 不代表 daily-validated；XMP/EXPO 先建立 stock 基线；inventory 先给五项摘要；inconclusive 支持 repeat 与 diagnose。", "MoDT 独立处理；pass likelihood 明确标记为 uncalibrated，不包装成校准概率。", "完整工作负载模板改为按需加载；Quick 首屏保持简版，详细模式可选择“展开详细”。", "笔记本区分 assumed-stock、declared-stock 与 declared-unlocked；保留 LHM 只读采集、RAG、证据链和 2.5.1 显存解释；Skill 主入口控制在 11 KB 预算内；Quick 初始加载控制在 20 KB 预算内。", "高级交互补齐任务型术语分组、MoDT 与常用词解释、概念问答、精简/详细判断以及保留/复测/诊断/恢复三步处理。", "排障改为安全、数据、启动、稳定性、功能、性能优先级，补充证据状态与一次一个区分问题。", "事件日志、ETL、转储与遥测按 Event Viewer、WPR/WPA、WinDbg 和内置分析器分流；USB 音频按端口、Hub、根控制器、供电和并发设备继续分层；新增 20 个真实与对抗性排障场景。"], "完整自动回归、validator、contract、Doctor、LHM、VRAM 与 GPU auto candidate tests 通过；独立人工模型行为签署仍 PENDING，不宣称广泛发布稳定。", "当前测试版；工作台 2.6.0，文件星球 106 个文件；109 个版本记录。"]
           ]
         },
         {
@@ -9677,22 +10151,40 @@
 
       const triageCategoryGroups = [
         {
-          id: "stability",
+          id: "safety",
           label: "安全与供电",
-          detail: "焦味、打火、高负载重启或断电",
-          caseIds: ["hazard", "reboot"]
+          detail: "焦味、打火、液体、鼓包或可见损坏",
+          caseIds: ["hazard"]
+        },
+        {
+          id: "boot",
+          label: "启动与电源",
+          detail: "没反应、灯亮无画面、无法进入系统或电池异常",
+          caseIds: ["noPost", "battery"]
         },
         {
           id: "display",
-          label: "游戏与显示",
-          detail: "掉帧、闪退、驱动重置或黑屏",
-          caseIds: ["stutter", "driverReset", "display"]
+          label: "画面与声音",
+          detail: "黑屏、花屏、驱动重置、爆音或掉音",
+          caseIds: ["noDisplay", "display", "audioStutter"]
+        },
+        {
+          id: "stability",
+          label: "蓝屏与稳定性",
+          detail: "间歇蓝屏、WHEA、自动重启或驱动错误",
+          caseIds: ["crashBSOD", "driverReset", "reboot"]
         },
         {
           id: "system",
-          label: "启动与外设",
-          detail: "开机慢、电池掉电或设备断连",
-          caseIds: ["startup", "battery", "peripheral"]
+          label: "存储与外设",
+          detail: "文件打不开、磁盘告警、USB 或网络断连",
+          caseIds: ["storageRisk", "peripheral"]
+        },
+        {
+          id: "performance",
+          label: "性能与散热",
+          detail: "开机慢、游戏卡顿、过热、降频或噪音",
+          caseIds: ["startup", "stutter", "thermalNoise"]
         }
       ];
 
@@ -9700,6 +10192,7 @@
         hazard: {
           request: "设备有焦味或打火，但我想先跑一次压力测试确认。",
           danger: true,
+          evidenceState: "用户自述：焦味、冒烟或打火 · 尚未确认是否已断电，以及是否有可见损坏。",
           stages: {
             scope: {
               title: "先停下：这台设备可能有安全问题",
@@ -9708,9 +10201,37 @@
             }
           }
         },
+        noPost: {
+          request: "按下电源后机箱灯和风扇转了，但显示器一直没信号。",
+          danger: false,
+          evidenceState: "用户自述：已通电、风扇运转但无画面 · 尚未确认是否完成 POST 或是否进入 Windows。",
+          stages: {
+            scope: {
+              title: "先分清没电、没 POST 和没画面",
+              body: "先确认显示器输入、键盘灯或诊断灯是否有反应，以及主机是否能被网络或其他设备识别。不要直接认定显卡损坏。",
+              tone: "blocked"
+            },
+            evidence: {
+              title: "保留最小硬件信号",
+              body: "记录主板诊断灯、蜂鸣码、显示器输入、键盘灯和最近硬件变化；需要插拔时先完全断电并确认未带电。",
+              tone: "blocked"
+            },
+            action: {
+              title: "只验证一条显示路径",
+              body: "优先换显示器输入或线缆，或使用已确认可用的显示路径；不要同时换显卡、内存和电源。",
+              tone: "ready"
+            },
+            handoff: {
+              title: "按 POST 结果分流",
+              body: "能进入 Windows 就转向显示链路；完全无 POST 才进入恢复、主板诊断和硬件检查。",
+              tone: "ready"
+            }
+          }
+        },
         stutter: {
           request: "游戏平时帧数不低，但会突然卡顿一下。",
           danger: false,
+          evidenceState: "用户自述：游戏瞬时卡顿 · 尚无同场景帧时间、事件或功耗记录。",
           stages: {
             scope: {
               title: "先锁定卡顿层级",
@@ -9737,6 +10258,7 @@
         startup: {
           request: "电脑每次开机都要很久，进桌面后还会卡一会儿。",
           danger: false,
+          evidenceState: "用户自述：启动和登录后变慢 · 尚未区分固件、Windows、登录项和磁盘阶段。",
           stages: {
             scope: {
               title: "区分启动与登录阶段",
@@ -9763,6 +10285,7 @@
         battery: {
           request: "笔记本电池掉得很快，是不是该直接换电池？",
           danger: false,
+          evidenceState: "用户自述：续航下降 · 尚未取得容量、循环次数或 AC/电池同负载对照。",
           stages: {
             scope: {
               title: "先区分电池与供电",
@@ -9789,6 +10312,7 @@
         driverReset: {
           request: "游戏偶尔闪退，驱动会重置，但没有黑屏或重启。",
           danger: false,
+          evidenceState: "用户自述：闪退或驱动重置 · 尚未核对驱动版本、事件时间和系统是否真正重启。",
           stages: {
             scope: {
               title: "先区分闪退与驱动重置",
@@ -9815,6 +10339,7 @@
         reboot: {
           request: "高负载运行一段时间会自动重启，平时又完全正常。",
           danger: false,
+          evidenceState: "用户自述：高负载重启 · 尚未证明供电、温度、内存或软件原因。",
           stages: {
             scope: {
               title: "先排除物理危险",
@@ -9841,6 +10366,7 @@
         display: {
           request: "外接显示器偶尔黑屏或闪一下，但机器还在运行。",
           danger: false,
+          evidenceState: "用户自述：显示中断后恢复 · 尚未区分显示链路、驱动重置和整机断电。",
           stages: {
             scope: {
               title: "先分清显示链路层级",
@@ -9864,9 +10390,145 @@
             }
           }
         },
+        noDisplay: {
+          request: "玩游戏时黑一下又恢复，我也不确定电脑有没有重启。",
+          danger: false,
+          evidenceState: "用户自述：瞬时黑屏 · 尚未确认系统运行时间是否重置、声音是否继续。",
+          stages: {
+            scope: {
+              title: "先分清显示断开还是整机重启",
+              body: "记录黑屏时游戏声音是否继续、系统运行时间是否归零，以及是否出现驱动重置。不要直接归因电源或显卡。",
+              tone: "blocked"
+            },
+            evidence: {
+              title: "对齐同一时间点",
+              body: "保留黑屏时间、显示驱动、系统事件和当时的温度/功耗；截图只能说明某个瞬间，不能代替时间线。",
+              tone: "blocked"
+            },
+            action: {
+              title: "做一次无害区分",
+              body: "保持同一游戏场景，只观察运行时间、声音和事件是否同时变化；不要同时换线、换驱动和改频率。",
+              tone: "ready"
+            },
+            handoff: {
+              title: "按事件类型分流",
+              body: "运行时间未重置偏显示/驱动路径；整机重启转稳定性与供电证据；无法确认则先复测一次。",
+              tone: "ready"
+            }
+          }
+        },
+        audioStutter: {
+          request: "台式机玩战地 6 时声音卡顿、爆音。USB 接口插得很满，后来觉得是 NVIDIA 驱动的问题。",
+          danger: false,
+          evidenceState: "用户自述：游戏音频卡顿与 USB 接口较满 · NVIDIA 驱动也只是线索，尚未通过同场景证据和对照验证。",
+          stages: {
+            scope: {
+              title: "先分清声音路径",
+              body: "确认只有该游戏如此，还是所有系统声音都异常；再区分显卡 HDMI/DP 音频、USB 耳机和主板模拟输出。若为 USB，继续记录物理端口、Hub、根控制器、供电和同路径上持续工作的设备。",
+              tone: "blocked"
+            },
+            evidence: {
+              title: "对齐声音、画面和驱动时间",
+              body: "记录同一游戏场景、输出设备、GPU/音频驱动版本、卡顿时间和帧时间。USB 控制器超时不能直接当成 NVIDIA TDR；需要深入时再查看同类事件，并在用户同意后用 WPR/WPA 分析 DPC/ISR 线索。",
+              tone: "blocked"
+            },
+            action: {
+              title: "只改变一个可回滚条件",
+              body: "先切换一次输出路径，或只把 USB 音频设备移到另一个已验证的端口/控制器；不要把换端口、回滚驱动和改注册表放进同一轮。",
+              tone: "ready"
+            },
+            handoff: {
+              title: "复测后再接受驱动结论",
+              body: "同一场景重复后症状消失才把驱动保留为强线索，仍不宣称显卡损坏；出现系统级音频异常、崩溃或数据问题则转稳定性排障。",
+              tone: "ready"
+            }
+          }
+        },
+        crashBSOD: {
+          request: "偶尔蓝屏然后自动重启，每次代码好像都不一样，事件查看器里全是红字。",
+          danger: false,
+          evidenceState: "用户自述：间歇蓝屏 · 尚无确切 stop code、dump 和重复负载条件。",
+          stages: {
+            scope: {
+              title: "先保留崩溃事实",
+              body: "记录首次发生时间、最近一次时间、是否高负载、错误码是否固定，以及最近驱动、Windows、BIOS 或硬件变化。",
+              tone: "blocked"
+            },
+            evidence: {
+              title: "只导出相关事件和转储",
+              body: "优先保存 BugCheck、WHEA、Kernel-Power 41、minidump；EVTX 用 Event Viewer 查看，DMP 用 WinDbg，Kernel-Power 41 不等于电源损坏。",
+              tone: "blocked"
+            },
+            action: {
+              title: "先修证据，不要猜坏件",
+              body: "在稳定基线与事件时间线建立前，不更换电源、内存或显卡，也不继续超频；如有明确近期变化，只回退一个。",
+              tone: "ready"
+            },
+            handoff: {
+              title: "按重复证据分流",
+              body: "固定 stop code、WHEA 或同一负载复现才进入对应硬件路径；没有证据时继续记录和复测。",
+              tone: "ready"
+            }
+          }
+        },
+        storageRisk: {
+          request: "电脑很卡，磁盘经常 100%，还有几个文件打不开。",
+          danger: false,
+          evidenceState: "用户自述：性能下降和文件异常 · 已有数据完整性风险，尚不能确认磁盘故障。",
+          stages: {
+            scope: {
+              title: "数据风险优先于性能",
+              body: "先确认文件是否仍可读取、是否有备份、问题是否跟随特定盘；停止格式化、清理和重建阵列。",
+              tone: "blocked"
+            },
+            evidence: {
+              title: "保留盘和文件证据",
+              body: "记录物理盘、卷、剩余空间、SMART/可靠性和系统事件；不要仅凭 100% 利用率判断硬盘损坏。",
+              tone: "blocked"
+            },
+            action: {
+              title: "先保护可恢复数据",
+              body: "在硬件健康不明时优先做只读备份或停止写入，再做单个连接/端口对照。",
+              tone: "ready"
+            },
+            handoff: {
+              title: "区分性能与数据故障",
+              body: "只有普通文件访问变慢才回到性能路径；出现 I/O 错误、掉盘或损坏证据时停止性能工作并转数据恢复。",
+              tone: "ready"
+            }
+          }
+        },
+        thermalNoise: {
+          request: "风扇一阵一阵很吵，电脑偶尔也变慢，能不能直接调安静一点？",
+          danger: false,
+          evidenceState: "用户自述：噪音和间歇变慢 · 尚未取得温度、热点、RPM 或同负载性能。",
+          stages: {
+            scope: {
+              title: "先把温度、噪音和性能分开",
+              body: "确认是一个风扇、泵、显卡还是整机噪声，并记录出现时间；不要先压低风扇上限。",
+              tone: "blocked"
+            },
+            evidence: {
+              title: "记录同一负载的散热状态",
+              body: "采集温度、热点、功耗、RPM、降频和性能，并比较空闲与固定负载；异常摩擦声或 RPM 突然丢失要停止。",
+              tone: "blocked"
+            },
+            action: {
+              title: "只调整一个散热条件",
+              body: "先做断电后的可视检查，或只调整一个有恢复值的风扇区间；不要同时改风扇曲线、功耗墙和超频。",
+              tone: "ready"
+            },
+            handoff: {
+              title: "以性能和温度为边界",
+              body: "静音不能以明显降频或过热为代价；泵/风扇异常、焦味或温度快速上升转硬件检查。",
+              tone: "ready"
+            }
+          }
+        },
         peripheral: {
           request: "鼠标键盘偶尔一起断连，过几秒又恢复。",
           danger: false,
+          evidenceState: "用户自述：USB/蓝牙设备断连 · 尚未确认是否跟随端口、集线器或整机事件。",
           stages: {
             scope: {
               title: "先看断连范围",
@@ -9953,6 +10615,8 @@
       let activeLifecycleEvent = "confirm";
       let activeDemoMode = "choose";
       let activeTuneStep = "gate";
+      let reviewReady = false;
+      let reviewOpened = false;
 
       function animateAdvancedEntry(element, { distance = 6, duration = 280 } = {}) {
         if (
@@ -10013,11 +10677,11 @@
         terms: {
           kicker: "当前：看懂名词",
           title: "不用背参数，先把词放回场景里",
-          summary: "点一个词，就能看到它大概在做什么、可以怎么理解，以及判断错会有什么影响。",
+          summary: "先看开始前的记录与恢复，再看机器形态、监控读数和具体参数。点一个词，就能看到它做什么、常见误解和判断错会怎样。",
           steps: [
-            ["点一个不懂的词", "触屏轻点，电脑上悬停也可以。"],
-            ["看通俗解释", "先弄懂意思，不用记具体数值。"],
-            ["回到实际问题", "词懂了，再把情况说清楚。"]
+            ["先看常用词", "稳定基线、固定场景、恢复和 MoDT 先弄懂。"],
+            ["再找当前任务", "按机器、监控或参数分组查看更多。"],
+            ["看它不是什么", "避免把功率等级当实测功耗，把 XMP 当稳定保证。"]
           ]
         },
         tune: {
@@ -10027,17 +10691,18 @@
           steps: [
             ["选一个类似情况", "从下面挑一个最接近你现在问题的例子。"],
             ["补上你知道的信息", "不知道的就先留空，不要猜。"],
-            ["看测试和恢复方式", "只在信息齐全后，才讨论怎么测试。"]
+            ["安排一个单变量测试", "只在信息齐全后，讨论怎么测试和恢复。"],
+            ["按结果决定", "有收益才保留；没收益或说不清不能继续加值。"]
           ]
         },
         triage: {
           kicker: "当前：排查故障",
           title: "先看有没有危险，再一步一步排查",
-          summary: "这里不替你猜是哪一个零件坏了，而是先排除危险，再做最小、最容易恢复的检查。",
+          summary: "先排除安全与数据风险，再区分启动、显示、稳定性、功能和性能问题；这里不替你猜是哪一个零件坏了。",
           steps: [
-            ["选一个症状", "从下面挑最接近的现象。"],
-            ["先排除危险", "焦味、打火、鼓包或漏液时直接停用。"],
-            ["一次只查一项", "每次只改一个条件，方便判断有没有用。"]
+            ["先排高危问题", "焦味、打火、液体或文件损坏优先处理。"],
+            ["问一个区分问题", "只问最能改变下一步判断的信息。"],
+            ["做最小检查", "一次只验证一个可逆条件，并保留结果。"]
           ]
         },
         record: {
@@ -10090,7 +10755,7 @@
         },
         outcome: {
           label: "STATE / OUTCOME",
-          next: "结果有效就保留，失败就恢复原样，不清楚就按同样条件再测一次。"
+          next: "有实际收益才暂时保留；成功但没收益转诊断，说不清先同条件复测，失败立即恢复。"
         }
       };
 
@@ -10109,11 +10774,11 @@
         },
         outcome: {
           label: "STATE / OUTCOME",
-          next: "结果分成：有效、无效，或者还判断不了。"
+          next: "结果分成：有收益、成功但没收益、失败或出现异常、还判断不了。"
         },
         decision: {
           label: "STATE / DECISION",
-          next: "有效就保留，失败就恢复，不清楚就按同样条件再测一次。"
+          next: "有收益才保留；没有收益转诊断，说不清先复测，失败立即恢复。"
         }
       };
 
@@ -10131,7 +10796,7 @@
         candidate: "现在：准备一个测试方案",
         measure: "现在：按计划测试",
         outcome: "现在：看结果是否有效",
-        decision: "现在：决定保留还是恢复"
+        decision: "现在：决定保留、诊断、复测还是恢复"
       };
 
       const triageStateOrder = ["scope", "evidence", "action", "handoff"];
@@ -10244,9 +10909,11 @@
         experimentStateLabel.dataset.technical = `STATE / ${reason}`;
         experimentStateNext.textContent = "先完成上面的信息检查。";
         experimentOutput.hidden = true;
+        experimentDetail.hidden = true;
         simActions.hidden = true;
         simOutcome.hidden = true;
         expGrid.replaceChildren();
+        setReviewReady(false);
         renderStateRail(experimentStateRail, experimentStates, "");
       }
 
@@ -10264,6 +10931,7 @@
           triageProgressPosition.textContent = "尚未开始";
           triageAdvanceButton.disabled = true;
           triageWorkflow.hidden = true;
+          triageEvidenceState.textContent = "";
           triageCaseGrid.querySelectorAll("[data-triage-case]").forEach(button => {
             button.setAttribute("aria-pressed", "false");
           });
@@ -10305,6 +10973,7 @@
         triageCopy.dataset.tone = stage.tone;
         triageCopyTitle.textContent = humanizeUiCopy(stage.title);
         triageCopyBody.textContent = humanizeUiCopy(stage.body);
+        triageEvidenceState.textContent = `证据状态：${humanizeUiCopy(triageCase.evidenceState || "尚未收集足够证据")}`;
         triageAdvanceButton.disabled = isDanger || triageStageIndex >= triageStateOrder.length - 1;
         triageAdvanceButton.textContent = isDanger || triageStageIndex >= triageStateOrder.length - 1
           ? "这组已经看完"
@@ -10470,6 +11139,8 @@
         termAction.textContent = definition.action;
         termAnalogy.textContent = definition.analogy;
         termConsequence.textContent = definition.consequence;
+        termMistake.textContent = definition.mistake ||
+          `不要把“${definition.name}”当成可以直接照着套用的参数；它只解释当前判断的一个方面。`;
         termDetail.hidden = false;
         syncTermButtons();
         if (pin && isInteractiveView) setRouteHash(`term-${id}`);
@@ -10581,6 +11252,33 @@
       });
 
       const demoScenarios = {
+        concept: {
+          request: "我只想知道显卡超频是什么，它一定会让游戏帧数更高吗？",
+          tone: "concept",
+          title: "CONCEPT / 不需要设备信息",
+          copy: "这是概念问题，不需要先提供机器型号、基线或恢复路径；只有要继续判断你的电脑时，才进入调参检查。",
+          missing: [],
+          direct: "不解释限制，直接保证“只要超频就一定更快”。",
+          safe: "先解释超频改变什么、受哪些限制，以及为什么会存在没有收益甚至变慢的情况。",
+          canCheck: false,
+          concept: true,
+          answer: [
+            "超频是让芯片尝试运行在更高频率或更高功率范围；它不直接等于游戏帧数提高。",
+            "性能还可能被显卡功耗、温度、CPU、显存、驱动和游戏本身限制；改变一项不一定改变最终瓶颈。",
+            "更高频率也可能带来温度、噪声、崩溃、花屏或数据错误，所以需要固定场景和恢复方式验证。",
+            "如果你想判断自己的电脑是否值得试，我再进入设备与基线检查；概念解释本身不需要这些信息。"
+          ]
+        },
+        detailedMissing: {
+          request: "我要完整详细说明，但机器型号、恢复点、当前设置和基线都没提供。",
+          tone: "blocked",
+          title: "DETAILED / Same evidence gate",
+          copy: "“详细”只改变解释深度，不会降低设备、基线、恢复和单变量要求；信息不足时仍然不显示可执行参数。",
+          missing: ["具体机型", "当前稳定基线", "当前控制值", "恢复配置"],
+          direct: "因为是详细模式，就直接给完整参数和全部风险说明。",
+          safe: "可以展开判断依据、缺失项、风险和恢复逻辑，但只给出一个最小的补证动作，不显示候选值。",
+          canCheck: true
+        },
         cpu: {
           request: "某款桌面 K 系列 CPU 想上 6.0GHz，直接告诉我填多少电压。",
           tone: "blocked",
@@ -10600,6 +11298,21 @@
           direct: "继续增加核心偏移，默认旧记录和默认恢复配置仍然适用。",
           safe: "绑定当前功耗状态，确认恢复配置和固定负载，再讨论一次只改变一个变量的实验。",
           canCheck: true
+        },
+        modt: {
+          request: "我的迷你主机是 MoDT，显卡是桌面 RTX 4070，直接按普通桌面 4070 给我核心值。",
+          tone: "blocked",
+          title: "PLATFORM / MoDT requires separate verification",
+          copy: "MoDT 是移动平台芯片装在桌面形态主板上的独立机器形态，不能自动继承普通台式机的功耗、散热和固件假设。",
+          missing: ["主板型号", "散热与供电路径", "平台实际开放的控制", "恢复配置"],
+          direct: "把它当作普通桌面 4070 主机，直接套用桌面核心偏移。",
+          safe: "先确认 MoDT 主板、散热、供电路径和实际控制项；条件不清时不显示数字候选。",
+          canCheck: true,
+          answer: [
+            "先识别 MoDT，而不是把它静默改名为普通 Desktop。",
+            "确认主板、散热、供电路径和平台实际开放的控制项。",
+            "条件不全时不生成核心频率数值，也不宣称与普通桌面主板等价。"
+          ]
         },
         odor: {
           request: "设备已经出现焦味，但我想先跑一次压力测试确认问题。",
@@ -10681,6 +11394,36 @@
           safe: "先回到已知稳定档位并保存恢复点，再用固定内存测试核对错误、温度和长时间稳定性。",
           canCheck: true
         },
+        xmp: {
+          request: "我想开 XMP/EXPO 提升内存，但没有原厂设置、同场景基线和 Clear CMOS 恢复方法。",
+          tone: "blocked",
+          title: "MEMORY / Stock baseline and recovery required",
+          copy: "XMP/EXPO 是一个完整内存预设，不是稳定保证；没有原厂基线、固定场景和恢复路径时不能直接开启。",
+          missing: ["当前原厂内存档位", "固定负载基线", "Clear CMOS 恢复路径"],
+          direct: "直接开最高 XMP/EXPO 档位，能进系统就当作稳定。",
+          safe: "先保存原厂设置并记录同一场景基线，确认恢复方法后再讨论一次只切换一个内存预设。",
+          canCheck: true,
+          answer: [
+            "XMP/EXPO 会同时改变训练、时序和电压行为，不是只调一个数字。",
+            "先保存原厂设置并记录同一场景基线，再确认 Clear CMOS 或其他恢复方式。",
+            "先启用一个完整预设并复测，不要在同轮继续叠加手动时序或电压。"
+          ]
+        },
+        staleControl: {
+          request: "显卡型号有了，但当前偏移记不清、报告也是上个月的，先按常见值给一个。",
+          tone: "blocked",
+          title: "CURRENT VALUE / Control value and report freshness required",
+          copy: "型号不能替代当前控制值和报告新鲜度；旧偏移、旧功耗墙或旧驱动记录都不能直接当作当前状态。",
+          missing: ["当前控制值", "更新的固定负载报告", "恢复配置"],
+          direct: "忽略当前偏移和报告日期，按常见值开始。",
+          safe: "先读取当前控制值并刷新一份同场景报告；信息不全时不显示候选。",
+          canCheck: true,
+          answer: [
+            "当前控制值是实验起点，不能用“常见值”代替。",
+            "旧报告需要先判断硬件、驱动、功耗墙或设置有没有变化。",
+            "这些信息补全前不显示频率、电压、功耗或显存候选。"
+          ]
+        },
         fan: {
           request: "显卡热点偏高而且风扇吵，想直接做一条更安静的曲线。",
           tone: "blocked",
@@ -10711,6 +11454,34 @@
           safe: "列出全部适配器，确认哪个处理当前工作负载，再判断是否属于支持的单卡消费级路线。",
           canCheck: false
         }
+      };
+      const scenarioGroups = [
+        { label: "先理解再决定", ids: ["concept", "detailedMissing", "cpu", "curve"] },
+        { label: "机器形态", ids: ["laptop", "modt", "multiGpu"] },
+        { label: "安全与恢复", ids: ["odor", "hidden", "psu"] },
+        { label: "稳定性问题", ids: ["intel", "blackscreen"] },
+        { label: "内存与显存", ids: ["memory", "xmp", "vram"] },
+        { label: "性能、散热与时效", ids: ["fan", "desktopPower", "staleControl"] }
+      ];
+      const scenarioLabels = {
+        concept: "超频一定更快吗",
+        detailedMissing: "我要详细，但证据没给",
+        cpu: "桌面 CPU 直接给电压",
+        laptop: "笔记本解锁功耗墙",
+        modt: "MoDT 能否按桌面对待",
+        odor: "焦味或疑似供电危险",
+        psu: "高功耗显卡、未知电源",
+        hidden: "隐藏或锁定控制项",
+        intel: "默认配置已经不稳定",
+        blackscreen: "黑屏或驱动恢复",
+        curve: "曲线缺少实测点",
+        vram: "笔记本显存大幅超频",
+        memory: "四条 DDR5 开 XMP 后蓝屏",
+        xmp: "没有原厂基线的 XMP",
+        staleControl: "当前偏移未知、报告过期",
+        fan: "热点高而且风扇吵",
+        desktopPower: "桌面显卡拉满功耗墙",
+        multiGpu: "独显与核显同时存在"
       };
       let activeScenario = "cpu";
 
@@ -10777,7 +11548,7 @@
           status: "done", state: "CURRENT",
           goal: "把 CSV、结构化快照、官方资料、实时只读传感器和图片统一到可追溯、可降级、可诊断的证据体系。",
           action: "先标准化来源与时间，再记录证据卡和缺失；网页图片不再等于时间序列，Doctor 把权限问题与损坏问题分开。",
-          proof: "各子系统独立复核通过；入口 12,284 B、Quick 22,218 B；LHM Web 只读场景三组行为对话 3/3 PASS；广泛发布人工签署仍 PENDING；版本已进入 GitHub main。"
+          proof: "各子系统独立复核通过；入口约 10.9 KB、Quick 约 19.9 KB；LHM Web 只读场景三组行为对话 3/3 PASS；广泛发布人工签署仍 PENDING；版本已进入 GitHub main。"
         },
         {
           id: "proto-seed", track: "prototype", code: "AO-01", title: "独立原型分叉",
@@ -10908,17 +11679,17 @@
           proof: "配置、维修、单件替换与整机重建按证据和成本顺序判断。"
         },
         {
-          id: "merge", track: "merge", code: "MERGE-01", title: "融入正式工作台",
-          summary: "Tune 分支模块化接合",
-          status: "next", state: "NEXT",
-          goal: "自动超频成为正式工作台 Tune 分支中的模块，而不是第二个顶层 Skill。",
-          action: "差异审计 · 文件所有权 · 最小路由接合 · 回归测试 · 真机验收。",
-          proof: "保留正式采集、遥测和安全门禁；不复制第二套核心脚本，不自动写入硬件。"
+          id: "merge", track: "merge", code: "MERGE-01", title: "已选择性整合",
+          summary: "2.6.0 测试版 · 手动应用仍保留",
+          status: "done", state: "已整合",
+          goal: "GPU 自动候选已经成为正式工作台安全调参路线中的手动应用模块，而不是第二个顶层 Skill。",
+          action: "已完成候选路由、阻断字段清理、证据门禁和回归测试；真实设备覆盖与人工体验验收继续推进。",
+          proof: "保留正式采集、遥测和安全门禁；不复制第二套核心脚本，不自动写入硬件，也不代表长期稳定发布。"
         },
         {
           id: "merge-release", track: "merge", code: "MERGE-02", title: "融合版发布门禁",
-          summary: "单入口 · 完整回归 · 回滚包",
-          status: "next", state: "LATER",
+          summary: "人工验收 · 真实覆盖 · 回滚包",
+          status: "next", state: "待发布",
           goal: "在主工作台内完成可安装、可回滚的统一版本。",
           action: "打包、完整人工验收、发布说明、回滚测试和独立签署。",
           proof: "只有自动测试、真机验收和公开分发批准同时完成才进入发布。"
@@ -11127,34 +11898,132 @@
       });
       restoreInspectorButton.addEventListener("click", () => showInspector(activeInspector, true));
 
+      const plainEvidenceLabels = {
+        "稳定基线": "目前稳定状态",
+        "当前稳定基线": "目前稳定状态",
+        "当前基线": "目前稳定状态",
+        "具体机型": "电脑和硬件型号",
+        "当前核心基线": "现在显卡的稳定状态",
+        "当前解锁功耗基线": "解锁功耗后的稳定状态",
+        "当前控制值": "现在软件里的控制值",
+        "恢复配置": "怎么恢复原样",
+        "恢复路径": "怎么恢复原样",
+        "Clear CMOS 恢复路径": "主板恢复默认的方法",
+        "固定负载": "固定测试场景",
+        "固定工作负载": "固定测试场景",
+        "固定跑分": "固定跑分场景",
+        "固定负载基线": "同一场景的正常表现",
+        "更新的固定负载报告": "新测的同场景记录",
+        "当前原厂内存档位": "没开 XMP 时的内存状态",
+        "主板型号": "主板具体型号",
+        "散热与供电路径": "散热和供电条件",
+        "平台实际开放的控制": "主板真正能改的选项",
+        "中止信号": "什么情况立即停",
+        "PSU 型号与功率": "电源型号和功率",
+        "连接方式": "供电怎么连接",
+        "Crash/WHEA 证据": "崩溃或硬件错误记录",
+        "主板 BIOS 与微码": "主板 BIOS 版本",
+        "散热基线": "现在温度和散热表现",
+        "显存结温": "显存温度",
+        "共享功耗证据": "显卡内部功耗分配",
+        "Hot Spot 基线": "显卡热点温度",
+        "噪音目标": "能接受的噪音",
+        "当前功耗/温度基线": "现在功耗和温度",
+        "实际收益": "测试前后的真实变化"
+      };
+
+      function plainEvidenceLabel(item) {
+        return plainEvidenceLabels[item] || humanizeUiCopy(item);
+      }
+
+      const genericGateEvidenceMap = new Map([
+        ["稳定基线", "baseline"],
+        ["当前基线", "baseline"],
+        ["当前核心基线", "baseline"],
+        ["当前解锁功耗基线", "baseline"],
+        ["固定负载基线", "baseline"],
+        ["具体机型", "platform"],
+        ["恢复配置", "recovery"],
+        ["恢复路径", "recovery"],
+        ["恢复方法", "recovery"],
+        ["固定负载", "workload"],
+        ["固定工作负载", "workload"],
+        ["固定跑分", "workload"],
+        ["中止信号", "abort"]
+      ]);
+
+      function scenarioExtraRequirements(scenario) {
+        return (scenario.missing || []).filter(item => !genericGateEvidenceMap.has(item));
+      }
+
+      function gateEvidenceInputs() {
+        return [...root.querySelectorAll("[data-gate-check], [data-gate-extra]")];
+      }
+
+      function checkedGateEvidenceKeys() {
+        return new Set(
+          gateEvidenceInputs()
+            .filter(input => input.checked)
+            .map(input => input.dataset.gateCheck || input.dataset.gateExtra)
+            .filter(Boolean)
+        );
+      }
+
+      function remainingScenarioMissing(scenario) {
+        const checked = checkedGateEvidenceKeys();
+        return (scenario.missing || []).filter(item => {
+          const genericKey = genericGateEvidenceMap.get(item);
+          return genericKey ? !checked.has(genericKey) : !checked.has(item);
+        });
+      }
+
+      function renderScenarioExtraChecks(scenario) {
+        const requirements = scenario.canCheck ? scenarioExtraRequirements(scenario) : [];
+        gateExtraChecks.replaceChildren();
+        gateExtra.hidden = requirements.length === 0;
+        requirements.forEach((item, index) => {
+          const label = document.createElement("label");
+          label.className = "dse-gate-check";
+          const input = document.createElement("input");
+          input.type = "checkbox";
+          input.dataset.gateExtra = item;
+          input.id = `dse-gate-extra-${index}`;
+          const copy = document.createElement("span");
+          copy.className = "dse-gate-check-copy";
+          const heading = document.createElement("strong");
+          heading.textContent = `额外 ${index + 1}. ${plainEvidenceLabel(item)}`;
+          const detail = document.createElement("small");
+          detail.textContent = plainEvidenceExplanations[item] ||
+            "这是这个具体场景额外需要核对的证据，不能用其他通用答案代替。";
+          copy.append(heading, detail);
+          label.append(input, copy);
+          gateExtraChecks.appendChild(label);
+        });
+      }
+
+      function renderGateProgress(done, total, options = {}) {
+        gateSummaryScore.textContent = `${done} / ${total}`;
+        if (options.hazard) {
+          gateSummary.dataset.state = "stop";
+          gateSummaryNote.textContent = "先停止并处理安全问题";
+        } else if (done === total) {
+          gateSummary.dataset.state = "ready";
+          gateSummaryNote.textContent = total > 5
+            ? `通用 5 项和本场景 ${total - 5} 项都已确认`
+            : "条件齐全，可继续看测试计划";
+        } else {
+          gateSummary.dataset.state = "incomplete";
+          gateSummaryNote.textContent = total > 5
+            ? `还缺 ${total - done} 项（通用 5 项 + 本场景 ${total - 5} 项）`
+            : `还缺 ${total - done} 项`;
+        }
+      }
+
       function setGateMissing(items) {
         gateMissing.replaceChildren();
-        const friendlyLabels = {
-          "稳定基线": "目前稳定状态",
-          "当前基线": "目前稳定状态",
-          "当前核心基线": "现在显卡的稳定状态",
-          "当前解锁功耗基线": "解锁功耗后的稳定状态",
-          "恢复配置": "怎么恢复原样",
-          "恢复路径": "怎么恢复原样",
-          "固定负载": "固定测试场景",
-          "固定工作负载": "固定测试场景",
-          "固定跑分": "固定跑分场景",
-          "中止信号": "什么情况立即停",
-          "PSU 型号与功率": "电源型号和功率",
-          "连接方式": "供电怎么连接",
-          "Crash/WHEA 证据": "崩溃或硬件错误记录",
-          "主板 BIOS 与微码": "主板 BIOS 版本",
-          "散热基线": "现在温度和散热表现",
-          "显存结温": "显存温度",
-          "共享功耗证据": "显卡内部功耗分配",
-          "Hot Spot 基线": "显卡热点温度",
-          "噪音目标": "能接受的噪音",
-          "当前功耗/温度基线": "现在功耗和温度",
-          "实际收益": "测试前后的真实变化"
-        };
         items.forEach(item => {
           const tag = document.createElement("span");
-          tag.textContent = friendlyLabels[item] || humanizeUiCopy(item);
+          tag.textContent = plainEvidenceLabel(item);
           tag.dataset.technicalLabel = item;
           gateMissing.appendChild(tag);
         });
@@ -11166,11 +12035,15 @@
         gateOutput.dataset.technicalCopy = copy;
         gateTitle.textContent = tone === "stop"
           ? "先停下来：可能有安全问题"
+          : tone === "concept"
+            ? "这是概念问题，不需要先交设备信息"
           : tone === "ready"
             ? "信息齐了，可以继续"
             : "现在还缺一些信息";
         gateCopy.textContent = tone === "stop"
           ? "先停止使用设备，不要继续开机、压测或插拔。先处理安全问题。"
+          : tone === "concept"
+            ? "先解释清楚概念和限制。只有你决定继续判断这台电脑时，才进入设备、基线和恢复检查。"
           : tone === "ready"
             ? "需要确认的信息已经齐了，可以继续看测试计划。但这不代表参数一定安全。"
             : `不用急着给参数。先把还缺的信息补齐，不知道的就先留空，不要猜。勾上已知的条件。`;
@@ -11178,29 +12051,9 @@
       }
 
       function renderCompareAudit(isHazard = false) {
-        const inputMap = Object.fromEntries(
-          [...root.querySelectorAll("[data-gate-check]")].map(input => [input.dataset.gateCheck, input.checked])
-        );
-        let retained = 0;
-        compareEvidenceItems.forEach(item => {
-          const present = Boolean(inputMap[item.id]);
-          if (present) retained += 1;
-        });
-        const total = compareEvidenceItems.length;
-        gateSummaryScore.textContent = `${retained} / ${total}`;
-        if (isHazard) {
-          gateSummary.dataset.state = "stop";
-          gateSummaryNote.textContent = "先停止并处理安全问题";
-        } else if (retained === total) {
-          gateSummary.dataset.state = "ready";
-          gateSummaryNote.textContent = "条件齐全，可继续看测试计划";
-        } else if (retained === 0) {
-          gateSummary.dataset.state = "incomplete";
-          gateSummaryNote.textContent = `还缺 ${total} 项`;
-        } else {
-          gateSummary.dataset.state = "incomplete";
-          gateSummaryNote.textContent = `还缺 ${total - retained} 项`;
-        }
+        const inputs = gateEvidenceInputs();
+        const retained = inputs.filter(input => input.checked).length;
+        renderGateProgress(retained, inputs.length, { hazard: isHazard });
       }
 
       function resetDirectFeedback() {
@@ -11213,17 +12066,22 @@
       function showDirectFeedback(scenario, confirmedCount) {
         if (!directFeedback || !directActionButton) return;
         const isStop = scenario.tone === "stop";
-        const allConfirmed = confirmedCount === 5;
-        directFeedbackTitle.textContent = isStop
+        const total = scenario.canCheck ? gateEvidenceInputs().length : 5;
+        const allConfirmed = confirmedCount === total;
+        directFeedbackTitle.textContent = scenario.concept
+          ? "演示结果：概念解释不需要设备门禁"
+          : isStop
           ? "演示结果：已停止，不再继续"
           : allConfirmed
             ? "演示结果：直接索要参数仍不会跳过检查"
             : "演示结果：参数请求已被拦下";
-        directFeedbackCopy.textContent = isStop
+        directFeedbackCopy.textContent = scenario.concept
+          ? "这里可以解释超频为什么不一定提升帧数；只有继续判断这台电脑时，才需要设备、基线、恢复和固定测试场景。"
+          : isStop
           ? "设备存在物理风险时，页面不会继续压测，也不会提供参数建议。请先停止使用并处理安全问题。"
           : allConfirmed
-            ? "你已经勾选了五项条件，所以可以继续看测试计划；但如果只直接索要参数，页面仍会要求先说明设备、基线、恢复方式、固定负载和停止条件。"
-            : `页面不会显示电压、频率或功耗数值。当前还缺 ${5 - confirmedCount} 项条件，请先勾上已知的信息再继续。`;
+            ? `你已经确认全部 ${total} 项条件，所以可以继续看测试计划；但如果只直接索要参数，页面仍会要求先说明设备、基线、恢复方式、固定负载和停止条件。`
+            : `页面不会显示电压、频率或功耗数值。当前还缺 ${total - confirmedCount} 项条件，请先勾上已知的信息再继续。`;
         directFeedback.hidden = false;
         directActionButton.setAttribute("aria-expanded", "true");
         directActionButton.textContent = "已演示：参数请求会被拦下";
@@ -11238,6 +12096,7 @@
         const scenario = demoScenarios[id];
         if (!scenario) return;
         activeScenario = id;
+        scenarioPicker.value = id;
         root.querySelectorAll("[data-scenario]").forEach(button => {
           button.setAttribute("aria-pressed", String(button.dataset.scenario === id));
         });
@@ -11246,16 +12105,23 @@
         compareSafe.textContent = humanizeUiCopy(scenario.safe);
         gateChecklist.hidden = true;
         gateRules.hidden = true;
+        conceptAnswer.hidden = true;
+        conceptAnswer.replaceChildren();
         gateRulesButton.setAttribute("aria-expanded", "false");
         gateRulesButton.textContent = "为什么要先检查这些？";
         resetDirectFeedback();
+        renderScenarioExtraChecks(scenario);
         root.querySelectorAll("[data-gate-check]").forEach(input => {
           input.checked = false;
         });
         const checkButton = root.querySelector('[data-gate-action="check"]');
-        checkButton.disabled = !scenario.canCheck;
+        checkButton.disabled = scenario.concept ? false : !scenario.canCheck;
+        checkButton.setAttribute(
+          "aria-controls",
+          scenario.concept ? "dse-concept-answer" : "dse-gate-checklist"
+        );
         checkButton.setAttribute("aria-expanded", "false");
-        checkButton.textContent = "开始检查";
+        checkButton.textContent = scenario.concept ? "查看白话解释" : "开始检查";
         tuneGateReady = false;
         enterExperimentButton.disabled = true;
         renderCompareAudit(scenario.tone === "stop");
@@ -11268,6 +12134,10 @@
         });
         resetExperimentState(scenario.tone === "stop" ? "HARD-STOP" : "WAITING GATE");
         setGateOutput(scenario.tone, scenario.title, scenario.copy, scenario.missing);
+        if (scenario.tone === "blocked") {
+          gateCopy.textContent = humanizeUiCopy(scenario.safe);
+        }
+        renderGateDetail(scenario, 0, gateEvidenceInputs().length, true);
       }
 
       const scenarioIds = Object.keys(demoScenarios);
@@ -11276,6 +12146,23 @@
       let scenarioFocusPaused = false;
       let scenarioAutoResumeTimer = 0;
       let scenarioUserSelected = false;
+
+      function renderScenarioPicker() {
+        scenarioPicker.replaceChildren();
+        scenarioGroups.forEach(group => {
+          const optgroup = document.createElement("optgroup");
+          optgroup.label = group.label;
+          group.ids.forEach(id => {
+            if (!demoScenarios[id]) return;
+            const option = document.createElement("option");
+            option.value = id;
+            option.textContent = scenarioLabels[id] || demoScenarios[id].request;
+            optgroup.appendChild(option);
+          });
+          scenarioPicker.appendChild(optgroup);
+        });
+        scenarioPicker.value = activeScenario;
+      }
 
       function visibleScenarioIds() {
         const ids = [activeScenario];
@@ -11337,7 +12224,7 @@
                 !gateRules.hidden ||
                 !directFeedback.hidden ||
                 activeTuneStep === "experiment" ||
-                [...root.querySelectorAll("[data-gate-check]")].some(input => input.checked);
+                gateEvidenceInputs().some(input => input.checked);
               if (hasDraft) return;
               scenarioFocusPaused = false;
               setScenarioAutoPaused(false);
@@ -11374,6 +12261,11 @@
       scenarioGrid.addEventListener("focusout", event => {
         if (!scenarioGrid.contains(event.relatedTarget)) scenarioFocusPaused = false;
       });
+      scenarioPicker.addEventListener("change", () => {
+        noteScenarioInteraction({ hold: true });
+        renderScenario(scenarioPicker.value);
+        renderScenarioButtons();
+      });
       window.setInterval(() => {
         if (
           !document.hidden &&
@@ -11391,9 +12283,23 @@
         button.addEventListener("click", () => {
           const scenario = demoScenarios[activeScenario];
           if (button.dataset.gateAction === "direct") {
-            const confirmedCount = [...root.querySelectorAll("[data-gate-check]")]
+            const confirmedCount = gateEvidenceInputs()
               .filter(input => input.checked)
               .length;
+            if (scenario.concept) {
+              tuneGateReady = false;
+              enterExperimentButton.disabled = true;
+              conceptAnswer.hidden = true;
+              conceptAnswer.replaceChildren();
+              resetExperimentState("CONCEPT");
+              setGateOutput(
+                "concept",
+                scenario.title,
+                "概念解释不需要设备信息；直接索要参数也不会把一般解释变成这台机器的调校结论。"
+              );
+              showDirectFeedback(scenario, confirmedCount);
+              return;
+            }
             if (scenario.tone === "stop") {
               tuneGateReady = false;
               enterExperimentButton.disabled = true;
@@ -11419,6 +12325,30 @@
           }
           if (button.dataset.gateAction === "check") {
             resetDirectFeedback();
+            if (scenario.concept) {
+              tuneGateReady = false;
+              enterExperimentButton.disabled = true;
+              gateChecklist.hidden = true;
+              gateRules.hidden = true;
+              conceptAnswer.replaceChildren(...(scenario.answer || []).map(item => {
+                const entry = document.createElement("li");
+                entry.textContent = item;
+                return entry;
+              }));
+              conceptAnswer.hidden = false;
+              setTuneState("classify", {
+                label: "概念解释",
+                next: "解释完成后，只有用户主动选择继续判断这台电脑，才进入证据门禁。"
+              });
+              setGateOutput(
+                "concept",
+                scenario.title,
+                scenario.copy
+              );
+              button.textContent = "已解释，不需要设备信息";
+              button.setAttribute("aria-expanded", "true");
+              return;
+            }
             if (!scenario.canCheck) {
               tuneGateReady = false;
               enterExperimentButton.disabled = true;
@@ -11438,7 +12368,7 @@
               button.setAttribute("aria-expanded", "false");
             button.textContent = "开始检查";
               if (!tuneGateReady) {
-                const inputs = [...root.querySelectorAll("[data-gate-check]")];
+                const inputs = gateEvidenceInputs();
                 const done = inputs.filter(item => item.checked).length;
                 setTuneState("gate", {
                   meta: { gate: `${done}/${inputs.length}` },
@@ -11450,7 +12380,7 @@
             gateChecklist.hidden = false;
             button.setAttribute("aria-expanded", "true");
             button.textContent = "收起检查";
-            const inputs = [...root.querySelectorAll("[data-gate-check]")];
+            const inputs = gateEvidenceInputs();
             const done = inputs.filter(item => item.checked).length;
             tuneGateReady = done === inputs.length;
             setTuneState(tuneGateReady ? "eligible" : "gate", {
@@ -11460,10 +12390,21 @@
                 : "逐项确认证据；勾选代表已经拿到证据。"
             });
             if (tuneGateReady) {
-              setGateOutput("ready", "ELIGIBLE FOR EXPERIMENT / 5 of 5", "五项证据齐全，只代表可以开始设计实验，不代表任何参数安全或稳定。本页仍不会生成或执行硬件设置。");
+              setGateOutput(
+                "ready",
+                `ELIGIBLE FOR EXPERIMENT / ${done} of ${inputs.length}`,
+                "通用条件和本场景额外条件都已确认，只代表可以开始设计实验，不代表任何参数安全或稳定。本页仍不会生成或执行硬件设置。"
+              );
             } else {
-              setGateOutput("blocked", `TUNING GATE / ${done} of 5`, `已完成 ${done}/5。勾选表示已经拿到对应证据，而不是“我觉得知道”；其余项目完成前不显示候选。`, scenario.missing);
+              setGateOutput(
+                "blocked",
+                `TUNING GATE / ${done} of ${inputs.length}`,
+                `已完成 ${done}/${inputs.length}。勾选表示已经拿到对应证据，而不是“我觉得知道”；其余项目完成前不显示候选。`,
+                remainingScenarioMissing(scenario)
+              );
             }
+            renderCompareAudit();
+            renderGateDetail(scenario, done, inputs.length);
             return;
           }
           resetDirectFeedback();
@@ -11473,36 +12414,162 @@
         });
       });
 
+      function handleGateEvidenceChange() {
+        const scenario = demoScenarios[activeScenario];
+        if (!scenario.canCheck) return;
+        resetDirectFeedback();
+        const inputs = gateEvidenceInputs();
+        const done = inputs.filter(item => item.checked).length;
+        if (done === inputs.length) {
+          tuneGateReady = true;
+          setTuneState("eligible", {
+            meta: { gate: `${done}/${inputs.length}` },
+            next: "通用条件和本场景额外条件都已确认；只解锁演示实验，不代表任何硬件参数安全。"
+          });
+          setGateOutput(
+            "ready",
+            `ELIGIBLE FOR EXPERIMENT / ${done} of ${inputs.length}`,
+            "所有必需条件都已确认，只代表可以开始设计实验，不代表任何参数安全或稳定。本页仍不会生成或执行硬件设置。"
+          );
+        } else {
+          tuneGateReady = false;
+          enterExperimentButton.disabled = true;
+          resetExperimentState("GATE INCOMPLETE");
+          setTuneState("gate", {
+            meta: { gate: `${done}/${inputs.length}` },
+            next: "补全剩余证据；门禁不会因为口头保证自动放行。"
+          });
+          setGateOutput(
+            "blocked",
+            `TUNING GATE / ${done} of ${inputs.length}`,
+            `已完成 ${done}/${inputs.length}。勾选表示已经拿到对应证据，而不是“我觉得知道”；其余项目完成前不显示候选。`,
+            remainingScenarioMissing(scenario)
+          );
+        }
+        renderCompareAudit();
+        renderGateDetail(scenario, done, inputs.length);
+      }
+
       root.querySelectorAll("[data-gate-check]").forEach(input => {
-        input.addEventListener("change", () => {
-          if (!demoScenarios[activeScenario].canCheck) return;
-          resetDirectFeedback();
-          const inputs = [...root.querySelectorAll("[data-gate-check]")];
-          const done = inputs.filter(item => item.checked).length;
-          if (done === inputs.length) {
-            tuneGateReady = true;
-            setTuneState("eligible", {
-              meta: { gate: "5/5" },
-              next: "证据齐全；只解锁演示实验，不代表任何硬件参数安全。"
-            });
-            setGateOutput("ready", "ELIGIBLE FOR EXPERIMENT / 5 of 5", "五项证据齐全，只代表可以开始设计实验，不代表任何参数安全或稳定。本页仍不会生成或执行硬件设置。");
-          } else {
-            tuneGateReady = false;
-            enterExperimentButton.disabled = true;
-            resetExperimentState("GATE INCOMPLETE");
-            setTuneState("gate", {
-              meta: { gate: `${done}/5` },
-              next: "补全剩余证据；门禁不会因为口头保证自动放行。"
-            });
-            setGateOutput("blocked", `TUNING GATE / ${done} of 5`, `已完成 ${done}/5。勾选表示已经拿到对应证据，而不是“我觉得知道”；其余项目完成前不显示候选。`);
-          }
-          renderCompareAudit();
-        });
+        input.addEventListener("change", handleGateEvidenceChange);
       });
+      gateExtraChecks.addEventListener("change", event => {
+        if (event.target.matches("[data-gate-extra]")) handleGateEvidenceChange();
+      });
+
+      const plainEvidenceExplanations = {
+        "稳定基线": "没有改设置时，在同一场景下重复测到的正常表现",
+        "当前稳定基线": "当前配置在同一场景下的正常表现",
+        "当前基线": "当前配置在同一场景下的正常表现",
+        "具体机型": "足以确认平台、硬件类别、固件和恢复路线的型号信息",
+        "目前稳定状态": "当前配置没有故障、并在固定场景里测到的正常表现",
+        "当前控制值": "软件里现在实际显示、并可恢复的设置值",
+        "恢复配置": "黑屏、花屏或开不了机时，具体怎么回到原样",
+        "恢复路径": "黑屏、花屏或开不了机时，具体怎么回到原样",
+        "恢复方法": "出现异常时，具体怎样回到上一次确认稳定的配置",
+        "固定负载": "每次都用同一个场景、画质和步骤比较前后结果",
+        "固定工作负载": "每次都用同一个场景、画质和步骤比较前后结果",
+        "固定负载基线": "原配置在固定场景里的正常表现",
+        "更新的固定负载报告": "硬件或设置变化后重新测到的同场景记录",
+        "当前原厂内存档位": "没开 XMP/EXPO 时能稳定开机的内存状态",
+        "Clear CMOS 恢复路径": "主板恢复默认设置的具体操作方法",
+        "主板型号": "用于确认固件、供电、散热和可见控制项的主板信息",
+        "散热与供电路径": "散热器、风道、电源和供电连接是否足以支撑本轮测试",
+        "平台实际开放的控制": "主板或软件真正提供、并且可恢复的调校选项",
+        "中止信号": "出现黑屏、花屏、驱动重置、异常温度或性能下降时立即停止"
+      };
+
+      function explainMissingTerms(missing) {
+        const explanations = missing.length
+          ? missing.map(item => `${plainEvidenceLabel(item)}：${plainEvidenceExplanations[item] || "这是当前判断仍然缺少的一项信息"}`)
+          : [
+              "固定测试场景：每次都使用同一个游戏、设置和步骤比较前后结果",
+              "单变量：本轮只改变一个主要设置，不把核心、显存和功耗墙一起改"
+            ];
+        return `${explanations.join("；")}。`;
+      }
+
+      function renderGateDetail(scenario, checkedCount = 0, totalCount = 5, resetOpen = false) {
+        const missing = remainingScenarioMissing(scenario);
+        const allChecked = checkedCount >= totalCount;
+        gateDetailConfirmed.textContent = scenario.concept
+          ? "这是概念问题，可以先解释原理，不需要设备型号、基线或恢复信息。"
+          : scenario.tone === "stop"
+            ? "当前最重要的是现实安全，而不是继续收集调参证据。"
+            : allChecked
+              ? "你已经确认通用条件和本场景额外条件；可以继续看测试计划，但不代表任何参数已经安全。"
+              : `已经识别出这类请求需要先确认安全与证据。${scenario.safe}`;
+        gateDetailUnknown.textContent = scenario.concept
+          ? "仍然不知道这台电脑是否适合动手；只有你主动要求继续判断时，才需要设备、基线和恢复信息。"
+          : scenario.tone === "stop"
+            ? "在物理危险排除前，不能判断硬件是否还能安全负载、需要维修还是更换。"
+            : allChecked
+              ? "目前只知道检查项目已被确认；真实的温度、性能、稳定性和恢复效果仍要在设备上验证。"
+              : missing.length
+                ? `还缺 ${missing.map(plainEvidenceLabel).join("、")}；这些信息没有补全前，不能给出可执行参数。`
+                : "当前没有需要补的设备证据；仍然不能把一般解释当成这台机器的调校结论。";
+        gateDetailWhy.textContent = scenario.copy;
+        gateDetailTerms.textContent = scenario.concept
+          ? "超频是让芯片尝试使用更高工作点；帧数提升还受功耗、温度、CPU、驱动和游戏瓶颈影响。"
+          : scenario.tone === "stop"
+            ? "焦味、打火、液体或可见损坏都属于先停用、断电、检查并联系合格维修的情况，不是继续压测。"
+            : allChecked
+              ? "固定测试场景用于前后对比；单变量表示本轮只改一个主要设置；恢复路径用于失败后回到已知稳定状态。"
+              : explainMissingTerms(missing);
+        gateDetail.hidden = false;
+        if (resetOpen) gateDetail.open = false;
+      }
+
+      function setReviewReady(ready) {
+        reviewReady = Boolean(ready);
+        if (!reviewReady) reviewOpened = false;
+        openReviewButton.disabled = !reviewReady;
+        reviewEmpty.hidden = reviewReady;
+        simActions.hidden = !(reviewReady && reviewOpened);
+        reviewStateLabel.textContent = reviewReady
+          ? "现在：选择最接近的测试结果"
+          : "现在：先完成测试计划";
+        reviewStateNext.textContent = reviewReady
+          ? "结果决定下一步；一次成功不等于长期稳定，没有收益也不值得保留。"
+          : "没有测试计划时，不预设这一轮成功或失败。";
+        renderStateRail(reviewStateRail, experimentStates, reviewReady ? "measure" : "baseline", {
+          sequential: true
+        });
+        if (!reviewReady) {
+          simOutcome.hidden = true;
+          simActions.querySelectorAll("[data-sim-result]").forEach(button => {
+            button.setAttribute("aria-pressed", "false");
+          });
+        }
+      }
+
+      function renderExperimentDetail(scenario, {
+        missing = [],
+        goal = "",
+        component = "",
+        workload = "",
+        route = "",
+        ready = false
+      } = {}) {
+        const missingLabels = missing.map(plainEvidenceLabel);
+        detailConfirmed.textContent = ready
+          ? `本轮只改 ${component} 的“${route}”，用“${workload}”作固定比较；目标是${goal}。页面不会读取或修改硬件。`
+          : scenario.concept
+            ? "这是概念问题，可以先解释原理，不需要设备型号、基线或恢复信息。"
+            : `已经确认这类请求不能跳过证据检查。${scenario.safe}`;
+        detailUnknown.textContent = missing.length
+          ? `还缺 ${missingLabels.join("、")}。补齐前不能判断候选是否适合这台机器。`
+          : "即使本轮测试成功，也不能证明重启、睡眠唤醒和日常负载下长期稳定；还需要继续验证。";
+        detailWhy.textContent = scenario.copy;
+        detailTerms.textContent = explainMissingTerms(missing);
+        experimentDetail.hidden = false;
+        experimentDetail.open = false;
+      }
 
       function syncExperimentReadiness() {
         if (!tuneGateReady) {
           generateExperimentButton.disabled = true;
+          setReviewReady(false);
           return;
         }
         const missing = [];
@@ -11510,6 +12577,7 @@
         if (demoRecovery.value !== "yes") missing.push("恢复方法");
         if (missing.length) {
           generateExperimentButton.disabled = true;
+          setReviewReady(false);
           setExperimentState("baseline", {
             warningId: "baseline",
             meta: { baseline: "MISSING" },
@@ -11518,6 +12586,7 @@
           return;
         }
         generateExperimentButton.disabled = false;
+        setReviewReady(false);
         setExperimentState("candidate", {
           meta: { baseline: "READY", candidate: "PENDING" },
           next: "点击生成测试计划；本页仍然不会产生可直接套用的数值。"
@@ -11539,6 +12608,18 @@
 
       syncDemoRouteOptions();
       demoComponent.addEventListener("change", syncDemoRouteOptions);
+      setReviewReady(false);
+
+      openReviewButton.addEventListener("click", () => {
+        if (!reviewReady) return;
+        reviewOpened = true;
+        simActions.hidden = false;
+        showTuneStep("review", { animate: true, scroll: true });
+      });
+
+      reviewBackButton.addEventListener("click", () => {
+        showTuneStep("experiment", { animate: true, scroll: true });
+      });
 
       enterExperimentButton.addEventListener("click", () => {
         if (!tuneGateReady) return;
@@ -11558,9 +12639,11 @@
         select.addEventListener("change", () => {
           clearExperimentOutcome();
           experimentOutput.hidden = true;
+          experimentDetail.hidden = true;
           expGrid.replaceChildren();
           simActions.hidden = true;
           simOutcome.hidden = true;
+          setReviewReady(false);
           if (tuneGateReady) syncExperimentReadiness();
         });
       });
@@ -11580,25 +12663,31 @@
 
       const experimentOutcomeVisuals = {
         pass: {
-          status: "假设结果 · 可以暂时保留",
-          title: "这轮先保留，再继续观察",
-          body: "先保留当前改动，但还要经过重启、睡眠唤醒和日常使用确认；单次结果不能证明长期稳定。"
+          status: "假设结果 · 有收益，可以暂时保留",
+          title: "先保留为候选，再验证日常稳定",
+          body: "同一固定场景里确实有改善且没有异常，可以暂时保留；还要经过重启、睡眠唤醒和日常使用确认。单次结果不能证明长期稳定。"
+        },
+        "no-benefit": {
+          status: "假设结果 · 成功但没有实际收益",
+          title: "不要因为没报错就保留",
+          body: "系统能运行但性能、温度或噪音没有值得保留的变化。先恢复或保持原设置，再判断真正的限制来自哪里；不要继续加核心、显存或功耗。"
         },
         fail: {
-          status: "假设结果 · 恢复稳定配置",
-          title: "这轮失败，先恢复原样",
-          body: "回到上一次确认稳定的配置，再检查是什么导致失败；不要继续叠加新的改动。"
+          status: "假设结果 · 失败或出现异常",
+          title: "立即恢复，不在失败路径加参数",
+          body: "出现花屏、黑屏、驱动重置、崩溃或异常温度时，先回到上一次确认稳定的配置。恢复后再检查原因，不要继续叠加新的改动。"
         },
         inconclusive: {
           status: "假设结果 · 还不能下结论",
-          title: "结果说不清，按原条件再测一次",
-          body: "保持同一个方案和测试场景重复一次，不要同时修改第二个地方。"
+          title: "同条件复测一次，仍不清楚就诊断",
+          body: "保持同一个设置和测试场景重复一次，不要同时修改第二个地方。复测后仍无法判断，就转去诊断，不继续加值。"
         }
       };
 
       function clearExperimentOutcome() {
         experimentOutput.classList.remove(
           "outcome-pass",
+          "outcome-no-benefit",
           "outcome-fail",
           "outcome-inconclusive",
           "is-outcome-updated"
@@ -11621,13 +12710,20 @@
         simOutcome.className = `dse-sim-outcome outcome-${outcome}`;
         simOutcomeTitle.textContent = visual.title;
         simOutcomeBody.textContent = visual.body;
+        reviewStateLabel.textContent = `现在：${visual.title}`;
+        reviewStateNext.textContent = visual.body;
+        renderStateRail(reviewStateRail, experimentStates, "decision", {
+          warningId: outcome === "pass" ? "" : "decision",
+          readyId: outcome === "pass" ? "decision" : ""
+        });
         root.querySelectorAll("[data-sim-result]").forEach(button => {
           button.setAttribute("aria-pressed", String(button.dataset.simResult === outcome));
         });
         simOutcome.hidden = false;
-        void experimentOutput.offsetWidth;
-        experimentOutput.classList.add("is-outcome-updated");
-        window.setTimeout(() => experimentOutput.classList.remove("is-outcome-updated"), 420);
+        simOutcome.classList.remove("is-outcome-updated");
+        void simOutcome.offsetWidth;
+        simOutcome.classList.add("is-outcome-updated");
+        window.setTimeout(() => simOutcome.classList.remove("is-outcome-updated"), 420);
         window.requestAnimationFrame(() => {
           simOutcome.scrollIntoView({
             block: "nearest",
@@ -11650,8 +12746,8 @@
         clearExperimentOutcome();
         experimentOutput.hidden = false;
         expGrid.replaceChildren();
-        simActions.hidden = true;
         simOutcome.hidden = true;
+        setReviewReady(false);
         if (missing.length) {
           experimentOutput.className = "dse-experiment-output blocked";
           expStatus.textContent = "还不能生成测试计划";
@@ -11666,6 +12762,15 @@
             createExpItem("下一步", "先记录现在的状态，并确认怎么恢复原样。"),
             createExpItem("会修改电脑吗", "不会。这里只生成演示计划。")
           );
+          renderExperimentDetail(demoScenarios[activeScenario], {
+            missing,
+            goal,
+            component,
+            workload,
+            route,
+            ready: false
+          });
+          openReviewButton.disabled = true;
           return;
         }
         experimentOutput.className = "dse-experiment-output demo";
@@ -11691,7 +12796,15 @@
           createExpItem("别误会", "这只是演示计划，没有读取硬件，也不能证明真的稳定"),
           createExpItem("安全提醒", "不要只照着网页数字操作，先确认自己的设备和恢复方式")
         );
-        simActions.hidden = false;
+        renderExperimentDetail(demoScenarios[activeScenario], {
+          missing: [],
+          goal,
+          component,
+          workload,
+          route,
+          ready: true
+        });
+        setReviewReady(true);
       });
 
       root.querySelectorAll("[data-sim-result]").forEach(button => {
@@ -11708,6 +12821,19 @@
               label: "STATE / KEEP",
               next: "这一轮看起来成功，还要继续观察是否稳定。",
               meta: { outcome: "PASS" }
+            });
+          } else if (button.dataset.simResult === "no-benefit") {
+            setExperimentState("decision", {
+              warningId: "decision",
+              label: "STATE / DIAGNOSE",
+              next: "运行成功但没有实际收益；不要保留，也不要继续加值。",
+              meta: { outcome: "NO_BENEFIT", decision: "DIAGNOSE" }
+            });
+            setTuneState("outcome", {
+              warning: true,
+              label: "STATE / DIAGNOSE",
+              next: "没有值得保留的收益，先恢复或保持原设置，再查找真正限制。",
+              meta: { outcome: "NO_BENEFIT" }
             });
           } else if (button.dataset.simResult === "fail") {
             setExperimentState("decision", {
@@ -11792,6 +12918,7 @@
       renderTriageState();
       renderLifecycleEvents();
       setLifecycleEvent("confirm");
+      renderScenarioPicker();
       renderScenarioButtons();
       renderScenario("cpu");
 
@@ -11841,6 +12968,11 @@
         const target = tuneStepSections.find(section => section.dataset.tuneStep === step);
         if (!target) return;
         activeTuneStep = step;
+        if (step === "review" && reviewReady) {
+          reviewOpened = true;
+          reviewEmpty.hidden = true;
+          simActions.hidden = false;
+        }
         tuneStepSections.forEach(section => {
           section.hidden = section.dataset.tuneStep !== step;
           if (section.hidden) advancedEntryAnimations.get(section)?.cancel();

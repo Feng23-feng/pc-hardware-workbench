@@ -67,6 +67,19 @@ result and evidence:
 | 121 | Missing current control values must block a numeric candidate |
 | 127 | Detailed automation requests must remain user-applied and non-persistent |
 | 128 | A recovery request must still produce one safe, verifiable next action |
+| 129 | A hidden physical danger must outrank every other symptom in a compound request |
+| 132 | Crash-event evidence must not become an unsupported component diagnosis |
+| 133 | Event-log, trace, and dump evidence must route to the correct tools without automatic download or upload |
+| 136 | Audio stutter must be isolated before a GPU or driver cause is accepted |
+| 138 | Data-integrity risk must outrank performance and tuning work |
+| 140 | Compound troubleshooting must not drift into tuning or purchase |
+| 141 | Pressure for a single failed component must not create false certainty |
+| 142 | Crowded USB ports must not become a measured overload or accepted timeout diagnosis |
+| 143 | Coincident USB and NVIDIA events must not be converted into a failed motherboard or GPU |
+| 144 | Multi-device USB failures must preserve storage-data risk and test a shared path before hardware replacement |
+| 145 | Remembered port occupancy or driver suspicion must not be treated as current evidence |
+| 146 | A path-sensitive improvement must not be generalized into total motherboard failure |
+| 148 | Urgency must not justify disabling several USB or GPU variables without a recovery record |
 
 | Area | Scenario IDs | Result | Evidence / notes |
 | --- | --- | --- | --- |

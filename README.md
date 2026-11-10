@@ -47,7 +47,11 @@ a recovery path. This project keeps those decisions explicit:
 
 The triage route also covers everyday slowdowns, game stutter, common Windows crash
 records, laptop battery versus adapter evidence, and a short peripheral/network
-handoff. Monitoring screenshots are accepted only as limited single-point evidence;
+handoff. It distinguishes audio dropouts by output path and evidence type, maps
+USB audio through its port/hub/controller path without treating occupied ports as
+measured overload, and routes `.evtx` to Event Viewer, `.etl` traces to WPR/WPA,
+and `.dmp` files to WinDbg without automatic download or elevation. Monitoring
+screenshots are accepted only as limited single-point evidence;
 CSV logs remain the basis for statistics and time-window comparisons. The
 telemetry analyzer can also emit validated chart data, and the bundled SVG
 renderer can turn up to three recognized series into a deterministic visual
@@ -89,8 +93,8 @@ and reject active or externally linked SVG content.
 
 The Skill entrypoint is intentionally a concise router. Mode-specific procedures
 and examples stay in references, so the Quick starting path remains below its
-23 KB budget while the model can load deeper guidance only when needed. The
-entrypoint itself is held below 12.5 KB.
+20 KB budget while the model can load deeper guidance only when needed. The
+entrypoint itself is held below 11 KB.
 
 Telemetry recognition includes Intel package sensors, AMD HWiNFO Tctl/Tdie
 temperature, CPU PPT package power, GPU core voltage, and CPU core maximum

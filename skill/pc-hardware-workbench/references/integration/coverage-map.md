@@ -16,6 +16,7 @@ This integrated suite preserves the generic references and scripts from three in
 | visual evidence | 2.1.0 | `references/integration/visual-evidence.md` | Runtime-owned vision capability, screenshot and photo evidence classes, visible-versus-inferred separation, OCR/crop/redaction fallback, prompt-injection isolation, case hashing, and cross-evidence limits |
 | Skill Doctor | 2.2.0 | `scripts/doctor.ps1`, `references/integration/skill-doctor.md` | Read-only installation and runtime diagnostics for version, required files, PowerShell syntax/encoding, output writability, CIM, PowerShell 7, optional sensors, validator, and runtime-owned vision limits, with no install, elevation, start, repair, or network action |
 | simplified cross-capability routing | 2.3.0 | `SKILL.md`, `tests/cross-capability-scenarios.md` | Entry reduced below 12.5 KB and Quick path below 23 KB; conditional telemetry, LHM, and visual guidance remains in references; six real conversation scenarios cover cross-source, unavailable-source, conflict, and bypass demands |
+| compact entrypoint routing | 2.6.0 | `SKILL.md`, `tests/interaction-scenarios.md`, `tests/run-interaction-contract-tests.ps1` | Entry reduced below 11 KB and Quick path below 20 KB; task routing and safety invariants remain resident while detailed GPU, VRAM, telemetry, purchase, and evidence procedures stay in references |
 | personal-hardware-triage | excluded | none | Personal device history intentionally excluded |
 
 ## Controlled source revisions
@@ -23,6 +24,13 @@ This integrated suite preserves the generic references and scripts from three in
 The integration intentionally revises these source-derived areas:
 
 - triage routing now uses the bundled collector and includes de-energized handling;
+- triage now prioritizes physical safety, data/boot risk, instability, functional
+  faults, and performance in that order; it separates evidence states and routes
+  `.evtx`, `.etl`, `.dmp`, and telemetry files to Event Viewer, WPR/WPA, WinDbg,
+  or the bundled analyzer without automatic installation or elevation; USB audio
+  triage records port/hub/controller paths and treats congestion, timeout, and
+  DPC/ISR correlation as separate hypotheses before any driver or hardware
+  replacement;
 - upgrade intake, evidence, decision framework, and market check distinguish functional, preference, planning, retained, sold, and gifted outcomes;
 - tuning evidence now includes target-specific cooling, explicit noise measurement, unit-aware telemetry, and packaged regression tests;
 - GPU clock guidance now separates requested, saved, active, sampled, and
