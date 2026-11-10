@@ -40,7 +40,7 @@ if ($errors.Count -eq 0) {
     }
 
     $readmeText = Get-Content -Raw -LiteralPath $readmeFile -Encoding UTF8
-    if ($readmeText -notmatch [regex]::Escape("Current Skill candidate: **$version**")) {
+    if ($readmeText -notmatch [regex]::Escape("Current public status: **$version test release**")) {
         $errors.Add("README current version does not match $version.") | Out-Null
     }
 

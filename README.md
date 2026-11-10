@@ -9,25 +9,27 @@ one Skill while keeping all hardware changes under the user's control.
 读取、故障排查、遥测分析、手动调校指导和升级判断；不会自动修改 BIOS、频率、
 电压、功耗、风扇或固件。
 
+## 项目缘起 / Origin
+
+这个 Skill 始于一个学艺术的人在调试电脑时的突发奇想：把复杂、零散的硬件排查，整理成一套既方便普通用户上手、又坚持证据和安全边界的工作流。
+
 ## Project status
 
-- Current Skill candidate: **2.6.0**
-- Automated non-live tests: passing
+- Current public status: **2.6.0 test release**
+- Automated non-live tests at 2.6.0: passing
 - Live hardware collection: opt-in only
-- Broad release sign-off: pending
+- Broad release sign-off: not claimed
 - Repository license: **MIT**
 
 ## 在线项目说明 / About this Skill
 
-[了解这个 Skill](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/)
+[项目说明、测试边界与版本记录](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/)
 
-功能说明、测试状态与历史版本。
-
-Explore the Workbench and integrated GPU candidate workflow through the recorded versions.
+查看 2.6.0 的能力范围、已知边界和历史版本，不会把测试版描述成已经完成广泛发布验证。
 
 [打开 Skill 交互实验室](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/interactive/)
 
-交互实验室按模式展示术语解释、调校门禁、Triage 分流和配置状态失效。
+交互实验室展示术语解释、调校门禁、六类故障分流、证据状态判断，以及配置或驱动变化后的重新验证。
 
 [查看文件星球](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/orrery/)
 
@@ -45,13 +47,15 @@ a recovery path. This project keeps those decisions explicit:
 4. treat telemetry as evidence, not proof of stability;
 5. keep every persistent hardware change user-applied.
 
-The triage route also covers everyday slowdowns, game stutter, common Windows crash
-records, laptop battery versus adapter evidence, and a short peripheral/network
-handoff. It distinguishes audio dropouts by output path and evidence type, maps
-USB audio through its port/hub/controller path without treating occupied ports as
-measured overload, and routes `.evtx` to Event Viewer, `.etl` traces to WPR/WPA,
-and `.dmp` files to WinDbg without automatic download or elevation. Monitoring
-screenshots are accepted only as limited single-point evidence;
+The triage route now prioritizes physical safety, data and boot risk, instability,
+functional failures, and performance in that order. It covers everyday slowdowns,
+game stutter, Windows crash records, laptop battery versus adapter evidence,
+peripheral/network handoff, and audio dropouts by output path and evidence type.
+For USB audio it maps the physical port, hub, root controller, and shared devices
+without treating occupied ports as measured overload. `.evtx` evidence routes to
+Event Viewer, `.etl` traces to WPR/WPA, and `.dmp` files to WinDbg without
+automatic download or elevation. Monitoring screenshots are accepted only as
+limited single-point evidence;
 CSV logs remain the basis for statistics and time-window comparisons. The
 telemetry analyzer can also emit validated chart data, and the bundled SVG
 renderer can turn up to three recognized series into a deterministic visual
@@ -302,6 +306,13 @@ same command with `-Fix`. Portable-only files are never deleted automatically,
 and `-Fix` is rejected when `CI=true` or `GITHUB_ACTIONS=true`.
 
 Real hardware smoke tests remain opt-in and are not run by CI.
+
+The current interaction catalog contains 148 manual behavioral scenarios covering
+normal use, missing or conflicting evidence, urgency, compound symptoms, data-risk
+precedence, USB/NVIDIA evidence conflicts, and pressure to name a failed component
+without proof. Static contract tests verify that required rules and scenarios exist;
+they do not prove every model response behaves correctly. Independent human
+acceptance is still required before making a broad-release claim.
 
 The validation wrapper uses a persistent Python environment outside this
 repository. By default it is created at
