@@ -192,10 +192,9 @@ if ($errors.Count -eq 0) {
         'id="dse-home-no-evidence"',
         'id="dse-home-result"',
         'id="dse-home-result-detail"',
-        'class="dse-hero-safety"',
-        'class="dse-candidate"',
-        'id="dse-candidate-title"',
-        'class="dse-candidate-summary"',
+        'id="dse-home-open-advanced"',
+        'dse-hero-safety',
+        'dse-home-status-line',
         'class="dse-advanced-entry"',
         'class="dse-explore dse-explore-primary"',
         'class="dse-file-map"',
@@ -217,19 +216,21 @@ if ($errors.Count -eq 0) {
         $indexHtml -notmatch 'src="assets/orrery-preview\.png"') {
         $errors.Add("Index does not use the unified file planet action and preview image.") | Out-Null
     }
-    $candidatePosition = $indexHtml.IndexOf('<section class="dse-candidate"')
+    $statusPosition = $indexHtml.IndexOf('dse-home-status-line')
+    $secondaryPosition = $indexHtml.IndexOf('class="dse-advanced-entry"')
     $technicalPosition = $indexHtml.IndexOf('<details class="dse-home-technical"')
-    if ($candidatePosition -lt 0 -or $technicalPosition -lt 0 -or $candidatePosition -gt $technicalPosition) {
-        $errors.Add("Index usable-state block is not visible before the technical archive.") | Out-Null
+    if ($statusPosition -lt 0 -or $secondaryPosition -lt 0 -or $technicalPosition -lt 0 -or
+        $statusPosition -gt $secondaryPosition -or $secondaryPosition -gt $technicalPosition) {
+        $errors.Add("Index status, secondary links and technical archive are not ordered by priority.") | Out-Null
     }
-    if ($indexHtml -notmatch '\u770B\u61C2\u4F60\u7684\u7535\u8111' -or
+    if ($indexHtml -notmatch '\u7535\u8111\u8C03\u8BD5' -or
         $indexHtml -notmatch '\u67E5\u770B\u5F53\u524D\u914D\u7F6E' -or
         $indexHtml -notmatch '\u8003\u8651\u5347\u7EA7') {
         $errors.Add("Index does not state the full configuration, troubleshooting, tuning and upgrade scope.") | Out-Null
     }
-    if ([regex]::Matches($indexHtml, 'class="dse-candidate-summary"').Count -ne 1 -or
-        [regex]::Matches($indexHtml, '<div>\s*<dt>').Count -ne 3) {
-        $errors.Add("Index usable-state summary must contain exactly three key facts.") | Out-Null
+    if ($indexHtml -notmatch '\u6D4B\u8BD5\u7248.*\u53EA\u8BFB.*\u4E0D\u4F1A\u81EA\u52A8\u4FEE\u6539\u786C\u4EF6' -and
+        $indexHtml -notmatch '\u6D4B\u8BD5\u7248.*\u53EA\u8BFB.*\u81EA\u52A8\u4FEE\u6539\u786C\u4EF6') {
+        $errors.Add("Index status line does not state test state, read-only behavior and hardware safety.") | Out-Null
     }
     if ($indexHtml -match '\u67E5\u770B\u6280\u672F\u4E0E\u53D1\u5E03\u8BF4\u660E|\u8DEF\u5F84\uFF1A\u5B89\u5168\u8FB9\u754C|\u4EA4\u4E92\u5B9E\u9A8C\u5BA4') {
         $errors.Add("Index still exposes a duplicate technical entry or internal maintenance language.") | Out-Null

@@ -2071,7 +2071,7 @@
 
     #dse-root .dse-compare-audit-item {
       min-width: 0;
-      padding: 6px;
+      padding: 8px;
       color: var(--dse-muted);
       background: rgba(3, 11, 20, .7);
       border: 1px solid #19394f;
@@ -8392,7 +8392,181 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
+    html[data-site-view="interactive"] #dse-root .dse-advanced-page-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 28px;
+      width: min(100% - 40px, 1040px);
+      margin: 30px auto 20px;
+      padding-bottom: 18px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-advanced-page-head h1 {
+      flex: none;
+      font-size: 30px !important;
+      letter-spacing: -.02em;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-advanced-page-head > span {
+      max-width: 620px;
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.65;
+      text-align: right;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-advanced-page-head > small {
+      display: none;
+    }
+
+    html[data-site-view="interactive"] #dse-root #dse-interactive-technical > summary,
+    html[data-site-view="interactive"] #dse-root .dse-demo-head,
+    html[data-site-view="interactive"] #dse-root .dse-mode-guide {
+      display: none;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo {
+      width: min(100%, 1040px);
+      margin: 0 auto;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-modes {
+      position: sticky;
+      top: 52px;
+      z-index: 120;
+      display: flex;
+      align-items: stretch;
+      justify-content: space-between;
+      gap: 28px;
+      width: 100%;
+      margin: 0 auto 30px;
+      padding-top: 8px;
+      background: var(--dse-bg);
+      border-bottom: 1px solid var(--dse-line-soft);
+    }
+
+    #dse-root .dse-demo-mode-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    #dse-root .dse-demo-mode-group.utility {
+      margin-left: auto;
+    }
+
+    #dse-root .dse-demo-mode-label {
+      margin-right: 8px;
+      color: var(--dse-text-faint);
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 9px;
+      letter-spacing: .08em;
+      white-space: nowrap;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-mode-group .dse-filter {
+      min-width: 108px;
+      min-height: 42px;
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-mode-group.utility .dse-filter {
+      min-width: auto;
+      color: var(--dse-text-faint);
+      font-size: 11px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-mode-group.utility .dse-filter[aria-pressed="true"] {
+      color: var(--dse-text);
+    }
+
+    #dse-root .dse-scenario-browser,
+    #dse-root .dse-lifecycle-presets {
+      width: min(100%, 720px);
+      margin: 18px auto 0;
+      border-top: 1px solid var(--dse-line-soft);
+      border-bottom: 1px solid var(--dse-line-soft);
+    }
+
+    #dse-root .dse-scenario-browser-body {
+      display: grid;
+      gap: 12px;
+      padding: 8px 0 18px;
+    }
+
+    #dse-root .dse-lifecycle-presets > div {
+      padding: 6px 0 16px;
+    }
+
+    #dse-root .dse-triage-category-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    #dse-root .dse-triage-category-group {
+      display: grid;
+      align-content: start;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    #dse-root .dse-triage-category-group h4 {
+      margin: 0 0 2px;
+      color: var(--dse-text-faint);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .04em;
+    }
+
+    #dse-root .dse-triage-category-group > div {
+      display: grid;
+      gap: 8px;
+    }
+
     @media (max-width: 760px) {
+      html[data-site-view="interactive"] #dse-root .dse-advanced-page-head {
+        display: grid;
+        gap: 8px;
+        margin-top: 24px;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-advanced-page-head > span {
+        text-align: left;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-demo-modes {
+        display: grid;
+        gap: 8px;
+        padding-bottom: 10px;
+      }
+
+      #dse-root .dse-demo-mode-group,
+      #dse-root .dse-demo-mode-group.utility {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+        margin-left: 0;
+      }
+
+      #dse-root .dse-demo-mode-label {
+        grid-column: 1 / -1;
+        margin: 0;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-demo-mode-group .dse-filter {
+        width: 100%;
+        min-width: 0;
+        border: 1px solid var(--dse-line-soft);
+      }
+
+      #dse-root .dse-triage-category-grid {
+        grid-template-columns: 1fr;
+      }
+
       #dse-root .dse-experiment-detail-grid,
       #dse-root .dse-review-rules {
         grid-template-columns: 1fr;
@@ -8411,6 +8585,1030 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /*
+      Final visual pass:
+      one calm instrument surface, explicit navigation, and a clear primary action.
+      Structure and interaction contracts stay unchanged.
+    */
+    html[data-site-view="interactive"] #dse-root {
+      --dse-workbench: #0c0f11;
+      --dse-workbench-raised: #111518;
+      --dse-hairline: #272d32;
+      --dse-hairline-soft: #20252a;
+      background:
+        radial-gradient(ellipse at 50% 9%, rgb(var(--dse-cyan-rgb) / .045), transparent 38%),
+        linear-gradient(180deg, #080a0c 0%, #07090a 100%);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-global-nav {
+      min-height: 50px;
+      padding-inline: max(22px, calc((100vw - 1100px) / 2));
+      background: rgba(8, 10, 12, .86);
+      border-bottom-color: #20252a;
+      backdrop-filter: blur(18px) saturate(115%);
+      -webkit-backdrop-filter: blur(18px) saturate(115%);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-global-nav a,
+    html[data-site-view="interactive"] #dse-root .dse-global-nav span {
+      font-size: 13px !important;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-advanced-page-head {
+      display: grid !important;
+      grid-template-columns: max-content minmax(0, 1fr) max-content;
+      align-items: center;
+      gap: 22px;
+      width: min(100% - 48px, 1040px);
+      margin: 30px auto 18px;
+      padding: 0 0 20px;
+      border-bottom-color: var(--dse-hairline);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-advanced-page-head h1 {
+      font-size: 29px !important;
+      font-weight: 500;
+      letter-spacing: -.018em;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-advanced-page-head > span {
+      max-width: 620px;
+      margin: 0 !important;
+      color: #aeb6bd;
+      font-size: 14px !important;
+      line-height: 1.68;
+      text-align: left;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-advanced-page-head > small {
+      display: inline-flex !important;
+      align-items: center;
+      min-height: 30px;
+      padding: 0 10px;
+      color: #a8b2b8;
+      background: #0e1215;
+      border: 1px solid #2a3137;
+      border-radius: 999px;
+      font-size: 12px !important;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-context-bridge {
+      width: min(100% - 48px, 1040px);
+      margin: 0 auto 16px;
+      background: #0f1418;
+      border-color: #29343b;
+      border-radius: 13px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo {
+      width: min(100% - 48px, 1040px);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-modes {
+      top: 50px;
+      gap: 10px;
+      margin: 0 auto 14px;
+      padding: 8px;
+      overflow: visible;
+      background: #0b0e10;
+      border: 1px solid var(--dse-hairline);
+      border-radius: 13px;
+      box-shadow: 0 14px 32px rgb(var(--dse-black-rgb) / .22);
+      backdrop-filter: blur(18px) saturate(120%);
+      -webkit-backdrop-filter: blur(18px) saturate(120%);
+    }
+
+    #dse-root .dse-demo-mode-group {
+      gap: 3px;
+      padding-right: 9px;
+    }
+
+    #dse-root .dse-demo-mode-group.utility {
+      padding-right: 0;
+      padding-left: 12px;
+      border-left: 1px solid var(--dse-hairline-soft);
+    }
+
+    #dse-root .dse-demo-mode-label {
+      margin: 0 5px 0 7px;
+      color: #626c75;
+      font-family: inherit;
+      font-size: 10px !important;
+      font-weight: 500;
+      letter-spacing: .05em;
+      pointer-events: none;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-mode-group .dse-filter {
+      min-width: 0;
+      min-height: 38px;
+      padding: 0 13px;
+      color: #b8c0c6;
+      background: #101417;
+      border: 1px solid #2a3137;
+      border-radius: 8px;
+      font-size: 13px !important;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-mode-group .dse-filter:hover,
+    html[data-site-view="interactive"] #dse-root .dse-demo-mode-group .dse-filter:focus-visible {
+      color: #edf2f3;
+      background: #171c20;
+      border-color: #46535c;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-mode-group .dse-filter:focus-visible {
+      outline: 2px solid rgb(var(--dse-cyan-rgb) / .72);
+      outline-offset: 1px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-mode-group .dse-filter[aria-pressed="true"],
+    html[data-site-view="interactive"] #dse-root .dse-demo-mode-group.utility .dse-filter[aria-pressed="true"] {
+      color: #0a0e10;
+      background: #e7edef;
+      border-color: #e7edef;
+      box-shadow: 0 1px 0 rgb(var(--dse-white-rgb) / .34);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-steps {
+      position: relative;
+      top: auto;
+      z-index: 1;
+      gap: 0;
+      margin: 0 auto 14px;
+      overflow: hidden;
+      background: #0b0e10;
+      border: 1px solid var(--dse-hairline);
+      border-radius: 12px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-steps a {
+      min-height: 64px;
+      padding: 10px 16px;
+      gap: 10px;
+      color: #8f98a0;
+      border: 0;
+      border-right: 1px solid var(--dse-hairline-soft);
+      border-radius: 0;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-steps a:last-child {
+      border-right: 0;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-steps a:hover,
+    html[data-site-view="interactive"] #dse-root .dse-tune-steps a:focus-visible {
+      color: #dbe2e5;
+      background: #111519;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-steps a[aria-current="step"] {
+      color: #f2f5f6;
+      background: #151a1e;
+      box-shadow: inset 0 -2px 0 var(--dse-cyan);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-steps a b {
+      display: inline-grid;
+      place-items: center;
+      min-width: 26px;
+      height: 22px;
+      color: #8bcbd7;
+      background: rgb(var(--dse-cyan-rgb) / .055);
+      border: 1px solid rgb(var(--dse-cyan-rgb) / .24);
+      border-radius: 5px;
+      font-size: 10px !important;
+      font-weight: 600;
+      letter-spacing: .02em;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-steps a strong {
+      color: inherit;
+      font-size: 14px !important;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-steps a small {
+      color: #78828b;
+      font-size: 11px !important;
+      line-height: 1.45;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-grid {
+      padding: 30px;
+      overflow: visible;
+      background:
+        linear-gradient(180deg, rgb(var(--dse-white-rgb) / .018), transparent 150px),
+        var(--dse-workbench);
+      border: 1px solid var(--dse-hairline);
+      border-radius: 16px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-panel {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-panel-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: 22px;
+      padding-bottom: 19px;
+      border-bottom: 1px solid var(--dse-hairline-soft);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-panel-head h3 {
+      color: #f0f3f4;
+      font-size: 22px !important;
+      font-weight: 500;
+      line-height: 1.35;
+      letter-spacing: -.012em;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-panel-sub,
+    html[data-site-view="interactive"] #dse-root .dse-term-intro {
+      max-width: 68ch;
+      margin-top: 7px;
+      color: #a4adb4;
+      font-size: 14px !important;
+      line-height: 1.72;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-step {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 9px;
+      color: #aeb7bd;
+      background: #101417;
+      border: 1px solid #2b3237;
+      border-radius: 999px;
+      font-family: inherit;
+      font-size: 11px !important;
+      letter-spacing: .01em;
+      white-space: nowrap;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-state-live {
+      display: grid;
+      gap: 6px;
+      margin-top: 18px;
+      padding: 16px 18px;
+      color: #aeb7bd;
+      background: var(--dse-workbench-raised);
+      border: 1px solid #2b3238;
+      border-radius: 11px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-state-live strong {
+      color: #edf2f3;
+      font-size: 15px !important;
+      font-weight: 500;
+      line-height: 1.55;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-state-live span {
+      color: #a8b1b8;
+      font-size: 14px !important;
+      line-height: 1.7;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-scenario {
+      min-height: 64px;
+      padding: 14px 16px;
+      color: #d8dfe2;
+      background: #0e1215;
+      border: 1px solid #2a3137;
+      border-radius: 10px;
+      box-shadow: none;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-scenario::before {
+      display: none;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-scenario:hover,
+    html[data-site-view="interactive"] #dse-root .dse-scenario:focus-visible {
+      color: #f3f6f7;
+      background: #151a1e;
+      border-color: #44515a;
+      transform: none;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-scenario:focus-visible {
+      outline: 2px solid rgb(var(--dse-cyan-rgb) / .72);
+      outline-offset: 2px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-scenario[aria-pressed="true"] {
+      color: #f4f7f8;
+      background: rgb(var(--dse-cyan-rgb) / .065);
+      border-color: rgb(var(--dse-cyan-rgb) / .58);
+      box-shadow: none;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-gate-request {
+      position: relative;
+      margin-top: 18px;
+      padding: 42px 18px 18px;
+      color: #e4e9eb;
+      background: #101417;
+      border: 1px solid #2b3238;
+      border-radius: 11px;
+      font-size: 17px !important;
+      line-height: 1.65;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-gate-request::before {
+      position: absolute;
+      top: 15px;
+      left: 18px;
+      color: #7d8790;
+      font-size: 14px;
+      line-height: 1;
+      content: "当前场景";
+    }
+
+    html[data-site-view="interactive"] #dse-root #dse-tune-gate-panel .dse-scenario-browser {
+      width: 100%;
+      margin: 8px 0 0;
+      border-top: 0;
+      border-bottom-color: var(--dse-hairline-soft);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-gate-output,
+    html[data-site-view="interactive"] #dse-root .dse-gate-check,
+    html[data-site-view="interactive"] #dse-root .dse-direct-feedback,
+    html[data-site-view="interactive"] #dse-root .dse-machine-copy {
+      border-left-width: 1px !important;
+      border-radius: 11px;
+      box-shadow: none;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-gate-output {
+      margin-top: 16px;
+      padding: 18px;
+      background: #11130f;
+      border-color: rgb(var(--dse-amber-rgb) / .44);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-gate-check input {
+      width: 18px;
+      height: 18px;
+      margin-top: 0;
+      accent-color: var(--dse-cyan);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-gate-title {
+      color: #f0f2ef;
+      font-size: 15px !important;
+      font-weight: 600;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-gate-copy,
+    html[data-site-view="interactive"] #dse-root .dse-gate-help {
+      color: #b1b8b8;
+      font-size: 14px !important;
+      line-height: 1.72;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-gate-missing {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgb(var(--dse-amber-rgb) / .18);
+    }
+
+    html[data-site-view="interactive"] #dse-root #dse-tune-gate-panel > .dse-gate-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--dse-hairline-soft);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-gate-actions > .dse-demo-action.primary {
+      min-width: 150px;
+      color: #091012;
+      background: #e7edef;
+      border-color: #e7edef;
+      font-weight: 600;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-gate-actions > .dse-demo-action.primary:hover,
+    html[data-site-view="interactive"] #dse-root .dse-gate-actions > .dse-demo-action.primary:focus-visible {
+      color: #071012;
+      background: #f4f8f8;
+      border-color: #f4f8f8;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-gate-actions > .dse-demo-action:not(.primary) {
+      color: #aab2b8;
+      background: #101417;
+      border-color: #2c3339;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-support {
+      margin-top: 16px;
+      border-top: 1px solid var(--dse-hairline-soft);
+      border-bottom: 1px solid var(--dse-hairline-soft);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-support > summary {
+      min-height: 48px;
+      padding: 0;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-support > summary span {
+      color: #c2c9ce;
+      font-size: 18px !important;
+      font-weight: 500;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-support > .dse-tune-support-body {
+      display: grid;
+      gap: 24px;
+      padding: 8px 0 20px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-support-label {
+      margin: 0 0 12px;
+      color: #858f97;
+      font-size: 14px !important;
+      font-weight: 500;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-support .dse-experiment-detail {
+      margin: 0;
+      border-top: 0;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-support .dse-experiment-detail-grid {
+      padding-bottom: 0;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-support .dse-experiment-detail-grid > section {
+      padding: 13px 14px;
+      background: #0e1215;
+      border: 1px solid var(--dse-hairline-soft);
+      border-radius: 9px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-support .dse-experiment-detail-grid h4 {
+      font-size: 18px !important;
+      font-weight: 600;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-demo {
+      display: grid;
+      gap: 10px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-demo-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-demo-row .dse-demo-action {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 8px 12px;
+      color: #aeb7bd;
+      background: #101417;
+      border: 1px solid #2b3238;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-demo-row .dse-demo-action:hover,
+    html[data-site-view="interactive"] #dse-root .dse-tune-demo-row .dse-demo-action:focus-visible,
+    html[data-site-view="interactive"] #dse-root .dse-tune-demo-row .dse-demo-action[aria-expanded="true"] {
+      color: #f0f4f5;
+      background: #151a1e;
+      border-color: #44515a;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-tune-support .dse-tech-details {
+      margin: 0;
+      border-top: 0;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-secondary-actions > summary,
+    html[data-site-view="interactive"] #dse-root .dse-tech-details > summary,
+    html[data-site-view="interactive"] #dse-root .dse-experiment-detail > summary {
+      color: #aab2b9;
+      border-color: var(--dse-hairline-soft);
+      font-size: 13px !important;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-secondary-actions > summary:hover,
+    html[data-site-view="interactive"] #dse-root .dse-tech-details > summary:hover,
+    html[data-site-view="interactive"] #dse-root .dse-experiment-detail > summary:hover {
+      color: #e4e9eb;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-term-rails {
+      margin-top: 20px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-term-rail {
+      padding: 0;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-term-rail-head {
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--dse-hairline-soft);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-term-rail-label,
+    html[data-site-view="interactive"] #dse-root .dse-term-cycle-meta {
+      color: #929ba3;
+      font-size: 12px !important;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-term-token-row {
+      gap: 7px;
+      margin-top: 12px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-term-token {
+      min-height: 42px;
+      padding: 0 13px;
+      color: #cfd6da;
+      background: #111518;
+      border: 1px solid #2c3339;
+      border-radius: 8px;
+      font-size: 14px !important;
+      font-weight: 500;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-term-token:hover,
+    html[data-site-view="interactive"] #dse-root .dse-term-token:focus-visible,
+    html[data-site-view="interactive"] #dse-root .dse-term-token[aria-pressed="true"] {
+      color: #f1f5f6;
+      background: #171c20;
+      border-color: rgb(var(--dse-cyan-rgb) / .52);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-term-detail {
+      margin-top: 18px;
+      padding: 18px;
+      background: #101417;
+      border: 1px solid #2b3339;
+      border-radius: 12px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-triage-category-grid {
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-triage-category-group {
+      gap: 0;
+      padding: 13px;
+      background: #0e1215;
+      border: 1px solid var(--dse-hairline);
+      border-radius: 12px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-triage-category-group h4 {
+      margin: 0;
+      padding: 0 2px 11px;
+      color: #89939b;
+      font-size: 11px !important;
+      font-weight: 500;
+      letter-spacing: .025em;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-triage-category-group > div {
+      gap: 0;
+      border-top: 1px solid var(--dse-hairline-soft);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-triage-category {
+      min-height: 74px;
+      padding: 13px 3px;
+      background: transparent;
+      border: 0;
+      border-bottom: 1px solid var(--dse-hairline-soft);
+      border-radius: 0;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-triage-category:last-child {
+      border-bottom: 0;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-triage-category:hover,
+    html[data-site-view="interactive"] #dse-root .dse-triage-category:focus-visible {
+      background: rgb(var(--dse-white-rgb) / .025);
+      border-color: var(--dse-hairline-soft);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-triage-category[aria-pressed="true"] {
+      background: rgb(var(--dse-cyan-rgb) / .045);
+      border-color: var(--dse-hairline-soft);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-triage-category strong {
+      font-size: 15px !important;
+      font-weight: 500;
+      white-space: normal;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-triage-category small {
+      color: #929ca3;
+      font-size: 12px !important;
+      line-height: 1.55;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-lifecycle-grid {
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-lifecycle-track {
+      padding: 16px;
+      background: #0e1215;
+      border: 1px solid var(--dse-hairline);
+      border-radius: 12px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-lifecycle-track-label {
+      margin-bottom: 12px;
+      color: #99a2aa;
+      font-size: 12px !important;
+    }
+
+    html[data-site-view="interactive"] #dse-root #dse-identity-state-rail .dse-state-node,
+    html[data-site-view="interactive"] #dse-root #dse-baseline-state-rail .dse-state-node {
+      min-height: 70px;
+      background: #13171a;
+      border-color: #2b3339;
+      border-radius: 8px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-lifecycle-presets {
+      margin-top: 16px;
+      border-color: var(--dse-hairline-soft);
+    }
+
+    html[data-site-view="interactive"] #dse-root #dse-lifecycle-copy {
+      margin-top: 16px;
+      background: #101417;
+      border: 1px solid var(--dse-hairline);
+      border-radius: 11px;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-record-evidence {
+      margin-top: 14px;
+      border-color: var(--dse-hairline-soft);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-footer {
+      width: min(100% - 48px, 1040px);
+      margin-inline: auto;
+      padding-top: 18px;
+      color: #707a82;
+      border-top-color: var(--dse-hairline-soft);
+    }
+
+    @media (max-width: 820px) {
+      html[data-site-view="interactive"] #dse-root .dse-advanced-page-head {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px 16px;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-advanced-page-head > span {
+        grid-column: 1 / -1;
+        grid-row: 2;
+      }
+    }
+
+    @media (max-width: 900px) {
+      html[data-site-view="interactive"] #dse-root .dse-shell {
+        padding-inline: 20px;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-advanced-page-head,
+      html[data-site-view="interactive"] #dse-root .dse-context-bridge,
+      html[data-site-view="interactive"] #dse-root .dse-demo,
+      html[data-site-view="interactive"] #dse-root .dse-footer {
+        width: 100%;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-tune-steps a small {
+        display: none;
+      }
+    }
+
+    @media (max-width: 760px) {
+      html[data-site-view="interactive"] #dse-root .dse-global-nav {
+        min-height: 48px;
+        padding-inline: 14px;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-shell {
+        padding-inline: 14px;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-advanced-page-head,
+      html[data-site-view="interactive"] #dse-root .dse-context-bridge,
+      html[data-site-view="interactive"] #dse-root .dse-demo,
+      html[data-site-view="interactive"] #dse-root .dse-footer {
+        width: 100%;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-advanced-page-head {
+        margin: 22px auto 14px;
+        padding-bottom: 15px;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-advanced-page-head h1 {
+        font-size: 26px !important;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-advanced-page-head > span {
+        font-size: 13px !important;
+        line-height: 1.62;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-advanced-page-head > small {
+        min-height: 27px;
+        padding-inline: 8px;
+        font-size: 11px !important;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-demo-modes {
+        top: 48px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 8px;
+        border-radius: 12px;
+      }
+
+      #dse-root .dse-demo-mode-group,
+      #dse-root .dse-demo-mode-group.utility {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 5px;
+        padding: 0;
+        border-left: 0;
+      }
+
+      #dse-root .dse-demo-mode-label {
+        grid-column: 1 / -1;
+        margin: 0 0 1px 4px;
+        font-size: 10px !important;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-demo-mode-group .dse-filter {
+        width: 100%;
+        min-height: 42px;
+        padding-inline: 4px;
+        border-color: #252c31;
+        font-size: 12px !important;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-tune-steps {
+        grid-template-columns: minmax(0, 1fr);
+        margin-bottom: 10px;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-tune-steps a {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        min-height: 46px;
+        padding: 8px 12px;
+        border-right: 0;
+        border-bottom: 1px solid var(--dse-hairline-soft);
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-tune-steps a:last-child {
+        border-bottom: 0;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-tune-steps a b {
+        min-width: 23px;
+        height: 20px;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-tune-steps a strong {
+        font-size: 12px !important;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-tune-steps a small {
+        display: none;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-demo-grid {
+        padding: 20px 16px;
+        border-radius: 14px;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-demo-panel-head {
+        gap: 12px;
+        padding-bottom: 16px;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-demo-panel-head h3 {
+        font-size: 20px !important;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-demo-panel-sub,
+      html[data-site-view="interactive"] #dse-root .dse-term-intro {
+        font-size: 13px !important;
+        line-height: 1.68;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-state-live {
+        padding: 14px;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-scenario {
+        min-height: 58px;
+        padding: 12px 13px;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-gate-request {
+        font-size: 16px !important;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-gate-output {
+        padding: 15px;
+      }
+
+      html[data-site-view="interactive"] #dse-root #dse-tune-gate-panel > .dse-gate-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-tune-support > .dse-tune-support-body {
+        gap: 20px;
+        padding-top: 4px;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-scenario-browser > summary small,
+      html[data-site-view="interactive"] #dse-root .dse-tune-support > summary small {
+        display: none;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-tune-demo-row,
+      html[data-site-view="interactive"] #dse-root .dse-tune-support .dse-experiment-detail-grid {
+        grid-template-columns: 1fr;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-gate-actions > .dse-demo-action {
+        width: 100%;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-term-token {
+        min-height: 40px;
+        padding-inline: 11px;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-triage-category-grid {
+        gap: 10px;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-triage-category-group {
+        padding: 12px;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-triage-category {
+        min-height: 68px;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-lifecycle-track {
+        padding: 14px;
+      }
+
+      html[data-site-view="interactive"] #dse-root #dse-lifecycle-copy {
+        min-height: 204px;
+      }
+    }
+
+    @media (max-width: 430px) {
+      html[data-site-view="interactive"] #dse-root .dse-advanced-page-head {
+        grid-template-columns: 1fr;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-advanced-page-head > small {
+        grid-row: auto;
+        justify-self: start;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-demo-panel-head {
+        grid-template-columns: 1fr;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-demo-step {
+        justify-self: start;
+      }
+    }
+
+    @media (max-width: 360px) {
+      html[data-site-view="interactive"] #dse-root .dse-demo-modes {
+        grid-template-columns: 1fr;
+      }
+
+      html[data-site-view="interactive"] #dse-root .dse-demo-mode-group {
+        width: 100%;
+      }
+
+      html[data-site-view="interactive"] #dse-root #dse-lifecycle-copy {
+        min-height: 260px;
+      }
+    }
+
+    /*
+      Four-level type scale for every visible advanced-mode state.
+      Desktop: page 30 / section 22 / body 18 / supporting label 14.
+      Mobile:  page 26 / section 20 / body 16 / supporting label 14.
+    */
+    html[data-site-view="interactive"] #dse-root#dse-root.dse :is(
+      p, li, dt, dd, div, blockquote, label, figcaption, legend, output,
+      button, a, summary, select
+    ) {
+      font-size: 18px !important;
+    }
+
+    html[data-site-view="interactive"] #dse-root#dse-root.dse :is(
+      span, strong, em, i, mark
+    ) {
+      font-size: inherit !important;
+    }
+
+    html[data-site-view="interactive"] #dse-root#dse-root.dse :is(
+      small, code, time, b
+    ) {
+      font-size: 14px !important;
+    }
+
+    html[data-site-view="interactive"] #dse-root#dse-root.dse :is(
+      .dse-demo-mode-label, .dse-demo-step
+    ) {
+      font-size: 14px !important;
+    }
+
+    html[data-site-view="interactive"] #dse-root#dse-root.dse .dse-demo-mode-group .dse-filter {
+      font-size: 14px !important;
+    }
+
+    html[data-site-view="interactive"] #dse-root#dse-root.dse .dse-footer :is(
+      span, small, p
+    ) {
+      font-size: 14px !important;
+    }
+
+    html[data-site-view="interactive"] #dse-root#dse-root.dse h1,
+    html[data-site-view="interactive"] #dse-root#dse-root.dse h1 :is(*) {
+      font-size: 30px !important;
+    }
+
+    html[data-site-view="interactive"] #dse-root#dse-root.dse :is(h2, h3, h4, h5, h6),
+    html[data-site-view="interactive"] #dse-root#dse-root.dse :is(h2, h3, h4, h5, h6) :is(*) {
+      font-size: 22px !important;
+    }
+
+    @media (max-width: 760px) {
+      html[data-site-view="interactive"] #dse-root#dse-root.dse :is(
+        p, li, dt, dd, div, blockquote, label, figcaption, legend, output,
+        button, a, summary, select
+      ) {
+        font-size: 16px !important;
+      }
+
+      html[data-site-view="interactive"] #dse-root#dse-root.dse h1,
+      html[data-site-view="interactive"] #dse-root#dse-root.dse h1 :is(*) {
+        font-size: 26px !important;
+      }
+
+      html[data-site-view="interactive"] #dse-root#dse-root.dse :is(h2, h3, h4, h5, h6),
+      html[data-site-view="interactive"] #dse-root#dse-root.dse :is(h2, h3, h4, h5, h6) :is(*) {
+        font-size: 20px !important;
+      }
+    }
   </style>
 
   <nav class="dse-global-nav" aria-label="全局导航">
@@ -8421,7 +9619,7 @@
   <div class="dse-shell">
     <header class="dse-advanced-page-head">
       <h1>高级模式</h1>
-      <span>术语、调参、排障与记录证据，一次处理一类问题。这里只做演示，不会读取或修改你的电脑。</span>
+      <span>集中处理术语、调参、排障和证据；只做演示，不读取或修改电脑。</span>
       <small>当前测试版 · 只读演示</small>
     </header>
 
@@ -8686,10 +9884,16 @@
       </header>
 
       <div class="dse-demo-modes" role="group" aria-label="高级模式主题">
-        <button type="button" class="dse-filter" data-demo-mode="terms" aria-pressed="false">看懂名词</button>
-        <button type="button" class="dse-filter" data-demo-mode="tune" aria-pressed="false">安全调参</button>
-        <button type="button" class="dse-filter" data-demo-mode="triage" aria-pressed="false">排查故障</button>
-        <button type="button" class="dse-filter" data-demo-mode="record" aria-pressed="false">记录与证据</button>
+        <div class="dse-demo-mode-group task">
+          <span class="dse-demo-mode-label">处理问题</span>
+          <button type="button" class="dse-filter" data-demo-mode="tune" aria-pressed="false">安全调参</button>
+          <button type="button" class="dse-filter" data-demo-mode="triage" aria-pressed="false">排查故障</button>
+        </div>
+        <div class="dse-demo-mode-group utility">
+          <span class="dse-demo-mode-label">辅助工具</span>
+          <button type="button" class="dse-filter" data-demo-mode="terms" aria-pressed="false">看懂名词</button>
+          <button type="button" class="dse-filter" data-demo-mode="record" aria-pressed="false">证据记录</button>
+        </div>
       </div>
 
       <section class="dse-mode-guide" aria-labelledby="dse-mode-guide-title" aria-live="polite">
@@ -8791,100 +9995,66 @@
         <article class="dse-demo-panel" id="dse-tune-gate-panel" data-demo-mode="tune" data-tune-step="gate" aria-labelledby="dse-gate-demo-title">
           <div class="dse-demo-panel-head">
             <div>
-              <h3 id="dse-gate-demo-title">先选一个最像你的情况</h3>
-              <p class="dse-demo-panel-sub">选一个例子，下面会告诉你现在还缺什么，以及为什么不能直接给出参数。</p>
+              <h3 id="dse-gate-demo-title">当前情况</h3>
+              <p class="dse-demo-panel-sub">先选最接近的场景。Skill 只判断下一步，不会直接给参数。</p>
             </div>
             <span class="dse-demo-step">01 · 先确认条件</span>
           </div>
 
-          <div class="dse-state-live" aria-live="polite">
+          <div class="dse-state-live" aria-live="polite" hidden>
             <strong id="dse-tune-state-label">现在：等你选一个例子</strong>
             <span id="dse-tune-state-next">从下面挑一个最接近你情况的例子。</span>
           </div>
 
-          <div class="dse-scenario-grid" id="dse-scenario-grid" aria-label="示例请求"></div>
-          <label class="dse-demo-field dse-scenario-picker">直接选择其他情况
-            <select id="dse-scenario-picker" aria-label="选择其他调参案例"></select>
-          </label>
-          <details class="dse-secondary-actions dse-scenario-tools">
-            <summary><span>自动示例</span><small>默认暂停</small></summary>
-            <div class="dse-scenario-meta">
+          <blockquote class="dse-gate-request" id="dse-gate-request"></blockquote>
+          <details class="dse-secondary-actions dse-scenario-browser dse-scenario-tools">
+            <summary><span>换一个情况</span><small>也可以直接搜索其他场景</small></summary>
+            <div class="dse-scenario-browser-body">
+              <div class="dse-scenario-grid" id="dse-scenario-grid" aria-label="示例请求"></div>
+              <label class="dse-demo-field dse-scenario-picker">选择其他情况
+                <select id="dse-scenario-picker" aria-label="选择其他调参案例"></select>
+              </label>
+              <div class="dse-scenario-meta">
               <button type="button" class="dse-demo-action" data-scenario-rotate>换一组例子</button>
               <button type="button" class="dse-demo-action" data-scenario-auto-toggle
                 data-auto-resume-ms="25000" aria-pressed="true">继续自动演示</button>
               <span>仅在你主动开启后轮换；开始选择后自动暂停</span>
+              </div>
             </div>
           </details>
-
-          <blockquote class="dse-gate-request" id="dse-gate-request"></blockquote>
           <div class="dse-gate-output" id="dse-gate-output" aria-live="polite">
             <p class="dse-gate-title" id="dse-gate-title"></p>
             <p class="dse-gate-copy" id="dse-gate-copy"></p>
             <div class="dse-gate-missing" id="dse-gate-missing"></div>
           </div>
           <ul class="dse-rule-list" id="dse-concept-answer" aria-live="polite" hidden></ul>
-          <details class="dse-experiment-detail" id="dse-gate-detail">
-            <summary>展开详细判断</summary>
-            <div class="dse-experiment-detail-grid">
-              <section>
-                <h4>现在能确定</h4>
-                <p id="dse-gate-detail-confirmed"></p>
-              </section>
-              <section>
-                <h4>还不能确定</h4>
-                <p id="dse-gate-detail-unknown"></p>
-              </section>
-              <section>
-                <h4>为什么先做这一步</h4>
-                <p id="dse-gate-detail-why"></p>
-              </section>
-              <section>
-                <h4>相关词是什么意思</h4>
-                <p id="dse-gate-detail-terms"></p>
-              </section>
-            </div>
-          </details>
 
           <div class="dse-gate-actions">
             <button type="button" class="dse-demo-action primary" data-gate-action="check" aria-controls="dse-gate-checklist" aria-expanded="false">开始检查</button>
             <button type="button" class="dse-demo-action" id="dse-enter-experiment" disabled>下一步：看测试计划</button>
           </div>
-          <p class="dse-gate-help">先选一个例子，再勾选你已经知道的信息。这里只是演示，不会给出可直接套用的参数。</p>
-          <details class="dse-secondary-actions">
-            <summary>更多演示</summary>
-            <div>
-              <button type="button" class="dse-demo-action" data-gate-action="direct"
-                aria-controls="dse-direct-feedback" aria-expanded="false">如果直接给参数会怎样？</button>
-              <button type="button" class="dse-demo-action" data-gate-action="rules" aria-controls="dse-gate-rules" aria-expanded="false">为什么要先检查这些？</button>
-            </div>
-            <div class="dse-direct-feedback" id="dse-direct-feedback" role="status"
-              aria-live="polite" tabindex="-1" hidden>
-              <strong id="dse-direct-feedback-title"></strong>
-              <p id="dse-direct-feedback-copy"></p>
-            </div>
-          </details>
 
           <div class="dse-gate-details">
             <div class="dse-gate-checklist" id="dse-gate-checklist" hidden>
               <label class="dse-gate-check">
                 <input type="checkbox" data-gate-check="platform">
-                <span class="dse-gate-check-copy"><strong>1. 这是哪台电脑</strong><small>先确认台式机、笔记本、MoDT 或其他形态，以及处理器、显卡和系统。不要套用别人电脑上的设置。</small></span>
+                <span class="dse-gate-check-copy"><strong>1. 这是哪台电脑</strong><small>机型、处理器、显卡和系统。</small></span>
               </label>
               <label class="dse-gate-check">
                 <input type="checkbox" data-gate-check="baseline">
-                <span class="dse-gate-check-copy"><strong>2. 现在稳定时是什么样</strong><small>记录没出问题时，同一个场景下的温度、性能、频率和画面表现。</small></span>
+                <span class="dse-gate-check-copy"><strong>2. 现在稳定时是什么样</strong><small>同场景下的温度、性能、频率和画面。</small></span>
               </label>
               <label class="dse-gate-check">
                 <input type="checkbox" data-gate-check="recovery">
-                <span class="dse-gate-check-copy"><strong>3. 出问题怎么恢复</strong><small>知道现在改过什么，也知道黑屏、花屏或驱动重置时怎么回到原样。</small></span>
+                <span class="dse-gate-check-copy"><strong>3. 出问题怎么恢复</strong><small>知道改过什么，也知道怎么回到原样。</small></span>
               </label>
               <label class="dse-gate-check">
                 <input type="checkbox" data-gate-check="workload">
-                <span class="dse-gate-check-copy"><strong>4. 用什么场景对比</strong><small>前后使用同一个游戏场景或测试任务，并且只改一个地方。</small></span>
+                <span class="dse-gate-check-copy"><strong>4. 用什么场景对比</strong><small>前后同一场景，只改一个地方。</small></span>
               </label>
               <label class="dse-gate-check">
                 <input type="checkbox" data-gate-check="abort">
-                <span class="dse-gate-check-copy"><strong>5. 什么情况马上停</strong><small>提前说清楚：出现黑屏、花屏、驱动重置、异常温度或性能下降时，马上恢复原样。</small></span>
+                <span class="dse-gate-check-copy"><strong>5. 什么情况马上停</strong><small>黑屏、花屏、驱动重置、异常温度或性能下降。</small></span>
               </label>
               <div class="dse-gate-extra" id="dse-gate-extra" hidden>
                 <p>这个情况还要额外确认</p>
@@ -8906,9 +10076,51 @@
               <li>未解释的不稳定必须先排障，再考虑调校。</li>
             </ul>
           </div>
-          <details class="dse-tech-details">
-            <summary>查看判断依据与原始状态</summary>
-            <ol class="dse-state-rail" id="dse-tune-state-rail" aria-label="调校状态"></ol>
+
+          <details class="dse-secondary-actions dse-tune-support">
+            <summary><span>查看判断依据和更多演示</span><small>不影响当前判断</small></summary>
+            <div class="dse-tune-support-body">
+              <section class="dse-experiment-detail" id="dse-gate-detail" aria-label="判断依据">
+                <p class="dse-support-label">判断依据</p>
+                <div class="dse-experiment-detail-grid">
+                  <section>
+                    <h4>现在能确定</h4>
+                    <p id="dse-gate-detail-confirmed"></p>
+                  </section>
+                  <section>
+                    <h4>还不能确定</h4>
+                    <p id="dse-gate-detail-unknown"></p>
+                  </section>
+                  <section>
+                    <h4>为什么先做这一步</h4>
+                    <p id="dse-gate-detail-why"></p>
+                  </section>
+                  <section>
+                    <h4>相关词是什么意思</h4>
+                    <p id="dse-gate-detail-terms"></p>
+                  </section>
+                </div>
+              </section>
+
+              <section class="dse-tune-demo" aria-label="更多演示">
+                <p class="dse-support-label">更多演示</p>
+                <div class="dse-tune-demo-row">
+                  <button type="button" class="dse-demo-action" data-gate-action="direct"
+                    aria-controls="dse-direct-feedback" aria-expanded="false">如果直接给参数会怎样？</button>
+                  <button type="button" class="dse-demo-action" data-gate-action="rules" aria-controls="dse-gate-rules" aria-expanded="false">为什么要先检查这些？</button>
+                </div>
+                <div class="dse-direct-feedback" id="dse-direct-feedback" role="status"
+                  aria-live="polite" tabindex="-1" hidden>
+                  <strong id="dse-direct-feedback-title"></strong>
+                  <p id="dse-direct-feedback-copy"></p>
+                </div>
+              </section>
+
+              <section class="dse-tech-details" aria-label="内部判断状态">
+                <p class="dse-support-label">内部状态</p>
+                <ol class="dse-state-rail" id="dse-tune-state-rail" aria-label="调校状态"></ol>
+              </section>
+            </div>
           </details>
         </article>
 
@@ -9169,7 +10381,10 @@
               <ol class="dse-state-rail" id="dse-baseline-state-rail" aria-label="基线有效性状态"></ol>
             </section>
           </div>
-          <div class="dse-lifecycle-events" id="dse-lifecycle-events" aria-label="配置状态事件"></div>
+          <details class="dse-secondary-actions dse-lifecycle-presets">
+            <summary><span>设置常见变化</span><small>功耗墙、硬件或驱动变化</small></summary>
+            <div class="dse-lifecycle-events" id="dse-lifecycle-events" aria-label="配置状态事件"></div>
+          </details>
           <div class="dse-machine-copy" id="dse-lifecycle-copy" data-tone="ready" aria-live="polite">
             <p class="dse-machine-copy-title" id="dse-lifecycle-copy-title"></p>
             <p class="dse-machine-copy-body" id="dse-lifecycle-copy-body"></p>
@@ -10139,40 +11354,52 @@
       const triageCategoryGroups = [
         {
           id: "safety",
+          group: "urgent",
           label: "安全与供电",
           detail: "焦味、打火、液体、鼓包或可见损坏",
           caseIds: ["hazard"]
         },
         {
           id: "boot",
+          group: "machine",
           label: "启动与电源",
           detail: "没反应、灯亮无画面、无法进入系统或电池异常",
           caseIds: ["noPost", "battery"]
         },
         {
           id: "display",
+          group: "machine",
           label: "画面与声音",
           detail: "黑屏、花屏、驱动重置、爆音或掉音",
           caseIds: ["noDisplay", "display", "audioStutter"]
         },
         {
           id: "stability",
+          group: "machine",
           label: "蓝屏与稳定性",
           detail: "间歇蓝屏、WHEA、自动重启或驱动错误",
           caseIds: ["crashBSOD", "driverReset", "reboot"]
         },
         {
           id: "system",
+          group: "usage",
           label: "存储与外设",
           detail: "文件打不开、磁盘告警、USB 或网络断连",
           caseIds: ["storageRisk", "peripheral"]
         },
         {
           id: "performance",
+          group: "usage",
           label: "性能与散热",
           detail: "开机慢、游戏卡顿、过热、降频或噪音",
           caseIds: ["startup", "stutter", "thermalNoise"]
         }
+      ];
+
+      const triageCategoryGroupOrder = [
+        { id: "urgent", label: "先确认安全" },
+        { id: "machine", label: "机器异常" },
+        { id: "usage", label: "使用异常" }
       ];
 
       const triageCases = {
@@ -10657,7 +11884,7 @@
           title: "先选一个主题 再展开对应流程",
           summary: "每个主题只显示它需要的步骤。若从首页带来了问题，这里会直接进入对应主题。",
           steps: [
-            ["选一个主题", "术语、调参、排障或记录与证据。"],
+            ["选一个主题", "术语、调参、排障或证据记录。"],
             ["只看当前内容", "切换主题时，不相关的流程不会同时出现。"]
           ]
         },
@@ -10693,7 +11920,7 @@
           ]
         },
         record: {
-          kicker: "当前：记录与证据",
+          kicker: "当前：证据记录",
           title: "先判断旧记录是否有效 再看证据能否比较",
           summary: "旧记录可以保留；设备、驱动或设置变化后，要先确认它是否仍能代表现在，再检查证据来源和时间。",
           steps: [
@@ -11032,19 +12259,30 @@
 
       function renderTriageCategories() {
         triageCategoryGrid.replaceChildren();
-        triageCategoryGroups.forEach(category => {
-          const button = document.createElement("button");
-          button.type = "button";
-          button.className = "dse-triage-category";
-          button.dataset.triageCategory = category.id;
-          button.setAttribute("aria-pressed", String(category.id === activeTriageCategory));
-          const label = document.createElement("strong");
-          label.textContent = category.label;
-          const detail = document.createElement("small");
-          detail.textContent = category.detail;
-          button.append(label, detail);
-          button.addEventListener("click", () => selectTriageCategory(category.id));
-          triageCategoryGrid.appendChild(button);
+        triageCategoryGroupOrder.forEach(group => {
+          const categories = triageCategoryGroups.filter(category => category.group === group.id);
+          if (categories.length === 0) return;
+          const section = document.createElement("section");
+          section.className = "dse-triage-category-group";
+          const heading = document.createElement("h4");
+          heading.textContent = group.label;
+          const categoryList = document.createElement("div");
+          categories.forEach(category => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "dse-triage-category";
+            button.dataset.triageCategory = category.id;
+            button.setAttribute("aria-pressed", String(category.id === activeTriageCategory));
+            const label = document.createElement("strong");
+            label.textContent = category.label;
+            const detail = document.createElement("small");
+            detail.textContent = category.detail;
+            button.append(label, detail);
+            button.addEventListener("click", () => selectTriageCategory(category.id));
+            categoryList.appendChild(button);
+          });
+          section.append(heading, categoryList);
+          triageCategoryGrid.appendChild(section);
         });
       }
 
@@ -11246,7 +12484,7 @@
           copy: "这是概念问题，不需要先提供机器型号、基线或恢复路径；只有要继续判断你的电脑时，才进入调参检查。",
           missing: [],
           direct: "不解释限制，直接保证“只要超频就一定更快”。",
-          safe: "先解释超频改变什么、受哪些限制，以及为什么会存在没有收益甚至变慢的情况。",
+          safe: "先解释超频改变什么、受哪些限制，以及为什么可能没有收益。",
           canCheck: false,
           concept: true,
           answer: [
@@ -11263,7 +12501,7 @@
           copy: "“详细”只改变解释深度，不会降低设备、基线、恢复和单变量要求；信息不足时仍然不显示可执行参数。",
           missing: ["具体机型", "当前稳定基线", "当前控制值", "恢复配置"],
           direct: "因为是详细模式，就直接给完整参数和全部风险说明。",
-          safe: "可以展开判断依据、缺失项、风险和恢复逻辑，但只给出一个最小的补证动作，不显示候选值。",
+          safe: "详细解释可以展开，但信息不足时仍只给补证动作，不给参数。",
           canCheck: true
         },
         cpu: {
@@ -11273,7 +12511,7 @@
           copy: "这是调校门禁，不是物理硬停止。平台目标不能替代稳定基线、恢复路径、固定负载和停止条件。",
           missing: ["稳定基线", "恢复路径", "固定负载", "中止信号"],
           direct: "直接把一个看起来能用的电压和频率给你，让你自己去试。",
-          safe: "先确认平台、基线、当前参数、固定负载和恢复路径；证据不完整时不显示候选值。",
+          safe: "先补齐设备、稳定状态、恢复方式和测试条件，再判断能否测试。",
           canCheck: true
         },
         laptop: {
@@ -11283,7 +12521,7 @@
           copy: "解锁功耗墙会创建新的配置修订。旧记录仍有历史价值，但不能直接冒充当前基线或候选。",
           missing: ["当前解锁功耗基线", "恢复配置", "固定工作负载"],
           direct: "继续增加核心偏移，默认旧记录和默认恢复配置仍然适用。",
-          safe: "绑定当前功耗状态，确认恢复配置和固定负载，再讨论一次只改变一个变量的实验。",
+          safe: "先绑定当前功耗状态和恢复配置，再一次只改一个变量。",
           canCheck: true
         },
         modt: {
@@ -11293,7 +12531,7 @@
           copy: "MoDT 是移动平台芯片装在桌面形态主板上的独立机器形态，不能自动继承普通台式机的功耗、散热和固件假设。",
           missing: ["主板型号", "散热与供电路径", "平台实际开放的控制", "恢复配置"],
           direct: "把它当作普通桌面 4070 主机，直接套用桌面核心偏移。",
-          safe: "先确认 MoDT 主板、散热、供电路径和实际控制项；条件不清时不显示数字候选。",
+          safe: "先确认 MoDT 主板、散热和供电路径，再判断能否按桌面对待。",
           canCheck: true,
           answer: [
             "先识别 MoDT，而不是把它静默改名为普通 Desktop。",
@@ -11308,7 +12546,7 @@
           copy: "焦味可能对应供电、电池、线缆或接头异常。不要继续启动、压测或一边运行一边拆装。",
           missing: [],
           direct: "这里不会生成参数，也不会把“再测一次”作为验证方式。",
-          safe: "仅在安全时断电断能，检查是否有可见损坏，并联系厂商或合格维修。",
+          safe: "仅在安全时断电断能，检查可见损坏并联系维修。",
           canCheck: false
         },
         psu: {
@@ -11318,7 +12556,7 @@
           copy: "未知电源、转接线或改装线路径不能作为高功耗墙实验的基础。",
           missing: ["PSU 型号与功率", "连接方式", "当前基线", "恢复路径"],
           direct: "忽略电源型号，直接把功耗墙和频率一起拉高，出现问题再恢复。",
-          safe: "先确认电源、连接器、显卡功耗和恢复路径；供电路径未知时不提高上限。",
+          safe: "先确认电源、连接器和恢复路径；供电路径未知时不提高功耗上限。",
           canCheck: true
         },
         hidden: {
@@ -11328,7 +12566,7 @@
           copy: "隐藏或厂商限制控制不会被当作普通公开滑块处理；反作弊、权限绕过和隐藏痕迹不提供指导。",
           missing: ["可核验的已实施状态", "合法公开控制证据"],
           direct: "提供解锁、持久化和隐藏痕迹的具体工具及步骤。",
-          safe: "只讨论公开控制、设备现状评估或合法厂商路径，不提供绕过和隐藏方法。",
+          safe: "只讨论公开控制和厂商支持的合法路径，不提供绕过或隐藏方法。",
           canCheck: false
         },
         intel: {
@@ -11338,7 +12576,7 @@
           copy: "默认配置已经不稳定时，调校不能替代主板、微码、供电、散热和保修状态检查。",
           missing: ["Crash/WHEA 证据", "主板 BIOS 与微码", "散热基线", "恢复路径"],
           direct: "先用降压和超频掩盖崩溃，成功跑完一次测试就当作修复。",
-          safe: "先确认 Intel 13/14 代风险、官方微码和默认配置稳定性；稳定基线建立后才讨论调校。",
+          safe: "先确认官方微码和默认配置稳定性，再讨论调校。",
           canCheck: true
         },
         blackscreen: {
@@ -11348,7 +12586,7 @@
           copy: "黑屏和驱动恢复属于稳定性证据，不能直接进入性能实验；调校可能掩盖真实问题。",
           missing: ["故障复现条件", "驱动与事件日志", "温度和功耗证据"],
           direct: "先提高核心频率，看看黑屏是否还会出现。",
-          safe: "先做症状定位和可逆检查；未解释的稳定性问题继续阻止调校。",
+          safe: "先定位黑屏和驱动恢复的原因，不继续调校。",
           canCheck: false
         },
         curve: {
@@ -11358,7 +12596,7 @@
           copy: "曲线降压需要当前负载下的电压、有效频率、性能和恢复位置；缺少锚点时不能伪造曲线值。",
           missing: ["稳定电压锚点", "对应有效频率", "固定负载", "恢复曲线"],
           direct: "随便选一个电压点，把右侧全部拉平并抬高左侧。",
-          safe: "先用固定游戏记录稳定电压和频率工作点，再设计整条曲线候选。",
+          safe: "先用固定场景记录稳定电压和频率，再做曲线。",
           canCheck: true
         },
         vram: {
@@ -11368,7 +12606,7 @@
           copy: "笔记本显存控制受共享功耗和散热限制；没有核心收益与显存结温证据时不先做大幅显存偏移。",
           missing: ["当前核心基线", "显存结温", "共享功耗证据", "恢复配置"],
           direct: "先加 1000MHz 显存，出错再回到默认。",
-          safe: "先验证核心路线和热余量；显存只在明确有用且传感器可验证时单独小步测试。",
+          safe: "先验证核心性能和热余量，再小步测试显存。",
           canCheck: true
         },
         memory: {
@@ -11378,7 +12616,7 @@
           copy: "内存厂商档位不是四槽平台的稳定性保证；容量、rank、内存控制器、温度和 BIOS 版本都会共同影响结果。",
           missing: ["当前稳定内存档位", "内存测试结果", "内存与 SoC 温度", "恢复配置"],
           direct: "继续提高频率和电压，能进系统就当作稳定。",
-          safe: "先回到已知稳定档位并保存恢复点，再用固定内存测试核对错误、温度和长时间稳定性。",
+          safe: "先回到已知稳定档位并保存恢复点，再做内存测试。",
           canCheck: true
         },
         xmp: {
@@ -11388,7 +12626,7 @@
           copy: "XMP/EXPO 是一个完整内存预设，不是稳定保证；没有原厂基线、固定场景和恢复路径时不能直接开启。",
           missing: ["当前原厂内存档位", "固定负载基线", "Clear CMOS 恢复路径"],
           direct: "直接开最高 XMP/EXPO 档位，能进系统就当作稳定。",
-          safe: "先保存原厂设置并记录同一场景基线，确认恢复方法后再讨论一次只切换一个内存预设。",
+          safe: "先保存原厂设置、固定场景基线和恢复方法，再测试一个内存预设。",
           canCheck: true,
           answer: [
             "XMP/EXPO 会同时改变训练、时序和电压行为，不是只调一个数字。",
@@ -11403,7 +12641,7 @@
           copy: "型号不能替代当前控制值和报告新鲜度；旧偏移、旧功耗墙或旧驱动记录都不能直接当作当前状态。",
           missing: ["当前控制值", "更新的固定负载报告", "恢复配置"],
           direct: "忽略当前偏移和报告日期，按常见值开始。",
-          safe: "先读取当前控制值并刷新一份同场景报告；信息不全时不显示候选。",
+          safe: "先读取当前控制值并刷新同场景报告，再给建议。",
           canCheck: true,
           answer: [
             "当前控制值是实验起点，不能用“常见值”代替。",
@@ -11418,7 +12656,7 @@
           copy: "风扇曲线会同时改变温度、噪音和 Boost 持续性；没有同负载基线时无法判断安静化是否以性能或稳定性为代价。",
           missing: ["Hot Spot 基线", "固定负载", "噪音目标", "恢复配置"],
           direct: "直接把风扇上限压低，出现降频再说。",
-          safe: "先记录温度、热点、噪音、有效频率和性能，再一次只调整一个风扇区间并保留回退。",
+          safe: "先记录温度、热点、噪音和性能，再一次只改一个风扇区间。",
           canCheck: true
         },
         desktopPower: {
@@ -11428,7 +12666,7 @@
           copy: "供电路径、温度基线、固定负载和恢复位置仍需逐项确认；型号和“稳定”不能代替当前配置证据。",
           missing: ["PSU 与连接方式", "当前功耗/温度基线", "固定跑分", "恢复路径"],
           direct: "功耗墙拉满，再同时上核心和显存偏移。",
-          safe: "先确认公开可控的功耗上限和供电路径，再让功耗墙或核心偏移单独成为本轮变量。",
+          safe: "先确认供电和温度基线，再单独测试功耗墙或核心偏移。",
           canCheck: true
         },
         multiGpu: {
@@ -11438,7 +12676,7 @@
           copy: "第一张适配器不一定是承载当前负载的消费级独显；目标组件、活动适配器和产品类别必须先对齐。",
           missing: ["活动适配器", "消费级类别", "目标组件", "恢复配置"],
           direct: "按适配器列表的第一个名称生成参数。",
-          safe: "列出全部适配器，确认哪个处理当前工作负载，再判断是否属于支持的单卡消费级路线。",
+          safe: "先确认承载当前负载的显卡，再讨论支持的调校路线。",
           canCheck: false
         }
       };
@@ -12026,14 +13264,16 @@
             ? "这是概念问题，不需要先交设备信息"
           : tone === "ready"
             ? "信息齐了，可以继续"
-            : "现在还缺一些信息";
+            : missing.length
+              ? `还缺 ${missing.length} 项信息`
+              : "先确认这些信息";
         gateCopy.textContent = tone === "stop"
           ? "先停止使用设备，不要继续开机、压测或插拔。先处理安全问题。"
           : tone === "concept"
             ? "先解释清楚概念和限制。只有你决定继续判断这台电脑时，才进入设备、基线和恢复检查。"
           : tone === "ready"
             ? "需要确认的信息已经齐了，可以继续看测试计划。但这不代表参数一定安全。"
-            : `不用急着给参数。先把还缺的信息补齐，不知道的就先留空，不要猜。勾上已知的条件。`;
+            : "补齐后才能判断是否可以进入测试。不知道的先留空，不要猜。";
         setGateMissing(missing);
       }
 
@@ -12087,7 +13327,7 @@
         root.querySelectorAll("[data-scenario]").forEach(button => {
           button.setAttribute("aria-pressed", String(button.dataset.scenario === id));
         });
-        gateRequest.textContent = `> ${scenario.request}`;
+        gateRequest.textContent = scenario.request;
         compareDirect.textContent = humanizeUiCopy(scenario.direct);
         compareSafe.textContent = humanizeUiCopy(scenario.safe);
         gateChecklist.hidden = true;
@@ -12995,7 +14235,7 @@
         terms: "看懂名词",
         tune: "安全调参",
         triage: "排查故障",
-        record: "记录与证据"
+        record: "证据记录"
       };
       const demoModeScenes = {
         terms: "space",

@@ -422,12 +422,6 @@ async function testHomeViewport(siteUrl, name, width, height) {
       aboutPresent: Boolean(document.querySelector(".dse-about")),
       advancedEntryHref: document.querySelector(".dse-advanced-entry a")?.getAttribute("href") || "",
       primaryPaths: [...document.querySelectorAll(".dse-explore-primary a")].map(link => link.getAttribute("href")),
-      candidateText: document.querySelector(".dse-candidate")?.innerText.trim() || "",
-      candidateVisible: (document.querySelector(".dse-candidate")?.getBoundingClientRect().height || 0) > 0,
-      candidateInsideDetails: Boolean(document.querySelector(".dse-candidate")?.closest("details")),
-      candidateFactCount: document.querySelectorAll(".dse-candidate-summary > div").length,
-      candidateState: document.querySelector(".dse-candidate-state")?.textContent.trim() || "",
-      candidateStateSize: Number.parseFloat(getComputedStyle(document.querySelector(".dse-candidate-state")).fontSize),
       heroVersion: document.getElementById("dse-hero-version")?.textContent.trim() || "",
       visibleVersionCount: (
         document.getElementById("dse-root")?.innerText.match(/2\.6\.0/g) || []
@@ -439,7 +433,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
     }))()`);
     check(initial.title.includes("电脑硬件工作台"), `${prefix}browser title is not user-facing.`);
     check(
-      initial.h1.includes("看懂你的电脑") && initial.h1.includes("再做决定"),
+      initial.h1.includes("电脑调试") && initial.h1.includes("Skill 来帮你"),
       `${prefix}hero headline does not cover the full decision scope.`
     );
     check(
@@ -449,12 +443,13 @@ async function testHomeViewport(siteUrl, name, width, height) {
       `${prefix}hero subtitle still narrows the Skill to troubleshooting.`
     );
     check(
-      initial.safety.includes("只读取你允许的信息") &&
+      initial.safety.includes("测试版") &&
+      initial.safety.includes("只读") &&
       initial.safety.includes("不会自动修改硬件"),
       `${prefix}hero action result and safety boundary are not explicit.`
     );
     check(initial.ctaHref === "#dse-home-flow", `${prefix}primary CTA does not lead to the inline simple flow.`);
-    check(initial.ctaText === "选择你要做的事", `${prefix}hero CTA does not match the full-scope entry.`);
+    check(initial.ctaText === "开始自查", `${prefix}hero CTA does not match the simplified entry.`);
     check(
       initial.heroHeight >= initial.viewportHeight - 1 &&
       initial.nextSectionTop >= initial.viewportHeight - 1,
@@ -480,27 +475,9 @@ async function testHomeViewport(siteUrl, name, width, height) {
       `${prefix}primary paths are incomplete.`
     );
     check(
-      initial.candidateVisible &&
-      initial.candidateFactCount === 3 &&
-      initial.candidateText.includes("可以使用 尚未正式稳定") &&
-      initial.candidateText.includes("版本状态") &&
-      initial.candidateText.includes("读取方式") &&
-      initial.candidateText.includes("当前限制") &&
-      initial.candidateText.includes("不会自动修改硬件") &&
-      !initial.candidateInsideDetails &&
-      initial.candidateState.includes("当前测试版") &&
-      !/\d+\.\d+\.\d+/.test(initial.candidateState) &&
-      initial.candidateStateSize >= 14,
-      `${prefix}usable-state summary is not visible in the main flow (${JSON.stringify({
-        visible: initial.candidateVisible,
-        insideDetails: initial.candidateInsideDetails,
-        text: initial.candidateText.slice(0, 160)
-      })}).`
-    );
-    check(
       initial.technicalClosed &&
-      initial.technicalSummary.includes("了解这个 Skill") &&
-      initial.technicalSummary.includes("功能说明、测试状态与历史版本") &&
+      initial.technicalSummary.includes("版本与技术资料") &&
+      initial.technicalSummary.includes("项目地图、文件结构与历史版本") &&
       initial.technicalExpanded === "false" &&
       initial.technicalHeight >= 44,
       `${prefix}technical archive is not folded.`
@@ -539,6 +516,37 @@ async function testHomeViewport(siteUrl, name, width, height) {
         : filePlanetCard.previewBeforeCopy),
       `${prefix}file planet entry is not a working two-column/mobile preview card (${JSON.stringify(filePlanetCard)}).`
     );
+    const candidateStatus = await evaluate(connection, `(() => {
+      const section = document.querySelector(".dse-candidate");
+      const explore = document.querySelector(".dse-explore-primary");
+      const rows = [...document.querySelectorAll(".dse-candidate-summary > div")];
+      return {
+        state: section?.querySelector(".dse-candidate-state")?.textContent.trim() || "",
+        title: section?.querySelector("#dse-candidate-title")?.textContent.trim() || "",
+        lead: section?.querySelector(".dse-candidate-lead")?.textContent.trim() || "",
+        rowLabels: rows.map(row => row.querySelector("dt")?.textContent.trim() || ""),
+        rowCopies: rows.map(row => row.querySelector("dd")?.textContent.trim() || ""),
+        gapAfterFilePlanet: Math.round(
+          (section?.getBoundingClientRect().top || 0) -
+          (explore?.getBoundingClientRect().bottom || 0)
+        ),
+        belowFilePlanet: Boolean(
+          section &&
+          explore &&
+          section.getBoundingClientRect().top >= explore.getBoundingClientRect().bottom - 1
+        )
+      };
+    })()`);
+    check(
+      candidateStatus.state === "当前测试版" &&
+      candidateStatus.title === "可以使用 尚未正式稳定" &&
+      candidateStatus.lead.includes("真实设备覆盖") &&
+      candidateStatus.rowLabels.join(",") === "版本状态,读取方式,当前限制" &&
+      candidateStatus.rowCopies.every(copy => copy.length > 0) &&
+      candidateStatus.gapAfterFilePlanet >= (name === "desktop" ? 72 : 44) &&
+      candidateStatus.belowFilePlanet,
+      `${prefix}candidate status is missing or no longer follows the file planet (${JSON.stringify(candidateStatus)}).`
+    );
 
     await clickByPointer(connection, ".dse-hero-action.primary");
     const howtoVisible = await waitFor(connection, `(() => {
@@ -560,7 +568,6 @@ async function testHomeViewport(siteUrl, name, width, height) {
         .map(item => item.textContent.trim()),
       questionMarkers: document.querySelectorAll(".dse-home-question-marker").length,
       quickPathCount: document.querySelectorAll("#dse-home-quick-paths button, #dse-home-quick-paths a").length,
-      termHref: document.querySelector("#dse-home-quick-paths a")?.getAttribute("href") || "",
       questionControlMinHeight: Math.min(
         ...[...document.querySelectorAll(".dse-home-question-option")]
           .map(item => Math.round(item.getBoundingClientRect().height))
@@ -575,8 +582,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       homeFlowInitial.questionLabels.includes("查看当前配置") &&
       homeFlowInitial.questionLabels.includes("考虑升级") &&
       homeFlowInitial.questionMarkers === 5 &&
-      homeFlowInitial.quickPathCount === 2 &&
-      homeFlowInitial.termHref === "interactive/#terms" &&
+      homeFlowInitial.quickPathCount === 1 &&
       homeFlowInitial.questionControlMinHeight >= 44 &&
       homeFlowInitial.flowColumns.split(" ").filter(Boolean).length === 1,
       `${prefix}inline simple flow does not start with one visible question step (${JSON.stringify(homeFlowInitial)}).`
@@ -642,20 +648,15 @@ async function testHomeViewport(siteUrl, name, width, height) {
       detailVisible: !document.getElementById("dse-home-result-detail")?.hidden,
       detailOpen: Boolean(document.getElementById("dse-home-result-detail")?.open),
       advancedHref: document.getElementById("dse-home-open-advanced")?.getAttribute("href") || "",
+      standaloneAdvancedHidden: Boolean(document.querySelector(".dse-advanced-entry")?.hidden),
       verticalOrder: [
         document.getElementById("dse-home-step-1"),
         document.getElementById("dse-home-step-2"),
-        document.getElementById("dse-home-step-3"),
-        document.querySelector(".dse-candidate")
+        document.getElementById("dse-home-step-3")
       ].every((element, index, elements) => (
         index === 0 ||
         element.getBoundingClientRect().top > elements[index - 1].getBoundingClientRect().top
-      )),
-      candidateFollowsResult: Boolean(
-        document.getElementById("dse-home-step-3")?.compareDocumentPosition(
-          document.querySelector(".dse-candidate")
-        ) & Node.DOCUMENT_POSITION_FOLLOWING
-      )
+      ))
     }))()`);
     check(
       homeResult.stepTwoVisible &&
@@ -670,8 +671,8 @@ async function testHomeViewport(siteUrl, name, width, height) {
       homeResult.detailVisible &&
       !homeResult.detailOpen &&
       homeResult.advancedHref === "interactive/#triage" &&
-      homeResult.verticalOrder &&
-      homeResult.candidateFollowsResult,
+      homeResult.standaloneAdvancedHidden &&
+      homeResult.verticalOrder,
       `${prefix}inline simple flow does not produce a result in vertical order (${JSON.stringify(homeResult)}).`
     );
     await clickByPointer(connection, "#dse-home-result-detail > summary");
@@ -766,7 +767,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       opened.versionCodeSize >= 16 &&
       opened.versionButtons === 109 &&
       opened.summaryExpanded === "true" &&
-      opened.actionText.includes("收起说明"),
+      opened.actionText.includes("收起技术资料"),
       `${prefix}technical archive does not open correctly (${JSON.stringify(opened)}).`
     );
     const homeFontSizes = await evaluate(connection, fontSizeExpression());
@@ -849,7 +850,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
     })()`);
     await clickByPointer(connection, "#dse-home-generate");
     const beforeAdvancedReturn = await evaluate(connection, `(async () => {
-      const link = document.querySelector(".dse-advanced-entry a");
+      const link = document.getElementById("dse-home-open-advanced");
       link.scrollIntoView({ block: "center" });
       await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       return {
@@ -860,7 +861,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
         href: link.href
       };
     })()`);
-    await clickByPointer(connection, ".dse-advanced-entry a");
+    await clickByPointer(connection, "#dse-home-open-advanced");
     check(
       await waitFor(connection, `(() => (
         document.readyState === "complete" &&
@@ -1131,6 +1132,8 @@ async function testPreviewRootReturn(siteUrl) {
 async function testInteractiveViewport(interactiveUrl, name, width, height) {
   const connection = await createConnection("about:blank");
   const prefix = `interactive ${name}: `;
+  const desktopLayout = width > 760;
+  const compactNavigation = width <= 360;
   try {
     await setViewport(connection, width, height);
     await navigate(connection, interactiveUrl);
@@ -1146,6 +1149,7 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       const visiblePanels = [...document.querySelectorAll(".dse-demo-panel[data-demo-mode]")]
         .filter(panel => !panel.hidden && panel.getBoundingClientRect().height > 0);
       const modeButtons = [...document.querySelectorAll(".dse-demo-modes [data-demo-mode]")];
+      const rootElement = document.getElementById("dse-root");
       return {
         title: document.title,
         h1: document.querySelector(".dse-advanced-page-head h1")?.textContent.trim() || "",
@@ -1169,7 +1173,20 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
         modeButtonCount: modeButtons.length,
         pressedModeCount: modeButtons.filter(button => button.getAttribute("aria-pressed") === "true").length,
         modeColumns: getComputedStyle(document.querySelector(".dse-demo-modes")).gridTemplateColumns,
+        modeWidth: Math.round(document.querySelector(".dse-demo-modes")?.getBoundingClientRect().width || 0),
+        demoWidth: Math.round(document.querySelector(".dse-demo")?.getBoundingClientRect().width || 0),
+        rootWidth: Math.round(rootElement?.getBoundingClientRect().width || 0),
+        groupWidths: [...document.querySelectorAll(".dse-demo-mode-group")]
+          .map(group => Math.round(group.getBoundingClientRect().width)),
+        buttonWidths: modeButtons.map(button => Math.round(button.getBoundingClientRect().width)),
         modeTops: modeButtons.map(button => Math.round(button.getBoundingClientRect().top)),
+        modeButtonOverflow: modeButtons
+          .filter(button => button.scrollWidth > button.clientWidth + 1)
+          .map(button => button.textContent.trim()),
+        horizontalOverflow: Math.max(
+          document.documentElement.scrollWidth - document.documentElement.clientWidth,
+          Number(rootElement?.scrollWidth || 0) - Number(rootElement?.clientWidth || 0)
+        ),
         tuneStepsHidden: Boolean(document.getElementById("dse-tune-steps")?.hidden),
         contextBridgeVisible: !document.getElementById("dse-context-bridge")?.hidden,
         backdropScene: document.documentElement.dataset.crtSceneIntent || "",
@@ -1213,12 +1230,25 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       `${prefix}advanced mode does not start with a neutral task chooser (${JSON.stringify(initial)}).`
     );
     check(
-      initial.modeColumns.split(" ").filter(Boolean).length > 1 &&
+      (
+        compactNavigation
+          ? initial.modeColumns.split(" ").filter(Boolean).length >= 1
+          : initial.modeColumns.split(" ").filter(Boolean).length > 1
+      ) &&
+      initial.modeButtonOverflow.length === 0 &&
+      initial.horizontalOverflow <= 1 &&
       !initial.compareStepPresent &&
       !initial.comparePanelVisible,
       `${prefix}advanced peer navigation lost its compact horizontal layout (${JSON.stringify({
         modeColumns: initial.modeColumns,
-        modeTops: initial.modeTops
+        modeWidth: initial.modeWidth,
+        demoWidth: initial.demoWidth,
+        rootWidth: initial.rootWidth,
+        groupWidths: initial.groupWidths,
+        buttonWidths: initial.buttonWidths,
+        modeTops: initial.modeTops,
+        modeButtonOverflow: initial.modeButtonOverflow,
+        horizontalOverflow: initial.horizontalOverflow
       })}).`
     );
     await clickByPointer(connection, '[data-demo-mode="terms"]');
@@ -1266,6 +1296,13 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       tunePanelVisible: (document.querySelector('.dse-demo-panel[data-demo-mode="tune"]')?.getBoundingClientRect().height || 0) > 0,
       tuneStepsHidden: Boolean(document.getElementById("dse-tune-steps")?.hidden),
       tuneStepColumns: getComputedStyle(document.getElementById("dse-tune-steps")).gridTemplateColumns,
+      tuneStepOverflow: [...document.querySelectorAll("#dse-tune-steps strong, #dse-tune-steps small")]
+        .filter(label => {
+          const rect = label.getBoundingClientRect();
+          return rect.width > 0 && rect.height > 0 &&
+            label.scrollWidth > label.clientWidth + 1;
+        })
+        .map(label => label.textContent.trim()),
       backdropScene: document.documentElement.dataset.crtSceneIntent || "",
       backdropScanning: document.getElementById("dse-crt-backdrop")?.classList.contains("is-scanning") || false
     }))()`);
@@ -1275,7 +1312,8 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       !selectedTune.tuneStepsHidden &&
       selectedTune.backdropScene === "cpu" &&
       selectedTune.backdropScanning === false &&
-      selectedTune.tuneStepColumns.split(" ").filter(Boolean).length === (name === "desktop" ? 3 : 1),
+      selectedTune.tuneStepOverflow.length === 0 &&
+      selectedTune.tuneStepColumns.split(" ").filter(Boolean).length === (desktopLayout ? 3 : 1),
       `${prefix}tuning theme does not reveal its step rail (${JSON.stringify(selectedTune)}).`
     );
     const expandedScenarios = await evaluate(connection, `(async () => {
@@ -1440,7 +1478,7 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
     }))()`);
     check(
       triageCategoryInitial.categoryCount === 6 &&
-      triageCategoryInitial.categoryColumns.split(" ").filter(Boolean).length === (name === "desktop" ? 3 : 1) &&
+      triageCategoryInitial.categoryColumns.split(" ").filter(Boolean).length === (desktopLayout ? 3 : 1) &&
       triageCategoryInitial.caseStageHidden &&
       triageCategoryInitial.workflowHidden &&
       !triageCategoryInitial.autoToolsOpen &&
@@ -1483,11 +1521,11 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       triageProgressInitial.active.includes("安全与范围") &&
       triageProgressInitial.position.includes("第 1 / 4 步") &&
       triageProgressInitial.button === "补充信息" &&
-      triageProgressInitial.bodySize >= (name === "desktop" ? 18 : 16) &&
+      triageProgressInitial.bodySize >= (desktopLayout ? 18 : 16) &&
       triageProgressInitial.actionSizes.length === 1 &&
       triageProgressInitial.actionSizes.every(size =>
         size.height === 44 &&
-        size.fontSize === (name === "desktop" ? 18 : 16) &&
+        size.fontSize === (desktopLayout ? 18 : 16) &&
         size.width >= 44
       ),
       `${prefix}triage progress is not visible at the action (${JSON.stringify(triageProgressInitial)}).`
@@ -1563,7 +1601,7 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       !triageStack.autoToolsOpen,
       `${prefix}triage cases are not a vertical explicit-choice list (${JSON.stringify(triageStack)}).`
     );
-    if (name === "mobile") {
+    if (!desktopLayout) {
       const swipePoint = await evaluate(connection, `(async () => {
         const firstCase = document.querySelector("#dse-triage-case-grid [data-triage-case]");
         firstCase.scrollIntoView({ block: "center" });
@@ -1687,8 +1725,9 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       const lifecycleGrid = panel?.querySelector(".dse-lifecycle-grid");
       const lifecycleEvents = panel?.querySelector(".dse-lifecycle-events");
       const lifecycleCopy = panel?.querySelector("#dse-lifecycle-copy");
-      const lifecycleLabel = panel?.querySelector(".dse-lifecycle-track-label");
-      const lifecycleNode = panel?.querySelector("#dse-identity-state-rail .dse-state-node");
+      const lifecyclePresets = panel?.querySelector(".dse-lifecycle-presets");
+      if (lifecyclePresets) lifecyclePresets.open = true;
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       const buttons = [...document.querySelectorAll("#dse-lifecycle-events [data-lifecycle-event]")];
       const samples = [];
       for (const button of buttons) {
@@ -1706,20 +1745,24 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       const alignment = {
         left: [
           lifecycleGrid,
-          lifecycleEvents,
-          lifecycleCopy,
-          lifecycleLabel,
-          panel?.querySelector("#dse-identity-state-rail .dse-state-node")
+          lifecycleCopy
         ].map(element => Math.round(element?.getBoundingClientRect().left || 0)),
         right: [
           lifecycleGrid,
-          lifecycleEvents,
           lifecycleCopy
         ].map(element => Math.round(element?.getBoundingClientRect().right || 0))
       };
+      const gridRect = lifecycleGrid?.getBoundingClientRect();
+      const eventsRect = lifecycleEvents?.getBoundingClientRect();
+      const eventsContained = Boolean(
+        gridRect &&
+        eventsRect &&
+        eventsRect.left >= gridRect.left - 1 &&
+        eventsRect.right <= gridRect.right + 1
+      );
       document.querySelector('[data-demo-mode="tune"]')?.click();
       await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      return { samples, alignment };
+      return { samples, alignment, eventsContained };
     })()`);
     const lifecycleWidths = lifecycleStability.samples.map(sample => sample.width);
     const lifecycleHeights = lifecycleStability.samples.map(sample => sample.height);
@@ -1731,7 +1774,8 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       spread(lifecycleHeights) <= 2 &&
       spread(lifecycleCopyHeights) <= 2 &&
       spread(lifecycleStability.alignment.left) <= 1 &&
-      spread(lifecycleStability.alignment.right) <= 1,
+      spread(lifecycleStability.alignment.right) <= 1 &&
+      lifecycleStability.eventsContained,
       `${prefix}identity panel changes size between events (${JSON.stringify(lifecycleStability)}).`
     );
     const tuneSteps = await evaluate(connection, `(async () => {
@@ -1836,7 +1880,7 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       gateButtonsInitial[0].height === 44 &&
       gateButtonsOpen[0].height === 44 &&
       gateButtonsReady.every(button =>
-        button.height === 44 && button.fontSize === (name === "desktop" ? 18 : 16)
+        button.height === 44 && button.fontSize === (desktopLayout ? 18 : 16)
       ) &&
       gateButtonSpread <= 1 &&
       gateSummaryReady.score === "5 / 5" &&
@@ -1913,11 +1957,11 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       reviewReady.labels.some(label => label.includes("没收益")) &&
       reviewReady.labels.some(label => label.includes("失败")) &&
       reviewReady.label.includes("选择") &&
-      reviewReady.choiceColumns.split(" ").filter(Boolean).length === (name === "desktop" ? 4 : 2) &&
+      reviewReady.choiceColumns.split(" ").filter(Boolean).length === (desktopLayout ? 4 : 2) &&
       reviewReady.selected === 0 &&
       reviewReady.actionSizes.every(size =>
         size.height >= 44 &&
-        size.fontSize === (name === "desktop" ? 18 : 16) &&
+        size.fontSize === (desktopLayout ? 18 : 16) &&
         size.width >= 44
       ) &&
       Math.max(...reviewReady.actionSizes.map(size => size.width)) -
@@ -2115,7 +2159,10 @@ async function main() {
     await testHomeViewport(siteUrl, "mobile", 390, 844);
     await testPreviewRootReturn(previewRootUrl);
     await testInteractiveViewport(interactiveUrl, "desktop", 1440, 1000);
+    await testInteractiveViewport(interactiveUrl, "compact-desktop", 1024, 768);
+    await testInteractiveViewport(interactiveUrl, "tablet", 768, 1024);
     await testInteractiveViewport(interactiveUrl, "mobile", 390, 844);
+    await testInteractiveViewport(interactiveUrl, "compact", 320, 740);
     await testOrrerySmoke(orreryUrl, "desktop", 1440, 1000);
     await testOrrerySmoke(orreryUrl, "mobile", 390, 844);
     await testReducedMotion(siteUrl, interactiveUrl, orreryUrl);
