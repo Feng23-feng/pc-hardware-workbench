@@ -1,368 +1,207 @@
-# PC Hardware Workbench / 电脑硬件工作台
+# PC Hardware Workbench
 
-An evidence-gated, read-only Windows hardware workbench for Codex and DeepSeek
-Harness. It routes inventory, troubleshooting, telemetry analysis, manual tuning
-guidance, deterministic GPU starting candidates, and upgrade decisions through
-one Skill while keeping all hardware changes under the user's control.
+一个面向 Codex 和 DeepSeek Harness 的 Windows 只读硬件工作台。它把配置读取、
+故障排查、遥测分析、手动调校和升级判断收敛到一个 Skill，同时把每一次硬件变更
+留给用户亲手完成。
 
-一个面向 Codex 与 DeepSeek Harness 的 Windows 只读硬件工作台，统一处理配置
-读取、故障排查、遥测分析、手动调校指导和升级判断；不会自动修改 BIOS、频率、
-电压、功耗、风扇或固件。
+当前版本为 **2.6.0 测试版**。自动测试已通过，真实设备覆盖和独立人工签署仍在
+继续；项目不会把测试版包装成已经完成广泛验证的稳定版。
 
-## 项目缘起 / Origin
+![文件星球预览](docs/skill-evolution/assets/orrery-preview.png)
 
-这个 Skill 始于一个学艺术的人在调试电脑时的突发奇想：把复杂、零散的硬件排查，整理成一套既方便普通用户上手、又坚持证据和安全边界的工作流。
+[项目说明](https://feng23-feng.github.io/pc-hardware-workbench/skill-evolution/) ·
+[交互实验室](https://feng23-feng.github.io/pc-hardware-workbench/skill-evolution/interactive/) ·
+[文件星球](https://feng23-feng.github.io/pc-hardware-workbench/skill-evolution/orrery/)
 
-## Project status
+## 目录
 
-- Current public status: **2.6.0 test release**
-- Automated non-live tests at 2.6.0: passing
-- Live hardware collection: opt-in only
-- Broad release sign-off: not claimed
-- Repository license: **MIT**
+- [功能](#功能)
+- [快速开始](#快速开始)
+- [使用示例](#使用示例)
+- [安全边界](#安全边界)
+- [文档](#文档)
+- [常见问题](#常见问题)
+- [开发与测试](#开发与测试)
+- [版本与许可](#版本与许可)
 
-## 在线项目说明 / About this Skill
+## 功能
 
-[项目说明、测试边界与版本记录](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/)
+- **读取电脑配置。** 只读查看处理器、显卡、主板、内存、存储、显示器和电池等
+  当前可见信息，不猜测缺失型号。
+- **排障先保安全。** 按物理安全、启动与数据、稳定性、功能故障和性能排序，避免
+  用超频或换件掩盖尚未解释的问题。
+- **分析真实遥测。** 读取 CSV、HWiNFO 导出和结构化传感器快照，保留采样间隔、
+  缺失值、来源和时间窗口，并可生成图表。
+- **调参必须有证据。** 参数请求先通过设备、基线、恢复路径、固定负载和停止条件
+  门禁；信息不足时不生成可直接套用的数字。
+- **GPU 起始候选。** 仅对可识别且条件齐全的显卡给出一个有限、可回退的单变量
+  起点；未知、专业卡、核显、虚拟适配器和多适配器目标会被阻断。
+- **升级判断。** 比较继续保留、维护和购买新硬件的收益，不用一个跑分替代场景、
+  预算和证据。
+- **按需接入更多证据。** 支持本地 RAG、已经运行的本机 LibreHardwareMonitor、
+  视觉截图说明和跨轮硬件案卷。
+- **始终只读。** 不自动修改 BIOS、频率、电压、功耗、风扇、内存时序或固件。
 
-查看 2.6.0 的能力范围、已知边界和历史版本，不会把测试版描述成已经完成广泛发布验证。
+## 快速开始
 
-[打开 Skill 交互实验室](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/interactive/)
+### Codex 一键安装
 
-交互实验室展示术语解释、调校门禁、六类故障分流、证据状态判断，以及配置或驱动变化后的重新验证。
+安装脚本只复制 Skill 文件，不运行硬件采集器，也不请求管理员权限。
 
-[查看文件星球](https://Feng23-feng.github.io/pc-hardware-workbench/skill-evolution/orrery/)
+1. 打开普通 PowerShell。
+2. 下载安装脚本。
+3. 运行安装脚本。
+4. 重启 Codex，然后输入 `$pc-hardware-workbench`。
 
-文件星球把当前 2.6.0 的 106 个 Skill 文件按契约核心、流程、排障、调校、升级、运行脚本和验证网络组织成可旋转、可缩放的三维式总览；文件大小按权重映射，不表示实际文件体积。
-
-## Why this project exists
-
-Hardware advice often fails in three ways: it skips the actual machine state,
-treats one benchmark as proof of daily stability, or suggests settings without
-a recovery path. This project keeps those decisions explicit:
-
-1. collect only what is relevant and authorized;
-2. establish a stable baseline before changing a variable;
-3. state one variable, pass criteria, abort signals, and rollback;
-4. treat telemetry as evidence, not proof of stability;
-5. keep every persistent hardware change user-applied.
-
-The triage route now prioritizes physical safety, data and boot risk, instability,
-functional failures, and performance in that order. It covers everyday slowdowns,
-game stutter, Windows crash records, laptop battery versus adapter evidence,
-peripheral/network handoff, and audio dropouts by output path and evidence type.
-For USB audio it maps the physical port, hub, root controller, and shared devices
-without treating occupied ports as measured overload. `.evtx` evidence routes to
-Event Viewer, `.etl` traces to WPR/WPA, and `.dmp` files to WinDbg without
-automatic download or elevation. Monitoring screenshots are accepted only as
-limited single-point evidence;
-CSV logs remain the basis for statistics and time-window comparisons. The
-telemetry analyzer can also emit validated chart data, and the bundled SVG
-renderer can turn up to three recognized series into a deterministic visual
-overview without adding an external plotting dependency. Downsampling preserves
-missing-value breaks, and explicit `-IncludeColumn` selections take priority.
-Structured sensor snapshots and CSV records can also be normalized into one
-versioned JSON document with source provenance, sampling consistency, mixed-
-source warnings, and chart-ready series before rendering.
-
-For current vendor facts, the Skill uses a local RAG evidence layer instead of
-trusting search snippets. Official domains are registered, source cards carry
-publish/fetch/expiry scope, community material is marked `lead-only`, and expired
-or conflicting evidence remains visible as historical evidence rather than being
-silently rewritten.
-
-An optional LibreHardwareMonitor adapter can read an already-running local
-instance through its loopback Web endpoint, with legacy WMI as a compatibility
-fallback, and only with explicit consent. It preserves reported hardware paths,
-emits the same sensor-snapshot JSON as other structured sources, and never
-installs or starts LHM, elevates, connects to a non-loopback host, runs
-indefinitely, or writes hardware settings.
-
-Visual evidence rules cover monitoring screenshots, BIOS photos, Stop Codes,
-Debug LEDs, Device Manager, and Event Viewer images. The Skill uses the model's
-existing vision capability when present, otherwise it explicitly falls back to
-text, crops, or OCR instead of pretending the image was read.
-
-The read-only Skill Doctor checks installation, script syntax/encoding, output
-writability, PowerShell versions, CIM, validator availability, and optional
-monitoring tools. It reports `PERMISSION_REQUIRED` separately from `BROKEN` and
-never installs, elevates, starts software, or repairs files.
-
-For investigations that span multiple turns, a local hardware case can retain
-hashed evidence, hypotheses, timeline events, baselines, experiments, and the
-next action without storing that private state in the public Skill package.
-The case can be exported as a dependency-free, static HTML report for offline
-review. Evidence content is omitted by default; opt-in previews are size-limited
-and reject active or externally linked SVG content.
-
-The Skill entrypoint is intentionally a concise router. Mode-specific procedures
-and examples stay in references, so the Quick starting path remains below its
-20 KB budget while the model can load deeper guidance only when needed. The
-entrypoint itself is held below 11 KB.
-
-Telemetry recognition includes Intel package sensors, AMD HWiNFO Tctl/Tdie
-temperature, CPU PPT package power, GPU core voltage, and CPU core maximum
-temperature where those columns are exposed.
-
-## GPU starting candidates
-
-For a concrete GPU tuning request, the Workbench first completes the normal
-five-item tuning gate. It then uses one machine-readable authority file to emit
-one bounded, user-applied starting experiment based on the exact readable GPU,
-desktop/laptop form, exposed control, thermal/power evidence, and saved recovery.
-Unknown, professional, integrated, virtual, or multi-adapter identities receive
-no numeric candidate. Laptop power limits are treated as board-specific ceiling
-state, not measured draw, and a passed first round does not automatically become
-a daily-stable profile.
-
-## Collaboration model
-
-This is an AI-assisted, human-controlled project:
-
-- Codex may inspect evidence, explain tradeoffs, and propose bounded experiments.
-- The user authorizes data collection, applies every hardware change manually,
-  and owns rollback and recovery.
-- The project never bypasses permissions, anti-cheat, vendor locks, or safety
-  limits.
-- Automated tests and AI reviews support quality checks but do not replace
-  independent human acceptance or real-hardware judgment.
-
-## How this project is built
-
-This project combines human hardware experience with AI-assisted engineering:
-
-- The maintainer contributes hands-on testing, real failure cases, safety rules,
-  interpretation of results, and final product decisions.
-- Codex and DeepSeek Harness assist with implementation, documentation, test
-  design, code review, packaging, and CI maintenance.
-- AI can propose changes, but the human owner decides what is accepted and
-  released.
-
-## What is included
-
-```text
-skill/pc-hardware-workbench/   Codex Skill, scripts, references, tests
-adapters/dsh/                  DeepSeek Harness adapter entry and package template
-portable/                      Standalone Windows PowerShell tool
-tools/validate-skill.py        Structural validation used by CI
-tools/validate-skill.ps1       Wrapper: bootstrap/offline validation
-tools/build-release.ps1        Reproducible Codex, DSH, and portable package builder
-tools/build-skill-orrery.ps1   Generates and verifies the current Skill file galaxy
-tools/check-portable-sync.ps1  Skill -> portable shared-script drift check
-tools/check-package-sync.ps1   Skill tree vs shipped package drift check
-tools/check-version-consistency.ps1  Version drift guard
-tools/check-skill-evolution-site.ps1 Site content and JavaScript check
-.github/workflows/ci.yml       Windows CI (whitespace audit + tests + validator)
-LICENSE                        MIT
-CHANGELOG.md                   Version history
-CONTRIBUTING.md                How to contribute safely
-SECURITY.md                    How to report issues privately
+```powershell
+$installer = Join-Path $env:TEMP "install-pc-hardware-workbench.ps1"
+curl.exe -fsSL "https://raw.githubusercontent.com/Feng23-feng/pc-hardware-workbench/main/tools/install-skill.ps1" -o $installer
+powershell -NoProfile -ExecutionPolicy Bypass -File $installer
 ```
 
-## Codex Skill
-
-Copy `skill/pc-hardware-workbench` into your Codex skills directory:
+默认安装位置：
 
 ```text
-<user-home>/.codex/skills/pc-hardware-workbench
+%USERPROFILE%\.codex\skills\pc-hardware-workbench
 ```
 
-Then invoke:
+更新时重新运行安装器并加 `-Force`。脚本会先创建带时间戳的备份：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File $installer -Force
+```
+
+### 让 AI 安装
+
+可以直接把下面的提示词交给能执行本地命令的 AI：
 
 ```text
-$pc-hardware-workbench
+请安装 PC Hardware Workbench Skill：
+https://github.com/Feng23-feng/pc-hardware-workbench
+
+只复制仓库中的 skill\pc-hardware-workbench 到：
+%USERPROFILE%\.codex\skills\pc-hardware-workbench
+
+如果目标已存在，先移动到同目录下带时间戳的备份。安装后确认
+SKILL.md、scripts 和 references 都存在。不要运行硬件采集器，
+不要请求管理员权限，不要修改 BIOS、驱动或系统设置。
 ```
 
-The Skill is Windows-focused for automatic collection. Other operating systems
-receive manual guidance. Inventory is read-only and serial numbers are omitted.
+完整版见 [AI 安装提示词](docs/AI-INSTALL.md)。
 
-The default collection runs without elevation. Broad access denial inside an agent
-sandbox is handled first by rerunning in a normal non-elevated PowerShell outside
-that sandbox. Only fields that remain genuinely permission-dependent justify a
-user-started elevated run. The Skill never launches UAC or elevates itself.
-Elevated access does not expose firmware-hidden temperatures, clocks, voltages, or
-fan sensors. NVIDIA `nvidia-smi` values are labelled as timestamped instantaneous
-samples rather than stability evidence.
+### DeepSeek Harness
 
-Battery collection preserves three outcomes: `available`, `not-present`, and
-`unavailable-permission` (or generic `unavailable`). A permission failure is never
-misreported as a machine without a battery. `BatteryStatusReason` identifies the
-failing stage and `BatteryCimStatus` records the independent CIM result.
-
-### Use with DeepSeek Harness
-
-The same Skill tree loads in DeepSeek Harness. The installation directory and
-the invocation syntax differ from Codex:
+Skill 默认放到：
 
 ```text
-<dsh-home>/skills/pc-hardware-workbench
+%USERPROFILE%\.dsh\skills\pc-hardware-workbench
 ```
 
-`<dsh-home>` is `%USERPROFILE%\.dsh` unless `DSH_HOME` is set. Invoke from the
-chat input with a leading slash:
+调用：
 
 ```text
 /pc-hardware-workbench
 ```
 
-`SKILL.md` may add `disable-model-invocation: true` when the Skill should stay
-explicit-only, and `user-invocable: false` when it should never be slash-invoked.
-Those visibility fields are optional and do not change the scripts, references,
-tests, or safety boundaries, which are the same files as the Codex copy. A
-Harness-specific distribution package can be provided separately from this
-repository.
+Harness 适配和详细步骤见
+[安装与升级](docs/installation.md#deepseek-harness)与
+[DSH adapter](adapters/dsh/README.md)。
 
-## Portable Windows tool
+### 独立 Windows 工具
 
-Run:
+不安装 Codex Skill，也可以直接运行 Portable 版本：
 
 ```powershell
 cd portable
 .\开始使用.cmd
 ```
 
-Or run the non-hardware self-test directly:
+详见 [安装与升级](docs/installation.md#portable-windows-工具)。
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\start.ps1 -SelfTest
+## 使用示例
+
+```text
+帮我看看这台电脑现在的配置，有哪些信息读不到？
 ```
 
-Live collection requires all of the following:
+```text
+游戏偶尔卡顿。先判断还需要哪些证据，不要直接给我超频参数。
+```
 
-- an explicit `-AllowLiveCollector` switch;
-- a selected privacy mode;
-- the user's consent.
+```text
+这是我导出的一天 HWiNFO CSV，帮我检查趋势、缺失值和异常时间窗。
+```
 
-## Safety boundaries
+```text
+我想让这张显卡更安静，但还没有恢复点和固定测试场景。
+```
 
-- No automatic BIOS/UEFI, clock, voltage, power-limit, fan, memory-timing, or
-  firmware changes.
-- No automatic elevation, driver installation, security-control bypass, sandbox
-  escape, or anti-cheat interference.
-- Physical danger such as smoke, sparks, liquid, a melted connector, or a
-  swollen battery stops performance testing.
-- Unexplained instability blocks tuning until a stable baseline is restored.
-- A parameter change carries the standard safety notice in the reply's language:
-  `参数仅供参考，请以安全为第一要务。` (Chinese) or
-  `For reference only - put safety first.` (English). The two are never mixed in
-  one reply.
+Skill 会根据问题进入配置、排障、遥测、调参或升级路线。信息不足时，只返回最小
+补证动作，不会跳过安全门禁。
 
-Recommended tools and reference values are guidance, not universal profiles.
+## 安全边界
 
-## Privacy
+- 不自动修改 BIOS/UEFI、频率、电压、功耗墙、风扇、内存时序或固件；
+- 不自动提权、安装驱动或启动监控软件；
+- 不绕过权限、反作弊、厂商锁或安全限制；
+- 出现焦味、火花、液体、熔化接头、鼓包电池或可见破损时，先停止；
+- 没有恢复路径和中止信号时，不生成硬件参数实验；
+- LibreHardwareMonitor 只在已经运行且用户明确允许时读取本机 loopback 数据。
 
-The collector omits serial numbers by default. Redacted mode hides computer,
-motherboard, BIOS, memory part-number, storage, volume-label, monitor, and
-battery manufacturer identifiers while preserving useful capability data.
-Standard and redacted component objects keep the same keys and array lengths;
-memory `Bank` and monitor `AdapterName` remain visible so channel evidence and
-declared GPU identity stay usable.
+参数仅供参考，请以安全为第一要务。
 
-Telemetry analysis rejects UNC paths, mapped network drives, cloud placeholder
-files, symlinks, junctions, and reparse points. Markdown output is treated as
-untrusted display text.
+完整说明见 [隐私与安全边界](docs/privacy-and-safety.md)。
 
-Review any hardware report before sharing it publicly.
+## 文档
 
-## Tests
+- [安装与升级](docs/installation.md)
+- [使用方式](docs/usage.md)
+- [技术架构](docs/architecture.md)
+- [常见问题](docs/troubleshooting.md)
+- [测试与发布检查](docs/testing.md)
+- [隐私与安全边界](docs/privacy-and-safety.md)
+- [变更记录](CHANGELOG.md)
+- [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
+- [贡献指南](CONTRIBUTING.md)
+- [安全报告](SECURITY.md)
 
-From the repository root:
+## 常见问题
+
+- **Codex 里看不到 Skill**：确认安装目录中的 `SKILL.md` 存在，然后重启 Codex。
+- **采集出现权限拒绝**：先在普通、非提权 PowerShell 中重试；Agent 沙箱可能限制
+  CIM、存储或显示器信息读取。
+- **LHM 没有数据**：LHM 必须已经由用户启动，Web Server 只绑定 loopback，并且
+  用户明确允许读取。
+- **CSV 被拒绝**：不要使用 UNC 路径、映射网络盘、云占位文件、符号链接、目录
+  联接或重解析点。
+- **GPU 调参被阻断**：先补齐型号、当前控制值、基线、固定负载、恢复路径和停止
+  条件；不要通过改写提问绕过门禁。
+
+更多问题见 [常见问题](docs/troubleshooting.md)。
+
+## 开发与测试
+
+仓库包含 Skill、DeepSeek Harness 适配、Portable 工具、自动测试、发布打包和
+项目说明站。
+
+快速结构验证：
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass `
-  -File .\skill\pc-hardware-workbench\tests\run-all-tests.ps1 `
-  -SkillRoot .\skill\pc-hardware-workbench
-
 powershell -NoProfile -ExecutionPolicy Bypass `
   -File .\tools\validate-skill.ps1
-
-powershell -NoProfile -ExecutionPolicy Bypass `
-  -File .\portable\start.ps1 -SelfTest
 ```
 
-Check for drift between the Skill and portable shared scripts:
+完整测试、同步检查、发布打包和验证环境说明见
+[测试与发布检查](docs/testing.md)。
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass `
-  -File .\tools\check-portable-sync.ps1
-```
+## 版本与许可
 
-Check for drift between the Skill tree and a shipped package:
+版本状态以 [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
+和 [CHANGELOG.md](CHANGELOG.md) 为准。当前工作台版本为 `2.6.0` 测试版。
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass `
-  -File .\tools\check-package-sync.ps1 `
-  -LeftRoot .\skill\pc-hardware-workbench `
-  -RightRoot <unpacked-package-dir>\skill\pc-hardware-workbench `
-  -IgnoreEolOnly
-```
-
-The audit separates real content differences from packaging noise (line endings
-and a UTF-8 BOM are reported as `EOL-ONLY`, not as content drift). Exit codes:
-`0` aligned, `1` drift found, `2` usage or path error.
-
-For an intentional one-way `Skill -> Portable` update, a maintainer may run the
-same command with `-Fix`. Portable-only files are never deleted automatically,
-and `-Fix` is rejected when `CI=true` or `GITHUB_ACTIONS=true`.
-
-Real hardware smoke tests remain opt-in and are not run by CI.
-
-The current interaction catalog contains 148 manual behavioral scenarios covering
-normal use, missing or conflicting evidence, urgency, compound symptoms, data-risk
-precedence, USB/NVIDIA evidence conflicts, and pressure to name a failed component
-without proof. Static contract tests verify that required rules and scenarios exist;
-they do not prove every model response behaves correctly. Independent human
-acceptance is still required before making a broad-release claim.
-
-The validation wrapper uses a persistent Python environment outside this
-repository. By default it is created at
-`%LOCALAPPDATA%\pc-hardware-workbench\.validation-venv`; override the location
-with `-VenvPath <path>` or the `CODEX_VALIDATION_VENV` environment variable.
-Create it once:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass `
-  -File .\tools\validate-skill.ps1 -Bootstrap
-```
-
-Later validation runs are offline and need no temporary PyYAML download. The
-wrapper runs both the repository validator and the official
-`skill-creator/scripts/quick_validate.py`; the official validator receives a
-temporary structural copy with UTF-8 BOMs removed.
-
-## Build local release candidates
-
-From a clean tracked worktree:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass `
-  -File .\tools\build-release.ps1 `
-  -RepositoryRoot . `
-  -Label test `
-  -ValidatorPath "C:\Users\<user>\Documents\Codex\tools\skill-creator-validator\validate-skill.ps1"
-```
-
-The builder reads only Git-tracked files. It emits Codex share, DeepSeek Harness,
-and portable ZIPs with release notes, `BUILD-INFO.json`, per-file manifests, and
-outer SHA256 lists. It extracts and rechecks the Skill trees and runs the
-packaged portable self-test. Existing release targets are never overwritten.
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md). Do not submit real serial numbers,
-private hardware logs, account names, or unsanitized screenshots.
-
-## Security reports
-
-See [SECURITY.md](SECURITY.md). Do not open a public issue containing a
-hardware log, private path, or other identifying information.
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
+源码使用 [MIT License](LICENSE)。
 
 Copyright (c) 2026 Feng23-feng.
 
-The MIT License applies to this repository's original source and documentation.
-Third-party software, installers, images, or vendor materials remain subject to
-their own licenses and must not be redistributed without separate permission.
+第三方软件、安装器、图片和厂商资料继续遵循各自许可证；未经单独许可不得重新
+分发。

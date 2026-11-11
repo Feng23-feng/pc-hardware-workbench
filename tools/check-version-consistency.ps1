@@ -40,7 +40,8 @@ if ($errors.Count -eq 0) {
     }
 
     $readmeText = Get-Content -Raw -LiteralPath $readmeFile -Encoding UTF8
-    if ($readmeText -notmatch [regex]::Escape("Current public status: **$version test release**")) {
+    $readmeVersionPattern = '\u5f53\u524d\u7248\u672c\u4e3a \*\*' + [regex]::Escape($version) + ' \u6d4b\u8bd5\u7248\*\*'
+    if ($readmeText -notmatch $readmeVersionPattern) {
         $errors.Add("README current version does not match $version.") | Out-Null
     }
 
