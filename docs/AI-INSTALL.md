@@ -15,8 +15,10 @@ https://github.com/Feng23-feng/pc-hardware-workbench
 1. 先检查目标目录是否已经存在。
 2. 如果不存在，下载 main 分支压缩包，只复制仓库中的
    skill\pc-hardware-workbench 到目标目录。
-3. 如果已经存在，不要覆盖；先把它移动到同目录下带时间戳的备份，
-   再安装新版本。
+3. 如果已经存在，不要覆盖；先把它移动到
+   %USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\
+   下带时间戳的备份，再安装新版本。不要把旧版本留在 .codex\skills 内，
+   否则 Codex 可能把新旧副本识别成同名 Skill。
 4. 安装完成后确认目标目录包含 SKILL.md、scripts 和 references。
 5. 不要运行硬件采集器，不要请求管理员权限，不要修改 BIOS、驱动或系统设置。
 6. 最后告诉我安装路径、备份路径（如有），以及应该如何重新启动 Codex。
@@ -30,7 +32,8 @@ curl.exe -fsSL "https://raw.githubusercontent.com/Feng23-feng/pc-hardware-workbe
 powershell -NoProfile -ExecutionPolicy Bypass -File $installer
 ```
 
-如果已经安装过并需要更新，AI 应先向用户说明备份行为，再运行：
+如果已经安装过并需要更新，AI 应先向用户说明备份位于 Skill 扫描目录之外，
+再运行：
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass `

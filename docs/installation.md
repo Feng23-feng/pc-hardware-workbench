@@ -29,11 +29,23 @@ powershell -NoProfile -ExecutionPolicy Bypass -File $installer
 %USERPROFILE%\.codex\skills\pc-hardware-workbench
 ```
 
-升级时加 `-Force`。脚本会把旧版本移动到同目录下带时间戳的备份，再安装新版本：
+升级时加 `-Force`。脚本会把旧版本移出 Codex 的 Skill 扫描目录，再安装新版本：
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File $installer -Force
 ```
+
+默认备份位置：
+
+```text
+%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\
+```
+
+不要把旧版本留在 `%USERPROFILE%\.codex\skills` 下。Codex 会扫描该目录中的
+`SKILL.md`；带原清单的旧备份会和当前版本形成同名 Skill，造成路由歧义或启动警告。
+新版安装器还会把旧安装器留在 `skills` 目录内的 `.backup-*` 副本迁移到上述
+备份目录。需要自定义位置时，使用 `-BackupRoot <目录>`，该目录不能位于 Skill
+扫描根内，也不能通过符号链接、目录联接或其他重解析点指向扫描根。
 
 ## Codex：手动安装
 
@@ -53,23 +65,28 @@ skill\pc-hardware-workbench
 
 ## Codex：从 Release ZIP 安装
 
-1. 打开 GitHub Releases。
-2. 下载 `pc-hardware-workbench-v2.6.0-test.2-share.zip` 或当时最新测试版附件。
-3. 解压 ZIP。
-4. 双击 `Install-PC-Hardware-Workbench.cmd`。
-5. 如果已有旧版本，安装器会先创建带时间戳的备份。
-6. 重启 Codex，输入 `$pc-hardware-workbench`。
+每个测试版 Release 提供两个 Codex 附件：
 
-ZIP 内同时保留 `安装说明.txt` 和 `BUILD-INFO.json`，可以核对版本、提交和构建时间。
-不要直接把整个 ZIP 文件放进 Skill 目录；Codex 需要的是解压后的
-`pc-hardware-workbench` 文件夹。
+1. 打开 GitHub Releases。
+2. 选择 `pc-hardware-workbench-v<版本>-installer.zip`，解压后运行
+   `Install-PC-Hardware-Workbench.cmd`，适合自动安装和覆盖升级。
+3. 或选择 `pc-hardware-workbench-v<版本>-manual.zip`，解压后得到
+   `pc-hardware-workbench/`，将它移动到
+   `%USERPROFILE%\.codex\skills\pc-hardware-workbench`，适合手动管理安装。
+4. 自动安装器发现旧版本时，会先放到
+   `%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\`。
+5. 重启 Codex，输入 `$pc-hardware-workbench`。
+
+`installer.zip` 内保留 `安装说明.txt` 和 `BUILD-INFO.json`，可以核对版本、提交
+和构建时间；`manual.zip` 内只有 Skill 目录。不要直接把 ZIP 文件放进 Skill
+目录；Codex 需要的是解压后的 `pc-hardware-workbench` 文件夹。
 
 ## 让 AI 安装
 
 完整提示词见 [AI 安装提示词](AI-INSTALL.md)。提示词明确要求 AI：
 
 - 安装前检查目标目录；
-- 不覆盖现有版本，先创建带时间戳的备份；
+- 不覆盖现有版本，先把旧版移出 Skill 扫描目录；
 - 只复制 Skill 树；
 - 验证 `SKILL.md`、`scripts/` 和 `references/`；
 - 不运行采集器、不提权、不修改硬件设置。
@@ -131,9 +148,11 @@ Test-Path (Join-Path $skill "references")
 ## 更新与回滚
 
 - 更新使用安装脚本和 `-Force`；
-- 安装脚本会把旧版本移动到 `.backup-时间戳`；
+- 安装脚本会把旧版本移动到 `.codex\skill-backups\pc-hardware-workbench\`；
 - 回滚时关闭 Codex，将当前目录移到别处，再把备份目录改回
-  `pc-hardware-workbench`；
+  `.codex\skills\pc-hardware-workbench`；
+- 同一时间只保留一个包含 `SKILL.md` 的活动 Workbench 目录，避免同名 Skill
+  被重复发现；
 - 不要删除或覆盖正在使用中的旧版本，除非已经确认备份存在。
 
 ## 卸载

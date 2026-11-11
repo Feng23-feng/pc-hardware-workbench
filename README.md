@@ -65,15 +65,23 @@ powershell -NoProfile -ExecutionPolicy Bypass -File $installer
 %USERPROFILE%\.codex\skills\pc-hardware-workbench
 ```
 
-更新时重新运行安装器并加 `-Force`。脚本会先创建带时间戳的备份：
+更新时重新运行安装器并加 `-Force`。旧版本会先移动到 Skill 扫描目录之外：
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File $installer -Force
 ```
 
+备份位于：
+
+```text
+%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\
+```
+
 也可以从 [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
-下载 Codex 版 ZIP，解压后双击 `Install-PC-Hardware-Workbench.cmd`。如果已有安装，
-安装器会先在同目录创建带时间戳的备份。
+下载 Codex 版 `installer.zip` 或 `manual.zip`。`installer.zip` 解压后双击
+`Install-PC-Hardware-Workbench.cmd`；`manual.zip` 解压后直接得到可手动放置的
+`pc-hardware-workbench/`。如果已有安装，自动安装器会先创建带时间戳、但不参与
+Skill 扫描的备份。
 
 ### 让 AI 安装
 
@@ -86,9 +94,11 @@ https://github.com/Feng23-feng/pc-hardware-workbench
 只复制仓库中的 skill\pc-hardware-workbench 到：
 %USERPROFILE%\.codex\skills\pc-hardware-workbench
 
-如果目标已存在，先移动到同目录下带时间戳的备份。安装后确认
-SKILL.md、scripts 和 references 都存在。不要运行硬件采集器，
-不要请求管理员权限，不要修改 BIOS、驱动或系统设置。
+如果目标已存在，先移动到
+%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\ 下带时间戳的备份。
+不要把旧版本继续留在 .codex\skills 里。安装后确认 SKILL.md、scripts
+和 references 都存在。不要运行硬件采集器，不要请求管理员权限，
+不要修改 BIOS、驱动或系统设置。
 ```
 
 完整版见 [AI 安装提示词](docs/AI-INSTALL.md)。

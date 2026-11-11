@@ -54,6 +54,13 @@ jobs:
             -File .\portable\start.ps1 -SelfTest
           exit $LASTEXITCODE
 
+      - name: Run installer regression tests
+        shell: powershell
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass `
+            -File .\tools\test-skill-installers.ps1
+          exit $LASTEXITCODE
+
       - name: Validate current file orrery
         shell: powershell
         run: |

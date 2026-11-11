@@ -49,6 +49,16 @@ powershell -NoProfile -ExecutionPolicy Bypass `
   -File .\portable\start.ps1 -SelfTest
 ```
 
+## 安装器回归
+
+验证远程安装器与 Release ZIP 安装器都会安装新版本、保留旧版，并把备份放在
+Codex Skill 扫描目录之外：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass `
+  -File .\tools\test-skill-installers.ps1
+```
+
 ## 同步检查
 
 检查 Skill 与 portable 共享脚本是否漂移：
@@ -77,6 +87,7 @@ powershell -NoProfile -ExecutionPolicy Bypass `
 ## 发布前检查
 
 - 自动测试和结构验证通过；
+- 两种安装器的备份路径回归通过；
 - Portable 自检通过；
 - 包同步检查通过；
 - 版本号在 `SKILL.md`、变更记录和构建产物中一致；

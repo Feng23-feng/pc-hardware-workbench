@@ -150,7 +150,9 @@ Install
 2. Double-click Install-PC-Hardware-Workbench.cmd.
 3. The installer copies the packaged Skill into:
    C:\Users\<user>\.codex\skills\pc-hardware-workbench
-4. If an old installation exists, it is moved to a timestamped backup first.
+4. If an old installation exists, it is moved outside the Codex Skill scan
+   directory to:
+   C:\Users\<user>\.codex\skill-backups\pc-hardware-workbench
 5. Restart Codex or start a new conversation.
 6. Invoke:
    `$pc-hardware-workbench
