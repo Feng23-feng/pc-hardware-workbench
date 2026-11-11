@@ -51,6 +51,19 @@ skill\pc-hardware-workbench
 
 不要只复制 `SKILL.md`；入口依赖同目录下的 `scripts/`、`references/` 和 `assets/`。
 
+## Codex：从 Release ZIP 安装
+
+1. 打开 GitHub Releases。
+2. 下载 `pc-hardware-workbench-v2.6.0-test.2-share.zip` 或当时最新测试版附件。
+3. 解压 ZIP。
+4. 双击 `Install-PC-Hardware-Workbench.cmd`。
+5. 如果已有旧版本，安装器会先创建带时间戳的备份。
+6. 重启 Codex，输入 `$pc-hardware-workbench`。
+
+ZIP 内同时保留 `安装说明.txt` 和 `BUILD-INFO.json`，可以核对版本、提交和构建时间。
+不要直接把整个 ZIP 文件放进 Skill 目录；Codex 需要的是解压后的
+`pc-hardware-workbench` 文件夹。
+
 ## 让 AI 安装
 
 完整提示词见 [AI 安装提示词](AI-INSTALL.md)。提示词明确要求 AI：

@@ -102,13 +102,22 @@ $skillBundleRoot = Join-Path $skillReleaseRoot "bundle"
 $portableBundleRoot = Join-Path $portableReleaseRoot "bundle"
 $dshBundleRoot = Join-Path $dshReleaseRoot "bundle"
 $skillBundleFolder = Join-Path $skillBundleRoot "pc-hardware-workbench-v$releaseName"
+$manualBundleRoot = Join-Path $skillReleaseRoot "manual-bundle"
+$manualSkillFolder = Join-Path $manualBundleRoot "pc-hardware-workbench"
 $portableBundleFolder = Join-Path $portableBundleRoot "pc-hardware-portable-v$releaseName"
 $dshBundleFolder = Join-Path $dshBundleRoot "pc-hardware-workbench-deepseek-harness-v$releaseName"
-New-Item -ItemType Directory -Path $skillBundleFolder,$portableBundleFolder,$dshBundleFolder -Force | Out-Null
+New-Item -ItemType Directory -Path $skillBundleFolder,$manualSkillFolder,$portableBundleFolder,$dshBundleFolder -Force | Out-Null
+$packageInstallerRoot = Join-Path $RepositoryRoot "tools\release-package"
+if (-not (Test-Path -LiteralPath $packageInstallerRoot -PathType Container)) {
+    Stop-WithBuildError "Release package installer templates are missing: $packageInstallerRoot"
+}
 
 $skillFiles = @(Copy-TrackedTree `
     -TrackedPrefix "skill/pc-hardware-workbench" `
     -DestinationRoot (Join-Path $skillBundleFolder "pc-hardware-workbench"))
+$manualSkillFiles = @(Copy-TrackedTree `
+    -TrackedPrefix "skill/pc-hardware-workbench" `
+    -DestinationRoot $manualSkillFolder)
 $portableFiles = @(Copy-TrackedTree `
     -TrackedPrefix "portable" `
     -DestinationRoot $portableBundleFolder)
@@ -122,20 +131,28 @@ $dshSkillFiles = @(Copy-TrackedTree `
 foreach ($docName in @("LICENSE", "README.md", "CHANGELOG.md")) {
     Copy-Item -LiteralPath (Join-Path $RepositoryRoot $docName) -Destination (Join-Path $skillBundleFolder $docName)
 }
+foreach ($installerName in @(
+    "Install-PC-Hardware-Workbench.ps1",
+    "Install-PC-Hardware-Workbench.cmd"
+)) {
+    Copy-Item -LiteralPath (Join-Path $packageInstallerRoot $installerName) -Destination (Join-Path $skillBundleFolder $installerName)
+}
 Copy-Item -LiteralPath (Join-Path $RepositoryRoot "LICENSE") -Destination (Join-Path $portableBundleFolder "LICENSE")
 Copy-Item -LiteralPath (Join-Path $RepositoryRoot "LICENSE") -Destination (Join-Path $dshBundleFolder "LICENSE")
 
-$testGuideName = (-join @([char]0x6D4B, [char]0x8BD5, [char]0x8BF4, [char]0x660E)) + ".txt"
+$installGuideName = (-join @([char]0x5B89, [char]0x88C5, [char]0x8BF4, [char]0x660E)) + ".txt"
 $shareGuide = @"
 PC Hardware Workbench $releaseName
 
 Install
 
 1. Extract this ZIP.
-2. Copy the pc-hardware-workbench folder to:
+2. Double-click Install-PC-Hardware-Workbench.cmd.
+3. The installer copies the packaged Skill into:
    C:\Users\<user>\.codex\skills\pc-hardware-workbench
-3. Restart Codex or start a new conversation.
-4. Invoke:
+4. If an old installation exists, it is moved to a timestamped backup first.
+5. Restart Codex or start a new conversation.
+6. Invoke:
    `$pc-hardware-workbench
 
 This is a test candidate. Independent human acceptance is incomplete.
@@ -157,7 +174,7 @@ Safety
 - Live LHM read: requires an already-running LHM and explicit consent
 - Broad distribution approval: no
 "@
-[IO.File]::WriteAllText((Join-Path $skillBundleFolder $testGuideName), $shareGuide, $utf8NoBom)
+[IO.File]::WriteAllText((Join-Path $skillBundleFolder $installGuideName), $shareGuide, $utf8NoBom)
 
 $portableGuide = @"
 PC Hardware Portable $releaseName
@@ -214,13 +231,16 @@ Write-Manifest -Root $skillBundleFolder -Path (Join-Path $skillBundleFolder "MAN
 Write-Manifest -Root $portableBundleFolder -Path (Join-Path $portableBundleFolder "MANIFEST-SHA256.txt")
 Write-Manifest -Root $dshBundleFolder -Path (Join-Path $dshBundleFolder "MANIFEST-SHA256.txt")
 
-$skillZipName = "pc-hardware-workbench-v$releaseName-share.zip"
+$skillZipName = "pc-hardware-workbench-v$releaseName-installer.zip"
+$manualSkillZipName = "pc-hardware-workbench-v$releaseName-manual.zip"
 $portableZipName = "pc-hardware-portable-v$releaseName.zip"
 $dshZipName = "pc-hardware-workbench-deepseek-harness-v$releaseName.zip"
 $skillZip = Join-Path $skillReleaseRoot $skillZipName
+$manualSkillZip = Join-Path $skillReleaseRoot $manualSkillZipName
 $portableZip = Join-Path $portableReleaseRoot $portableZipName
 $dshZip = Join-Path $dshReleaseRoot $dshZipName
 Compress-Archive -LiteralPath $skillBundleFolder -DestinationPath $skillZip -CompressionLevel Optimal
+Compress-Archive -LiteralPath $manualSkillFolder -DestinationPath $manualSkillZip -CompressionLevel Optimal
 Compress-Archive -LiteralPath $portableBundleFolder -DestinationPath $portableZip -CompressionLevel Optimal
 Compress-Archive -LiteralPath $dshBundleFolder -DestinationPath $dshZip -CompressionLevel Optimal
 
@@ -231,9 +251,11 @@ $skillNotes = @"
 PC Hardware Workbench / Codex share $releaseName
 
 Artifact
-- $skillZipName
+- $skillZipName (double-click installer package)
+- $manualSkillZipName (manual extraction package)
 - Size: $((Get-Item -LiteralPath $skillZip).Length) bytes
 - SHA256: $((Get-FileHash -LiteralPath $skillZip -Algorithm SHA256).Hash)
+- Manual ZIP SHA256: $((Get-FileHash -LiteralPath $manualSkillZip -Algorithm SHA256).Hash)
 - Skill: $version, $($skillFiles.Count) tracked files
 - Git commit: $gitCommit
 
@@ -308,7 +330,7 @@ Release status
 [IO.File]::WriteAllText($dshNotesPath, $dshNotes, $utf8NoBom)
 
 $skillSums = New-Object System.Collections.Generic.List[string]
-foreach ($artifact in @($skillZip, $skillNotesPath)) {
+foreach ($artifact in @($skillZip, $manualSkillZip, $skillNotesPath)) {
     $skillSums.Add("$((Get-FileHash -LiteralPath $artifact -Algorithm SHA256).Hash)  $([IO.Path]::GetFileName($artifact))") | Out-Null
 }
 $portableSums = New-Object System.Collections.Generic.List[string]
@@ -326,13 +348,15 @@ foreach ($artifact in @($dshZip, $dshNotesPath)) {
 $verifyRoot = Join-Path ([IO.Path]::GetTempPath()) "pcwb-release-verify-$([guid]::NewGuid().ToString('N'))"
 New-Item -ItemType Directory -Path $verifyRoot -Force | Out-Null
 try {
-    Expand-Archive -LiteralPath $skillZip -DestinationPath (Join-Path $verifyRoot "skill")
+    Expand-Archive -LiteralPath $skillZip -DestinationPath (Join-Path $verifyRoot "skill-installer")
+    Expand-Archive -LiteralPath $manualSkillZip -DestinationPath (Join-Path $verifyRoot "skill-manual")
     Expand-Archive -LiteralPath $portableZip -DestinationPath (Join-Path $verifyRoot "portable")
     Expand-Archive -LiteralPath $dshZip -DestinationPath (Join-Path $verifyRoot "dsh")
-    $packagedSkillOuter = Join-Path (Join-Path $verifyRoot "skill") "pc-hardware-workbench-v$releaseName"
+    $packagedSkillOuter = Join-Path (Join-Path $verifyRoot "skill-installer") "pc-hardware-workbench-v$releaseName"
     $packagedPortableOuter = Join-Path (Join-Path $verifyRoot "portable") "pc-hardware-portable-v$releaseName"
     $packagedDshOuter = Join-Path (Join-Path $verifyRoot "dsh") "pc-hardware-workbench-deepseek-harness-v$releaseName"
     $packagedSkill = Join-Path $packagedSkillOuter "pc-hardware-workbench"
+    $packagedManualSkill = Join-Path (Join-Path $verifyRoot "skill-manual") "pc-hardware-workbench"
     $packagedPortable = $packagedPortableOuter
     $packagedDshSkill = Join-Path $packagedDshOuter "skill\pc-hardware-workbench"
     & powershell -NoProfile -ExecutionPolicy Bypass `
@@ -340,6 +364,12 @@ try {
         -LeftRoot $skillRoot -RightRoot $packagedSkill -IgnoreEolOnly
     if ($LASTEXITCODE -ne 0) {
         throw "Packaged Skill does not match the repository."
+    }
+    & powershell -NoProfile -ExecutionPolicy Bypass `
+        -File (Join-Path $RepositoryRoot "tools\check-package-sync.ps1") `
+        -LeftRoot $skillRoot -RightRoot $packagedManualSkill -IgnoreEolOnly
+    if ($LASTEXITCODE -ne 0) {
+        throw "Manual Skill ZIP does not match the repository."
     }
     & powershell -NoProfile -ExecutionPolicy Bypass `
         -File (Join-Path $RepositoryRoot "tools\check-package-sync.ps1") `

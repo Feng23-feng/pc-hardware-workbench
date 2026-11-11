@@ -71,6 +71,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File $installer
 powershell -NoProfile -ExecutionPolicy Bypass -File $installer -Force
 ```
 
+也可以从 [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
+下载 Codex 版 ZIP，解压后双击 `Install-PC-Hardware-Workbench.cmd`。如果已有安装，
+安装器会先在同目录创建带时间戳的备份。
+
 ### 让 AI 安装
 
 可以直接把下面的提示词交给能执行本地命令的 AI：
