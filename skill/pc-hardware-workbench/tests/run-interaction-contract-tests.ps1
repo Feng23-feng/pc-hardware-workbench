@@ -60,11 +60,21 @@ Assert-Contains $skill 'while power-path\s+evidence is incomplete' "The Advice i
 Assert-Contains $skill 'hidden or\s+manufacturer-limited power' "The Advice intensity summary is narrower than the hidden or manufacturer-limited scope."
 Assert-Contains $skill 'power, voltage, fan, or firmware control' "The Advice intensity summary omits one or more controlled object types."
 Assert-Contains $skill 'When invoked without a concrete task' "Bare-invocation introduction rule is missing."
+Assert-Contains $skill 'entry-language\.md' "Bare-invocation language guidance is not linked."
+Assert-Contains $skill 'Do not mix languages in the introduction' "Bare-invocation introduction permits mixed languages."
 Assert-Contains $skill 'If the first request already contains a concrete task' "Task-bearing invocation skip rule is missing."
+Assert-Contains $skill 'Chinese examples in references are semantic templates' "Reference examples can still be copied verbatim across languages."
+Assert-Contains $skill 'Translate\s+user-facing text' "Reference examples do not have a universal localization rule."
 $neutralIntroduction = [regex]::Unescape('\u0060pc-hardware-workbench\u0060 \u5DF2\u52A0\u8F7D')
 $codexIntroduction = [regex]::Unescape('\u0060$pc-hardware-workbench\u0060 \u5DF2\u52A0\u8F7D')
 Assert-True (-not ($skill -match ("(?m)^> " + [regex]::Escape($codexIntroduction)))) "The spoken introduction still uses the Codex-only invocation sigil."
-Assert-Contains $skill ("(?m)^> " + [regex]::Escape($neutralIntroduction)) "The bare-invocation introduction lost its neutral skill name."
+$entryLanguage = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/integration/entry-language.md") `
+    -Label "references/integration/entry-language.md"
+Assert-Contains $entryLanguage ("(?m)^> " + [regex]::Escape($neutralIntroduction)) "The bare-invocation introduction lost its neutral skill name."
+Assert-Contains $entryLanguage 'is loaded\. It can inspect the current configuration' "English bare-invocation introduction is missing."
+Assert-Contains $entryLanguage 'Do not mix Chinese and English' "Entry-language reference permits mixed languages."
+Assert-Contains $entryLanguage 'English when neither signal identifies a language' "Entry-language reference has no deterministic fallback."
 Assert-Contains $skill 'Explain named choices' "Choice explanation rule is missing."
 Assert-Contains $skill 'never ask a bare' "Bare named-choice prohibition is missing."
 Assert-Contains $skill 'Plain-language parameter explanations' "Plain-language parameter rule is missing."
@@ -421,6 +431,8 @@ Assert-Contains $explanationStyle 'baseline \| \u539F\u914D\u7F6E' "Explanation 
 Assert-Contains $explanationStyle 'fixed workload \| \u540C\u4E00\u4E2A\u6E38\u620F\u573A\u666F' "Explanation reference does not translate fixed workload plainly."
 Assert-Contains $explanationStyle 'internal JSON fields' "Explanation reference permits internal field-name dumping."
 Assert-Contains $explanationStyle 'At the start of a substantial tuning or telemetry flow' "The one-time detailed-mode offer is missing."
+Assert-Contains $explanationStyle 'Start with the concise version' "The detailed-mode offer has no English template."
+Assert-Contains $explanationStyle 'Other language: an equivalent offer in that language' "The detailed-mode offer is not language-aware."
 Assert-Contains $explanationStyle 'one everyday comparison' "Explanation reference does not define Analogy."
 Assert-Contains $explanationStyle 'signals that mean\s+stop, and how to recover' "Explanation reference does not define Consequence."
 Assert-Contains $explanationStyle '## Action' "Explanation reference lacks the Action section."
@@ -428,6 +440,14 @@ Assert-Contains $explanationStyle '## Analogy' "Explanation reference lacks the 
 Assert-Contains $explanationStyle '## Consequence' "Explanation reference lacks the Consequence section."
 Assert-Contains $explanationStyle 'exact visible menu or control label' "BIOS/UEFI guidance can invent an unverified menu path."
 Assert-Contains $explanationStyle 'For beginners[\s\S]+For experienced users' "Explanation detail is not context-adaptive."
+$beginnerGuide = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/integration/beginner-guide.md") `
+    -Label "references/integration/beginner-guide.md"
+Assert-Contains $beginnerGuide 'semantic example to translate' "Beginner menu examples can still be copied without localization."
+$tuningModes = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/integration/tuning-modes.md") `
+    -Label "references/integration/tuning-modes.md"
+Assert-Contains $tuningModes 'In the user''s language, ask natural questions' "Tuning questions remain hard-coded to one language."
 Assert-Contains $explanationStyle 'Only when the same paragraph contains a candidate value for one of those' "Explanation reference lacks the action-triggered safety boundary."
 Assert-Contains $explanationStyle 'Do not add this notice to location-only explanations, concept-only' "Explanation reference applies the safety notice to non-action answers."
 Assert-Contains $explanationStyle 'refusals without a candidate value, physical-safety stops' "Explanation reference still forces boilerplate onto refusals and safety stops."

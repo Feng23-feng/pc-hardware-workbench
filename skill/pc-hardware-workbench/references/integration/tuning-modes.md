@@ -12,7 +12,7 @@ Use **deep mode** when the user wants the highest repeatable profile, a benchmar
 
 If the choice is ambiguous, explain that quick mode reaches a useful candidate faster with less evidence, while deep mode takes longer and supports stronger stability and transferability claims. Then ask which depth the user wants. Do not use quick/deep as two separate top-level task options.
 
-In a conversational Skill, do not ask a beginner to fill a blank experiment template. Ask natural questions, often no more than “你实际在玩什么或运行什么？” and “现在大约是什么表现？”, then turn the answers into the fixed workload and metrics. Ask only for safety facts that cannot be inferred. The Skill writes the formatted card; the user reviews one concise confirmation instead of completing a form.
+In a conversational Skill, do not ask a beginner to fill a blank experiment template. In the user's language, ask natural questions about what they actually play or run and what the current behavior looks like, then turn the answers into the fixed workload and metrics. Ask only for safety facts that cannot be inferred. The Skill writes the formatted card; the user reviews one concise confirmation instead of completing a form.
 
 Cooling context is collected only after inventory establishes the device form and target component. A desktop CPU task may ask only for CPU cooling type and relevant airflow; a desktop GPU task may ask only for the original/modified GPU cooler class and relevant airflow. Exact model names are optional. Laptop users are not asked to answer a desktop-style cooling questionnaire; use official model/power-envelope information as a provisional ceiling and verify actual cooling with telemetry.
 

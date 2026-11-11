@@ -13,10 +13,9 @@ purchase; never run every mode.
 
 ## Entry and closure
 
-When invoked without a concrete task, ask for the objective with this compact
-introduction:
-
-> `pc-hardware-workbench` 已加载。它用于读取电脑配置、排查硬件问题、辅助手动降压或超频，以及评估是否真的需要升级硬件；不会自动读取硬件或修改设置。你这台电脑这次要解决的具体目标是什么？不知道怎么选的话，直接说“带我一步步来”。
+When invoked without a concrete task, read
+[entry-language.md](references/integration/entry-language.md) and ask for the
+objective in the user's current language. Do not mix languages in the introduction.
 
 If the first request already contains a concrete task, skip the introduction and
 state the selected route. Expose decisive evidence, the one-variable choice if
@@ -25,6 +24,9 @@ next action, question, cancel, stop, or handoff; reuse a current snapshot before
 asking again. Read [interaction-closure.md](references/integration/interaction-closure.md)
 and [cross-mode-handoffs.md](references/integration/cross-mode-handoffs.md) only
 when resuming or mixing routes.
+
+Chinese examples in references are semantic templates, not text to copy. Translate
+user-facing text; preserve only labels visibly shown by the user's software.
 
 For save, resume, export, or evidence-heavy work, read
 [hardware-case.md](references/integration/hardware-case.md) and use the case

@@ -105,6 +105,11 @@ function Get-BaseWeight {
 
 $curation = [System.IO.File]::ReadAllText($curationPath, $utf8Strict) | ConvertFrom-Json
 $ui = [System.IO.File]::ReadAllText($uiPath, $utf8Strict) | ConvertFrom-Json
+$snapshotFrozenAt = [string]$curation.snapshot.frozenAt
+$snapshotChanges = [string]$curation.snapshot.changes
+if ([string]::IsNullOrWhiteSpace($snapshotFrozenAt) -or [string]::IsNullOrWhiteSpace($snapshotChanges)) {
+    throw "Curation snapshot metadata is incomplete."
+}
 $rendererTemplate = [System.IO.File]::ReadAllText($rendererTemplatePath, $utf8Strict)
 $skillText = [System.IO.File]::ReadAllText($skillPath, $utf8Strict)
 
@@ -686,11 +691,11 @@ $frozenObject = [pscustomobject][ordered]@{
     name = $uiMetadataName
     version = $skillVersion
     status = "frozen"
-    frozenAt = "2026-11-09"
+    frozenAt = $snapshotFrozenAt
     generatedFrom = "git ls-files -- skill/pc-hardware-workbench"
     source = "docs/skill-evolution/orrery/index.html"
     manifest = "docs/skill-evolution/orrery/data/manifest.json"
-    changes = "Selective GPU auto-candidate integration, deterministic user-applied single-variable candidates, vendor and form-factor routing, laptop power-state evidence, preserved LHM/RAG/VRAM workflows, and orbital navigation."
+    changes = $snapshotChanges
     fileCount = $sortedRecords.Count
     aggregateSha256 = $aggregateSha256
     sha256 = $pageSha256

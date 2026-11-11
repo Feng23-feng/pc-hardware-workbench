@@ -136,6 +136,55 @@ function Move-LegacyInRootBackups {
     }
 }
 
+function Write-InstallInfo {
+    param(
+        [Parameter(Mandatory = $true)][string]$Destination,
+        [Parameter(Mandatory = $true)][string]$PackageRoot,
+        [Parameter(Mandatory = $true)][string]$SkillSource
+    )
+
+    $buildInfoPath = Join-Path $PackageRoot "BUILD-INFO.json"
+    if (Test-Path -LiteralPath $buildInfoPath -PathType Leaf) {
+        $buildInfo = Get-Content -Raw -LiteralPath $buildInfoPath -Encoding UTF8 |
+            ConvertFrom-Json
+        $version = [string]$buildInfo.Version
+        $releaseLabel = [string]$buildInfo.Label
+        $releaseName = [string]$buildInfo.ReleaseName
+        $gitCommit = [string]$buildInfo.GitCommit
+        $builtAt = [string]$buildInfo.BuiltAt
+    }
+    else {
+        $manifestText = Get-Content -Raw -LiteralPath (Join-Path $SkillSource "SKILL.md") -Encoding UTF8
+        $versionMatch = [regex]::Match($manifestText, '(?m)^\s*version:\s*"([^"]+)"\s*$')
+        if (-not $versionMatch.Success) {
+            throw "Packaged Skill version metadata is missing: $SkillSource"
+        }
+        $version = $versionMatch.Groups[1].Value
+        $releaseLabel = "unknown"
+        $releaseName = "unknown"
+        $gitCommit = $null
+        $builtAt = $null
+    }
+
+    $installInfo = [pscustomobject]@{
+        Product = "PC Hardware Workbench"
+        Version = $version
+        ReleaseLabel = $releaseLabel
+        ReleaseName = $releaseName
+        GitCommit = $gitCommit
+        BuiltAt = $builtAt
+        InstalledAt = [datetimeoffset]::Now.ToString("o")
+        InstallSource = "release-package"
+        Installer = "Install-PC-Hardware-Workbench.ps1"
+    }
+    $json = $installInfo | ConvertTo-Json -Depth 5
+    [IO.File]::WriteAllText(
+        (Join-Path $Destination "INSTALL-INFO.json"),
+        $json,
+        (New-Object Text.UTF8Encoding($false))
+    )
+}
+
 $packageRoot = $PSScriptRoot
 $skillSource = Join-Path $packageRoot "pc-hardware-workbench"
 
@@ -191,6 +240,10 @@ foreach ($requiredPath in $requiredPaths) {
         throw "Installed Skill is incomplete; missing: $requiredPath"
     }
 }
+Write-InstallInfo `
+    -Destination $Destination `
+    -PackageRoot $packageRoot `
+    -SkillSource $skillSource
 
 Write-Host ""
 Write-Host "Installed PC Hardware Workbench:"
@@ -203,3 +256,5 @@ if (-not [string]::IsNullOrWhiteSpace($backupPath)) {
 Write-Host ""
 Write-Host "Restart Codex if the Skill does not appear, then invoke:"
 Write-Host "  `$pc-hardware-workbench"
+Write-Host "Install-source details:"
+Write-Host "  $(Join-Path $Destination 'INSTALL-INFO.json')"

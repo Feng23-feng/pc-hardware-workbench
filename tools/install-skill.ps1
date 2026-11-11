@@ -31,6 +31,26 @@ function Get-AvailableBackupPath {
     return $candidate
 }
 
+function Get-SafeArchiveSource {
+    param([Parameter(Mandatory = $true)][string]$Value)
+
+    $uri = $null
+    if ([Uri]::TryCreate($Value, [UriKind]::Absolute, [ref]$uri)) {
+        if ($uri.Scheme -in @("http", "https")) {
+            $builder = [UriBuilder]::new($uri)
+            $builder.UserName = ""
+            $builder.Password = ""
+            $builder.Query = ""
+            $builder.Fragment = ""
+            return $builder.Uri.AbsoluteUri
+        }
+        if ($uri.IsFile) {
+            return [IO.Path]::GetFileName($uri.LocalPath)
+        }
+    }
+    return [IO.Path]::GetFileName($Value)
+}
+
 function Assert-BackupOutsideSkillScanRoot {
     param(
         [Parameter(Mandatory = $true)][string]$ResolvedBackupRoot,
@@ -140,6 +160,37 @@ function Move-LegacyInRootBackups {
     }
 }
 
+function Write-InstallInfo {
+    param(
+        [Parameter(Mandatory = $true)][string]$Destination,
+        [Parameter(Mandatory = $true)][string]$SourceArchive
+    )
+
+    $manifestPath = Join-Path $Destination "SKILL.md"
+    $manifestText = Get-Content -Raw -LiteralPath $manifestPath -Encoding UTF8
+    $versionMatch = [regex]::Match($manifestText, '(?m)^\s*version:\s*"([^"]+)"\s*$')
+    if (-not $versionMatch.Success) {
+        throw "Installed Skill version metadata is missing from: $manifestPath"
+    }
+
+    $installInfo = [pscustomobject]@{
+        Product = "PC Hardware Workbench"
+        Version = $versionMatch.Groups[1].Value
+        ReleaseLabel = "main"
+        GitCommit = $null
+        InstalledAt = [datetimeoffset]::Now.ToString("o")
+        InstallSource = "source-archive"
+        SourceArchive = $SourceArchive
+        Installer = "tools/install-skill.ps1"
+    }
+    $json = $installInfo | ConvertTo-Json -Depth 5
+    [IO.File]::WriteAllText(
+        (Join-Path $Destination "INSTALL-INFO.json"),
+        $json,
+        (New-Object Text.UTF8Encoding($false))
+    )
+}
+
 if ([string]::IsNullOrWhiteSpace($Destination)) {
     $Destination = Join-Path $HOME ".codex\skills\pc-hardware-workbench"
 }
@@ -157,6 +208,7 @@ $skillScanRoot = Get-EffectiveSkillScanRoot -InstallParent $destinationParent
 Assert-BackupOutsideSkillScanRoot `
     -ResolvedBackupRoot $BackupRoot `
     -SkillScanRoot $skillScanRoot
+$safeArchiveSource = Get-SafeArchiveSource -Value $ArchiveUrl
 
 $destinationExists = Test-Path -LiteralPath $Destination
 if ($destinationExists -and -not $Force) {
@@ -174,7 +226,7 @@ try {
     New-Item -ItemType Directory -Path $expandedPath -Force | Out-Null
 
     Write-Host "Downloading PC Hardware Workbench from:"
-    Write-Host "  $ArchiveUrl"
+    Write-Host "  $safeArchiveSource"
     Invoke-WebRequest -UseBasicParsing -Uri $ArchiveUrl -OutFile $archivePath
     Expand-Archive -LiteralPath $archivePath -DestinationPath $expandedPath -Force
 
@@ -234,6 +286,7 @@ try {
             throw "Installed Skill is incomplete; missing: $requiredPath"
         }
     }
+    Write-InstallInfo -Destination $Destination -SourceArchive $safeArchiveSource
 
     Write-Host ""
     Write-Host "Installed PC Hardware Workbench:"
@@ -246,6 +299,8 @@ try {
     Write-Host ""
     Write-Host "Restart Codex if the Skill does not appear, then invoke:"
     Write-Host "  `$pc-hardware-workbench"
+    Write-Host "Install-source details:"
+    Write-Host "  $(Join-Path $Destination 'INSTALL-INFO.json')"
 }
 finally {
     if (Test-Path -LiteralPath $temporaryRoot) {

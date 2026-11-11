@@ -4,7 +4,9 @@ Use this route when the user says they do not know what to choose, does not unde
 
 ## Interaction rule
 
-Do not expose the internal mode names first. Ask what the user wants as an outcome, for example:
+Do not expose the internal mode names first. Ask what the user wants as an outcome in
+the user's language. The following Chinese menu is a semantic example to translate,
+not text to copy:
 
 > 你现在最想解决哪件事？
 > 1. 我只想知道这台电脑是什么配置

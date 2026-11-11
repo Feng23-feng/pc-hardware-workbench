@@ -183,10 +183,13 @@ $skill = Join-Path $HOME ".codex\skills\pc-hardware-workbench"
 Test-Path (Join-Path $skill "SKILL.md")
 Test-Path (Join-Path $skill "scripts")
 Test-Path (Join-Path $skill "references")
+Get-Content (Join-Path $skill "INSTALL-INFO.json") -Raw
 ```
 
-All three checks should return `True`. If the Skill is still absent from Codex,
-restart the application before retrying the invocation.
+The first three checks should return `True`. `INSTALL-INFO.json` records the version,
+release label, commit source, and installation time. A manual installation may not
+have this file; use the ZIP filename and the `SKILL.md` version instead. If the Skill
+is still absent from Codex, restart the application before retrying the invocation.
 
 ## Upgrade and rollback
 

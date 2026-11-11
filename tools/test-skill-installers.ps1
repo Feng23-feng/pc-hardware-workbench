@@ -122,6 +122,11 @@ try {
     Assert-InstalledSkill `
         -Destination $remoteDestination `
         -OldMarkerPath (Join-Path $remoteDestination "old-version-marker.txt")
+    $remoteInstallInfo = Get-Content -Raw -LiteralPath (Join-Path $remoteDestination "INSTALL-INFO.json") -Encoding UTF8 |
+        ConvertFrom-Json
+    Assert-True ($remoteInstallInfo.Version -eq "2.6.0") "Remote installer recorded the wrong Skill version."
+    Assert-True ($remoteInstallInfo.ReleaseLabel -eq "main") "Remote installer did not record the main-branch source."
+    Assert-True ($remoteInstallInfo.SourceArchive -eq "source.zip") "Remote installer did not sanitize the source archive label."
     Assert-OneManifestUnderScanRoot -ScanRoot $remoteScanRoot
     Assert-True (Test-Path -LiteralPath $remoteBackupRoot -PathType Container) "Remote installer backup root is missing."
     Assert-True (
@@ -139,6 +144,18 @@ try {
     New-Item -ItemType Directory -Path $packageRoot -Force | Out-Null
     Copy-Item -LiteralPath $packageInstaller -Destination $packageRoot
     Copy-Item -LiteralPath $sourceSkill -Destination (Join-Path $packageRoot "pc-hardware-workbench") -Recurse
+    $testBuildInfo = [pscustomobject]@{
+        Version = "2.6.0"
+        Label = "test"
+        ReleaseName = "2.6.0-test"
+        GitCommit = "test-commit"
+        BuiltAt = "2026-11-11T00:00:00+08:00"
+    } | ConvertTo-Json -Depth 5
+    [IO.File]::WriteAllText(
+        (Join-Path $packageRoot "BUILD-INFO.json"),
+        $testBuildInfo,
+        (New-Object Text.UTF8Encoding($false))
+    )
     $packagedInstaller = Join-Path $packageRoot "Install-PC-Hardware-Workbench.ps1"
     New-OldSkill -Path $packageDestination
     Invoke-Installer -Path $packagedInstaller -Arguments @(
@@ -148,6 +165,10 @@ try {
     Assert-InstalledSkill `
         -Destination $packageDestination `
         -OldMarkerPath (Join-Path $packageDestination "old-version-marker.txt")
+    $packageInstallInfo = Get-Content -Raw -LiteralPath (Join-Path $packageDestination "INSTALL-INFO.json") -Encoding UTF8 |
+        ConvertFrom-Json
+    Assert-True ($packageInstallInfo.ReleaseLabel -eq "test") "Package installer recorded the wrong release label."
+    Assert-True ($packageInstallInfo.GitCommit -eq "test-commit") "Package installer recorded the wrong Git commit."
     Assert-OneManifestUnderScanRoot -ScanRoot $packageScanRoot
     Assert-True (
         @(Get-ChildItem -LiteralPath $packageBackupRoot -Directory).Count -eq 1

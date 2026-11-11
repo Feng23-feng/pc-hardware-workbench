@@ -34,11 +34,17 @@ one next action. Add technical structure only when it changes the decision. Do
 not make the user read a report-shaped “facts / measurements / history /
 assumptions” breakdown before receiving help.
 
-At the start of a substantial tuning or telemetry flow, offer once in the user's
-language: “先给精简版；想看依据、术语或完整记录，就说‘展开详细’。” Do not
-repeat this offer. If the user asks for detail, expand evidence, assumptions,
-uncertainty, and terminology without asking mode again; the safety gate stays
-the same.
+At the start of a substantial tuning or telemetry flow, offer the concise/detailed
+choice once in the user's language:
+
+- Chinese: “先给精简版；想看依据、术语或完整记录，就说‘展开详细’。”
+- English: “Start with the concise version. To see the evidence, terminology, or a
+  complete record, say ‘show details’.”
+- Other language: an equivalent offer in that language.
+
+Do not repeat this offer. If the user asks for detail, expand evidence, assumptions,
+uncertainty, and terminology without asking mode again; the safety gate stays the
+same.
 
 Use the user's words when possible. The first time a necessary technical term
 appears, explain it in plain language before showing the label. Do not display

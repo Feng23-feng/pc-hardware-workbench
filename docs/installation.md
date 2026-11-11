@@ -158,9 +158,12 @@ $skill = Join-Path $HOME ".codex\skills\pc-hardware-workbench"
 Test-Path (Join-Path $skill "SKILL.md")
 Test-Path (Join-Path $skill "scripts")
 Test-Path (Join-Path $skill "references")
+Get-Content (Join-Path $skill "INSTALL-INFO.json") -Raw
 ```
 
-三项都应为 `True`。如果 Codex 中仍看不到 Skill，先重启应用。
+前三项都应为 `True`。`INSTALL-INFO.json` 记录版本、release 标签、提交来源和安装
+时间；手动安装没有该文件时，以 ZIP 文件名和 `SKILL.md` 版本为准。如果 Codex 中
+仍看不到 Skill，先重启应用。
 
 ## 更新与回滚
 
