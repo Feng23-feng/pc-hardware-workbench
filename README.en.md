@@ -7,13 +7,13 @@ DeepSeek Harness. It brings system inventory, troubleshooting, telemetry analysi
 guided tuning, and upgrade decisions into one workflow while leaving every
 persistent hardware change to the user.
 
-The current release line is a **2.6.0 test build**. Automated tests pass, but broad
-real-device coverage and independent human acceptance are still in progress. The
-project does not claim this test build is stable or fully validated.
+The current release line is a **2.6.0 test build**. Baseline non-live automated tests
+pass, but broad real-device coverage and independent human acceptance are still in
+progress. The project does not claim this test build is stable or fully validated.
 
 ![File orrery preview](docs/skill-evolution/assets/orrery-preview.png)
 
-The interactive project pages are currently Chinese-first:
+The interactive project pages are currently available in Chinese:
 [Project overview](https://feng23-feng.github.io/pc-hardware-workbench/skill-evolution/) ·
 [Interactive lab](https://feng23-feng.github.io/pc-hardware-workbench/skill-evolution/interactive/) ·
 [File orrery](https://feng23-feng.github.io/pc-hardware-workbench/skill-evolution/orrery/)
@@ -43,9 +43,10 @@ The interactive project pages are currently Chinese-first:
   the Skill can propose one conservative, reversible, single-variable starting point.
 - **Compares repair, retain, and upgrade decisions.** It does not reduce a decision to
   one benchmark score.
-- **Uses additional evidence on demand.** Local RAG, an already-running local
-  LibreHardwareMonitor instance, screenshots, and hardware cases that persist across
-  sessions are optional inputs.
+- **Uses additional evidence on demand.** A local RAG evidence cache, runtime web
+  lookup when the host supports it, an already-running local LibreHardwareMonitor
+  instance, screenshots, and hardware cases that persist across sessions are optional
+  inputs.
 - **Remains read-only.** It does not modify BIOS, clocks, voltage, power limits, fans,
   memory timings, or firmware automatically.
 
@@ -101,6 +102,13 @@ and choose one of these Codex packages:
   `pc-hardware-workbench/` folder at
   `%USERPROFILE%\.codex\skills\pc-hardware-workbench`.
 
+Before a manual upgrade, move an existing installation to a timestamped directory
+under `%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\`. The manual ZIP does
+not perform a backup automatically.
+
+The installer ZIP also includes `README.en.md` and the English installation and
+privacy guides.
+
 Do not place the ZIP itself inside the Skill directory.
 
 ### Let an AI install it
@@ -147,7 +155,14 @@ cd portable
 .\开始使用.cmd
 ```
 
-Live collection is opt-in and requires explicit privacy-mode and collector flags.
+The interactive Portable UI is currently Chinese-only. In the menu, select either the
+standard or privacy-redacted mode and enter `y` to authorize the read-only collection.
+For a direct live self-test command, use:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass `
+  -File .\start.ps1 -SelfTest -AllowLiveCollector -CollectorPrivacyMode Redacted
+```
 
 ## Example prompts
 
@@ -183,7 +198,8 @@ step instead of bypassing safety gates.
   or visible damage.
 - No tuning experiment without a recovery path and stop conditions.
 - The Skill reads LibreHardwareMonitor only when the user has already started it and
-  explicitly allows access to the local loopback endpoint.
+  explicitly allows access through the local loopback endpoint or the read-only WMI
+  fallback.
 
 Hardware parameters are test starting points, not guarantees. Safety takes priority.
 
@@ -203,8 +219,8 @@ Read [Privacy and safety boundaries](docs/en/privacy-and-safety.md) for the full
 - [Contributing](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)
 
-Advanced architecture, behavior-test, and contributor documentation are currently
-available in Chinese.
+Advanced architecture and behavior-test documentation are currently available in
+Chinese. The contributing and security policies are available in English.
 
 ## FAQ
 
@@ -212,8 +228,9 @@ available in Chinese.
   directory, then restart Codex.
 - **Collection returns access denied.** Retry in a normal, non-elevated PowerShell
   session. The Agent sandbox may restrict CIM, storage, or display queries.
-- **LibreHardwareMonitor returns no data.** LHM must already be running, its web server
-  must be bound to loopback, and the user must explicitly allow access.
+- **LibreHardwareMonitor returns no data.** LHM must already be running, either its web
+  server must be bound to loopback or read-only WMI must be available, and the user
+  must explicitly allow access.
 - **A CSV is rejected.** Do not use UNC paths, mapped network drives, cloud placeholder
   files, symbolic links, directory junctions, or other reparse points.
 - **GPU tuning is blocked.** Provide the exact GPU, current control values, baseline,
@@ -223,6 +240,9 @@ available in Chinese.
 
 The repository contains the Skill, a DeepSeek Harness adapter, portable Windows tools,
 automated tests, release packaging, and the project website.
+
+The commands below require a source checkout. They are not needed to use an installed
+or portable release package.
 
 Run the structural validator:
 

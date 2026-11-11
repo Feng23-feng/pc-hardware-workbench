@@ -71,6 +71,12 @@ to:
 %USERPROFILE%\.codex\skills\pc-hardware-workbench
 ```
 
+If that destination already exists, move it to a timestamped directory under:
+
+```text
+%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\
+```
+
 Do not copy only `SKILL.md`. The entry point depends on the adjacent `scripts/`,
 `references/`, and `assets/` directories.
 
@@ -84,15 +90,18 @@ Each test release provides two Codex assets:
    and upgrade.
 3. Alternatively, choose `pc-hardware-workbench-v<version>-manual.zip`, extract the
    included `pc-hardware-workbench/` directory, and place it at
-   `%USERPROFILE%\.codex\skills\pc-hardware-workbench`.
+   `%USERPROFILE%\.codex\skills\pc-hardware-workbench`. The manual ZIP does not create
+   a backup automatically, so first move any existing installation under
+   `%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\`.
 4. If the automatic installer finds an old version, it first moves it to
    `%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\`.
 5. Restart Codex and invoke `$pc-hardware-workbench`.
 
 The installer ZIP includes `安装说明.txt` and `BUILD-INFO.json` so that version,
-commit, and build time can be checked. The manual ZIP contains only the Skill
-directory. Do not place either ZIP file directly inside the Skill directory. Codex
-needs the extracted `pc-hardware-workbench` folder.
+commit, and build time can be checked. It also includes `README.en.md` and the English
+installation and privacy guides. The manual ZIP contains only the Skill directory. Do
+not place either ZIP file directly inside the Skill directory. Codex needs the
+extracted `pc-hardware-workbench` folder.
 
 ## Let an AI install it
 
@@ -142,7 +151,8 @@ entry point.
 
 ## Portable Windows tools
 
-The standalone version does not require a Skill host:
+The standalone version does not require a Skill host. Its interactive interface is
+currently Chinese-only:
 
 ```powershell
 cd portable
@@ -155,8 +165,14 @@ Run the non-hardware self-test with:
 powershell -NoProfile -ExecutionPolicy Bypass -File .\start.ps1 -SelfTest
 ```
 
-Live collection requires the explicit `-AllowLiveCollector` flag, a selected privacy
-mode, and user authorization.
+For interactive collection, choose either the standard or privacy-redacted mode in
+the menu and enter `y` to authorize the read-only operation. The command-line flags
+are required for a direct live self-test:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass `
+  -File .\start.ps1 -SelfTest -AllowLiveCollector -CollectorPrivacyMode Redacted
+```
 
 ## Verify the installation
 

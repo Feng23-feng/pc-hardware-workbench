@@ -63,6 +63,12 @@ skill\pc-hardware-workbench
 %USERPROFILE%\.codex\skills\pc-hardware-workbench
 ```
 
+如果目标已经存在，先把当前目录移动到：
+
+```text
+%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\
+```
+
 不要只复制 `SKILL.md`；入口依赖同目录下的 `scripts/`、`references/` 和 `assets/`。
 
 ## Codex：从 Release ZIP 安装
@@ -75,13 +81,16 @@ skill\pc-hardware-workbench
 3. 或选择 `pc-hardware-workbench-v<版本>-manual.zip`，解压后得到
    `pc-hardware-workbench/`，将它移动到
    `%USERPROFILE%\.codex\skills\pc-hardware-workbench`，适合手动管理安装。
+   `manual.zip` 不会自动备份，覆盖前应先把旧目录移动到
+   `%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\`。
 4. 自动安装器发现旧版本时，会先放到
    `%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\`。
 5. 重启 Codex，输入 `$pc-hardware-workbench`。
 
 `installer.zip` 内保留 `安装说明.txt` 和 `BUILD-INFO.json`，可以核对版本、提交
-和构建时间；`manual.zip` 内只有 Skill 目录。不要直接把 ZIP 文件放进 Skill
-目录；Codex 需要的是解压后的 `pc-hardware-workbench` 文件夹。
+和构建时间，并附带 `README.en.md` 与英文安装、隐私安全文档；`manual.zip` 内只有
+Skill 目录。不要直接把 ZIP 文件放进 Skill 目录；Codex 需要的是解压后的
+`pc-hardware-workbench` 文件夹。
 
 ## 让 AI 安装
 
@@ -132,7 +141,13 @@ cd portable
 powershell -NoProfile -ExecutionPolicy Bypass -File .\start.ps1 -SelfTest
 ```
 
-实机采集必须显式提供 `-AllowLiveCollector`、选择隐私模式并确认授权。
+交互菜单中需要选择标准或隐私脱敏模式，并输入 `y` 确认只读操作。只有直接运行
+实机自检命令时才需要显式提供以下参数：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass `
+  -File .\start.ps1 -SelfTest -AllowLiveCollector -CollectorPrivacyMode Redacted
+```
 
 ## 验证安装
 

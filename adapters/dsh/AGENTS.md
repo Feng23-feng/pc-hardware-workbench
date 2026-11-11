@@ -61,7 +61,11 @@ evidence is unavailable. Do not claim that hardware was read.
 - Before persistent or power-affecting changes, require a known-good profile,
   fixed workload, pass/abort criteria, and a credible recovery path.
 - Every clock, voltage, power, fan, timing, BIOS, or firmware recommendation
-  must include: `参数仅供参考，请以安全为第一要务。`
+  must include the safety notice in the user's language:
+  - Chinese: `参数仅供参考，请以安全为第一要务。`
+  - English: `For reference only - put safety first.`
+  - Other language: an equivalent warning in that language.
+- Do not mix Chinese and English safety notices in one reply.
 - The user applies all persistent or hardware-affecting settings.
 
 ## Read-only inventory

@@ -6,8 +6,8 @@
 故障排查、遥测分析、手动调校和升级判断收敛到一个 Skill，同时把每一次硬件变更
 留给用户亲手完成。
 
-当前版本为 **2.6.0 测试版**。自动测试已通过，真实设备覆盖和独立人工签署仍在
-继续；项目不会把测试版包装成已经完成广泛验证的稳定版。
+当前版本为 **2.6.0 测试版**。非实机自动测试已通过，真实设备覆盖和独立人工签署
+仍在继续；项目不会把测试版包装成已经完成广泛验证的稳定版。
 
 ![文件星球预览](docs/skill-evolution/assets/orrery-preview.png)
 
@@ -40,8 +40,8 @@
   起点；未知、专业卡、核显、虚拟适配器和多适配器目标会被阻断。
 - **升级判断。** 比较继续保留、维护和购买新硬件的收益，不用一个跑分替代场景、
   预算和证据。
-- **按需接入更多证据。** 支持本地 RAG、已经运行的本机 LibreHardwareMonitor、
-  视觉截图说明和跨轮硬件案卷。
+- **按需接入更多证据。** 支持本地 RAG 证据缓存、宿主可用时的联网查证、已经运行
+  的本机 LibreHardwareMonitor、视觉截图说明和跨轮硬件案卷。
 - **始终只读。** 不自动修改 BIOS、频率、电压、功耗、风扇、内存时序或固件。
 
 ## 快速开始
@@ -84,6 +84,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -File $installer -Force
 `Install-PC-Hardware-Workbench.cmd`；`manual.zip` 解压后直接得到可手动放置的
 `pc-hardware-workbench/`。如果已有安装，自动安装器会先创建带时间戳、但不参与
 Skill 扫描的备份。
+
+`manual.zip` 不会自动备份；手动升级前，应先把现有目录移动到
+`%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\`。
+
+`installer.zip` 还包含 `README.en.md` 和英文安装、隐私安全文档。
 
 ### 让 AI 安装
 
@@ -162,7 +167,8 @@ Skill 会根据问题进入配置、排障、遥测、调参或升级路线。�
 - 不绕过权限、反作弊、厂商锁或安全限制；
 - 出现焦味、火花、液体、熔化接头、鼓包电池或可见破损时，先停止；
 - 没有恢复路径和中止信号时，不生成硬件参数实验；
-- LibreHardwareMonitor 只在已经运行且用户明确允许时读取本机 loopback 数据。
+- LibreHardwareMonitor 只在已经运行且用户明确允许时，通过本机 loopback Web
+  或只读 WMI 后备读取数据。
 
 参数仅供参考，请以安全为第一要务。
 
@@ -202,6 +208,8 @@ Skill 会根据问题进入配置、排障、遥测、调参或升级路线。�
 
 仓库包含 Skill、DeepSeek Harness 适配、Portable 工具、自动测试、发布打包和
 项目说明站。
+
+以下命令需要在源码 checkout 中运行；仅安装或使用发布包时不需要执行。
 
 快速结构验证：
 

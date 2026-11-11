@@ -37,15 +37,20 @@ does not replace a recovery path.
 - A monitoring screenshot represents one point in time, not a time series.
 - CSV data is the primary evidence for statistical analysis and time-window comparison.
 
-The collector does not upload hardware reports. Telemetry analysis rejects UNC paths,
-mapped network drives, cloud placeholder files, symbolic links, directory junctions,
-and other reparse points.
+The collector script does not initiate an upload. When the Skill runs inside Codex,
+DeepSeek Harness, or another hosted agent, conversation and command output may be
+processed by that host runtime or model under its own data policy. Redact sensitive
+details before using such a host when that distinction matters.
+
+Telemetry analysis rejects UNC paths, mapped network drives, cloud placeholder files,
+symbolic links, directory junctions, and other reparse points.
 
 ## Read-only LibreHardwareMonitor integration
 
-The LibreHardwareMonitor adapter reads only an already-running local loopback web
-endpoint and requires explicit consent. It does not install, start, or elevate LHM, run
-without a time limit, or modify hardware settings.
+With explicit consent, the LibreHardwareMonitor adapter reads an already-running local
+instance through the loopback `/data.json` endpoint first and keeps the read-only WMI
+namespace `root/LibreHardwareMonitor` as a compatibility fallback. It does not install,
+start, or elevate LHM, run without a time limit, or modify hardware settings.
 
 ## Hardware cases
 

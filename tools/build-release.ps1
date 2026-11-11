@@ -128,8 +128,28 @@ $dshSkillFiles = @(Copy-TrackedTree `
     -TrackedPrefix "skill/pc-hardware-workbench" `
     -DestinationRoot (Join-Path $dshBundleFolder "skill\pc-hardware-workbench"))
 
-foreach ($docName in @("LICENSE", "README.md", "CHANGELOG.md")) {
+foreach ($docName in @("LICENSE", "README.md", "README.en.md", "CHANGELOG.md", "CONTRIBUTING.md", "SECURITY.md")) {
     Copy-Item -LiteralPath (Join-Path $RepositoryRoot $docName) -Destination (Join-Path $skillBundleFolder $docName)
+}
+$bundleDocs = @(
+    "docs\installation.md",
+    "docs\privacy-and-safety.md",
+    "docs\usage.md",
+    "docs\architecture.md",
+    "docs\troubleshooting.md",
+    "docs\testing.md",
+    "docs\AI-INSTALL.md",
+    "docs\en\installation.md",
+    "docs\en\privacy-and-safety.md",
+    "adapters\dsh\README.md",
+    "docs\skill-evolution\assets\orrery-preview.png"
+)
+foreach ($relativeDoc in $bundleDocs) {
+    $docSource = Join-Path $RepositoryRoot $relativeDoc
+    $docDestination = Join-Path $skillBundleFolder $relativeDoc
+    $docParent = Split-Path -Parent $docDestination
+    New-Item -ItemType Directory -Path $docParent -Force | Out-Null
+    Copy-Item -LiteralPath $docSource -Destination $docDestination
 }
 foreach ($installerName in @(
     "Install-PC-Hardware-Workbench.ps1",
@@ -156,6 +176,13 @@ Install
 5. Restart Codex or start a new conversation.
 6. Invoke:
    `$pc-hardware-workbench
+
+Documentation
+
+- README.md (Chinese)
+- README.en.md (English)
+- docs/installation.md and docs/privacy-and-safety.md
+- docs/en/installation.md and docs/en/privacy-and-safety.md
 
 This is a test candidate. Independent human acceptance is incomplete.
 
@@ -246,9 +273,12 @@ Compress-Archive -LiteralPath $manualSkillFolder -DestinationPath $manualSkillZi
 Compress-Archive -LiteralPath $portableBundleFolder -DestinationPath $portableZip -CompressionLevel Optimal
 Compress-Archive -LiteralPath $dshBundleFolder -DestinationPath $dshZip -CompressionLevel Optimal
 
-$skillNotesPath = Join-Path $skillReleaseRoot "RELEASE-NOTES-v$releaseName.txt"
-$portableNotesPath = Join-Path $portableReleaseRoot "RELEASE-NOTES-v$releaseName.txt"
-$dshNotesPath = Join-Path $dshReleaseRoot "RELEASE-NOTES-v$releaseName.txt"
+$skillNotesName = "pc-hardware-workbench-v$releaseName-RELEASE-NOTES.txt"
+$portableNotesName = "pc-hardware-portable-v$releaseName-RELEASE-NOTES.txt"
+$dshNotesName = "pc-hardware-workbench-deepseek-harness-v$releaseName-RELEASE-NOTES.txt"
+$skillNotesPath = Join-Path $skillReleaseRoot $skillNotesName
+$portableNotesPath = Join-Path $portableReleaseRoot $portableNotesName
+$dshNotesPath = Join-Path $dshReleaseRoot $dshNotesName
 $skillNotes = @"
 PC Hardware Workbench / Codex share $releaseName
 
@@ -268,6 +298,7 @@ Included
 - explicit-consent read-only LHM adapter;
 - visual evidence rules;
 - Skill Doctor.
+- Chinese and English entry, installation, and privacy-safety documentation.
 
 Validation
 - full non-live Skill suite passed before packaging;
@@ -343,9 +374,12 @@ $dshSums = New-Object System.Collections.Generic.List[string]
 foreach ($artifact in @($dshZip, $dshNotesPath)) {
     $dshSums.Add("$((Get-FileHash -LiteralPath $artifact -Algorithm SHA256).Hash)  $([IO.Path]::GetFileName($artifact))") | Out-Null
 }
-[IO.File]::WriteAllLines((Join-Path $skillReleaseRoot "SHA256SUMS-$releaseName.txt"), $skillSums, $utf8NoBom)
-[IO.File]::WriteAllLines((Join-Path $portableReleaseRoot "SHA256SUMS-$releaseName.txt"), $portableSums, $utf8NoBom)
-[IO.File]::WriteAllLines((Join-Path $dshReleaseRoot "SHA256SUMS-$releaseName.txt"), $dshSums, $utf8NoBom)
+$skillSumsName = "pc-hardware-workbench-v$releaseName-SHA256SUMS.txt"
+$portableSumsName = "pc-hardware-portable-v$releaseName-SHA256SUMS.txt"
+$dshSumsName = "pc-hardware-workbench-deepseek-harness-v$releaseName-SHA256SUMS.txt"
+[IO.File]::WriteAllLines((Join-Path $skillReleaseRoot $skillSumsName), $skillSums, $utf8NoBom)
+[IO.File]::WriteAllLines((Join-Path $portableReleaseRoot $portableSumsName), $portableSums, $utf8NoBom)
+[IO.File]::WriteAllLines((Join-Path $dshReleaseRoot $dshSumsName), $dshSums, $utf8NoBom)
 
 $verifyRoot = Join-Path ([IO.Path]::GetTempPath()) "pcwb-release-verify-$([guid]::NewGuid().ToString('N'))"
 New-Item -ItemType Directory -Path $verifyRoot -Force | Out-Null
@@ -382,6 +416,19 @@ try {
     foreach ($adapterFile in @("AGENTS.md", "DEEPSEEK.md", "README.md")) {
         if (-not (Test-Path -LiteralPath (Join-Path $packagedDshOuter $adapterFile) -PathType Leaf)) {
             throw "Packaged DSH adapter is missing $adapterFile."
+        }
+    }
+    foreach ($packagedDoc in @(
+        "README.en.md",
+        "CONTRIBUTING.md",
+        "SECURITY.md",
+        "docs\en\installation.md",
+        "docs\en\privacy-and-safety.md",
+        "adapters\dsh\README.md",
+        "docs\skill-evolution\assets\orrery-preview.png"
+    )) {
+        if (-not (Test-Path -LiteralPath (Join-Path $packagedSkillOuter $packagedDoc) -PathType Leaf)) {
+            throw "Packaged Codex release is missing $packagedDoc."
         }
     }
     & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $packagedPortable "start.ps1") -SelfTest
