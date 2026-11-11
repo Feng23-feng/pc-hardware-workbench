@@ -1,5 +1,7 @@
 # PC Hardware Workbench
 
+[中文](README.md) | [English](README.en.md)
+
 一个面向 Codex 和 DeepSeek Harness 的 Windows 只读硬件工作台。它把配置读取、
 故障排查、遥测分析、手动调校和升级判断收敛到一个 Skill，同时把每一次硬件变更
 留给用户亲手完成。
@@ -174,6 +176,9 @@ Skill 会根据问题进入配置、排障、遥测、调参或升级路线。�
 - [常见问题](docs/troubleshooting.md)
 - [测试与发布检查](docs/testing.md)
 - [隐私与安全边界](docs/privacy-and-safety.md)
+- [English README](README.en.md)
+- [English installation](docs/en/installation.md)
+- [English privacy and safety](docs/en/privacy-and-safety.md)
 - [变更记录](CHANGELOG.md)
 - [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
 - [贡献指南](CONTRIBUTING.md)

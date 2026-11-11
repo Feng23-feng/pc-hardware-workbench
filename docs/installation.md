@@ -1,5 +1,7 @@
 # 安装与升级
 
+[中文](installation.md) | [English](en/installation.md)
+
 ## 系统要求
 
 - Windows 10 或 Windows 11；

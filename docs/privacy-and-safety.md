@@ -1,5 +1,7 @@
 # 隐私与安全边界
 
+[中文](privacy-and-safety.md) | [English](en/privacy-and-safety.md)
+
 ## 不会自动做的事
 
 - 不修改 BIOS/UEFI；
