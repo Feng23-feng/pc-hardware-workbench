@@ -409,6 +409,15 @@ if ($errors.Count -eq 0) {
     }
 
     $frozen = Get-Content -Raw -LiteralPath $frozenPath -Encoding UTF8 | ConvertFrom-Json
+    $expectedFileCount = [int]$frozen.fileCount
+    $fileCountLabel = "$expectedFileCount " + [regex]::Unescape('\u4E2A\u6587\u4EF6')
+    $archiveFileCountLabel = [regex]::Unescape('\u6587\u4EF6\u661F\u7403') + " $fileCountLabel"
+    if ($homeTemplate -notmatch [regex]::Escape($fileCountLabel)) {
+        $errors.Add("Home source file-planet entry does not match FROZEN file count $expectedFileCount.") | Out-Null
+    }
+    if ($interactiveTemplate -notmatch ('\["2\.6\.0"[^\r\n]*' + [regex]::Escape($archiveFileCountLabel))) {
+        $errors.Add("Interactive current archive does not match FROZEN file count $expectedFileCount.") | Out-Null
+    }
     $orreryText = [IO.File]::ReadAllText($orreryPath, [Text.UTF8Encoding]::new($false, $true))
     $orreryText = $orreryText.Replace("`r`n", "`n").Replace("`r", "`n")
     $orreryBytes = [Text.UTF8Encoding]::new($false).GetBytes($orreryText)

@@ -505,7 +505,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       };
     })()`);
     check(
-      filePlanetCard.title.includes("106 个文件") &&
+      filePlanetCard.title.includes("107 个文件") &&
       filePlanetCard.cta.includes("进入文件星球") &&
       filePlanetCard.previewWidth >= 280 &&
       filePlanetCard.previewHeight >= (name === "desktop" ? 300 : 160) &&
@@ -1172,6 +1172,8 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
         currentTheme: document.getElementById("dse-advanced-current")?.textContent.trim() || "",
         modeButtonCount: modeButtons.length,
         pressedModeCount: modeButtons.filter(button => button.getAttribute("aria-pressed") === "true").length,
+        taskChooserVisible: (document.getElementById("dse-task-chooser")?.getBoundingClientRect().height || 0) > 0,
+        taskChoiceCount: document.querySelectorAll("#dse-task-chooser [data-demo-choice]").length,
         modeColumns: getComputedStyle(document.querySelector(".dse-demo-modes")).gridTemplateColumns,
         modeWidth: Math.round(document.querySelector(".dse-demo-modes")?.getBoundingClientRect().width || 0),
         demoWidth: Math.round(document.querySelector(".dse-demo")?.getBoundingClientRect().width || 0),
@@ -1224,6 +1226,8 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       initial.currentTheme === "尚未选择" &&
       initial.modeButtonCount === 4 &&
       initial.pressedModeCount === 0 &&
+      initial.taskChooserVisible &&
+      initial.taskChoiceCount === 4 &&
       initial.tuneStepsHidden &&
       !initial.contextBridgeVisible &&
       initial.backdropScene === "",
