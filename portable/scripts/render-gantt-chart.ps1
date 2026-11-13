@@ -91,6 +91,7 @@ function Get-StatusColor {
     param([string]$Status)
     switch ($Status) {
         "active" { return "#2f7482" }
+        "done" { return "#4f6f96" }
         "pass" { return "#3f7b58" }
         "fail" { return "#a34f4f" }
         "blocked" { return "#956f2f" }
@@ -144,7 +145,12 @@ if ([string]::IsNullOrWhiteSpace($timeUnit)) {
     $timeUnit = "min"
 }
 
-$allowedStatuses = @("planned", "active", "pass", "fail", "blocked")
+$allowedStatuses = @("planned", "active", "done", "pass", "fail", "blocked")
+$statusAliases = @{
+    "complete" = "done"
+    "completed" = "done"
+    "finished" = "done"
+}
 $tasks = New-Object System.Collections.Generic.List[object]
 $trackOrder = New-Object System.Collections.Generic.List[string]
 $seenTracks = New-Object System.Collections.Generic.HashSet[string]([StringComparer]::OrdinalIgnoreCase)
@@ -187,9 +193,15 @@ for ($index = 0; $index -lt $taskValues.Count; $index++) {
     if ([string]::IsNullOrWhiteSpace($track)) {
         $track = "Plan"
     }
-    $status = (Get-CleanText (Get-PropertyValue -Object $task -Name "status" -Default "planned") 20).ToLowerInvariant()
+    $statusInput = (Get-CleanText (Get-PropertyValue -Object $task -Name "status" -Default "planned") 20).ToLowerInvariant()
+    $status = if ($statusAliases.ContainsKey($statusInput)) {
+        $statusAliases[$statusInput]
+    }
+    else {
+        $statusInput
+    }
     if ($status -notin $allowedStatuses) {
-        Stop-WithInputError "Task $taskNumber has unsupported status '$status'."
+        Stop-WithInputError "Task $taskNumber has unsupported status '$statusInput'; accepted values are planned, active, done, pass, fail, and blocked (complete/completed/finished are aliases for done, not pass)."
     }
     $note = Get-CleanText (Get-PropertyValue -Object $task -Name "note" -Default "") 180
 
@@ -321,7 +333,7 @@ foreach ($layout in $layouts) {
         ))
         [void]$svg.AppendLine((
             '  <g><title>{0}</title><rect x="{1}" y="{2}" width="{3}" height="{4}" rx="6" fill="{5}"/>' -f
-            (ConvertTo-SvgText (($task.Label + " | " + $durationText + $(if ($task.Note) { " | " + $task.Note } else { "" })))),
+            (ConvertTo-SvgText (($task.Label + " | " + $durationText + " | state: " + $task.Status + $(if ($task.Note) { " | " + $task.Note } else { "" })))),
             (Format-SvgNumber $barX),
             (Format-SvgNumber $barY),
             (Format-SvgNumber $barWidth),

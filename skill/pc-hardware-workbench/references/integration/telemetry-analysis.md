@@ -98,8 +98,11 @@ The input is a local JSON schedule with relative numeric time:
 
 `start` and `duration` must be finite numbers greater than or equal to zero and
 greater than zero respectively. Supported statuses are `planned`, `active`,
-`pass`, `fail`, and `blocked`. Keep one `track` for tasks that belong on the
-same planning lane.
+`done`, `pass`, `fail`, and `blocked`. `done` means execution ended without
+encoding a pass/fail verdict; `pass` and `fail` remain outcome labels.
+`complete`, `completed`, and `finished` are accepted only as aliases for `done`,
+never as aliases for `pass`. Keep one `track` for tasks that belong on the same
+planning lane.
 
 Render one dependency-free SVG:
 
@@ -111,7 +114,8 @@ When a multi-phase plan has reliable timing, include one Gantt chart in the
 response and keep the surrounding text focused on pass/abort and recovery. Embed
 the local image once when the host supports it; otherwise provide the absolute
 path. The chart is a plan, not measured evidence; update statuses only when the
-user reports actual progress.
+user reports actual progress. Each task's accessible title includes its
+canonical status so the state is not encoded only by color.
 
 For one-command packaging and an optional baseline/candidate comparison, read
 [evidence-package.md](evidence-package.md) and use

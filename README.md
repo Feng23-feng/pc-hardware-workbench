@@ -6,7 +6,7 @@
 故障排查、遥测分析、手动调校和升级判断收敛到一个 Skill，同时把每一次硬件变更
 留给用户亲手完成。
 
-当前版本为 **2.7.0 测试版**。非实机自动测试已通过，真实设备覆盖和独立人工签署
+当前版本为 **2.7.1 测试版**。非实机自动测试已通过，真实设备覆盖和独立人工签署
 仍在继续；项目不会把测试版包装成已经完成广泛验证的稳定版。
 
 ![文件星球预览](docs/skill-evolution/assets/orrery-preview.png)
@@ -35,7 +35,7 @@
 - **分析真实遥测。** 读取 CSV、HWiNFO 导出和结构化传感器快照，保留采样间隔、
   缺失值、来源和时间窗口；有可用指标时生成 SVG 图表。
 - **展示时间计划。** 多阶段调校、预热、复查、重启和回归时间线可生成甘特图；
-  单步建议或时长不明时不会硬画。
+  单步建议或时长不明时不会硬画。`done` 表示执行结束但未判定，`pass/fail` 仍表示测试结论。
 - **核验用户声明。** 区分当前实测、用户刚确认、历史记录、估算和冲突，避免把旧值
   自动升级成当前值。
 - **分析帧时间。** 只读导入 PresentMon CSV，统计平均 FPS、P95/P99、1%/0.1% low、
@@ -241,7 +241,7 @@ powershell -NoProfile -ExecutionPolicy Bypass `
 ## 版本与许可
 
 版本状态以 [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
-和 [CHANGELOG.md](CHANGELOG.md) 为准。当前工作台版本为 `2.7.0` 测试版。
+和 [CHANGELOG.md](CHANGELOG.md) 为准。当前工作台版本为 `2.7.1` 测试版。
 
 源码使用 [MIT License](LICENSE)。
 

@@ -273,6 +273,81 @@ try {
     Assert-True ($ganttSvg.Contains("Durations remain assumptions")) "Gantt execution limitation is missing."
     Assert-True (-not ($ganttSvg -match "NaN|Infinity")) "Gantt SVG contains a non-finite value."
 
+    $plannedTaskMarkup = @(
+        $ganttSvg -split "`r?`n" |
+            Where-Object { $_ -match '<g><title>.*state: planned' } |
+            Select-Object -First 1
+    )
+    Assert-True ($plannedTaskMarkup.Count -eq 1) "Planned task accessibility status is missing."
+    Assert-True ($plannedTaskMarkup[0] -match 'fill="#64717d"') "Planned task lost its default color."
+    Assert-True (-not ($plannedTaskMarkup[0] -match 'fill="#4f6f96"')) "Planned task incorrectly uses the done color."
+
+    $statusVariants = @(
+        @{ Name = "done"; Input = "done"; Expected = "done"; Color = "#4f6f96" },
+        @{ Name = "pass"; Input = "pass"; Expected = "pass"; Color = "#3f7b58" },
+        @{ Name = "complete"; Input = "complete"; Expected = "done"; Color = "#4f6f96" },
+        @{ Name = "completed"; Input = "completed"; Expected = "done"; Color = "#4f6f96" },
+        @{ Name = "finished"; Input = "finished"; Expected = "done"; Color = "#4f6f96" },
+        @{ Name = "uppercase-done"; Input = "DONE"; Expected = "done"; Color = "#4f6f96" }
+    )
+    $statusHashes = @{}
+    foreach ($variant in $statusVariants) {
+        $statusPlanPath = Join-Path $tempRoot ("status-{0}.json" -f $variant.Name)
+        $statusSvgPath = Join-Path $tempRoot ("status-{0}.svg" -f $variant.Name)
+        @{
+            title = "Status fixture"
+            timeUnit = "min"
+            tasks = @(
+                @{
+                    label = "Run"
+                    start = 0
+                    duration = 10
+                    status = $variant.Input
+                }
+            )
+        } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $statusPlanPath -Encoding UTF8
+        & $resolvedGanttRenderer -InputPath $statusPlanPath -OutputPath $statusSvgPath | Out-Null
+        $statusSvg = Get-Content -Raw -LiteralPath $statusSvgPath -Encoding UTF8
+        $statusHashes[$variant.Name] = (Get-FileHash -LiteralPath $statusSvgPath -Algorithm SHA256).Hash
+        Assert-True (
+            $statusSvg -match (
+                '<g><title>[^<]*state: {0}[^<]*</title><rect [^>]*fill="{1}"' -f
+                [regex]::Escape($variant.Expected),
+                [regex]::Escape($variant.Color)
+            )
+        ) "Gantt status '$($variant.Input)' did not render with canonical state '$($variant.Expected)' and color '$($variant.Color)'."
+    }
+    Assert-True ($statusHashes["done"] -ne $statusHashes["pass"]) "Gantt done and pass output are identical."
+    foreach ($aliasName in @("complete", "completed", "finished", "uppercase-done")) {
+        Assert-True (
+            $statusHashes[$aliasName] -eq $statusHashes["done"]
+        ) "Gantt alias '$aliasName' did not normalize to done."
+    }
+
+    $invalidStatusPlanPath = Join-Path $tempRoot "invalid-status.json"
+    @{
+        title = "Invalid status"
+        tasks = @(@{
+            label = "Invalid"
+            start = 0
+            duration = 10
+            status = "unknown-state"
+        })
+    } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $invalidStatusPlanPath -Encoding UTF8
+    try {
+        $ErrorActionPreference = "Continue"
+        $invalidStatusMessage = (
+            & $powershell -NoProfile -ExecutionPolicy Bypass -File $resolvedGanttRenderer `
+                -InputPath $invalidStatusPlanPath `
+                -OutputPath (Join-Path $tempRoot "invalid-status.svg") 2>&1 | Out-String
+        )
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorPreference
+    }
+    $invalidStatusExitCode = $LASTEXITCODE
+    Assert-True ($invalidStatusExitCode -eq 2) "Gantt renderer accepted an unsupported status."
+
     $ganttHash = (Get-FileHash -LiteralPath $ganttSvgPath -Algorithm SHA256).Hash
     try {
         $ErrorActionPreference = "Continue"
