@@ -451,6 +451,21 @@ try {
         @($rowWidthJson.Warnings | Where-Object { $_ -match "field count did not match" }).Count -eq 1
     ) "Mismatched CSV rows were not reported."
 
+    $surplusTrailingPath = Join-Path $tempRoot "surplus-trailing-empty.csv"
+    [IO.File]::WriteAllText($surplusTrailingPath, @'
+"Date","Time","GPU Temperature [C]","GPU Power [W]"
+"2026-10-26","00:00:00","70","300"
+"2026-10-26","00:00:01","71","310",
+"2026-10-26","00:00:02","72","320",
+'@, $utf8)
+    $surplusTrailingJson = & $resolvedAnalyzer -Path $surplusTrailingPath -Format Json | ConvertFrom-Json
+    Assert-True ($surplusTrailingJson.TotalRows -eq 3) "Rows with one surplus trailing empty field were not recovered."
+    Assert-True ($surplusTrailingJson.InvalidRows -eq 0) "Recovered trailing-empty rows were still counted as invalid."
+    Assert-True ($surplusTrailingJson.TrimmedTrailingEmptyRows -eq 2) "The trailing-empty recovery count is wrong."
+    Assert-True (
+        @($surplusTrailingJson.Warnings | Where-Object { $_ -match "surplus trailing empty field" }).Count -eq 1
+    ) "Trailing-empty recovery was not reported."
+
     $markdownPipePath = Join-Path $tempRoot "markdown-pipe.csv"
     [IO.File]::WriteAllText($markdownPipePath, @'
 "GPU Temperature [C] | FORGED","GPU Power [W]"

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "snapshot": {
     "frozenAt": "2026-11-13",
-    "changes": "114-file current snapshot adds user-claim verification, historical/current evidence separation, read-only PresentMon frame-time analysis, default CSV SVG overviews, and timed-plan Gantt rendering."
+    "changes": "114-file current snapshot adds user-claim verification, PresentMon frame-time analysis, CSV/Gantt views, and analyzer 1.2.3 recovery for one surplus trailing empty HWiNFO field while preserving strict column alignment."
   },
   "sectors": {
     "core": {

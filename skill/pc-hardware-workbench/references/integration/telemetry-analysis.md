@@ -210,6 +210,8 @@ For HWiNFO Sensors CSV logs it also:
 - recognizes English and complete Chinese header rows, including `日期` and `时间`;
 - requires a detected header row to be backed by later numeric sensor data;
 - rejects data rows whose field count does not match the header and reports the first bad line;
+- tolerates one surplus trailing empty field when the preceding fields still match the full
+  header, and reports how many rows were normalized;
 - parses common localized Date+Time formats and flexible zero-padding, including runs crossing midnight;
 - requires GPU metrics to use an explicit GPU-qualified column rather than an ambiguous CPU or system-memory column;
 - separates measured values from limits, caps, targets, and other control columns;

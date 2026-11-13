@@ -378,6 +378,17 @@ function Get-CsvFields {
     }
 }
 
+function ConvertTo-CsvLine {
+    param([object[]]$Fields)
+
+    return (@(
+        $Fields | ForEach-Object {
+            $text = if ($null -eq $_) { "" } else { [string]$_ }
+            '"' + $text.Replace('"', '""') + '"'
+        }
+    ) -join $Delimiter)
+}
+
 function Test-HeaderCandidateHasData {
     param(
         [string[]]$CandidateNames,
@@ -987,6 +998,7 @@ if ($duplicateHeaderNames.Count -gt 0) {
 $dataLines = New-Object System.Collections.Generic.List[string]
 $stoppedAtFooter = $false
 $invalidDataRows = 0
+$trimmedTrailingEmptyRows = 0
 $firstInvalidDataLine = $null
 if ($headerLineIndex + 1 -lt $lines.Count) {
     for ($index = $headerLineIndex + 1; $index -lt $lines.Count; $index++) {
@@ -1014,6 +1026,15 @@ if ($headerLineIndex + 1 -lt $lines.Count) {
             break
         }
 
+        if (
+            $fields.Count -eq $headerNames.Count + 1 -and
+            [string]::IsNullOrWhiteSpace($fields[$fields.Count - 1])
+        ) {
+            $fields = @($fields[0..($fields.Count - 2)])
+            $line = ConvertTo-CsvLine -Fields $fields
+            $trimmedTrailingEmptyRows++
+        }
+
         if ($fields.Count -ne $headerNames.Count) {
             $invalidDataRows++
             if ($null -eq $firstInvalidDataLine) {
@@ -1035,6 +1056,10 @@ if ($stoppedAtFooter) {
 if ($invalidDataRows -gt 0) {
     $warnings.Add(
         "$invalidDataRows data row(s) were skipped because their field count did not match the header; first bad row was line $firstInvalidDataLine.")
+}
+if ($trimmedTrailingEmptyRows -gt 0) {
+    $warnings.Add(
+        "$trimmedTrailingEmptyRows data row(s) contained one surplus trailing empty field; it was ignored because all header-aligned fields were present.")
 }
 if ($readResult.InvalidUtf8) {
     if ($stoppedAtFooter) {
@@ -1632,10 +1657,11 @@ if ($samplingSummary.Consistency -eq "variable") {
 }
 
 $result = [pscustomobject]@{
-    AnalyzerVersion = "1.2.2"
+    AnalyzerVersion = "1.2.3"
     FileName = if ($HideFileName) { "[hidden]" } else { [System.IO.Path]::GetFileName($resolvedPath) }
     HeaderLine = $headerLineIndex + 1
     InvalidRows = $invalidDataRows
+    TrimmedTrailingEmptyRows = $trimmedTrailingEmptyRows
     TotalRows = $rows.Count
     AnalyzedRows = $selectedRows.Count
     RequestedWindow = $requestedWindowLabel

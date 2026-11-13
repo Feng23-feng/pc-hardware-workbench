@@ -65,7 +65,7 @@ try {
 
     $chartData = & $resolvedAnalyzer -Path $telemetryPath -Format ChartData -MaxChartPoints 100 | ConvertFrom-Json
     Assert-True ($chartData.ChartDataVersion -eq "1.0") "Chart data version is missing."
-    Assert-True ($chartData.AnalyzerVersion -eq "1.2.2") "Analyzer version was not updated for chart data."
+    Assert-True ($chartData.AnalyzerVersion -eq "1.2.3") "Analyzer version was not updated for chart data."
     Assert-True ($chartData.TimeBased -eq $true) "Timestamped input was not exposed as a time-based chart."
     Assert-True ($chartData.XAxisLabel -eq "seconds") "Timestamped chart x-axis label is wrong."
     Assert-True ($chartData.Sampling.Consistency -eq "stable") "Stable chart sampling was not reported as stable."

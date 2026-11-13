@@ -104,6 +104,9 @@ powershell -NoProfile -ExecutionPolicy Bypass `
   -AnalyzerPath .\skill\pc-hardware-workbench\scripts\analyze-presentmon.ps1
 ```
 
+遥测审计回归同时覆盖 HWiNFO 行末单个多余空字段恢复、真正的缺列/错列拒绝、
+时间窗口和 Markdown 安全性。
+
 CSV SVG 与时间计划甘特图回归（含防覆盖和非法输入）：
 
 ```powershell
