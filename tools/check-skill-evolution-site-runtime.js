@@ -429,7 +429,13 @@ async function testHomeViewport(siteUrl, name, width, height) {
       technicalClosed: !document.querySelector(".dse-home-technical")?.open,
       technicalSummary: document.querySelector(".dse-home-technical > summary")?.innerText.trim() || "",
       technicalExpanded: document.getElementById("dse-home-technical-summary")?.getAttribute("aria-expanded") || "",
-      technicalHeight: Math.round(document.getElementById("dse-home-technical-summary")?.getBoundingClientRect().height || 0)
+      technicalHeight: Math.round(document.getElementById("dse-home-technical-summary")?.getBoundingClientRect().height || 0),
+      viewportWidth: Math.round(window.innerWidth || 0),
+      rootClientWidth: Math.round(document.getElementById("dse-root")?.clientWidth || 0),
+      rootScrollWidth: Math.round(document.getElementById("dse-root")?.scrollWidth || 0),
+      bodyScrollWidth: Math.round(document.body?.scrollWidth || 0),
+      headerCopyLeft: Math.round(document.querySelector(".dse-hero .dse-header-copy")?.getBoundingClientRect().left || 0),
+      headerCopyRight: Math.round(document.querySelector(".dse-hero .dse-header-copy")?.getBoundingClientRect().right || 0)
     }))()`);
     check(initial.title.includes("电脑硬件工作台"), `${prefix}browser title is not user-facing.`);
     check(
@@ -481,6 +487,21 @@ async function testHomeViewport(siteUrl, name, width, height) {
       initial.technicalExpanded === "false" &&
       initial.technicalHeight >= 44,
       `${prefix}technical archive is not folded.`
+    );
+    check(
+      initial.rootClientWidth > 0 &&
+      initial.rootScrollWidth <= initial.rootClientWidth + 1 &&
+      initial.bodyScrollWidth <= initial.viewportWidth + 1 &&
+      initial.headerCopyLeft >= 12 &&
+      initial.headerCopyRight <= initial.rootClientWidth - 12,
+      `${prefix}hero content overflows the viewport safe area (${JSON.stringify({
+        rootClientWidth: initial.rootClientWidth,
+        viewportWidth: initial.viewportWidth,
+        rootScrollWidth: initial.rootScrollWidth,
+        bodyScrollWidth: initial.bodyScrollWidth,
+        headerCopyLeft: initial.headerCopyLeft,
+        headerCopyRight: initial.headerCopyRight
+      })}).`
     );
     await screenshot(connection, `previous-style-home-${name}.png`);
     await evaluate(connection, `document.querySelector(".dse-explore-primary a")?.scrollIntoView({ block: "center" })`);
