@@ -26,6 +26,28 @@ powershell -NoProfile -ExecutionPolicy Bypass `
 超过 11 KiB 直接失败；Quick 初始加载继续以 20 KiB 为硬上限。测试同时输出实际
 占用和剩余空间，避免通过改阈值掩盖内容膨胀。
 
+只允许安全或数据损失修复临时超硬上限。例外文件固定为
+`tests/entry-budget-exception.json`：
+
+```json
+{
+  "schemaVersion": 1,
+  "kind": "safety-hotfix",
+  "reason": "Why the immediate safety correction is required",
+  "safetyImpact": "What damage or data loss it prevents",
+  "migrationPlan": "What detail will move into a reference after the hotfix",
+  "owner": "maintainer",
+  "createdAt": "2026-11-13T18:00:00+08:00",
+  "expiresAt": "2026-11-14T18:00:00+08:00",
+  "maxBytes": 11520
+}
+```
+
+例外不能超过硬上限 256 B，生命周期不能超过 72 小时。文件过期、在入口未超硬线时
+残留、缺少迁移承诺、通过链接绕过或声称更大的上限都会失败。文件本身不得超过
+16 KiB。例外存续期间不得继续加入无关功能。测试使用临时 fixture 覆盖有效例外、
+缺少迁移计划、超 72 小时、已过期、超 256 B、过大文件和 stale 文件。
+
 ## Skill 验证
 
 首次使用需要准备持久化验证环境：

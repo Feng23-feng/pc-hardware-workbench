@@ -116,6 +116,8 @@ Must:
 Static contract test must confirm:
 
 - `SKILL.md` has a daily target no larger than 10.5 KiB and a hard maximum of 11 KiB;
+- over the hard maximum is allowed only through a valid `tests/entry-budget-exception.json` safety-hotfix record limited to 256 extra bytes and 72 hours;
+- an expired, stale, incomplete, oversized, or non-safety exception fails the same contract test;
 - the quick-mode starting set is no larger than 20 KB;
 - quick/deep routing references only the files needed for the selected depth;
 - the obsolete monolithic validation reference is absent.

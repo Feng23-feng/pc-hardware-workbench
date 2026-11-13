@@ -41,6 +41,150 @@ function Get-Utf8LfByteCount {
     return [Text.Encoding]::UTF8.GetByteCount($canonical)
 }
 
+function Test-EntryBudgetException {
+    param(
+        [Parameter(Mandatory = $true)][string]$Path,
+        [Parameter(Mandatory = $true)][int]$SkillBytes,
+        [Parameter(Mandatory = $true)][int]$HardLimit,
+        [Parameter(Mandatory = $true)][datetimeoffset]$Now
+    )
+
+    $errors = New-Object System.Collections.Generic.List[string]
+    $maximumOverflowBytes = 256
+    if ($SkillBytes -le $HardLimit) {
+        $errors.Add("entry-budget-exception.json is stale while SKILL.md is within the hard maximum; remove it.") | Out-Null
+        return [pscustomobject]@{
+            Allowed = $false
+            Errors = @($errors)
+            Warning = $null
+        }
+    }
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        $errors.Add("SKILL.md exceeds the hard maximum; add a valid tests/entry-budget-exception.json for a safety-only hotfix.") | Out-Null
+        return [pscustomobject]@{
+            Allowed = $false
+            Errors = @($errors)
+            Warning = $null
+        }
+    }
+    $exceptionItem = Get-Item -LiteralPath $Path -Force
+    if (($exceptionItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
+        $errors.Add("entry-budget-exception.json cannot be a symbolic link, junction, or other reparse point.") | Out-Null
+        return [pscustomobject]@{
+            Allowed = $false
+            Errors = @($errors)
+            Warning = $null
+        }
+    }
+    if ($exceptionItem.Length -gt 16384) {
+        $errors.Add("entry-budget-exception.json cannot exceed 16 KiB.") | Out-Null
+        return [pscustomobject]@{
+            Allowed = $false
+            Errors = @($errors)
+            Warning = $null
+        }
+    }
+
+    try {
+        $exception = Get-Content -Raw -LiteralPath $Path -Encoding UTF8 | ConvertFrom-Json
+    }
+    catch {
+        $errors.Add("entry-budget-exception.json is not valid JSON: $($_.Exception.Message)") | Out-Null
+        return [pscustomobject]@{
+            Allowed = $false
+            Errors = @($errors)
+            Warning = $null
+        }
+    }
+
+    $schemaVersion = 0
+    if ($null -eq $exception.PSObject.Properties["schemaVersion"] -or
+        -not [int]::TryParse([string]$exception.schemaVersion, [ref]$schemaVersion) -or
+        $schemaVersion -ne 1) {
+        $errors.Add("entry-budget-exception.json schemaVersion must be 1.") | Out-Null
+    }
+    if ([string]$exception.kind -ne "safety-hotfix") {
+        $errors.Add("entry-budget-exception.json kind must be safety-hotfix.") | Out-Null
+    }
+    foreach ($fieldName in @("reason", "safetyImpact", "migrationPlan", "owner")) {
+        $value = if ($null -eq $exception.PSObject.Properties[$fieldName]) {
+            ""
+        }
+        else {
+            [string]$exception.$fieldName
+        }
+        if ([string]::IsNullOrWhiteSpace($value) -or
+            $value.Length -gt 500 -or
+            $value -match '[\x00-\x1F\x7F]') {
+            $errors.Add("entry-budget-exception.json field '$fieldName' must be 1-500 printable characters.") | Out-Null
+        }
+    }
+
+    $createdAt = [datetimeoffset]::MinValue
+    $expiresAt = [datetimeoffset]::MinValue
+    $createdAtValid = $null -ne $exception.PSObject.Properties["createdAt"] -and
+        [datetimeoffset]::TryParse(
+            [string]$exception.createdAt,
+            [Globalization.CultureInfo]::InvariantCulture,
+            [Globalization.DateTimeStyles]::RoundtripKind,
+            [ref]$createdAt
+        )
+    $expiresAtValid = $null -ne $exception.PSObject.Properties["expiresAt"] -and
+        [datetimeoffset]::TryParse(
+            [string]$exception.expiresAt,
+            [Globalization.CultureInfo]::InvariantCulture,
+            [Globalization.DateTimeStyles]::RoundtripKind,
+            [ref]$expiresAt
+        )
+    if (-not $createdAtValid) {
+        $errors.Add("entry-budget-exception.json createdAt must be an ISO 8601 timestamp.") | Out-Null
+    }
+    if (-not $expiresAtValid) {
+        $errors.Add("entry-budget-exception.json expiresAt must be an ISO 8601 timestamp.") | Out-Null
+    }
+    if ($createdAtValid -and $expiresAtValid) {
+        if ($createdAt -gt $Now.AddMinutes(5)) {
+            $errors.Add("entry-budget-exception.json createdAt cannot be more than five minutes in the future.") | Out-Null
+        }
+        if ($expiresAt -le $Now) {
+            $errors.Add("entry-budget-exception.json has expired.") | Out-Null
+        }
+        if ($expiresAt -le $createdAt -or $expiresAt -gt $createdAt.AddHours(72)) {
+            $errors.Add("entry-budget-exception.json must expire within 72 hours after creation.") | Out-Null
+        }
+    }
+
+    $maximumAllowedBytes = 0
+    if ($null -eq $exception.PSObject.Properties["maxBytes"] -or
+        -not [int]::TryParse([string]$exception.maxBytes, [ref]$maximumAllowedBytes)) {
+        $errors.Add("entry-budget-exception.json maxBytes must be an integer.") | Out-Null
+    }
+    else {
+        if ($maximumAllowedBytes -le $HardLimit) {
+            $errors.Add("entry-budget-exception.json maxBytes must exceed the hard maximum.") | Out-Null
+        }
+        if ($maximumAllowedBytes -gt ($HardLimit + $maximumOverflowBytes)) {
+            $errors.Add("entry-budget-exception.json maxBytes cannot exceed the hard maximum by more than 256 bytes.") | Out-Null
+        }
+        if ($SkillBytes -gt $maximumAllowedBytes) {
+            $errors.Add("SKILL.md exceeds the exception maxBytes.") | Out-Null
+        }
+    }
+
+    $allowed = $errors.Count -eq 0
+    $warning = if ($allowed) {
+        "Safety hotfix exception active: SKILL.md is $SkillBytes bytes; maximum $maximumAllowedBytes; expires $($expiresAt.ToString('o'))."
+    }
+    else {
+        $null
+    }
+    return [pscustomobject]@{
+        Allowed = $allowed
+        Errors = @($errors)
+        Warning = $warning
+    }
+}
+
 function Read-RequiredFile {
     param(
         [string]$Path,
@@ -887,6 +1031,9 @@ Assert-True ($coverageMap -notmatch 'byte-for-byte unchanged') "Coverage map sti
 $scenarioDoc = Get-Content -LiteralPath (Join-Path $resolvedRoot "tests/interaction-scenarios.md") -Raw -Encoding UTF8
 Assert-Contains $scenarioDoc 'daily target no larger than 10.5 KiB' "Interaction scenario budget has no 10.5 KiB daily target."
 Assert-Contains $scenarioDoc 'hard maximum of 11 KiB' "Interaction scenario budget does not preserve the 11 KiB hard maximum."
+Assert-Contains $scenarioDoc 'entry-budget-exception\.json' "Interaction scenarios do not document the safety-hotfix exception."
+Assert-Contains $scenarioDoc '256 extra bytes' "Interaction scenarios omit the 256-byte exception ceiling."
+Assert-Contains $scenarioDoc 'expired, stale, incomplete, oversized' "Interaction scenarios do not reject invalid budget exceptions."
 Assert-Contains $scenarioDoc 'no larger than 20 KB' "Interaction scenario budget does not match the 20 KB quick-mode budget."
 $crossCapabilityScenarios = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "tests/cross-capability-scenarios.md") `
@@ -1012,14 +1159,132 @@ if (-not (Test-Path -LiteralPath $auditTest -PathType Leaf)) {
     $failures.Add("The packaged telemetry audit regression is missing.")
 }
 
+$exceptionFixtureRoot = Join-Path ([IO.Path]::GetTempPath()) ("pcwb-budget-exception-" + [guid]::NewGuid().ToString("N"))
+try {
+    New-Item -ItemType Directory -Path $exceptionFixtureRoot -Force | Out-Null
+    $exceptionFixturePath = Join-Path $exceptionFixtureRoot "entry-budget-exception.json"
+    $exceptionTestNow = [datetimeoffset]::Parse("2026-11-13T12:00:00+08:00")
+    $exceptionTestHardLimit = 11264
+    $exceptionFixture = [ordered]@{
+        schemaVersion = 1
+        kind = "safety-hotfix"
+        reason = "Correct an immediate hardware-safety instruction."
+        safetyImpact = "Prevents damage or data loss in a known scenario."
+        migrationPlan = "Move the detailed rationale into the matching reference."
+        owner = "test-owner"
+        createdAt = $exceptionTestNow.AddHours(-1).ToString("o")
+        expiresAt = $exceptionTestNow.AddHours(24).ToString("o")
+        maxBytes = $exceptionTestHardLimit + 200
+    }
+    [IO.File]::WriteAllText(
+        $exceptionFixturePath,
+        ($exceptionFixture | ConvertTo-Json -Depth 4) + "`r`n",
+        (New-Object System.Text.UTF8Encoding($false))
+    )
+    $validException = Test-EntryBudgetException `
+        -Path $exceptionFixturePath `
+        -SkillBytes ($exceptionTestHardLimit + 100) `
+        -HardLimit $exceptionTestHardLimit `
+        -Now $exceptionTestNow
+    Assert-True $validException.Allowed "A valid safety-hotfix exception was rejected."
+
+    $exceptionFixture.migrationPlan = ""
+    [IO.File]::WriteAllText($exceptionFixturePath, ($exceptionFixture | ConvertTo-Json -Depth 4), (New-Object System.Text.UTF8Encoding($false)))
+    $missingPlan = Test-EntryBudgetException `
+        -Path $exceptionFixturePath `
+        -SkillBytes ($exceptionTestHardLimit + 100) `
+        -HardLimit $exceptionTestHardLimit `
+        -Now $exceptionTestNow
+    Assert-True (-not $missingPlan.Allowed) "A safety-hotfix exception without a migration plan was accepted."
+    $exceptionFixture.migrationPlan = "Move the detailed rationale into the matching reference."
+
+    $exceptionFixture.expiresAt = $exceptionTestNow.AddHours(80).ToString("o")
+    [IO.File]::WriteAllText($exceptionFixturePath, ($exceptionFixture | ConvertTo-Json -Depth 4), (New-Object System.Text.UTF8Encoding($false)))
+    $overlongException = Test-EntryBudgetException `
+        -Path $exceptionFixturePath `
+        -SkillBytes ($exceptionTestHardLimit + 100) `
+        -HardLimit $exceptionTestHardLimit `
+        -Now $exceptionTestNow
+    Assert-True (-not $overlongException.Allowed) "A safety-hotfix exception longer than 72 hours was accepted."
+
+    $exceptionFixture.expiresAt = $exceptionTestNow.AddHours(-1).ToString("o")
+    [IO.File]::WriteAllText($exceptionFixturePath, ($exceptionFixture | ConvertTo-Json -Depth 4), (New-Object System.Text.UTF8Encoding($false)))
+    $expiredException = Test-EntryBudgetException `
+        -Path $exceptionFixturePath `
+        -SkillBytes ($exceptionTestHardLimit + 100) `
+        -HardLimit $exceptionTestHardLimit `
+        -Now $exceptionTestNow
+    Assert-True (-not $expiredException.Allowed) "An expired safety-hotfix exception was accepted."
+
+    $exceptionFixture.expiresAt = $exceptionTestNow.AddHours(24).ToString("o")
+    [IO.File]::WriteAllText($exceptionFixturePath, ($exceptionFixture | ConvertTo-Json -Depth 4), (New-Object System.Text.UTF8Encoding($false)))
+    $overflowException = Test-EntryBudgetException `
+        -Path $exceptionFixturePath `
+        -SkillBytes ($exceptionTestHardLimit + 257) `
+        -HardLimit $exceptionTestHardLimit `
+        -Now $exceptionTestNow
+    Assert-True (-not $overflowException.Allowed) "A safety-hotfix exception above the 256-byte overflow ceiling was accepted."
+
+    $exceptionFixture.maxBytes = $exceptionTestHardLimit + 257
+    [IO.File]::WriteAllText($exceptionFixturePath, ($exceptionFixture | ConvertTo-Json -Depth 4), (New-Object System.Text.UTF8Encoding($false)))
+    $overstatedCeiling = Test-EntryBudgetException `
+        -Path $exceptionFixturePath `
+        -SkillBytes ($exceptionTestHardLimit + 100) `
+        -HardLimit $exceptionTestHardLimit `
+        -Now $exceptionTestNow
+    Assert-True (-not $overstatedCeiling.Allowed) "A safety-hotfix exception can raise its own ceiling above 256 bytes."
+
+    [IO.File]::WriteAllText(
+        $exceptionFixturePath,
+        (($exceptionFixture | ConvertTo-Json -Depth 4) + (" " * 17000)),
+        (New-Object System.Text.UTF8Encoding($false))
+    )
+    $oversizedFile = Test-EntryBudgetException `
+        -Path $exceptionFixturePath `
+        -SkillBytes ($exceptionTestHardLimit + 100) `
+        -HardLimit $exceptionTestHardLimit `
+        -Now $exceptionTestNow
+    Assert-True (-not $oversizedFile.Allowed) "A safety-hotfix exception file larger than 16 KiB was accepted."
+
+    $staleException = Test-EntryBudgetException `
+        -Path $exceptionFixturePath `
+        -SkillBytes $exceptionTestHardLimit `
+        -HardLimit $exceptionTestHardLimit `
+        -Now $exceptionTestNow
+    Assert-True (-not $staleException.Allowed) "A stale safety-hotfix exception was accepted."
+}
+finally {
+    if (Test-Path -LiteralPath $exceptionFixtureRoot -PathType Container) {
+        Remove-Item -LiteralPath $exceptionFixtureRoot -Recurse -Force
+    }
+}
+
 $skillSoftLimit = 10752
 $skillHardLimit = 11264
 $skillBytes = Get-Utf8LfByteCount -Path $skillPath
+$entryBudgetExceptionPath = Join-Path $resolvedRoot "tests/entry-budget-exception.json"
 if ($skillBytes -gt $skillHardLimit) {
-    $failures.Add("SKILL.md exceeds the 11 KB entrypoint budget: $skillBytes bytes.")
+    $exceptionResult = Test-EntryBudgetException `
+        -Path $entryBudgetExceptionPath `
+        -SkillBytes $skillBytes `
+        -HardLimit $skillHardLimit `
+        -Now ([datetimeoffset]::Now)
+    if ($exceptionResult.Allowed) {
+        $budgetWarnings.Add($exceptionResult.Warning) | Out-Null
+    }
+    else {
+        foreach ($exceptionError in $exceptionResult.Errors) {
+            $failures.Add($exceptionError) | Out-Null
+        }
+    }
 }
-elseif ($skillBytes -gt $skillSoftLimit) {
-    $budgetWarnings.Add("SKILL.md exceeds the 10.5 KiB daily target: $skillBytes bytes; hard maximum is $skillHardLimit bytes. Migrate content before adding more.")
+else {
+    if (Test-Path -LiteralPath $entryBudgetExceptionPath -PathType Leaf) {
+        $failures.Add("tests/entry-budget-exception.json must be removed once SKILL.md is within the hard maximum.") | Out-Null
+    }
+    if ($skillBytes -gt $skillSoftLimit) {
+        $budgetWarnings.Add("SKILL.md exceeds the 10.5 KiB daily target: $skillBytes bytes; hard maximum is $skillHardLimit bytes. Migrate content before adding more.") | Out-Null
+    }
 }
 
 $quickFiles = @(
