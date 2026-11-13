@@ -1,5 +1,14 @@
 ﻿# 电脑硬件工作台版本记录
 
+## 2.7.2 — 2026-11-14
+
+- 修正 live collector smoke 的显示器适配器断言：标准模式本来没有 `AdapterName` 的 CIM/WMI 身份行不再被误判为脱敏丢失；
+- 对所有显示器继续保留 `Redacted.AdapterName -ceq Standard.AdapterName` 差分判据；只有标准模式确实存在适配器名时才检查 `[redacted]` 和 GPU 匹配；
+- 无适配器链接的显示器数量改为非失败提示，便于多显示器机器区分“没有证据”和“证据被改坏”；
+- 新增合成回归覆盖空适配器、保留适配器、清空适配器和 `[redacted]` 四种情况；
+- Gantt 非法状态的 accepted-values 清单改为由 `$allowedStatuses` 动态生成，避免枚举与提示不同步；
+- 按返修单范围，不修改采集器输出、隐私规则和 `done` 状态语义。
+
 ## 2.7.1 — 2026-11-14
 
 - Gantt 新增独立 `done` 状态，表示执行结束但尚未表达通过/失败结论；`pass` 与 `fail` 仍只表示结果判定；

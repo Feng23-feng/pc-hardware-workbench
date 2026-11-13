@@ -24,6 +24,34 @@ function Assert-True {
     }
 }
 
+function Get-MonitorAdapterValidation {
+    param(
+        [AllowNull()][string]$StandardAdapter,
+        [AllowNull()][string]$RedactedAdapter,
+        [AllowEmptyCollection()][string[]]$RedactedGpuNames
+    )
+
+    $standardAdapterText = [string]$StandardAdapter
+    $redactedAdapterText = [string]$RedactedAdapter
+    $hasStandardAdapter = -not [string]::IsNullOrWhiteSpace($standardAdapterText)
+    $errors = New-Object System.Collections.Generic.List[string]
+    if ($redactedAdapterText -cne $standardAdapterText) {
+        $errors.Add("Redaction changed monitor adapter name.") | Out-Null
+    }
+    if ($hasStandardAdapter) {
+        if ($redactedAdapterText -ceq "[redacted]") {
+            $errors.Add("Redacted monitor hid the adapter name that GPU identity preserves.") | Out-Null
+        }
+        if ($RedactedGpuNames -notcontains $redactedAdapterText) {
+            $errors.Add("Redacted monitor adapter name no longer matches a declared GPU.") | Out-Null
+        }
+    }
+    return [pscustomobject]@{
+        HasStandardAdapter = $hasStandardAdapter
+        Errors = @($errors)
+    }
+}
+
 function Get-ShapeSignature {
     param(
         [AllowNull()]
@@ -205,6 +233,32 @@ if ($failures.Count -gt 0) {
 }
 Write-Host "Collector static/path tests: PASS" -ForegroundColor Green
 
+$blankAdapterValidation = Get-MonitorAdapterValidation `
+    -StandardAdapter "" `
+    -RedactedAdapter "" `
+    -RedactedGpuNames @("GPU A")
+Assert-True ($blankAdapterValidation.Errors.Count -eq 0) "A standard monitor with no adapter link must not fail redaction comparison."
+Assert-True (-not $blankAdapterValidation.HasStandardAdapter) "A blank standard adapter was incorrectly counted as adapter evidence."
+
+$preservedAdapterValidation = Get-MonitorAdapterValidation `
+    -StandardAdapter "GPU A" `
+    -RedactedAdapter "GPU A" `
+    -RedactedGpuNames @("GPU A")
+Assert-True ($preservedAdapterValidation.Errors.Count -eq 0) "A preserved monitor adapter link failed validation."
+Assert-True $preservedAdapterValidation.HasStandardAdapter "A present standard adapter was not counted as adapter evidence."
+
+$clearedAdapterValidation = Get-MonitorAdapterValidation `
+    -StandardAdapter "GPU A" `
+    -RedactedAdapter "" `
+    -RedactedGpuNames @("GPU A")
+Assert-True ($clearedAdapterValidation.Errors.Count -gt 0) "Clearing a standard monitor adapter link did not fail validation."
+
+$placeholderAdapterValidation = Get-MonitorAdapterValidation `
+    -StandardAdapter "GPU A" `
+    -RedactedAdapter "[redacted]" `
+    -RedactedGpuNames @("GPU A")
+Assert-True ($placeholderAdapterValidation.Errors.Count -gt 0) "Redacting a monitor adapter link did not fail validation."
+
 if (-not $AllowLiveCollector) {
     Write-Host "Collector live smoke: SKIP (pass -AllowLiveCollector and choose -PrivacyMode Redacted|Standard|Both)" -ForegroundColor Yellow
     exit 0
@@ -380,6 +434,7 @@ try {
 
             $redactedMonitors = @($redacted.Monitors)
             $redactedGpuNames = @($redacted.GPU | ForEach-Object { [string]$_.Name })
+            $monitorsWithoutAdapter = 0
             for ($index = 0; $index -lt $redactedMonitors.Count; $index++) {
                 $monitor = $redactedMonitors[$index]
                 $standardMonitor = $standard.Monitors[$index]
@@ -391,12 +446,22 @@ try {
                 Assert-True ($monitor.Manufacturer -ceq $expectedManufacturer) "Redacted monitor $index did not preserve emptiness or hide its manufacturer."
                 Assert-True ($monitor.ProductCode -ceq $expectedProductCode) "Redacted monitor $index did not preserve emptiness or hide its PnP identifier."
                 Assert-True ($monitor.Model -eq $expectedModel) "Redacted monitor $index did not preserve emptiness or use its stable placeholder."
-                Assert-True (-not [string]::IsNullOrWhiteSpace([string]$monitor.AdapterName)) "Redacted monitor $index lost its adapter identity."
-                Assert-True ($monitor.AdapterName -cne "[redacted]") "Redacted monitor $index hid the adapter name that GPU identity preserves."
-                Assert-True ($redactedGpuNames -contains [string]$monitor.AdapterName) "Redacted monitor $index adapter name no longer matches a declared GPU."
-                Assert-True ($monitor.AdapterName -eq $standardMonitor.AdapterName) "Redaction changed monitor adapter name at index $index."
+                $adapterValidation = Get-MonitorAdapterValidation `
+                    -StandardAdapter ([string]$standardMonitor.AdapterName) `
+                    -RedactedAdapter ([string]$monitor.AdapterName) `
+                    -RedactedGpuNames $redactedGpuNames
+                foreach ($adapterError in $adapterValidation.Errors) {
+                    Assert-True $false "Redacted monitor $index $adapterError"
+                }
+                if (-not $adapterValidation.HasStandardAdapter) {
+                    $monitorsWithoutAdapter++
+                }
                 Assert-True ($monitor.CurrentWidth -eq $standardMonitor.CurrentWidth) "Redaction changed current display width at index $index."
                 Assert-True ($monitor.HdrEnabled -eq $standardMonitor.HdrEnabled) "Redaction changed HDR state at index $index."
+            }
+            if ($monitorsWithoutAdapter -gt 0) {
+                $checkedAdapterCount = $redactedMonitors.Count - $monitorsWithoutAdapter
+                Write-Host "Collector live smoke: $monitorsWithoutAdapter of $($redactedMonitors.Count) monitors carry no adapter link (CIM/WMI identity rows); adapter checks applied to $checkedAdapterCount monitor(s)." -ForegroundColor DarkGray
             }
 
             if ($null -ne $redacted.Battery) {

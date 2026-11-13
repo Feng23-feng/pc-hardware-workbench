@@ -151,6 +151,15 @@ $statusAliases = @{
     "completed" = "done"
     "finished" = "done"
 }
+$acceptedStatusList = if ($allowedStatuses.Count -eq 1) {
+    $allowedStatuses[0]
+}
+elseif ($allowedStatuses.Count -eq 2) {
+    "$($allowedStatuses[0]) and $($allowedStatuses[1])"
+}
+else {
+    (($allowedStatuses[0..($allowedStatuses.Count - 2)] -join ", ") + ", and " + $allowedStatuses[-1])
+}
 $tasks = New-Object System.Collections.Generic.List[object]
 $trackOrder = New-Object System.Collections.Generic.List[string]
 $seenTracks = New-Object System.Collections.Generic.HashSet[string]([StringComparer]::OrdinalIgnoreCase)
@@ -201,7 +210,7 @@ for ($index = 0; $index -lt $taskValues.Count; $index++) {
         $statusInput
     }
     if ($status -notin $allowedStatuses) {
-        Stop-WithInputError "Task $taskNumber has unsupported status '$statusInput'; accepted values are planned, active, done, pass, fail, and blocked (complete/completed/finished are aliases for done, not pass)."
+        Stop-WithInputError "Task $taskNumber has unsupported status '$statusInput'; accepted values are $acceptedStatusList (complete/completed/finished are aliases for done, not pass)."
     }
     $note = Get-CleanText (Get-PropertyValue -Object $task -Name "note" -Default "") 180
 

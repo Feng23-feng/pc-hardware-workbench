@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <meta name="description" content="PC Hardware Workbench 2.7.1: read-only hardware evidence and practical next-step guidance.">
+  <meta name="description" content="PC Hardware Workbench 2.7.2: read-only hardware evidence and practical next-step guidance.">
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="./crt-backdrop.css">
 
@@ -9329,7 +9329,7 @@
         <div>
           <p class="dse-archive-kicker">版本档案 / 全部已记录版本</p>
           <h2 id="dse-archive-title">逐版本迭代档案</h2>
-          <p class="dse-archive-summary">从统一工作台 1.0.0 到 2.7.1 测试版，以及后来选择性并入正式路线的 GPU 自动候选历史。1.6.0 之后新增遥测标准化、动态 RAG、LHM loopback Web、视觉证据、Doctor、入口减重、显存解释、分层调参、GPU 自动候选、用户声明核验、案卷续接和 PresentMon 帧时间。自动候选原型不再作为独立产品入口，只在这里保留可追溯记录。</p>
+          <p class="dse-archive-summary">从统一工作台 1.0.0 到 2.7.2 测试版，以及后来选择性并入正式路线的 GPU 自动候选历史。1.6.0 之后新增遥测标准化、动态 RAG、LHM loopback Web、视觉证据、Doctor、入口减重、显存解释、分层调参、GPU 自动候选、用户声明核验、案卷续接和 PresentMon 帧时间。自动候选原型不再作为独立产品入口，只在这里保留可追溯记录。</p>
         </div>
         <div class="dse-archive-totals" aria-label="版本档案统计">
           <span class="dse-archive-total"><b id="dse-wb-count">0</b>工作台版本</span>
@@ -9882,7 +9882,7 @@
           ]
         },
         {
-          id: "wb-2-2", track: "core", label: "工作台 / 1.6 → 2.7.1", sub: "标准化 · 证据 · 实时适配 · 视觉 · Doctor · 显存调参 · GPU 候选 · 声明核验 · 案卷续接 · 入口瘦身 · 帧时间 · 测试版",
+          id: "wb-2-2", track: "core", label: "工作台 / 1.6 → 2.7.2", sub: "标准化 · 证据 · 实时适配 · 视觉 · Doctor · 显存调参 · GPU 候选 · 声明核验 · 案卷续接 · 入口瘦身 · 帧时间 · 测试版",
           versions: [
             ["1.6.0", "遥测图表、硬件案卷与入口瘦身", "2026-11-03", "RELEASED", ["新增 ChartData 与固定 SVG 遥测渲染器，保留缺失值断点并防止覆盖。", "新增本地硬件案卷，保存证据哈希、假设、时间线、基线和实验。", "入口从约 17.3 KB 降至 11.7 KB，Quick 初始加载降到约 21.4 KB。"], "全量非实机测试、validator、便携同步和案卷/图表回归通过。", "工作台从规则与文本遥测进入可视化案卷阶段。"],
             ["1.7.0", "离线案卷报告与图表准确性", "2026-11-03", "RELEASED", ["生成依赖为零、带 CSP 的静态 HTML 案卷报告，证据预览默认关闭。", "修复降采样丢失缺口、显式 IncludeColumn 被挤出和警告摘要缺失。", "时间戳统一 ISO 8601；危险 SVG、外部路径与 HTML 注入被隔离。"], "全量测试与 validator 通过；独立完整性测试 7/7 PASS，实时采集 SKIP。", "案卷从本地 JSON 升级为可离线阅读、可分享审查的报告。"],
@@ -9897,7 +9897,8 @@
             ["2.5.1", "显存时钟、数据率与分层调参", "2026-11-09", "PREVIOUS LOCAL", ["把显存问题拆成概念解释、官方理论带宽、本机读数解释和调参稳定性四层；只收集当前判断真正需要的证据。", "区分物理时钟、有效数据率、总线宽度和工具缩放显示；新增理论带宽计算器，结果明确标记为规格推算，不代表实测吞吐。", "LHM 显存传感器保留原始字段名与 clockBasis；高显存时钟不再直接判为异常，GDDR7 或厂商缩放口径可以合法出现。", "显存调参与核心曲线、功耗墙分开实验；缺少固定负载、帧时间、伪影、温度和恢复证据时不宣称稳定。"], "完整自动回归、validator、交互契约、LHM 适配与 VRAM 知识测试通过；Codex 与 DSH 安装树 94/94 一致；独立人工签署仍 PENDING。", "2.6.0 之前的测试版；108 个版本记录。"],
             ["2.6.0", "GPU 自动候选与正式 Skill 整合", "2026-11-10", "PREVIOUS LOCAL", ["选择性整合 GPU 自动候选原型：用单一权威表生成一个由用户手动应用的单变量候选，不自动写入硬件。", "未知或空型号不再进入 Generic 数字候选；NVIDIA、AMD、Intel 按家族路由，未知、专业卡、核显和多适配器在给出数值前阻断。", "生成候选时必须显式提供当前控制值和报告新鲜度；信息不足返回 Blocked，并清空 pass 类字段，避免把阻断写成通过。", "新手第一轮只承诺一个可回退的单变量，不承诺电压或功耗墙保持不变；RTX 3060 Ti 使用有界起点。", "概念解释可以绕过调参门禁；调参和稳定结论仍保留完整证据要求。", "统一用户可见语言层；新手可按需把术语翻译成日常语言，设备状态栏改为自然语言表达。", "Quick 不代表 daily-validated；XMP/EXPO 先建立 stock 基线；inventory 先给五项摘要；inconclusive 支持 repeat 与 diagnose。", "MoDT 独立处理；pass likelihood 明确标记为 uncalibrated，不包装成校准概率。", "完整工作负载模板改为按需加载；Quick 首屏保持简版，详细模式可选择“展开详细”。", "笔记本区分 assumed-stock、declared-stock 与 declared-unlocked；保留 LHM 只读采集、RAG、证据链和 2.5.1 显存解释；Skill 主入口控制在 11 KB 预算内；Quick 初始加载控制在 20 KB 预算内。", "高级交互补齐任务型术语分组、MoDT 与常用词解释、概念问答、精简/详细判断以及保留/复测/诊断/恢复三步处理。", "排障改为安全、数据、启动、稳定性、功能、性能优先级，补充证据状态与一次一个区分问题。", "事件日志、ETL、转储与遥测按 Event Viewer、WPR/WPA、WinDbg 和内置分析器分流；USB 音频按端口、Hub、根控制器、供电和并发设备继续分层；新增 20 个真实与对抗性排障场景。"], "完整自动回归、validator、contract、Doctor、LHM、VRAM 与 GPU auto candidate tests 通过；独立人工模型行为签署仍 PENDING，不宣称广泛发布稳定。", "2.7.0 之前的测试版；工作台 2.6.0，文件星球 107 个文件；109 个版本记录。"],
             ["2.7.0", "真实 CSV 核验、案卷续接与预算门禁", "2026-11-13", "PREVIOUS LOCAL", ["新增用户声明核验：区分当前实测、用户刚确认、历史记录、估算和冲突；历史记录不能因“别问”而自动升级。", "新增 PresentMon CSV 帧时间分析：平均 FPS、P50/P95/P99、1%/0.1% low、尖峰帧、尖峰簇与时序警告。", "兼容 CSV 默认生成 SVG 概览；多阶段且时长明确的计划可生成甘特图，单步或时长未知时不硬画。", "硬件案卷改为事件驱动检查点：多轮、多证据、参数变更或上下文丢失风险出现时主动创建或更新，普通概念问答和逐轮聊天不建案卷。", "新增紧凑 Resume 恢复摘要；实验支持基线、证据引用、通过/中止条件、恢复、结果状态和持久化状态，并可先登记后补结果。", "Skill 入口从 11,264 B 压缩到 10,562 B；10.5 KiB 成为日常目标，11 KiB 保持硬上限，超线先迁移到按需 reference，不先抬高预算。", "Quick 初始加载降至 19,571 B；入口预算测试使用 LF 规范化 UTF-8 字节，并在超过 10.5 KiB 时输出迁移警告。", "新增安全热修复例外：仅 safety-hotfix 可临时超硬线最多 256 B、最长 72 小时，并必须记录安全影响和迁移承诺；过期、残留或超限仍失败。", "真实 HWiNFO 验收发现行末多余空字段会截断数据；分析器 1.2.3 仅恢复恰好一个末尾空字段并报告行数，缺列或非空错列仍拒绝。", "原始 321 行 3DMark CSV 现可直接读取，不再只得到前 6 行；单变量 CPU 限制、回退和两次成绩重复也完成真实验收。", "行为回归增加真实模型场景、源码模式和正反例；机器评分保持 PENDING，不等同独立人工签署。"], "Skill validator、完整非实时回归、入口预算、安全热修复例外、案卷检查点、旧案卷兼容、声明核验、PresentMon、CSV/Gantt 与真实 321 行 HWiNFO 恢复测试通过；真实设备采集和独立人工签署仍 PENDING。", "2.7.1 之前的测试版 test.6；工作台 2.7.0，文件星球 114 个文件；110 个版本记录。"],
-            ["2.7.1", "Gantt done 状态与语义修正", "2026-11-14", "CURRENT CANDIDATE", ["Gantt 新增独立 done 状态：表示执行结束但未表达通过或失败结论；pass 与 fail 继续只表示结果判定。", "complete、completed、finished 只归一化为 done，不再错误映射为 pass。", "done 使用独立蓝灰色，任务无障碍标题包含规范化状态，避免只靠颜色区分。", "非法状态提示列出全部允许值，并新增 done/pass 差异、别名、大小写、planned 配色回退和非法状态测试。", "证据管线自动产出甘特、计划图嵌入 evidence card、裸 -Phase 覆盖声明和计划/实测关联继续推迟到后续独立设计。"], "Telemetry chart regression、Gantt status contract、完整非实时回归和 skill validator 通过；人工行为签署仍为 PENDING。", "当前测试版 test.1；工作台 2.7.1，文件星球 114 个文件；111 个版本记录。"]
+            ["2.7.1", "Gantt done 状态与语义修正", "2026-11-14", "PREVIOUS LOCAL", ["Gantt 新增独立 done 状态：表示执行结束但未表达通过或失败结论；pass 与 fail 继续只表示结果判定。", "complete、completed、finished 只归一化为 done，不再错误映射为 pass。", "done 使用独立蓝灰色，任务无障碍标题包含规范化状态，避免只靠颜色区分。", "非法状态提示列出全部允许值，并新增 done/pass 差异、别名、大小写、planned 配色回退和非法状态测试。", "证据管线自动产出甘特、计划图嵌入 evidence card、裸 -Phase 覆盖声明和计划/实测关联继续推迟到后续独立设计。"], "Telemetry chart regression、Gantt status contract、完整非实时回归和 skill validator 通过；人工行为签署仍为 PENDING。", "2.7.2 之前的测试版 test.1；工作台 2.7.1，文件星球 114 个文件；111 个版本记录。"],
+            ["2.7.2", "Live smoke 适配器语义与动态状态提示", "2026-11-14", "CURRENT CANDIDATE", ["live collector smoke 不再把标准模式本来没有 AdapterName 的 CIM/WMI 身份行误判为脱敏丢失。", "所有显示器继续保留 Redacted.AdapterName -ceq Standard.AdapterName 差分判据；只有标准模式确有适配器名时才检查 [redacted] 和 GPU 匹配。", "无适配器链接的显示器数量改为非失败提示，并新增空值、保留、清空和 [redacted] 四种合成回归。", "Gantt accepted-values 清单改为由 allowedStatuses 动态生成，移除 done 后提示不再把它列为可接受值。", "采集器输出、隐私规则和 done 状态语义保持不变。"], "Collector static/live smoke、Gantt regression、完整非实时回归和 skill validator 通过；多显示器真实环境由 Harness 复核。", "当前测试版 test.1；工作台 2.7.2，文件星球 114 个文件；112 个版本记录。"]
           ]
         },
         {
@@ -10941,7 +10942,7 @@
         },
         {
           id: "core-gpu-integration", track: "core", code: "WB-09", title: "GPU 自动候选整合",
-          summary: "2.7.1 测试版 · Gantt done 状态 · 案卷续接 · 预算例外",
+          summary: "2.7.2 测试版 · Live smoke 适配器语义 · Gantt done 状态",
           status: "done", state: "已整合",
           goal: "把经过分类防火墙和证据门禁验证的 GPU 自动候选并入正式安全调参路线，不再维护独立产品线。",
           action: "用户只提出一个目标，Skill 在条件齐全后生成一张手动应用的单变量实验卡；失败时回到已验证的稳定配置。",
@@ -11109,7 +11110,7 @@
 
       function userFacingReleaseState(state) {
         return {
-          "CURRENT CANDIDATE": "2.7.1 测试版",
+          "CURRENT CANDIDATE": "2.7.2 测试版",
           "PREVIOUS LOCAL": "历史测试版",
           RELEASED: "已发布"
         }[state] || state;
