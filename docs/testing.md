@@ -18,6 +18,10 @@ powershell -NoProfile -ExecutionPolicy Bypass `
   -SkillRoot .\skill\pc-hardware-workbench
 ```
 
+硬件案卷回归覆盖主动检查点契约、实验先登记后更新、基线/证据引用、
+通过/中止与恢复字段、紧凑 `Resume` 输出、外部源路径隐藏、旧案卷兼容和
+静态 HTML 报告中的新增字段。
+
 ## Skill 验证
 
 首次使用需要准备持久化验证环境：

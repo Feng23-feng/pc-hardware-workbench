@@ -13,25 +13,26 @@ purchase; never run every mode.
 
 ## Entry and closure
 
-When invoked without a concrete task, read
-[entry-language.md](references/integration/entry-language.md) and ask for the
-objective in the user's current language. Do not mix languages in the introduction.
-
-If the first request already contains a concrete task, skip the introduction and
-state the selected route. Expose decisive evidence, the one-variable choice if
-any, pass/abort criteria, and recovery. End every branch with one result and one
-next action, question, cancel, stop, or handoff; reuse a current snapshot before
-asking again. Read [interaction-closure.md](references/integration/interaction-closure.md)
-and [cross-mode-handoffs.md](references/integration/cross-mode-handoffs.md) only
+For a bare invocation, read [entry-language.md](references/integration/entry-language.md)
+and ask for the objective in the current language without mixing introduction
+languages. For a concrete request, skip the introduction and state the route.
+Expose decisive evidence, any one-variable choice, pass/abort criteria, and
+recovery. End with one result and one next action, question, cancel, stop, or
+handoff; reuse a current snapshot before asking again. Read
+[interaction-closure.md](references/integration/interaction-closure.md) and
+[cross-mode-handoffs.md](references/integration/cross-mode-handoffs.md) only
 when resuming or mixing routes.
 
-Chinese reference examples are templates, not copyable text. Translate
-user-facing content; preserve only labels shown by the user's software.
+Localize user-facing text and never copy reference examples verbatim; preserve
+software labels.
 
-For save, resume, export, or evidence-heavy work, use
-[hardware-case.md](references/integration/hardware-case.md) and its scripts.
-Track identity as `confirmed`, `user-reported`, `unknown`, `unreadable`, or
-`conflict`; follow [device-identity.md](references/integration/device-identity.md)
+Use a private case for multi-turn, multi-evidence,
+baseline/change/test, or chat-loss-prone work. Create/resume it before large
+evidence; checkpoint material changes, not every turn. Store it outside public
+artifacts, report its path, and use `Resume` when reopening. See
+[hardware-case.md](references/integration/hardware-case.md).
+
+Track identity provenance with [device-identity.md](references/integration/device-identity.md)
 and never auto-decode a suspect identity.
 
 ## Hard-stop precedence

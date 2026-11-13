@@ -9,8 +9,10 @@ param(
         "AddTimeline",
         "AddBaseline",
         "AddExperiment",
+        "UpdateExperiment",
         "SetNextAction",
         "Show",
+        "Resume",
         "Validate"
     )]
     [string]$Action,
@@ -62,8 +64,12 @@ param(
 
     [string]$EvidenceId,
 
+    [string[]]$EvidenceIds = @(),
+
     [ValidateSet("valid", "provisional", "none")]
     [string]$BaselineStatus = "provisional",
+
+    [string]$BaselineId,
 
     [string]$ExperimentId,
 
@@ -73,7 +79,26 @@ param(
 
     [string]$Result,
 
+    [ValidateSet("pending", "pass", "fail", "inconclusive")]
+    [string]$Outcome = "pending",
+
     [string]$Decision,
+
+    [string]$PassCriteria,
+
+    [string]$AbortCriteria,
+
+    [string]$Recovery,
+
+    [ValidateSet(
+        "unknown",
+        "not-checked",
+        "verified-active",
+        "verified-after-reboot",
+        "not-active",
+        "not-applicable"
+    )]
+    [string]$PersistenceStatus = "unknown",
 
     [string]$NextAction,
 
@@ -126,6 +151,44 @@ function ConvertTo-SingleLineText {
         return ""
     }
     return (([string]$Value) -replace "[\p{Cc}\p{Cf}]", " ").Trim()
+}
+
+function ConvertTo-CompactText {
+    param(
+        [AllowNull()][object]$Value,
+        [int]$MaximumLength = 260
+    )
+    $text = ConvertTo-SingleLineText $Value
+    if ($text.Length -le $MaximumLength) {
+        return $text
+    }
+    return $text.Substring(0, $MaximumLength - 3).TrimEnd() + "..."
+}
+
+function Merge-NormalizedIds {
+    param(
+        [AllowNull()][object[]]$Existing,
+        [AllowNull()][object[]]$Added
+    )
+    return @(
+        @($Existing) + @($Added) |
+            ForEach-Object { ConvertTo-SingleLineText $_ } |
+            Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
+            Select-Object -Unique
+    )
+}
+
+function Get-OptionalPropertyValue {
+    param(
+        [Parameter(Mandatory = $true)][object]$InputObject,
+        [Parameter(Mandatory = $true)][string]$Name,
+        [AllowNull()][object]$Default = $null
+    )
+    $property = $InputObject.PSObject.Properties[$Name]
+    if ($null -eq $property) {
+        return $Default
+    }
+    return $property.Value
 }
 
 function Get-CaseFilePath {
@@ -261,6 +324,7 @@ function Assert-CaseIntegrity {
     $caseRootPrefix = $caseRoot.TrimEnd('\', '/') + [IO.Path]::DirectorySeparatorChar
     $evidenceIds = New-Object System.Collections.Generic.HashSet[string]
     $hypothesisIds = New-Object System.Collections.Generic.HashSet[string]
+    $baselineIds = New-Object System.Collections.Generic.HashSet[string]
     foreach ($fieldName in @("createdAt", "updatedAt")) {
         if (-not (Test-DateTimeOffsetValue ([string]$Case.$fieldName))) {
             throw "Hardware case field '$fieldName' has an invalid timestamp."
@@ -342,6 +406,7 @@ function Assert-CaseIntegrity {
     }
 
     foreach ($baseline in @($Case.baselines)) {
+        $baselineIds.Add([string]$baseline.Id) | Out-Null
         $baselineStatus = if ($null -ne $baseline.PSObject.Properties["Status"]) {
             [string]$baseline.Status
         }
@@ -381,6 +446,40 @@ function Assert-CaseIntegrity {
         if (-not [string]::IsNullOrWhiteSpace([string]$experiment.HypothesisId) -and
             -not $hypothesisIds.Contains([string]$experiment.HypothesisId)) {
             throw "Experiment '$($experiment.Id)' references missing hypothesis '$($experiment.HypothesisId)'."
+        }
+        $experimentBaselineId = [string](Get-OptionalPropertyValue $experiment "BaselineId")
+        if (-not [string]::IsNullOrWhiteSpace($experimentBaselineId) -and
+            -not $baselineIds.Contains($experimentBaselineId)) {
+            throw "Experiment '$($experiment.Id)' references missing baseline '$experimentBaselineId'."
+        }
+        $experimentEvidenceIds = @(Get-OptionalPropertyValue $experiment "EvidenceIds" @())
+        foreach ($experimentEvidenceIdValue in $experimentEvidenceIds) {
+            $experimentEvidenceId = [string]$experimentEvidenceIdValue
+            if (-not [string]::IsNullOrWhiteSpace($experimentEvidenceId) -and
+                -not $evidenceIds.Contains($experimentEvidenceId)) {
+                throw "Experiment '$($experiment.Id)' references missing evidence '$experimentEvidenceId'."
+            }
+        }
+        $experimentOutcome = [string](Get-OptionalPropertyValue $experiment "Outcome" "")
+        if (-not [string]::IsNullOrWhiteSpace($experimentOutcome) -and
+            $experimentOutcome -notin @("pending", "pass", "fail", "inconclusive")) {
+            throw "Experiment '$($experiment.Id)' has an invalid outcome '$experimentOutcome'."
+        }
+        if ($experimentOutcome -ne "pending" -and
+            [string]::IsNullOrWhiteSpace([string]$experiment.Result)) {
+            throw "Experiment '$($experiment.Id)' has a completed outcome but no result."
+        }
+        $experimentPersistence = [string](Get-OptionalPropertyValue $experiment "PersistenceStatus" "")
+        if (-not [string]::IsNullOrWhiteSpace($experimentPersistence) -and
+            $experimentPersistence -notin @(
+                "unknown",
+                "not-checked",
+                "verified-active",
+                "verified-after-reboot",
+                "not-active",
+                "not-applicable"
+            )) {
+            throw "Experiment '$($experiment.Id)' has an invalid persistence status '$experimentPersistence'."
         }
         if ($null -eq $experiment.PSObject.Properties["RecordedAt"] -or
             -not (Test-DateTimeOffsetValue ([string]$experiment.RecordedAt)) -or
@@ -600,19 +699,99 @@ switch ($Action) {
             -not (@($case.hypotheses | Where-Object { $_.Id -eq $HypothesisId }))) {
             Stop-WithCaseInputError "Hypothesis not found: $HypothesisId"
         }
+        if (-not [string]::IsNullOrWhiteSpace($BaselineId) -and
+            -not (@($case.baselines | Where-Object { $_.Id -eq $BaselineId }))) {
+            Stop-WithCaseInputError "Baseline not found: $BaselineId"
+        }
+        if ($Outcome -ne "pending" -and [string]::IsNullOrWhiteSpace($Result)) {
+            Stop-WithCaseInputError "A completed experiment outcome requires -Result."
+        }
+        $normalizedEvidenceIds = @(Get-NormalizedList $EvidenceIds | Select-Object -Unique)
+        foreach ($referencedEvidenceId in $normalizedEvidenceIds) {
+            if (-not (@($case.evidence | Where-Object { $_.Id -eq $referencedEvidenceId }))) {
+                Stop-WithCaseInputError "Evidence not found: $referencedEvidenceId"
+            }
+        }
         $item = [pscustomobject]@{
             Id = Get-NextEntityId -Items @($case.experiments) -Prefix "X"
             HypothesisId = if ([string]::IsNullOrWhiteSpace($HypothesisId)) { $null } else { $HypothesisId }
+            BaselineId = if ([string]::IsNullOrWhiteSpace($BaselineId)) { $null } else { $BaselineId }
             Change = $Change
             Expected = $Expected
             Result = $Result
+            Outcome = $Outcome
             Decision = $Decision
+            PassCriteria = $PassCriteria
+            AbortCriteria = $AbortCriteria
+            Recovery = $Recovery
+            PersistenceStatus = $PersistenceStatus
+            EvidenceIds = @($normalizedEvidenceIds)
             RecordedAt = $now
             UpdatedAt = $now
         }
         $case.experiments = @(@($case.experiments) + @($item))
         Write-Case -FilePath $caseFile -Case $case
         Write-Output $item.Id
+        break
+    }
+    "UpdateExperiment" {
+        if ([string]::IsNullOrWhiteSpace($ExperimentId)) {
+            Stop-WithCaseInputError "UpdateExperiment requires -ExperimentId."
+        }
+        $target = @($case.experiments | Where-Object { $_.Id -eq $ExperimentId }) | Select-Object -First 1
+        if ($null -eq $target) {
+            Stop-WithCaseInputError "Experiment not found: $ExperimentId"
+        }
+        if ($PSBoundParameters.ContainsKey("HypothesisId")) {
+            if (-not [string]::IsNullOrWhiteSpace($HypothesisId) -and
+                -not (@($case.hypotheses | Where-Object { $_.Id -eq $HypothesisId }))) {
+                Stop-WithCaseInputError "Hypothesis not found: $HypothesisId"
+            }
+            $target.HypothesisId = if ([string]::IsNullOrWhiteSpace($HypothesisId)) { $null } else { $HypothesisId }
+        }
+        if ($PSBoundParameters.ContainsKey("BaselineId")) {
+            if (-not [string]::IsNullOrWhiteSpace($BaselineId) -and
+                -not (@($case.baselines | Where-Object { $_.Id -eq $BaselineId }))) {
+                Stop-WithCaseInputError "Baseline not found: $BaselineId"
+            }
+            $target.BaselineId = if ([string]::IsNullOrWhiteSpace($BaselineId)) { $null } else { $BaselineId }
+        }
+        if ($PSBoundParameters.ContainsKey("EvidenceIds")) {
+            $normalizedEvidenceIds = @(Get-NormalizedList $EvidenceIds | Select-Object -Unique)
+            foreach ($referencedEvidenceId in $normalizedEvidenceIds) {
+                if (-not (@($case.evidence | Where-Object { $_.Id -eq $referencedEvidenceId }))) {
+                    Stop-WithCaseInputError "Evidence not found: $referencedEvidenceId"
+                }
+            }
+            $target.EvidenceIds = @(
+                Merge-NormalizedIds `
+                    -Existing @(Get-OptionalPropertyValue $target "EvidenceIds" @()) `
+                    -Added $normalizedEvidenceIds
+            )
+        }
+        foreach ($fieldName in @(
+            "Change",
+            "Expected",
+            "Result",
+            "Outcome",
+            "Decision",
+            "PassCriteria",
+            "AbortCriteria",
+            "Recovery",
+            "PersistenceStatus"
+        )) {
+            if ($PSBoundParameters.ContainsKey($fieldName)) {
+                $target.$fieldName = [string](Get-Variable -Name $fieldName -ValueOnly)
+            }
+        }
+        $updatedOutcome = [string](Get-OptionalPropertyValue $target "Outcome" "pending")
+        if ($updatedOutcome -ne "pending" -and
+            [string]::IsNullOrWhiteSpace([string]$target.Result)) {
+            Stop-WithCaseInputError "A completed experiment outcome requires a result."
+        }
+        $target.UpdatedAt = $now
+        Write-Case -FilePath $caseFile -Case $case
+        Write-Output $target.Id
         break
     }
     "SetNextAction" {
@@ -648,6 +827,98 @@ switch ($Action) {
         Write-Output "- Experiments: $(@($case.experiments).Count)"
         $nextActionText = if ([string]::IsNullOrWhiteSpace([string]$case.nextAction)) { "not set" } else { ConvertTo-SingleLineText $case.nextAction }
         Write-Output "- Next action: $nextActionText"
+        break
+    }
+    "Resume" {
+        Assert-CaseIntegrity -Case $case -CaseFile $caseFile
+        $nextActionText = if ([string]::IsNullOrWhiteSpace([string]$case.nextAction)) {
+            "not set"
+        }
+        else {
+            ConvertTo-CompactText $case.nextAction
+        }
+        Write-Output "# Hardware case resume"
+        Write-Output ""
+        Write-Output "- Device: $(ConvertTo-CompactText $case.device.alias) / $(ConvertTo-CompactText $case.device.platform)"
+        Write-Output "- Identity: $(ConvertTo-CompactText $case.device.identityQuality)"
+        Write-Output "- Goal: $(ConvertTo-CompactText $case.goal)"
+        Write-Output "- Status: $(ConvertTo-SingleLineText $case.status)"
+        Write-Output "- Updated: $(ConvertTo-SingleLineText $case.updatedAt)"
+        Write-Output "- Next action: $nextActionText"
+
+        Write-Output ""
+        Write-Output "## Latest evidence"
+        $recentEvidence = @($case.evidence | Select-Object -Last 3)
+        if ($recentEvidence.Count -eq 0) {
+            Write-Output "- None recorded"
+        }
+        else {
+            foreach ($evidence in $recentEvidence) {
+                $fileName = [string](Get-OptionalPropertyValue $evidence "OriginalFileName" "")
+                $fileSuffix = if ([string]::IsNullOrWhiteSpace($fileName)) { "" } else { " / $(ConvertTo-CompactText $fileName 100)" }
+                Write-Output "- $($evidence.Id) [$($evidence.Type)] $(ConvertTo-CompactText $evidence.Summary)$fileSuffix"
+            }
+        }
+
+        Write-Output ""
+        Write-Output "## Open or supported hypotheses"
+        $openHypotheses = @(
+            $case.hypotheses |
+                Where-Object { $_.Status -notin @("verified", "contradicted") } |
+                Select-Object -Last 3
+        )
+        if ($openHypotheses.Count -eq 0) {
+            Write-Output "- None recorded"
+        }
+        else {
+            foreach ($hypothesis in $openHypotheses) {
+                $nextTest = ConvertTo-CompactText (Get-OptionalPropertyValue $hypothesis "NextTest" "")
+                $testSuffix = if ([string]::IsNullOrWhiteSpace($nextTest)) { "" } else { " / Next test: $nextTest" }
+                Write-Output "- $($hypothesis.Id) [$($hypothesis.Status)] $(ConvertTo-CompactText $hypothesis.Text)$testSuffix"
+            }
+        }
+
+        Write-Output ""
+        Write-Output "## Recent baselines"
+        $recentBaselines = @($case.baselines | Select-Object -Last 3)
+        if ($recentBaselines.Count -eq 0) {
+            Write-Output "- None recorded"
+        }
+        else {
+            foreach ($baseline in $recentBaselines) {
+                Write-Output "- $($baseline.Id) [$($baseline.Status)] workload: $(ConvertTo-CompactText $baseline.Workload) / evidence: $((Get-OptionalPropertyValue $baseline 'EvidenceId' 'none'))"
+            }
+        }
+
+        Write-Output ""
+        Write-Output "## Recent experiments"
+        $recentExperiments = @($case.experiments | Select-Object -Last 3)
+        if ($recentExperiments.Count -eq 0) {
+            Write-Output "- None recorded"
+        }
+        else {
+            foreach ($experiment in $recentExperiments) {
+                $experimentOutcome = ConvertTo-CompactText (Get-OptionalPropertyValue $experiment "Outcome" "not recorded")
+                $experimentDecision = ConvertTo-CompactText (Get-OptionalPropertyValue $experiment "Decision" "not recorded")
+                $experimentPersistence = ConvertTo-CompactText (Get-OptionalPropertyValue $experiment "PersistenceStatus" "not recorded")
+                Write-Output "- $($experiment.Id) [$experimentOutcome] $(ConvertTo-CompactText $experiment.Change) / decision: $experimentDecision / persistence: $experimentPersistence"
+                $experimentPass = ConvertTo-CompactText (Get-OptionalPropertyValue $experiment "PassCriteria" "")
+                $experimentAbort = ConvertTo-CompactText (Get-OptionalPropertyValue $experiment "AbortCriteria" "")
+                if (-not [string]::IsNullOrWhiteSpace($experimentPass) -or
+                    -not [string]::IsNullOrWhiteSpace($experimentAbort)) {
+                    Write-Output "  Criteria: pass: $experimentPass / abort: $experimentAbort"
+                }
+                $experimentRecovery = ConvertTo-CompactText (Get-OptionalPropertyValue $experiment "Recovery" "")
+                if (-not [string]::IsNullOrWhiteSpace($experimentRecovery)) {
+                    Write-Output "  Recovery: $experimentRecovery"
+                }
+            }
+        }
+
+        Write-Output ""
+        Write-Output "## Resume rule"
+        Write-Output "- Revalidate historical settings and current state before any new state-changing action."
+        Write-Output "- This packet records state; it does not prove diagnosis, stability, or persistence."
         break
     }
     "Validate" {

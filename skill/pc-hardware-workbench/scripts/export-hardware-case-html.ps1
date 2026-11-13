@@ -351,9 +351,18 @@ try {
     $timelineRows.AppendLine("</tbody></table></div>") | Out-Null
 
     $experimentRows = New-Object System.Text.StringBuilder
-    $experimentRows.AppendLine("<div class=`"table-wrap`"><table><thead><tr><th>ID</th><th>Change</th><th>Expected</th><th>Result</th><th>Decision</th><th>Hypothesis</th></tr></thead><tbody>") | Out-Null
+    $experimentRows.AppendLine("<div class=`"table-wrap`"><table><thead><tr><th>ID</th><th>Change / Expected</th><th>Result</th><th>Decision / Baseline</th><th>Criteria / Recovery</th><th>Evidence / Hypothesis</th></tr></thead><tbody>") | Out-Null
     foreach ($experiment in @($case.experiments)) {
-        $experimentRows.AppendLine("<tr><td>$(ConvertTo-HtmlText $experiment.Id)</td><td>$(ConvertTo-HtmlBlock $experiment.Change)</td><td>$(ConvertTo-HtmlBlock $experiment.Expected)</td><td>$(ConvertTo-HtmlBlock $experiment.Result)</td><td>$(ConvertTo-HtmlText $experiment.Decision)</td><td>$(ConvertTo-HtmlText (Get-Value $experiment 'HypothesisId' ''))</td></tr>") | Out-Null
+        $outcome = ConvertTo-HtmlText (Get-Value $experiment "Outcome" "not recorded")
+        $baselineId = ConvertTo-HtmlText (Get-Value $experiment "BaselineId" "none")
+        $evidenceIds = @(Get-Value $experiment "EvidenceIds" @()) -join ", "
+        $criteria = @(
+            "Pass: $(ConvertTo-HtmlBlock (Get-Value $experiment 'PassCriteria' 'not recorded'))",
+            "Abort: $(ConvertTo-HtmlBlock (Get-Value $experiment 'AbortCriteria' 'not recorded'))",
+            "Recovery: $(ConvertTo-HtmlBlock (Get-Value $experiment 'Recovery' 'not recorded'))",
+            "Persistence: $(ConvertTo-HtmlText (Get-Value $experiment 'PersistenceStatus' 'not recorded'))"
+        ) -join "<br>"
+        $experimentRows.AppendLine("<tr><td>$(ConvertTo-HtmlText $experiment.Id)</td><td><strong>$(ConvertTo-HtmlBlock $experiment.Change)</strong><br>Expected: $(ConvertTo-HtmlBlock $experiment.Expected)</td><td><strong>$outcome</strong><br>$(ConvertTo-HtmlBlock $experiment.Result)</td><td>$(ConvertTo-HtmlText $experiment.Decision)<br>Baseline: $baselineId</td><td>$criteria</td><td>Evidence: $(ConvertTo-HtmlText $evidenceIds)<br>Hypothesis: $(ConvertTo-HtmlText (Get-Value $experiment 'HypothesisId' ''))</td></tr>") | Out-Null
     }
     if (@($case.experiments).Count -eq 0) {
         $experimentRows.AppendLine('<tr><td colspan="6" class="muted">No experiments recorded</td></tr>') | Out-Null

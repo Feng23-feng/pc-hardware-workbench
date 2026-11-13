@@ -129,11 +129,27 @@ try {
     $experimentId = & $resolvedScript -Action AddExperiment `
         -CasePath $caseDirectory `
         -HypothesisId $hypothesisId `
+        -BaselineId $baselineId `
+        -EvidenceIds @($evidenceId) `
         -Change "Driver rollback" `
         -Expected "Stutter disappears" `
         -Result "pending" `
-        -Decision "continue"
+        -Outcome pending `
+        -Decision continue `
+        -PassCriteria "No stutter during two identical workload runs" `
+        -AbortCriteria "Driver reset, corruption, or repeated crash" `
+        -Recovery "Restore the saved driver profile" `
+        -PersistenceStatus "not-checked"
     Assert-True ($experimentId -eq "X-001") "Unexpected first experiment ID: $experimentId"
+
+    & $resolvedScript -Action UpdateExperiment `
+        -CasePath $caseDirectory `
+        -ExperimentId $experimentId `
+        -Result "No stutter in two identical runs" `
+        -Outcome pass `
+        -Decision keep `
+        -EvidenceIds @($evidenceId) `
+        -PersistenceStatus "verified-active" | Out-Null
 
     & $resolvedScript -Action SetNextAction `
         -CasePath $caseDirectory `
@@ -162,7 +178,31 @@ try {
     Assert-True ($case.baselines[0].EvidenceId -eq $evidenceId) "Baseline did not retain its evidence ID."
     Assert-True ($case.baselines[0].Status -eq "valid") "Valid baseline status was not stored."
     Assert-True ($case.baselines[1].Status -eq "none") "No-baseline status was not stored."
+    Assert-True ($case.experiments[0].BaselineId -eq $baselineId) "Experiment did not retain its baseline ID."
+    Assert-True ($case.experiments[0].EvidenceIds.Count -eq 1) "Experiment evidence IDs were duplicated or lost."
+    Assert-True ($case.experiments[0].EvidenceIds[0] -eq $evidenceId) "Experiment evidence ID is incorrect."
+    Assert-True ($case.experiments[0].Outcome -eq "pass") "Experiment outcome update was not stored."
+    Assert-True ($case.experiments[0].Decision -eq "keep") "Experiment decision update was not stored."
+    Assert-True ($case.experiments[0].PassCriteria -match "two identical") "Experiment pass criteria were not stored."
+    Assert-True ($case.experiments[0].AbortCriteria -match "Driver reset") "Experiment abort criteria were not stored."
+    Assert-True ($case.experiments[0].Recovery -match "saved driver profile") "Experiment recovery was not stored."
+    Assert-True ($case.experiments[0].PersistenceStatus -eq "verified-active") "Experiment persistence update was not stored."
     Assert-True ($case.nextAction -eq "Repeat the fixed workload after rollback") "Next action was not saved."
+
+    $resume = Invoke-CaseProcess -Arguments @(
+        "-Action", "Resume",
+        "-CasePath", $caseDirectory
+    )
+    Assert-True ($resume.ExitCode -eq 0) "Resume failed for a valid case: $($resume.Stderr)"
+    Assert-True ($resume.Stdout -match "# Hardware case resume") "Resume heading is missing."
+    Assert-True ($resume.Stdout -match "Latest evidence") "Resume evidence section is missing."
+    Assert-True ($resume.Stdout -match "Recent baselines") "Resume baseline section is missing."
+    Assert-True ($resume.Stdout -match "Recent experiments") "Resume experiment section is missing."
+    Assert-True ($resume.Stdout -match "Next action") "Resume next action is missing."
+    Assert-True ($resume.Stdout -match "Criteria: pass: No stutter") "Resume pass criteria are missing."
+    Assert-True ($resume.Stdout -match "Recovery: Restore the saved driver profile") "Resume recovery is missing."
+    Assert-True ($resume.Stdout -match "persistence: verified-active") "Resume persistence is missing."
+    Assert-True (-not $resume.Stdout.Contains($evidenceFile)) "Resume exposed the private evidence source path."
 
     $notEmptyDirectory = Join-Path $tempRoot "not-empty"
     New-Item -ItemType Directory -Path $notEmptyDirectory | Out-Null
@@ -184,6 +224,42 @@ try {
     )
     Assert-True ($missingHypothesisCapture.ExitCode -eq 2) "Missing hypothesis did not return exit code 2."
     Assert-True ($missingHypothesisCapture.Stderr -match "Hypothesis not found") "Missing hypothesis error is unclear."
+
+    $missingExperimentCapture = Invoke-CaseProcess -Arguments @(
+        "-Action", "UpdateExperiment",
+        "-CasePath", $caseDirectory,
+        "-ExperimentId", "X-999",
+        "-Outcome", "fail"
+    )
+    Assert-True ($missingExperimentCapture.ExitCode -eq 2) "Missing experiment did not return exit code 2."
+    Assert-True ($missingExperimentCapture.Stderr -match "Experiment not found") "Missing experiment error is unclear."
+
+    $badExperimentBaselineCapture = Invoke-CaseProcess -Arguments @(
+        "-Action", "AddExperiment",
+        "-CasePath", $caseDirectory,
+        "-Change", "test",
+        "-BaselineId", "B-999"
+    )
+    Assert-True ($badExperimentBaselineCapture.ExitCode -eq 2) "Experiment accepted a missing baseline ID."
+    Assert-True ($badExperimentBaselineCapture.Stderr -match "Baseline not found") "Missing experiment baseline error is unclear."
+
+    $badExperimentEvidenceCapture = Invoke-CaseProcess -Arguments @(
+        "-Action", "AddExperiment",
+        "-CasePath", $caseDirectory,
+        "-Change", "test",
+        "-EvidenceIds", "E-999"
+    )
+    Assert-True ($badExperimentEvidenceCapture.ExitCode -eq 2) "Experiment accepted a missing evidence ID."
+    Assert-True ($badExperimentEvidenceCapture.Stderr -match "Evidence not found") "Missing experiment evidence error is unclear."
+
+    $missingExperimentResultCapture = Invoke-CaseProcess -Arguments @(
+        "-Action", "AddExperiment",
+        "-CasePath", $caseDirectory,
+        "-Change", "test",
+        "-Outcome", "pass"
+    )
+    Assert-True ($missingExperimentResultCapture.ExitCode -eq 2) "Completed experiment accepted no result."
+    Assert-True ($missingExperimentResultCapture.Stderr -match "requires -Result") "Missing experiment result error is unclear."
 
     $badEvidenceCapture = Invoke-CaseProcess -Arguments @(
         "-Action", "AddBaseline",
@@ -236,6 +312,55 @@ try {
     )
     Assert-True ($statusValidation.ExitCode -ne 0) "Validate accepted an unknown baseline status."
     Assert-True ($statusValidation.Stderr -match "invalid status") "Unknown baseline status validation was not explained."
+
+    $outcomeCaseDirectory = Join-Path $tempRoot "case-bad-outcome"
+    Copy-Item -LiteralPath $caseDirectory -Destination $outcomeCaseDirectory -Recurse
+    $outcomeCaseFile = Join-Path $outcomeCaseDirectory "case.json"
+    $outcomeCase = Get-Content -Raw -LiteralPath $outcomeCaseFile -Encoding UTF8 | ConvertFrom-Json
+    $outcomeCase.experiments[0].Outcome = "maybe"
+    [IO.File]::WriteAllText(
+        $outcomeCaseFile,
+        ($outcomeCase | ConvertTo-Json -Depth 20) + "`r`n",
+        $utf8
+    )
+    $outcomeValidation = Invoke-CaseProcess -Arguments @(
+        "-Action", "Validate",
+        "-CasePath", $outcomeCaseFile
+    )
+    Assert-True ($outcomeValidation.ExitCode -ne 0) "Validate accepted an unknown experiment outcome."
+    Assert-True ($outcomeValidation.Stderr -match "invalid outcome") "Unknown experiment outcome was not explained."
+
+    $legacyCaseDirectory = Join-Path $tempRoot "case-legacy-experiment"
+    Copy-Item -LiteralPath $caseDirectory -Destination $legacyCaseDirectory -Recurse
+    $legacyCaseFile = Join-Path $legacyCaseDirectory "case.json"
+    $legacyCase = Get-Content -Raw -LiteralPath $legacyCaseFile -Encoding UTF8 | ConvertFrom-Json
+    foreach ($optionalField in @(
+        "BaselineId",
+        "EvidenceIds",
+        "Outcome",
+        "PassCriteria",
+        "AbortCriteria",
+        "Recovery",
+        "PersistenceStatus"
+    )) {
+        $legacyCase.experiments[0].PSObject.Properties.Remove($optionalField)
+    }
+    [IO.File]::WriteAllText(
+        $legacyCaseFile,
+        ($legacyCase | ConvertTo-Json -Depth 20) + "`r`n",
+        $utf8
+    )
+    $legacyValidation = Invoke-CaseProcess -Arguments @(
+        "-Action", "Validate",
+        "-CasePath", $legacyCaseFile
+    )
+    Assert-True ($legacyValidation.ExitCode -eq 0) "Legacy experiment without optional fields failed validation."
+    $legacyResume = Invoke-CaseProcess -Arguments @(
+        "-Action", "Resume",
+        "-CasePath", $legacyCaseFile
+    )
+    Assert-True ($legacyResume.ExitCode -eq 0) "Legacy experiment without optional fields could not resume."
+    Assert-True ($legacyResume.Stdout -match "not recorded") "Legacy resume did not identify unavailable new fields."
 
     if ($failures.Count -gt 0) {
         Write-Host "Hardware case regression: FAIL" -ForegroundColor Red

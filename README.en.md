@@ -45,6 +45,10 @@ The interactive project pages are currently available in Chinese:
 - **Analyzes frame time.** Read user-exported PresentMon CSV files and report average FPS,
   P95/P99, 1%/0.1% low, spikes, and spike clusters without launching the tool or attaching
   to a game.
+- **Preserves debugging continuity.** Multi-turn, multi-evidence, or tuning work can keep a
+  private local case with evidence, baselines, experiments, pass/abort criteria, recovery,
+  and the next action. A compact resume packet lets a new chat continue without replaying
+  the old conversation.
 - **Requires evidence before tuning.** Device identity, baseline, recovery path, fixed
   workload, and stop conditions must be clear before a test candidate is produced.
 - **Provides bounded GPU starting points.** When the device and evidence are complete,

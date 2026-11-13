@@ -142,13 +142,27 @@ try {
         -OccurredAt "2026-11-02T20:00:00+08:00" `
         -EventType driver `
         -Summary "Driver <system>updated</system>" | Out-Null
-    & $resolvedCaseScript -Action AddExperiment `
+    $experimentId = & $resolvedCaseScript -Action AddExperiment `
         -CasePath $caseFile `
         -HypothesisId $hypothesisId `
+        -BaselineId $baselineId `
+        -EvidenceIds @($importedId) `
         -Change "Rollback" `
         -Expected "No stutter" `
         -Result "pending" `
-        -Decision "continue" | Out-Null
+        -Outcome pending `
+        -Decision continue `
+        -PassCriteria "Pass <criteria> with no stutter" `
+        -AbortCriteria "Abort on driver reset" `
+        -Recovery "Restore the previous profile" `
+        -PersistenceStatus "not-checked"
+    & $resolvedCaseScript -Action UpdateExperiment `
+        -CasePath $caseFile `
+        -ExperimentId $experimentId `
+        -Result "No stutter observed" `
+        -Outcome pass `
+        -Decision keep `
+        -PersistenceStatus "verified-active" | Out-Null
     & $resolvedCaseScript -Action SetNextAction `
         -CasePath $caseFile `
         -NextAction "Run <fixed> workload" | Out-Null
@@ -187,6 +201,13 @@ try {
     Assert-True ($html -match [regex]::Escape($baselineId)) "Report does not contain the valid baseline."
     Assert-True ($html -match [regex]::Escape($noBaselineId)) "Report does not contain the none baseline."
     Assert-True ($html -match [regex]::Escape($hypothesisId)) "Report does not contain the hypothesis."
+    Assert-True ($html -match [regex]::Escape($experimentId)) "Report does not contain the experiment."
+    Assert-True ($html -match [regex]::Escape($baselineId)) "Report does not link the experiment baseline."
+    Assert-True ($html -match [regex]::Escape($importedId)) "Report does not link experiment evidence."
+    Assert-True ($html -match "Pass: Pass &lt;criteria&gt;") "Report does not contain escaped experiment pass criteria."
+    Assert-True ($html -match "Abort: Abort on driver reset") "Report does not contain experiment abort criteria."
+    Assert-True ($html -match "Recovery: Restore the previous profile") "Report does not contain experiment recovery."
+    Assert-True ($html -match "Persistence: verified-active") "Report does not contain experiment persistence status."
     Assert-True ($html -match 'data:image/svg\+xml;base64,') "Safe SVG was not embedded as an image."
     Assert-True ($html -match 'SVG preview skipped') "Unsafe SVG was not rejected."
     Assert-True ($html -match '&lt;script&gt;') "Escaped script text is missing from the report."

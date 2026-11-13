@@ -2485,3 +2485,59 @@ Must:
 - not leave the user with an unrecorded persistent change;
 - keep a stop condition for system restarts, repeated device resets, electric
   damage signs, or storage loss.
+
+## 149. Measurement-driven debugging creates a durable checkpoint
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。附件里有两次同游戏 HWiNFO CSV，我刚把显卡核心偏移从 0 改到 +100 MHz。先分析差异，之后可能还要重启复测。
+```
+
+Must:
+
+- create or resume one private local hardware case before presenting the
+  comparison because the task combines evidence, a change, and later retesting;
+- keep the raw CSV outside the public repository and import it only with consent;
+- record the device identity, workload, baseline, one changed variable,
+  evidence IDs, pass/abort criteria, rollback, and next retest;
+- checkpoint the experiment result with `UpdateExperiment` instead of creating a
+  duplicate experiment;
+- tell the user the case path once and end with one next action;
+- not claim stability or persistence from the CSV alone.
+
+## 150. New chat resumes from a compact packet
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。上一个对话上下文炸了，只留下 case.json。先恢复现场，别让我重新说一遍。
+```
+
+Must:
+
+- use the compact `Resume` output rather than replaying or reading the complete
+  old conversation;
+- recover the device, goal, latest evidence, open hypotheses, recent experiments,
+  recovery, persistence state, and next action;
+- label the saved state as historical until current settings and device state are
+  revalidated;
+- request only the smallest missing current check;
+- not expose external evidence source paths or treat a saved result as permanent
+  proof of stability.
+
+## 151. Quick concept answer does not create a case
+
+Prompt:
+
+```text
+使用 pc-hardware-workbench。简单说一下 GPU Boost 为什么会动态降频，不用查我的电脑。
+```
+
+Must:
+
+- answer as a concept question without creating a hardware case or asking for
+  device telemetry;
+- keep GPU clock behavior separate from a diagnosed thermal or power fault;
+- not invent a machine-specific cause, benchmark result, or tuning value;
+- end with one useful concept-level next step only if one is needed.
