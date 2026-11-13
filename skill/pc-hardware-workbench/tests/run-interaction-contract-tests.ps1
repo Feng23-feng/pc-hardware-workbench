@@ -6,6 +6,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $failures = New-Object System.Collections.Generic.List[string]
+$budgetWarnings = New-Object System.Collections.Generic.List[string]
 
 function Assert-Contains {
     param(
@@ -28,6 +29,16 @@ function Assert-True {
     if (-not $Condition) {
         $failures.Add($Message)
     }
+}
+
+function Get-Utf8LfByteCount {
+    param([Parameter(Mandatory = $true)][string]$Path)
+    $text = [IO.File]::ReadAllText(
+        $Path,
+        (New-Object System.Text.UTF8Encoding($false, $true))
+    )
+    $canonical = $text.Replace("`r`n", "`n").Replace("`r", "`n")
+    return [Text.Encoding]::UTF8.GetByteCount($canonical)
 }
 
 function Read-RequiredFile {
@@ -61,10 +72,9 @@ Assert-Contains $skill 'hidden or\s+manufacturer-limited power' "The Advice inte
 Assert-Contains $skill 'power, voltage, fan, or firmware control' "The Advice intensity summary omits one or more controlled object types."
 Assert-Contains $skill 'For a bare invocation' "Bare-invocation introduction rule is missing."
 Assert-Contains $skill 'entry-language\.md' "Bare-invocation language guidance is not linked."
-Assert-Contains $skill 'without mixing introduction\s+languages' "Bare-invocation introduction permits mixed languages."
-Assert-Contains $skill 'For a concrete request, skip the introduction' "Task-bearing invocation skip rule is missing."
-Assert-Contains $skill 'Localize user-facing text' "Reference examples do not have a universal localization rule."
-Assert-Contains $skill 'never copy reference examples verbatim' "Reference examples can still be copied verbatim across languages."
+Assert-Contains $skill 'ask for the objective in the current\s+language' "Bare-invocation language selection is missing."
+Assert-Contains $skill 'For a concrete request, state\s+the route directly' "Task-bearing invocation skip rule is missing."
+Assert-Contains $skill 'localize the response' "Reference examples do not have a universal localization rule."
 Assert-Contains $skill 'Historical records are not current' "Historical values can still be relabeled as current measurements."
 Assert-Contains $skill 'Do not ask.*still requires one question' "A do-not-ask instruction can bypass historical-value confirmation."
 Assert-Contains $skill 'Just confirmed and unchanged' "Ambiguous historical values can still be promoted without confirmation."
@@ -100,6 +110,7 @@ Assert-Contains $entryLanguage ("(?m)^> " + [regex]::Escape($neutralIntroduction
 Assert-Contains $entryLanguage 'is loaded\. It can inspect the current configuration' "English bare-invocation introduction is missing."
 Assert-Contains $entryLanguage 'Do not mix Chinese and English' "Entry-language reference permits mixed languages."
 Assert-Contains $entryLanguage 'English when neither signal identifies a language' "Entry-language reference has no deterministic fallback."
+Assert-Contains $entryLanguage 'Treat examples elsewhere in the Skill as semantic templates rather than\s+text to copy' "Reference examples can still be copied verbatim across languages."
 Assert-Contains $skill 'Explain named choices' "Choice explanation rule is missing."
 Assert-Contains $skill 'never ask a bare' "Bare named-choice prohibition is missing."
 Assert-Contains $skill 'Plain-language parameter explanations' "Plain-language parameter rule is missing."
@@ -110,7 +121,7 @@ Assert-Contains $skill ([regex]::Escape($englishReferenceOnlyNotice)) "The Engli
 Assert-Contains $skill 'Never mix the Chinese and English notices in one reply' "The language-mixing prohibition is missing."
 Assert-Contains $skill 'BIOS/UEFI tuning setting' "BIOS/UEFI tuning settings are not covered by the parameter safety rule."
 Assert-Contains $skill 'firmware, clock, voltage, power control' "Firmware and tuning controls are not covered by the parameter safety rule."
-Assert-Contains $skill 'Beginner route' "Beginner route is missing."
+Assert-Contains $skill 'nontechnical symptom' "Beginner routing is missing."
 Assert-Contains $skill 'beginner-guide\.md' "Beginner guide link is missing."
 Assert-True ($skill -notmatch '\[\u8BBE\u5907\uFF1A') "The workflow-state example was reintroduced into the entrypoint."
 Assert-Contains $skill 'Hard-stop precedence' "Physical-danger precedence is missing."
@@ -120,7 +131,7 @@ Assert-Contains $skill 'de-energized' "The de-energized hardware handling rule i
 Assert-True ($skill -notmatch 'CPU cooling type, GPU original-cooler') "The main route still asks both CPU and GPU cooling unconditionally."
 Assert-Contains $skill 'preference, aesthetic, collection' "The purchase route still treats every purchase as a performance repair."
 Assert-Contains $skill 'tuning entry gate' "Mandatory tuning entry gate is missing."
-Assert-Contains $skill 'does not waive the gate' "The direct-request bypass prohibition is missing."
+Assert-Contains $skill 'does\s+not waive the gate' "The direct-request bypass prohibition is missing."
 Assert-Contains $skill 'coaching branch, not a dead end' "Missing-gate coaching behavior is missing."
 Assert-Contains $skill 'collector-workflow\.md' "Collector workflow route is missing."
 Assert-Contains $skill 'cross-mode-handoffs\.md' "Cross-mode handoff reference is not linked from the entrypoint."
@@ -307,7 +318,7 @@ Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "tests/run-gpu-auto-oc-tests.ps1") `
     -Label "tests/run-gpu-auto-oc-tests.ps1" | Out-Null
 Assert-Contains $skill 'suggest-gpu-overclock\.ps1' "The Tune route does not invoke the integrated GPU candidate helper."
-Assert-Contains $skill 'multi-adapter identities receive no numeric candidate' "The GPU route permits an ambiguous multi-adapter candidate."
+Assert-Contains $skill 'multi-adapter identities receive no\s+numeric candidate' "The GPU route permits an ambiguous multi-adapter candidate."
 Assert-Contains $gpuAutoCandidates 'sole\s+normative source' "GPU candidate values do not have one normative authority."
 Assert-Contains $gpuAutoCandidates 'never replaces local evidence' "GPU family priors can replace local evidence."
 Assert-True ($gpuAutoCandidates -notmatch '(?i)prototype') "Integrated GPU candidate guidance still calls itself a prototype."
@@ -417,9 +428,8 @@ Assert-Contains $collectorWorkflow 'recently changed the CPU, GPU, memory' "Coll
 Assert-True ($collectorWorkflow -notmatch 'CPU cooling type, whether the GPU') "Collector workflow still asks both cooling groups unconditionally."
 
 Assert-Contains $skill 'Default: refuse\.' "Advice tiering has no default-refusal rule."
-Assert-Contains $skill 'Downgrade only when all three hold:' "Advice tiering has no three-condition downgrade gate."
+Assert-Contains $skill 'Downgrade only under' "Advice tiering has no downgrade gate."
 Assert-Contains $skill 'Never downgrade: anti-cheat evasion' "Advice tiering does not hard-stop anti-cheat or concealment cases."
-Assert-Contains $skill 'no tool name,\s+no step sequence,\s+and no target value' "Advice tiering allows instructional detail after downgrade."
 $quickModePosition = $skill.IndexOf('After the target and form factor are known')
 $advicePosition = $skill.IndexOf('## Advice intensity')
 $purchasePosition = $skill.IndexOf('### Purchase')
@@ -436,6 +446,8 @@ $adviceIntensity = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "references/tuning/advice-intensity.md") `
     -Label "references/tuning/advice-intensity.md"
 Assert-Contains $adviceIntensity 'Assessment downgrade' "Advice intensity has no assessment tier."
+Assert-Contains $adviceIntensity 'all three conditions hold' "Advice intensity has no three-condition downgrade gate."
+Assert-Contains $adviceIntensity 'Do not provide a tool name, step sequence, target value' "Advice tiering allows instructional detail after downgrade."
 Assert-Contains $adviceIntensity 'self-description' "Advice intensity can confuse self-reported expertise with evidence."
 Assert-Contains $adviceIntensity 'does\s+not\s+authorize\s+instructions or\s+endorsement' "Advice assessment is treated as endorsement."
 Assert-Contains $adviceIntensity 'Tool naming boundary' "Advice intensity has no monitoring/negative-capability tool boundary."
@@ -873,7 +885,8 @@ Assert-Contains $coverageMap 'controlled integration revisions' "Coverage map st
 Assert-True ($coverageMap -notmatch 'byte-for-byte unchanged') "Coverage map still claims source files are byte-for-byte unchanged."
 
 $scenarioDoc = Get-Content -LiteralPath (Join-Path $resolvedRoot "tests/interaction-scenarios.md") -Raw -Encoding UTF8
-Assert-Contains $scenarioDoc 'no larger than 11 KB' "Interaction scenario budget does not match the 11 KB entrypoint budget."
+Assert-Contains $scenarioDoc 'daily target no larger than 10.5 KiB' "Interaction scenario budget has no 10.5 KiB daily target."
+Assert-Contains $scenarioDoc 'hard maximum of 11 KiB' "Interaction scenario budget does not preserve the 11 KiB hard maximum."
 Assert-Contains $scenarioDoc 'no larger than 20 KB' "Interaction scenario budget does not match the 20 KB quick-mode budget."
 $crossCapabilityScenarios = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "tests/cross-capability-scenarios.md") `
@@ -999,9 +1012,14 @@ if (-not (Test-Path -LiteralPath $auditTest -PathType Leaf)) {
     $failures.Add("The packaged telemetry audit regression is missing.")
 }
 
-$skillBytes = (Get-Item -LiteralPath $skillPath).Length
-if ($skillBytes -gt 11264) {
+$skillSoftLimit = 10752
+$skillHardLimit = 11264
+$skillBytes = Get-Utf8LfByteCount -Path $skillPath
+if ($skillBytes -gt $skillHardLimit) {
     $failures.Add("SKILL.md exceeds the 11 KB entrypoint budget: $skillBytes bytes.")
+}
+elseif ($skillBytes -gt $skillSoftLimit) {
+    $budgetWarnings.Add("SKILL.md exceeds the 10.5 KiB daily target: $skillBytes bytes; hard maximum is $skillHardLimit bytes. Migrate content before adding more.")
 }
 
 $quickFiles = @(
@@ -1011,10 +1029,16 @@ $quickFiles = @(
 )
 $quickBytes = 0
 foreach ($relative in $quickFiles) {
-    $quickBytes += (Get-Item -LiteralPath (Join-Path $resolvedRoot $relative)).Length
+    $quickBytes += Get-Utf8LfByteCount -Path (Join-Path $resolvedRoot $relative)
 }
 if ($quickBytes -gt 20480) {
     $failures.Add("Quick-mode initial load exceeds the 20 KB budget: $quickBytes bytes.")
+}
+
+Write-Host ("Entry budget: {0} bytes (daily target {1}; hard maximum {2}; headroom {3})." -f $skillBytes, $skillSoftLimit, $skillHardLimit, ($skillSoftLimit - $skillBytes))
+Write-Host ("Quick-mode budget: {0} bytes (hard maximum 20480; headroom {1})." -f $quickBytes, (20480 - $quickBytes))
+foreach ($budgetWarning in $budgetWarnings) {
+    Write-Host "Budget warning: $budgetWarning" -ForegroundColor Yellow
 }
 
 $oldValidation = Join-Path $resolvedRoot "references/integration/validation-and-telemetry.md"

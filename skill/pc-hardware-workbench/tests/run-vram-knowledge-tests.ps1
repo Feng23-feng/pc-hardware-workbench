@@ -32,7 +32,7 @@ $lhm = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "scripts/lhm/lhm-f
 
 Assert-Contains $skill 'vram-and-memory-bus\.md' "SKILL.md does not route VRAM mechanism questions."
 Assert-Contains $skill 'gpu-memory-playbook\.md' "SKILL.md does not route VRAM tuning."
-Assert-Contains $skill 'reply with one next step' "SKILL.md does not keep user-facing VRAM output concise."
+Assert-Contains $playbook 'one next action' "GPU memory playbook does not keep user-facing output concise."
 
 Assert-Contains $intake 'Concept explanation' "Intake has no concept-only memory tier."
 Assert-Contains $intake 'Official theoretical bandwidth' "Intake cannot answer source-backed theoretical bandwidth."

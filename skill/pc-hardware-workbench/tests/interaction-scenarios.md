@@ -115,7 +115,7 @@ Must:
 
 Static contract test must confirm:
 
-- `SKILL.md` is no larger than 11 KB;
+- `SKILL.md` has a daily target no larger than 10.5 KiB and a hard maximum of 11 KiB;
 - the quick-mode starting set is no larger than 20 KB;
 - quick/deep routing references only the files needed for the selected depth;
 - the obsolete monolithic validation reference is absent.

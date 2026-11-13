@@ -22,6 +22,10 @@ powershell -NoProfile -ExecutionPolicy Bypass `
 通过/中止与恢复字段、紧凑 `Resume` 输出、外部源路径隐藏、旧案卷兼容和
 静态 HTML 报告中的新增字段。
 
+入口预算回归使用 LF 规范化后的 UTF-8 字节：超过 10.5 KiB 输出迁移警告，
+超过 11 KiB 直接失败；Quick 初始加载继续以 20 KiB 为硬上限。测试同时输出实际
+占用和剩余空间，避免通过改阈值掩盖内容膨胀。
+
 ## Skill 验证
 
 首次使用需要准备持久化验证环境：
