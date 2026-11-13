@@ -47,6 +47,13 @@ jobs:
             -SkillRoot .\skill\pc-hardware-workbench
           exit $LASTEXITCODE
 
+      - name: Validate behavior-eval harness
+        shell: powershell
+        run: |
+          powershell.exe -NoProfile -ExecutionPolicy Bypass `
+            -File .\tools\run-behavior-evals.ps1 -SelfTest
+          exit $LASTEXITCODE
+
       - name: Run portable self-test
         shell: powershell
         run: |

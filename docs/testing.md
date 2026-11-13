@@ -84,6 +84,58 @@ powershell -NoProfile -ExecutionPolicy Bypass `
 - `1`：发现漂移；
 - `2`：参数或路径错误。
 
+## 统一版本索引
+
+扫描本地 Codex、Portable、DeepSeek Harness、本机安装备份和 Git 标签，
+生成统一的 Markdown 与 JSON 索引：
+
+```powershell
+python .\tools\build-release-index.py
+```
+
+默认输出到本地 `releases\VERSION-INDEX.md` 和
+`releases\VERSION-INDEX.json`，不会修改任何历史发行包。
+
+## 模型行为回归
+
+行为回归默认只检查本地评分器，不调用模型。先验证固定场景和正反例：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass `
+  -File .\tools\run-behavior-evals.ps1 -SelfTest
+```
+
+评分已有回答：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass `
+  -File .\tools\run-behavior-evals.ps1 `
+  -InputRoot .\work\behavior-evals\my-run\answers
+```
+
+只有显式传入 `-Live` 才会通过 `codex exec` 启动真实模型会话。默认最多运行
+5 个场景、每个 1 次；可分别调整 `-MaxCases` 和 `-Runs`。实时运行使用只读
+沙箱、临时会话并禁用 hooks，回答、日志和报告全部写入
+`work\behavior-evals\<timestamp>\`。
+
+首次联调可只运行一个场景，再按 ID 补齐其余场景：
+
+```powershell
+... -Live -ScenarioIds missing-recovery-candidate -Runs 1
+```
+
+测试尚未安装的源码规则时，使用源码模式。子会话会直接读取仓库中的
+`SKILL.md`，不会覆盖本机安装版：
+
+```powershell
+... -Live `
+  -SkillSourcePath .\skill\pc-hardware-workbench `
+  -ScenarioIds history-is-not-current -Runs 1
+```
+
+机器检查只验证安全提示、问题数量、历史值与当前值、截图证据和缺失证据等硬约束；
+结果中的 `humanReview` 始终保持 `PENDING`，不能替代独立人工签署。
+
 ## 发布前检查
 
 - 自动测试和结构验证通过；
