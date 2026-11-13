@@ -188,6 +188,10 @@ This is a test candidate. Independent human acceptance is incomplete.
 
 Included capabilities
 
+- evidence-gated troubleshooting with deterministic GPU starting candidates;
+- user-claim verification that distinguishes measured, user-confirmed, historical,
+  estimated, conflicting, and unverifiable values;
+- read-only PresentMon CSV frame-time analysis with low-FPS and spike metrics;
 - unified CSV and SensorSnapshot telemetry normalization;
 - SVG telemetry charts and static HTML hardware-case reports;
 - official-source RAG evidence cards with expiry and conflict checks;
@@ -292,6 +296,10 @@ Artifact
 - Git commit: $gitCommit
 
 Included
+- evidence-gated troubleshooting with deterministic GPU starting candidates;
+- user-claim verification that distinguishes measured, user-confirmed, historical,
+  estimated, conflicting, and unverifiable values;
+- read-only PresentMon CSV frame-time analysis with low-FPS and spike metrics;
 - normalized telemetry pipeline and chart renderer;
 - hardware cases and static offline HTML reports;
 - RAG evidence cards with source registry, expiry, and conflicts;
@@ -345,7 +353,8 @@ Artifact
 
 Included
 - AGENTS.md and DEEPSEEK.md adapter entries;
-- complete Skill tree with telemetry, cases, RAG, LHM, visual evidence, and Doctor;
+- complete Skill tree with claim verification, PresentMon frame-time analysis,
+  deterministic GPU candidates, telemetry, cases, RAG, LHM, visual evidence, and Doctor;
 - no local hardware reports, telemetry, images, caches, or secrets.
 
 Validation
