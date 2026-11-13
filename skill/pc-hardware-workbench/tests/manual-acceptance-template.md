@@ -93,7 +93,9 @@ result and evidence:
 | Laptop power state and candidate fallback |  |  |  |
 | Detailed-mode safety and terminology |  |  |  |
 | Telemetry-only analysis and handoff |  |  |  |
+| CSV analysis defaults to a useful SVG without forcing hardware diagnosis |  |  |  |
 | PresentMon frame time and stutter triage |  |  |  |
+| Timed multi-phase plans receive one Gantt with plan-not-measurement boundaries |  |  |  |
 | Purchase and preference decisions |  |  |  |
 | Unreadable or conflicting identity |  |  |  |
 | User-reported current values and evidence recency |  |  |  |

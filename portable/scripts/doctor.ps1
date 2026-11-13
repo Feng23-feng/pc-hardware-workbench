@@ -130,6 +130,7 @@ if ($null -ne $resolvedRoot) {
         "scripts/analyze-telemetry.ps1",
         "scripts/normalize-telemetry.ps1",
         "scripts/render-telemetry-chart.ps1",
+        "scripts/render-gantt-chart.ps1",
         "scripts/run-evidence-pipeline.ps1",
         "scripts/analyze-presentmon.ps1",
         "scripts/verify-hardware-claim.ps1",

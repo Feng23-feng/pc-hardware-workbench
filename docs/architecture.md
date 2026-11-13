@@ -105,6 +105,14 @@ PresentMon CSV 作为遥测输入，而不是新的顶层模式。分析器只�
 
 参考：[`presentmon-frame-time.md`](../skill/pc-hardware-workbench/references/integration/presentmon-frame-time.md)。
 
+## 时间计划甘特图
+
+存在预热、候选测试、重启或浸泡等多个阶段，并且持续时间已知时，工作台可从本地
+JSON 计划生成无依赖 SVG 甘特图。它用于表达计划和并行验证轨道，不替代遥测曲线，
+也不表示计划已经执行或硬件已经稳定。
+
+参考：[`telemetry-analysis.md`](../skill/pc-hardware-workbench/references/integration/telemetry-analysis.md)。
+
 ## GPU 起始候选
 
 GPU 调参只有在常规门禁完成后才会生成一个受限、可回退的单变量起始候选。未知、

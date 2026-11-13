@@ -25,15 +25,14 @@ asking again. Read [interaction-closure.md](references/integration/interaction-c
 and [cross-mode-handoffs.md](references/integration/cross-mode-handoffs.md) only
 when resuming or mixing routes.
 
-Chinese examples in references are semantic templates, not text to copy. Translate
-user-facing text; preserve only labels visibly shown by the user's software.
+Chinese reference examples are templates, not copyable text. Translate
+user-facing content; preserve only labels shown by the user's software.
 
-For save, resume, export, or evidence-heavy work, read
-[hardware-case.md](references/integration/hardware-case.md) and use the case
-scripts it names. Track identity as `confirmed`, `user-reported`, `unknown`,
-`unreadable`, or `conflict`; follow
-[device-identity.md](references/integration/device-identity.md) and never
-auto-decode a suspect identity.
+For save, resume, export, or evidence-heavy work, use
+[hardware-case.md](references/integration/hardware-case.md) and its scripts.
+Track identity as `confirmed`, `user-reported`, `unknown`, `unreadable`, or
+`conflict`; follow [device-identity.md](references/integration/device-identity.md)
+and never auto-decode a suspect identity.
 
 ## Hard-stop precedence
 
@@ -47,13 +46,13 @@ wiring, or visible electrical damage:
 4. direct the user to vendor service or qualified repair.
 
 Unexplained instability blocks tuning until a stable baseline is restored.
-Before manual reseating, require shutdown, AC/adapter disconnection, and
-confirmation that the system is de-energized.
+Before reseating, require shutdown, AC/adapter disconnection, and a confirmed
+de-energized state.
 
 ## Explain named choices
 
-Before offering named modes, routes, formats, or procedures, explain the
-practical difference once; never ask a bare “A or B?”.
+Explain the practical difference once before naming modes, routes, formats, or
+procedures; never ask a bare “A or B?”.
 
 ### Beginner route
 
@@ -111,13 +110,13 @@ would change the diagnosis.
 Read [telemetry-analysis.md](references/integration/telemetry-analysis.md);
 confirm source and workload. Analysis is read-only and does not require the
 tuning entry gate; it never implies diagnosis, stability, or permission.
-Use `scripts/render-telemetry-chart.ps1` for charts. Load the matching
+Use `render-telemetry-chart.ps1` for charts. Load the matching
 [telemetry-normalization.md](references/integration/telemetry-normalization.md),
 [lhm-adapter.md](references/integration/lhm-adapter.md), or
 [visual-evidence.md](references/integration/visual-evidence.md).
 For PresentMon, read
 [presentmon-frame-time.md](references/integration/presentmon-frame-time.md) and
-run `scripts/analyze-presentmon.ps1`. Use
+run `analyze-presentmon.ps1`. Use
 [evidence-package.md](references/integration/evidence-package.md) with
 `scripts/run-evidence-pipeline.ps1`.
 
@@ -195,13 +194,13 @@ data, and record sources through `scripts/rag/rag-evidence.ps1`.
 
 - Prefer current measurements, then logs/screenshots, dated history, and general
   claims; retain source, date, context, and uncertainty.
-- Historical records are not current. Ask once whether a claimed current value
-  was just confirmed; then use it as user-reported evidence. See
+- Historical records are not current. "Do not ask" still requires one question:
+  "Just confirmed and unchanged?" Keep it user-reported, never measured. See
   [claim-verification.md](references/integration/claim-verification.md).
-- Use current-session permissions only; never self-elevate, install drivers,
+- Use current permissions only; never self-elevate, install drivers,
   disable protections, or bypass sandbox/anti-cheat.
-- Never automatically change firmware, BIOS/UEFI, clocks, voltages, power
-  limits, fans, memory timings, or vendor utilities; the user applies settings.
+- Never automatically change firmware, BIOS/UEFI, clocks, voltages, limits,
+  fans, timings, or vendor settings; the user applies them.
 - Consent cannot make a missing recovery path safe. Do not help hide, defeat,
   or evade anti-cheat.
 - Recommend current official software; reject repacks and untrusted mirrors.
@@ -216,6 +215,8 @@ Reply in the user's language and lead with the result or next action. For novice
 translate terms and hide internal fields. For complex evidence, separate facts,
 measurements, history, and assumptions. Detail requests expand evidence and
 uncertainty without changing safety or asking the user to choose a mode again.
+For timed multi-phase plans, add one Gantt from telemetry-analysis.md; skip
+single steps.
 
 ## Maintenance
 

@@ -179,6 +179,24 @@ function Get-FixtureResult {
     return Measure-Response -Scenario $Scenario -Text $text -Path $path -Run 1
 }
 
+function Resolve-EvaluationAnswerPath {
+    param(
+        [Parameter(Mandatory = $true)][string]$AnswerRoot,
+        [Parameter(Mandatory = $true)][string]$ScenarioId,
+        [Parameter(Mandatory = $true)][int]$Run,
+        [Parameter(Mandatory = $true)][bool]$LiveMode
+    )
+    $singlePath = Join-Path $AnswerRoot ("{0}.md" -f $ScenarioId)
+    $runPath = Join-Path $AnswerRoot ("{0}.run{1}.md" -f $ScenarioId, $Run)
+    if ($LiveMode) {
+        return $runPath
+    }
+    if (Test-Path -LiteralPath $singlePath -PathType Leaf) {
+        return $singlePath
+    }
+    return $runPath
+}
+
 if ($SelfTest) {
     $failures = New-Object System.Collections.Generic.List[string]
     foreach ($scenario in $scenarios) {
@@ -189,6 +207,26 @@ if ($SelfTest) {
         $invalid = Get-FixtureResult -Scenario $scenario -Kind "invalid"
         if ($invalid.passed) {
             $failures.Add("Invalid fixture unexpectedly passed for '$($scenario.id)'.") | Out-Null
+        }
+    }
+    $pathTestRoot = Join-Path ([IO.Path]::GetTempPath()) "pcwb-behavior-path-$([guid]::NewGuid().ToString('N'))"
+    try {
+        New-Item -ItemType Directory -Path $pathTestRoot -Force | Out-Null
+        $liveOne = Resolve-EvaluationAnswerPath -AnswerRoot $pathTestRoot -ScenarioId "test" -Run 1 -LiveMode $true
+        $liveTwo = Resolve-EvaluationAnswerPath -AnswerRoot $pathTestRoot -ScenarioId "test" -Run 2 -LiveMode $true
+        if ($liveOne -eq $liveTwo -or [IO.Path]::GetFileName($liveOne) -ne "test.run1.md" -or [IO.Path]::GetFileName($liveTwo) -ne "test.run2.md") {
+            $failures.Add("Live runs do not use independent answer paths.") | Out-Null
+        }
+        $singlePath = Join-Path $pathTestRoot "test.md"
+        [IO.File]::WriteAllText($singlePath, "fixture", (New-Object Text.UTF8Encoding($false)))
+        $offlinePath = Resolve-EvaluationAnswerPath -AnswerRoot $pathTestRoot -ScenarioId "test" -Run 2 -LiveMode $false
+        if ($offlinePath -ne $singlePath) {
+            $failures.Add("Offline scoring no longer prefers the single answer file.") | Out-Null
+        }
+    }
+    finally {
+        if (Test-Path -LiteralPath $pathTestRoot) {
+            Remove-Item -LiteralPath $pathTestRoot -Recurse -Force
         }
     }
     if ($failures.Count -gt 0) {
@@ -288,16 +326,11 @@ if ([string]::IsNullOrWhiteSpace($InputRoot)) {
 $results = New-Object System.Collections.Generic.List[object]
 foreach ($scenario in $selected) {
     for ($run = 1; $run -le $Runs; $run++) {
-        $answerPath = Join-Path $answerRoot ("{0}.run{1}.md" -f $scenario.id, $run)
-        if ([string]::IsNullOrWhiteSpace([string]$InputRoot) -and -not (Test-Path -LiteralPath $answerPath -PathType Leaf)) {
-            $answerPath = Join-Path $answerRoot ("{0}.md" -f $scenario.id)
-        }
-        if (-not $Live) {
-            $singlePath = Join-Path $answerRoot ("{0}.md" -f $scenario.id)
-            if (Test-Path -LiteralPath $singlePath -PathType Leaf) {
-                $answerPath = $singlePath
-            }
-        }
+        $answerPath = Resolve-EvaluationAnswerPath `
+            -AnswerRoot $answerRoot `
+            -ScenarioId $scenario.id `
+            -Run $run `
+            -LiveMode ([bool]$Live)
         if ($Live -and -not (Test-Path -LiteralPath $answerPath -PathType Leaf)) {
             $skillInstruction = if (-not [string]::IsNullOrWhiteSpace($SkillSourcePath)) {
                 @"

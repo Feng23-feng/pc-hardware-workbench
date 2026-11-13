@@ -24,6 +24,11 @@ Only an explicit confirmation may change the source type to
 `user-confirmed-current`. Never call that value `measured-current` unless a
 current local read supplied it.
 
+"Use it as current" and "do not ask" are requests to proceed, not confirmation.
+On that branch, ask one closed question before using the value: whether it was
+just checked and whether it changed afterward. Do not continue tuning from the
+historical value while that answer is missing.
+
 ## Workflow
 
 1. Extract the claim fields: device, field, value, unit, claimed time, and source type.

@@ -63,12 +63,14 @@ Assert-Contains $skill 'When invoked without a concrete task' "Bare-invocation i
 Assert-Contains $skill 'entry-language\.md' "Bare-invocation language guidance is not linked."
 Assert-Contains $skill 'Do not mix languages in the introduction' "Bare-invocation introduction permits mixed languages."
 Assert-Contains $skill 'If the first request already contains a concrete task' "Task-bearing invocation skip rule is missing."
-Assert-Contains $skill 'Chinese examples in references are semantic templates' "Reference examples can still be copied verbatim across languages."
-Assert-Contains $skill 'Translate\s+user-facing text' "Reference examples do not have a universal localization rule."
+Assert-Contains $skill 'Chinese reference examples are templates' "Reference examples can still be copied verbatim across languages."
+Assert-Contains $skill 'Translate\s+user-facing content' "Reference examples do not have a universal localization rule."
 Assert-Contains $skill 'Historical records are not current' "Historical values can still be relabeled as current measurements."
-Assert-Contains $skill 'Ask once whether a claimed current value\s+was just confirmed' "Ambiguous historical values can still be promoted without confirmation."
-Assert-Contains $skill 'then use it as user-reported evidence' "User-confirmed current values are rejected as historical records."
+Assert-Contains $skill 'Do not ask.*still requires one question' "A do-not-ask instruction can bypass historical-value confirmation."
+Assert-Contains $skill 'Just confirmed and unchanged' "Ambiguous historical values can still be promoted without confirmation."
+Assert-Contains $skill 'Keep it user-reported, never measured' "User-confirmed current values can be mislabeled as measured."
 Assert-Contains $skill 'claim-verification\.md' "Claim verification route is missing."
+Assert-Contains $skill 'timed multi-phase plans.*Gantt' "Timed plans do not route to the Gantt view."
 $neutralIntroduction = [regex]::Unescape('\u0060pc-hardware-workbench\u0060 \u5DF2\u52A0\u8F7D')
 $codexIntroduction = [regex]::Unescape('\u0060$pc-hardware-workbench\u0060 \u5DF2\u52A0\u8F7D')
 Assert-True (-not ($skill -match ("(?m)^> " + [regex]::Escape($codexIntroduction)))) "The spoken introduction still uses the Codex-only invocation sigil."
@@ -154,6 +156,8 @@ foreach ($relative in @(
     "tests/run-pwsh7-parse-tests.ps1",
     "tests/manual-acceptance-template.md",
     "scripts/analyze-telemetry.ps1",
+    "scripts/render-telemetry-chart.ps1",
+    "scripts/render-gantt-chart.ps1",
     "scripts/analyze-presentmon.ps1",
     "scripts/verify-hardware-claim.ps1",
     "tests/run-claim-verification-tests.ps1",
@@ -486,6 +490,9 @@ Assert-Contains $telemetry 'name DWG FastView, LanSweeper, OPEN, and Try Now as 
 Assert-Contains $telemetry 'warn that a raw HWiNFO CSV may carry appended device metadata' "A first-capture monitoring route must warn about raw CSV metadata."
 Assert-Contains $telemetry 'render-telemetry-chart\.ps1' "Telemetry guidance does not route to the chart renderer."
 Assert-Contains $telemetry 'chart is an evidence view, not a new measurement source' "Telemetry guidance treats a chart as independent evidence."
+Assert-Contains $telemetry 'supplies a compatible CSV[\s\S]*render one SVG overview' "CSV analysis does not default to a visual overview."
+Assert-Contains $telemetry 'render-gantt-chart\.ps1' "Timed plans do not route to the Gantt renderer."
+Assert-Contains $telemetry 'chart is a plan, not measured evidence' "Gantt guidance overstates a planned timeline as measured evidence."
 Assert-Contains $telemetry 'telemetry-normalization\.md' "Telemetry guidance does not route structured sources to normalization."
 
 $analyzer = Read-RequiredFile `

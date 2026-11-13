@@ -42,6 +42,13 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "<suite-folder>\scripts\rend
 
 The renderer uses the analyzer's validated chart data, selects up to three useful series by default, preserves missing-value transitions even after downsampling, and does not overwrite an existing output file. Use `-MaxSeries` to change the number from 1 to 8, `-MaxPoints` to control downsampling, and `-IncludeColumn` for an explicit custom numeric series. Explicitly requested columns are selected before the default metric priority. SVG is the first no-dependency format; it can be displayed directly or converted later if needed.
 
+When the user supplies a compatible CSV without requesting a specific output,
+produce the analysis summary and, if at least one validated series exists,
+render one SVG overview and report its local path. Do not create an empty or
+misleading chart when the analyzer finds no usable series. If the current host
+renders local media, embed the chart once with an absolute path instead of only
+printing the path.
+
 For a structured JSON snapshot, source provenance, mixed-source warnings, or a
 shared normalized document across CSV and future sensor adapters, read
 [telemetry-normalization.md](telemetry-normalization.md) and use
@@ -49,6 +56,62 @@ shared normalized document across CSV and future sensor adapters, read
 with auto-detected JSON input or `-InputFormat NormalizedJson`.
 
 The chart is an evidence view, not a new measurement source. Keep the original CSV and its `Window`, field selection, units, sampling limitations, and warnings with the image. If the data is too sparse or no recognized metric exists, do not force a chart.
+
+Keep generated charts, reports, plans, and evidence packages in an explicit
+local output directory. When working inside a Git repository, use its ignored
+`work/` directory or an output directory outside the repository; never add
+runtime artifacts to an installable Skill or tracked project tree.
+
+## Timed plan Gantt view
+
+Use a Gantt view only when timing is part of the decision: a multi-phase test,
+cooldown, soak period, reboot check, parallel validation track, or other plan
+with at least two known durations. Do not use it for a single next step, for
+unknown timing, as a substitute for telemetry line charts, or as evidence that
+the plan was executed.
+
+The input is a local JSON schedule with relative numeric time:
+
+```json
+{
+  "title": "GPU stability validation",
+  "timeUnit": "min",
+  "tasks": [
+    {
+      "label": "Known-good baseline",
+      "start": 0,
+      "duration": 20,
+      "track": "Baseline",
+      "status": "planned"
+    },
+    {
+      "label": "Candidate run",
+      "start": 20,
+      "duration": 30,
+      "track": "Candidate",
+      "status": "active",
+      "note": "Fixed workload"
+    }
+  ]
+}
+```
+
+`start` and `duration` must be finite numbers greater than or equal to zero and
+greater than zero respectively. Supported statuses are `planned`, `active`,
+`pass`, `fail`, and `blocked`. Keep one `track` for tasks that belong on the
+same planning lane.
+
+Render one dependency-free SVG:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File "<suite-folder>\scripts\render-gantt-chart.ps1" -InputPath "<plan.json>" -OutputPath "<new-plan.svg>"
+```
+
+When a multi-phase plan has reliable timing, include one Gantt chart in the
+response and keep the surrounding text focused on pass/abort and recovery. Embed
+the local image once when the host supports it; otherwise provide the absolute
+path. The chart is a plan, not measured evidence; update statuses only when the
+user reports actual progress.
 
 For one-command packaging and an optional baseline/candidate comparison, read
 [evidence-package.md](evidence-package.md) and use

@@ -192,6 +192,7 @@ Included capabilities
 - user-claim verification that distinguishes measured, user-confirmed, historical,
   estimated, conflicting, and unverifiable values;
 - read-only PresentMon CSV frame-time analysis with low-FPS and spike metrics;
+- dependency-free CSV SVG overviews and timed-plan Gantt charts;
 - unified CSV and SensorSnapshot telemetry normalization;
 - SVG telemetry charts and static HTML hardware-case reports;
 - official-source RAG evidence cards with expiry and conflict checks;
@@ -300,6 +301,7 @@ Included
 - user-claim verification that distinguishes measured, user-confirmed, historical,
   estimated, conflicting, and unverifiable values;
 - read-only PresentMon CSV frame-time analysis with low-FPS and spike metrics;
+- dependency-free CSV SVG overviews and timed-plan Gantt charts;
 - normalized telemetry pipeline and chart renderer;
 - hardware cases and static offline HTML reports;
 - RAG evidence cards with source registry, expiry, and conflicts;
@@ -354,7 +356,8 @@ Artifact
 Included
 - AGENTS.md and DEEPSEEK.md adapter entries;
 - complete Skill tree with claim verification, PresentMon frame-time analysis,
-  deterministic GPU candidates, telemetry, cases, RAG, LHM, visual evidence, and Doctor;
+  CSV/Gantt SVG views, deterministic GPU candidates, telemetry, cases, RAG, LHM,
+  visual evidence, and Doctor;
 - no local hardware reports, telemetry, images, caches, or secrets.
 
 Validation

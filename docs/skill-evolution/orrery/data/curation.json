@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "snapshot": {
     "frozenAt": "2026-11-13",
-    "changes": "113-file current snapshot adds user-claim verification, historical/current evidence separation, and read-only PresentMon frame-time analysis."
+    "changes": "114-file current snapshot adds user-claim verification, historical/current evidence separation, read-only PresentMon frame-time analysis, default CSV SVG overviews, and timed-plan Gantt rendering."
   },
   "sectors": {
     "core": {
@@ -525,6 +525,11 @@
       "cluster": "scripts/telemetry",
       "role": "确定性图表渲染",
       "summary": "从 CSV 或规范化 JSON 生成不覆盖已有文件、限制尺寸的静态 SVG 图表。"
+    },
+    "scripts/render-gantt-chart.ps1": {
+      "cluster": "scripts/telemetry",
+      "role": "时间计划甘特图",
+      "summary": "从本地 JSON 时间计划生成无依赖 SVG 甘特图，标注并行轨道、状态和证据边界。"
     },
       "scripts/run-evidence-pipeline.ps1": {
         "cluster": "scripts/telemetry",

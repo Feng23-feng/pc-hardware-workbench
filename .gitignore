@@ -10,6 +10,8 @@ dist/
 share/
 *.zip
 work/
+artifacts/
+.codex-artifacts/
 *.7z
 
 *.log

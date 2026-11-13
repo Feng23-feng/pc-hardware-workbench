@@ -74,7 +74,7 @@
 
    2.6.0 起，便携包还包含 `scripts/suggest-gpu-overclock.ps1` 和 `docs/gpu-auto-oc-tier-authority.json`。候选脚本只输出 JSON 建议，不读取或修改硬件；必须在五道门禁完成、基线可复现且恢复方式已保存后使用。未知、多适配器、专业卡、核显或冲突身份不会得到数字候选。
 
-   2.7.0 起，便携包新增用户声明核验与 PresentMon CSV 帧时间分析。旧记录只有在用户明确确认“刚刚检查且之后未变化”后才能作为当前用户报告；脚本仍不会把用户报告改写成独立实测。PresentMon 分析只读取用户已经导出的本地 CSV，不启动采集工具、不提权、不接入游戏进程，也不会修改显卡或系统设置。
+   2.7.0 起，便携包新增用户声明核验、PresentMon CSV 帧时间分析、CSV 自动 SVG 概览和多阶段甘特图。旧记录只有在用户明确确认“刚刚检查且之后未变化”后才能作为当前用户报告；脚本仍不会把用户报告改写成独立实测。PresentMon 分析只读取用户已经导出的本地 CSV，不启动采集工具、不提权、不接入游戏进程，也不会修改显卡或系统设置。甘特图只表达已知时长的测试计划，不代表计划已经执行或硬件稳定。
 
    1.2.5 起，GPU 基线还必须记录 PerfCap/限流原因；曲线 Apply 后要重新核对实际应用值；跑分、目标游戏和待机/重启属于三个不同验证层级。
    1.2.6 起，普通桌面功耗墙上限路线会核实 PSU、供电路径、接头和限流原因；RTX 4090/5090 和笔记本不会出现该路线。笔记本不要用第三方工具解锁隐藏功耗墙。
@@ -575,6 +575,8 @@ scripts 文件夹中的以下文件必须一起保留：
 - storage-native.cs
 - display-native.cs
 - analyze-telemetry.ps1
+- render-telemetry-chart.ps1
+- render-gantt-chart.ps1
 - analyze-presentmon.ps1
 - verify-hardware-claim.ps1
 

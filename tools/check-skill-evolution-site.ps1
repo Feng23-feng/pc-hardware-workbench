@@ -389,8 +389,8 @@ if ($errors.Count -eq 0) {
     if ($orreryHtml -notmatch '\u5F53\u524D\u6587\u4EF6\u661F\u7CFB|\u5F53\u524D\u5FEB\u7167') {
         $errors.Add("Orrery does not identify its current snapshot.") | Out-Null
     }
-    if ($orreryHtml -notmatch '113 \u4E2A\u6587\u4EF6|\u5F53\u524D Git \u6E05\u5355 \u00B7 Skill 2\.7\.0') {
-        $errors.Add("Orrery does not expose the current 113-file snapshot.") | Out-Null
+    if ($orreryHtml -notmatch '114 \u4E2A\u6587\u4EF6|\u5F53\u524D Git \u6E05\u5355 \u00B7 Skill 2\.7\.0') {
+        $errors.Add("Orrery does not expose the current 114-file snapshot.") | Out-Null
     }
     if ($orreryHtml -match 'archive/1\.5\.2/') {
         $errors.Add("Orrery still exposes the local-only 1.5.2 archive.") | Out-Null
@@ -431,7 +431,7 @@ if ($errors.Count -eq 0) {
     finally {
         $sha256.Dispose()
     }
-    if ($frozen.version -ne "2.7.0" -or $frozen.status -ne "frozen" -or [int]$frozen.fileCount -ne 113) {
+    if ($frozen.version -ne "2.7.0" -or $frozen.status -ne "frozen" -or [int]$frozen.fileCount -ne 114) {
         $errors.Add("Orrery FROZEN.json version/status/file count is unexpected.") | Out-Null
     }
     if ([int]$frozen.bytes -ne $orreryBytes.Length -or $frozen.sha256 -ne $orreryHash) {
@@ -447,4 +447,4 @@ if ($errors.Count -gt 0) {
     exit 1
 }
 
-Write-Host "Skill evolution site check: PASS (two canonical templates, single visible path, technical archives folded, 113-file orrery, JavaScript syntax)" -ForegroundColor Green
+Write-Host "Skill evolution site check: PASS (two canonical templates, single visible path, technical archives folded, 114-file orrery, JavaScript syntax)" -ForegroundColor Green

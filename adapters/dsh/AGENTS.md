@@ -36,6 +36,9 @@ evidence is unavailable. Do not claim that hardware was read.
 - Inventory: use the bundled Windows collector only with explicit consent.
 - Telemetry: use `analyze-telemetry.ps1`, `normalize-telemetry.ps1`, and
   `render-telemetry-chart.ps1`.
+- Timed plans: for multi-phase work with known durations, read
+  `references/integration/telemetry-analysis.md` and render one Gantt SVG with
+  `render-gantt-chart.ps1`; skip one-step work.
 - User claims: distinguish measured, user-confirmed, historical, estimated,
   conflicting, and unverifiable values; read
   `references/integration/claim-verification.md` and use

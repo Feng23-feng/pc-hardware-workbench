@@ -2558,6 +2558,7 @@ function Test-PortableKit {
         (Join-Path $scriptsRoot "analyze-telemetry.ps1"),
         (Join-Path $scriptsRoot "normalize-telemetry.ps1"),
         (Join-Path $scriptsRoot "render-telemetry-chart.ps1"),
+        (Join-Path $scriptsRoot "render-gantt-chart.ps1"),
         (Join-Path $scriptsRoot "analyze-presentmon.ps1"),
         (Join-Path $scriptsRoot "verify-hardware-claim.ps1"),
         (Join-Path $scriptsRoot "suggest-gpu-overclock.ps1"),

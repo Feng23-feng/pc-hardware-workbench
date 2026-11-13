@@ -36,7 +36,10 @@ The interactive project pages are currently available in Chinese:
 - **Prioritizes safe troubleshooting.** Address physical safety, boot and data risk,
   stability, functional faults, and performance in that order.
 - **Analyzes real telemetry.** Read CSV files, HWiNFO exports, and structured sensor
-  snapshots while preserving sample interval, missing values, source, and time range.
+  snapshots while preserving sample interval, missing values, source, and time range,
+  and render an SVG overview when a usable series exists.
+- **Visualizes timed plans.** Render a Gantt view for multi-phase tuning, warm-up,
+  validation, reboot, and soak schedules; skip it for one-step or untimed guidance.
 - **Verifies user claims.** Separate measured current values, explicit user confirmation,
   historical records, estimates, and conflicts instead of silently promoting old values.
 - **Analyzes frame time.** Read user-exported PresentMon CSV files and report average FPS,
@@ -182,6 +185,14 @@ recommending any overclocking values.
 
 ```text
 Analyze this HWiNFO CSV for trends, missing data, and abnormal time windows.
+```
+
+```text
+Analyze this PresentMon CSV for stutter and render a frame-time chart I can inspect.
+```
+
+```text
+Turn this timed tuning plan into a timeline I can inspect.
 ```
 
 ```text

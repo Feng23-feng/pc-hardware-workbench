@@ -23,6 +23,11 @@ function Assert-True {
 
 $resolvedAnalyzer = (Resolve-Path -LiteralPath $AnalyzerPath).Path
 $resolvedRenderer = (Resolve-Path -LiteralPath $RendererPath).Path
+$resolvedGanttRenderer = (
+    Resolve-Path -LiteralPath (
+        Join-Path (Split-Path -Parent $resolvedRenderer) "render-gantt-chart.ps1"
+    )
+).Path
 $powershell = (Get-Command powershell.exe -ErrorAction Stop).Source
 $tempRoot = Join-Path ([IO.Path]::GetTempPath()) "pcwb-chart-$([guid]::NewGuid().ToString('N'))"
 
@@ -38,6 +43,14 @@ try {
         [ref]$parseErrors
     ) | Out-Null
     Assert-True ($parseErrors.Count -eq 0) "Chart renderer syntax errors: $($parseErrors -join '; ')"
+    $ganttTokens = $null
+    $ganttParseErrors = $null
+    [System.Management.Automation.Language.Parser]::ParseFile(
+        $resolvedGanttRenderer,
+        [ref]$ganttTokens,
+        [ref]$ganttParseErrors
+    ) | Out-Null
+    Assert-True ($ganttParseErrors.Count -eq 0) "Gantt renderer syntax errors: $($ganttParseErrors -join '; ')"
 
     $telemetryPath = Join-Path $tempRoot "telemetry.csv"
     $telemetryContent = @'
@@ -217,6 +230,118 @@ try {
     $maliciousSvg = Get-Content -Raw -LiteralPath $maliciousSvgPath
     Assert-True (-not ($maliciousSvg -match "<script>alert\(1\)</script>")) "Source column markup was not escaped in SVG output."
     Assert-True ($maliciousSvg.Contains("&lt;script&gt;alert(1)&lt;/script&gt;")) "Escaped source column text is missing from SVG output."
+
+    $ganttPlanPath = Join-Path $tempRoot "gantt-plan.json"
+    @{
+        title = "GPU stability validation"
+        timeUnit = "min"
+        tasks = @(
+            @{
+                label = "Known-good baseline"
+                start = 0
+                duration = 20
+                track = "Baseline"
+                status = "planned"
+            },
+            @{
+                label = "Candidate +50 MHz"
+                start = 20
+                duration = 30
+                track = "Candidate"
+                status = "active"
+                note = "Fixed workload"
+            },
+            @{
+                label = "Reboot and soak"
+                start = 50
+                duration = 120
+                track = "Validation"
+                status = "planned"
+            }
+        )
+    } | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $ganttPlanPath -Encoding UTF8
+    $ganttSvgPath = Join-Path $tempRoot "gantt.svg"
+    $renderedGanttPath = (& $resolvedGanttRenderer -InputPath $ganttPlanPath -OutputPath $ganttSvgPath | Select-Object -Last 1)
+    $ganttSvg = Get-Content -Raw -LiteralPath $ganttSvgPath -Encoding UTF8
+    Assert-True ($renderedGanttPath -eq $ganttSvgPath) "Gantt renderer did not report the created SVG path."
+    Assert-True ($ganttSvg.StartsWith('<?xml version="1.0" encoding="UTF-8"?>')) "Gantt SVG XML declaration is missing."
+    Assert-True ($ganttSvg.Contains("<svg ")) "Gantt SVG root element is missing."
+    Assert-True ($ganttSvg.Contains("Known-good baseline")) "Gantt baseline task is missing."
+    Assert-True ($ganttSvg.Contains("Candidate +50 MHz")) "Gantt candidate task is missing."
+    Assert-True ($ganttSvg.Contains("Planning view")) "Gantt planning label is missing."
+    Assert-True ($ganttSvg.Contains("not a hardware measurement")) "Gantt evidence boundary is missing."
+    Assert-True ($ganttSvg.Contains("Durations remain assumptions")) "Gantt execution limitation is missing."
+    Assert-True (-not ($ganttSvg -match "NaN|Infinity")) "Gantt SVG contains a non-finite value."
+
+    $ganttHash = (Get-FileHash -LiteralPath $ganttSvgPath -Algorithm SHA256).Hash
+    try {
+        $ErrorActionPreference = "Continue"
+        $ganttExistingMessage = (
+            & $powershell -NoProfile -ExecutionPolicy Bypass -File $resolvedGanttRenderer `
+                -InputPath $ganttPlanPath -OutputPath $ganttSvgPath 2>&1 | Out-String
+        )
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorPreference
+    }
+    $ganttExistingExitCode = $LASTEXITCODE
+    Assert-True (
+        $ganttExistingExitCode -eq 2 -and
+        $ganttExistingMessage -match "already exists" -and
+        (Get-FileHash -LiteralPath $ganttSvgPath -Algorithm SHA256).Hash -eq $ganttHash
+    ) "Gantt renderer overwrote or did not reject an existing output file."
+
+    $invalidGanttPath = Join-Path $tempRoot "invalid-gantt.json"
+    @{ title = "Invalid plan"; tasks = @() } |
+        ConvertTo-Json -Depth 4 |
+        Set-Content -LiteralPath $invalidGanttPath -Encoding UTF8
+    try {
+        $ErrorActionPreference = "Continue"
+        & $powershell -NoProfile -ExecutionPolicy Bypass -File $resolvedGanttRenderer `
+            -InputPath $invalidGanttPath `
+            -OutputPath (Join-Path $tempRoot "invalid-gantt.svg") *> $null
+        $invalidGanttExitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorPreference
+    }
+    Assert-True ($invalidGanttExitCode -eq 2) "Gantt renderer accepted a plan with no tasks."
+
+    $missingStartPath = Join-Path $tempRoot "missing-gantt-start.json"
+    @{
+        title = "Invalid plan"
+        tasks = @(@{
+            label = "Missing start"
+            duration = 10
+        })
+    } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $missingStartPath -Encoding UTF8
+    try {
+        $ErrorActionPreference = "Continue"
+        & $powershell -NoProfile -ExecutionPolicy Bypass -File $resolvedGanttRenderer `
+            -InputPath $missingStartPath `
+            -OutputPath (Join-Path $tempRoot "missing-gantt-start.svg") *> $null
+        $missingStartExitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorPreference
+    }
+    Assert-True ($missingStartExitCode -eq 2) "Gantt renderer accepted a task without a start value."
+
+    $maliciousGanttPath = Join-Path $tempRoot "malicious-gantt.json"
+    @{
+        title = "Plan <script>alert(1)</script>"
+        tasks = @(@{
+            label = "Baseline <script>alert(2)</script>"
+            start = 0
+            duration = 20
+        })
+    } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $maliciousGanttPath -Encoding UTF8
+    $maliciousGanttSvgPath = Join-Path $tempRoot "malicious-gantt.svg"
+    & $resolvedGanttRenderer -InputPath $maliciousGanttPath -OutputPath $maliciousGanttSvgPath | Out-Null
+    $maliciousGanttSvg = Get-Content -Raw -LiteralPath $maliciousGanttSvgPath -Encoding UTF8
+    Assert-True (-not ($maliciousGanttSvg -match "<script>alert\(")) "Gantt task text was not escaped in SVG output."
+    Assert-True ($maliciousGanttSvg.Contains("&lt;script&gt;alert(1)&lt;/script&gt;")) "Escaped Gantt title is missing from SVG output."
+    Assert-True ($maliciousGanttSvg.Contains("&lt;script&gt;alert(2)&lt;/script&gt;")) "Escaped Gantt task label is missing from SVG output."
 
     if ($failures.Count -gt 0) {
         Write-Host "Telemetry chart regression: FAIL" -ForegroundColor Red

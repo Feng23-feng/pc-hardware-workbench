@@ -104,6 +104,15 @@ powershell -NoProfile -ExecutionPolicy Bypass `
   -AnalyzerPath .\skill\pc-hardware-workbench\scripts\analyze-presentmon.ps1
 ```
 
+CSV SVG 与时间计划甘特图回归（含防覆盖和非法输入）：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass `
+  -File .\skill\pc-hardware-workbench\tests\run-telemetry-chart-tests.ps1 `
+  -AnalyzerPath .\skill\pc-hardware-workbench\scripts\analyze-telemetry.ps1 `
+  -RendererPath .\skill\pc-hardware-workbench\scripts\render-telemetry-chart.ps1
+```
+
 ## 模型行为回归
 
 行为回归默认只检查本地评分器，不调用模型。先验证固定场景和正反例：
@@ -125,6 +134,7 @@ powershell -NoProfile -ExecutionPolicy Bypass `
 5 个场景、每个 1 次；可分别调整 `-MaxCases` 和 `-Runs`。实时运行使用只读
 沙箱、临时会话并禁用 hooks，回答、日志和报告全部写入
 `work\behavior-evals\<timestamp>\`。
+每个 `-Runs` 都使用独立的 `*.runN.md`，不会复用前一次回答。
 
 首次联调可只运行一个场景，再按 ID 补齐其余场景：
 
@@ -159,7 +169,6 @@ powershell -NoProfile -ExecutionPolicy Bypass `
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass `
   -File .\tools\build-release.ps1 `
-  -RepositoryRoot . `
   -Label test `
   -ValidatorPath "C:\Users\<user>\Documents\Codex\tools\skill-creator-validator\validate-skill.ps1"
 ```
