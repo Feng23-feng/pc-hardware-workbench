@@ -135,6 +135,20 @@ $testCases = @(
         Name = "Interaction contract (static)"
         Script = Join-Path $resolvedRoot "tests/run-interaction-contract-tests.ps1"
         Arguments = @("-SkillRoot", $resolvedRoot)
+    },
+    @{
+        Name = "Claim verification"
+        Script = Join-Path $resolvedRoot "tests/run-claim-verification-tests.ps1"
+        Arguments = @(
+            "-VerifierPath", (Join-Path $resolvedRoot "scripts/verify-hardware-claim.ps1")
+        )
+    },
+    @{
+        Name = "PresentMon frame-time analysis"
+        Script = Join-Path $resolvedRoot "tests/run-presentmon-analysis-tests.ps1"
+        Arguments = @(
+            "-AnalyzerPath", (Join-Path $resolvedRoot "scripts/analyze-presentmon.ps1")
+        )
     }
 )
 

@@ -131,6 +131,8 @@ if ($null -ne $resolvedRoot) {
         "scripts/normalize-telemetry.ps1",
         "scripts/render-telemetry-chart.ps1",
         "scripts/run-evidence-pipeline.ps1",
+        "scripts/analyze-presentmon.ps1",
+        "scripts/verify-hardware-claim.ps1",
         "assets/evidence-card-template.html",
         "references/integration/evidence-package.md",
         "scripts/hardware-case.ps1",
@@ -144,6 +146,8 @@ if ($null -ne $resolvedRoot) {
         "references/tuning/gpu-auto-oc-tier-authority.json",
         "references/integration/telemetry-analysis.md",
         "references/integration/telemetry-normalization.md",
+        "references/integration/claim-verification.md",
+        "references/integration/presentmon-frame-time.md",
         "references/integration/dynamic-rag.md",
         "references/integration/lhm-adapter.md",
         "references/integration/visual-evidence.md"

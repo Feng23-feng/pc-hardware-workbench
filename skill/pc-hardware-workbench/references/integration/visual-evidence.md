@@ -65,6 +65,8 @@ Do not fill missing fields with plausible guesses.
   estimate it from another metric.
 - A screenshot cannot establish P1/P95, frame-time stability, or a fixed-workload
   baseline.
+- When rejecting a stability claim, name the missing workload, duration, or
+  time-series evidence and end with one next action.
 - If the image shows an active experiment, ask for or correlate the same workload
   and time window before comparing.
 - Prefer the original CSV when available and register both files as case

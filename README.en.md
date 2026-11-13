@@ -7,7 +7,7 @@ DeepSeek Harness. It brings system inventory, troubleshooting, telemetry analysi
 guided tuning, and upgrade decisions into one workflow while leaving every
 persistent hardware change to the user.
 
-The current release line is a **2.6.0 test build**. Baseline non-live automated tests
+The current release line is a **2.7.0 test build**. Baseline non-live automated tests
 pass, but broad real-device coverage and independent human acceptance are still in
 progress. The project does not claim this test build is stable or fully validated.
 
@@ -37,6 +37,11 @@ The interactive project pages are currently available in Chinese:
   stability, functional faults, and performance in that order.
 - **Analyzes real telemetry.** Read CSV files, HWiNFO exports, and structured sensor
   snapshots while preserving sample interval, missing values, source, and time range.
+- **Verifies user claims.** Separate measured current values, explicit user confirmation,
+  historical records, estimates, and conflicts instead of silently promoting old values.
+- **Analyzes frame time.** Read user-exported PresentMon CSV files and report average FPS,
+  P95/P99, 1%/0.1% low, spikes, and spike clusters without launching the tool or attaching
+  to a game.
 - **Requires evidence before tuning.** Device identity, baseline, recovery path, fixed
   workload, and stop conditions must be clear before a test candidate is produced.
 - **Provides bounded GPU starting points.** When the device and evidence are complete,
@@ -258,7 +263,7 @@ verification workflow.
 
 Use [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
 and [CHANGELOG.md](CHANGELOG.md) as the source of version status. The current release
-line is a `2.6.0` test build.
+line is a `2.7.0` test build.
 
 Source code is available under the [MIT License](LICENSE).
 

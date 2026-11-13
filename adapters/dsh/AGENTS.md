@@ -36,6 +36,13 @@ evidence is unavailable. Do not claim that hardware was read.
 - Inventory: use the bundled Windows collector only with explicit consent.
 - Telemetry: use `analyze-telemetry.ps1`, `normalize-telemetry.ps1`, and
   `render-telemetry-chart.ps1`.
+- User claims: distinguish measured, user-confirmed, historical, estimated,
+  conflicting, and unverifiable values; read
+  `references/integration/claim-verification.md` and use
+  `verify-hardware-claim.ps1` only on evidence already available locally.
+- PresentMon: read `references/integration/presentmon-frame-time.md` and analyze
+  a user-exported CSV with `analyze-presentmon.ps1`; never launch or elevate the
+  capture tool automatically.
 - Continuity: use `hardware-case.ps1` and
   `export-hardware-case-html.ps1`.
 - Current vendor facts: read `references/integration/dynamic-rag.md` and record

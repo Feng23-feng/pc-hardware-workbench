@@ -96,6 +96,14 @@ python .\tools\build-release-index.py
 默认输出到本地 `releases\VERSION-INDEX.md` 和
 `releases\VERSION-INDEX.json`，不会修改任何历史发行包。
 
+PresentMon CSV 回归：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass `
+  -File .\skill\pc-hardware-workbench\tests\run-presentmon-analysis-tests.ps1 `
+  -AnalyzerPath .\skill\pc-hardware-workbench\scripts\analyze-presentmon.ps1
+```
+
 ## 模型行为回归
 
 行为回归默认只检查本地评分器，不调用模型。先验证固定场景和正反例：

@@ -1,6 +1,6 @@
 {
   "AuthorityVersion": "1.1.0",
-  "PriorRuleVersion": "2.6.0",
+  "PriorRuleVersion": "2.7.0",
   "PriorReviewedAt": "2026-11-10",
   "PriorSourceClass": "internal-tiered-heuristic",
   "PriorUnitAssumption": "Displayed MHz for a direct core offset or clock target; displayed tool unit for memory; displayed percent for power.",

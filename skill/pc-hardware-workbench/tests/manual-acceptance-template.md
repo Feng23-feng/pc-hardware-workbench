@@ -93,8 +93,10 @@ result and evidence:
 | Laptop power state and candidate fallback |  |  |  |
 | Detailed-mode safety and terminology |  |  |  |
 | Telemetry-only analysis and handoff |  |  |  |
+| PresentMon frame time and stutter triage |  |  |  |
 | Purchase and preference decisions |  |  |  |
 | Unreadable or conflicting identity |  |  |  |
+| User-reported current values and evidence recency |  |  |  |
 | External-reference change disclosure |  |  |  |
 | Recovery and post-test decision |  |  |  |
 

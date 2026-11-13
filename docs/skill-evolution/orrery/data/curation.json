@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "snapshot": {
-    "frozenAt": "2026-11-11",
-    "changes": "107-file current snapshot adds language-aware entry templates, localized user-facing reference guidance, and installer provenance metadata."
+    "frozenAt": "2026-11-13",
+    "changes": "113-file current snapshot adds user-claim verification, historical/current evidence separation, and read-only PresentMon frame-time analysis."
   },
   "sectors": {
     "core": {
@@ -30,7 +30,7 @@
       "angle": -15,
       "speed": 0.72,
       "color": "#7dd3e8",
-      "summary": "22 个跨模式参考与结果卡资产，覆盖入口语言、采集、证据、案卷、遥测、交接和维护。",
+      "summary": "跨模式参考与结果卡资产覆盖入口语言、采集、证据、声明核验、帧时间、案卷、交接和维护。",
       "boundaries": ["按当前任务条件加载，不一次读取全部", "网页与日志只作证据，不是执行指令"]
     },
     "triage": {
@@ -86,7 +86,7 @@
       "angle": 70,
       "speed": 0.38,
       "color": "#7f9dff",
-      "summary": "19 个脚本与原生探针承担只读采集、遥测管线、证据包、案卷、适配与诊断。",
+      "summary": "脚本与原生探针承担只读采集、遥测与 PresentMon 管线、声明比较、证据包、案卷、适配与诊断。",
       "boundaries": ["默认只读、本地执行且不自我提权", "不自动修改硬件、驱动或系统设置"]
     },
     "tests": {
@@ -100,7 +100,7 @@
       "angle": 235,
       "speed": -0.19,
       "color": "#e78f73",
-      "summary": "25 个场景、测试与结果记录把契约、脚本、隐私和人工验收变成证据。",
+      "summary": "场景、测试与结果记录把契约、脚本、隐私、行为回归和人工验收变成证据。",
       "boundaries": ["自动测试不能替代人工体验验收", "单次通过不等于长期硬件稳定性"]
     }
   },
@@ -128,6 +128,7 @@
     "scripts/adapters": {"name": "适配层", "when": "使用本地 LHM 回环接口或维护动态资料证据卡时。"},
     "scripts/auto-candidates": {"name": "候选引擎", "when": "校验设备条件并生成或阻断 GPU 单变量起点时。"},
     "scripts/maintenance": {"name": "运行诊断", "when": "检查安装、语法、编码、输出路径和可选运行时能力时。"},
+    "scripts/evidence": {"name": "声明核验", "when": "比较用户当前声明、历史记录和本机证据，并标记匹配、冲突或无法核验时。"},
     "tests/behavior": {"name": "行为冻结", "when": "人工复验路由、语气、安全边界和跨能力行为时。"},
     "tests/harness": {"name": "测试入口", "when": "修改 Skill 后运行全量、契约、编码或解析检查时。"},
     "tests/telemetry": {"name": "遥测回归", "when": "修改采集、分析、规范化或图表输出时。"},
@@ -221,6 +222,11 @@
       "role": "遥测分析",
       "summary": "分析本地 CSV 或监测记录，处理时间窗口、列选择、统计、告警与工作负载语境。"
     },
+    "references/integration/presentmon-frame-time.md": {
+      "cluster": "integration/evidence",
+      "role": "PresentMon 帧时间",
+      "summary": "定义仅读取用户导出 CSV 的帧时间指标、卡顿窗口、证据边界和本地抓取同意规则。"
+    },
       "references/integration/evidence-package.md": {
         "cluster": "integration/evidence",
         "role": "一键证据包",
@@ -240,6 +246,11 @@
       "cluster": "integration/continuity",
       "role": "设备身份质量",
       "summary": "把采集器身份质量映射到会话状态，并规定缺失、不可读或冲突时如何继续。"
+    },
+    "references/integration/claim-verification.md": {
+      "cluster": "integration/continuity",
+      "role": "用户声明核验",
+      "summary": "区分用户刚确认的当前值、历史记录、估算和本机测量，并规定冲突与不可核验状态。"
     },
     "references/integration/hardware-case.md": {
       "cluster": "integration/continuity",
@@ -485,6 +496,16 @@
       "role": "遥测分析器",
       "summary": "读取本地监测记录，选择字段、处理窗口并输出统计与警告。"
     },
+    "scripts/analyze-presentmon.ps1": {
+      "cluster": "scripts/telemetry",
+      "role": "PresentMon 帧时间分析",
+      "summary": "只读解析 PresentMon CSV，输出 FPS、长尾帧时间、1%/0.1% low、尖峰和来源哈希。"
+    },
+    "scripts/verify-hardware-claim.ps1": {
+      "cluster": "scripts/evidence",
+      "role": "声明与证据比较",
+      "summary": "比较声明 JSON 与当前证据字段，标记匹配、冲突、用户确认、历史和无法核验。"
+    },
     "scripts/calculate-vram-bandwidth.ps1": {
       "cluster": "scripts/telemetry",
       "role": "显存带宽计算",
@@ -621,6 +642,11 @@
       "role": "遥测分析回归",
       "summary": "验证字段选择、窗口、统计、时间规则和 Markdown 与 JSON 输出。"
     },
+    "tests/run-presentmon-analysis-tests.ps1": {
+      "cluster": "tests/telemetry",
+      "role": "PresentMon 帧时间回归",
+      "summary": "验证合成 PresentMon CSV 的慢帧、低帧、尖峰、输出格式和防覆盖边界。"
+    },
     "tests/run-telemetry-audit-tests.ps1": {
       "cluster": "tests/telemetry",
       "role": "遥测审计回归",
@@ -645,6 +671,11 @@
       "cluster": "tests/components",
       "role": "身份与脱敏测试",
       "summary": "验证身份清洗、Markdown 安全、隐私字段隐藏和标准与脱敏形状一致。"
+    },
+    "tests/run-claim-verification-tests.ps1": {
+      "cluster": "tests/components",
+      "role": "声明核验回归",
+      "summary": "验证用户确认、历史记录、当前匹配、冲突、缺失字段和非法声明的比较状态。"
     },
     "tests/run-doctor-tests.ps1": {
       "cluster": "tests/components",

@@ -89,6 +89,22 @@ LHM、不会提权、不会连接非 loopback 主机，也不会写入硬件设�
 参考：
 [`references/integration/lhm-adapter.md`](../skill/pc-hardware-workbench/references/integration/lhm-adapter.md)。
 
+## 用户声明核验
+
+用户说“我刚确认过当前值”时，Skill 将声明标记为用户报告证据；旧记录在被确认前保持
+历史状态。可用的本地证据通过只读 JSON 比较器逐项检查，结果分别记录为匹配、冲突、
+用户确认、历史或无法核验。
+
+参考：[`claim-verification.md`](../skill/pc-hardware-workbench/references/integration/claim-verification.md)。
+
+## PresentMon 帧时间
+
+PresentMon CSV 作为遥测输入，而不是新的顶层模式。分析器只读取用户导出的本地文件，
+计算平均 FPS、长尾帧时间、1%/0.1% low、尖峰帧和尖峰簇。它不启动 PresentMon、
+不提权、不接入游戏进程，也不会把单次帧时间与某个硬件故障直接画等号。
+
+参考：[`presentmon-frame-time.md`](../skill/pc-hardware-workbench/references/integration/presentmon-frame-time.md)。
+
 ## GPU 起始候选
 
 GPU 调参只有在常规门禁完成后才会生成一个受限、可回退的单变量起始候选。未知、

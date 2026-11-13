@@ -47,7 +47,7 @@ Every automatic tier in the integrated candidate workflow carries:
 ```text
 PriorSourceClass: internal-tiered-heuristic
 PriorReviewedAt: 2026-11-10
-PriorRuleVersion: 2.6.0
+PriorRuleVersion: 2.7.0
 PriorUnitAssumption: displayed core MHz or clock target; displayed memory tool
                      unit; displayed power percent
 ```

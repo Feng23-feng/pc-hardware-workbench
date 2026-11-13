@@ -6,6 +6,12 @@ $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $sourceSkill = Join-Path $repoRoot "skill\pc-hardware-workbench"
+$sourceSkillText = Get-Content -Raw -LiteralPath (Join-Path $sourceSkill "SKILL.md") -Encoding UTF8
+$sourceVersionMatch = [regex]::Match($sourceSkillText, '(?m)^\s*version:\s*"([^"]+)"\s*$')
+if (-not $sourceVersionMatch.Success) {
+    throw "Could not read the source Skill version."
+}
+$sourceVersion = $sourceVersionMatch.Groups[1].Value
 $remoteInstaller = Join-Path $repoRoot "tools\install-skill.ps1"
 $packageInstaller = Join-Path $repoRoot "tools\release-package\Install-PC-Hardware-Workbench.ps1"
 $testRoot = Join-Path ([IO.Path]::GetTempPath()) (
@@ -124,7 +130,7 @@ try {
         -OldMarkerPath (Join-Path $remoteDestination "old-version-marker.txt")
     $remoteInstallInfo = Get-Content -Raw -LiteralPath (Join-Path $remoteDestination "INSTALL-INFO.json") -Encoding UTF8 |
         ConvertFrom-Json
-    Assert-True ($remoteInstallInfo.Version -eq "2.6.0") "Remote installer recorded the wrong Skill version."
+    Assert-True ($remoteInstallInfo.Version -eq $sourceVersion) "Remote installer recorded the wrong Skill version."
     Assert-True ($remoteInstallInfo.ReleaseLabel -eq "main") "Remote installer did not record the main-branch source."
     Assert-True ($remoteInstallInfo.SourceArchive -eq "source.zip") "Remote installer did not sanitize the source archive label."
     Assert-OneManifestUnderScanRoot -ScanRoot $remoteScanRoot
@@ -145,9 +151,9 @@ try {
     Copy-Item -LiteralPath $packageInstaller -Destination $packageRoot
     Copy-Item -LiteralPath $sourceSkill -Destination (Join-Path $packageRoot "pc-hardware-workbench") -Recurse
     $testBuildInfo = [pscustomobject]@{
-        Version = "2.6.0"
+        Version = $sourceVersion
         Label = "test"
-        ReleaseName = "2.6.0-test"
+        ReleaseName = "$sourceVersion-test"
         GitCommit = "test-commit"
         BuiltAt = "2026-11-11T00:00:00+08:00"
     } | ConvertTo-Json -Depth 5

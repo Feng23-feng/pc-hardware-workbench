@@ -54,7 +54,7 @@ $skill = Get-Content -LiteralPath $skillPath -Raw -Encoding UTF8
 $referenceOnlyNotice = [regex]::Unescape('\u53C2\u6570\u4EC5\u4F9B\u53C2\u8003\uFF0C\u8BF7\u4EE5\u5B89\u5168\u4E3A\u7B2C\u4E00\u8981\u52A1\u3002')
 $englishReferenceOnlyNotice = "For reference only - put safety first."
 
-Assert-Contains $skill '(?m)^  version: "2\.6\.0"\r?$' "metadata.version should be 2.6.0."
+Assert-Contains $skill '(?m)^  version: "2\.7\.0"\r?$' "metadata.version should be 2.7.0."
 Assert-Contains $skill 'r23 collector' "The Skill maintenance summary collector revision disagrees with the collector code."
 Assert-Contains $skill 'while power-path\s+evidence is incomplete' "The Advice intensity route does not include incomplete power-path evidence."
 Assert-Contains $skill 'hidden or\s+manufacturer-limited power' "The Advice intensity summary is narrower than the hidden or manufacturer-limited scope."
@@ -65,6 +65,10 @@ Assert-Contains $skill 'Do not mix languages in the introduction' "Bare-invocati
 Assert-Contains $skill 'If the first request already contains a concrete task' "Task-bearing invocation skip rule is missing."
 Assert-Contains $skill 'Chinese examples in references are semantic templates' "Reference examples can still be copied verbatim across languages."
 Assert-Contains $skill 'Translate\s+user-facing text' "Reference examples do not have a universal localization rule."
+Assert-Contains $skill 'Historical records are not current' "Historical values can still be relabeled as current measurements."
+Assert-Contains $skill 'Ask once whether a claimed current value\s+was just confirmed' "Ambiguous historical values can still be promoted without confirmation."
+Assert-Contains $skill 'then use it as user-reported evidence' "User-confirmed current values are rejected as historical records."
+Assert-Contains $skill 'claim-verification\.md' "Claim verification route is missing."
 $neutralIntroduction = [regex]::Unescape('\u0060pc-hardware-workbench\u0060 \u5DF2\u52A0\u8F7D')
 $codexIntroduction = [regex]::Unescape('\u0060$pc-hardware-workbench\u0060 \u5DF2\u52A0\u8F7D')
 Assert-True (-not ($skill -match ("(?m)^> " + [regex]::Escape($codexIntroduction)))) "The spoken introduction still uses the Codex-only invocation sigil."
@@ -109,6 +113,8 @@ Assert-Contains $skill 'gpu-memory-playbook\.md' "The entrypoint does not route 
 Assert-Contains $skill 'tuning-modes\.md' "Quick/deep tuning route is missing."
 Assert-Contains $skill 'fixed-workloads\.md' "Fixed workload route is missing."
 Assert-Contains $skill 'telemetry-analysis\.md' "Telemetry analysis route is missing."
+Assert-Contains $skill 'presentmon-frame-time\.md' "PresentMon frame-time route is missing."
+Assert-Contains $skill 'analyze-presentmon\.ps1' "PresentMon analyzer is not routed from the Skill."
 Assert-Contains $skill 'success-and-sensor-semantics\.md' "Success/sensor route is missing."
 Assert-Contains $skill 'persistence-and-update-gate\.md' "Persistence/update route is missing."
 Assert-Contains $skill 'installation-coexistence\.md' "Installation coexistence route is missing."
@@ -123,10 +129,12 @@ foreach ($relative in @(
     "references/integration/tuning-modes.md",
     "references/integration/fixed-workloads.md",
     "references/integration/telemetry-analysis.md",
+    "references/integration/presentmon-frame-time.md",
     "references/integration/success-and-sensor-semantics.md",
     "references/integration/persistence-and-update-gate.md",
     "references/integration/installation-coexistence.md",
     "references/integration/device-identity.md",
+    "references/integration/claim-verification.md",
     "references/tuning/expectation-direction.md",
     "references/tuning/gpu-clock-behavior.md",
     "references/tuning/gpu-curve-baseline.md",
@@ -145,7 +153,11 @@ foreach ($relative in @(
     "tests/run-all-tests.ps1",
     "tests/run-pwsh7-parse-tests.ps1",
     "tests/manual-acceptance-template.md",
-    "scripts/analyze-telemetry.ps1"
+    "scripts/analyze-telemetry.ps1",
+    "scripts/analyze-presentmon.ps1",
+    "scripts/verify-hardware-claim.ps1",
+    "tests/run-claim-verification-tests.ps1",
+    "tests/run-presentmon-analysis-tests.ps1"
 )) {
     if (-not (Test-Path -LiteralPath (Join-Path $resolvedRoot $relative) -PathType Leaf)) {
         $failures.Add("Missing required file: $relative")
@@ -292,7 +304,7 @@ Assert-Contains $skill 'Concept-only\s+questions' "Concept-only questions are st
 Assert-Contains $skill 'nontechnical symptom' "Plain-language symptom requests do not trigger the beginner route."
 Assert-Contains $laptopPowerState 'power-limit ceiling[\s\S]+not the GPU[\s\S]+power draw' "Laptop power limits are not separated from measured draw."
 Assert-Contains $laptopPowerState 'assumed-stock' "An undeclared laptop power state lacks a correctable default."
-Assert-True ($gpuTier.PriorRuleVersion -eq "2.6.0") "GPU tier authority has the wrong integrated rule version."
+Assert-True ($gpuTier.PriorRuleVersion -eq "2.7.0") "GPU tier authority has the wrong integrated rule version."
 Assert-True ($gpuTier.Profiles.'NVIDIA-Ada-Mainstream'.CoreStartDesktop -gt 0) "GPU tier authority has no NVIDIA Ada mainstream profile."
 Assert-True ($gpuTier.Profiles.'AMD-RDNA3'.CoreStartDesktop -gt 0) "GPU tier authority has no AMD RDNA3 profile."
 Assert-True ($gpuTier.Profiles.'Intel-Battlemage'.CoreStartDesktop -gt 0) "GPU tier authority has no Intel Battlemage profile."
@@ -567,6 +579,13 @@ Assert-Contains $visualEvidence 'Capability boundary' "Visual evidence capabilit
 Assert-Contains $visualEvidence 'Visible facts' "Visual evidence extraction template is missing."
 Assert-Contains $visualEvidence 'prompt-injection' "Visual evidence prompt-injection boundary is missing."
 Assert-Contains $visualEvidence 'does not prove' "Visual evidence limitations are missing."
+Assert-Contains $visualEvidence 'name the missing workload, duration, or\s+time-series evidence and end with one next action' "Screenshot stability refusals can omit the next evidence action."
+$claimVerification = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/integration/claim-verification.md") `
+    -Label "references/integration/claim-verification.md"
+Assert-Contains $claimVerification 'A value introduced as a record, previous value, profile, or earlier result is\s+`historical`' "Recorded values can be promoted before source classification."
+Assert-Contains $claimVerification 'does not promote it' "A user instruction can bypass historical-value confirmation."
+Assert-Contains $claimVerification 'Never call that value `measured-current`' "User-reported current values can be mislabeled as measured."
 
 $doctorDoc = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "references/integration/skill-doctor.md") `

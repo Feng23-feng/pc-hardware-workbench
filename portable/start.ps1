@@ -34,7 +34,7 @@ try {
 function Write-Title {
     Clear-Host
     Write-Host "==============================================" -ForegroundColor Cyan
-    Write-Host "       电脑硬件便携工具包 2.6.0" -ForegroundColor Cyan
+    Write-Host "       电脑硬件便携工具包 2.7.0" -ForegroundColor Cyan
     Write-Host "==============================================" -ForegroundColor Cyan
     Write-Host "本地、只读、无网络；不会修改 BIOS、频率、电压、功耗或风扇。" -ForegroundColor DarkGray
     Write-Host "目标：教你识别、验证和恢复，让下次可以自己完成调校闭环。" -ForegroundColor DarkGray
@@ -2558,6 +2558,9 @@ function Test-PortableKit {
         (Join-Path $scriptsRoot "analyze-telemetry.ps1"),
         (Join-Path $scriptsRoot "normalize-telemetry.ps1"),
         (Join-Path $scriptsRoot "render-telemetry-chart.ps1"),
+        (Join-Path $scriptsRoot "analyze-presentmon.ps1"),
+        (Join-Path $scriptsRoot "verify-hardware-claim.ps1"),
+        (Join-Path $scriptsRoot "suggest-gpu-overclock.ps1"),
         (Join-Path $scriptsRoot "hardware-case.ps1"),
         (Join-Path $scriptsRoot "export-hardware-case-html.ps1")
     )

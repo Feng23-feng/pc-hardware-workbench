@@ -77,7 +77,7 @@ function Assert-CoreFirstRound {
     Assert-True ($Result.NoHardwareChange -eq $true) "$Label must retain the no-hardware-write invariant."
 }
 
-Assert-True ($tierAuthority.PriorRuleVersion -eq "2.6.0") "The tier authority prior version must be 2.6.0."
+Assert-True ($tierAuthority.PriorRuleVersion -eq "2.7.0") "The tier authority prior version must be 2.7.0."
 foreach ($authorityProfile in $tierAuthority.Profiles.PSObject.Properties) {
     Assert-True ($authorityProfile.Value.CoreStep -eq 25) "Every first-round core profile must use a +25 MHz follow-up step."
 }
@@ -111,8 +111,8 @@ Assert-True ($core.Status -eq "Ready") "A complete desktop baseline should produ
 Assert-True ($core.Variable -eq "Core offset") "The first round should be core-only."
 Assert-CoreFirstRound $core "NVIDIA-Ada-Mainstream" "RTX 4070"
 Assert-True ($core.ScriptVersion -eq "2.0.3") "The candidate helper script version must be 2.0.3."
-Assert-True ($core.SuiteVersion -eq "2.6.0") "The candidate helper suite version must be 2.6.0."
-Assert-True ($core.PriorRuleVersion -eq "2.6.0") "The candidate helper prior version must be 2.6.0."
+Assert-True ($core.SuiteVersion -eq "2.7.0") "The candidate helper suite version must be 2.7.0."
+Assert-True ($core.PriorRuleVersion -eq "2.7.0") "The candidate helper prior version must be 2.7.0."
 Assert-True ($core.NoHardwareChange -eq $true) "The suggestion script must report that it changes no hardware."
 Assert-True ($core.GpuFamily -eq "NVIDIA-Ada-Mainstream") "A readable RTX 4070 should use its recognized Ada family."
 Assert-True ($core.FamilyConfidence -eq "model-pattern") "A recognized model should report model-pattern family confidence."

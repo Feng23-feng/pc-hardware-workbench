@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <meta name="description" content="PC Hardware Workbench 2.6.0: read-only hardware evidence and practical next-step guidance.">
+  <meta name="description" content="PC Hardware Workbench 2.7.0: read-only hardware evidence and practical next-step guidance.">
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="./crt-backdrop.css">
 
@@ -8704,14 +8704,14 @@
     </nav>
 
     <nav class="dse-explore dse-explore-primary" aria-label="文件星球">
-      <a href="orrery/" aria-label="进入文件星球，查看 107 个文件如何组成一个 Skill">
+      <a href="orrery/" aria-label="进入文件星球，查看 113 个文件如何组成一个 Skill">
         <span class="dse-explore-copy">
           <span class="dse-explore-kicker">文件星球</span>
-          <strong class="dse-explore-title">看清 107 个文件如何组成一个 Skill</strong>
+          <strong class="dse-explore-title">看清 113 个文件如何组成一个 Skill</strong>
           <small class="dse-explore-description">按职责分区、轨道和关联，查看规则、脚本和测试如何协同。</small>
           <span class="dse-explore-bottom">
             <span class="dse-file-map" aria-hidden="true">
-              <span>107 个文件</span>
+              <span>113 个文件</span>
               <span>7 个职责分区</span>
             </span>
             <span class="dse-explore-cta">进入文件星球 <span aria-hidden="true">→</span></span>
@@ -8865,7 +8865,7 @@
           </span>
           <span class="dse-orientation-link-copy">
             <strong>查看文件星球</strong>
-            <small>当前 106 个 Skill 文件如何组成 7 个职责分区与可交互轨道</small>
+            <small>当前 113 个 Skill 文件如何组成 7 个职责分区与可交互轨道</small>
           </span>
         </a>
       </nav>
@@ -9329,7 +9329,7 @@
         <div>
           <p class="dse-archive-kicker">版本档案 / 全部已记录版本</p>
           <h2 id="dse-archive-title">逐版本迭代档案</h2>
-          <p class="dse-archive-summary">从统一工作台 1.0.0 到 2.6.0 测试版，以及后来选择性并入正式路线的 GPU 自动候选历史。1.6.0 之后新增遥测标准化、动态 RAG、LHM loopback Web、视觉证据、Doctor、入口减重、显存解释、分层调参和 GPU 自动候选整合。自动候选原型不再作为独立产品入口，只在这里保留可追溯记录。</p>
+          <p class="dse-archive-summary">从统一工作台 1.0.0 到 2.7.0 测试版，以及后来选择性并入正式路线的 GPU 自动候选历史。1.6.0 之后新增遥测标准化、动态 RAG、LHM loopback Web、视觉证据、Doctor、入口减重、显存解释、分层调参、GPU 自动候选、用户声明核验和 PresentMon 帧时间。自动候选原型不再作为独立产品入口，只在这里保留可追溯记录。</p>
         </div>
         <div class="dse-archive-totals" aria-label="版本档案统计">
           <span class="dse-archive-total"><b id="dse-wb-count">0</b>工作台版本</span>
@@ -9882,7 +9882,7 @@
           ]
         },
         {
-          id: "wb-2-2", track: "core", label: "工作台 / 1.6 → 2.6.0", sub: "标准化 · 证据 · 实时适配 · 视觉 · Doctor · 显存调参 · GPU 候选 · 测试版",
+          id: "wb-2-2", track: "core", label: "工作台 / 1.6 → 2.7.0", sub: "标准化 · 证据 · 实时适配 · 视觉 · Doctor · 显存调参 · GPU 候选 · 声明核验 · 帧时间 · 测试版",
           versions: [
             ["1.6.0", "遥测图表、硬件案卷与入口瘦身", "2026-11-03", "RELEASED", ["新增 ChartData 与固定 SVG 遥测渲染器，保留缺失值断点并防止覆盖。", "新增本地硬件案卷，保存证据哈希、假设、时间线、基线和实验。", "入口从约 17.3 KB 降至 11.7 KB，Quick 初始加载降到约 21.4 KB。"], "全量非实机测试、validator、便携同步和案卷/图表回归通过。", "工作台从规则与文本遥测进入可视化案卷阶段。"],
             ["1.7.0", "离线案卷报告与图表准确性", "2026-11-03", "RELEASED", ["生成依赖为零、带 CSP 的静态 HTML 案卷报告，证据预览默认关闭。", "修复降采样丢失缺口、显式 IncludeColumn 被挤出和警告摘要缺失。", "时间戳统一 ISO 8601；危险 SVG、外部路径与 HTML 注入被隔离。"], "全量测试与 validator 通过；独立完整性测试 7/7 PASS，实时采集 SKIP。", "案卷从本地 JSON 升级为可离线阅读、可分享审查的报告。"],
@@ -9895,7 +9895,8 @@
             ["2.4.0", "LHM Web 与显存证据门禁", "2026-11-03", "PREVIOUS LOCAL", ["LHM 0.9.6 改走 loopback Web /data.json，旧版 WMI 仅作兼容后备；只读授权环境下的传感器快照链路已验证。", "保留 GPU 硬件路径并透传到归一化结果；网络适配器自定义名称不进入 ObservedComponents。", "新增显存解释门禁：具体 GPU、显存类型与容量、驱动/vBIOS/工具、请求/观测口径和固定负载缺失时不给数值或带宽结论。", "显存时钟保留原始单位、来源和口径提示；明显超出合理范围的异常值仍过滤。", "修复工具脚本相对路径启动时参数默认阶段 PSScriptRoot 为空的问题。", "文件星球在 2.4.0 使用 86 文件视图并恢复同心轨道；历史快照不进入当前公开页面。"], "完整自动回归与 validator PASS；显存建议门禁、LHM 不可用与 LHM Web 只读场景三个独立行为对话 3/3 PASS；文件星球完成桌面、960px 与手机视图验收；独立人工签署仍 PENDING。", "2.5.0 之前的测试版；107 个版本记录，Pages 由 main 自动部署，CI 必须在最新提交通过。"],
             ["2.5.0", "一键证据包与前后对比", "2026-11-04", "PREVIOUS LOCAL", ["新增一条命令完成 CSV 分析、标准化、SVG 图表、基线与候选对比、结果卡和证据包 JSON。", "对比要求声明固定负载，并检查窗口、采样、指标名称和单位；温度使用绝对变化。", "无共同指标返回 retest，有采样或指标限制返回 review，不自动宣称 PASS。", "结果卡自包含，包含两轮图表、P95/极值变化、输入 SHA-256 和下一步。"], "完整自动回归与 validator PASS；证据流水线、Doctor、便携同步、结果卡和站点检查通过；独立人工签署仍 PENDING。", "2.5.1 之前的测试版；107 个版本记录，Pages 由 main 自动部署，CI 必须在最新提交通过。"],
             ["2.5.1", "显存时钟、数据率与分层调参", "2026-11-09", "PREVIOUS LOCAL", ["把显存问题拆成概念解释、官方理论带宽、本机读数解释和调参稳定性四层；只收集当前判断真正需要的证据。", "区分物理时钟、有效数据率、总线宽度和工具缩放显示；新增理论带宽计算器，结果明确标记为规格推算，不代表实测吞吐。", "LHM 显存传感器保留原始字段名与 clockBasis；高显存时钟不再直接判为异常，GDDR7 或厂商缩放口径可以合法出现。", "显存调参与核心曲线、功耗墙分开实验；缺少固定负载、帧时间、伪影、温度和恢复证据时不宣称稳定。"], "完整自动回归、validator、交互契约、LHM 适配与 VRAM 知识测试通过；Codex 与 DSH 安装树 94/94 一致；独立人工签署仍 PENDING。", "2.6.0 之前的测试版；108 个版本记录。"],
-            ["2.6.0", "GPU 自动候选与正式 Skill 整合", "2026-11-10", "CURRENT CANDIDATE", ["选择性整合 GPU 自动候选原型：用单一权威表生成一个由用户手动应用的单变量候选，不自动写入硬件。", "未知或空型号不再进入 Generic 数字候选；NVIDIA、AMD、Intel 按家族路由，未知、专业卡、核显和多适配器在给出数值前阻断。", "生成候选时必须显式提供当前控制值和报告新鲜度；信息不足返回 Blocked，并清空 pass 类字段，避免把阻断写成通过。", "新手第一轮只承诺一个可回退的单变量，不承诺电压或功耗墙保持不变；RTX 3060 Ti 使用有界起点。", "概念解释可以绕过调参门禁；调参和稳定结论仍保留完整证据要求。", "统一用户可见语言层；新手可按需把术语翻译成日常语言，设备状态栏改为自然语言表达。", "Quick 不代表 daily-validated；XMP/EXPO 先建立 stock 基线；inventory 先给五项摘要；inconclusive 支持 repeat 与 diagnose。", "MoDT 独立处理；pass likelihood 明确标记为 uncalibrated，不包装成校准概率。", "完整工作负载模板改为按需加载；Quick 首屏保持简版，详细模式可选择“展开详细”。", "笔记本区分 assumed-stock、declared-stock 与 declared-unlocked；保留 LHM 只读采集、RAG、证据链和 2.5.1 显存解释；Skill 主入口控制在 11 KB 预算内；Quick 初始加载控制在 20 KB 预算内。", "高级交互补齐任务型术语分组、MoDT 与常用词解释、概念问答、精简/详细判断以及保留/复测/诊断/恢复三步处理。", "排障改为安全、数据、启动、稳定性、功能、性能优先级，补充证据状态与一次一个区分问题。", "事件日志、ETL、转储与遥测按 Event Viewer、WPR/WPA、WinDbg 和内置分析器分流；USB 音频按端口、Hub、根控制器、供电和并发设备继续分层；新增 20 个真实与对抗性排障场景。"], "完整自动回归、validator、contract、Doctor、LHM、VRAM 与 GPU auto candidate tests 通过；独立人工模型行为签署仍 PENDING，不宣称广泛发布稳定。", "当前测试版；工作台 2.6.0，文件星球 107 个文件；109 个版本记录。"]
+            ["2.6.0", "GPU 自动候选与正式 Skill 整合", "2026-11-10", "PREVIOUS LOCAL", ["选择性整合 GPU 自动候选原型：用单一权威表生成一个由用户手动应用的单变量候选，不自动写入硬件。", "未知或空型号不再进入 Generic 数字候选；NVIDIA、AMD、Intel 按家族路由，未知、专业卡、核显和多适配器在给出数值前阻断。", "生成候选时必须显式提供当前控制值和报告新鲜度；信息不足返回 Blocked，并清空 pass 类字段，避免把阻断写成通过。", "新手第一轮只承诺一个可回退的单变量，不承诺电压或功耗墙保持不变；RTX 3060 Ti 使用有界起点。", "概念解释可以绕过调参门禁；调参和稳定结论仍保留完整证据要求。", "统一用户可见语言层；新手可按需把术语翻译成日常语言，设备状态栏改为自然语言表达。", "Quick 不代表 daily-validated；XMP/EXPO 先建立 stock 基线；inventory 先给五项摘要；inconclusive 支持 repeat 与 diagnose。", "MoDT 独立处理；pass likelihood 明确标记为 uncalibrated，不包装成校准概率。", "完整工作负载模板改为按需加载；Quick 首屏保持简版，详细模式可选择“展开详细”。", "笔记本区分 assumed-stock、declared-stock 与 declared-unlocked；保留 LHM 只读采集、RAG、证据链和 2.5.1 显存解释；Skill 主入口控制在 11 KB 预算内；Quick 初始加载控制在 20 KB 预算内。", "高级交互补齐任务型术语分组、MoDT 与常用词解释、概念问答、精简/详细判断以及保留/复测/诊断/恢复三步处理。", "排障改为安全、数据、启动、稳定性、功能、性能优先级，补充证据状态与一次一个区分问题。", "事件日志、ETL、转储与遥测按 Event Viewer、WPR/WPA、WinDbg 和内置分析器分流；USB 音频按端口、Hub、根控制器、供电和并发设备继续分层；新增 20 个真实与对抗性排障场景。"], "完整自动回归、validator、contract、Doctor、LHM、VRAM 与 GPU auto candidate tests 通过；独立人工模型行为签署仍 PENDING，不宣称广泛发布稳定。", "2.7.0 之前的测试版；工作台 2.6.0，文件星球 107 个文件；109 个版本记录。"],
+            ["2.7.0", "用户声明核验与 PresentMon 帧时间", "2026-11-13", "CURRENT CANDIDATE", ["新增用户声明核验：区分当前实测、用户刚确认、历史记录、估算和冲突；历史记录不能因“别问”而自动升级。", "新增 PresentMon CSV 帧时间分析：平均 FPS、P50/P95/P99、1%/0.1% low、尖峰帧、尖峰簇与时序警告。", "截图否定长期稳定时必须说明缺少的工作负载、时长或时间序列，并以一个下一步结束。", "行为回归增加真实模型场景、源码模式和正反例；机器评分保持 PENDING，不等同独立人工签署。", "PresentMon 仅分析用户导出的本地 CSV；不自动启动工具、不提权、不接入反作弊或修改显卡设置。"], "Skill validator、完整非实时回归、声明核验与 PresentMon 合成测试通过；历史值真实模型单题回归通过；真实设备采集和独立人工签署仍 PENDING。", "当前测试版；工作台 2.7.0，文件星球 113 个文件；110 个版本记录。"]
           ]
         },
         {
@@ -10939,7 +10940,7 @@
         },
         {
           id: "core-gpu-integration", track: "core", code: "WB-09", title: "GPU 自动候选整合",
-          summary: "2.6.0 测试版 · 手动应用 · 可恢复",
+          summary: "2.7.0 测试版 · 声明核验 · 帧时间",
           status: "done", state: "已整合",
           goal: "把经过分类防火墙和证据门禁验证的 GPU 自动候选并入正式安全调参路线，不再维护独立产品线。",
           action: "用户只提出一个目标，Skill 在条件齐全后生成一张手动应用的单变量实验卡；失败时回到已验证的稳定配置。",
@@ -11107,7 +11108,7 @@
 
       function userFacingReleaseState(state) {
         return {
-          "CURRENT CANDIDATE": "2.6.0 测试版",
+          "CURRENT CANDIDATE": "2.7.0 测试版",
           "PREVIOUS LOCAL": "历史测试版",
           RELEASED: "已发布"
         }[state] || state;

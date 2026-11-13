@@ -2,7 +2,7 @@
 name: pc-hardware-workbench
 description: Integrate Windows-focused read-only hardware inventory, telemetry charting, evidence-gated troubleshooting, guided overclocking with deterministic GPU starting candidates, and upgrade-purchase decisions through one routed workflow. Other systems receive manual guidance only. Keep tuning-only requests free of unsolicited purchase advice; never modify hardware automatically or bypass permissions or anti-cheat.
 metadata:
-  version: "2.6.0"
+  version: "2.7.0"
   short-description: "One routed entry for hardware inventory, telemetry visuals, triage, deterministic GPU candidates, and purchase decisions"
 ---
 
@@ -108,16 +108,18 @@ would change the diagnosis.
 
 ### Telemetry and logs
 
-Read [telemetry-analysis.md](references/integration/telemetry-analysis.md) and
+Read [telemetry-analysis.md](references/integration/telemetry-analysis.md);
 confirm source and workload. Analysis is read-only and does not require the
-tuning entry gate; it is not a stability proof, diagnosis, or permission to
-change settings. For charts use `scripts/render-telemetry-chart.ps1`; for
-snapshots, live LHM, or images load only the matching
+tuning entry gate; it never implies diagnosis, stability, or permission.
+Use `scripts/render-telemetry-chart.ps1` for charts. Load the matching
 [telemetry-normalization.md](references/integration/telemetry-normalization.md),
 [lhm-adapter.md](references/integration/lhm-adapter.md), or
-[visual-evidence.md](references/integration/visual-evidence.md) reference.
-Use [evidence-package.md](references/integration/evidence-package.md) with
-`scripts/run-evidence-pipeline.ps1` for packaged comparison.
+[visual-evidence.md](references/integration/visual-evidence.md).
+For PresentMon, read
+[presentmon-frame-time.md](references/integration/presentmon-frame-time.md) and
+run `scripts/analyze-presentmon.ps1`. Use
+[evidence-package.md](references/integration/evidence-package.md) with
+`scripts/run-evidence-pipeline.ps1`.
 
 ### Tune
 
@@ -193,6 +195,9 @@ data, and record sources through `scripts/rag/rag-evidence.ps1`.
 
 - Prefer current measurements, then logs/screenshots, dated history, and general
   claims; retain source, date, context, and uncertainty.
+- Historical records are not current. Ask once whether a claimed current value
+  was just confirmed; then use it as user-reported evidence. See
+  [claim-verification.md](references/integration/claim-verification.md).
 - Use current-session permissions only; never self-elevate, install drivers,
   disable protections, or bypass sandbox/anti-cheat.
 - Never automatically change firmware, BIOS/UEFI, clocks, voltages, power
