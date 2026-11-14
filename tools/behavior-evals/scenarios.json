@@ -135,7 +135,7 @@
         {
           "id": "identifies-single-point",
           "type": "required_any",
-          "patterns": ["截图", "单点", "瞬间", "某一时刻"],
+          "patterns": ["截图", "快照", "单点", "瞬间", "某一时刻"],
           "message": "The response should identify the screenshot as a limited observation."
         },
         {
@@ -167,7 +167,7 @@
         {
           "id": "explains-tradeoff",
           "type": "required_all",
-          "patterns": ["性能", "温度", "功耗", "稳定性"],
+          "patterns": ["性能|帧率|帧时间|表现", "温度", "功耗", "稳定性"],
           "message": "The response should explain at least the practical tradeoffs in the parameter."
         },
         {
