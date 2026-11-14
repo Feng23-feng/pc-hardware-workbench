@@ -1,5 +1,13 @@
 ﻿# 电脑硬件工作台版本记录
 
+## 2.7.4 — 2026-11-14
+
+- 将入口的二级 reference 目录迁移到各任务的主 reference：Entry 从 10,562 B 降至 8,744 B，Quick 初始加载从 19,571 B 降至 17,753 B；
+- 保留五个顶层路线、调校入口门禁、物理安全、参数提示、证据强度、隐私和“不自动改硬件”等常驻边界；
+- Inventory、Triage、Telemetry、Tune、Purchase 只在入口打开对应主 reference，由主 reference 再按条件路由到采集、实验、GPU、VRAM、LHM、PresentMon、购买决策等细节；
+- 交互契约测试改为验证一跳路由，既防止入口重新膨胀，也防止二级 reference 失去可达性；
+- 未改变采集器、评测脚本、硬件行为或用户可执行的调校流程。
+
 ## 2.7.3 — 2026-11-14
 
 - 修正 monitor adapter 合成回归的失败消息主语重复：helper 现在只返回 `changed monitor adapter name.` 等谓语短句，统一由调用方添加 `Redacted monitor N` 定位前缀；

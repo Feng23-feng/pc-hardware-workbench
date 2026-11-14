@@ -2,6 +2,9 @@
 
 Use the shortest version that can answer the current question. Do not force the user to complete every field.
 
+Use [decision-framework.md](decision-framework.md) for recommendation logic and
+[market-check.md](market-check.md) for dated market evidence.
+
 ## Ask first
 
 Determine the mode before collecting:

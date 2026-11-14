@@ -24,14 +24,16 @@ function Assert-Contains {
 }
 
 $skill = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "SKILL.md") -Encoding UTF8
+$componentPlaybooks = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/tuning/component-playbooks.md") -Encoding UTF8
 $mechanism = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/tuning/vram-and-memory-bus.md") -Encoding UTF8
 $playbook = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/tuning/gpu-memory-playbook.md") -Encoding UTF8
 $intake = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/tuning/intake.md") -Encoding UTF8
 $analyzer = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "scripts/analyze-telemetry.ps1") -Encoding UTF8
 $lhm = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "scripts/lhm/lhm-functions.ps1") -Encoding UTF8
 
-Assert-Contains $skill 'vram-and-memory-bus\.md' "SKILL.md does not route VRAM mechanism questions."
-Assert-Contains $skill 'gpu-memory-playbook\.md' "SKILL.md does not route VRAM tuning."
+Assert-Contains $skill 'component-playbooks\.md' "SKILL.md does not route component details."
+Assert-Contains $componentPlaybooks 'vram-and-memory-bus\.md' "Component routing does not cover VRAM mechanism questions."
+Assert-Contains $componentPlaybooks 'gpu-memory-playbook\.md' "Component routing does not cover VRAM tuning."
 Assert-Contains $playbook 'one next action' "GPU memory playbook does not keep user-facing output concise."
 
 Assert-Contains $intake 'Concept explanation' "Intake has no concept-only memory tier."

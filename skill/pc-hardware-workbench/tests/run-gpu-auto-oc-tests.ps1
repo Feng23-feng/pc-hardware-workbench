@@ -111,7 +111,7 @@ Assert-True ($core.Status -eq "Ready") "A complete desktop baseline should produ
 Assert-True ($core.Variable -eq "Core offset") "The first round should be core-only."
 Assert-CoreFirstRound $core "NVIDIA-Ada-Mainstream" "RTX 4070"
 Assert-True ($core.ScriptVersion -eq "2.0.3") "The candidate helper script version must be 2.0.3."
-Assert-True ($core.SuiteVersion -eq "2.7.3") "The candidate helper suite version must be 2.7.3."
+Assert-True ($core.SuiteVersion -eq "2.7.4") "The candidate helper suite version must be 2.7.4."
 Assert-True ($core.PriorRuleVersion -eq "2.7.0") "The candidate helper prior version must be 2.7.0."
 Assert-True ($core.NoHardwareChange -eq $true) "The suggestion script must report that it changes no hardware."
 Assert-True ($core.GpuFamily -eq "NVIDIA-Ada-Mainstream") "A readable RTX 4070 should use its recognized Ada family."

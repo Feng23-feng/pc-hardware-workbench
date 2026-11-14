@@ -5,6 +5,9 @@ Triage does not prove a failed component. Its job is to protect safety and data,
 identify the most likely fault layer, and choose one next check whose result can
 change the route.
 
+Use [risk-taxonomy.md](risk-taxonomy.md) for the hazard and evidence model and
+[experiment-protocol.md](experiment-protocol.md) for discriminating tests.
+
 ## First-contact state machine
 
 Apply these levels in order. A lower level never overrides an unresolved higher

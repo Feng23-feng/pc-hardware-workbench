@@ -2,7 +2,7 @@
 name: pc-hardware-workbench
 description: Integrate Windows-focused read-only hardware inventory, telemetry charting, evidence-gated troubleshooting, guided overclocking with deterministic GPU starting candidates, and upgrade-purchase decisions through one routed workflow. Other systems receive manual guidance only. Keep tuning-only requests free of unsolicited purchase advice; never modify hardware automatically or bypass permissions or anti-cheat.
 metadata:
-  version: "2.7.3"
+  version: "2.7.4"
   short-description: "One routed entry for hardware inventory, telemetry visuals, triage, deterministic GPU candidates, and purchase decisions"
 ---
 
@@ -72,73 +72,47 @@ never invent a path.
 
 ## Route by task
 
+Choose one route and read its primary reference. Open secondary links only when
+their stated condition applies.
+
 ### Inventory
 
-The embedded collector is Windows-only and requires consent. Read
-[collector-workflow.md](references/integration/collector-workflow.md),
-[hardware-detection.md](references/upgrade/hardware-detection.md), and
-[output-format.md](references/upgrade/output-format.md). Present hardware and
-limits together; inventory is not diagnosis, stability proof, or upgrade
-justification. Add [cooling-evidence.md](references/integration/cooling-evidence.md)
-only when thermal behavior matters.
+The embedded collector is Windows-only and requires consent. Follow
+[collector-workflow.md](references/integration/collector-workflow.md). Present
+hardware and limits together; inventory is not diagnosis, stability proof, or
+upgrade justification.
 
 ### Triage
 
-Read [triage-checklist.md](references/triage/triage-checklist.md),
-[risk-taxonomy.md](references/triage/risk-taxonomy.md), and
-[experiment-protocol.md](references/triage/experiment-protocol.md). Add
-[collector-handoff.md](references/triage/collector-handoff.md) only when a
-collector or event-log handoff can change the next decision. Follow the ordered
-safety-to-performance state machine and state the likely layer, supporting and
-conflicting evidence, one smallest next diagnostic, and which result would
-change the diagnosis.
+Follow [triage-checklist.md](references/triage/triage-checklist.md). Follow the
+ordered safety-to-performance state machine and state the likely layer,
+supporting and conflicting evidence, one smallest next diagnostic, and which
+result would change the diagnosis.
 
 ### Telemetry and logs
 
 Read [telemetry-analysis.md](references/integration/telemetry-analysis.md);
 confirm source and workload. Analysis is read-only and does not require the
-tuning entry gate; it never implies diagnosis, stability, or permission.
-Use `render-telemetry-chart.ps1`; load the matching
-[telemetry-normalization.md](references/integration/telemetry-normalization.md),
-[lhm-adapter.md](references/integration/lhm-adapter.md), or
-[visual-evidence.md](references/integration/visual-evidence.md). For PresentMon,
-read [presentmon-frame-time.md](references/integration/presentmon-frame-time.md)
-and run `analyze-presentmon.ps1`. Use
-[evidence-package.md](references/integration/evidence-package.md) with
-`scripts/run-evidence-pipeline.ps1`.
+tuning entry gate; it never implies diagnosis, stability, or permission. From
+that reference, load only the matching chart, LHM, PresentMon, visual-evidence,
+or evidence-package route.
 
 ### Tune
 
 Read [tuning-modes.md](references/integration/tuning-modes.md) and
 [fixed-workloads.md](references/integration/fixed-workloads.md) first;
 concept-only questions bypass the entry gate.
+Any reply naming a candidate value or hardware control must include the exact
+parameter safety notice above.
 
 For a personalized setting, complete the mandatory **tuning entry gate**:
 target and exposed control; stock/known-good in-workload baseline; objective;
 credible recovery; fixed workload with pass/abort evidence. A skip request does
 not waive the gate. A missing item is a coaching branch, not a dead end: read
 [intake.md](references/tuning/intake.md), ask one smallest question, and preserve
-answers.
-
-After the target and form factor are known, use
-[component-playbooks.md](references/tuning/component-playbooks.md), then only
-decision-changing references:
-[device-routes.md](references/tuning/device-routes.md),
-[tools.md](references/tuning/tools.md),
-[success-and-sensor-semantics.md](references/integration/success-and-sensor-semantics.md),
-[persistence-and-update-gate.md](references/integration/persistence-and-update-gate.md),
-and [telemetry-analysis.md](references/integration/telemetry-analysis.md).
-
-For GPU clocks, read [gpu-clock-behavior.md](references/tuning/gpu-clock-behavior.md).
-For a gated GPU candidate, also use
-[gpu-family-playbooks.md](references/tuning/gpu-family-playbooks.md),
-[gpu-auto-candidates.md](references/tuning/gpu-auto-candidates.md),
-[usable-start-and-state.md](references/tuning/usable-start-and-state.md), and
-the applicable [laptop-power-state.md](references/tuning/laptop-power-state.md)
-or [beginner-gpu-auto-oc.md](references/tuning/beginner-gpu-auto-oc.md). For VRAM
-or tool conflicts, use
-[vram-and-memory-bus.md](references/tuning/vram-and-memory-bus.md) and
-[gpu-memory-playbook.md](references/tuning/gpu-memory-playbook.md).
+answers. After the target and form factor are known, use
+[component-playbooks.md](references/tuning/component-playbooks.md) for only the
+device-specific controls and evidence procedures that affect the decision.
 
 Run `scripts/suggest-gpu-overclock.ps1` only after the gate and baseline; present
 one user-applied card. Unknown, ambiguous, or multi-adapter identities receive no
@@ -150,15 +124,11 @@ revert, or stop.
 
 ### Purchase
 
-Read [intake-template.md](references/upgrade/intake-template.md),
-[decision-framework.md](references/upgrade/decision-framework.md),
-[market-check.md](references/upgrade/market-check.md), and
-[output-format.md](references/upgrade/output-format.md).
-
-Default to no performance purchase until a concrete problem and positive
-expected value exist. Compare a non-purchase option and dated regional price;
-never invent prices. Assess preference, aesthetic, collection, gift, capability,
-or future-project goals directly rather than inventing a bottleneck.
+Read [intake-template.md](references/upgrade/intake-template.md). Default to no
+performance purchase until a concrete problem and positive expected value exist.
+Compare a non-purchase option and dated regional price; never invent prices.
+Assess preference, aesthetic, collection, gift, capability, or future-project
+goals directly rather than inventing a bottleneck.
 
 ## Advice intensity
 

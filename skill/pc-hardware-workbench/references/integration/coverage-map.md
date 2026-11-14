@@ -21,6 +21,7 @@ This integrated suite preserves the generic references and scripts from three in
 | PresentMon frame-time input | 2.7.0 | `references/integration/presentmon-frame-time.md`, `scripts/analyze-presentmon.ps1`, `tests/run-presentmon-analysis-tests.ps1` | Read-only CSV analysis for average FPS, tail frame time, low-FPS metrics, spikes, clusters, source hash, and capture-scope warnings; no automatic capture or hardware write |
 | HWiNFO trailing-empty recovery | 2.7.0 | `references/integration/telemetry-analysis.md`, `scripts/analyze-telemetry.ps1`, `tests/run-telemetry-audit-tests.ps1` | Analyzer 1.2.3 ignores exactly one surplus trailing empty field when all header-aligned fields remain present, reports the normalized row count, and continues rejecting missing or non-empty mismatches |
 | timed plan Gantt view | 2.7.0 | `references/integration/telemetry-analysis.md`, `scripts/render-gantt-chart.ps1`, `tests/run-telemetry-chart-tests.ps1` | Dependency-free SVG planning view for multi-phase schedules with known durations; not a telemetry substitute or evidence that work occurred |
+| layered one-hop routing | 2.7.4 | `SKILL.md`, primary mode references, `tests/run-interaction-contract-tests.ps1` | Entry drops to 8,744 B and Quick to 17,753 B; each top-level route opens one primary reference, which retains conditional secondary routing without losing safety or evidence gates |
 | personal-hardware-triage | excluded | none | Personal device history intentionally excluded |
 
 ## Controlled source revisions

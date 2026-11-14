@@ -209,7 +209,7 @@ $skill = Get-Content -LiteralPath $skillPath -Raw -Encoding UTF8
 $referenceOnlyNotice = [regex]::Unescape('\u53C2\u6570\u4EC5\u4F9B\u53C2\u8003\uFF0C\u8BF7\u4EE5\u5B89\u5168\u4E3A\u7B2C\u4E00\u8981\u52A1\u3002')
 $englishReferenceOnlyNotice = "For reference only - put safety first."
 
-Assert-Contains $skill '(?m)^  version: "2\.7\.3"\r?$' "metadata.version should be 2.7.3."
+Assert-Contains $skill '(?m)^  version: "2\.7\.4"\r?$' "metadata.version should be 2.7.4."
 Assert-Contains $skill 'r23 collector' "The Skill maintenance summary collector revision disagrees with the collector code."
 Assert-Contains $skill 'while power-path\s+evidence is incomplete' "The Advice intensity route does not include incomplete power-path evidence."
 Assert-Contains $skill 'hidden or\s+manufacturer-limited power' "The Advice intensity summary is narrower than the hidden or manufacturer-limited scope."
@@ -282,19 +282,10 @@ Assert-Contains $skill 'cross-mode-handoffs\.md' "Cross-mode handoff reference i
 Assert-Contains $skill '### Telemetry and logs' "Telemetry has no formal shared subflow."
 Assert-Contains $skill 'does not require the\s+tuning entry gate' "Telemetry-only analysis is still forced through tuning intake."
 Assert-Contains $skill 'collector is Windows-only' "Automatic collector scope is not limited to Windows."
-Assert-Contains $skill 'cooling-evidence\.md' "Cooling evidence route is missing."
-Assert-Contains $skill 'gpu-clock-behavior\.md' "GPU dynamic clock behavior reference is not linked from the entrypoint."
-Assert-Contains $skill 'vram-and-memory-bus\.md' "The entrypoint does not route VRAM mechanism questions."
-Assert-Contains $skill 'gpu-memory-playbook\.md' "The entrypoint does not route VRAM tuning."
 Assert-Contains $skill 'tuning-modes\.md' "Quick/deep tuning route is missing."
 Assert-Contains $skill 'fixed-workloads\.md' "Fixed workload route is missing."
 Assert-Contains $skill 'telemetry-analysis\.md' "Telemetry analysis route is missing."
-Assert-Contains $skill 'presentmon-frame-time\.md' "PresentMon frame-time route is missing."
-Assert-Contains $skill 'analyze-presentmon\.ps1' "PresentMon analyzer is not routed from the Skill."
-Assert-Contains $skill 'success-and-sensor-semantics\.md' "Success/sensor route is missing."
-Assert-Contains $skill 'persistence-and-update-gate\.md' "Persistence/update route is missing."
 Assert-Contains $skill 'installation-coexistence\.md' "Installation coexistence route is missing."
-Assert-Contains $skill 'device-identity\.md' "Unreadable device identity route is missing."
 
 foreach ($relative in @(
     "references/integration/collector-workflow.md",
@@ -488,6 +479,11 @@ Assert-True ($gpuTier.Profiles.'AMD-RDNA3'.CoreStartDesktop -gt 0) "GPU tier aut
 Assert-True ($gpuTier.Profiles.'Intel-Battlemage'.CoreStartDesktop -gt 0) "GPU tier authority has no Intel Battlemage profile."
 Assert-Contains $componentPlaybooks 'vram-and-memory-bus\.md' "GPU candidate integration removed the current VRAM mechanism gate."
 Assert-Contains $componentPlaybooks 'gpu-memory-playbook\.md' "GPU candidate integration removed the current VRAM tuning gate."
+Assert-Contains $componentPlaybooks 'gpu-clock-behavior\.md' "Component routing removed GPU clock behavior."
+Assert-Contains $componentPlaybooks 'device-routes\.md' "Component routing removed the platform/control map."
+Assert-Contains $componentPlaybooks 'tools\.md' "Component routing removed the intervention tool route."
+Assert-Contains $componentPlaybooks 'success-and-sensor-semantics\.md' "Component routing removed pass and sensor semantics."
+Assert-Contains $componentPlaybooks 'persistence-and-update-gate\.md' "Component routing removed persistence and update checks."
 Assert-Contains $gpuCurve 'do not require the exact MHz value\s+to recur' "GPU curve guidance still requires the exact target point."
 Assert-Contains $gpuCurve 'Do not say the curve failed solely because one intended\s+voltage/MHz coordinate never appeared' "GPU curve guidance can still infer curve failure from an absent point."
 Assert-Contains $gpuCurve 'Pure frequency overclock' "GPU guidance does not separate pure frequency overclocking."
@@ -570,6 +566,9 @@ Assert-Contains $collectorWorkflow 'reuse a current-session snapshot' "Collector
 Assert-Contains $collectorWorkflow 'If several reports are available' "Collector workflow does not handle multiple reports."
 Assert-Contains $collectorWorkflow 'recently changed the CPU, GPU, memory' "Collector workflow does not remind users about recent hardware changes."
 Assert-True ($collectorWorkflow -notmatch 'CPU cooling type, whether the GPU') "Collector workflow still asks both cooling groups unconditionally."
+Assert-Contains $collectorWorkflow 'hardware-detection\.md' "Collector routing removed hardware detection details."
+Assert-Contains $collectorWorkflow 'cooling-evidence\.md' "Collector routing removed conditional cooling evidence."
+Assert-Contains $collectorWorkflow 'device-identity\.md' "Collector routing removed device identity quality."
 
 Assert-Contains $skill 'Default: refuse\.' "Advice tiering has no default-refusal rule."
 Assert-Contains $skill 'Downgrade only under' "Advice tiering has no downgrade gate."
@@ -821,9 +820,14 @@ $triageRisk = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/tria
 $triageProtocol = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/triage/experiment-protocol.md") -Raw -Encoding UTF8
 $collectorHandoff = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/triage/collector-handoff.md") -Raw -Encoding UTF8
 $telemetryAnalysis = $telemetry
+Assert-Contains $telemetryAnalysis 'lhm-adapter\.md' "Telemetry routing removed the local LHM adapter."
+Assert-Contains $telemetryAnalysis 'presentmon-frame-time\.md' "Telemetry routing removed PresentMon frame-time analysis."
+Assert-Contains $telemetryAnalysis 'analyze-presentmon\.ps1' "Telemetry routing removed the PresentMon analyzer."
 Assert-Contains $triageChecklist 'First-contact state machine' "Triage has no first-contact priority ladder."
 Assert-Contains $triageChecklist 'Evidence states' "Triage does not separate evidence quality."
 Assert-Contains $triageChecklist 'Question selection' "Triage has no discriminating-question policy."
+Assert-Contains $triageChecklist 'risk-taxonomy\.md' "Triage routing removed the hazard and evidence model."
+Assert-Contains $triageChecklist 'experiment-protocol\.md' "Triage routing removed the discriminating-experiment protocol."
 Assert-Contains $triageChecklist 'Audio stutter, crackle, or dropout' "Audio dropout triage is missing."
 Assert-Contains $triageChecklist 'USB audio path and overload hypothesis' "USB audio topology and overload triage is missing."
 Assert-Contains $triageChecklist 'port count is not a measurement of traffic' "USB port occupancy can still be treated as a measured overload."
@@ -1031,6 +1035,8 @@ $upgradeIntake = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/u
 $explainPosition = $upgradeIntake.IndexOf("explain both output modes")
 $choosePosition = $upgradeIntake.IndexOf("ask them to choose standard or privacy-redacted output")
 Assert-True ($explainPosition -ge 0 -and $choosePosition -gt $explainPosition) "Upgrade intake asks for a privacy mode before explaining it."
+Assert-Contains $upgradeIntake 'decision-framework\.md' "Upgrade intake removed the decision framework."
+Assert-Contains $upgradeIntake 'market-check\.md' "Upgrade intake removed dated market checks."
 
 $coolingEvidence = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/integration/cooling-evidence.md") -Raw -Encoding UTF8
 Assert-Contains $coolingEvidence 'only what affects the current target' "Cooling questions are not target-specific."

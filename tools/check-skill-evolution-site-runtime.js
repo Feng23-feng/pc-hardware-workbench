@@ -425,7 +425,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       primaryPaths: [...document.querySelectorAll(".dse-explore-primary a")].map(link => link.getAttribute("href")),
       heroVersion: document.getElementById("dse-hero-version")?.textContent.trim() || "",
       visibleVersionCount: (
-        document.getElementById("dse-root")?.innerText.match(/2\.7\.3/g) || []
+        document.getElementById("dse-root")?.innerText.match(/2\.7\.4/g) || []
       ).length,
       technicalClosed: !document.querySelector(".dse-home-technical")?.open,
       technicalSummary: document.querySelector(".dse-home-technical > summary")?.innerText.trim() || "",
@@ -468,7 +468,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
     );
     check(!initial.aboutPresent, `${prefix}removed philosophy section still exists.`);
     check(
-      initial.heroVersion === "2.7.3" &&
+      initial.heroVersion === "2.7.4" &&
       initial.visibleVersionCount === 1,
       `${prefix}homepage should expose the current version exactly once (${JSON.stringify({
         heroVersion: initial.heroVersion,
@@ -776,7 +776,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
     })()`, 2500);
     const opened = await evaluate(connection, `(() => ({
       open: Boolean(document.querySelector(".dse-home-technical")?.open),
-      version: document.querySelector(".dse-home-technical")?.innerText.includes("2.7.3") || false,
+      version: document.querySelector(".dse-home-technical")?.innerText.includes("2.7.4") || false,
       versionCodeSize: Number.parseFloat(getComputedStyle(document.querySelector(".dse-version-code")).fontSize),
       versionButtons: document.querySelectorAll(".dse-version").length,
       summaryExpanded: document.getElementById("dse-home-technical-summary")?.getAttribute("aria-expanded") || "",
@@ -787,7 +787,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       opened.open &&
       opened.version &&
       opened.versionCodeSize >= 16 &&
-      opened.versionButtons === 113 &&
+      opened.versionButtons === 114 &&
       opened.summaryExpanded === "true" &&
       opened.actionText.includes("收起技术资料"),
       `${prefix}technical archive does not open correctly (${JSON.stringify(opened)}).`
@@ -798,7 +798,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       `${prefix}home uses more than four font-size levels (${JSON.stringify(homeFontSizes)}).`
     );
     await evaluate(connection, `(() => {
-      document.querySelector('[data-version-id="wb-2-7-3"]')?.click();
+      document.querySelector('[data-version-id="wb-2-7-4"]')?.click();
       return true;
     })()`);
     await sleep(120);
@@ -810,15 +810,15 @@ async function testHomeViewport(siteUrl, name, width, height) {
     }))()`);
     check(
       archiveSelection.detailVisible &&
-      archiveSelection.title.includes("2.7.3") &&
+      archiveSelection.title.includes("2.7.4") &&
       archiveSelection.date.includes("测试版") &&
       !archiveSelection.date.includes("CANDIDATE") &&
-      archiveSelection.hash === "#wb-2-7-3",
+      archiveSelection.hash === "#wb-2-7-4",
       `${prefix}version selection or deep link was lost (${JSON.stringify(archiveSelection)}).`
     );
 
     await navigate(connection, siteUrl);
-    await navigate(connection, `${siteUrl}#wb-2-7-3`);
+    await navigate(connection, `${siteUrl}#wb-2-7-4`);
     const deepLinked = await waitFor(connection, `(() => (
       document.querySelector(".dse-home-technical")?.open &&
       !document.getElementById("dse-version-detail")?.hidden
@@ -845,7 +845,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       !publicMap.prototypeTrack &&
       !publicMap.convergence &&
       publicMap.coreCodes.includes("WB-09") &&
-      publicMap.integrationTitle.includes("2.7.3 测试版") &&
+      publicMap.integrationTitle.includes("2.7.4 测试版") &&
       publicMap.archiveSeries.some(label => label.includes("GPU 自动候选整合史 / 3.x")),
       `${prefix}public map still exposes the retired prototype as a parallel product (${JSON.stringify(publicMap)}).`
     );
@@ -1216,7 +1216,7 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
         backdropScene: document.documentElement.dataset.crtSceneIntent || "",
         compareStepPresent: Boolean(document.querySelector('[data-tune-step-link="compare"]')),
         comparePanelVisible: (document.getElementById("dse-tune-compare-panel")?.getBoundingClientRect().height || 0) > 0,
-        visibleVersionNumber: document.getElementById("dse-root")?.innerText.includes("2.7.3") || false
+        visibleVersionNumber: document.getElementById("dse-root")?.innerText.includes("2.7.4") || false
       };
     })()`);
     check(initial.title.includes("高级模式"), `${prefix}browser title is not user-facing.`);
@@ -1224,7 +1224,7 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
     check(
       initial.status.includes("当前测试版") &&
       initial.status.includes("只读演示") &&
-      !initial.status.includes("2.7.3"),
+      !initial.status.includes("2.7.4"),
       `${prefix}advanced page does not use the public test-release label.`
     );
     check(

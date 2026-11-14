@@ -6,6 +6,13 @@ Before selecting the first variable, derive a hardware-and-goal-specific directi
 
 For every component, name the comparison class before choosing an increment: this device's own baseline, a closely matched device profile, or a looser reference used only for strategy. A comparable public result may narrow the experiment range, but never becomes the default setting.
 
+For platform/control mapping read [device-routes.md](device-routes.md); for the
+intervention tool read [tools.md](tools.md). Use
+[../integration/success-and-sensor-semantics.md](../integration/success-and-sensor-semantics.md)
+for pass criteria and
+[../integration/persistence-and-update-gate.md](../integration/persistence-and-update-gate.md)
+for reboot, persistence, and software-update checks.
+
 ## CPU
 
 Clarify whether the goal is lower temperature/noise at similar performance, higher sustained clocks, or a benchmark result.

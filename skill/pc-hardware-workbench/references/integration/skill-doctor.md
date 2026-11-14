@@ -1,5 +1,8 @@
 # Skill Doctor
 
+For redistribution and coexistence checks, read
+[installation-coexistence.md](installation-coexistence.md).
+
 Use `scripts/doctor.ps1` when the user asks whether the Skill is installed
 correctly, a script behaves differently across sessions, an output directory
 fails, PowerShell compatibility is uncertain, or optional live-monitoring tools

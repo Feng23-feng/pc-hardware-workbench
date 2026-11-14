@@ -34,7 +34,7 @@ try {
 function Write-Title {
     Clear-Host
     Write-Host "==============================================" -ForegroundColor Cyan
-    Write-Host "       电脑硬件便携工具包 2.7.3" -ForegroundColor Cyan
+    Write-Host "       电脑硬件便携工具包 2.7.4" -ForegroundColor Cyan
     Write-Host "==============================================" -ForegroundColor Cyan
     Write-Host "本地、只读、无网络；不会修改 BIOS、频率、电压、功耗或风扇。" -ForegroundColor DarkGray
     Write-Host "目标：教你识别、验证和恢复，让下次可以自己完成调校闭环。" -ForegroundColor DarkGray
