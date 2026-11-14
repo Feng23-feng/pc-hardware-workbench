@@ -1,5 +1,12 @@
 ﻿# 电脑硬件工作台版本记录
 
+## 2.7.3 — 2026-11-14
+
+- 修正 monitor adapter 合成回归的失败消息主语重复：helper 现在只返回 `changed monitor adapter name.` 等谓语短句，统一由调用方添加 `Redacted monitor N` 定位前缀；
+- 错误语义、退出码、命中条件和英文语言保持不变；
+- 新增断言禁止 helper 消息再次包含 `Redacted monitor` 主语前缀；
+- 该项仅修改测试失败路径文案，不修改采集器输出、隐私规则或硬件逻辑。
+
 ## 2.7.2 — 2026-11-14
 
 - 修正 live collector smoke 的显示器适配器断言：标准模式本来没有 `AdapterName` 的 CIM/WMI 身份行不再被误判为脱敏丢失；

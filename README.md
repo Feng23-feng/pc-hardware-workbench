@@ -6,7 +6,7 @@
 故障排查、遥测分析、手动调校和升级判断收敛到一个 Skill，同时把每一次硬件变更
 留给用户亲手完成。
 
-当前版本为 **2.7.2 测试版**。非实机自动测试已通过，真实设备覆盖和独立人工签署
+当前版本为 **2.7.3 测试版**。非实机自动测试已通过，真实设备覆盖和独立人工签署
 仍在继续；项目不会把测试版包装成已经完成广泛验证的稳定版。
 
 ![文件星球预览](docs/skill-evolution/assets/orrery-preview.png)
@@ -241,7 +241,7 @@ powershell -NoProfile -ExecutionPolicy Bypass `
 ## 版本与许可
 
 版本状态以 [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
-和 [CHANGELOG.md](CHANGELOG.md) 为准。当前工作台版本为 `2.7.2` 测试版。
+和 [CHANGELOG.md](CHANGELOG.md) 为准。当前工作台版本为 `2.7.3` 测试版。
 
 源码使用 [MIT License](LICENSE)。
 

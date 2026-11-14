@@ -7,7 +7,7 @@ DeepSeek Harness. It brings system inventory, troubleshooting, telemetry analysi
 guided tuning, and upgrade decisions into one workflow while leaving every
 persistent hardware change to the user.
 
-The current release line is a **2.7.2 test build**. Baseline non-live automated tests
+The current release line is a **2.7.3 test build**. Baseline non-live automated tests
 pass, but broad real-device coverage and independent human acceptance are still in
 progress. The project does not claim this test build is stable or fully validated.
 
@@ -279,7 +279,7 @@ verification workflow.
 
 Use [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
 and [CHANGELOG.md](CHANGELOG.md) as the source of version status. The current release
-line is a `2.7.2` test build.
+line is a `2.7.3` test build.
 
 Source code is available under the [MIT License](LICENSE).
 

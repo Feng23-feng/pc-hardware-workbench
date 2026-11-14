@@ -334,11 +334,11 @@ if ($errors.Count -eq 0) {
     else {
         $segment = $homeTemplate.Substring($start, $end - $start)
         $versionCount = [regex]::Matches($segment, '(?m)^\s*\["\d+\.\d+\.\d+(?:-r\d+)?",').Count
-        if ($versionCount -ne 112) {
-            $errors.Add("Home source version count is $versionCount, expected 112.") | Out-Null
+        if ($versionCount -ne 113) {
+            $errors.Add("Home source version count is $versionCount, expected 113.") | Out-Null
         }
-        if ($segment -notmatch '\["2\.7\.2"[^\r\n]*CURRENT CANDIDATE') {
-            $errors.Add("Home source current 2.7.2 archive record is missing.") | Out-Null
+        if ($segment -notmatch '\["2\.7\.3"[^\r\n]*CURRENT CANDIDATE') {
+            $errors.Add("Home source current 2.7.3 archive record is missing.") | Out-Null
         }
         if ($segment -notmatch '\["2\.6\.0"[^\r\n]*PREVIOUS LOCAL') {
             $errors.Add("Home source previous 2.6.0 archive record is missing.") | Out-Null
@@ -431,7 +431,7 @@ if ($errors.Count -eq 0) {
     finally {
         $sha256.Dispose()
     }
-    if ($frozen.version -ne "2.7.2" -or $frozen.status -ne "frozen" -or [int]$frozen.fileCount -ne 114) {
+    if ($frozen.version -ne "2.7.3" -or $frozen.status -ne "frozen" -or [int]$frozen.fileCount -ne 114) {
         $errors.Add("Orrery FROZEN.json version/status/file count is unexpected.") | Out-Null
     }
     if ([int]$frozen.bytes -ne $orreryBytes.Length -or $frozen.sha256 -ne $orreryHash) {

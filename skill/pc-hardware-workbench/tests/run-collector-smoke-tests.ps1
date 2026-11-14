@@ -36,14 +36,14 @@ function Get-MonitorAdapterValidation {
     $hasStandardAdapter = -not [string]::IsNullOrWhiteSpace($standardAdapterText)
     $errors = New-Object System.Collections.Generic.List[string]
     if ($redactedAdapterText -cne $standardAdapterText) {
-        $errors.Add("Redaction changed monitor adapter name.") | Out-Null
+        $errors.Add("changed monitor adapter name.") | Out-Null
     }
     if ($hasStandardAdapter) {
         if ($redactedAdapterText -ceq "[redacted]") {
-            $errors.Add("Redacted monitor hid the adapter name that GPU identity preserves.") | Out-Null
+            $errors.Add("hid the adapter name that GPU identity preserves.") | Out-Null
         }
         if ($RedactedGpuNames -notcontains $redactedAdapterText) {
-            $errors.Add("Redacted monitor adapter name no longer matches a declared GPU.") | Out-Null
+            $errors.Add("adapter name no longer matches a declared GPU.") | Out-Null
         }
     }
     return [pscustomobject]@{
@@ -252,12 +252,14 @@ $clearedAdapterValidation = Get-MonitorAdapterValidation `
     -RedactedAdapter "" `
     -RedactedGpuNames @("GPU A")
 Assert-True ($clearedAdapterValidation.Errors.Count -gt 0) "Clearing a standard monitor adapter link did not fail validation."
+Assert-True ($clearedAdapterValidation.Errors[0] -ceq "changed monitor adapter name.") "Cleared-adapter failure still duplicates the monitor subject."
 
 $placeholderAdapterValidation = Get-MonitorAdapterValidation `
     -StandardAdapter "GPU A" `
     -RedactedAdapter "[redacted]" `
     -RedactedGpuNames @("GPU A")
 Assert-True ($placeholderAdapterValidation.Errors.Count -gt 0) "Redacting a monitor adapter link did not fail validation."
+Assert-True (-not (@($placeholderAdapterValidation.Errors) | Where-Object { $_ -match '^Redacted monitor' })) "Monitor adapter helper messages still include the caller's subject prefix."
 
 if (-not $AllowLiveCollector) {
     Write-Host "Collector live smoke: SKIP (pass -AllowLiveCollector and choose -PrivacyMode Redacted|Standard|Both)" -ForegroundColor Yellow
