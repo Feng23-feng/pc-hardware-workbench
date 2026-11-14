@@ -7,9 +7,10 @@ DeepSeek Harness. It brings system inventory, troubleshooting, telemetry analysi
 guided tuning, and upgrade decisions into one workflow while leaving every
 persistent hardware change to the user.
 
-The current release line is a **2.7.4 test build**. Baseline non-live automated tests
-pass, but broad real-device coverage and independent human acceptance are still in
-progress. The project does not claim this test build is stable or fully validated.
+The current release line is a **2.7.4 test build**. Automated tests and a targeted
+three-scenario human review pass, but broad real-device coverage, human review of
+the remaining scenarios, and broad stability validation are still in progress. The
+project does not claim this test build is stable or fully validated.
 
 ![File orrery preview](docs/skill-evolution/assets/orrery-preview.png)
 

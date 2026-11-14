@@ -389,8 +389,8 @@ if ($errors.Count -eq 0) {
     if ($orreryHtml -notmatch '\u5F53\u524D\u6587\u4EF6\u661F\u7CFB|\u5F53\u524D\u5FEB\u7167') {
         $errors.Add("Orrery does not identify its current snapshot.") | Out-Null
     }
-    if ($orreryHtml -notmatch '114 \u4E2A\u6587\u4EF6|\u5F53\u524D Git \u6E05\u5355 \u00B7 Skill 2\.7\.0') {
-        $errors.Add("Orrery does not expose the current 114-file snapshot.") | Out-Null
+    if ($orreryHtml -notmatch '115 \u4E2A\u6587\u4EF6') {
+        $errors.Add("Orrery does not expose the current 115-file snapshot.") | Out-Null
     }
     if ($orreryHtml -match 'archive/1\.5\.2/') {
         $errors.Add("Orrery still exposes the local-only 1.5.2 archive.") | Out-Null
@@ -410,12 +410,13 @@ if ($errors.Count -eq 0) {
 
     $frozen = Get-Content -Raw -LiteralPath $frozenPath -Encoding UTF8 | ConvertFrom-Json
     $expectedFileCount = [int]$frozen.fileCount
+    $frozenVersionPattern = [regex]::Escape([string]$frozen.version)
     $fileCountLabel = "$expectedFileCount " + [regex]::Unescape('\u4E2A\u6587\u4EF6')
     $archiveFileCountLabel = [regex]::Unescape('\u6587\u4EF6\u661F\u7403') + " $fileCountLabel"
     if ($homeTemplate -notmatch [regex]::Escape($fileCountLabel)) {
         $errors.Add("Home source file-planet entry does not match FROZEN file count $expectedFileCount.") | Out-Null
     }
-    if ($interactiveTemplate -notmatch ('\["2\.7\.0"[^\r\n]*' + [regex]::Escape($archiveFileCountLabel))) {
+    if ($interactiveTemplate -notmatch ('\["' + $frozenVersionPattern + '"[^\r\n]*' + [regex]::Escape($archiveFileCountLabel))) {
         $errors.Add("Interactive current archive does not match FROZEN file count $expectedFileCount.") | Out-Null
     }
     $orreryText = [IO.File]::ReadAllText($orreryPath, [Text.UTF8Encoding]::new($false, $true))
@@ -431,7 +432,7 @@ if ($errors.Count -eq 0) {
     finally {
         $sha256.Dispose()
     }
-    if ($frozen.version -ne "2.7.4" -or $frozen.status -ne "frozen" -or [int]$frozen.fileCount -ne 114) {
+    if ($frozen.version -ne "2.7.4" -or $frozen.status -ne "frozen" -or [int]$frozen.fileCount -ne 115) {
         $errors.Add("Orrery FROZEN.json version/status/file count is unexpected.") | Out-Null
     }
     if ([int]$frozen.bytes -ne $orreryBytes.Length -or $frozen.sha256 -ne $orreryHash) {
@@ -447,4 +448,4 @@ if ($errors.Count -gt 0) {
     exit 1
 }
 
-Write-Host "Skill evolution site check: PASS (two canonical templates, single visible path, technical archives folded, 114-file orrery, JavaScript syntax)" -ForegroundColor Green
+Write-Host "Skill evolution site check: PASS (two canonical templates, single visible path, technical archives folded, 115-file orrery, JavaScript syntax)" -ForegroundColor Green

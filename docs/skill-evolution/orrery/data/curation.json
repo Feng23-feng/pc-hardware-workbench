@@ -597,6 +597,11 @@
       "role": "交互冻结场景",
       "summary": "记录盘点、排障、调校、购买、身份和安全边界的人工行为标准。"
     },
+    "tests/manual-acceptance-results-20261114-v274.md": {
+      "cluster": "tests/behavior",
+      "role": "2.7.4 定向人工验收",
+      "summary": "记录用户对模糊症状、单张截图和调参安全提示三项回答的 3/3 通过结果，并限定为测试候选发布签署。"
+    },
     "tests/manual-acceptance-template.md": {
       "cluster": "tests/behavior",
       "role": "人工验收模板",

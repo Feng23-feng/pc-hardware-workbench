@@ -6,7 +6,9 @@ param(
 
     [string]$Label = "test",
 
-    [string]$ValidatorPath
+    [string]$ValidatorPath,
+
+    [string]$HumanAcceptanceStatus = "PENDING"
 )
 
 $ErrorActionPreference = "Stop"
@@ -317,7 +319,7 @@ Validation
 
 Release status
 - Test candidate
-- Human acceptance: PENDING
+- Human acceptance: $HumanAcceptanceStatus
 - Approved for broad distribution: NO
 - HardwareWrite: none
 "@
@@ -338,7 +340,7 @@ Validation
 
 Release status
 - Test candidate
-- Human acceptance: PENDING
+- Human acceptance: $HumanAcceptanceStatus
 - Approved for broad distribution: NO
 - HardwareWrite: none
 "@
@@ -366,7 +368,7 @@ Validation
 
 Release status
 - Test candidate
-- Human acceptance: PENDING
+- Human acceptance: $HumanAcceptanceStatus
 - Approved for broad distribution: NO
 - HardwareWrite: none
 "@
