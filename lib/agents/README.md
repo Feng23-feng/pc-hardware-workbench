@@ -73,6 +73,7 @@ classification, stable code, and user-safe message.
 | --- | --- | --- | --- | --- | --- | --- |
 | `codex` | first supported adapter, experimental protocol | yes | yes | no | yes | no |
 | `dsh` | isolated headless adapter, experimental | yes | yes | no | prompt+parse compatibility | no |
+| `agent-bridge` | local Agent Bridge 0.1 draft | no | declared | no | declared | no |
 | `mock` | deterministic test adapter | yes | yes | no | yes | no |
 | MCP / CLI | not implemented | — | — | — | — | — |
 
@@ -81,10 +82,26 @@ Select with:
 ```powershell
 $env:PANEL_AGENT_DRIVER = "codex"  # default
 $env:PANEL_AGENT_DRIVER = "dsh"
+$env:PANEL_AGENT_DRIVER = "agent-bridge"
+$env:PANEL_AGENT_BRIDGE_URL = "http://127.0.0.1:4400"
+$env:PANEL_AGENT_BRIDGE_TOKEN = "<loopback capability token>"
 $env:PANEL_AGENT_DRIVER = "mock"
 ```
 
 Invalid values fail before the server starts and list allowed drivers.
+
+## Agent Bridge 0.1 draft
+
+`AgentBridgeDriver` talks to a user-owned loopback HTTP service implementing
+[../../contracts/agent-bridge/0.1-draft/README.md](../../contracts/agent-bridge/0.1-draft/README.md).
+The URL must be a credential-free loopback origin, and a bearer token is
+mandatory. The driver negotiates Session resume, naming, structured output, and
+cancellation before exposing those capabilities to the upper layer.
+
+This draft is synchronous and has no streaming. A bridge may return structured
+output; if it does not, the host uses the same strict prompt/parse/repair path as
+other non-native adapters. `AgentBridgeDriver` never stores SkillDock capability
+or handoff secrets.
 
 ## Adding another adapter
 

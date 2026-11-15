@@ -1,7 +1,7 @@
 # Agent Bridge
 
-Status: accepted architecture direction; manifest and implementation are not yet
-frozen.
+Status: accepted architecture direction; a `0.1-draft` schema and local HTTP
+driver exist. The protocol is not frozen.
 
 ## Decision
 
@@ -14,6 +14,13 @@ layers.
 The first implementation will be a draft. Its protocol version will not be
 declared stable until two independent Agent implementations and the built-in
 Codex adapter pass the same contract suite.
+
+Draft implementation:
+
+- [contract and response schema](contracts/agent-bridge/0.1-draft/README.md);
+- `AgentBridgeDriver` in `lib/agents/agent-bridge-driver.mjs`;
+- deterministic bridge fixture in `fixtures/agent-bridge-fixture.mjs`;
+- contract test in `tests/agent-bridge.test.mjs`.
 
 ## Boundary
 

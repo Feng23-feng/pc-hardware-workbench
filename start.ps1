@@ -1,7 +1,7 @@
 param(
     [int]$Port = 4319,
     [string]$RuntimeDirectory = "runtime",
-    [ValidateSet("codex", "dsh", "dsh-web", "mock")]
+    [ValidateSet("codex", "dsh", "dsh-web", "agent-bridge", "mock")]
     [string]$AgentDriver = "codex",
     [string]$DshHome = "",
     [switch]$ResetState

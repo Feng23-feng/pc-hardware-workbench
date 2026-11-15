@@ -10,7 +10,8 @@
   "scripts": {
     "start": "node server.mjs",
     "smoke": "node smoke-test.mjs",
-    "test": "node smoke-test.mjs",
+    "test:agent-bridge": "node tests/agent-bridge.test.mjs",
+    "test": "node smoke-test.mjs && node tests/agent-bridge.test.mjs",
     "check": "node --check server.mjs && node --check open-workbench.mjs && node --check smoke-test.mjs && node --check public/app.js && node --check public/status-model.js && node --check public/draft-storage.js"
   }
 }

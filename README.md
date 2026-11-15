@@ -61,6 +61,7 @@ The connection layer is Agent-neutral:
 $env:PANEL_AGENT_DRIVER = "codex"  # default
 $env:PANEL_AGENT_DRIVER = "dsh"
 $env:PANEL_AGENT_DRIVER = "dsh-web"  # panel-owned DSH Web child, experimental
+$env:PANEL_AGENT_DRIVER = "agent-bridge"
 $env:PANEL_AGENT_DRIVER = "mock"
 ```
 
@@ -86,10 +87,22 @@ The installed DSH headless route remains separately available through
 Desktop credentials do not automatically become a headless environment
 credential.
 
+For a third-party Agent that implements the draft local bridge contract:
+
+```powershell
+$env:PANEL_AGENT_DRIVER = "agent-bridge"
+$env:PANEL_AGENT_BRIDGE_URL = "http://127.0.0.1:4400"
+$env:PANEL_AGENT_BRIDGE_TOKEN = "<token issued by the local bridge>"
+```
+
+See [AGENT-BRIDGE.md](AGENT-BRIDGE.md) and
+[contracts/agent-bridge/0.1-draft/README.md](contracts/agent-bridge/0.1-draft/README.md).
+
 ## Test
 
 ```powershell
 node .\smoke-test.mjs
+node .\tests\agent-bridge.test.mjs
 node --check .\server.mjs
 node --check .\public\app.js
 node --check .\public\status-model.js
