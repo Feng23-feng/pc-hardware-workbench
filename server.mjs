@@ -178,6 +178,12 @@ if (!Array.isArray(state.task.timeline)) {
     });
   }
 }
+state.task.timeline = state.task.timeline.map((entry, index) => ({
+  ...entry,
+  seq: Number.isInteger(entry.seq) && entry.seq > 0 ? entry.seq : index + 1,
+  source: String(entry.source ?? "surface"),
+}));
+state.task.sync ??= null;
 await skillRuntime.expirePermissions(state.task, {
   appendEvent: (event) => store.appendEvent(event),
   save: () => store.save(),
@@ -306,6 +312,51 @@ async function readJson(request) {
     throw new Error("Content-Type must be application/json");
   }
   return JSON.parse(Buffer.concat(chunks).toString("utf8"));
+}
+
+function validateSyncImport(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("Chat context must be an object");
+  }
+  if (value.schema_version !== "1.0") {
+    throw new Error("Chat context schema_version must be 1.0");
+  }
+  const channelId = String(value.channel_id ?? "").trim();
+  if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{7,199}$/u.test(channelId)) {
+    throw new Error("Chat context channel_id is invalid");
+  }
+  const objective = String(value.objective ?? "").trim().slice(0, 120);
+  const summary = String(value.summary ?? "").trim().slice(0, 4000);
+  if (!Array.isArray(value.messages) || value.messages.length > 40) {
+    throw new Error("Chat context messages must contain at most 40 items");
+  }
+  const seen = new Set();
+  const messages = value.messages.map((message, index) => {
+    const externalId = String(message?.id ?? "").trim();
+    if (
+      !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$/u.test(externalId) ||
+      seen.has(externalId)
+    ) {
+      throw new Error(`Chat context message ${index} has an invalid id`);
+    }
+    seen.add(externalId);
+    const role =
+      message.role === "assistant" ? "agent" : String(message.role ?? "");
+    if (!["user", "agent"].includes(role)) {
+      throw new Error(`Chat context message ${index} has an invalid role`);
+    }
+    const text = String(message.text ?? "").trim();
+    if (!text || text.length > 8000) {
+      throw new Error(`Chat context message ${index} has invalid text`);
+    }
+    const createdAt =
+      typeof message.created_at === "string" &&
+      Number.isFinite(Date.parse(message.created_at))
+        ? new Date(message.created_at).toISOString()
+        : new Date().toISOString();
+    return { externalId, role, text, createdAt };
+  });
+  return { channelId, objective, summary, messages };
 }
 
 function publicAttachment(attachment) {
@@ -510,13 +561,40 @@ function archiveCurrentTask() {
   );
 }
 
-function pushTimeline(role, text, attachments = []) {
-  state.task.timeline.push({
+function appendTimelineEntry({
+  role,
+  text,
+  attachments = [],
+  createdAt = new Date().toISOString(),
+  source = "surface",
+  externalId = null,
+}) {
+  const nextSequence =
+    state.task.timeline.reduce(
+      (maximum, entry) =>
+        Number.isInteger(entry.seq) ? Math.max(maximum, entry.seq) : maximum,
+      0,
+    ) + 1;
+  const entry = {
+    seq: nextSequence,
     id: `timeline-${crypto.randomUUID()}`,
     role,
-    text,
-    created_at: new Date().toISOString(),
+    text: String(text),
+    created_at: createdAt,
+    source,
+    external_id: externalId,
     attachments: attachments.map(publicAttachment),
+  };
+  state.task.timeline.push(entry);
+  return entry;
+}
+
+function pushTimeline(role, text, attachments = []) {
+  return appendTimelineEntry({
+    role,
+    text,
+    attachments,
+    source: "surface",
   });
 }
 
