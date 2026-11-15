@@ -77,7 +77,8 @@ For a DSH Web trial that reuses the user's existing DSH login:
   -Port 4331 `
   -AgentDriver dsh-web `
   -RuntimeDirectory runtime-dsh-web `
-  -DshHome "$HOME\.dsh"
+  -DshHome "$HOME\.dsh" `
+  -AgentWorkspace "$HOME\Documents\deepseek-harness\default-workspace"
 
 .\stop.ps1 -RuntimeDirectory runtime-dsh-web
 ```
@@ -86,6 +87,11 @@ The installed DSH headless route remains separately available through
 `-AgentDriver dsh`, but it requires `DEEPSEEK_API_KEY` in the launching process.
 Desktop credentials do not automatically become a headless environment
 credential.
+
+`-AgentWorkspace` sets the working directory used by the Agent Session. For
+DSH, this is the workspace where the new conversation appears in the DSH
+Session list. It also defines the project instructions and relative paths seen
+by Codex/DSH.
 
 For a third-party Agent that implements the draft local bridge contract:
 

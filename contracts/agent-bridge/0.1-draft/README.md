@@ -36,7 +36,8 @@ Request:
 
 ```json
 {
-  "client_request_id": "uuid"
+  "client_request_id": "uuid",
+  "workspace": "C:\\Users\\example\\Documents\\project"
 }
 ```
 
@@ -47,10 +48,14 @@ Response:
   "session": {
     "id": "session-example",
     "name": null,
-    "created_at": "2026-11-15T15:00:00.000Z"
+    "created_at": "2026-11-15T15:00:00.000Z",
+    "workspace": "C:\\Users\\example\\Documents\\project"
   }
 }
 ```
+
+`workspace` is the Agent's Session scope, not the SkillDock installation
+directory. Workspace-aware Agents must create or resume the Session there.
 
 ## Turn submission
 

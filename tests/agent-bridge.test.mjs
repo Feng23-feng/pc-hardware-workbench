@@ -44,6 +44,7 @@ try {
   await driver.initialize();
   assert.equal(driver.capabilities.adapterStatus, "draft");
   assert.equal(driver.capabilities.bridgeProtocolVersion, "0.1-draft");
+  assert.equal(driver.capabilities.sessionScope, "workspace");
   assert.equal(driver.capabilities.supportsThreadResume, true);
   assert.equal(driver.capabilities.supportsStructuredOutput, true);
   assert.equal(driver.capabilities.supportsCancellation, true);
@@ -171,6 +172,7 @@ try {
   });
   await hostClient.initialize();
   assert.equal(hostClient.capabilities.implementationName, "Mock");
+  assert.equal(hostClient.capabilities.sessionScope, "workspace");
   const hostSession = await hostClient.startThread();
   const hostTurn = await runPanelTurn({
     driver: hostClient,
@@ -187,6 +189,20 @@ try {
     outputSchema: schema,
   });
   assert.equal(hostTurn.panel.schema_version, "1.2");
+  const wrongWorkspaceClient = new AgentBridgeDriver({
+    baseUrl: host.baseUrl,
+    token: host.token,
+    workspace: join(root, "different-workspace"),
+  });
+  await wrongWorkspaceClient.initialize();
+  await assert.rejects(
+    wrongWorkspaceClient.startThread(),
+    (error) =>
+      error instanceof AgentDriverError &&
+      error.classification === "blocked" &&
+      error.code === "agent_bridge_workspace_mismatch",
+  );
+  await wrongWorkspaceClient.close();
   console.log("Agent Bridge 0.1 draft contract: PASS");
 } finally {
   await hostClient?.close().catch(() => {});

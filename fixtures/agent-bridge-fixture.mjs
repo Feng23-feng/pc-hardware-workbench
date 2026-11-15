@@ -142,6 +142,7 @@ export async function startAgentBridgeFixture({
           capabilities: {
             text_input: true,
             session_create: true,
+            session_scope: "workspace",
             session_resume: true,
             session_naming: true,
             structured_output: true,
@@ -155,12 +156,13 @@ export async function startAgentBridgeFixture({
         return;
       }
       if (request.method === "POST" && url.pathname === "/v1/sessions") {
-        await readJson(request);
+        const body = await readJson(request);
         const createdAt = new Date().toISOString();
         const session = {
           id: `session-${randomUUID()}`,
           name: null,
           created_at: createdAt,
+          workspace: String(body.workspace ?? process.cwd()),
         };
         sessions.set(session.id, session);
         sendJson(response, 201, { session });

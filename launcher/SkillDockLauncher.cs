@@ -23,7 +23,7 @@ internal static class SkillDockLauncher
             {
                 return StopServer(silent);
             }
-            return StartServer(silent, HasArgument(args, "--no-browser"));
+            return StartServer(silent, HasArgument(args, "--no-browser"), args);
         }
         catch (Exception error)
         {
@@ -41,7 +41,7 @@ internal static class SkillDockLauncher
         }
     }
 
-    private static int StartServer(bool silent, bool noBrowser)
+    private static int StartServer(bool silent, bool noBrowser, string[] args)
     {
         string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         string appDirectory = Path.Combine(baseDirectory, "app");
@@ -52,6 +52,8 @@ internal static class SkillDockLauncher
             ".dsh"
         );
         string dshExecutable = @"C:\dsh\DeepSeek Harness.exe";
+        string requestedWorkspace = ArgumentValue(args, "--workspace");
+        string workspace = ResolveWorkspace(requestedWorkspace);
         string codexSkills = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
             ".codex",
@@ -82,12 +84,14 @@ internal static class SkillDockLauncher
         startInfo.EnvironmentVariables["PANEL_AGENT_DRIVER"] = DriverName;
         startInfo.EnvironmentVariables["PANEL_SKILL_ROOTS"] = codexSkills + ";" + dshSkills;
         startInfo.EnvironmentVariables["PANEL_SKILL_ID"] = "pc-hardware-workbench";
+        startInfo.EnvironmentVariables["PANEL_AGENT_WORKSPACE"] = workspace;
         startInfo.EnvironmentVariables["DSH_HOME"] = dshHome;
         startInfo.EnvironmentVariables["DSH_TELEMETRY_DISABLED"] = "1";
         startInfo.EnvironmentVariables["NODE_NO_WARNINGS"] = "1";
 
         WriteLauncherLog(
-            "Starting " + ProductName + " with " + DriverName + " on " + url
+            "Starting " + ProductName + " with " + DriverName + " on " + url +
+            " workspace=" + workspace
         );
         Process process = Process.Start(startInfo);
         if (process == null)
@@ -268,6 +272,42 @@ internal static class SkillDockLauncher
             }
         }
         return false;
+    }
+
+    private static string ArgumentValue(string[] args, string expected)
+    {
+        for (int index = 0; index < args.Length - 1; index++)
+        {
+            if (String.Equals(args[index], expected, StringComparison.OrdinalIgnoreCase))
+            {
+                return args[index + 1];
+            }
+        }
+        return "";
+    }
+
+    private static string ResolveWorkspace(string requested)
+    {
+        string userProfile = Environment.GetFolderPath(
+            Environment.SpecialFolder.UserProfile
+        );
+        string workspace = requested;
+        if (String.IsNullOrWhiteSpace(workspace))
+        {
+            string dshWorkspace = Path.Combine(
+                userProfile,
+                "Documents",
+                "deepseek-harness",
+                "default-workspace"
+            );
+            string codexWorkspace = Path.Combine(userProfile, "Documents", "Codex");
+            workspace = Directory.Exists(dshWorkspace)
+                ? dshWorkspace
+                : (Directory.Exists(codexWorkspace) ? codexWorkspace : userProfile);
+        }
+        workspace = Path.GetFullPath(workspace);
+        RequireDirectory(workspace, "The requested Agent workspace was not found");
+        return workspace;
     }
 
     private static string LocalRoot

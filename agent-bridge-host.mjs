@@ -88,6 +88,7 @@ function capabilityDescriptor(driver) {
     capabilities: {
       text_input: true,
       session_create: true,
+      session_scope: "workspace",
       session_resume: driver.capabilities.supportsThreadResume === true,
       session_naming: driver.capabilities.supportsThreadNaming === true,
       structured_output:
@@ -109,6 +110,7 @@ export async function startAgentBridgeHost({
   token,
   host = "127.0.0.1",
   port = 0,
+  workspace = driver?.cwd ?? process.cwd(),
 } = {}) {
   if (!driver || typeof driver.initialize !== "function") {
     throw new TypeError("An AgentDriver instance is required.");
@@ -121,6 +123,7 @@ export async function startAgentBridgeHost({
     throw new Error("Agent Bridge Host token must be 16 to 4096 characters.");
   }
   await driver.initialize();
+  const hostWorkspace = resolve(workspace);
 
   const sessions = new Map();
   let activeSessionId = null;
@@ -135,6 +138,7 @@ export async function startAgentBridgeHost({
         id: sessionId,
         name: driver.activeThreadName ?? null,
         created_at: new Date().toISOString(),
+        workspace: hostWorkspace,
       });
     }
     return sessions.get(sessionId);
@@ -165,13 +169,27 @@ export async function startAgentBridgeHost({
         return;
       }
       if (request.method === "POST" && url.pathname === "/v1/sessions") {
-        await readJson(request);
+        const body = await readJson(request);
+        if (
+          body.workspace &&
+          resolve(String(body.workspace)) !== hostWorkspace
+        ) {
+          sendJson(response, 409, {
+            error: {
+              classification: "blocked",
+              code: "agent_bridge_workspace_mismatch",
+              message: "The reference Bridge Host uses a different workspace.",
+            },
+          });
+          return;
+        }
         const started = await driver.startThread();
         activeSessionId = started.threadReference;
         const session = {
           id: activeSessionId,
           name: driver.activeThreadName ?? null,
           created_at: new Date().toISOString(),
+          workspace: hostWorkspace,
         };
         sessions.set(session.id, session);
         sendJson(response, 201, { session });

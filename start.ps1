@@ -4,6 +4,7 @@ param(
     [ValidateSet("codex", "dsh", "dsh-web", "agent-bridge", "mock")]
     [string]$AgentDriver = "codex",
     [string]$DshHome = "",
+    [string]$AgentWorkspace = "",
     [switch]$ResetState
 )
 
@@ -41,6 +42,9 @@ catch {
 $env:PANEL_AGENT_DRIVER = $AgentDriver
 if (-not [string]::IsNullOrWhiteSpace($DshHome)) {
     $env:DSH_HOME = [IO.Path]::GetFullPath($DshHome)
+}
+if (-not [string]::IsNullOrWhiteSpace($AgentWorkspace)) {
+    $env:PANEL_AGENT_WORKSPACE = [IO.Path]::GetFullPath($AgentWorkspace)
 }
 $env:PANEL_PORT = [string]$Port
 $env:PANEL_RUNTIME_DIR = $Runtime

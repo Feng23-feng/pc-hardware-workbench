@@ -3,6 +3,7 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  statSync,
   unlinkSync,
   writeFileSync,
 } from "node:fs";
@@ -44,6 +45,10 @@ const runtimeDir = resolve(
   root,
   process.env.PANEL_RUNTIME_DIR ?? "runtime",
 );
+const agentWorkspace = resolve(process.env.PANEL_AGENT_WORKSPACE ?? root);
+if (!existsSync(agentWorkspace) || !statSync(agentWorkspace).isDirectory()) {
+  throw new Error(`PANEL_AGENT_WORKSPACE is not a directory: ${agentWorkspace}`);
+}
 let agentDriverName;
 try {
   agentDriverName = resolveAgentDriverName();
@@ -181,7 +186,7 @@ store.save();
 
 function createAgentDriverInstance() {
   return createAgentDriver(agentDriverName, {
-    cwd: root,
+    cwd: agentWorkspace,
     agentDataDir: runtimeDir,
     protocolLogPath:
       process.env.PANEL_PROTOCOL_LOG === "1"
@@ -359,7 +364,10 @@ function publicState() {
     handoff: state.handoff,
     updated_at: state.updated_at,
     event_count: state.event_count,
-    agent: driverPublicDescriptor(agentDriver),
+    agent: {
+      ...driverPublicDescriptor(agentDriver),
+      workspace: agentWorkspace,
+    },
     skill: {
       ...publicManifestDescriptor(workbenchManifest),
       ...state.active_skill,
@@ -1526,6 +1534,7 @@ async function route(request, response) {
       ok: !shuttingDown,
       driver: agentDriverName,
       agent_ready: Boolean(agentDriver.activeThreadReference),
+      workspace: agentWorkspace,
       capabilities: agentDriver.capabilities,
     });
     return;
@@ -1742,6 +1751,32 @@ async function shutdown() {
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
+const previousAgentWorkspace = state.agent_workspace ?? root;
+const workspaceChanged = previousAgentWorkspace !== agentWorkspace;
+if (workspaceChanged && state.session_ref) {
+  archiveCurrentTask();
+  discardDraftAttachmentFiles();
+  store.appendEvent({
+    type: "agent.workspace_changed",
+    previous_workspace: previousAgentWorkspace,
+    workspace: agentWorkspace,
+  });
+  setSessionReference(null);
+  setSessionName(null);
+  setSessionRecovered(null);
+  state.task = null;
+  state.panel = null;
+  state.draft = { events: [], attachments: [] };
+  state.activity = null;
+  state.last_turn = null;
+  state.handoff = null;
+  state.phase = "ready";
+  state.error = null;
+  state.agent_error = null;
+}
+state.agent_workspace = agentWorkspace;
+store.save();
+
 try {
   const previousThreadReference = state.session_ref;
   await agentDriver.initialize();
@@ -1795,7 +1830,10 @@ try {
     setSessionRecovered(null);
     state.agent_error = null;
   }
-  await updateThreadName(state.panel, "已恢复任务");
+  await updateThreadName(
+    state.panel,
+    workspaceChanged ? "新任务" : "已恢复任务",
+  );
   if (!state.last_turn) {
     store.appendEvent({
       type: "session.started",
@@ -1811,6 +1849,7 @@ try {
       host,
       port,
       driver: agentDriverName,
+      workspace: agentWorkspace,
       capabilities: agentDriver.capabilities,
       started_at: new Date().toISOString(),
     };

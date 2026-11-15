@@ -14,3 +14,8 @@ powershell -NoProfile -ExecutionPolicy Bypass `
 The package is written under `dist/SkillDock-DSH`. It uses the existing DSH
 installation at `C:\dsh` and the user's DSH home at `%USERPROFILE%\.dsh`.
 It does not read or copy the DSH API key or browser cookie.
+
+The launcher accepts `--workspace <path>` to make the Agent Session belong to a
+specific DSH workspace. Without the argument it uses
+`%USERPROFILE%\Documents\deepseek-harness\default-workspace` when that directory
+exists, then falls back to `%USERPROFILE%\Documents\Codex`.

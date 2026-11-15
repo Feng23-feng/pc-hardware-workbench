@@ -72,13 +72,16 @@
         "capabilities": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["text_input", "session_create"],
+          "required": ["text_input", "session_create", "session_scope"],
           "properties": {
             "text_input": {
               "const": true
             },
             "session_create": {
               "const": true
+            },
+            "session_scope": {
+              "enum": ["workspace", "global", "unspecified"]
             },
             "session_resume": {
               "type": "boolean"
@@ -117,7 +120,7 @@
     "session": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "name", "created_at"],
+      "required": ["id", "name", "created_at", "workspace"],
       "properties": {
         "id": {
           "type": "string",
@@ -130,6 +133,11 @@
         "created_at": {
           "type": "string",
           "format": "date-time"
+        },
+        "workspace": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
         }
       }
     },

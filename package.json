@@ -12,7 +12,8 @@
     "smoke": "node smoke-test.mjs",
     "test:agent-bridge": "node tests/agent-bridge.test.mjs",
     "test:agent-bridge-live": "node tests/agent-bridge-live-smoke.mjs",
-    "test": "node smoke-test.mjs && node tests/agent-bridge.test.mjs",
+    "test:workspace": "node tests/workspace-scope.test.mjs",
+    "test": "node smoke-test.mjs && node tests/agent-bridge.test.mjs && node tests/workspace-scope.test.mjs",
     "check": "node --check server.mjs && node --check open-workbench.mjs && node --check smoke-test.mjs && node --check public/app.js && node --check public/status-model.js && node --check public/draft-storage.js"
   }
 }
