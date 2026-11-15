@@ -137,6 +137,16 @@ $testCases = @(
         Arguments = @("-SkillRoot", $resolvedRoot)
     },
     @{
+        Name = "Workbench surface contract"
+        Script = Join-Path $resolvedRoot "tests/run-workbench-surface-tests.ps1"
+        Arguments = @("-SkillRoot", $resolvedRoot)
+    },
+    @{
+        Name = "Workbench runtime contract"
+        Script = Join-Path $resolvedRoot "tests/run-workbench-runtime-tests.ps1"
+        Arguments = @("-SkillRoot", $resolvedRoot)
+    },
+    @{
         Name = "Claim verification"
         Script = Join-Path $resolvedRoot "tests/run-claim-verification-tests.ps1"
         Arguments = @(

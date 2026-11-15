@@ -20,7 +20,10 @@ one-variable choice, pass/abort criteria, and recovery; end with one next action
 question, cancel, stop, or handoff. Read
 [interaction-closure.md](references/integration/interaction-closure.md) and
 [cross-mode-handoffs.md](references/integration/cross-mode-handoffs.md) only
-when resuming or mixing routes.
+when composing a nontrivial result, resuming, or mixing routes. Read
+[workbench-surface.md](references/integration/workbench-surface.md) only when a
+Task may continue across chat, a workbench panel, or another agent surface, or
+when choosing where to continue.
 
 Use a private case for multi-turn, multi-evidence,
 baseline/change/test, or chat-loss-prone work. Create/resume it before large
@@ -166,10 +169,14 @@ stabilize and measure first; evaluate purchase only if the target remains unmet.
 
 ## Response shape
 
-Reply in the user's language and lead with the result or next action. For novices,
-translate terms and hide internal fields. For complex evidence, separate facts,
-measurements, history, and assumptions. Detail requests expand evidence and
-uncertainty without changing safety or asking the user to choose a mode again.
+Reply in the user's language and lead with the current judgement and one priority
+action. Scale length to the task: a concept answer is one or two paragraphs;
+ordinary troubleshooting is two paragraphs plus an action; complex or
+multi-source evidence adds only decision-changing evidence and at most two or
+three recommendations. Never show the internal result envelope or repeat the same
+conclusion as a status, summary, and next step. For novices, translate terms and
+hide internal fields. Detail requests expand evidence and uncertainty without
+changing safety or asking the user to choose a mode again.
 For timed multi-phase plans, add one Gantt from telemetry-analysis.md; skip
 single steps.
 

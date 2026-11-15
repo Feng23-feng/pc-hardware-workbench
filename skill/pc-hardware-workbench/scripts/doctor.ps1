@@ -153,6 +153,19 @@ if ($null -ne $resolvedRoot) {
         "references/integration/lhm-adapter.md",
         "references/integration/visual-evidence.md"
     )
+    $workbenchManifestPath = Join-Path $resolvedRoot "workbench.manifest.json"
+    if (Test-Path -LiteralPath $workbenchManifestPath -PathType Leaf) {
+        $requiredFiles += @(
+            "runtime.mjs",
+            "capability-grants.mjs",
+            "shared-evidence-store.mjs",
+            "telemetry-broker.mjs",
+            "schemas/workbench-manifest.schema.json",
+            "schemas/ui-state.schema.json",
+            "schemas/events.schema.json",
+            "references/integration/workbench-runtime.md"
+        )
+    }
     $missingFiles = New-Object System.Collections.Generic.List[string]
     foreach ($relativePath in $requiredFiles) {
         $candidate = Join-Path $resolvedRoot $relativePath

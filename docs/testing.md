@@ -10,6 +10,17 @@
 
 实机采集测试默认不运行，必须由用户显式授权并选择隐私模式。
 
+工作台 surface 契约测试验证结果信封不变成可见模板、切换 chat/panel 时复用
+Task 与设备、active thread blocked 时使用 Resume fallback 而不冒充 attach、
+返回摘要经过脱敏且不默认调用 queue，以及不同 Task 不自动新建 Thread。行为
+评测自测另用段落数和重复句检查回答长度与摘要去重，不取代真实模型会话或人工
+审阅。
+
+Workbench runtime 契约测试验证安装包的 manifest/schema、Skill 版本、路径
+containment、runtime 动态 import、read-only capability 声明，以及 device/evidence
+grants 不依赖 panel 工作目录。运行时状态写入宿主数据目录，PowerShell 辅助脚本
+从已安装 Skill 的 `scripts/` 读取。
+
 ## 全量测试
 
 ```powershell
