@@ -11,3 +11,5 @@ Uncertainty: 平台差异。
 Recommendations: 检查兼容性。
 
 Priority action: 打开 BIOS。
+
+Resume Packet: 继续摘要。

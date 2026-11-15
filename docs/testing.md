@@ -11,9 +11,10 @@
 实机采集测试默认不运行，必须由用户显式授权并选择隐私模式。
 
 工作台 surface 契约测试验证结果信封不变成可见模板、切换 chat/panel 时复用
-Task 与设备、不同 Task 不自动新建 Thread，以及权限和 artifact/evidence
-引用仍受当前环境约束。行为评测自测另用段落数和重复句检查回答长度与摘要去重，
-不取代真实模型会话或人工审阅。
+Task 与设备、active thread blocked 时使用 Resume fallback 而不冒充 attach、
+返回摘要经过脱敏且不默认调用 queue，以及不同 Task 不自动新建 Thread。行为
+评测自测另用段落数和重复句检查回答长度与摘要去重，不取代真实模型会话或人工
+审阅。
 
 ## 全量测试
 

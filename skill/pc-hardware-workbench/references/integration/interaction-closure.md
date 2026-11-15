@@ -26,6 +26,27 @@ proposition in one place: the action should state what to do, not restate the
 whole diagnosis. A safety stop may lead with `unsafe` or `stop`, but no other
 user-facing answer should render the envelope as a checklist.
 
+## Resume projection
+
+A Resume Packet or return summary is continuity state, not a routine response.
+Create one only for an ongoing Task that must continue in another surface or
+conversation. Do not show one for a concept answer, one-off result, ordinary
+clarification, or a Task that ends in the current view.
+
+Keep machine references and user-visible content separate. The machine packet may
+carry stable Task, device, evidence, artifact, hash, and surface-preference refs.
+The visible summary reports the Task/objective, device snapshot label and date,
+only the relevant evidence labels or safe refs, the current judgement, one
+decision-changing uncertainty or open question, one priority action, safe
+artifact refs, and a return instruction.
+
+Apply the result-envelope de-duplication rule to the summary. Do not repeat the
+judgement as a status, conclusion, and action. Omit the raw transcript, exhaustive
+evidence, capability tokens, handoff secrets, signing or TTL details, nonces,
+local attachment paths, and absolute private paths. If native thread attachment
+cannot be established, say `independent continuation`; do not call it the same
+conversation.
+
 ## Teaching and review
 
 The primary success condition is independent reuse, not producing one answer or one tuning profile. Make the decisive evidence, one-variable choice, pass/abort criteria, and rollback visible. Invite the user to perform or decide the next low-risk step and report the result. After an experiment, summarize the evidence and recommended decision, then invite one optional confirmation or correction.

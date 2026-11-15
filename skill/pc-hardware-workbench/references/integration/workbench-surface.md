@@ -27,15 +27,28 @@ references that remain relevant.
 
 ## Task state and Resume Packet
 
-Maintain enough internal state to resume without replaying the conversation:
+Maintain a Resume Packet only when a multi-turn or multi-evidence Task needs to
+continue in another view. A simple concept answer or one-off result does not
+create, display, or suggest a Resume Packet.
 
-- Task identity, goal, and current scope;
-- device reference and identity quality;
-- current judgement, decision-changing evidence, conflicts, and uncertainties;
-- active baseline, experiment, recovery, and persistence state when relevant;
-- artifact and evidence references with source/hash links;
-- one priority action; and
-- the user's surface preference.
+The abstract packet carries:
+
+| Field | Machine-side reference | User-visible summary |
+| --- | --- | --- |
+| Task | Stable Task ID and goal | Task name or ID when needed to resume |
+| Objective | Current bounded goal | One plain-language objective |
+| Device snapshot | Device-store reference and capture date | Device label and snapshot date/reference |
+| Relevant evidence | Evidence IDs, hashes, and validity context | A few completed-evidence labels; IDs only when traceability matters |
+| Current judgement | Full decision record | One compact judgement |
+| Uncertainty | Conflicts and unresolved items | Only the open question that can change the next step |
+| Priority action | One next action | The same one next action |
+| Artifact references | Private store refs and relative artifact paths | Safe relative refs or labels |
+| Surface preference | `auto`, `chat-first`, or `panel-first` | Only when the user needs to choose where to continue |
+
+Machine-side references need not be shown to the user. The visible summary is a
+redacted projection, not a serialization of the packet. It must not expose
+absolute private paths, local attachment paths, full transcripts, capability
+tokens, handoff signing material, HMAC/TTL details, or nonces.
 
 Use a private hardware case when the task meets the case-continuity threshold in
 [hardware-case.md](hardware-case.md). The case and its `Resume` output are the
@@ -55,6 +68,63 @@ On a surface switch or resume:
 
 If the new surface cannot read the prior state, say which facts are missing and
 re-establish the smallest missing set. Do not pretend a shared Task exists.
+
+## Entering a surface from chat
+
+When the host offers a stable Task handoff, carry the abstract Resume Packet into
+the selected surface. Reuse the same Task, device snapshot, evidence, judgement,
+and priority action. Do not repeat device intake, rerun the collector, or reanalyze
+unchanged evidence merely because the view changed.
+
+If native attachment to the active chat is unavailable, use the host's Task
+Resume fallback and describe the result as an independent continuation. Say that
+the source conversation was not taken over or attached. Do not claim that the
+panel is “connected to the current chat”, is the same conversation, or owns the
+source thread.
+
+The destination may already use its own execution thread or process. A switch
+itself does not create a new Codex thread or Task and does not replace the source
+conversation. Switching surfaces never creates permission, and an unavailable
+handoff is a limitation to state plainly, not something to simulate.
+
+## Returning to chat from a workbench surface
+
+Return by default as one compact, sanitized Resume summary that the user can copy
+or send to the intended chat. It is not a native attachment unless the current
+host separately proves one. Include:
+
+- Task identity and objective;
+- device label, snapshot date, and safe reference;
+- only the relevant evidence IDs or labels and artifacts needed to continue;
+- the current judgement and the one unresolved question or uncertainty;
+- one priority action; and
+- a return instruction that identifies the intended source conversation or says
+  that the user must choose one.
+
+Do not copy the full chat, attach every evidence item, repeat the judgement across
+summary and action, or include secrets or private filesystem paths. If the source
+conversation is unavailable, give the summary but do not claim it has returned.
+
+## Handoff transport boundary
+
+The Skill defines packet content and user-visible projection. It does not own or
+implement capability tokens, HMAC signing, TTL and nonce handling, app-server
+thread ownership, queue delivery, or browser transport. A host may provide a
+signed, short-lived, one-use handoff, but that transport is not part of the
+generic hardware workflow and its values must never be echoed into summaries.
+
+Source/return-target and execution-context identifiers, when present, are
+transport metadata. They may help route the summary, but they do not establish
+thread ownership or make two conversations one Thread.
+
+Queueing is not a default handoff. Do not enqueue a message merely to simulate
+native chat attachment. A one-way queue with unknown reply visibility is an
+explicit advanced host action; enqueue success is not delivery, a completed turn,
+or proof that the source conversation received the result.
+
+If the required transport is absent, blocked, or cannot prove ownership, state
+the handoff limitation and use the copy/send Resume fallback. Task continuity can
+survive without thread attachment; a claim of same-thread attachment cannot.
 
 ## Surface selection
 

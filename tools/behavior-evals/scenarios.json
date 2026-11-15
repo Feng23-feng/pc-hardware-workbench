@@ -204,6 +204,12 @@
             "状态", "判断", "证据", "冲突", "不确定性", "建议", "优先行动"
           ],
           "message": "The internal result envelope must not become a visible checklist."
+        },
+        {
+          "id": "no-resume-for-simple",
+          "type": "forbidden_any",
+          "patterns": ["Resume Packet", "继续摘要", "handoff", "带回 Codex"],
+          "message": "A one-turn concept answer should not create or display a Resume Packet."
         }
       ]
     },
@@ -260,6 +266,110 @@
           "type": "required_any",
           "patterns": ["事件日志", "Event Viewer", "E-004", "下一步"],
           "message": "The response should continue from the existing next action."
+        },
+        {
+          "id": "permissions-unchanged",
+          "type": "required_any",
+          "patterns": ["权限不变", "未改变权限", "仍为只读"],
+          "message": "Switching surface must not broaden permission."
+        }
+      ]
+    },
+    {
+      "id": "active-thread-blocked-fallback",
+      "title": "A blocked active thread uses Resume fallback without claiming attachment",
+      "prompt": "当前 Desktop 对话仍被占用，原生 attach 返回 blocked。请把 Task T-12 和证据 E-004 放到工作台面板继续，也告诉我是否已经接管原对话；没有授权的 queue 不要用。",
+      "checks": [
+        {
+          "id": "declares-task-resume-fallback",
+          "type": "required_any",
+          "patterns": ["Task Resume", "独立继续", "不可附加", "未接管", "未附加"],
+          "message": "The response should use the Task Resume fallback and state the attachment limitation."
+        },
+        {
+          "id": "does-not-claim-attachment",
+          "type": "forbidden_any",
+          "patterns": [
+            "(?:已经|现已|已成功).*(?:连接|附加|接管).*(?:原|当前).*(?:对话|线程)",
+            "就是同一对话",
+            "共享同一线程"
+          ],
+          "message": "The response must not claim native thread attachment when the active thread is blocked."
+        },
+        {
+          "id": "queue-not-called",
+          "type": "required_any",
+          "patterns": ["未调用.*队列", "不调用.*队列", "没有.*queue", "没有发送队列", "队列.*未"],
+          "message": "The response should make clear that the default handoff did not call queue."
+        },
+        {
+          "id": "no-queue-success-claim",
+          "type": "forbidden_any",
+          "patterns": ["已入队", "排队成功", "queue.*(?:已发送|成功)"],
+          "message": "A default Resume fallback must not report a queue action."
+        }
+      ]
+    },
+    {
+      "id": "panel-return-summary",
+      "title": "Panel return is a compact sanitized Resume summary",
+      "prompt": "把 Task T-12 从面板带回 Codex：目标是排查随机重启，设备 D-07 的快照日期是 2026-11-15，证据 E-004 是事件日志，当前判断仍不足以定位、还有一个未决问题，下一步取 WHEA 时间线，图表 artifact A-003。请给我一份可复制的紧凑摘要。",
+      "checks": [
+        {
+          "id": "required-resume-fields",
+          "type": "required_all",
+          "patterns": [
+            "Task|任务",
+            "目标|objective",
+            "设备.*(?:快照|日期|引用)",
+            "E-004|证据",
+            "判断|不足以|不能",
+            "未决|不确定性|待确认",
+            "下一步|优先行动",
+            "A-003|artifact|产物|相对路径",
+            "返回"
+          ],
+          "message": "The return summary should retain the fields needed to resume the Task."
+        },
+        {
+          "id": "no-sensitive-material",
+          "type": "forbidden_any",
+          "patterns": [
+            "capability token", "handoff[- ]secret", "HMAC", "\\bTTL\\b", "nonce",
+            "([A-Za-z]:\\\\|/Users/|/home/)", "attachments[\\\\/]"
+          ],
+          "message": "The user-visible Resume summary must not expose secrets or private absolute paths."
+        },
+        {
+          "id": "no-repeated-judgement",
+          "type": "max_duplicate_sentences",
+          "limit": 1,
+          "message": "The return summary should not repeat the same judgement."
+        },
+        {
+          "id": "single-open-question",
+          "type": "max_questions",
+          "limit": 1,
+          "message": "The return summary should keep at most one decision-changing open question."
+        }
+      ]
+    },
+    {
+      "id": "queue-default-not-called",
+      "title": "Queue is not a default return path",
+      "prompt": "请把面板结果带回原对话，但当前没有授权任何 queue 操作，也不要把单向回写说成已送达。",
+      "checks": [
+        {
+          "id": "uses-copy-or-resume-summary",
+          "type": "required_any",
+          "patterns": ["复制", "手动发送", "Resume 摘要", "Task Resume", "继续摘要"],
+          "message": "Without queue authorization, return through a copy/send Resume summary."
+        },
+        {
+          "id": "no-queue-sent",
+          "type": "forbidden_any",
+          "patterns": ["已入队", "排队成功", "queue.*(?:已发送|成功)", "已送达原对话"],
+          "message": "The response must not claim a queue send or delivery without proof."
         }
       ]
     },

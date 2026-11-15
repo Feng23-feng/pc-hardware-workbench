@@ -62,6 +62,17 @@ try {
         "proposition in one place"
     ) "Result-envelope projection"
 
+    $resumeProjection = Get-MarkdownSection $closure "Resume projection"
+    Assert-ContainsAll $resumeProjection @(
+        "continuity state, not a routine response",
+        "only for an ongoing Task", "Do not show one for a concept answer",
+        "machine packet", "user-visible content separate",
+        "one priority action",
+        "Omit the raw transcript", "capability tokens", "handoff secrets",
+        "signing or TTL details", "nonces", "absolute private paths",
+        "independent continuation", "same conversation"
+    ) "Resume projection"
+
     $views = Get-MarkdownSection $surface "One task, several views"
     Assert-ContainsAll $views @(
         "Task", "Thread", "surface", "not interchangeable",
@@ -71,11 +82,47 @@ try {
 
     $resume = Get-MarkdownSection $surface "Task state and Resume Packet"
     Assert-ContainsAll $resume @(
-        "keep the same Task and device reference",
-        "reuse current evidence", "instead of asking again",
-        "read permissions from the current surface",
-        "Task identity", "artifact and evidence references"
+        "simple concept answer", "does not", "Resume Packet",
+        "Task ID and goal", "Objective", "Device-store reference and capture date",
+        "Evidence IDs, hashes", "Current judgement", "Uncertainty",
+        "Priority action", "Artifact references", "Surface preference",
+        "Machine-side references need not", "redacted projection",
+        "absolute private paths", "capability tokens", "handoff signing material",
+        "HMAC/TTL details", "nonces"
     ) "Resume Packet"
+
+    $entering = Get-MarkdownSection $surface "Entering a surface from chat"
+    Assert-ContainsAll $entering @(
+        "carry the abstract Resume Packet",
+        "same Task, device snapshot, evidence",
+        "Do not repeat device intake", "rerun the collector", "reanalyze",
+        "Task Resume fallback", "independent continuation",
+        "source conversation was not taken over or attached",
+        "connected to the current chat", "same conversation",
+        "destination may already use its own execution thread",
+        "switch itself does not create a new Codex thread or Task",
+        "never creates permission"
+    ) "Chat-to-surface entry"
+
+    $returning = Get-MarkdownSection $surface "Returning to chat from a workbench surface"
+    Assert-ContainsAll $returning @(
+        "compact, sanitized Resume summary", "copy", "Task identity and objective",
+        "device label, snapshot date", "relevant evidence IDs or labels",
+        "current judgement", "one unresolved question", "one priority action",
+        "return instruction", "Do not copy the full chat",
+        "secrets or private filesystem paths", "do not claim it has returned"
+    ) "Return-to-chat summary"
+
+    $transport = Get-MarkdownSection $surface "Handoff transport boundary"
+    Assert-ContainsAll $transport @(
+        "does not own or implement", "capability tokens", "HMAC signing",
+        "TTL and nonce handling", "app-server thread ownership", "queue delivery",
+        "Source/return-target and execution-context identifiers",
+        "do not establish", "thread ownership",
+        "Queueing is not a default handoff", "Do not enqueue",
+        "one-way queue with unknown reply visibility", "enqueue success is not delivery",
+        "Task continuity can survive without thread attachment"
+    ) "Handoff transport boundary"
 
     $selection = Get-MarkdownSection $surface "Surface selection"
     Assert-ContainsAll $selection @(
