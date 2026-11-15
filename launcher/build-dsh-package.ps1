@@ -44,7 +44,13 @@ $NodeDirectory = Join-Path $OutputDirectory "node"
 New-Item -ItemType Directory -Path $AppDirectory -Force | Out-Null
 New-Item -ItemType Directory -Path $NodeDirectory -Force | Out-Null
 
-foreach ($file in @("server.mjs", "open-workbench.mjs", "package.json", "VERSIONING.md")) {
+foreach ($file in @(
+    "server.mjs",
+    "agent-bridge-host.mjs",
+    "open-workbench.mjs",
+    "package.json",
+    "VERSIONING.md"
+)) {
     Copy-Item -LiteralPath (Join-Path $RepositoryRoot $file) -Destination $AppDirectory
 }
 foreach ($directory in @("lib", "public", "schemas")) {

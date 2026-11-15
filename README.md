@@ -98,11 +98,21 @@ $env:PANEL_AGENT_BRIDGE_TOKEN = "<token issued by the local bridge>"
 See [AGENT-BRIDGE.md](AGENT-BRIDGE.md) and
 [contracts/agent-bridge/0.1-draft/README.md](contracts/agent-bridge/0.1-draft/README.md).
 
+The reference bridge host can expose a built-in Driver for contract testing:
+
+```powershell
+$env:AGENT_BRIDGE_HOST_TOKEN = "<at least 16 characters>"
+node .\agent-bridge-host.mjs --driver codex --port 4400
+```
+
 ## Test
 
 ```powershell
 node .\smoke-test.mjs
 node .\tests\agent-bridge.test.mjs
+$env:SKILLDOCK_AGENT_BRIDGE_URL = "http://127.0.0.1:4400"
+$env:SKILLDOCK_AGENT_BRIDGE_TOKEN = "<bridge token>"
+node .\tests\agent-bridge-live-smoke.mjs
 node --check .\server.mjs
 node --check .\public\app.js
 node --check .\public\status-model.js

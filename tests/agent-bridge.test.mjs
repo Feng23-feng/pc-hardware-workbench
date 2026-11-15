@@ -8,10 +8,12 @@ import {
 import {
   AgentBridgeDriver,
   AgentDriverError,
+  MockAgentDriver,
   createAgentDriver,
   resolveAgentDriverName,
 } from "../lib/agents/index.mjs";
 import { runPanelTurn } from "../lib/panel-response.mjs";
+import { startAgentBridgeHost } from "../agent-bridge-host.mjs";
 
 const root = import.meta.dirname.replace(/[\\/]tests$/u, "");
 const schema = JSON.parse(
@@ -20,6 +22,8 @@ const schema = JSON.parse(
 const fixture = await startAgentBridgeFixture();
 let driver;
 let resumedDriver;
+let host;
+let hostClient;
 
 try {
   assert.equal(
@@ -156,8 +160,37 @@ try {
       error.code === "agent_bridge_token_missing",
   );
   assert.ok(fixture.requestCount >= 10);
+
+  host = await startAgentBridgeHost({
+    driver: new MockAgentDriver(),
+    token: "reference-host-token-0123456789",
+  });
+  hostClient = new AgentBridgeDriver({
+    baseUrl: host.baseUrl,
+    token: host.token,
+  });
+  await hostClient.initialize();
+  assert.equal(hostClient.capabilities.implementationName, "Mock");
+  const hostSession = await hostClient.startThread();
+  const hostTurn = await runPanelTurn({
+    driver: hostClient,
+    threadReference: hostSession.threadReference,
+    eventId: "bridge-reference-host-turn",
+    packet: {
+      schema_version: "1.0",
+      type: "user_message",
+      text: "Reference Agent Bridge host turn",
+      skill_context: {
+        runtime_id: "generic-demo",
+      },
+    },
+    outputSchema: schema,
+  });
+  assert.equal(hostTurn.panel.schema_version, "1.2");
   console.log("Agent Bridge 0.1 draft contract: PASS");
 } finally {
+  await hostClient?.close().catch(() => {});
+  await host?.close().catch(() => {});
   await resumedDriver?.close().catch(() => {});
   await driver?.close().catch(() => {});
   await fixture.close();

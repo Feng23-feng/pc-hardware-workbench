@@ -19,8 +19,21 @@ Draft implementation:
 
 - [contract and response schema](contracts/agent-bridge/0.1-draft/README.md);
 - `AgentBridgeDriver` in `lib/agents/agent-bridge-driver.mjs`;
+- reference Bridge Host in `agent-bridge-host.mjs`;
 - deterministic bridge fixture in `fixtures/agent-bridge-fixture.mjs`;
 - contract test in `tests/agent-bridge.test.mjs`.
+- reusable live bridge smoke in `tests/agent-bridge-live-smoke.mjs`.
+
+Run the reference host:
+
+```powershell
+$env:AGENT_BRIDGE_HOST_TOKEN = "<at least 16 characters>"
+node .\agent-bridge-host.mjs --driver codex --port 4400
+```
+
+`--driver` accepts the built-in Driver names except `agent-bridge` itself. The
+reference host prints its loopback URL and token once. The token is a local
+Bridge capability, not a provider credential or SkillDock handoff secret.
 
 ## Boundary
 
