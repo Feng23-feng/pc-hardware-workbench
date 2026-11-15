@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>Agent Workbench</title>
+    <link rel="stylesheet" href="/styles.css?v=20261115-p8" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <div>
+          <h1>Agent Workbench</h1>
+          <p>兼容 Skill 的本地操作面板</p>
+        </div>
+      </div>
+      <div class="runtime-line">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="runtime-status">连接 Agent</span>
+      </div>
+    </header>
+
+    <main id="app" class="workspace" aria-live="polite">
+      <section class="loading-layout" aria-label="正在加载">
+        <div class="skeleton skeleton-short"></div>
+        <div class="skeleton skeleton-title"></div>
+        <div class="skeleton skeleton-row"></div>
+        <div class="skeleton skeleton-row"></div>
+        <p class="muted">正在读取本地会话状态</p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>仅限 127.0.0.1</span>
+      <span>点击选项只修改草稿，发送时才提交一轮</span>
+      <span id="save-status">本次任务已自动保存</span>
+    </footer>
+
+    <noscript>此面板需要本地 JavaScript 才能连接 Agent。</noscript>
+    <script type="module" src="/app.js?v=20261115-p8"></script>
+  </body>
+</html>

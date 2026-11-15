@@ -1,0 +1,10 @@
+node_modules/
+runtime/
+sessions/
+work/
+agent-diagnostics/
+.open-design/
+*.log
+.env
+.env.*
+!.env.example

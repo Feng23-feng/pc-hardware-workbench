@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0",
+  "skill": {
+    "id": "generic-demo",
+    "name": "Generic Decision Demo",
+    "version": "1.0.0",
+    "root": "."
+  },
+  "runtime": {
+    "id": "generic-demo",
+    "entry": "./runtime.mjs"
+  },
+  "ui": {
+    "state_schema_version": "1.2",
+    "state_schema_path": "./schemas/ui-state.schema.json",
+    "event_schema_version": "1.0",
+    "event_schema_path": "./schemas/events.schema.json"
+  },
+  "artifacts": {
+    "namespace": "demo",
+    "allowed_kinds": [
+      "text",
+      "report"
+    ]
+  },
+  "domain": {
+    "capabilities": [
+      {
+        "id": "demo.text.export",
+        "kind": "broker",
+        "implementation": "generic-demo-text",
+        "permissions": [
+          "artifact_write"
+        ],
+        "ui": {
+          "label": "生成摘要文件",
+          "description": "把当前 Task 的简短上下文写成一个本地文本 artifact。",
+          "attachment_extensions": [
+            ".txt"
+          ]
+        }
+      }
+    ]
+  },
+  "permissions": {
+    "default_profile": {
+      "profile": "read-only-supervised",
+      "network": "disabled",
+      "general_command": "unavailable",
+      "system_write": "unavailable"
+    },
+    "required": []
+  },
+  "components": {
+    "block_types": [
+      "markdown",
+      "callout",
+      "artifact-download"
+    ]
+  },
+  "resume_handoff": {
+    "required": true,
+    "format": "markdown",
+    "includes": [
+      "task",
+      "session_ref",
+      "domain_context",
+      "judgement",
+      "priority_action"
+    ]
+  },
+  "adapter_requirements": {
+    "required_capabilities": [
+      "text_input",
+      "session_resume"
+    ],
+    "optional_capabilities": [
+      "structured_output"
+    ]
+  }
+}

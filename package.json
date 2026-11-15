@@ -1,0 +1,16 @@
+{
+  "name": "skill-surface",
+  "version": "0.1.0-dev",
+  "description": "Provider-neutral local web surface for installed Skill runtimes.",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "smoke": "node smoke-test.mjs",
+    "test": "node smoke-test.mjs",
+    "check": "node --check server.mjs && node --check open-workbench.mjs && node --check smoke-test.mjs && node --check public/app.js && node --check public/status-model.js && node --check public/draft-storage.js"
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "schema_version": "1.0",
+  "skill": {
+    "id": "pc-hardware-workbench.example",
+    "name": "PC Hardware Workbench",
+    "version": "2.7.4",
+    "root": "."
+  },
+  "runtime": {
+    "id": "pc-hardware-workbench",
+    "entry": "../../skills/pc-hardware-workbench/runtime.mjs"
+  },
+  "ui": {
+    "state_schema_version": "1.2",
+    "state_schema_path": "../../schemas/panel-ui-state.schema.json",
+    "event_schema_version": "1.0",
+    "event_schema_path": "../../schemas/panel-event.schema.json"
+  },
+  "artifacts": {
+    "namespace": "telemetry",
+    "allowed_kinds": [
+      "chart",
+      "table",
+      "report"
+    ]
+  },
+  "domain": {
+    "capabilities": [
+      {
+        "id": "telemetry.csv.analyze",
+        "kind": "broker",
+        "implementation": "telemetry-broker",
+        "permissions": [
+          "local_file_read",
+          "artifact_write"
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "default_profile": {
+      "profile": "read-only-supervised",
+      "network": "disabled",
+      "general_command": "unavailable",
+      "system_write": "manual-only"
+    },
+    "required": []
+  },
+  "components": {
+    "block_types": [
+      "markdown",
+      "metrics",
+      "chart",
+      "table",
+      "callout",
+      "artifact-download"
+    ]
+  },
+  "resume_handoff": {
+    "required": true,
+    "format": "markdown",
+    "includes": [
+      "task",
+      "session_ref",
+      "device_snapshot",
+      "evidence_refs",
+      "judgement",
+      "uncertainty",
+      "priority_action",
+      "artifact_refs"
+    ]
+  },
+  "adapter_requirements": {
+    "required_capabilities": [
+      "text_input",
+      "session_resume"
+    ],
+    "optional_capabilities": [
+      "structured_output",
+      "cancellation"
+    ]
+  }
+}
