@@ -319,18 +319,13 @@ Do not blame hardware until the failure follows hardware across multiple softwar
 
 ## Decision output
 
-Lead with the current result, not with the complete evidence inventory. Report:
+Build an internal decision set: current safety/availability, likely layer and
+confidence, supporting and conflicting evidence, unknowns, one next diagnostic,
+the branches its results would select, and the stop/recovery condition. Do not
+render that set as a mandatory multi-section answer.
 
-1. current status: safe, unsafe, usable, limited, or unable to boot;
-2. most likely layer: hardware, firmware, driver, configuration, software,
-   external device/network, or user input, plus confidence (`low`, `medium`, or
-   `high`);
-3. the decisive evidence supporting and contradicting that layer;
-4. important unknowns, conflicts, or stale evidence;
-5. one smallest next diagnostic and how to perform it safely;
-6. the expected alternative results and which route each would select;
-7. an immediate stop condition and the recovery or support handoff.
-
-For a beginner, collapse this into two short paragraphs and one next question.
-Never show internal confidence labels or the full decision schema unless the
-user asks for a detailed record.
+Lead with the current judgement and the evidence that changes the next step.
+Apply the result-envelope projection in
+[interaction-closure.md](../integration/interaction-closure.md#result-envelope).
+Never show internal confidence labels unless the user asks for the detailed
+record.

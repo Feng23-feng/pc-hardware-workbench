@@ -368,7 +368,7 @@ Assert-Contains $experimentLoop 'prior card clearly belongs to the same device' 
 Assert-Contains $experimentLoop 'status: reviewed' "The experiment loop does not persist review status."
 
 $interactionClosure = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/integration/interaction-closure.md") -Raw -Encoding UTF8
-Assert-Contains $interactionClosure 'Session context' "Interaction closure has no current-session context."
+Assert-Contains $interactionClosure 'Task context' "Interaction closure has no current-Task context."
 
 $expectation = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/tuning/expectation-direction.md") -Raw -Encoding UTF8
 Assert-Contains $expectation 'Required expectation card' "The configuration-based expectation card is missing."

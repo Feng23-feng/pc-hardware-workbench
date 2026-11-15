@@ -124,6 +124,71 @@ function Invoke-TextCheck {
             $passed = $count -le $limit
             $detail = "Questions: $count; limit: $limit"
         }
+        "max_paragraphs" {
+            $limit = [int]$Check.limit
+            $blocks = @(
+                $Text -split "\r?\n\s*\r?\n" |
+                    ForEach-Object {
+                        $contentLines = @(
+                            $_ -split "\r?\n" |
+                                Where-Object {
+                                    -not [string]::IsNullOrWhiteSpace($_) -and
+                                    $_ -notmatch '^\s{0,3}#{1,6}\s'
+                                }
+                        )
+                        if ($contentLines.Count -gt 0) {
+                            $_
+                        }
+                    }
+            )
+            $passed = $blocks.Count -le $limit
+            $detail = "Paragraph-like blocks: $($blocks.Count); limit: $limit"
+        }
+        "max_duplicate_sentences" {
+            $limit = if ($Check.PSObject.Properties.Name -contains "limit") {
+                [int]$Check.limit
+            }
+            else {
+                1
+            }
+            $normalized = @(
+                [regex]::Split($Text, '[.!?\u3002\uFF01\uFF1F]+') |
+                    ForEach-Object {
+                        ($_ -replace '[*_`#>\[\]()]', ' ' -replace '\s+', ' ').Trim().ToLowerInvariant()
+                    } |
+                    Where-Object { $_.Length -ge 8 }
+            )
+            $duplicates = @(
+                $normalized |
+                    Group-Object |
+                    Where-Object { $_.Count -gt $limit } |
+                    ForEach-Object { "$($_.Name) [$($_.Count)]" }
+            )
+            $passed = $duplicates.Count -eq 0
+            $detail = if ($passed) {
+                "No sentence repeated more than $limit time(s)."
+            }
+            else {
+                "Repeated sentences: $($duplicates -join '; ')"
+            }
+        }
+        "forbidden_labeled_fields" {
+            $matched = New-Object System.Collections.Generic.List[string]
+            foreach ($label in @($Check.labels)) {
+                $escaped = [regex]::Escape([string]$label)
+                $pattern = "(?im)^\s*(?:\*\*)?$escaped(?:\*\*)?\s*[\uFF1A:]"
+                if ([regex]::IsMatch($Text, $pattern)) {
+                    $matched.Add([string]$label) | Out-Null
+                }
+            }
+            $passed = $matched.Count -eq 0
+            $detail = if ($passed) {
+                "No forbidden labeled fields matched."
+            }
+            else {
+                "Labeled fields: $($matched -join ', ')"
+            }
+        }
         default {
             $detail = "Unsupported check type: $type"
         }

@@ -2,6 +2,30 @@
 
 Use this reference whenever a mode, submenu, file picker, collector, gate, experiment, or handoff ends.
 
+## Result envelope
+
+Keep one internal decision record across turns and surfaces:
+`status`, `judgement`, `evidence`, `conflict`, `uncertainty`,
+`recommendations`, `priority_action`, and `artifact_refs`. These fields support
+continuity; they are not a response template.
+
+Project only what the current decision needs:
+
+- default: the current judgement, one decisive reason or decision-changing
+  conflict/uncertainty, and the priority action;
+- concept question: one or two paragraphs;
+- ordinary troubleshooting: two concise paragraphs plus one action or question;
+- complex, multi-source, or CSV result: judgement, one useful chart or compact
+  evidence view, only decision-changing limitations, and at most two or three
+  recommendations, including the priority action;
+- explicit detail request: expand evidence, alternatives, and uncertainty
+  without repeating the same conclusion as a status, summary, and next step.
+
+Omit empty fields and internal labels unless the user asks for a record. Put a
+proposition in one place: the action should state what to do, not restate the
+whole diagnosis. A safety stop may lead with `unsafe` or `stop`, but no other
+user-facing answer should render the envelope as a checklist.
+
 ## Teaching and review
 
 The primary success condition is independent reuse, not producing one answer or one tuning profile. Make the decisive evidence, one-variable choice, pass/abort criteria, and rollback visible. Invite the user to perform or decide the next low-risk step and report the result. After an experiment, summarize the evidence and recommended decision, then invite one optional confirmation or correction.
@@ -31,9 +55,9 @@ When read-only inventory was requested to fill a tuning, triage, or purchase gap
 
 Do not silently stop at the inventory report unless the user asked for inventory only. Hardware identity does not establish stability, the active profile, the exposed controls, a recovery route, or the workload bottleneck.
 
-## Session context
+## Task context
 
-Maintain a lightweight current-session context when the task spans several modes:
+Maintain a lightweight current-Task context when the work spans several modes:
 
 - active device/report path;
 - current tuning card path and status;
@@ -41,7 +65,7 @@ Maintain a lightweight current-session context when the task spans several modes
 - fixed workload and guard metrics;
 - last decision and next single test.
 
-Reuse that context without asking again unless the user changes device, hardware, workload, or goal. When multiple device reports exist, keep the selected report active for the session.
+Reuse that context without asking again unless the user changes device, hardware, workload, or goal. When multiple device reports exist, keep the selected report active for the Task. For a durable checkpoint, use `hardware-case.md`; for a switch between chat, panel, or another agent surface, use `workbench-surface.md`.
 
 In a multi-step flow, a progress update may be given as one short natural-language sentence at a branch entry, after a gap is filled, or when resuming from a pause. A single-turn response must not show a bracketed workflow-state template. Do not display internal IDs unless the user is working with saved cards, and do not repeat the update in every response.
 
