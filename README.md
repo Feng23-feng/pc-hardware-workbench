@@ -18,6 +18,8 @@ Version lines are independent:
 See [VERSIONING.md](VERSIONING.md) and [NAMING.md](NAMING.md).
 The long-term Agent compatibility route is described in
 [AGENT-BRIDGE.md](AGENT-BRIDGE.md); its protocol remains a draft.
+The primary user journey is Skill-triggered, not a manually launched desktop
+application; see [SKILL-TRIGGERED-UX.md](SKILL-TRIGGERED-UX.md).
 
 ## Run
 

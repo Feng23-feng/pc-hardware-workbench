@@ -1,4 +1,9 @@
-# Windows launcher
+# Windows development launcher
+
+This launcher is a development and diagnostic entry. The product workflow is for
+an installed Skill to start or reuse the runtime automatically; users should not
+need to launch this EXE manually. See
+[../SKILL-TRIGGERED-UX.md](../SKILL-TRIGGERED-UX.md).
 
 The first Windows test package wraps the existing local Node application. The
 launcher selects a free loopback port, starts `app/server.mjs` with the bundled
