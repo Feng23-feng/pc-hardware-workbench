@@ -5,6 +5,10 @@ workbench panel, or another agent surface; when choosing where to continue; or
 when a complex task needs explicit task, evidence, and artifact continuity.
 Do not load it for a one-turn concept answer.
 
+For host discovery of the installed manifest/runtime, read
+[workbench-runtime.md](workbench-runtime.md) only when the host reports that the
+Skill is not discoverable or when changing the manifest/runtime boundary.
+
 ## One task, several views
 
 A **Task** is a bounded investigation goal with a device scope, evidence,

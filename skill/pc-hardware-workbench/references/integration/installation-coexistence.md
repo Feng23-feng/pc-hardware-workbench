@@ -21,6 +21,15 @@ This prevents automatic routing from selecting a legacy or personal entry when t
 
 The share package contains only `pc-hardware-workbench`; it does not require or modify the original Skills. Do not include personal profiles or machine-specific records in the shared bundle.
 
+## Portable Workbench discovery
+
+An installed package carries `workbench.manifest.json`, `runtime.mjs`, and its
+declared schemas. A compatible host discovers the manifest from its configured
+Skill roots; no panel-app fixture is required. Runtime attachments, artifacts,
+and evidence state stay in the host data directory, not in the installed Skill.
+See [workbench-runtime.md](workbench-runtime.md) for the manifest and permission
+boundary.
+
 ## If the user prefers the old Skills
 
 Reverse the policy explicitly: set the old Skill they want to implicit and set the Workbench to explicit-only. Do not leave multiple overlapping generic entries implicit unless the user accepts ambiguous routing.

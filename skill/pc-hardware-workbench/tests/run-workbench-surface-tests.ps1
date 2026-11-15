@@ -45,12 +45,23 @@ try {
     $skill = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "SKILL.md") -Encoding UTF8
     $closure = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/integration/interaction-closure.md") -Encoding UTF8
     $surface = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/integration/workbench-surface.md") -Encoding UTF8
+    $runtimeDoc = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/integration/workbench-runtime.md") -Encoding UTF8
     $triage = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/triage/triage-checklist.md") -Encoding UTF8
 
     Assert-ContainsAll $skill @(
         "references/integration/workbench-surface.md",
         "only when a Task may continue across chat, a workbench panel, or another agent surface"
     ) "SKILL.md surface routing"
+    Assert-ContainsAll $surface @(
+        "[workbench-runtime.md](workbench-runtime.md)"
+    ) "Installed runtime route"
+    Assert-ContainsAll $runtimeDoc @(
+        "workbench.manifest.json", "runtime.mjs",
+        "Skill ID and version", 'schema version `1.0`',
+        "must remain inside it", "read-only-supervised",
+        "telemetry.csv.analyze", "does not contain Agent transport",
+        "host-supplied runtime directory", 'installed `scripts/`'
+    ) "Installed runtime documentation"
 
     $envelope = Get-MarkdownSection $closure "Result envelope"
     Assert-True (-not [string]::IsNullOrWhiteSpace($envelope)) "The result-envelope contract is missing."

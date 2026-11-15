@@ -22,6 +22,7 @@ This integrated suite preserves the generic references and scripts from three in
 | HWiNFO trailing-empty recovery | 2.7.0 | `references/integration/telemetry-analysis.md`, `scripts/analyze-telemetry.ps1`, `tests/run-telemetry-audit-tests.ps1` | Analyzer 1.2.3 ignores exactly one surplus trailing empty field when all header-aligned fields remain present, reports the normalized row count, and continues rejecting missing or non-empty mismatches |
 | timed plan Gantt view | 2.7.0 | `references/integration/telemetry-analysis.md`, `scripts/render-gantt-chart.ps1`, `tests/run-telemetry-chart-tests.ps1` | Dependency-free SVG planning view for multi-phase schedules with known durations; not a telemetry substitute or evidence that work occurred |
 | layered one-hop routing | 2.7.4 | `SKILL.md`, primary mode references, `tests/run-interaction-contract-tests.ps1` | Entry drops to 8,744 B and Quick to 17,753 B; each top-level route opens one primary reference, which retains conditional secondary routing without losing safety or evidence gates |
+| portable Workbench runtime | 1.0 | `workbench.manifest.json`, `runtime.mjs`, `schemas/`, runtime helpers, `tests/run-workbench-runtime-tests.mjs` | Installed manifest discovery, contained runtime/schema paths, read-only skill-domain hooks, scoped CSV analysis grants, shared device/evidence reuse, and host-owned UI/transport boundaries |
 | personal-hardware-triage | excluded | none | Personal device history intentionally excluded |
 
 ## Controlled source revisions
