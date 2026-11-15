@@ -71,6 +71,7 @@ $ExecutablePath = Join-Path $OutputDirectory "SkillDock.exe"
     "/out:$ExecutablePath" `
     /reference:System.dll `
     /reference:System.Core.dll `
+    /reference:System.Web.Extensions.dll `
     /reference:System.Windows.Forms.dll `
     $SourceFile
 if ($LASTEXITCODE -ne 0) {

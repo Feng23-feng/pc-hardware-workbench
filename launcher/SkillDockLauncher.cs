@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
+using System.Web.Script.Serialization;
 
 internal static class SkillDockLauncher
 {
@@ -70,6 +71,38 @@ internal static class SkillDockLauncher
         Directory.CreateDirectory(LocalRoot);
         Directory.CreateDirectory(runtimeDirectory);
 
+        ServerInfo existing;
+        if (TryGetHealthyServer(out existing))
+        {
+            if (!String.Equals(
+                Path.GetFullPath(existing.workspace),
+                Path.GetFullPath(workspace),
+                StringComparison.OrdinalIgnoreCase
+            ))
+            {
+                throw new InvalidOperationException(
+                    "SkillDock is already running in another workspace:\r\n" +
+                    existing.workspace +
+                    "\r\nStop it before switching workspaces."
+                );
+            }
+            WriteLaunchResult(existing);
+            if (!noBrowser)
+            {
+                OpenBrowser(existing.url);
+            }
+            if (!silent)
+            {
+                MessageBox.Show(
+                    ProductName + " is already running.\r\n\r\n" + existing.url,
+                    ProductName,
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
+                );
+            }
+            return 0;
+        }
+
         int port = FindFreePort();
         string url = "http://127.0.0.1:" + port + "/";
         ProcessStartInfo startInfo = new ProcessStartInfo();
@@ -126,12 +159,18 @@ internal static class SkillDockLauncher
         }
 
         WriteLauncherLog("Ready: " + url);
+        WriteLaunchResult(new ServerInfo
+        {
+            ok = true,
+            url = url,
+            port = port,
+            driver = DriverName,
+            workspace = workspace,
+            pid = 0
+        });
         if (!noBrowser)
         {
-            ProcessStartInfo browser = new ProcessStartInfo();
-            browser.FileName = url;
-            browser.UseShellExecute = true;
-            Process.Start(browser);
+            OpenBrowser(url);
         }
         if (!silent)
         {
@@ -230,6 +269,67 @@ internal static class SkillDockLauncher
         {
             return false;
         }
+    }
+
+    private static void OpenBrowser(string url)
+    {
+        ProcessStartInfo browser = new ProcessStartInfo();
+        browser.FileName = url;
+        browser.UseShellExecute = true;
+        Process.Start(browser);
+    }
+
+    private static bool TryGetHealthyServer(out ServerInfo info)
+    {
+        info = null;
+        string infoPath = Path.Combine(LocalRoot, "runtime-dsh-web", "server-info.json");
+        if (!File.Exists(infoPath))
+        {
+            return false;
+        }
+        try
+        {
+            string json = File.ReadAllText(infoPath);
+            Match portMatch = Regex.Match(json, "\"port\"\\s*:\\s*(\\d+)");
+            Match workspaceMatch = Regex.Match(
+                json,
+                "\"workspace\"\\s*:\\s*\"((?:\\\\.|[^\"\\\\])*)\""
+            );
+            if (!portMatch.Success || !workspaceMatch.Success)
+            {
+                return false;
+            }
+            int port = Int32.Parse(portMatch.Groups[1].Value);
+            if (!IsHealthy(port))
+            {
+                return false;
+            }
+            string workspace = Regex.Unescape(workspaceMatch.Groups[1].Value);
+            info = new ServerInfo
+            {
+                ok = true,
+                url = "http://127.0.0.1:" + port + "/",
+                port = port,
+                driver = DriverName,
+                workspace = workspace,
+                pid = 0
+            };
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static void WriteLaunchResult(ServerInfo info)
+    {
+        Directory.CreateDirectory(LocalRoot);
+        File.WriteAllText(
+            Path.Combine(LocalRoot, "launch-result.json"),
+            new JavaScriptSerializer().Serialize(info) + "\r\n",
+            Encoding.UTF8
+        );
     }
 
     private static int FindFreePort()
@@ -344,5 +444,15 @@ internal static class SkillDockLauncher
         {
             // A read-only portable folder must not prevent startup.
         }
+    }
+
+    private sealed class ServerInfo
+    {
+        public bool ok;
+        public string url;
+        public int port;
+        public string driver;
+        public string workspace;
+        public int pid;
     }
 }

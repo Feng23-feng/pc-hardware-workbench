@@ -20,6 +20,25 @@ The package is written under `dist/SkillDock-DSH`. It uses the existing DSH
 installation at `C:\dsh` and the user's DSH home at `%USERPROFILE%\.dsh`.
 It does not read or copy the DSH API key or browser cookie.
 
+Install the built runtime once per user:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass `
+  -File .\launcher\install-runtime.ps1
+```
+
+This copies the runtime to:
+
+```text
+%LOCALAPPDATA%\SkillDock\Runtime\SkillDock.exe
+```
+
+`SkillDock.exe --ensure --workspace <path>` is idempotent. It reuses the healthy
+instance for the same workspace and writes a token-free
+`%LOCALAPPDATA%\SkillDock\launch-result.json` containing the local URL. The
+Skill-facing wrapper in `integrations/skilldock/launch-panel.ps1` consumes that
+result.
+
 The launcher accepts `--workspace <path>` to make the Agent Session belong to a
 specific DSH workspace. Without the argument it uses
 `%USERPROFILE%\Documents\deepseek-harness\default-workspace` when that directory
