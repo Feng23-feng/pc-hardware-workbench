@@ -4,6 +4,7 @@ sessions/
 work/
 agent-diagnostics/
 .open-design/
+dist/
 *.log
 .env
 .env.*
