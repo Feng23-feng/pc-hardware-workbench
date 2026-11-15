@@ -23,6 +23,10 @@ and the version in `SKILL.md`; discovery must not require a panel app-local
 fixture or a particular Agent provider. Manifest scanning, precedence, and
 fallback are host behavior.
 
+When a compatible SkillDock host is installed, the Skill-side
+`scripts/skilldock/launch-panel.ps1` entry starts or reuses that runtime and
+returns a Task URL. It must never write runtime state into the installed Skill.
+
 The manifest uses schema version `1.0`. Its Skill root, runtime entry, manifest
 schema, UI-state schema, and event schema are relative to the Skill root and
 must remain inside it. The public descriptor may expose the Skill ID, version,

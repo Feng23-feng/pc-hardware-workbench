@@ -46,11 +46,15 @@ try {
     $closure = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/integration/interaction-closure.md") -Encoding UTF8
     $surface = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/integration/workbench-surface.md") -Encoding UTF8
     $runtimeDoc = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/integration/workbench-runtime.md") -Encoding UTF8
+    $skilldock = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/integration/skilldock-surface.md") -Encoding UTF8
+    $skilldockLauncher = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "scripts/skilldock/launch-panel.ps1") -Encoding UTF8
     $triage = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/triage/triage-checklist.md") -Encoding UTF8
 
     Assert-ContainsAll $skill @(
         "references/integration/workbench-surface.md",
-        "only when a Task may continue across chat, a workbench panel, or another agent surface"
+        "only when a Task may continue across chat, a workbench panel, or another agent surface",
+        "references/integration/skilldock-surface.md",
+        "chart, evidence table, artifact"
     ) "SKILL.md surface routing"
     Assert-ContainsAll $surface @(
         "[workbench-runtime.md](workbench-runtime.md)"
@@ -60,8 +64,19 @@ try {
         "Skill ID and version", 'schema version `1.0`',
         "must remain inside it", "read-only-supervised",
         "telemetry.csv.analyze", "does not contain Agent transport",
-        "host-supplied runtime directory", 'installed `scripts/`'
+        "host-supplied runtime directory", 'installed `scripts/`',
+        "scripts/skilldock/launch-panel.ps1"
     ) "Installed runtime documentation"
+    Assert-ContainsAll $skilldock @(
+        "current Agent workspace", "starts or reuses one loopback runtime",
+        "Do not rerun the device collector",
+        "independent panel-owned Agent Session",
+        "Never claim the graph is open"
+    ) "SkillDock-triggered surface"
+    Assert-ContainsAll $skilldockLauncher @(
+        "--ensure", "--workspace", "launch-result.json",
+        "Invoke-RestMethod", "capability token"
+    ) "SkillDock launcher boundary"
 
     $envelope = Get-MarkdownSection $closure "Result envelope"
     Assert-True (-not [string]::IsNullOrWhiteSpace($envelope)) "The result-envelope contract is missing."

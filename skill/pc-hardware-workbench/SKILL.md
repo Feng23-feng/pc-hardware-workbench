@@ -24,6 +24,9 @@ when composing a nontrivial result, resuming, or mixing routes. Read
 [workbench-surface.md](references/integration/workbench-surface.md) only when a
 Task may continue across chat, a workbench panel, or another agent surface, or
 when choosing where to continue.
+Read [skilldock-surface.md](references/integration/skilldock-surface.md) only
+when the host has SkillDock Runtime and a chart, evidence table, artifact, or
+repeated structured interaction would materially improve the Task.
 
 Use a private case for multi-turn, multi-evidence,
 baseline/change/test, or chat-loss-prone work. Create/resume it before large
