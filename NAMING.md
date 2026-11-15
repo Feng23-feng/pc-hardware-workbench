@@ -12,6 +12,7 @@ until a naming freeze is recorded here.
 | UI and Skill contract | SkillSurface |
 | Domain execution API | SkillRuntime |
 | Agent backend adapter | AgentDriver |
+| Long-term local Agent contract | Agent Bridge |
 | Conversation | Session |
 | One objective inside a Session | Task |
 | Generated output | Artifact |

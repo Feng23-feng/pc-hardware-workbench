@@ -16,6 +16,8 @@ Version lines are independent:
 - installed domain Skills: tracked by their own versions
 
 See [VERSIONING.md](VERSIONING.md) and [NAMING.md](NAMING.md).
+The long-term Agent compatibility route is described in
+[AGENT-BRIDGE.md](AGENT-BRIDGE.md); its protocol remains a draft.
 
 ## Run
 
