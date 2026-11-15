@@ -1,6 +1,14 @@
+param(
+    [string]$RuntimeDirectory = "runtime"
+)
+
 $ErrorActionPreference = "Stop"
 $Root = $PSScriptRoot
-$Runtime = Join-Path $Root "runtime"
+$Runtime = if ([IO.Path]::IsPathRooted($RuntimeDirectory)) {
+    [IO.Path]::GetFullPath($RuntimeDirectory)
+} else {
+    Join-Path $Root $RuntimeDirectory
+}
 $InfoPath = Join-Path $Runtime "server-info.json"
 $TokenPath = Join-Path $Runtime "capability-token"
 

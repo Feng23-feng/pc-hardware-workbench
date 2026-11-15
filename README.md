@@ -58,16 +58,31 @@ The connection layer is Agent-neutral:
 ```powershell
 $env:PANEL_AGENT_DRIVER = "codex"  # default
 $env:PANEL_AGENT_DRIVER = "dsh"
-$env:PANEL_AGENT_DRIVER = "dsh-web"  # experimental P7 probe only
+$env:PANEL_AGENT_DRIVER = "dsh-web"  # panel-owned DSH Web child, experimental
 $env:PANEL_AGENT_DRIVER = "mock"
 ```
 
 Invalid driver names fail before the server listens. P4 established the
-Codex/Mock boundary; P5 adds DSH headless. P6 confirmed that DSH Web has a real
-local RPC API but did not add `dsh-web`. Its current browser capability cookie
-cannot be handed safely to a separate panel process. MCP/CLI remain
-unimplemented. P7 contains a frozen `dsh-web` child-process experiment. It is
-not the product mainline and is not a release support claim.
+Codex/Mock boundary; P5 adds DSH headless. DSH Web uses a panel-owned child
+process so the panel never reads or copies an existing browser cookie. The
+adapter remains experimental.
+
+For a DSH Web trial that reuses the user's existing DSH login:
+
+```powershell
+.\start.ps1 `
+  -Port 4331 `
+  -AgentDriver dsh-web `
+  -RuntimeDirectory runtime-dsh-web `
+  -DshHome "$HOME\.dsh"
+
+.\stop.ps1 -RuntimeDirectory runtime-dsh-web
+```
+
+The installed DSH headless route remains separately available through
+`-AgentDriver dsh`, but it requires `DEEPSEEK_API_KEY` in the launching process.
+Desktop credentials do not automatically become a headless environment
+credential.
 
 ## Test
 
@@ -300,6 +315,12 @@ DSH has no native JSON-schema CLI option. The adapter uses prompt + parse
 compatibility: the prompt embeds panel schema 1.2, and the panel response layer
 accepts only pure/fenced JSON that passes local validation. Plain text is a
 `protocol` error.
+
+For prompt-based adapters such as DSH, a parse or schema failure triggers one
+repair turn in the same Session. The host supplies the validation error and
+previous output, requests only corrected complete JSON, then reruns the same
+local validation. A second failure is returned to the UI as a protocol error;
+the contract is never relaxed.
 
 Real DSH startup was verified with an isolated `DSH_HOME` and no existing profile
 access. A real headless turn created a session but was blocked at

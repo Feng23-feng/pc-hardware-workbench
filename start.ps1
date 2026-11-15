@@ -1,11 +1,19 @@
 param(
     [int]$Port = 4319,
+    [string]$RuntimeDirectory = "runtime",
+    [ValidateSet("codex", "dsh", "dsh-web", "mock")]
+    [string]$AgentDriver = "codex",
+    [string]$DshHome = "",
     [switch]$ResetState
 )
 
 $ErrorActionPreference = "Stop"
 $Root = $PSScriptRoot
-$Runtime = Join-Path $Root "runtime"
+$Runtime = if ([IO.Path]::IsPathRooted($RuntimeDirectory)) {
+    [IO.Path]::GetFullPath($RuntimeDirectory)
+} else {
+    Join-Path $Root $RuntimeDirectory
+}
 $InfoPath = Join-Path $Runtime "server-info.json"
 $StdoutPath = Join-Path $Runtime "server.stdout.log"
 $StderrPath = Join-Path $Runtime "server.stderr.log"
@@ -30,10 +38,12 @@ catch {
     # A failed health probe is expected when the local server is stopped.
 }
 
-if (-not $env:PANEL_AGENT_DRIVER) {
-    $env:PANEL_AGENT_DRIVER = "codex"
+$env:PANEL_AGENT_DRIVER = $AgentDriver
+if (-not [string]::IsNullOrWhiteSpace($DshHome)) {
+    $env:DSH_HOME = [IO.Path]::GetFullPath($DshHome)
 }
 $env:PANEL_PORT = [string]$Port
+$env:PANEL_RUNTIME_DIR = $Runtime
 $ServerArguments = if ($ResetState) { @("server.mjs", "--reset-state") } else { @("server.mjs") }
 $Process = Start-Process `
     -FilePath $Node `

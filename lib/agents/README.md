@@ -125,6 +125,12 @@ passes local validation. This is marked
 `structuredOutputCompatibility: "prompt-parse-schema-validation"` and
 `supportsStructuredOutput: false`.
 
+When that first response fails JSON parsing or schema validation, the host makes
+one repair turn in the same Session. The repair packet contains the original
+validation error and prior output, asks only for a corrected complete JSON
+object, and still passes through the same local validation. There is no second
+repair attempt and validation is never downgraded.
+
 The real CLI is launched with an isolated `DSH_HOME`, read-only permission mode,
 telemetry disabled, stdin prompt transport, and a minimal environment. Existing
 `.dsh` credentials/files are not read by panel code. `DEEPSEEK_API_KEY` is only

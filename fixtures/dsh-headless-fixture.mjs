@@ -10,8 +10,11 @@ const resumedSessionId =
   sessionIndex >= 0 ? args[sessionIndex + 1] : null;
 const sessionId = resumedSessionId || `session-fixture-${randomUUID()}`;
 const prompt = readFileSync(0, "utf8");
+const repairRequest = prompt.includes('"type":"schema_repair"');
 const finalOnly = prompt.includes("[DSH_FIXTURE_FINAL_ONLY]");
-const invalidJson = prompt.includes("[DSH_FIXTURE_INVALID_JSON]");
+const invalidJson =
+  !repairRequest && prompt.includes("[DSH_FIXTURE_INVALID_JSON]");
+const alwaysInvalidJson = prompt.includes("[DSH_FIXTURE_ALWAYS_INVALID_JSON]");
 const fencedJson = prompt.includes("[DSH_FIXTURE_FENCED_JSON]");
 const authFailure = prompt.includes("[DSH_FIXTURE_AUTH_FAILURE]");
 const noFinal = prompt.includes("[DSH_FIXTURE_NO_FINAL]");
@@ -66,7 +69,7 @@ if (slow) {
   await new Promise((resolvePromise) => setTimeout(resolvePromise, 5_000));
 }
 
-const panel = finalOnly
+const panel = finalOnly || repairRequest
   ? {
       schema_version: "1.2",
       turn_summary:
@@ -214,7 +217,7 @@ const panel = finalOnly
       blocks: [],
     };
 
-const text = invalidJson
+const text = alwaysInvalidJson || invalidJson
   ? "This is plain text, not panel JSON."
   : fencedJson
     ? `\`\`\`json\n${JSON.stringify(panel)}\n\`\`\``

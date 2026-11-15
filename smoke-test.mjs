@@ -826,16 +826,27 @@ try {
     },
     outputSchema: dshSchema,
   });
+  const dshRepaired = await runPanelTurn({
+    driver: dshDriver,
+    threadReference: dshSessionId,
+    eventId: "dsh-fixture-invalid",
+    packet: {
+      schema_version: "1.0",
+      type: "user_message",
+      text: "[DSH_FIXTURE_INVALID_JSON]",
+    },
+    outputSchema: dshSchema,
+  });
   let dshInvalid = null;
   try {
     await runPanelTurn({
       driver: dshDriver,
       threadReference: dshSessionId,
-      eventId: "dsh-fixture-invalid",
+      eventId: "dsh-fixture-always-invalid",
       packet: {
         schema_version: "1.0",
         type: "user_message",
-        text: "[DSH_FIXTURE_INVALID_JSON]",
+        text: "[DSH_FIXTURE_ALWAYS_INVALID_JSON]",
       },
       outputSchema: dshSchema,
     });
@@ -873,6 +884,8 @@ try {
       dshFirst.panel.schema_version === "1.2" &&
       dshSecond.panel.schema_version === "1.2" &&
       dshFenced.panel.schema_version === "1.2" &&
+      dshRepaired.panel.schema_version === "1.2" &&
+      dshRepaired.repairAttempted === true &&
       dshDriver.capabilities.supportsStructuredOutput === false &&
       dshDriver.capabilities.structuredOutputCompatibility ===
         "prompt-parse-schema-validation",
