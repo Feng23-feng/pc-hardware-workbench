@@ -48,6 +48,7 @@ try {
     $runtimeDoc = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/integration/workbench-runtime.md") -Encoding UTF8
     $skilldock = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/integration/skilldock-surface.md") -Encoding UTF8
     $skilldockLauncher = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "scripts/skilldock/launch-panel.ps1") -Encoding UTF8
+    $skilldockSync = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "scripts/skilldock/sync-panel.ps1") -Encoding UTF8
     $triage = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/triage/triage-checklist.md") -Encoding UTF8
 
     Assert-ContainsAll $skill @(
@@ -71,12 +72,19 @@ try {
         "current Agent workspace", "starts or reuses one loopback runtime",
         "Do not rerun the device collector",
         "independent panel-owned Agent Session",
-        "Never claim the graph is open"
+        "Never claim the graph is open", "Chat context handoff",
+        "Returning to chat", "channel_id", "sync-panel.ps1",
+        "not native attachment"
     ) "SkillDock-triggered surface"
     Assert-ContainsAll $skilldockLauncher @(
         "--ensure", "--workspace", "launch-result.json",
+        "ChatContextFile", "task/sync/import",
         "Invoke-RestMethod", "capability token"
     ) "SkillDock launcher boundary"
+    Assert-ContainsAll $skilldockSync @(
+        "ChannelId", "AfterSequence", "task/sync/export",
+        "capability-token", "ConvertTo-Json"
+    ) "SkillDock return-sync boundary"
 
     $envelope = Get-MarkdownSection $closure "Result envelope"
     Assert-True (-not [string]::IsNullOrWhiteSpace($envelope)) "The result-envelope contract is missing."

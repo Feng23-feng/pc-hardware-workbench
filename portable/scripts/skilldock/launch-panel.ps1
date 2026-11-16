@@ -5,6 +5,8 @@ param(
 
     [string]$LauncherPath = $env:SKILLDOCK_LAUNCHER,
 
+    [string]$ChatContextFile = "",
+
     [switch]$NoBrowser,
 
     [ValidateRange(5, 120)]
@@ -12,6 +14,9 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[Console]::OutputEncoding = $Utf8NoBom
+$OutputEncoding = $Utf8NoBom
 
 function Write-JsonResult {
     param(
@@ -19,6 +24,8 @@ function Write-JsonResult {
         [string]$Url = "",
         [string]$ResolvedWorkspace = "",
         [string]$Driver = "",
+        [string]$TaskRef = "",
+        [int]$Cursor = 0,
         [string]$ErrorMessage = ""
     )
 
@@ -27,6 +34,8 @@ function Write-JsonResult {
         url = $Url
         workspace = $ResolvedWorkspace
         driver = $Driver
+        task_ref = $TaskRef
+        cursor = $Cursor
         error = $ErrorMessage
     } | ConvertTo-Json -Compress
 }
@@ -38,7 +47,20 @@ try {
     }
 
     if ([string]::IsNullOrWhiteSpace($LauncherPath)) {
-        $installedRuntime = Join-Path $env:LOCALAPPDATA "SkillDock\Runtime\SkillDock.exe"
+        $localRoot = Join-Path $env:LOCALAPPDATA "SkillDock"
+        $pointerPath = Join-Path $localRoot "runtime-location.json"
+        $installedRuntime = Join-Path $localRoot "Runtime\SkillDock.exe"
+        if (Test-Path -LiteralPath $pointerPath -PathType Leaf) {
+            try {
+                $pointer = Get-Content -LiteralPath $pointerPath -Raw | ConvertFrom-Json
+                if ($pointer.runtime_path) {
+                    $installedRuntime = [string]$pointer.runtime_path
+                }
+            }
+            catch {
+                # Fall back to the legacy fixed runtime path.
+            }
+        }
         if (Test-Path -LiteralPath $installedRuntime -PathType Leaf) {
             $LauncherPath = $installedRuntime
         }
@@ -94,12 +116,48 @@ try {
         throw "SkillDock health check failed."
     }
 
+    $taskRef = ""
+    $cursor = 0
+    if (-not [string]::IsNullOrWhiteSpace($ChatContextFile)) {
+        $resolvedContext = (
+            Resolve-Path -LiteralPath $ChatContextFile -ErrorAction Stop
+        ).Path
+        if (-not (Test-Path -LiteralPath $resolvedContext -PathType Leaf)) {
+            throw "Chat context file is missing: $resolvedContext"
+        }
+        if ((Get-Item -LiteralPath $resolvedContext).Length -gt 262144) {
+            throw "Chat context file exceeds 256 KiB."
+        }
+        $contextBody = Get-Content -LiteralPath $resolvedContext -Raw -Encoding UTF8
+        $null = ($contextBody | ConvertFrom-Json)
+        $tokenPath = Join-Path $localRoot "runtime-dsh-web\capability-token"
+        if (-not (Test-Path -LiteralPath $tokenPath -PathType Leaf)) {
+            throw "SkillDock runtime token is unavailable."
+        }
+        $runtimeToken = (Get-Content -LiteralPath $tokenPath -Raw).Trim()
+        $contextBytes = [Text.Encoding]::UTF8.GetBytes($contextBody)
+        $imported = Invoke-RestMethod `
+            -Uri "$($result.url.TrimEnd('/'))/api/task/sync/import" `
+            -Method Post `
+            -Headers @{ Authorization = "Bearer $runtimeToken" } `
+            -ContentType "application/json; charset=utf-8" `
+            -Body $contextBytes `
+            -TimeoutSec 10
+        if (-not $imported.ok -or [string]::IsNullOrWhiteSpace($imported.task_ref)) {
+            throw "SkillDock did not accept the chat context handoff."
+        }
+        $taskRef = [string]$imported.task_ref
+        $cursor = [int]$imported.cursor
+    }
+
     # Deliberately do not read or emit the runtime capability token.
     Write-JsonResult `
         -Ok $true `
         -Url $result.url `
         -ResolvedWorkspace $resultWorkspace `
-        -Driver $result.driver
+        -Driver $result.driver `
+        -TaskRef $taskRef `
+        -Cursor $cursor
 }
 catch {
     Write-JsonResult -Ok $false -ErrorMessage $_.Exception.Message

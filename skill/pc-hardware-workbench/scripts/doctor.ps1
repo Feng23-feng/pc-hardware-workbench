@@ -134,6 +134,7 @@ if ($null -ne $resolvedRoot) {
         "scripts/run-evidence-pipeline.ps1",
         "scripts/analyze-presentmon.ps1",
         "scripts/skilldock/launch-panel.ps1",
+        "scripts/skilldock/sync-panel.ps1",
         "scripts/verify-hardware-claim.ps1",
         "assets/evidence-card-template.html",
         "references/integration/evidence-package.md",

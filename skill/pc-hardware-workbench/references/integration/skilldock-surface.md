@@ -12,7 +12,8 @@ workspace to an absolute existing directory, then run:
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass `
   -File scripts/skilldock/launch-panel.ps1 `
-  -Workspace "<absolute-workspace>"
+  -Workspace "<absolute-workspace>" `
+  -ChatContextFile "<private-temp-chat-context.json>"
 ```
 
 The script starts or reuses one loopback runtime and returns compact JSON:
@@ -23,6 +24,8 @@ The script starts or reuses one loopback runtime and returns compact JSON:
   "url": "http://127.0.0.1:12345/",
   "workspace": "C:\\path\\to\\workspace",
   "driver": "dsh-web",
+  "task_ref": "task-...",
+  "cursor": 2,
   "error": ""
 }
 ```
@@ -30,6 +33,32 @@ The script starts or reuses one loopback runtime and returns compact JSON:
 Give the user the returned local URL and state that the operation panel is open.
 Do not expose capability tokens, cookies, handoff secrets, or provider
 credentials.
+
+## Chat context handoff
+
+Write a compact private JSON file, not a full transcript export:
+
+```json
+{
+  "schema_version": "1.0",
+  "channel_id": "chat:<source-thread>:<stable-task-id>",
+  "source_session_ref": "<source-thread-or-session>",
+  "objective": "<one bounded objective>",
+  "summary": "<current decision, uncertainty, and next action>",
+  "messages": [
+    {
+      "id": "<stable-message-id>",
+      "role": "user",
+      "text": "<relevant message>",
+      "created_at": "<ISO-8601>"
+    }
+  ]
+}
+```
+
+Use at most 40 relevant messages. Prefer the current judgement and the few
+messages that determine it over a complete log. Keep `channel_id` stable for the
+same chat Task. Duplicate message IDs are ignored by the host.
 
 ## When to launch
 
@@ -54,3 +83,18 @@ An independent panel-owned Agent Session is not the same provider Thread. State
 that limitation when native attachment is unavailable. If the launcher returns
 `ok: false`, continue in chat with the returned error and one recovery action.
 Never claim the graph is open when no URL was returned.
+
+## Returning to chat
+
+When the user returns to chat after using the surface, run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass `
+  -File scripts/skilldock/sync-panel.ps1 `
+  -ChannelId "<same-channel-id>" `
+  -AfterSequence <last-seen-cursor>
+```
+
+Use the returned `messages`, `panel`, `summary`, `cursor`, unresolved question,
+and safe artifact refs to continue the same Task. State that this is a Task
+ledger synchronization, not native attachment to the provider Thread.
