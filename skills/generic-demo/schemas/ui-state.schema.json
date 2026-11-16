@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "panel-ui-state.schema.json",
-  "title": "Agent Panel UI State",
+  "title": "SkillDock UI State",
   "type": "object",
   "additionalProperties": false,
   "required": [

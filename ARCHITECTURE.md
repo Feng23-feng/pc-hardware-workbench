@@ -1,7 +1,7 @@
 # Architecture decision record
 
-Status: active development in the independent `0.1.0-dev` version line,
-2026-11-15. The user-facing product name remains provisional.
+Status: active development in the independent SkillDock `0.1.0-dev` version
+line, 2026-11-15.
 
 ## Decision
 

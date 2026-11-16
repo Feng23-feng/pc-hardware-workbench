@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "panel-event.schema.json",
-  "title": "Agent Panel User Event",
+  "title": "SkillDock User Event",
   "anyOf": [
     {
       "title": "user_message",

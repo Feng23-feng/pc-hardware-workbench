@@ -1911,12 +1911,12 @@ function syncStatusTicker(mode) {
 }
 
 function showReplySignal() {
-  document.title = "新回复 · Agent Workbench";
+  document.title = "新回复 · SkillDock";
   if (titleTimer) {
     clearTimeout(titleTimer);
   }
   titleTimer = setTimeout(() => {
-    document.title = "Agent Workbench";
+    document.title = "SkillDock";
     titleTimer = null;
   }, 4_000);
   requestAnimationFrame(() => {

@@ -13,7 +13,7 @@ $InfoPath = Join-Path $Runtime "server-info.json"
 $TokenPath = Join-Path $Runtime "capability-token"
 
 if (-not (Test-Path -LiteralPath $InfoPath)) {
-    Write-Output "Agent Panel is not running."
+    Write-Output "SkillDock is not running."
     exit 0
 }
 
@@ -33,12 +33,12 @@ try {
 catch {
     $Process = Get-Process -Id $Info.pid -ErrorAction SilentlyContinue
     if (-not $Process) {
-        Write-Output "Agent Panel is already stopped."
+        Write-Output "SkillDock is already stopped."
         exit 0
     }
     $Details = Get-CimInstance Win32_Process -Filter "ProcessId = $($Info.pid)"
     if (-not $Details.CommandLine -or $Details.CommandLine -notmatch "server\.mjs") {
-        throw "PID $($Info.pid) is not verified as the Agent Panel server."
+        throw "PID $($Info.pid) is not verified as the SkillDock server."
     }
     Stop-Process -Id $Info.pid
 }
@@ -53,7 +53,7 @@ for ($Attempt = 0; $Attempt -lt 20; $Attempt++) {
 }
 
 if ($Stopped) {
-    Write-Output "Agent Panel stopped."
+    Write-Output "SkillDock stopped."
 } else {
     Write-Warning "Shutdown was requested, but PID $($Info.pid) is still present."
 }

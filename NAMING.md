@@ -1,13 +1,13 @@
-# Naming
+# SkillDock naming
 
-The final product name is undecided. Do not perform a global user-facing rename
-until a naming freeze is recorded here.
+The product name is **SkillDock**, with Chinese name **技能坞**.
 
-## Stable working terms
+## Stable terms
 
-| Concept | Working term |
+| Concept | Term |
 |---|---|
-| Independent application repository | `skill-surface` |
+| Application and runtime product | SkillDock / 技能坞 |
+| Package name | `skilldock` |
 | Skill-provided UI/runtime declaration | Skill Surface Manifest |
 | UI and Skill contract | SkillSurface |
 | Domain execution API | SkillRuntime |
@@ -19,8 +19,9 @@ until a naming freeze is recorded here.
 
 `PC Hardware Workbench` remains the name of the hardware domain Skill.
 
-## Rename rule
+## Naming rule
 
 Product branding must not be embedded in contract identifiers or file formats.
-Choose the public brand separately, then update presentation text only. Contract
-renames require a compatibility alias and their own contract version decision.
+SkillDock is product presentation; Skill Surface, SkillRuntime, AgentDriver, and
+Agent Bridge remain descriptive contract terms. Contract renames require a
+compatibility alias and their own version decision.

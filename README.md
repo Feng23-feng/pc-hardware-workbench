@@ -1,15 +1,12 @@
-# Skill Surface
+# SkillDock
 
-> Working repository name and provisional product wording. The public brand name
-> is intentionally undecided.
-
-This repository is the independent version line for a provider-neutral local web
-surface backed by installed Skill runtimes. PC Hardware Workbench is an example
-Skill; Codex and DSH are adapters, not product concepts.
+**SkillDock（技能坞）** is a provider-neutral local web surface backed by
+installed Skill runtimes. PC Hardware Workbench is an example Skill; Codex and
+DSH are adapters, not product concepts.
 
 Version lines are independent:
 
-- Skill Surface application: `0.1.0-dev`
+- SkillDock application: `0.1.0-dev`
 - SkillSurface contract: `1.0`
 - SkillRuntime contract: `1.0`
 - AgentDriver contract: `1.0`

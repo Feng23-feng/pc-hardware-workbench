@@ -1,5 +1,5 @@
 {
-  "name": "skill-surface",
+  "name": "skilldock",
   "version": "0.1.0-dev",
   "description": "Provider-neutral local web surface for installed Skill runtimes.",
   "private": true,

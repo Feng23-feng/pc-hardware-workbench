@@ -28,9 +28,9 @@ try {
     $Health = Invoke-RestMethod -Uri $HealthUrl -TimeoutSec 1
     if ($Health.ok) {
         if ($ResetState) {
-            throw "Agent Panel is already running. Run stop.ps1 before resetting the session."
+            throw "SkillDock is already running. Run stop.ps1 before resetting the session."
         }
-        Write-Output "Agent Panel is already running."
+        Write-Output "SkillDock is already running."
         Write-Output $Url
         exit 0
     }
@@ -77,13 +77,13 @@ for ($Attempt = 0; $Attempt -lt 30; $Attempt++) {
 }
 
 if (-not $Ready) {
-    Write-Error "Agent Panel did not become ready. Check $StderrPath"
+    Write-Error "SkillDock did not become ready. Check $StderrPath"
     if (-not $Process.HasExited) {
         Stop-Process -Id $Process.Id
     }
     exit 1
 }
 
-Write-Output "Agent Panel started."
+Write-Output "SkillDock started."
 Write-Output $Url
 Write-Output "Runtime PID: $($Process.Id)"

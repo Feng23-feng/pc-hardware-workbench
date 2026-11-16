@@ -6,7 +6,7 @@ in the others.
 
 | Layer | Current version | Compatibility rule |
 |---|---:|---|
-| Skill Surface application | `0.1.0-dev` | product releases are independent |
+| SkillDock application | `0.1.0-dev` | product releases are independent |
 | SkillSurface contract | `1.0` | additive changes stay within major version 1 |
 | SkillRuntime contract | `1.0` | hosts and Skills negotiate the declared API version |
 | AgentDriver contract | `1.0` | adapters declare capabilities rather than platform names |
