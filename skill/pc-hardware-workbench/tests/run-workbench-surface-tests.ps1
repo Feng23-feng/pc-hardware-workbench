@@ -55,7 +55,8 @@ try {
         "references/integration/workbench-surface.md",
         "only when a Task may continue across chat, a workbench panel, or another agent surface",
         "references/integration/skilldock-surface.md",
-        "chart, evidence table, artifact"
+        "chart, evidence table, artifact", "explicit surface intents",
+        "channel IDs", "context files"
     ) "SKILL.md surface routing"
     Assert-ContainsAll $surface @(
         "[workbench-runtime.md](workbench-runtime.md)"
@@ -70,6 +71,8 @@ try {
     ) "Installed runtime documentation"
     Assert-ContainsAll $skilldock @(
         "current Agent workspace", "starts or reuses one loopback runtime",
+        "User-facing intent", "channel_id", "cursor", "JSON file",
+        "explicit launch phrase",
         "Do not rerun the device collector",
         "independent panel-owned Agent Session",
         "Never claim the graph is open", "Chat context handoff",

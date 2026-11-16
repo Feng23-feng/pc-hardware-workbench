@@ -27,6 +27,9 @@ when choosing where to continue.
 Read [skilldock-surface.md](references/integration/skilldock-surface.md) only
 when the host has SkillDock Runtime and a chart, evidence table, artifact, or
 repeated structured interaction would materially improve the Task.
+Treat phrases such as “打开操作面板”“用面板继续”“同步面板” or “把面板结果拿回来”
+as explicit surface intents; handle script names, channel IDs, cursors, and
+context files internally without asking the user to supply them.
 
 Use a private case for multi-turn, multi-evidence,
 baseline/change/test, or chat-loss-prone work. Create/resume it before large

@@ -4,6 +4,22 @@ Read this reference only when the current host has installed SkillDock Runtime
 and the Task would materially benefit from a graphical surface. Do not launch it
 for a simple concept answer or a one-turn text response.
 
+## User-facing intent
+
+The user should not need to mention scripts, `channel_id`, `cursor`, or a JSON
+file. Recognize natural phrases such as:
+
+- “打开操作面板” or “用面板继续”;
+- “把这个任务放到工作台”;
+- “把结果放到面板里”;
+- “同步面板” or “把面板里的结果拿回来”.
+
+For an explicit launch phrase, perform the mechanical steps below yourself and
+return the URL, Task identity, and current next action. For an explicit return
+phrase, retrieve the incremental panel state and continue the Task. When a
+complex Task would clearly benefit but the user did not ask, ask once:
+“这个任务要不要打开操作面板继续？”
+
 ## Entry
 
 Use the current Agent workspace, not the installed Skill directory. Resolve the
