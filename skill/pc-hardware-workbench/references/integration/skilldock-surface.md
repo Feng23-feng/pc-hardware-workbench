@@ -9,7 +9,7 @@ for a simple concept answer or a one-turn text response.
 The user should not need to mention scripts, `channel_id`, `cursor`, or a JSON
 file. Recognize natural phrases such as:
 
-- “打开操作面板” or “用面板继续”;
+- “打开 SkillDock”, “打开操作面板”, or “用 SkillDock 继续”;
 - “把这个任务放到工作台”;
 - “把结果放到面板里”;
 - “同步面板” or “把面板里的结果拿回来”.
