@@ -58,6 +58,27 @@ The launcher may not silently repeat device collection, choose a different
 Skill, broaden permissions, or claim that an independent Agent Session is the
 same provider Thread.
 
+## Natural-language trigger
+
+Users do not need to know the launcher script, context file, channel ID, cursor,
+or Agent workspace. Treat ordinary phrases as explicit surface intents:
+
+- `打开操作面板`
+- `用面板继续`
+- `把这个任务放到工作台`
+- `把结果放到面板里`
+- `同步面板`
+- `把面板里的结果拿回来`
+
+For launch intents, the Agent generates the compact context, stable channel ID,
+Task reference, and cursor internally, then returns only the useful link and
+task state. For return intents, it calls the sync script with the remembered
+channel and cursor and continues the same Task.
+
+When a complex Task would clearly benefit from a surface, the Agent may ask once:
+“这个任务要不要打开操作面板继续？” A negative answer keeps the work in chat.
+Do not expose implementation fields unless the user is debugging the integration.
+
 ## Installation decision
 
 The shared runtime should be installed once per user, while the domain Skill
