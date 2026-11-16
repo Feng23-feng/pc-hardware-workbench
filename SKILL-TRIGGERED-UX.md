@@ -64,7 +64,9 @@ Users do not need to know the launcher script, context file, channel ID, cursor,
 or Agent workspace. Treat ordinary phrases as explicit surface intents:
 
 - `打开操作面板`
+- `打开 SkillDock`
 - `用面板继续`
+- `用 SkillDock 继续`
 - `把这个任务放到工作台`
 - `把结果放到面板里`
 - `同步面板`
