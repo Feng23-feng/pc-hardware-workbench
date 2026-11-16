@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "channel_id": "chat:smoke-thread:smoke-task-v2",
+  "channel_id": "chat:smoke-thread:smoke-task-v3",
   "source_session_ref": "smoke-thread",
   "objective": "验证主对话与操作面板共享同一个 Task",
   "summary": "主对话已说明问题发生在游戏中；下一步先固定复现场景，不重复采集设备。",
