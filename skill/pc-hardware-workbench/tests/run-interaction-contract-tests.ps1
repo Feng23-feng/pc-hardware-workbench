@@ -683,7 +683,7 @@ Assert-Contains $ganttRendererSource 'complete/completed/finished are aliases fo
 $analyzer = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "scripts/analyze-telemetry.ps1") `
     -Label "scripts/analyze-telemetry.ps1"
-Assert-Contains $analyzer 'AnalyzerVersion = "1\.2\.3"' "Analyzer behavior changed without an AnalyzerVersion bump."
+Assert-Contains $analyzer 'AnalyzerVersion = "1\.2\.4"' "Analyzer behavior changed without an AnalyzerVersion bump."
 Assert-Contains $analyzer 'surplus trailing empty field' "HWiNFO rows with one surplus trailing empty field are not recovered explicitly."
 Assert-Contains $analyzer 'MaxInputMegabytes' "Telemetry analyzer has no large-file safety limit."
 Assert-Contains $analyzer 'ChartData' "Telemetry analyzer does not expose validated chart data."

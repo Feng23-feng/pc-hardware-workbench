@@ -38,6 +38,7 @@ try {
     $amdHwinfoPath = Join-Path $tempRoot "hwinfo-amd.csv"
     $amdOffsetOnlyPath = Join-Path $tempRoot "hwinfo-amd-offset-only.csv"
     $amdDieAveragePath = Join-Path $tempRoot "hwinfo-amd-die-average.csv"
+    $isoTimestampPath = Join-Path $tempRoot "iso-timestamp.csv"
     $presentmonPath = Join-Path $tempRoot "presentmon.csv"
     $utf8 = New-Object System.Text.UTF8Encoding($false)
 
@@ -90,6 +91,28 @@ game.exe,42,0,0,0,Hardware: Independent Flip,1,0.030,1.0,25.0,27.0
 "2026-10-26","21:00:01","78.0","120"
 "2026-10-26","21:00:02","87.0","145"
 '@, $utf8)
+
+    [IO.File]::WriteAllText($isoTimestampPath, @'
+timestamp,gpu_temp_c,gpu_power_w,effective_clock_mhz,perfcap
+2026-11-16T10:00:00+08:00,67,142,2415,None
+2026-11-16T10:00:01+08:00,68,146,2420,None
+2026-11-16T10:00:02+08:00,69,153,2430,Power
+2026-11-16T10:00:03+08:00,70,161,2440,Power
+'@, $utf8)
+
+    $isoTimestampJson = & $resolvedAnalyzer `
+        -Path $isoTimestampPath `
+        -Format Json `
+        -WarmupSeconds 1 `
+        -DurationSeconds 2 `
+        -IncludeColumn '^(gpu_temp_c|gpu_power_w|effective_clock_mhz)$' |
+        ConvertFrom-Json
+    Assert-True ($isoTimestampJson.AnalyzedRows -eq 3) "ISO timestamp window should select three rows."
+    Assert-True ($isoTimestampJson.Window -match "^time 1s to 3s$") "ISO timestamp window should produce a real time range."
+    Assert-True ($isoTimestampJson.Sampling.TimeBased -eq $true) "ISO timestamp input should remain time-based."
+    Assert-True ($isoTimestampJson.Sampling.IntervalSecondsMedian -eq 1) "ISO timestamp input should report a one-second interval."
+    Assert-True ($isoTimestampJson.Sampling.Consistency -eq "stable") "ISO timestamp sampling should be stable."
+    Assert-True ($isoTimestampJson.SampledSpanSeconds -eq 2) "ISO timestamp input should report a two-second analyzed span."
 
     $hwinfoJson = & $resolvedAnalyzer -Path $hwinfoPath -Format Json -WarmupSeconds 2 -DurationSeconds 2 | ConvertFrom-Json
     Assert-True ($hwinfoJson.HeaderLine -eq 3) "HWiNFO header should be detected on line 3."

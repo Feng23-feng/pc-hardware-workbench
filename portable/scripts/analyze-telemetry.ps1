@@ -398,7 +398,7 @@ function Test-HeaderCandidateHasData {
 
     $timeColumns = @{}
     for ($index = 0; $index -lt $CandidateNames.Count; $index++) {
-        if ($CandidateNames[$index] -match "^(Date|日期|Time|TimeInSeconds|时间)(\s|\[|$)") {
+        if ($CandidateNames[$index] -match "^(Date|日期|Time|TimeInSeconds|Timestamp|DateTime|时间|时间戳|日期时间)(\s|\[|$)") {
             $timeColumns[$index] = $true
         }
     }
@@ -1074,9 +1074,13 @@ $rows = @($dataLines.ToArray() | ConvertFrom-Csv -Delimiter $Delimiter -Header $
 
 $dateColumn = Find-FirstColumn -Columns $headerNames -Pattern "^(Date|日期)(\s|\[|$)"
 $timeColumn = Find-FirstColumn -Columns $headerNames -Pattern "^(Time|TimeInSeconds|时间)(\s|\[|$)"
+$timestampColumn = Find-FirstColumn `
+    -Columns $headerNames `
+    -Pattern "^(Timestamp|DateTime|Date/Time|时间戳|日期时间)(\s|\[|$)"
 $dateColumnIndex = if ($dateColumn) { [Array]::IndexOf($headerNames, $dateColumn) } else { -1 }
 $timeColumnIndex = if ($timeColumn) { [Array]::IndexOf($headerNames, $timeColumn) } else { -1 }
-Write-Verbose "Time column '$timeColumn' at index $timeColumnIndex; date column '$dateColumn' at index $dateColumnIndex."
+$timestampColumnIndex = if ($timestampColumn) { [Array]::IndexOf($headerNames, $timestampColumn) } else { -1 }
+Write-Verbose "Timestamp column '$timestampColumn' at index $timestampColumnIndex; time column '$timeColumn' at index $timeColumnIndex; date column '$dateColumn' at index $dateColumnIndex."
 
 $timeOffsets = New-Object System.Collections.Generic.List[double]
 $invalidTimeIndexes = New-Object System.Collections.Generic.List[int]
@@ -1103,11 +1107,35 @@ for ($index = 0; $index -lt $rows.Count; $index++) {
     $row = $rows[$index]
     $rawFields = @(Get-CsvFields -Line $dataLines[$index])
     if ($index -eq 0) {
-        Write-Verbose "First time cell: '$($rawFields[$timeColumnIndex])'."
+        $firstTimeIndex = if ($timestampColumnIndex -ge 0) {
+            $timestampColumnIndex
+        }
+        else {
+            $timeColumnIndex
+        }
+        Write-Verbose "First time cell: '$($rawFields[$firstTimeIndex])'."
     }
     $parsed = $null
 
-    if ($timeColumn -and $timeColumn -match "Seconds") {
+    if ($timestampColumn) {
+        $timestampText = ([string]$rawFields[$timestampColumnIndex]).Trim()
+        $dateTimeOffset = [datetimeoffset]::MinValue
+        $offsetStyles =
+            [System.Globalization.DateTimeStyles]::AllowWhiteSpaces -bor
+            [System.Globalization.DateTimeStyles]::AssumeLocal
+        if (
+            [datetimeoffset]::TryParse(
+                $timestampText,
+                $invariant,
+                $offsetStyles,
+                [ref]$dateTimeOffset
+            )
+        ) {
+            $parsed = $dateTimeOffset
+        }
+    }
+
+    if (-not $timestampColumn -and $timeColumn -and $timeColumn -match "Seconds") {
         $secondsValue = ConvertTo-Number -Value $rawFields[$timeColumnIndex]
         if ($null -ne $secondsValue) {
             $timeOffsets.Add([double]$secondsValue)
@@ -1119,7 +1147,7 @@ for ($index = 0; $index -lt $rows.Count; $index++) {
         continue
     }
 
-    if ($dateColumn -and $timeColumn) {
+    if ($null -eq $parsed -and $dateColumn -and $timeColumn) {
         $combined = "$($rawFields[$dateColumnIndex]) $($rawFields[$timeColumnIndex])".Trim()
         $dateTime = [datetime]::MinValue
         foreach ($dateTimeFormat in $dateTimeFormats) {
@@ -1155,7 +1183,7 @@ for ($index = 0; $index -lt $rows.Count; $index++) {
 
     if ($null -eq $parsed) {
         $timeOffsets.Add([double]::NaN)
-        if ($timeColumn) {
+        if ($timestampColumn -or $timeColumn) {
             $invalidTimeIndexes.Add($index) | Out-Null
         }
     }
@@ -1183,7 +1211,7 @@ if ($parsedTimeCount -eq 0) {
         $timeOffsets.Add([double]$index)
     }
     $usedTimeFallback = $true
-    $timeWarning = if ($timeColumn) {
+    $timeWarning = if ($timestampColumn -or $timeColumn) {
         "No parseable timestamp values were found; row-based warmup/limit fallback is used."
     }
     else {
@@ -1647,6 +1675,17 @@ else {
 }
 
 $timeBasedAxis = -not $usedTimeFallback -and $parsedTimeCount -gt 0
+$sampledSpanSeconds = if (
+    $timeBasedAxis -and
+    $timeOffsets.Count -gt 0 -and
+    -not [double]::IsNaN($timeOffsets[$startIndex]) -and
+    -not [double]::IsNaN($timeOffsets[$endIndex])
+) {
+    [Math]::Round([double]$timeOffsets[$endIndex] - [double]$timeOffsets[$startIndex], 3)
+}
+else {
+    $null
+}
 $samplingSummary = Get-ChartSamplingSummary `
     -TimeOffsets $timeOffsets `
     -StartIndex $startIndex `
@@ -1657,7 +1696,7 @@ if ($samplingSummary.Consistency -eq "variable") {
 }
 
 $result = [pscustomobject]@{
-    AnalyzerVersion = "1.2.3"
+    AnalyzerVersion = "1.2.4"
     FileName = if ($HideFileName) { "[hidden]" } else { [System.IO.Path]::GetFileName($resolvedPath) }
     HeaderLine = $headerLineIndex + 1
     InvalidRows = $invalidDataRows
@@ -1666,6 +1705,7 @@ $result = [pscustomobject]@{
     AnalyzedRows = $selectedRows.Count
     RequestedWindow = $requestedWindowLabel
     Window = $windowLabel
+    SampledSpanSeconds = $sampledSpanSeconds
     Sampling = $samplingSummary
     Columns = $headerNames
     DuplicateHeaderNames = @($duplicateHeaderNames.ToArray())
@@ -1731,6 +1771,7 @@ if ($Format -eq "ChartData") {
         AnalyzedRows = $result.AnalyzedRows
         RequestedWindow = $result.RequestedWindow
         Window = $result.Window
+        SampledSpanSeconds = $result.SampledSpanSeconds
         TimeBased = $timeBasedAxis
         Sampling = $samplingSummary
         XAxisLabel = if ($timeBasedAxis) { "seconds" } else { "samples" }
