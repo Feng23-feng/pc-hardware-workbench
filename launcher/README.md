@@ -27,11 +27,15 @@ powershell -NoProfile -ExecutionPolicy Bypass `
   -File .\launcher\install-runtime.ps1
 ```
 
-This copies the runtime to:
+This installs a versioned runtime and atomically updates the runtime pointer:
 
 ```text
-%LOCALAPPDATA%\SkillDock\Runtime\SkillDock.exe
+%LOCALAPPDATA%\SkillDock\Runtime-<version>-<timestamp>\
+%LOCALAPPDATA%\SkillDock\runtime-location.json
 ```
+
+An update never overwrites a running EXE. The previous runtime directory remains
+available for rollback until explicitly cleaned.
 
 `SkillDock.exe --ensure --workspace <path>` is idempotent. It reuses the healthy
 instance for the same workspace and writes a token-free

@@ -294,12 +294,12 @@ function hasValidHost(request) {
   );
 }
 
-async function readJson(request) {
+async function readJson(request, { maxBytes = 32_768 } = {}) {
   const chunks = [];
   let size = 0;
   for await (const chunk of request) {
     size += chunk.length;
-    if (size > 32_768) {
+    if (size > maxBytes) {
       throw new Error("request body is too large");
     }
     chunks.push(chunk);
@@ -327,6 +327,9 @@ function validateSyncImport(value) {
   }
   const objective = String(value.objective ?? "").trim().slice(0, 120);
   const summary = String(value.summary ?? "").trim().slice(0, 4000);
+  const sourceSessionRef = String(value.source_session_ref ?? "")
+    .trim()
+    .slice(0, 256);
   if (!Array.isArray(value.messages) || value.messages.length > 40) {
     throw new Error("Chat context messages must contain at most 40 items");
   }
@@ -356,7 +359,7 @@ function validateSyncImport(value) {
         : new Date().toISOString();
     return { externalId, role, text, createdAt };
   });
-  return { channelId, objective, summary, messages };
+  return { channelId, objective, summary, sourceSessionRef, messages };
 }
 
 function publicAttachment(attachment) {
@@ -1630,6 +1633,176 @@ async function route(request, response) {
 
   if (request.method === "GET" && url.pathname === "/api/state") {
     writeJson(response, 200, publicState());
+    return;
+  }
+
+  if (request.method === "POST" && url.pathname === "/api/task/sync/import") {
+    const sync = validateSyncImport(
+      await readJson(request, { maxBytes: 262_144 }),
+    );
+    let createdTask = false;
+    const placeholderTask =
+      Boolean(state.task) &&
+      !state.task.sync?.channel_id &&
+      state.task.timeline.length === 0 &&
+      (state.task.attachments?.length ?? 0) === 0;
+    if (
+      !state.task ||
+      (state.task.sync?.channel_id &&
+        state.task.sync.channel_id !== sync.channelId) ||
+      placeholderTask
+    ) {
+      if (state.task && !placeholderTask) {
+        archiveCurrentTask();
+      }
+      discardDraftAttachmentFiles();
+      state.task = createTask(
+        sync.objective ||
+          sync.summary ||
+          "从主 Skill 对话继续任务",
+      );
+      state.panel = null;
+      state.draft = { events: [], attachments: [] };
+      state.activity = null;
+      state.last_turn = null;
+      state.handoff = null;
+      createdTask = true;
+    }
+    state.task.sync ??= {
+      schema_version: "1.0",
+      channel_id: sync.channelId,
+      source_session_ref: sync.sourceSessionRef || null,
+      created_at: new Date().toISOString(),
+    };
+    if (state.task.sync.channel_id !== sync.channelId) {
+      writeJson(response, 409, {
+        error: "当前 Task 已绑定另一个主对话通道",
+      });
+      return;
+    }
+    if (sync.objective) {
+      state.task.objective = sync.objective;
+    }
+    if (sync.summary) {
+      state.task.summary = sync.summary;
+    }
+    if (sync.sourceSessionRef) {
+      state.task.sync.source_session_ref = sync.sourceSessionRef;
+    }
+    const existingMessageIds = new Set(
+      state.task.timeline
+        .map((entry) => entry.external_id)
+        .filter(Boolean),
+    );
+    let importedCount = 0;
+    let skippedCount = 0;
+    for (const message of sync.messages) {
+      if (existingMessageIds.has(message.externalId)) {
+        skippedCount += 1;
+        continue;
+      }
+      appendTimelineEntry({
+        role: message.role,
+        text: message.text,
+        createdAt: message.createdAt,
+        source: "chat",
+        externalId: message.externalId,
+      });
+      existingMessageIds.add(message.externalId);
+      importedCount += 1;
+    }
+    state.task.sync.last_import_at = new Date().toISOString();
+    state.task.phase = "ready";
+    state.phase = "ready";
+    state.error = null;
+    state.agent_error = null;
+    if (sync.objective) {
+      await updateThreadName(
+        { current_goal: sync.objective },
+        sync.objective,
+      );
+    }
+    archiveCurrentTask();
+    store.appendEvent({
+      type: "task.sync.imported",
+      task_id: state.task.task_id,
+      channel_id: sync.channelId,
+      source_session_ref: sync.sourceSessionRef || null,
+      imported_count: importedCount,
+      skipped_count: skippedCount,
+      created_task: createdTask,
+    });
+    store.save();
+    writeJson(response, 200, {
+      ok: true,
+      task_ref: state.task.task_id,
+      channel_id: sync.channelId,
+      imported_count: importedCount,
+      skipped_count: skippedCount,
+      created_task: createdTask,
+      cursor:
+        state.task.timeline.reduce(
+          (maximum, entry) =>
+            Number.isInteger(entry.seq) ? Math.max(maximum, entry.seq) : maximum,
+          0,
+        ),
+    });
+    return;
+  }
+
+  if (request.method === "GET" && url.pathname === "/api/task/sync/export") {
+    const afterSequence = Number.parseInt(
+      url.searchParams.get("after_seq") ?? "0",
+      10,
+    );
+    if (!Number.isInteger(afterSequence) || afterSequence < 0) {
+      writeJson(response, 400, { error: "after_seq must be a non-negative integer" });
+      return;
+    }
+    const requestedChannel = String(
+      url.searchParams.get("channel_id") ?? "",
+    ).trim();
+    const currentChannel = state.task?.sync?.channel_id ?? null;
+    if (requestedChannel && requestedChannel !== currentChannel) {
+      writeJson(response, 409, {
+        error: "当前 Task 不属于请求的主对话通道",
+      });
+      return;
+    }
+    const timeline = state.task?.timeline ?? [];
+    const messages = timeline
+      .filter(
+        (entry) =>
+          Number.isInteger(entry.seq) && entry.seq > afterSequence,
+      )
+      .map((entry) => ({
+        seq: entry.seq,
+        id: entry.id,
+        external_id: entry.external_id ?? null,
+        role: entry.role,
+        text: entry.text,
+        created_at: entry.created_at,
+        source: entry.source ?? "surface",
+      }));
+    const cursor = timeline.reduce(
+      (maximum, entry) =>
+        Number.isInteger(entry.seq) ? Math.max(maximum, entry.seq) : maximum,
+      afterSequence,
+    );
+    writeJson(response, 200, {
+      schema_version: "1.0",
+      task_ref: state.task?.task_id ?? null,
+      channel_id: currentChannel,
+      source_session_ref: state.task?.sync?.source_session_ref ?? null,
+      panel_session_ref: state.session_ref ?? state.thread_id ?? null,
+      objective: state.task?.objective ?? "",
+      summary: state.task?.summary ?? "",
+      phase: state.phase,
+      panel: state.panel,
+      last_turn: state.last_turn,
+      messages,
+      cursor,
+    });
     return;
   }
 

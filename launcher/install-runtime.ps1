@@ -8,8 +8,13 @@ $RepositoryRoot = Split-Path -Parent $PSScriptRoot
 if ([string]::IsNullOrWhiteSpace($SourceDirectory)) {
     $SourceDirectory = Join-Path $RepositoryRoot "dist\SkillDock-DSH"
 }
+$PackageJson = Get-Content -Raw -LiteralPath (Join-Path $SourceDirectory "app\package.json") | ConvertFrom-Json
+$PackageVersion = [string]$PackageJson.version
 if ([string]::IsNullOrWhiteSpace($TargetDirectory)) {
-    $TargetDirectory = Join-Path $env:LOCALAPPDATA "SkillDock\Runtime"
+    $SafeVersion = $PackageVersion -replace '[^A-Za-z0-9._-]', '-'
+    $TargetDirectory = Join-Path $env:LOCALAPPDATA (
+        "SkillDock\Runtime-$SafeVersion-" + (Get-Date -Format "yyyyMMddHHmmss")
+    )
 }
 $SourceDirectory = [IO.Path]::GetFullPath($SourceDirectory).TrimEnd('\')
 $TargetDirectory = [IO.Path]::GetFullPath($TargetDirectory).TrimEnd('\')
@@ -29,18 +34,26 @@ if (
     throw "TargetDirectory must stay inside $LocalRoot"
 }
 
-$TargetExe = Join-Path $TargetDirectory "SkillDock.exe"
-if (Test-Path -LiteralPath $TargetExe -PathType Leaf) {
-    & $TargetExe --stop --silent
-    Start-Sleep -Milliseconds 500
-}
 if (Test-Path -LiteralPath $TargetDirectory) {
-    Remove-Item -LiteralPath $TargetDirectory -Recurse -Force
+    throw "TargetDirectory already exists: $TargetDirectory"
 }
 New-Item -ItemType Directory -Path $TargetDirectory -Force | Out-Null
 Copy-Item -Path (Join-Path $SourceDirectory "*") -Destination $TargetDirectory -Recurse -Force
 
+$LauncherPath = Join-Path $TargetDirectory "SkillDock.exe"
+if (-not (Test-Path -LiteralPath $LauncherPath -PathType Leaf)) {
+    throw "Runtime installation did not produce SkillDock.exe: $TargetDirectory"
+}
+$PointerPath = Join-Path $LocalRoot "runtime-location.json"
 [pscustomobject]@{
-    runtime = Join-Path $TargetDirectory "SkillDock.exe"
+    runtime_path = $LauncherPath
+    version = $PackageVersion
+    installed_at = [DateTimeOffset]::Now.ToString("o")
+} | ConvertTo-Json | Set-Content -LiteralPath $PointerPath -Encoding UTF8
+
+[pscustomobject]@{
+    runtime = $LauncherPath
+    pointer = $PointerPath
+    version = $PackageVersion
     installed_at = [DateTimeOffset]::Now.ToString("o")
 } | ConvertTo-Json -Compress

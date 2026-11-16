@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "channel_id": "chat:smoke-thread:smoke-task-v2",
+  "source_session_ref": "smoke-thread",
+  "objective": "验证主对话与操作面板共享同一个 Task",
+  "summary": "主对话已说明问题发生在游戏中；下一步先固定复现场景，不重复采集设备。",
+  "messages": [
+    {
+      "id": "smoke-chat-user-1",
+      "role": "user",
+      "text": "玩游戏时偶尔会卡一两秒。",
+      "created_at": "2026-11-16T00:00:00.000Z"
+    },
+    {
+      "id": "smoke-chat-agent-1",
+      "role": "agent",
+      "text": "先保持场景一致并记录精确时间，不要同时修改设置。",
+      "created_at": "2026-11-16T00:00:01.000Z"
+    }
+  ]
+}
