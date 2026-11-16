@@ -22,6 +22,7 @@ import {
   resolveAgentDriverName,
 } from "./lib/agents/index.mjs";
 import { runPanelTurn } from "./lib/panel-response.mjs";
+import { mergePersistentPanelState } from "./lib/panel-state-merge.mjs";
 import { StateStore } from "./lib/state-store.mjs";
 import { buildDraftEvent } from "./lib/schema-validation.mjs";
 import {
@@ -829,7 +830,7 @@ async function updateThreadName(panel, fallback = "新任务") {
 
 async function sendPanelTurn(packet) {
   const enrichedPacket = enrichPacket(packet);
-  return runPanelTurn({
+  const result = await runPanelTurn({
     driver: agentDriver,
     threadReference: state.thread_id,
     eventId:
@@ -844,6 +845,17 @@ async function sendPanelTurn(packet) {
         packet: context.packet,
       }),
   });
+  const mergedPanel = mergePersistentPanelState(state.panel, result.panel);
+  if (mergedPanel !== result.panel) {
+    return {
+      ...result,
+      panel: await skillRuntime.validatePanelResult(mergedPanel, {
+        task: state.task,
+        packet: enrichedPacket,
+      }),
+    };
+  }
+  return result;
 }
 
 function recordAgentError(error) {

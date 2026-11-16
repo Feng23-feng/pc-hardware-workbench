@@ -80,27 +80,40 @@ internal static class SkillDockLauncher
                 StringComparison.OrdinalIgnoreCase
             ))
             {
-                throw new InvalidOperationException(
-                    "SkillDock is already running in another workspace:\r\n" +
-                    existing.workspace +
-                    "\r\nStop it before switching workspaces."
+                WriteLauncherLog(
+                    "Switching workspace from " + existing.workspace +
+                    " to " + workspace
                 );
+                StopServer(true);
+                for (int attempt = 0; attempt < 40 && IsHealthy(existing.port); attempt++)
+                {
+                    Thread.Sleep(100);
+                }
+                if (IsHealthy(existing.port))
+                {
+                    throw new InvalidOperationException(
+                        "The previous SkillDock workspace could not be stopped."
+                    );
+                }
             }
-            WriteLaunchResult(existing);
-            if (!noBrowser)
+            else
             {
-                OpenBrowser(existing.url);
+                WriteLaunchResult(existing);
+                if (!noBrowser)
+                {
+                    OpenBrowser(existing.url);
+                }
+                if (!silent)
+                {
+                    MessageBox.Show(
+                        ProductName + " is already running.\r\n\r\n" + existing.url,
+                        ProductName,
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information
+                    );
+                }
+                return 0;
             }
-            if (!silent)
-            {
-                MessageBox.Show(
-                    ProductName + " is already running.\r\n\r\n" + existing.url,
-                    ProductName,
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information
-                );
-            }
-            return 0;
         }
 
         int port = FindFreePort();

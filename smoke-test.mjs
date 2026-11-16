@@ -1935,6 +1935,15 @@ try {
     ),
     "analysis panel has no verified chart block",
   );
+  assert(
+    result.data.panel.blocks.some(
+      (block) =>
+        block.type === "table" &&
+        block.rows?.length >= 1 &&
+        block.columns?.length === 6,
+    ),
+    "analysis panel has no verified telemetry table",
+  );
 
   const artifactContent = await fetch(
     `${base}/api/artifacts/${artifact.id}/content`,

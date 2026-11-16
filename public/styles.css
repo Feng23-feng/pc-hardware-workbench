@@ -648,8 +648,10 @@ h1 {
   padding: 0 12px;
   border: 1px solid var(--line-strong);
   border-radius: 8px;
+  background: transparent;
   cursor: pointer;
   color: var(--ink);
+  font-family: inherit;
   font-size: 12px;
   font-weight: 680;
 }
@@ -658,7 +660,8 @@ h1 {
   border-color: var(--ink);
 }
 
-.file-picker:focus-within {
+.file-picker:focus-within,
+.file-picker:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--focus) 36%, transparent);
   outline-offset: 2px;
 }

@@ -21,6 +21,7 @@ const MAX_CSV_BYTES = 8 * 1024 * 1024;
 const MAX_SCRIPT_OUTPUT_BYTES = 4 * 1024 * 1024;
 const MAX_ARTIFACT_BYTES = 5 * 1024 * 1024;
 const MAX_WINDOW_SECONDS = 24 * 60 * 60;
+const ANALYZER_CACHE_VERSION = "1.2.4";
 const METRIC_HINTS =
   /temp|temperature|power|watt|clock|effective|mhz|fps|frame|voltage|fan|usage|load|温度|功耗|频率|帧率|瓦/u;
 
@@ -147,6 +148,69 @@ function parseHeaderNames(buffer) {
     .slice(0, 256);
 }
 
+function parseCsvLine(line) {
+  const fields = [];
+  let field = "";
+  let quoted = false;
+  for (let index = 0; index < line.length; index += 1) {
+    const character = line[index];
+    if (character === '"') {
+      if (quoted && line[index + 1] === '"') {
+        field += '"';
+        index += 1;
+      } else {
+        quoted = !quoted;
+      }
+    } else if (character === "," && !quoted) {
+      fields.push(field.trim());
+      field = "";
+    } else {
+      field += character;
+    }
+  }
+  fields.push(field.trim());
+  return fields;
+}
+
+function summarizeCategoricalColumns(buffer, headerLine) {
+  const lines = buffer.toString("utf8").replace(/^\uFEFF/u, "").split(/\r?\n/u);
+  const start = Math.max(0, Number(headerLine ?? 1) - 1);
+  const headers = parseCsvLine(lines[start] ?? "");
+  const candidateIndexes = headers
+    .map((header, index) => ({ header, index }))
+    .filter(({ header }) =>
+      /perfcap|performance.?limit|limit.?reason|限制原因|性能限制/iu.test(header),
+    )
+    .slice(0, 3);
+  if (candidateIndexes.length === 0) {
+    return [];
+  }
+  const counts = new Map(
+    candidateIndexes.map(({ header }) => [header, new Map()]),
+  );
+  for (let index = start + 1; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (!line.trim()) break;
+    const fields = parseCsvLine(line);
+    if (fields.length !== headers.length) continue;
+    for (const { header, index: columnIndex } of candidateIndexes) {
+      const value = String(fields[columnIndex] ?? "").trim().slice(0, 120);
+      if (!value) continue;
+      const columnCounts = counts.get(header);
+      columnCounts.set(value, (columnCounts.get(value) ?? 0) + 1);
+    }
+  }
+  return candidateIndexes
+    .map(({ header }) => {
+      const values = [...counts.get(header).entries()]
+        .map(([value, count]) => ({ value, count }))
+        .sort((left, right) => right.count - left.count)
+        .slice(0, 8);
+      return values.length > 0 ? { column: header, values } : null;
+    })
+    .filter(Boolean);
+}
+
 function genericIncludePattern(headers, existingMetrics = []) {
   if (existingMetrics.length > 0) {
     return null;
@@ -212,13 +276,15 @@ function publicArtifact(record) {
   };
 }
 
-function analysisSummary(analysis) {
+export function analysisSummary(analysis, buffer) {
   return {
     analyzer_version: analysis.AnalyzerVersion ?? "unknown",
+    header_line: analysis.HeaderLine ?? 1,
     analyzed_rows: analysis.AnalyzedRows ?? 0,
     total_rows: analysis.TotalRows ?? 0,
     window: analysis.Window ?? "unknown",
     requested_window: analysis.RequestedWindow ?? null,
+    sampled_span_seconds: analysis.SampledSpanSeconds ?? null,
     sampling: analysis.Sampling ?? {
       TimeBased: false,
       IntervalSecondsMedian: null,
@@ -228,6 +294,10 @@ function analysisSummary(analysis) {
     },
     columns: Array.isArray(analysis.Columns) ? analysis.Columns : [],
     warnings: Array.isArray(analysis.Warnings) ? analysis.Warnings : [],
+    categorical_columns: summarizeCategoricalColumns(
+      buffer,
+      analysis.HeaderLine,
+    ),
     metrics: (analysis.Metrics ?? []).map((metric) => ({
       metric: metric.Metric,
       source_column: metric.SourceColumn,
@@ -242,7 +312,7 @@ function analysisSummary(analysis) {
   };
 }
 
-function verifiedBlocks(analysis, artifact) {
+export function verifiedBlocks(analysis, artifact) {
   const metrics = (analysis.metrics ?? []).slice(0, 6);
   if (metrics.length === 0) {
     return [];
@@ -253,6 +323,11 @@ function verifiedBlocks(analysis, artifact) {
       ? `采样间隔中位数 ${formatNumber(sampling.IntervalSecondsMedian)} 秒，稳定性为 stable。`
       : `采样一致性为 ${sampling.Consistency || "unknown"}；间隔样本可能有限。`;
   const warnings = analysis.warnings ?? [];
+  const categoricalColumns = analysis.categorical_columns ?? [];
+  const spanText =
+    Number.isFinite(analysis.sampled_span_seconds)
+      ? `采样跨度 ${formatNumber(analysis.sampled_span_seconds)} 秒。`
+      : "";
   return [
     {
       id: "telemetry-metrics",
@@ -272,6 +347,40 @@ function verifiedBlocks(analysis, artifact) {
       })),
     },
     {
+      id: "telemetry-table",
+      type: "table",
+      title: "遥测摘要",
+      columns: ["指标", "采样", "最小", "均值", "最大", "单位"],
+      rows: metrics.map((metric) => [
+        metricLabel({
+          Metric: metric.metric,
+          SourceColumn: metric.source_column,
+        }),
+        String(metric.samples),
+        formatNumber(metric.min),
+        formatNumber(metric.mean),
+        formatNumber(metric.max),
+        metric.unit,
+      ]),
+    },
+    ...(categoricalColumns.length > 0
+      ? [
+          {
+            id: "telemetry-categories",
+            type: "table",
+            title: "状态列分布",
+            columns: ["列名", "取值", "样本数"],
+            rows: categoricalColumns.flatMap((column) =>
+              column.values.map((item) => [
+                column.column,
+                item.value,
+                String(item.count),
+              ]),
+            ).slice(0, 20),
+          },
+        ]
+      : []),
+    {
       id: "telemetry-chart",
       type: "chart",
       title: "遥测概览",
@@ -284,7 +393,7 @@ function verifiedBlocks(analysis, artifact) {
       id: "telemetry-window",
       type: "callout",
       title: "数据窗口",
-      text: `窗口：${analysis.window}。已分析 ${analysis.analyzed_rows} 行；${samplingText}`,
+      text: `窗口：${analysis.window}。${spanText}已分析 ${analysis.analyzed_rows} 行；${samplingText}`,
       tone: "info",
       collapsed: false,
     },
@@ -488,7 +597,7 @@ export class TelemetryBroker {
     }
     const window = normalizeWindow(windowInput);
     const { actualHash } = this.validateAttachment(attachment);
-    const cacheKey = `${actualHash}:${windowSignature(window)}`;
+    const cacheKey = `${ANALYZER_CACHE_VERSION}:${actualHash}:${windowSignature(window)}`;
     const record = this.loadIndex().artifacts.find(
       (item) =>
         item.cache_key === cacheKey &&
@@ -524,7 +633,7 @@ export class TelemetryBroker {
     }
     const window = normalizeWindow(windowInput);
     const { filePath, buffer, actualHash } = this.validateAttachment(attachment);
-    const cacheKey = `${actualHash}:${windowSignature(window)}`;
+    const cacheKey = `${ANALYZER_CACHE_VERSION}:${actualHash}:${windowSignature(window)}`;
     const index = this.loadIndex();
     const reusesArtifact = index.artifacts.find(
       (record) =>
@@ -597,7 +706,7 @@ export class TelemetryBroker {
           },
         );
       }
-      analysis = analysisSummary(parsed);
+      analysis = analysisSummary(parsed, buffer);
       const draftArtifactId = `artifact-${randomUUID()}`;
       const outputPath = resolve(taskDirectory, `${draftArtifactId}.svg`);
       generatedPath = outputPath;

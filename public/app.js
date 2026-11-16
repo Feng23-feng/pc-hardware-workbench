@@ -237,8 +237,8 @@ function statusCopy(mode) {
   }
   if (mode === "completed") {
     return {
-      label: "任务完成",
-      detail: "本轮分析已完成，当前没有需要继续回答的问题。",
+      label: "本轮结果已生成",
+      detail: "请查看当前判断、未决问题和最优先行动。",
     };
   }
   if (mode === "blocked") {
@@ -1739,9 +1739,11 @@ function composer({ initial = false } = {}) {
     textarea,
     el("div", { class: "composer-toolbar" }, [
       el("div", { class: "composer-tools" }, [
-        el("label", {
+        el("button", {
           class: "file-picker",
-          for: "composer-file-input",
+          type: "button",
+          "aria-controls": "composer-file-input",
+          onclick: () => fileInput.click(),
           text: uploadingAttachments ? "正在添加附件…" : "添加文件/图片",
         }),
         fileInput,

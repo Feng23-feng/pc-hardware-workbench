@@ -14,7 +14,9 @@
     "test:agent-bridge-live": "node tests/agent-bridge-live-smoke.mjs",
     "test:workspace": "node tests/workspace-scope.test.mjs",
     "test:sync": "node tests/task-sync.test.mjs",
-    "test": "node smoke-test.mjs && node tests/agent-bridge.test.mjs && node tests/workspace-scope.test.mjs && node tests/task-sync.test.mjs",
+    "test:panel-state": "node tests/panel-state-merge.test.mjs",
+    "test:telemetry-blocks": "node tests/telemetry-blocks.test.mjs",
+    "test": "node smoke-test.mjs && node tests/agent-bridge.test.mjs && node tests/workspace-scope.test.mjs && node tests/task-sync.test.mjs && node tests/panel-state-merge.test.mjs && node tests/telemetry-blocks.test.mjs",
     "check": "node --check server.mjs && node --check open-workbench.mjs && node --check smoke-test.mjs && node --check public/app.js && node --check public/status-model.js && node --check public/draft-storage.js"
   }
 }
