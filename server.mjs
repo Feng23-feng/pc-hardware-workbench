@@ -2110,13 +2110,13 @@ try {
       { encoding: "utf8", mode: 0o600 },
     );
     process.stdout.write(
-      `Agent Panel listening at http://${host}:${port}/ (${agentDriverName})\n`,
+      `SkillDock listening at http://${host}:${port}/ (${agentDriverName})\n`,
     );
   });
 } catch (error) {
   const agentError = agentDriver.classifyError(error);
   process.stderr.write(
-    `Failed to start Agent Panel [${agentError.classification}/${agentError.code}]: ${agentError.message}\n`,
+    `Failed to start SkillDock [${agentError.classification}/${agentError.code}]: ${agentError.message}\n`,
   );
   await agentDriver.close().catch(() => {});
   process.exit(1);
