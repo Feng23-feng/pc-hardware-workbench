@@ -333,7 +333,20 @@ try {
   );
   await writeFile(
     join(legacyRoot, "shared-evidence.json"),
-    `${JSON.stringify({ schema_version: "1.0", evidence: [] })}\n`,
+    `${JSON.stringify({
+      schema_version: "1.0",
+      store_id: "local-device-evidence",
+      device_snapshot: {
+        ref: "device-snapshot:not-collected",
+        captured_date: null,
+        identity_quality: "unknown",
+        privacy_mode: "local-private",
+        device_alias: "尚未采集设备",
+        summary: "没有可复用的设备配置快照。",
+      },
+      evidence_refs: [],
+      updated_at: "2026-11-17T14:00:00.000Z",
+    })}\n`,
     "utf8",
   );
   for (const [name, value] of Object.entries({
