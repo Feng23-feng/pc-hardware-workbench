@@ -69,6 +69,7 @@ function Test-SkillDockRuntimeBinding {
     $referencePid = [int]$Reference.pid
     $referencePort = [int]$Reference.port
     $referenceLaunchId = [string]$Reference.launch_id
+    $referenceOrigin = ([string]$Reference.origin).TrimEnd("/")
     return (
         $bindingPid -gt 0 -and
         $bindingPort -gt 0 -and
@@ -76,7 +77,11 @@ function Test-SkillDockRuntimeBinding {
         -not [string]::IsNullOrWhiteSpace($bindingOrigin) -and
         $bindingPid -eq $referencePid -and
         $bindingPort -eq $referencePort -and
-        $bindingLaunchId -eq $referenceLaunchId
+        $bindingLaunchId -eq $referenceLaunchId -and
+        (
+            [string]::IsNullOrWhiteSpace($referenceOrigin) -or
+            $bindingOrigin -eq $referenceOrigin
+        )
     )
 }
 
