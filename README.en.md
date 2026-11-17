@@ -23,6 +23,7 @@ The interactive project pages are currently available in Chinese:
 
 - [What it does](#what-it-does)
 - [Quick start](#quick-start)
+- [Open the SkillDock panel](#open-the-skilldock-panel)
 - [Example prompts](#example-prompts)
 - [Safety model](#safety-model)
 - [Documentation](#documentation)
@@ -177,6 +178,33 @@ For a direct live self-test command, use:
 powershell -NoProfile -ExecutionPolicy Bypass `
   -File .\start.ps1 -SelfTest -AllowLiveCollector -CollectorPrivacyMode Redacted
 ```
+
+## Open the SkillDock panel
+
+After the PCHW Skill and SkillDock Runtime are installed, describe the problem and
+your evidence in the current Codex conversation:
+
+```text
+The game starts stuttering after about twenty minutes. Here is the HWiNFO CSV.
+Can you open the graphical analysis?
+```
+
+After you agree, the Skill opens the local panel with the current question, Task,
+and supported attachment context. The first analysis asks for an explicit
+one-time permission. The result includes a real SVG chart, a concrete judgement,
+supporting and conflicting evidence, uncertainty, and two or three low-risk
+evidence actions. Copy the result back to the current Codex conversation. The
+same Task remains available after SkillDock is closed and restarted.
+
+This release promises the `pchw-source-hosted` SkillDock panel only for the
+current Codex conversation. DSH and other hosts may use the PCHW Skill for
+chat, collection, and CSV analysis, but they are not promised this panel. If
+permission is denied, the panel cannot start, or another workspace is active,
+continue in chat; losing the panel must not break the conversation.
+
+The panel performs only user-approved read-only analysis and Task artifact
+writes. It never changes BIOS, firmware, drivers, clocks, voltages, power
+limits, fans, or memory timings automatically.
 
 ## Example prompts
 

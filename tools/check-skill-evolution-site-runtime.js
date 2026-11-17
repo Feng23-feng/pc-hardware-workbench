@@ -425,7 +425,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       primaryPaths: [...document.querySelectorAll(".dse-explore-primary a")].map(link => link.getAttribute("href")),
       heroVersion: document.getElementById("dse-hero-version")?.textContent.trim() || "",
       visibleVersionCount: (
-        document.getElementById("dse-root")?.innerText.match(/2\.7\.4/g) || []
+        document.getElementById("dse-root")?.innerText.match(/2\.8\.0/g) || []
       ).length,
       technicalClosed: !document.querySelector(".dse-home-technical")?.open,
       technicalSummary: document.querySelector(".dse-home-technical > summary")?.innerText.trim() || "",
@@ -527,7 +527,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       };
     })()`);
     check(
-      filePlanetCard.title.includes("131 个文件") &&
+      filePlanetCard.title.includes("134 个文件") &&
       filePlanetCard.cta.includes("进入文件星球") &&
       filePlanetCard.previewWidth >= 280 &&
       filePlanetCard.previewHeight >= (name === "desktop" ? 300 : 160) &&
@@ -539,9 +539,11 @@ async function testHomeViewport(siteUrl, name, width, height) {
       `${prefix}file planet entry is not a working two-column/mobile preview card (${JSON.stringify(filePlanetCard)}).`
     );
     const candidateStatus = await evaluate(connection, `(() => {
-      const section = document.querySelector(".dse-candidate");
+      const section = document.querySelector("#dse-candidate-title")?.closest(".dse-candidate");
       const explore = document.querySelector(".dse-explore-primary");
-      const rows = [...document.querySelectorAll(".dse-candidate-summary > div")];
+      const rows = section
+        ? [...section.querySelectorAll(".dse-candidate-summary > div")]
+        : [];
       return {
         state: section?.querySelector(".dse-candidate-state")?.textContent.trim() || "",
         title: section?.querySelector("#dse-candidate-title")?.textContent.trim() || "",
@@ -810,10 +812,10 @@ async function testHomeViewport(siteUrl, name, width, height) {
     }))()`);
     check(
       archiveSelection.detailVisible &&
-      archiveSelection.title.includes("2.8.0") &&
+      archiveSelection.title.includes("2.7.4") &&
       archiveSelection.date.includes("测试版") &&
       !archiveSelection.date.includes("CANDIDATE") &&
-      archiveSelection.hash === "#wb-2-7-5",
+      archiveSelection.hash === "#wb-2-7-4",
       `${prefix}version selection or deep link was lost (${JSON.stringify(archiveSelection)}).`
     );
 

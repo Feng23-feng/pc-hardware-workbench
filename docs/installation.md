@@ -102,6 +102,19 @@ Skill 目录。不要直接把 ZIP 文件放进 Skill 目录；Codex 需要的�
 - 验证 `SKILL.md`、`scripts/` 和 `references/`；
 - 不运行采集器、不提权、不修改硬件设置。
 
+## SkillDock 操作面板
+
+PCHW Skill 是可独立安装的领域 Skill；SkillDock 是单独的本地 Runtime。两者都安装后，
+当前 Codex 对话中的 PCHW Skill 才能触发 `pchw-source-hosted` 操作面板。面板入口
+由 Skill 自己启动，用户只需要描述硬件问题并在页面出现后确认是否打开。
+
+SkillDock Runtime 的安装、升级和回滚方式见发布包内的安装说明。Runtime 未安装、
+权限不足或已有其他工作区在运行时，Skill 会保持对话可用，不应要求用户手工寻找
+runner、端口或环境变量。
+
+本版只有 Codex 当前对话承诺 SkillDock 面板。DSH 可以安装并使用 PCHW Skill 的聊天、
+采集和 CSV 分析核心能力，但没有 SkillDock 面板入口。
+
 ## DeepSeek Harness
 
 适配说明见 [`adapters/dsh/README.md`](../adapters/dsh/README.md)。
@@ -125,6 +138,8 @@ Skill 默认安装目录：
 ```
 
 Harness 首次加载时可以选择 `AGENTS.md` 或 `DEEPSEEK.md` 作为项目适配入口。
+
+DSH 不包含本版 SkillDock 操作面板；不要从 DSH 安装或调用 SkillDock Runtime。
 
 ## Portable Windows 工具
 

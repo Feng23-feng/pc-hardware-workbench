@@ -210,6 +210,21 @@
       "role": "对话触发入口",
       "summary": "校验当前对话上下文、启动或复用 Runtime、建立当前 Task 并返回绑定页面。"
     },
+    "scripts/skilldock/source-result-freshness.ps1": {
+      "cluster": "integration/flow",
+      "role": "结果新鲜度核验",
+      "summary": "核对结果是否属于当前 Task、附件、来源 Session 和 SHA-256，防止旧结果冒充本轮。"
+    },
+    "scripts/skilldock/submit-panel-result.ps1": {
+      "cluster": "integration/flow",
+      "role": "单次结果回写",
+      "summary": "只把同一 Task 中已核验的新结果写回一次，拒绝 stale source result 和重复导入。"
+    },
+    "scripts/skilldock/wait-panel.ps1": {
+      "cluster": "integration/flow",
+      "role": "面板状态等待",
+      "summary": "等待同一 Task 的明确面板事件，超时或权限失败时安全返回当前对话。"
+    },
     "scripts/skilldock/sync-panel.ps1": {
       "cluster": "integration/flow",
       "role": "面板结果同步",
