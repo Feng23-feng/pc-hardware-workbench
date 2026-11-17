@@ -73,6 +73,13 @@ function sha256(value) {
   return createHash("sha256").update(value).digest("hex");
 }
 
+async function sha256CanonicalTextFile(filePath) {
+  const text = (await readFile(filePath, "utf8"))
+    .replaceAll("\r\n", "\n")
+    .replaceAll("\r", "\n");
+  return sha256(text);
+}
+
 function runProcess(command, args, {
   env = process.env,
   timeoutMs = 120_000,
@@ -1227,10 +1234,10 @@ try {
     treeComparison.installed.tree_file_count,
   );
   assert.equal(
-    sha256(await readFile(join(installedSkillRoot, "runtime.mjs"))),
-    sha256(await readFile(
+    await sha256CanonicalTextFile(join(installedSkillRoot, "runtime.mjs")),
+    await sha256CanonicalTextFile(
       join(root, "skills", "pc-hardware-workbench", "runtime.mjs"),
-    )),
+    ),
   );
   launcherEnv = {
     ...process.env,
