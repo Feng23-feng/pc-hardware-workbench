@@ -27,6 +27,7 @@ $ErrorActionPreference = "Stop"
 $Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [Console]::OutputEncoding = $Utf8NoBom
 $OutputEncoding = $Utf8NoBom
+. (Join-Path $PSScriptRoot "runtime-paths.ps1")
 $failureCode = "surface_unavailable"
 
 function Write-JsonResult {
@@ -45,6 +46,9 @@ function Write-JsonResult {
         [int]$RuntimePid = 0,
         [int]$RuntimePort = 0,
         [string]$RuntimeOrigin = "",
+        [string]$RuntimeDataDirectory = "",
+        [string]$RuntimeMetadataState = "",
+        [string[]]$IgnoredRuntimeMetadata = @(),
         [object]$AgentPermission = $null,
         [object]$PermissionMatrix = $null,
         [bool]$ApprovalDecisionSupported = $false,
@@ -69,6 +73,9 @@ function Write-JsonResult {
         runtime_pid = $RuntimePid
         runtime_port = $RuntimePort
         runtime_origin = $RuntimeOrigin
+        runtime_data_directory = $RuntimeDataDirectory
+        runtime_metadata_state = $RuntimeMetadataState
+        ignored_runtime_metadata = @($IgnoredRuntimeMetadata)
         agent_permission = $AgentPermission
         permission_matrix = $PermissionMatrix
         approval_decision_supported = $ApprovalDecisionSupported
@@ -79,54 +86,26 @@ function Write-JsonResult {
     } | ConvertTo-Json -Compress -Depth 8
 }
 
-function Resolve-SkillDockLocalRoot {
-    if (-not [string]::IsNullOrWhiteSpace($env:SKILLDOCK_LOCAL_ROOT)) {
-        return [IO.Path]::GetFullPath($env:SKILLDOCK_LOCAL_ROOT)
-    }
-    return Join-Path $env:LOCALAPPDATA "SkillDock"
-}
-
 function Get-RunningSkillDockRuntime {
     param([string]$LocalRoot)
 
-    $infoPath = Join-Path $LocalRoot "runtime-dsh-web\server-info.json"
-    if (-not (Test-Path -LiteralPath $infoPath -PathType Leaf)) {
+    $context = Get-SkillDockRuntimeContext -LocalRoot $LocalRoot
+    if ($null -eq $context) {
         return $null
     }
-    try {
-        $info = Get-Content -LiteralPath $infoPath -Raw | ConvertFrom-Json
-        $port = [int]$info.port
-        if ($port -le 0) {
-            return $null
-        }
-        $url = "http://127.0.0.1:$port/"
-        $health = Invoke-RestMethod -Uri "${url}api/health" -TimeoutSec 5
-        if (-not $health.ok) {
-            return $null
-        }
-        $binding = $health.runtime_binding
-        if (
-            $null -eq $binding -or
-            [string]::IsNullOrWhiteSpace([string]$binding.launch_id) -or
-            [int]$binding.pid -ne [int]$info.pid -or
-            [int]$binding.port -ne $port
-        ) {
-            return $null
-        }
-        return [pscustomobject]@{
-            ok = $true
-            url = $url
-            port = $port
-            driver = [string]$health.driver
-            workspace = [string]$health.workspace
-            pid = [int]$binding.pid
-            launch_id = [string]$binding.launch_id
-            origin = [string]$binding.origin
-            exact_url = "http://127.0.0.1:$port/?runtime_launch_id=$([Uri]::EscapeDataString([string]$binding.launch_id))&runtime_pid=$([int]$binding.pid)&runtime_port=$port"
-        }
-    }
-    catch {
-        return $null
+    return [pscustomobject]@{
+        ok = $true
+        url = $context.url
+        port = [int]$context.binding.port
+        driver = [string]$context.health.driver
+        workspace = [string]$context.health.workspace
+        pid = [int]$context.binding.pid
+        launch_id = [string]$context.binding.launch_id
+        origin = [string]$context.binding.origin
+        runtime_directory = $context.runtime_directory
+        metadata_state = $context.metadata_state
+        ignored_server_info = @($context.ignored_server_info)
+        exact_url = "http://127.0.0.1:$([int]$context.binding.port)/?runtime_launch_id=$([Uri]::EscapeDataString([string]$context.binding.launch_id))&runtime_pid=$([int]$context.binding.pid)&runtime_port=$([int]$context.binding.port)"
     }
 }
 
@@ -367,7 +346,7 @@ try {
     }
 
     if ([string]::IsNullOrWhiteSpace($LauncherPath)) {
-        $localRoot = Resolve-SkillDockLocalRoot
+        $localRoot = Get-SkillDockLocalRoot
         $pointerPath = Join-Path $localRoot "runtime-location.json"
         $installedRuntime = Join-Path $localRoot "Runtime\SkillDock.exe"
         if (Test-Path -LiteralPath $pointerPath -PathType Leaf) {
@@ -393,7 +372,7 @@ try {
         throw "SkillDock Runtime is not installed."
     }
 
-    $localRoot = Resolve-SkillDockLocalRoot
+    $localRoot = Get-SkillDockLocalRoot
     $resultPath = Join-Path $localRoot "launch-result.json"
     $result = Get-RunningSkillDockRuntime -LocalRoot $localRoot
     if ($result) {
@@ -498,28 +477,15 @@ try {
     if (-not $resultWorkspace.Equals($resolvedWorkspace, [StringComparison]::OrdinalIgnoreCase)) {
         throw "SkillDock Runtime returned a different workspace: $resultWorkspace"
     }
-    $health = Invoke-RestMethod -Uri "$($result.url.TrimEnd('/'))/api/health" -TimeoutSec 5
-    if (-not $health.ok) {
+    $runtimeContext = Get-SkillDockRuntimeContext -LocalRoot $localRoot
+    if ($null -eq $runtimeContext) {
         $failureCode = "runtime_unhealthy"
-        throw "SkillDock health check failed."
+        throw "The current launch result and health Runtime binding are unavailable or inconsistent."
     }
-    $runtimeBinding = $health.runtime_binding
-    $serverInfoPath = Join-Path $localRoot "runtime-dsh-web\server-info.json"
-    $serverInfo = Get-Content -LiteralPath $serverInfoPath -Raw | ConvertFrom-Json
-    if (
-        $null -eq $runtimeBinding -or
-        [string]::IsNullOrWhiteSpace([string]$runtimeBinding.launch_id) -or
-        [int]$runtimeBinding.pid -le 0 -or
-        [int]$runtimeBinding.port -ne [int]$result.port -or
-        [int]$runtimeBinding.pid -ne [int]$result.pid -or
-        [int]$runtimeBinding.pid -ne [int]$serverInfo.pid -or
-        [int]$runtimeBinding.port -ne [int]$serverInfo.port -or
-        [string]$runtimeBinding.origin -ne
-            ([string]$result.url).TrimEnd('/')
-    ) {
-        $failureCode = "runtime_binding_mismatch"
-        throw "The launch result, server info, and health Runtime binding do not match."
-    }
+    $result = $runtimeContext.result
+    $health = $runtimeContext.health
+    $runtimeBinding = $runtimeContext.binding
+    $runtimeDirectory = $runtimeContext.runtime_directory
     $runtimeState = [string]$health.surface.runtime_state
     $selectedSurfaceMode = [string]$health.surface.mode
     $approvalDecisionSupported = [bool]$health.capabilities.supportsApprovalDecision
@@ -559,7 +525,7 @@ try {
         }
         $contextBody = Get-Content -LiteralPath $resolvedContext -Raw -Encoding UTF8
         $context = $contextBody | ConvertFrom-Json
-        $tokenPath = Join-Path $localRoot "runtime-dsh-web\capability-token"
+        $tokenPath = Join-Path $runtimeDirectory "capability-token"
         if (-not (Test-Path -LiteralPath $tokenPath -PathType Leaf)) {
             $failureCode = "runtime_capability_unavailable"
             throw "SkillDock runtime token is unavailable."
@@ -747,6 +713,9 @@ try {
         -RuntimePid ([int]$runtimeBinding.pid) `
         -RuntimePort ([int]$runtimeBinding.port) `
         -RuntimeOrigin ([string]$runtimeBinding.origin) `
+        -RuntimeDataDirectory $runtimeDirectory `
+        -RuntimeMetadataState ([string]$runtimeContext.metadata_state) `
+        -IgnoredRuntimeMetadata @($runtimeContext.ignored_server_info) `
         -AgentPermission $health.agent_permission `
         -PermissionMatrix $health.permission_matrix `
         -ApprovalDecisionSupported $approvalDecisionSupported `

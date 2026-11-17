@@ -53,6 +53,7 @@ try {
     $skilldockWait = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "scripts/skilldock/wait-panel.ps1") -Encoding UTF8
     $skilldockFreshness = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "scripts/skilldock/source-result-freshness.ps1") -Encoding UTF8
     $skilldockSubmit = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "scripts/skilldock/submit-panel-result.ps1") -Encoding UTF8
+    $skilldockRuntimePaths = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "scripts/skilldock/runtime-paths.ps1") -Encoding UTF8
     $triage = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/triage/triage-checklist.md") -Encoding UTF8
 
     Assert-ContainsAll $skill @(
@@ -111,14 +112,15 @@ try {
         "Invoke-RestMethod", "capability token", "ReplaceWorkspace",
         "--replace-workspace", "PANEL_SURFACE_MODE", "surface_mode",
         "agent_permission", "permission_matrix", "approval_decision_supported",
-        "SKILLDOCK_LOCAL_ROOT", "ConvertTo-Json -Compress -Depth 8",
+        "runtime-paths.ps1", "ConvertTo-Json -Compress -Depth 8",
         "pchw-source-hosted", "source-hosted/entry", "source_session_ref",
         "channel_id", "error_code", "fallback_reason",
         "SKILLDOCK_AGENT_DRIVER", "SKILLDOCK_INTERNAL_PREVIEW",
         "Resolve-ContextAttachment", "/api/attachments",
         "CODEX_THREAD_ID", "thread_binding_mismatch",
         "X-Source-Attachment-Id", "source_attachment_id",
-        "RuntimeLaunchId", "runtime_binding", "runtime_launch_id"
+        "RuntimeLaunchId", "runtime_binding", "runtime_launch_id",
+        "RuntimeMetadataState", "IgnoredRuntimeMetadata"
     ) "SkillDock launcher boundary"
     Assert-ContainsAll $skilldockSync @(
         "ChannelId", "AfterSequence", "task/sync/export",
@@ -143,6 +145,27 @@ try {
         "stale_result_observed", "source-result-freshness", "ConvertTo-Json",
         "Invoke-SourceHostedResultClaim", "panel_wait_claim_failed"
     ) "SkillDock source-result wait boundary"
+    Assert-ContainsAll $skilldockRuntimePaths @(
+        "SKILLDOCK_LOCAL_ROOT", "runtime-pchw", "runtime-dsh-web",
+        "Get-SkillDockRuntimeContext", "launch-result.json",
+        "runtime_binding", "ignored_server_info"
+    ) "SkillDock shared runtime path resolver"
+    foreach ($runtimeScript in @(
+        $skilldockLauncher,
+        $skilldockSync,
+        $skilldockWait,
+        $skilldockSubmit
+    )) {
+        Assert-True `
+            ($runtimeScript -match 'runtime-paths\.ps1') `
+            "SkillDock runtime script does not load runtime-paths.ps1."
+        Assert-True `
+            ($runtimeScript -notmatch 'runtime-dsh-web|runtime-pchw') `
+            "SkillDock runtime script hard-codes a runtime data root."
+        Assert-True `
+            ($runtimeScript -notmatch 'server-info\.json') `
+            "SkillDock runtime script directly trusts server-info.json."
+    }
     Assert-ContainsAll $skilldockFreshness @(
         "ExpectedTaskId", "ExpectedAttachmentId",
         "ExpectedAttachmentSha256", "ExpectedSubmissionSequence",

@@ -210,6 +210,11 @@
       "role": "对话触发入口",
       "summary": "校验当前对话上下文、启动或复用 Runtime、建立当前 Task 并返回绑定页面。"
     },
+    "scripts/skilldock/runtime-paths.ps1": {
+      "cluster": "integration/flow",
+      "role": "Runtime 绑定与数据根解析",
+      "summary": "以当前 launch-result 和 health runtime_binding 为准，集中解析 runtime-pchw、兼容 runtime-dsh-web，并忽略陈旧 server-info。"
+    },
     "scripts/skilldock/source-result-freshness.ps1": {
       "cluster": "integration/flow",
       "role": "结果新鲜度核验",

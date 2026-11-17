@@ -4,6 +4,8 @@
 
 - 新增当前 Codex 对话的 SkillDock 操作面板入口，支持当前 Task、附件上下文、一次性本地分析权限、验证 SVG、判断卡和同 Task 重启恢复；
 - 新增 freshness/claim 与只读 `source-external` 运行边界，面板不得创建额外 Thread、后台写入或恢复流程；
+- SkillDock 的 launch/sync/wait/submit 统一使用当前 `launch-result.json` 与 `/api/health` 的 `runtime_binding`，集中解析 `runtime-pchw` 并兼容旧 `runtime-dsh-web`；陈旧 `server-info.json` 不再使健康的新 Runtime 假失败；
+- 升级保留旧 Task、附件、artifact 和 evidence：迁移前建立完整数据备份；新旧数据根同时有内容时默认失败关闭，只有显式 `PreferLegacy` 才执行不合并的替换迁移；
 - PCHW Skill 仍可由 DSH 等宿主用于聊天、采集和 CSV 分析，但 SkillDock 面板只承诺 Codex；缺少 `CODEX_THREAD_ID` 时安全失败；
 - 发布包移除测试 runner、mock/dev 入口、DSH 启动器和写权限 profile；安装副本与权威源码保持同一 Skill 身份；
 - R7 真实验收来源仍为 2.7.4；2.8.0 clean-Windows 人工签收继续为发布阻塞。

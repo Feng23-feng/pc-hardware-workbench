@@ -527,7 +527,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       };
     })()`);
     check(
-      filePlanetCard.title.includes("134 个文件") &&
+      filePlanetCard.title.includes("135 个文件") &&
       filePlanetCard.cta.includes("进入文件星球") &&
       filePlanetCard.previewWidth >= 280 &&
       filePlanetCard.previewHeight >= (name === "desktop" ? 300 : 160) &&

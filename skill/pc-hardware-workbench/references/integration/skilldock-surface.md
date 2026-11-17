@@ -26,6 +26,13 @@ Resolve `scripts/skilldock/launch-panel.ps1` from this installed Skill root and
 run that script. If a healthy Runtime already exists for the current workspace,
 the script connects through loopback without starting or rewriting it.
 
+All SkillDock helpers load `scripts/skilldock/runtime-paths.ps1`; do not
+hard-code a runtime data-directory name in another script. The current
+`launch-result.json` plus `/api/health` `runtime_binding` is authoritative for
+PID, port, launch ID, origin, and the matching Runtime data directory. A stale
+`server-info.json` from an older data root is ignored rather than treated as a
+binding conflict.
+
 The PCHW source-hosted profile is bound to the current Codex Thread. Do not
 create, fork, attach, or resume another Thread for a launch or acceptance run.
 The current `CODEX_THREAD_ID` is the canonical source Session reference; a
@@ -138,6 +145,16 @@ before a Runtime launch or draft upload.
 If the running surface mode differs from the requested mode, stop or restart
 the runtime before changing modes. Do not report the requested mode if the
 health response reports a different one.
+
+## Upgrade data recovery
+
+The Runtime installer detects the legacy `runtime-dsh-web` data root before a
+new Runtime starts. It preserves a full copy under the configured data backup
+root before any migration writes. If both legacy and canonical data roots have
+content, automatic migration fails closed with `runtime_data_conflict`; there is
+no silent merge. An operator may choose a one-source migration only with the
+explicit `-LegacyDataPolicy PreferLegacy` installer option after reviewing the
+backup plan. The legacy source remains recoverable after migration.
 
 When SkillDock already belongs to another workspace, the launcher refuses to
 stop it by default. Use `-ReplaceWorkspace` only after the user explicitly

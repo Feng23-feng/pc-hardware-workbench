@@ -30,12 +30,12 @@ $Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [Console]::OutputEncoding = $Utf8NoBom
 $OutputEncoding = $Utf8NoBom
 . (Join-Path $PSScriptRoot "source-result-freshness.ps1")
+. (Join-Path $PSScriptRoot "runtime-paths.ps1")
 
 try {
-    if ([string]::IsNullOrWhiteSpace($RuntimeDirectory)) {
-        $RuntimeDirectory = Join-Path $env:LOCALAPPDATA "SkillDock\runtime-dsh-web"
-    }
-    $infoPath = Join-Path $RuntimeDirectory "server-info.json"
+    $runtimeContext = Get-SkillDockRuntimeAccessContext `
+        -RuntimeDirectory $RuntimeDirectory
+    $RuntimeDirectory = $runtimeContext.runtime_directory
     $tokenName = if ($SurfaceProfile -eq "pchw-source-hosted") {
         "source-capability-token"
     }
@@ -43,13 +43,10 @@ try {
         "capability-token"
     }
     $tokenPath = Join-Path $RuntimeDirectory $tokenName
-    if (
-        -not (Test-Path -LiteralPath $infoPath -PathType Leaf) -or
-        -not (Test-Path -LiteralPath $tokenPath -PathType Leaf)
-    ) {
+    if (-not (Test-Path -LiteralPath $tokenPath -PathType Leaf)) {
         throw "SkillDock runtime is not running."
     }
-    $info = Get-Content -LiteralPath $infoPath -Raw | ConvertFrom-Json
+    $info = $runtimeContext.result
     if (
         $SurfaceProfile -eq "pchw-source-hosted" -and
         [string]::IsNullOrWhiteSpace($SourceSessionRef)
@@ -77,9 +74,7 @@ try {
         exit 1
     }
     $runtimeToken = (Get-Content -LiteralPath $tokenPath -Raw).Trim()
-    $health = Invoke-RestMethod `
-        -Uri "http://127.0.0.1:$($info.port)/api/health" `
-        -TimeoutSec 5
+    $health = $runtimeContext.health
     if (-not $health.ok) {
         throw "SkillDock health check failed."
     }

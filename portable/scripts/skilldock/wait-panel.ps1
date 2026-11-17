@@ -34,26 +34,17 @@ $Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [Console]::OutputEncoding = $Utf8NoBom
 $OutputEncoding = $Utf8NoBom
 . (Join-Path $PSScriptRoot "source-result-freshness.ps1")
+. (Join-Path $PSScriptRoot "runtime-paths.ps1")
 
 try {
-    if ([string]::IsNullOrWhiteSpace($RuntimeDirectory)) {
-        $localRoot = if ([string]::IsNullOrWhiteSpace($env:SKILLDOCK_LOCAL_ROOT)) {
-            Join-Path $env:LOCALAPPDATA "SkillDock"
-        }
-        else {
-            [IO.Path]::GetFullPath($env:SKILLDOCK_LOCAL_ROOT)
-        }
-        $RuntimeDirectory = Join-Path $localRoot "runtime-dsh-web"
-    }
-    $infoPath = Join-Path $RuntimeDirectory "server-info.json"
+    $runtimeContext = Get-SkillDockRuntimeAccessContext `
+        -RuntimeDirectory $RuntimeDirectory
+    $RuntimeDirectory = $runtimeContext.runtime_directory
     $tokenPath = Join-Path $RuntimeDirectory "source-capability-token"
-    if (
-        -not (Test-Path -LiteralPath $infoPath -PathType Leaf) -or
-        -not (Test-Path -LiteralPath $tokenPath -PathType Leaf)
-    ) {
+    if (-not (Test-Path -LiteralPath $tokenPath -PathType Leaf)) {
         throw "SkillDock source-hosted runtime is not running."
     }
-    $info = Get-Content -LiteralPath $infoPath -Raw | ConvertFrom-Json
+    $info = $runtimeContext.result
     $sourceToken = (Get-Content -LiteralPath $tokenPath -Raw).Trim()
     $encodedChannel = [Uri]::EscapeDataString($ChannelId)
     $deadline = [DateTime]::UtcNow.AddSeconds($TimeoutSeconds)
