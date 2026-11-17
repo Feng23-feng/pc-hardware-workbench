@@ -198,9 +198,11 @@ function Get-SkillDockRuntimeContext {
                     -Binding $binding `
                     -Reference $info)
             ) {
-                $matchedDirectory = $candidate
-                $serverInfoMatch = $true
-                break
+                if ([string]::IsNullOrWhiteSpace($matchedDirectory)) {
+                    $matchedDirectory = $candidate
+                    $serverInfoMatch = $true
+                }
+                continue
             }
         }
         catch {
