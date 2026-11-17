@@ -1,5 +1,13 @@
 import { clearResetDraftStorage } from "/draft-storage.js";
 import { deriveActivityMode } from "/status-model.js";
+import {
+  evaluateRuntimeBinding,
+  parseRuntimeBindingHint,
+  parseRuntimeBindingQuery,
+} from "/runtime-binding.js";
+import {
+  evaluateSourceHostedPhase,
+} from "/source-hosted-phase.js";
 
 const app = document.querySelector("#app");
 const runtimeStatus = document.querySelector("#runtime-status");
@@ -9,6 +17,7 @@ const saveStatus = document.querySelector("#save-status");
 let state = null;
 let freeText = "";
 let pollTimer = null;
+let lastPollStateKey = "";
 let noticeText = "";
 let submitPending = false;
 let optimisticPhase = null;
@@ -23,7 +32,14 @@ let resumePacketPreview = "";
 let resumeFeedback = "";
 let resumePending = false;
 let permissionPending = false;
-let permissionTaskScope = false;
+let permissionContinuationPending = false;
+let recoveryPending = false;
+let runtimeBinding = null;
+let runtimeBindingFailure = null;
+let runtimeBindingHealth = null;
+let runtimeBindingCheckedAt = 0;
+let runtimeBindingInFlight = null;
+let runtimeBindingTimer = null;
 
 function el(tag, attributes = {}, children = []) {
   const node = document.createElement(tag);
@@ -203,6 +219,17 @@ function activityMode() {
   });
 }
 
+function userFacingErrorText(value) {
+  const text = String(value ?? "").trim();
+  if (
+    text.includes("panel_turn_forbidden_in_source_hosted") ||
+    text.includes("panel-owned model Turn")
+  ) {
+    return "本次本地结果没有进入面板结论。可以恢复当前 Task 后重新继续，不会新建 Thread。";
+  }
+  return text || "可恢复当前 Task 后重试本轮。";
+}
+
 function statusCopy(mode) {
   const activity = displayActivity();
   if (mode === "sent") {
@@ -217,6 +244,12 @@ function statusCopy(mode) {
       detail: "Agent 正在阅读本轮记录并准备下一步。",
     };
   }
+  if (mode === "waiting_for_source") {
+    return {
+      label: "本地分析已完成",
+      detail: "图表与指标已保存。回到当前 Agent 对话发送“同步面板”继续生成结论。",
+    };
+  }
   if (mode === "replied") {
     return {
       label: "Agent 已回复",
@@ -226,13 +259,13 @@ function statusCopy(mode) {
   if (mode === "error") {
     return {
       label: "Agent 回复失败",
-      detail: state.error || activity?.error || "可检查本地连接后重试本轮。",
+      detail: userFacingErrorText(state.error || activity?.error),
     };
   }
   if (mode === "interrupted") {
     return {
       label: "任务已中断",
-      detail: state.error || "本地服务曾重启，请确认内容后重试。",
+      detail: userFacingErrorText(state.error),
     };
   }
   if (mode === "completed") {
@@ -302,27 +335,77 @@ function focusAnswerCard() {
   }
 }
 
-async function copyText(content, button) {
+async function writeClipboardText(content) {
+  let clipboardError = null;
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(content);
+      return;
+    } catch (error) {
+      clipboardError = error;
+    }
+  }
+
+  const activeElement = document.activeElement;
+  const fallback = document.createElement("textarea");
+  fallback.value = content;
+  fallback.setAttribute("readonly", "");
+  fallback.setAttribute("aria-hidden", "true");
+  fallback.style.position = "fixed";
+  fallback.style.inset = "0 auto auto 0";
+  fallback.style.opacity = "0";
+  fallback.style.pointerEvents = "none";
+  document.body.appendChild(fallback);
+  try {
+    fallback.focus();
+    fallback.select();
+    fallback.setSelectionRange(0, content.length);
+    if (!document.execCommand("copy")) {
+      throw clipboardError ?? new Error("copy command was rejected");
+    }
+  } finally {
+    fallback.remove();
+    activeElement?.focus?.();
+  }
+}
+
+async function copyText(
+  content,
+  button,
+  successLabel = "已复制",
+  failureMessage = "浏览器没有允许自动复制。请手动输入“同步面板”，或选中页面中的文字复制。",
+) {
   const original = button.textContent;
   try {
-    await navigator.clipboard.writeText(content);
-    button.textContent = "已复制";
+    await writeClipboardText(content);
+    button.textContent = successLabel;
     setTimeout(() => {
       button.textContent = original;
-    }, 1_600);
+    }, 2_800);
   } catch {
-    noticeText = "复制失败。请展开任务详情后手动选择文本。";
+    noticeText = failureMessage;
     render();
   }
 }
 
-function copyButton(label, content, className = "secondary") {
+function copyButton(
+  label,
+  content,
+  className = "secondary",
+  {
+    successLabel = "已复制",
+    failureMessage = "浏览器没有允许自动复制。请手动输入“同步面板”，或选中页面中的文字复制。",
+  } = {},
+) {
   const button = el("button", {
     class: className,
     type: "button",
     text: label,
+    "aria-live": "polite",
   });
-  button.addEventListener("click", () => copyText(content, button));
+  button.addEventListener("click", () =>
+    copyText(content, button, successLabel, failureMessage),
+  );
   return button;
 }
 
@@ -343,7 +426,7 @@ async function bringResumeToAgent(button) {
   }
   resumePacketPreview = result.data.markdown ?? "";
   try {
-    await navigator.clipboard.writeText(resumePacketPreview);
+    await writeClipboardText(resumePacketPreview);
     resumeFeedback =
       "续接摘要已复制。回到来源 Agent 对话粘贴即可继续；来源对话未被修改。";
   } catch {
@@ -358,19 +441,48 @@ async function bringResumeToAgent(button) {
   });
 }
 
+function sourceHostedPhaseState() {
+  return evaluateSourceHostedPhase({
+    mode: state?.task?.shared_task?.mode,
+    phase: state?.task?.shared_task?.phase,
+  });
+}
+
+function sourceHostedRecoveryAvailable() {
+  const phaseState = sourceHostedPhaseState();
+  return (
+    state.task?.shared_task?.mode === "source_hosted" &&
+    (
+      state.phase === "error" ||
+      state.phase === "interrupted" ||
+      phaseState.recovery_available
+    )
+  );
+}
+
 function renderPrimaryStatusBlock() {
   const mode = activityMode();
   const copy = statusCopy(mode);
   const activity = displayActivity();
   const answer = normalizeResult(state.panel);
-  const steps = [
-    ["已发送", "sent"],
-    ["Agent 处理中", "processing"],
-    ["Agent 已回复", "replied"],
-    ["等待你操作", "waiting"],
-  ];
+  const waitingForSource = mode === "waiting_for_source";
+  const sourceHostedRecovery = sourceHostedRecoveryAvailable();
+  const steps = waitingForSource
+    ? [
+        ["本地分析完成", "local-done"],
+        ["等待当前对话 Agent", "source-waiting"],
+        ["结果回到页面", "result-returned"],
+      ]
+    : [
+        ["已发送", "sent"],
+        ["Agent 处理中", "processing"],
+        ["Agent 已回复", "replied"],
+        ["等待你操作", "waiting"],
+      ];
   const currentIndex =
-    mode === "sent"
+    waitingForSource
+      ? 1
+      : mode === "sent"
       ? 0
       : mode === "processing"
         ? 1
@@ -432,31 +544,55 @@ function renderPrimaryStatusBlock() {
             el("span", { class: "status-next-label", text: "现在需要你" }),
             el("p", {
               text:
-                mode === "error" || mode === "interrupted"
-                  ? "检查本地连接后重试本轮，或新建任务。"
-                  : answer
-                    ? "查看本地验证结果与唯一优先行动。"
-                    : state.panel?.next_action ||
-                      "先描述电脑现在遇到的问题。",
+                waitingForSource
+                  ? "回到当前对话发送：同步面板"
+                  : sourceHostedRecovery
+                    ? sourceHostedPhaseState().recovery_available
+                      ? "归档当前卡住的 cycle，并恢复为可提交状态。"
+                      : "保留当前 Task，清除错误并恢复可重试状态。"
+                    : mode === "error" || mode === "interrupted"
+                      ? "检查本地连接后重试本轮，或新建任务。"
+                      : answer
+                        ? "查看本地验证结果与唯一优先行动。"
+                        : state.panel?.next_action ||
+                          "先描述电脑现在遇到的问题。",
             }),
-            el("button", {
-              class: "status-action",
-              type: "button",
-              text:
-                mode === "error" || mode === "interrupted"
-                  ? "检查并重试"
-                  : answer
-                    ? "查看结果"
-                    : "填写问题",
-              disabled:
-                (mode === "error" || mode === "interrupted") && !canSubmit(),
-              onclick:
-                mode === "error" || mode === "interrupted"
-                  ? sendSubmission
-                  : answer
-                    ? focusAnswerCard
-                    : focusCurrentAction,
-            }),
+            waitingForSource
+              ? copyButton(
+                  "复制“同步面板”",
+                  "同步面板",
+                  "primary",
+                  {
+                    successLabel: "已复制，回到对话发送",
+                  },
+                )
+              : el("button", {
+                  class: "status-action",
+                  type: "button",
+                  text:
+                    sourceHostedRecovery
+                      ? recoveryPending
+                        ? "正在恢复…"
+                        : "恢复当前 Task"
+                      : mode === "error" || mode === "interrupted"
+                        ? "检查并重试"
+                        : answer
+                          ? "查看结果"
+                          : "填写问题",
+                  disabled:
+                    sourceHostedRecovery
+                      ? recoveryPending
+                      : (mode === "error" || mode === "interrupted") &&
+                        !canSubmit(),
+                  onclick:
+                    sourceHostedRecovery
+                      ? recoverSourceHostedTask
+                      : mode === "error" || mode === "interrupted"
+                        ? sendSubmission
+                        : answer
+                          ? focusAnswerCard
+                          : focusCurrentAction,
+                }),
           ])
         : null,
     ],
@@ -464,31 +600,42 @@ function renderPrimaryStatusBlock() {
 }
 
 function renderHandoffCard() {
-  const handoff = state.handoff;
-  if (!handoff) {
+  if (!state.task?.task_id) {
     return null;
   }
+  const handoff = state.handoff ?? {};
   const attached = handoff.native_thread_attached === true;
   return el("section", { class: "handoff-strip", "aria-label": "任务来源" }, [
     el("div", { class: "handoff-strip-main" }, [
-      el("div", {}, [
+      el("div", { class: "handoff-copy" }, [
         el("h2", {
-          text: attached ? "来自 Agent Session · 已同步" : "来自 Agent Session · 独立继续",
+          text: attached ? "返回 Agent 对话" : "把本轮结果带回 Agent 对话",
         }),
         el("p", {
           text: attached
-            ? "当前面板沿用来源 Session 中的任务、Skill 上下文与领域引用。"
-            : "已从来源 Session 继续任务。当前面板是独立执行视图，未接管来源 Session。",
+            ? "回到来源对话，输入“同步面板”即可带回本轮判断、未决问题和建议。"
+            : "回到当前 Codex 对话，输入“同步面板”即可带回本轮判断、未决问题和建议。当前面板是独立 Task，不会自动接管原对话。",
         }),
       ]),
-      el("button", {
-        class: "secondary handoff-return",
-        type: "button",
-        disabled: resumePending,
-        text: resumePending ? "正在整理…" : "导出续接摘要",
-        onclick: (event) => bringResumeToAgent(event.currentTarget),
-      }),
+      el("div", { class: "handoff-actions" }, [
+        copyButton("复制“同步面板”", "同步面板", "primary", {
+          successLabel: "已复制 · 回对话粘贴",
+          failureMessage:
+            "自动复制未成功；请在当前 Codex 对话里手动输入“同步面板”。",
+        }),
+        el("button", {
+          class: "secondary handoff-return",
+          type: "button",
+          disabled: resumePending,
+          text: resumePending ? "正在整理…" : "导出续接摘要",
+          onclick: (event) => bringResumeToAgent(event.currentTarget),
+        }),
+      ]),
     ]),
+    el("p", {
+      class: "handoff-note",
+      text: "“复制本次遥测摘要”只复制内容，不携带 Task 游标；需要继续任务时用“同步面板”或“导出续接摘要”。",
+    }),
     resumeFeedback
       ? el("p", { class: "handoff-feedback", role: "status", text: resumeFeedback })
       : null,
@@ -499,6 +646,29 @@ function renderHandoffCard() {
           copyButton("复制 Resume 摘要", resumePacketPreview),
         ])
       : null,
+  ]);
+}
+
+function renderEndHandoff() {
+  if (!state.task?.task_id) {
+    return null;
+  }
+  return el("section", {
+    class: "end-handoff",
+    "aria-label": "结束本轮并带回 Agent 对话",
+  }, [
+    el("div", { class: "end-handoff-copy" }, [
+      el("h2", { text: "把这轮结果带回 Agent 对话" }),
+      el("p", {
+        text:
+          "可以直接在这里复制“同步面板”；也可以回到上方“任务来源”卡片点击同一按钮。",
+      }),
+    ]),
+    copyButton("复制“同步面板”", "同步面板", "secondary", {
+      successLabel: "已复制 · 回对话粘贴",
+      failureMessage:
+        "自动复制未成功；请在当前 Codex 对话里手动输入“同步面板”。",
+    }),
   ]);
 }
 
@@ -520,6 +690,7 @@ function renderPermissionCard() {
     return null;
   }
   const presentation = request.presentation ?? {};
+  const phaseCanDecide = sourceHostedPhaseState().can_decide_permission;
   const facts = Array.isArray(presentation.facts)
     ? presentation.facts
     : [
@@ -578,39 +749,40 @@ function renderPermissionCard() {
             ),
           ]),
         ),
-        el("label", { class: "permission-task-scope" }, [
-          el("input", {
-            type: "checkbox",
-            checked: permissionTaskScope,
-            onchange: (event) => {
-              permissionTaskScope = event.currentTarget.checked;
-            },
-          }),
-          el("span", {
-            text:
-              presentation.task_scope_label ??
-              "本 Task 内允许同类操作（次选项）",
-          }),
-        ]),
         el("div", { class: "permission-card-actions" }, [
           el("button", {
             class: "primary",
             type: "button",
-            disabled: permissionPending,
+            disabled: permissionPending || !phaseCanDecide,
             text:
               permissionPending
                 ? "正在授权…"
-                : presentation.approve_label ?? "允许本次操作",
-            onclick: () => decideAnalysisPermission("allow"),
+                : presentation.allow_once_label ??
+                  presentation.approve_label ??
+                  "仅本次允许",
+            onclick: () => decidePermissionRequest("allow_once"),
           }),
           el("button", {
             class: "secondary",
             type: "button",
-            disabled: permissionPending,
+            disabled: permissionPending || !phaseCanDecide,
+            text: presentation.allow_task_label ?? "本 Task 允许",
+            onclick: () => decidePermissionRequest("allow_task"),
+          }),
+          el("button", {
+            class: "secondary",
+            type: "button",
+            disabled: permissionPending || !phaseCanDecide,
             text: presentation.deny_label ?? "拒绝",
-            onclick: () => decideAnalysisPermission("deny"),
+            onclick: () => decidePermissionRequest("deny"),
           }),
         ]),
+        el("p", {
+          class: "permission-scope-note",
+          text:
+            presentation.task_scope_label ??
+            "“仅本次”使用后即失效；“本 Task”只覆盖当前 Task 中声明的同类操作，并会过期。",
+        }),
         el("p", {
           class: "permission-expiry",
           text: `请求有效至 ${permissionExpiryLabel(request.expires_at)}`,
@@ -624,26 +796,35 @@ function renderPermissionCard() {
       grant.status === "active",
   );
   if (request.status === "approved" && approvedGrant) {
+    const continuing =
+      permissionContinuationPending ||
+      analysisPending === request.attachment_id;
+    const completed = permissionAnalysisCompleted(request);
     return el("section", { class: "permission-card is-approved" }, [
       el("h2", {
-        text: presentation.approved_title ?? "已允许本次本地操作",
+        text: continuing
+          ? "已允许，正在继续分析"
+          : completed
+            ? "已允许，本轮分析已完成"
+            : presentation.approved_title ?? "已允许本次本地操作",
       }),
       el("p", {
-        text:
-          presentation.approved_text ??
-          "授权仅覆盖当前 Skill 声明的资源和能力范围。",
+        text: continuing
+          ? "授权已保存，正在自动继续分析；不需要再次点击“继续分析”。"
+          : completed
+            ? "本地分析已自动继续并生成本轮结果，不需要再次点击“继续分析”。"
+            : presentation.approved_text ??
+              "授权仅覆盖当前 Skill 声明的资源和能力范围。",
       }),
-      el("button", {
-        class: "primary",
-        type: "button",
-        text: presentation.continue_label ?? "继续执行",
-        onclick: () =>
-          runApprovedSkillAction(
-            approvedGrant.action_id ?? approvedGrant.capability,
-            approvedGrant.attachment_id,
-            approvedGrant.window,
-          ),
-      }),
+      !continuing && !completed
+        ? el("button", {
+            class: "primary",
+            type: "button",
+            disabled: !phaseCanDecide,
+            text: presentation.continue_label ?? "继续执行",
+            onclick: () => continuePermissionRequest(approvedGrant),
+          })
+        : null,
     ]);
   }
   if (["denied", "expired"].includes(request.status)) {
@@ -660,31 +841,43 @@ function renderPermissionCard() {
       el("button", {
         class: "secondary",
         type: "button",
-        text: "重新请求",
-        onclick: () =>
-          runSkillAttachmentAction(
-            request.action_id ?? request.capability,
-            request.attachment_id,
-          ),
+        disabled: !phaseCanDecide,
+        text: presentation.retry_label ?? "重新请求",
+        onclick: () => continuePermissionRequest(),
       }),
     ]);
   }
   return null;
 }
 
-async function decideAnalysisPermission(action) {
+function permissionAnalysisCompleted(request) {
+  const decidedAt = Date.parse(request?.decided_at ?? "");
+  if (!Number.isFinite(decidedAt)) {
+    return false;
+  }
+  return (state.panel?.artifact_refs ?? []).some((artifact) => {
+    const createdAt = Date.parse(artifact.created_at ?? "");
+    return (
+      Number.isFinite(createdAt) &&
+      createdAt >= decidedAt &&
+      (artifact.source_evidence_ids ?? []).includes(request.attachment_id)
+    );
+  });
+}
+
+async function decidePermissionRequest(decision) {
   const request = state.task?.permission_request;
+  const phaseState = sourceHostedPhaseState();
+  if (!phaseState.can_decide_permission) {
+    noticeText = phaseState.reason;
+    render();
+    return;
+  }
   if (!request || permissionPending) {
     return;
   }
   permissionPending = true;
   render();
-  const decision =
-    action === "deny"
-      ? "deny"
-      : permissionTaskScope
-        ? "allow_task"
-        : "allow_once";
   const result = await requestJson("/api/permissions/decide", {
     method: "POST",
     body: JSON.stringify({
@@ -693,7 +886,6 @@ async function decideAnalysisPermission(action) {
     }),
   });
   permissionPending = false;
-  permissionTaskScope = false;
   if (!result.ok) {
     noticeText = result.data?.error ?? "权限决定未能保存。";
     await refreshState();
@@ -701,14 +893,65 @@ async function decideAnalysisPermission(action) {
     return;
   }
   state = result.data;
-  render();
-  if (decision !== "deny") {
-    await runApprovedSkillAction(
-      request.action_id ?? request.capability,
-      request.attachment_id,
-      request.window,
-    );
+  if (decision === "deny") {
+    render();
+    return;
   }
+  permissionContinuationPending = true;
+  render();
+  const updatedRequest = state.task?.permission_request;
+  const approvedGrant = (state.task?.grants ?? []).find(
+    (grant) =>
+      grant.grant_id === updatedRequest?.approved_grant_id &&
+      grant.status === "active",
+  );
+  const continued = await continuePermissionRequest(approvedGrant);
+  if (!continued && !noticeText) {
+    noticeText = "授权已经保存，但分析没有自动继续；请在授权卡中重试。";
+    render();
+  }
+}
+
+async function continuePermissionRequest(grant = null) {
+  const phaseState = sourceHostedPhaseState();
+  if (!phaseState.can_decide_permission) {
+    noticeText = phaseState.reason;
+    permissionContinuationPending = false;
+    render();
+    return false;
+  }
+  const request = state.task?.permission_request;
+  const continuation = request?.continuation ?? {};
+  const actionId =
+    continuation.action_id ??
+    grant?.action_id ??
+    request?.action_id ??
+    request?.capability;
+  const attachmentId =
+    continuation.attachment_id ??
+    grant?.attachment_id ??
+    request?.attachment_id;
+  const window = continuation.window ?? grant?.window ?? request?.window;
+  if (!actionId || !attachmentId) {
+    noticeText = "该权限请求没有可继续执行的本地动作。";
+    permissionContinuationPending = false;
+    render();
+    return false;
+  }
+  permissionContinuationPending = true;
+  render();
+  let continued = false;
+  try {
+    continued = await runSkillAttachmentAction(
+      actionId,
+      attachmentId,
+      window,
+    );
+  } finally {
+    permissionContinuationPending = false;
+    render();
+  }
+  return continued;
 }
 
 function renderTimeline() {
@@ -924,7 +1167,7 @@ function renderAnswerCard(panel) {
         onclick: focusCurrentAction,
       }),
     );
-  } else {
+  } else if (state.task?.shared_task?.mode !== "source_hosted") {
     actionButtons.push(
       el("button", {
         class: "secondary result-action",
@@ -1082,12 +1325,14 @@ function taskDetails(panel) {
         "复制任务名称",
         state.session_name || "",
       ),
-      el("button", {
-        class: "secondary",
-        type: "button",
-        text: "新建独立 Agent Session",
-        onclick: newIndependentSession,
-      }),
+      state.task?.shared_task?.mode === "source_hosted"
+        ? null
+        : el("button", {
+            class: "secondary",
+            type: "button",
+            text: "新建独立 Agent Session",
+            onclick: newIndependentSession,
+          }),
     ]),
   ]);
 }
@@ -1137,27 +1382,97 @@ function renderDomainContext() {
 }
 
 function renderPermissionStatus() {
-  const permissions = state.permissions ?? {};
+  const agentPermissions =
+    state.agent_permissions ?? state.agent?.permission_profile ?? {};
+  const surface = state.surface ?? {};
+  const matrixStates = state.permission_matrix?.states ?? [];
   const activeGrants = (state.task?.grants ?? []).filter(
     (grant) =>
       grant.status === "active" &&
       Date.parse(grant.expires_at) > Date.now(),
   );
-  const readOnly =
-    (permissions.profile ?? "read-only-supervised") ===
-    "read-only-supervised";
+  const sandboxLabel = {
+    "read-only": "只读",
+    "workspace-write": "工作区写入",
+    "danger-full-access": "完全访问",
+  }[agentPermissions.sandbox] ?? "未声明";
+  const approvalLabel =
+    agentPermissions.approvalPolicy === "on-request"
+      ? "请求批准"
+      : agentPermissions.approvalPolicy === "never"
+        ? "不询问"
+        : "未声明";
+  const surfaceLabel = {
+    chat: "纯对话",
+    "read-only": "只读",
+    interactive: "交互",
+    developer: "开发",
+  }[surface.mode] ?? "未声明";
+  const matrixStatusLabel = {
+    "active-current-workspace": "当前工作区运行中",
+    "chat-only": "纯对话",
+    "approval-required": "逐项批准",
+    pending: "等待决定",
+    granted: "本 Task 已授权",
+    denied: "已拒绝",
+    expired: "已过期",
+    unavailable: "未声明",
+    blocked: "禁止",
+    "host-managed": "由 Agent 宿主管理",
+    disabled: "关闭",
+    unknown: "未知",
+    "manual-only": "仅人工",
+  };
+  const ownerLabel = {
+    skilldock: "SkillDock",
+    "skill-runtime": "Skill Runtime",
+    "agent-host": "Agent 宿主",
+    skill: "Skill",
+  };
   return el("section", {
     class: "permission-status",
     "aria-label": "当前权限",
   }, [
-    el("strong", { text: readOnly ? "只读监督" : permissions.profile }),
+    el("strong", { text: "权限边界" }),
     el("p", {
-      text: activeGrants.length
-        ? "本 Task 已有本地能力授权"
-        : readOnly
-          ? "敏感操作按具体能力逐项请求。"
-          : "权限只决定可用动作，不会隐藏任务面板。",
+      text: `Agent：${sandboxLabel} · ${approvalLabel}`,
     }),
+    el("p", {
+      text: `SkillDock：${surfaceLabel} · ${
+        surface.runtime_state === "running-current-workspace"
+          ? "当前工作区运行中"
+          : surface.runtime_state ?? "Runtime 状态未知"
+      }`,
+    }),
+    state.agent?.supportsApprovalDecision === false
+      ? el("p", { text: "宿主审批转交：当前 Driver 不支持" })
+      : null,
+    matrixStates.length
+      ? el(
+          "div",
+          { class: "permission-matrix", "aria-label": "有效权限状态" },
+          matrixStates.map((item) =>
+            el("div", { class: "permission-matrix-row" }, [
+              el("div", { class: "permission-matrix-heading" }, [
+                el("span", {
+                  class: "permission-matrix-label",
+                  text: item.label ?? item.id,
+                }),
+                el("span", {
+                  class: "permission-matrix-state",
+                  text: `${
+                    matrixStatusLabel[item.status] ?? item.status ?? "未知"
+                  } · ${ownerLabel[item.owner] ?? item.owner ?? "所有者未知"}`,
+                }),
+              ]),
+              el("p", { text: item.detail ?? "" }),
+            ]),
+          ),
+        )
+      : el("p", { text: "有效权限矩阵暂不可用。" }),
+    activeGrants.length
+      ? el("p", { text: "本 Task 已有本地能力授权" })
+      : null,
     ...(activeGrants.length
       ? activeGrants.map((grant) =>
           el("div", { class: "permission-grant" }, [
@@ -1175,11 +1490,6 @@ function renderPermissionStatus() {
           ]),
         )
       : []),
-    el("p", {
-      text: `${permissions.network ?? "network unknown"} · ${
-        permissions.general_command ?? "general command unknown"
-      } · ${permissions.system_write ?? "system write unknown"}`,
-    }),
   ]);
 }
 
@@ -1197,7 +1507,6 @@ async function revokeSkillGrant(grantId) {
     return;
   }
   state = result.data;
-  permissionTaskScope = false;
   noticeText = "本地能力授权已撤销。";
   render();
 }
@@ -1222,7 +1531,94 @@ function saveFreeText(value) {
   localStorage.setItem(draftKey(), freeText);
 }
 
+function readCookie(name) {
+  const prefix = `${name}=`;
+  for (const part of document.cookie.split(";")) {
+    const item = part.trim();
+    if (item.startsWith(prefix)) {
+      return decodeURIComponent(item.slice(prefix.length));
+    }
+  }
+  return "";
+}
+
+function runtimeBindingEvaluation(stateBinding = null) {
+  return evaluateRuntimeBinding({
+    health: runtimeBindingHealth,
+    locationValue: window.location,
+    hint: parseRuntimeBindingHint(readCookie("runtime_binding_hint")),
+    queryBinding: parseRuntimeBindingQuery(
+      window.location.search,
+      window.location,
+    ),
+    stateBinding,
+  });
+}
+
+function applyRuntimeBindingEvaluation(evaluation) {
+  runtimeBinding =
+    evaluation.binding ??
+    runtimeBinding ??
+    state?.runtime_binding ??
+    null;
+  runtimeBindingFailure = evaluation.ok
+    ? null
+    : {
+        codes: evaluation.failureCodes,
+        message:
+          "当前页面没有硬绑定到正在运行的 Runtime。请关闭旧页面，并使用启动器最新打开的页面。",
+      };
+  runtimeBindingCheckedAt = Date.now();
+  return evaluation.ok;
+}
+
+async function ensureRuntimeBinding({ force = false } = {}) {
+  if (
+    !force &&
+    !runtimeBindingFailure &&
+    runtimeBindingCheckedAt &&
+    Date.now() - runtimeBindingCheckedAt < 3_000
+  ) {
+    return true;
+  }
+  if (runtimeBindingInFlight) return runtimeBindingInFlight;
+  runtimeBindingInFlight = (async () => {
+    try {
+      const response = await fetch("/api/health", {
+        cache: "no-store",
+        credentials: "same-origin",
+        signal: AbortSignal.timeout(3_000),
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      runtimeBindingHealth = await response.json();
+    } catch {
+      runtimeBindingHealth = { ok: false };
+    }
+    return applyRuntimeBindingEvaluation(
+      runtimeBindingEvaluation(state?.runtime_binding ?? null),
+    );
+  })().finally(() => {
+    runtimeBindingInFlight = null;
+  });
+  return runtimeBindingInFlight;
+}
+
 async function requestJson(path, options = {}) {
+  if (path !== "/api/health") {
+    const bindingOk = await ensureRuntimeBinding({
+      force: options.forceRuntimeBinding === true,
+    });
+    if (!bindingOk) {
+      return {
+        ok: false,
+        status: 409,
+        data: {
+          error: runtimeBindingFailure?.message,
+          code: runtimeBindingFailure?.codes?.[0] ?? "runtime_binding_failed",
+        },
+      };
+    }
+  }
   try {
     const isFormData = options.body instanceof FormData;
     const response = await fetch(path, {
@@ -1239,8 +1635,23 @@ async function requestJson(path, options = {}) {
     } catch {
       data = { error: `本地服务返回了无效响应（HTTP ${response.status}）` };
     }
+    if (path === "/api/state" && response.ok) {
+      const evaluation = runtimeBindingEvaluation(data.runtime_binding);
+      if (!applyRuntimeBindingEvaluation(evaluation)) {
+        return {
+          ok: false,
+          status: 409,
+          data: {
+            error: runtimeBindingFailure.message,
+            code: runtimeBindingFailure.codes[0],
+          },
+        };
+      }
+    }
     return { ok: response.ok, status: response.status, data };
   } catch {
+    runtimeBindingHealth = { ok: false };
+    applyRuntimeBindingEvaluation(state?.runtime_binding ?? null);
     return {
       ok: false,
       status: 0,
@@ -1253,6 +1664,97 @@ function setRuntimeStatus(label, tone = "normal") {
   runtimeStatus.textContent = label;
   runtimeDot.classList.toggle("is-error", tone === "error");
   runtimeDot.classList.toggle("is-running", tone === "running");
+}
+
+function renderRuntimeBindingBanner() {
+  if (runtimeBindingFailure) {
+    return el(
+      "section",
+      {
+        class: "runtime-binding is-error",
+        id: "runtime-binding",
+        "data-binding-state": "offline",
+        "data-runtime-pid": runtimeBinding?.pid ?? "",
+        "data-runtime-port": runtimeBinding?.port ?? "",
+        "data-runtime-launch-id": runtimeBinding?.launch_id ?? "",
+      },
+      [
+        el("strong", { text: "当前页面未连接到正在运行的 Runtime" }),
+        el("p", { text: runtimeBindingFailure.message }),
+        runtimeBinding
+          ? el("p", {
+              text: `旧页面绑定：PID ${runtimeBinding.pid} · 端口 ${runtimeBinding.port}`,
+            })
+          : null,
+        el("code", { text: runtimeBindingFailure.codes.join(", ") }),
+      ],
+    );
+  }
+  if (!runtimeBinding) {
+    return el(
+      "section",
+      {
+        class: "runtime-binding",
+        id: "runtime-binding",
+        "data-binding-state": "checking",
+      },
+      [el("strong", { text: "正在验证 Runtime、PID 和端口" })],
+    );
+  }
+  return el(
+    "section",
+    {
+      class: "runtime-binding is-bound",
+      id: "runtime-binding",
+      "data-binding-state": "bound",
+      "data-runtime-pid": runtimeBinding.pid,
+      "data-runtime-port": runtimeBinding.port,
+      "data-runtime-launch-id": runtimeBinding.launch_id,
+    },
+    [
+      el("strong", {
+        text: `Runtime 已硬绑定 · PID ${runtimeBinding.pid} · 端口 ${runtimeBinding.port}`,
+      }),
+      el("p", {
+        text: `Task ${state?.task?.task_id ?? "未加载"} · Launch ${runtimeBinding.launch_id.slice(0, 12)}…`,
+      }),
+    ],
+  );
+}
+
+function renderSourceHostedPhaseNotice() {
+  const phaseState = sourceHostedPhaseState();
+  if (!phaseState.source_hosted || phaseState.submittable) {
+    return null;
+  }
+  return el(
+    "section",
+    {
+      class: "phase-lock",
+      id: "source-hosted-phase-lock",
+      "data-phase": phaseState.phase,
+      "data-recovery-available": String(
+        phaseState.recovery_available,
+      ),
+    },
+    [
+      el("strong", { text: phaseState.label }),
+      el("code", { text: `shared_task.phase=${phaseState.phase}` }),
+      el("p", { text: phaseState.reason }),
+      phaseState.recovery_available
+        ? el("button", {
+            class: "primary",
+            type: "button",
+            disabled: recoveryPending,
+            text: recoveryPending ? "正在恢复…" : phaseState.recovery_label,
+            onclick: recoverSourceHostedTask,
+          })
+        : el("p", {
+            class: "phase-lock-action",
+            text: "请回到当前 Agent 对话处理这个 phase；面板不会创建新 Task 或 Thread。",
+          }),
+    ],
+  );
 }
 
 function currentQuestion() {
@@ -1272,8 +1774,11 @@ function selectedOption() {
 }
 
 function canSubmit() {
+  const phaseState = sourceHostedPhaseState();
   if (
     !state ||
+    !phaseState.can_submit ||
+    runtimeBindingFailure ||
     submitPending ||
     uploadingAttachments ||
     analysisPending ||
@@ -1316,6 +1821,8 @@ function taskSidebar(panel) {
 }
 
 function initialQuestionColumn() {
+  const sourceHostedTask =
+    state.task?.shared_task?.mode === "source_hosted";
   return el("section", { class: "question-column" }, [
     renderPrimaryStatusBlock(),
     renderHandoffCard(),
@@ -1323,16 +1830,37 @@ function initialQuestionColumn() {
     renderTimeline(),
     noticeElement(),
     taskDataSourcePanel(),
-    el("h2", {
-      class: "goal-title",
-      id: "primary-focus",
-      text: "开始一个新的 Workbench 任务",
-    }),
-    el("p", {
-      class: "turn-summary",
-      text: "任务会使用当前 Agent Session 和已保存的技能证据。首次发送后才创建新的 Workbench Task。",
-    }),
-    composer({ initial: true }),
+    sourceHostedRecoveryAvailable()
+      ? el("p", {
+          class: "turn-summary",
+          text: "恢复会保留当前 Task，清理同内容重复附件，并保持同一 Thread。",
+        })
+      : el("div", {}, [
+          el("h2", {
+            class: "goal-title",
+            id: "primary-focus",
+            text: sourceHostedTask
+              ? "继续当前 Workbench Task"
+              : "开始一个新的 Workbench 任务",
+          }),
+          sourceHostedTask && state.task?.objective
+            ? el("p", {
+                class: "turn-summary",
+                id: "current-task-objective",
+                text: `当前问题：${state.task.objective}`,
+              })
+            : null,
+          el("p", {
+            class: "turn-summary",
+            text: sourceHostedTask
+              ? "当前附件、证据和 Task 保持绑定；提交后仍使用同一个 Codex Thread。"
+              : "任务会使用当前 Agent Session 和已保存的技能证据。首次发送后才创建新的 Workbench Task。",
+          }),
+          composer({
+            initial: true,
+            submitLabel: sourceHostedTask ? "提交当前问题" : "",
+          }),
+        ]),
     el("div", { class: "meta-row" }, [
       el("span", { text: "本次任务已自动保存" }),
       el("span", { class: "data", text: `${state.event_count ?? 0} events` }),
@@ -1446,7 +1974,8 @@ function renderAttachmentCards(
         el("div", { class: "attachment-copy" }, [
           el("strong", { text: attachment.original_name }),
           el("span", {
-            text: `${formatFileSize(attachment.size)} · ${attachment.mime_type} · ${attachment.sha256.slice(0, 12)}…`,
+            text: `${formatFileSize(attachment.size)} · ${attachment.mime_type} · sha256 ${attachment.sha256}`,
+            title: `sha256 ${attachment.sha256}`,
           }),
           attachment.preview
             ? el("details", { class: "attachment-preview" }, [
@@ -1461,6 +1990,8 @@ function renderAttachmentCards(
               disabled:
                 Boolean(analysisPending) ||
                 state.phase === "running" ||
+                Boolean(runtimeBindingFailure) ||
+                !sourceHostedPhaseState().can_analyze ||
                 submitPending,
               text:
                 analysisPending === attachment.id
@@ -1495,6 +2026,17 @@ function attachmentActionsFor(attachment) {
 }
 
 async function uploadFiles(fileList) {
+  if (!(await ensureRuntimeBinding({ force: true }))) {
+    noticeText = runtimeBindingFailure?.message ?? "Runtime 绑定无效。";
+    render();
+    return;
+  }
+  const phaseState = sourceHostedPhaseState();
+  if (!phaseState.can_upload) {
+    noticeText = phaseState.reason;
+    render();
+    return;
+  }
   const files = [...fileList];
   if (!files.length) {
     return;
@@ -1538,7 +2080,22 @@ async function removeAttachment(id) {
   render();
 }
 
-async function runSkillAttachmentAction(actionId, id) {
+async function runSkillAttachmentAction(
+  actionId,
+  id,
+  window = { warmup_seconds: null, duration_seconds: null },
+) {
+  if (!(await ensureRuntimeBinding({ force: true }))) {
+    noticeText = runtimeBindingFailure?.message ?? "Runtime 绑定无效。";
+    render();
+    return false;
+  }
+  const phaseState = sourceHostedPhaseState();
+  if (!phaseState.can_analyze) {
+    noticeText = phaseState.reason;
+    render();
+    return false;
+  }
   if (
     analysisPending ||
     permissionPending ||
@@ -1546,13 +2103,13 @@ async function runSkillAttachmentAction(actionId, id) {
     uploadingAttachments ||
     state.phase === "running"
   ) {
-    return;
+    return false;
   }
   const attachment = state.task?.attachments?.find((item) => item.id === id);
   if (!attachment) {
     noticeText = "当前 Task 中找不到该附件。";
     render();
-    return;
+    return false;
   }
   analysisPending = id;
   render();
@@ -1562,8 +2119,8 @@ async function runSkillAttachmentAction(actionId, id) {
     method: "POST",
     body: JSON.stringify({
       attachment_id: id,
-      warmup_seconds: null,
-      duration_seconds: null,
+      warmup_seconds: window.warmup_seconds ?? null,
+      duration_seconds: window.duration_seconds ?? null,
     }),
     },
   );
@@ -1572,16 +2129,16 @@ async function runSkillAttachmentAction(actionId, id) {
     state = result.data.state;
   }
   if (result.data?.permission_required) {
-    permissionTaskScope = false;
     noticeText = "";
     render();
-    return;
+    return false;
   }
   if (!result.ok) {
     noticeText = result.data?.error ?? "本地 Skill 操作失败。";
     await refreshState().catch(() => {});
   }
   render();
+  return result.ok;
 }
 
 async function runApprovedSkillAction(
@@ -1589,6 +2146,12 @@ async function runApprovedSkillAction(
   id,
   window = { warmup_seconds: null, duration_seconds: null },
 ) {
+  const phaseState = sourceHostedPhaseState();
+  if (!phaseState.can_analyze) {
+    noticeText = phaseState.reason;
+    render();
+    return;
+  }
   if (
     analysisPending ||
     permissionPending ||
@@ -1678,7 +2241,7 @@ function taskDataSourcePanel() {
   ]);
 }
 
-function composer({ initial = false } = {}) {
+function composer({ initial = false, submitLabel = "" } = {}) {
   const attachments = state.draft?.attachments ?? [];
   const inputId = initial ? "symptom" : "task-composer";
   const textarea = el("textarea", {
@@ -1708,6 +2271,9 @@ function composer({ initial = false } = {}) {
     class: "visually-hidden",
     type: "file",
     multiple: true,
+    disabled:
+      Boolean(runtimeBindingFailure) ||
+      !sourceHostedPhaseState().can_upload,
     accept: ".csv,.txt,.log,.json,.png,.jpg,.jpeg,.webp,text/csv,text/plain,application/json,image/png,image/jpeg,image/webp",
     onchange: (event) => uploadFiles(event.currentTarget.files),
   });
@@ -1742,6 +2308,9 @@ function composer({ initial = false } = {}) {
         el("button", {
           class: "file-picker",
           type: "button",
+          disabled:
+            Boolean(runtimeBindingFailure) ||
+            !sourceHostedPhaseState().can_upload,
           "aria-controls": "composer-file-input",
           onclick: () => fileInput.click(),
           text: uploadingAttachments ? "正在添加附件…" : "添加文件/图片",
@@ -1760,9 +2329,8 @@ function composer({ initial = false } = {}) {
         disabled: !canSubmit(),
         text: uploadingAttachments
           ? "正在添加附件"
-          : initial
-            ? "开始任务"
-            : "发送给 Agent",
+          : submitLabel ||
+            (initial ? "开始任务" : "发送给 Agent"),
       }),
     ]),
   ]);
@@ -1788,6 +2356,7 @@ function questionColumn() {
       taskDataSourcePanel(),
       renderAnswerCard(panel),
       composer({ initial: false }),
+      renderEndHandoff(),
     ]);
   }
 
@@ -1814,13 +2383,16 @@ function questionColumn() {
     el("div", { class: "recommendation", text: panel.recommendation.summary }),
     evidenceForm(),
     composer({ initial: false }),
+    renderEndHandoff(),
     el("div", { class: "meta-row" }, [
-      el("button", {
-        class: "secondary",
-        type: "button",
-        text: "新建任务",
-        onclick: resetSession,
-      }),
+      state.task?.shared_task?.mode === "source_hosted"
+        ? null
+        : el("button", {
+            class: "secondary",
+            type: "button",
+            text: "新建任务",
+            onclick: resetSession,
+          }),
       el("span", { class: "data", text: `${state.event_count ?? 0} events` }),
     ]),
   ]);
@@ -1870,7 +2442,10 @@ function render() {
     return;
   }
   saveStatus.textContent = "本次任务已自动保存";
-  const agentLabel = "Agent 已连接";
+  const agentLabel =
+    state.agent?.driver === "source-external"
+      ? "本地面板 · 只读"
+      : "Agent 已连接";
   setRuntimeStatus(
     activityMode() === "replied"
       ? `新回复 · ${agentLabel}`
@@ -1878,18 +2453,22 @@ function render() {
     "normal",
   );
   if (state.error) {
-    noticeText = state.error;
+    noticeText = userFacingErrorText(state.error);
   }
   restoreFreeText();
   app.replaceChildren(
-    el("div", { class: "workspace-grid" }, [
-      questionColumn(),
-      taskSidebar(state.panel),
-    ]),
+    ...[
+      renderRuntimeBindingBanner(),
+      renderSourceHostedPhaseNotice(),
+      el("div", { class: "workspace-grid" }, [
+        questionColumn(),
+        taskSidebar(state.panel),
+      ]),
+    ].filter(Boolean),
   );
   noticeText = "";
   syncStatusTicker(activityMode());
-  if (state.phase === "running") {
+  if (shouldPollState()) {
     startPolling();
   } else {
     stopPolling();
@@ -1948,6 +2527,12 @@ function updateSendState() {
 }
 
 async function selectOption(optionId) {
+  const phaseState = sourceHostedPhaseState();
+  if (!phaseState.can_submit) {
+    noticeText = phaseState.reason;
+    render();
+    return;
+  }
   if (!currentQuestion() || state.phase === "running") {
     return;
   }
@@ -1970,6 +2555,12 @@ async function selectOption(optionId) {
 }
 
 async function addEvidence(label, detail, source) {
+  const phaseState = sourceHostedPhaseState();
+  if (!phaseState.can_submit) {
+    noticeText = phaseState.reason;
+    render();
+    return;
+  }
   if (!label.trim()) {
     noticeText = "先给证据起一个简短名称";
     render();
@@ -1993,7 +2584,49 @@ async function addEvidence(label, detail, source) {
   render();
 }
 
+async function recoverSourceHostedTask() {
+  if (
+    recoveryPending ||
+    !sourceHostedRecoveryAvailable() ||
+    !window.confirm(
+      "保留当前 Task 作为归档，清理重复附件并恢复为可重试状态？不会新建 Thread。",
+    )
+  ) {
+    return;
+  }
+  recoveryPending = true;
+  noticeText = "";
+  render();
+  const result = await requestJson("/api/task/recover", {
+    method: "POST",
+    body: JSON.stringify({ confirm: "recover_current_task" }),
+  });
+  recoveryPending = false;
+  if (!result.ok) {
+    noticeText =
+      result.data?.error ??
+      "当前 Task 未能恢复；请回到 Agent 对话检查安装态。";
+    await refreshState().catch(() => {});
+    render();
+    return;
+  }
+  state = result.data;
+  noticeText = "当前 Task 已恢复，可以重新提交或同步本地结果。";
+  render();
+}
+
 async function sendSubmission() {
+  if (!(await ensureRuntimeBinding({ force: true }))) {
+    noticeText = runtimeBindingFailure?.message ?? "Runtime 绑定无效。";
+    render();
+    return;
+  }
+  const phaseState = sourceHostedPhaseState();
+  if (!phaseState.can_submit) {
+    noticeText = phaseState.reason;
+    render();
+    return;
+  }
   if (!canSubmit()) {
     return;
   }
@@ -2080,25 +2713,65 @@ function stopPolling() {
     clearTimeout(pollTimer);
     pollTimer = null;
   }
+  lastPollStateKey = "";
+}
+
+function shouldPollState() {
+  const sharedTask = state?.task?.shared_task;
+  return (
+    state?.phase === "running" ||
+    (sharedTask?.mode === "source_hosted" &&
+      ["waiting_for_source_pull", "source_agent_pulled"].includes(
+        sharedTask.phase,
+      ))
+  );
+}
+
+function pollStateKey() {
+  const sharedTask = state?.task?.shared_task;
+  return JSON.stringify([
+    state?.updated_at,
+    state?.event_count,
+    state?.phase,
+    sharedTask?.phase,
+    state?.activity?.status,
+    state?.activity?.completed_at,
+    state?.task?.permission_request?.status,
+    state?.panel?.status,
+    state?.panel?.judgement,
+    (state?.panel?.artifact_refs ?? []).map((artifact) => artifact.id),
+    state?.error,
+  ]);
 }
 
 function startPolling() {
   if (pollTimer) {
     return;
   }
+  lastPollStateKey = pollStateKey();
   const poll = async () => {
-    await refreshState().catch(() => {});
-    if (state?.phase === "running") {
+    const result = await refreshState().catch(() => null);
+    const nextStateKey = pollStateKey();
+    if (result?.ok && nextStateKey !== lastPollStateKey) {
+      lastPollStateKey = nextStateKey;
+      render();
+    }
+    if (shouldPollState()) {
       pollTimer = setTimeout(poll, 1500);
     } else {
       pollTimer = null;
-      render();
     }
   };
   pollTimer = setTimeout(poll, 1500);
 }
 
 async function resetSession() {
+  if (state.task?.shared_task?.mode === "source_hosted") {
+    noticeText =
+      "source_hosted 单 Task 模式不允许新建任务；请先恢复当前 Task。";
+    render();
+    return;
+  }
   const reuse = state?.domain_context
     ? "复用当前 Skill 上下文和领域引用"
     : "复用当前 Task 与 Session";
@@ -2134,6 +2807,12 @@ async function resetSession() {
 }
 
 async function newIndependentSession() {
+  if (state.task?.shared_task?.mode === "source_hosted") {
+    noticeText =
+      "source_hosted 单 Thread 模式不允许新建独立 Session。";
+    render();
+    return;
+  }
   if (
     !window.confirm(
       "新建独立 Session 会结束当前 Task，并创建一个独立的 Agent Session。当前 Skill 和已有领域引用仍会复用。仅在切换上下文、隐私边界、上下文过长或需要并行探索时使用。继续吗？",
@@ -2166,6 +2845,14 @@ async function newIndependentSession() {
 }
 
 async function boot() {
+  await ensureRuntimeBinding({ force: true });
+  if (!runtimeBindingTimer) {
+    runtimeBindingTimer = setInterval(async () => {
+      const wasBound = !runtimeBindingFailure;
+      const bound = await ensureRuntimeBinding({ force: true });
+      if (wasBound !== bound) render();
+    }, 5_000);
+  }
   const result = await refreshState();
   if (!result.ok) {
     app.replaceChildren(
@@ -2173,7 +2860,7 @@ async function boot() {
         el("h2", { class: "goal-title", text: "本地服务暂时不可用" }),
         el("p", {
           class: "turn-summary",
-          text: result.data.error,
+          text: runtimeBindingFailure?.message ?? result.data.error,
         }),
         el("button", {
           class: "primary",
@@ -2183,10 +2870,19 @@ async function boot() {
         }),
       ]),
     );
-    setRuntimeStatus("无法连接本地服务", "error");
+    setRuntimeStatus(
+      runtimeBindingFailure ? "Runtime 绑定失效" : "无法连接本地服务",
+      "error",
+    );
     return;
   }
   render();
 }
+
+window.addEventListener("offline", () => {
+  runtimeBindingHealth = { ok: false };
+  applyRuntimeBindingEvaluation(state?.runtime_binding ?? null);
+  render();
+});
 
 boot();

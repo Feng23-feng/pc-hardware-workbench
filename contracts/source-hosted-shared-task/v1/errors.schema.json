@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skilldock.local/contracts/source-hosted-shared-task/v1/errors.schema.json",
+  "title": "source_hosted-shared-task-v1 error codes",
+  "$defs": {
+    "errorCode": {
+      "type": "string",
+      "enum": [
+        "invalid_request",
+        "schema_invalid",
+        "invalid_host",
+        "capability_missing",
+        "capability_invalid",
+        "capability_expired",
+        "capability_revoked",
+        "capability_rotated",
+        "capability_scope_mismatch",
+        "action_not_allowed",
+        "panel_turn_forbidden_in_source_hosted",
+        "task_not_found",
+        "channel_mismatch",
+        "workspace_mismatch",
+        "thread_binding_missing",
+        "thread_binding_mismatch",
+        "thread_rebinding_forbidden",
+        "thread_binding_invalid",
+        "attachment_source_identity_invalid",
+        "attachment_source_identity_conflict",
+        "recovery_unavailable",
+        "recovery_not_required",
+        "idempotency_conflict",
+        "revision_conflict",
+        "lease_conflict",
+        "stale_owner",
+        "checkpoint_required",
+        "checkpoint_incomplete",
+        "confirmation_required",
+        "confirmation_invalid",
+        "confirmation_expired",
+        "confirmation_consumed",
+        "snapshot_required",
+        "snapshot_capacity_exceeded",
+        "resync_required",
+        "ack_not_allowed",
+        "ack_not_delivered",
+        "payload_too_large",
+        "rate_limited",
+        "internal_error"
+      ]
+    },
+    "errorClassification": {
+      "type": "string",
+      "enum": [
+        "protocol",
+        "auth",
+        "permission",
+        "conflict",
+        "stale",
+        "continuity",
+        "not_found",
+        "unavailable"
+      ]
+    }
+  }
+}

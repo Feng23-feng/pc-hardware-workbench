@@ -1,0 +1,246 @@
+{
+  "schema_version": "1.0",
+  "contract": "source_hosted-shared-task-v1",
+  "codes": {
+    "invalid_request": {
+      "http_status": 400,
+      "classification": "protocol",
+      "retryable": false,
+      "description": "Malformed or unsupported request."
+    },
+    "schema_invalid": {
+      "http_status": 400,
+      "classification": "protocol",
+      "retryable": false,
+      "description": "JSON shape or field validation failed."
+    },
+    "invalid_host": {
+      "http_status": 403,
+      "classification": "protocol",
+      "retryable": false,
+      "description": "Loopback HTTP Host validation failed."
+    },
+    "capability_missing": {
+      "http_status": 401,
+      "classification": "auth",
+      "retryable": false,
+      "description": "No Task-scoped mailbox or control credential was supplied."
+    },
+    "capability_invalid": {
+      "http_status": 401,
+      "classification": "auth",
+      "retryable": false,
+      "description": "The handle is unknown, malformed, or inconsistent with its profile."
+    },
+    "capability_expired": {
+      "http_status": 401,
+      "classification": "auth",
+      "retryable": false,
+      "description": "The handle lifetime ended."
+    },
+    "capability_revoked": {
+      "http_status": 403,
+      "classification": "permission",
+      "retryable": false,
+      "description": "The handle was explicitly revoked."
+    },
+    "capability_rotated": {
+      "http_status": 401,
+      "classification": "auth",
+      "retryable": true,
+      "description": "A newer capability rotation generation exists."
+    },
+    "capability_scope_mismatch": {
+      "http_status": 403,
+      "classification": "permission",
+      "retryable": false,
+      "description": "The handle does not bind this workspace, Task, channel, or epoch."
+    },
+    "action_not_allowed": {
+      "http_status": 403,
+      "classification": "permission",
+      "retryable": false,
+      "description": "The action is outside the profile-derived action set."
+    },
+    "panel_turn_forbidden_in_source_hosted": {
+      "http_status": 403,
+      "classification": "permission",
+      "retryable": false,
+      "description": "A panel model Turn was requested while the Task is source_hosted."
+    },
+    "task_not_found": {
+      "http_status": 404,
+      "classification": "not_found",
+      "retryable": false,
+      "description": "The Task is unavailable."
+    },
+    "channel_mismatch": {
+      "http_status": 409,
+      "classification": "conflict",
+      "retryable": false,
+      "description": "The handle and Task channels differ."
+    },
+    "workspace_mismatch": {
+      "http_status": 403,
+      "classification": "permission",
+      "retryable": false,
+      "description": "The handle does not bind the Task workspace."
+    },
+    "thread_binding_missing": {
+      "http_status": 409,
+      "classification": "conflict",
+      "retryable": false,
+      "description": "The current environment Thread id is missing."
+    },
+    "thread_binding_mismatch": {
+      "http_status": 409,
+      "classification": "conflict",
+      "retryable": false,
+      "description": "The source Session and environment Thread ids differ."
+    },
+    "thread_rebinding_forbidden": {
+      "http_status": 409,
+      "classification": "conflict",
+      "retryable": false,
+      "description": "The source-hosted Task is already bound to another environment Thread."
+    },
+    "attachment_source_identity_invalid": {
+      "http_status": 400,
+      "classification": "protocol",
+      "retryable": false,
+      "description": "The source attachment identity is malformed."
+    },
+    "attachment_source_identity_conflict": {
+      "http_status": 409,
+      "classification": "conflict",
+      "retryable": false,
+      "description": "The source attachment identity is already bound to different content."
+    },
+    "recovery_unavailable": {
+      "http_status": 409,
+      "classification": "conflict",
+      "retryable": false,
+      "description": "The current Task does not support source-hosted recovery."
+    },
+    "recovery_not_required": {
+      "http_status": 409,
+      "classification": "conflict",
+      "retryable": false,
+      "description": "The current source-hosted Task is not in a recoverable error state."
+    },
+    "thread_binding_invalid": {
+      "http_status": 400,
+      "classification": "protocol",
+      "retryable": false,
+      "description": "A source-hosted Thread reference is not a UUID."
+    },
+    "idempotency_conflict": {
+      "http_status": 409,
+      "classification": "conflict",
+      "retryable": false,
+      "description": "The idempotency key was reused with a different canonical payload."
+    },
+    "revision_conflict": {
+      "http_status": 409,
+      "classification": "conflict",
+      "retryable": false,
+      "description": "The expected Task revision is stale."
+    },
+    "lease_conflict": {
+      "http_status": 409,
+      "classification": "conflict",
+      "retryable": false,
+      "description": "The expected execution owner or epoch is not current."
+    },
+    "stale_owner": {
+      "http_status": 409,
+      "classification": "stale",
+      "retryable": false,
+      "description": "The execution result belongs to a previous execution epoch."
+    },
+    "checkpoint_required": {
+      "http_status": 409,
+      "classification": "conflict",
+      "retryable": false,
+      "description": "The ownership transition lacks a valid checkpoint."
+    },
+    "checkpoint_incomplete": {
+      "http_status": 409,
+      "classification": "conflict",
+      "retryable": false,
+      "description": "Required source or panel acknowledgement coverage is incomplete."
+    },
+    "confirmation_required": {
+      "http_status": 403,
+      "classification": "permission",
+      "retryable": false,
+      "description": "An explicit confirmation is missing."
+    },
+    "confirmation_invalid": {
+      "http_status": 403,
+      "classification": "permission",
+      "retryable": false,
+      "description": "The confirmation is unknown or bound to another Task or mode."
+    },
+    "confirmation_expired": {
+      "http_status": 403,
+      "classification": "permission",
+      "retryable": false,
+      "description": "The confirmation lifetime ended."
+    },
+    "confirmation_consumed": {
+      "http_status": 409,
+      "classification": "conflict",
+      "retryable": false,
+      "description": "The confirmation was already used by a different logical transition."
+    },
+    "snapshot_required": {
+      "http_status": 409,
+      "classification": "conflict",
+      "retryable": true,
+      "description": "A new coherent snapshot baseline is required."
+    },
+    "snapshot_capacity_exceeded": {
+      "http_status": 429,
+      "classification": "unavailable",
+      "retryable": true,
+      "description": "Bounded active snapshot metadata is exhausted."
+    },
+    "resync_required": {
+      "http_status": 410,
+      "classification": "continuity",
+      "retryable": true,
+      "description": "Cursor or generation continuity is invalid."
+    },
+    "ack_not_allowed": {
+      "http_status": 409,
+      "classification": "conflict",
+      "retryable": false,
+      "description": "The event is not targeted to the current actor role."
+    },
+    "ack_not_delivered": {
+      "http_status": 409,
+      "classification": "conflict",
+      "retryable": false,
+      "description": "The event has not been delivered through pull."
+    },
+    "payload_too_large": {
+      "http_status": 413,
+      "classification": "protocol",
+      "retryable": false,
+      "description": "The event batch or payload exceeds the limit."
+    },
+    "rate_limited": {
+      "http_status": 429,
+      "classification": "unavailable",
+      "retryable": true,
+      "description": "The local request budget is exhausted."
+    },
+    "internal_error": {
+      "http_status": 500,
+      "classification": "unavailable",
+      "retryable": true,
+      "description": "Unexpected reference coordinator failure."
+    }
+  }
+}

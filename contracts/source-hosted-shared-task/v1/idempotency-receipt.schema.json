@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skilldock.local/contracts/source-hosted-shared-task/v1/idempotency-receipt.schema.json",
+  "title": "source_hosted-shared-task-v1 idempotency receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract",
+    "receipt_id",
+    "task_id",
+    "actor_id",
+    "actor_role",
+    "operation",
+    "idempotency_key",
+    "canonical_hash_algorithm",
+    "canonical_hash",
+    "original_request_id",
+    "outcome",
+    "committed_at",
+    "task_revision",
+    "stream_generation",
+    "head_seq",
+    "response"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/schemaVersion"
+    },
+    "contract": {
+      "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/contract"
+    },
+    "receipt_id": {
+      "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/safeId"
+    },
+    "task_id": {
+      "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/safeId"
+    },
+    "actor_id": {
+      "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/safeId"
+    },
+    "actor_role": {
+      "type": "string",
+      "enum": ["source", "panel", "control"]
+    },
+    "operation": {
+      "type": "string",
+      "enum": ["publish", "claim_lease", "release_lease"]
+    },
+    "idempotency_key": {
+      "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/idempotencyKey"
+    },
+    "canonical_hash_algorithm": {
+      "const": "sha256"
+    },
+    "canonical_hash": {
+      "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/sha256Hex"
+    },
+    "original_request_id": {
+      "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/requestId"
+    },
+    "outcome": {
+      "const": "applied"
+    },
+    "committed_at": {
+      "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/dateTime"
+    },
+    "task_revision": {
+      "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/taskRevision"
+    },
+    "stream_generation": {
+      "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/streamGeneration"
+    },
+    "head_seq": {
+      "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/streamSequence"
+    },
+    "response": {
+      "type": "object"
+    },
+    "event_receipts": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/eventReceipt"
+      }
+    },
+    "next_snapshot": {
+      "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/nextSnapshot"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "publish"
+          }
+        },
+        "required": ["operation"]
+      },
+      "then": {
+        "required": ["event_receipts", "next_snapshot"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "publish"
+          }
+        },
+        "required": ["operation"]
+      },
+      "then": {
+        "properties": {
+          "response": {
+            "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/responses.schema.json#/$defs/publishResponse"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "claim_lease"
+          }
+        },
+        "required": ["operation"]
+      },
+      "then": {
+        "properties": {
+          "response": {
+            "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/responses.schema.json#/$defs/claimLeaseResponse"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "release_lease"
+          }
+        },
+        "required": ["operation"]
+      },
+      "then": {
+        "properties": {
+          "response": {
+            "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/responses.schema.json#/$defs/releaseLeaseResponse"
+          }
+        }
+      }
+    }
+  ]
+}

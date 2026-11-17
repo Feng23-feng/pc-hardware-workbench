@@ -111,6 +111,30 @@ try {
   first = await startServer(workspaceA);
   const firstState = await state(first.port);
   assert.equal(firstState.agent.workspace, workspaceA);
+  assert.equal(firstState.agent_permissions.sandbox, "read-only");
+  assert.equal(firstState.agent_permissions.approvalPolicy, "never");
+  assert.equal(firstState.agent.supportsApprovalDecision, false);
+  assert.equal(firstState.surface.mode, "read-only");
+  assert.equal(
+    firstState.surface.runtime_state,
+    "running-current-workspace",
+  );
+  const permissionStates = Object.fromEntries(
+    firstState.permission_matrix.states.map((item) => [item.id, item]),
+  );
+  assert.equal(permissionStates.runtime_launch.status, "active-current-workspace");
+  assert.equal(permissionStates.workspace_write.owner, "agent-host");
+  assert.equal(permissionStates.workspace_write.status, "blocked");
+  assert.equal(permissionStates.external_network.status, "disabled");
+  assert.equal(permissionStates.hardware_control.status, "manual-only");
+  assert.equal(
+    Object.hasOwn(permissionStates, "task_artifact_write"),
+    true,
+  );
+  const health = await fetch(
+    `http://127.0.0.1:${first.port}/api/health`,
+  ).then((response) => response.json());
+  assert.equal(health.permission_matrix.schema_version, "1.0");
   assert.ok(firstState.session_ref);
   const firstSession = firstState.session_ref;
 

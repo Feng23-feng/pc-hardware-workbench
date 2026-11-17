@@ -32,6 +32,36 @@
       "type": "string",
       "maxLength": 4000
     },
+    "attachments": {
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "mime_type": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "source_attachment_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{7,199}$"
+          }
+        }
+      }
+    },
     "messages": {
       "type": "array",
       "maxItems": 40,

@@ -12,7 +12,18 @@ using System.Web.Script.Serialization;
 internal static class SkillDockLauncher
 {
     private const string ProductName = "SkillDock";
-    private const string DriverName = "dsh-web";
+    private static string DriverName
+    {
+        get
+        {
+            string configured = Environment.GetEnvironmentVariable(
+                "SKILLDOCK_AGENT_DRIVER"
+            );
+            return String.IsNullOrWhiteSpace(configured)
+                ? "dsh-web"
+                : configured.Trim();
+        }
+    }
 
     [STAThread]
     private static int Main(string[] args)
@@ -48,11 +59,8 @@ internal static class SkillDockLauncher
         string appDirectory = Path.Combine(baseDirectory, "app");
         string nodePath = Path.Combine(baseDirectory, "node", "node.exe");
         string serverPath = Path.Combine(appDirectory, "server.mjs");
-        string dshHome = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-            ".dsh"
-        );
-        string dshExecutable = @"C:\dsh\DeepSeek Harness.exe";
+        string dshHome = ResolveDshHome();
+        string dshExecutable = ResolveDshExecutable();
         string requestedWorkspace = ArgumentValue(args, "--workspace");
         string workspace = ResolveWorkspace(requestedWorkspace);
         string codexSkills = Path.Combine(
@@ -61,12 +69,48 @@ internal static class SkillDockLauncher
             "skills"
         );
         string dshSkills = Path.Combine(dshHome, "skills");
+        string configuredSkillRoots = Environment.GetEnvironmentVariable(
+            "SKILLDOCK_SKILL_ROOTS"
+        );
+        string skillRoots = String.IsNullOrWhiteSpace(configuredSkillRoots)
+            ? codexSkills + ";" + dshSkills
+            : configuredSkillRoots;
         string runtimeDirectory = Path.Combine(LocalRoot, "runtime-dsh-web");
+        bool replaceWorkspace = HasArgument(args, "--replace-workspace");
+        bool internalPreview = String.Equals(
+            Environment.GetEnvironmentVariable("SKILLDOCK_INTERNAL_PREVIEW"),
+            "1",
+            StringComparison.Ordinal
+        );
+        bool internalPreviewNonMock = String.Equals(
+            Environment.GetEnvironmentVariable(
+                "SKILLDOCK_INTERNAL_PREVIEW_NON_MOCK"
+            ),
+            "1",
+            StringComparison.Ordinal
+        );
+        bool controlledSourceExternal = (
+            internalPreview &&
+            internalPreviewNonMock &&
+            DriverName == "source-external"
+        );
+        if (internalPreview && DriverName != "mock" && !controlledSourceExternal)
+        {
+            throw new InvalidOperationException(
+                "Internal preview requires SKILLDOCK_AGENT_DRIVER=mock; " +
+                "source-external also requires " +
+                "SKILLDOCK_INTERNAL_PREVIEW_NON_MOCK=1."
+            );
+        }
 
         RequireFile(nodePath, "Bundled Node runtime is missing");
         RequireFile(serverPath, "SkillDock application files are missing");
-        RequireFile(dshExecutable, "DeepSeek Harness was not found at C:\\dsh");
-        RequireDirectory(dshHome, "The DSH home directory was not found");
+        bool usesDsh = DriverName == "dsh" || DriverName == "dsh-web";
+        if (usesDsh)
+        {
+            RequireFile(dshExecutable, "DeepSeek Harness was not found");
+            RequireDirectory(dshHome, "The DSH home directory was not found");
+        }
 
         Directory.CreateDirectory(LocalRoot);
         Directory.CreateDirectory(runtimeDirectory);
@@ -80,6 +124,14 @@ internal static class SkillDockLauncher
                 StringComparison.OrdinalIgnoreCase
             ))
             {
+                if (!replaceWorkspace)
+                {
+                    throw new InvalidOperationException(
+                        "SkillDock is already running for a different workspace. " +
+                        "Keep that runtime, or repeat the launch with an explicit " +
+                        "workspace replacement decision."
+                    );
+                }
                 WriteLauncherLog(
                     "Switching workspace from " + existing.workspace +
                     " to " + workspace
@@ -101,7 +153,7 @@ internal static class SkillDockLauncher
                 WriteLaunchResult(existing);
                 if (!noBrowser)
                 {
-                    OpenBrowser(existing.url);
+                    OpenBrowser(existing);
                 }
                 if (!silent)
                 {
@@ -118,6 +170,7 @@ internal static class SkillDockLauncher
 
         int port = FindFreePort();
         string url = "http://127.0.0.1:" + port + "/";
+        string launchId = Guid.NewGuid().ToString("D");
         ProcessStartInfo startInfo = new ProcessStartInfo();
         startInfo.FileName = nodePath;
         startInfo.Arguments = Quote(serverPath);
@@ -126,11 +179,19 @@ internal static class SkillDockLauncher
         startInfo.CreateNoWindow = true;
         startInfo.WindowStyle = ProcessWindowStyle.Hidden;
         startInfo.EnvironmentVariables["PANEL_PORT"] = port.ToString();
+        startInfo.EnvironmentVariables["PANEL_LAUNCH_ID"] = launchId;
         startInfo.EnvironmentVariables["PANEL_RUNTIME_DIR"] = runtimeDirectory;
         startInfo.EnvironmentVariables["PANEL_AGENT_DRIVER"] = DriverName;
-        startInfo.EnvironmentVariables["PANEL_SKILL_ROOTS"] = codexSkills + ";" + dshSkills;
+        startInfo.EnvironmentVariables["PANEL_SKILL_ROOTS"] = skillRoots;
         startInfo.EnvironmentVariables["PANEL_SKILL_ID"] = "pc-hardware-workbench";
         startInfo.EnvironmentVariables["PANEL_AGENT_WORKSPACE"] = workspace;
+        if (internalPreview)
+        {
+            startInfo.EnvironmentVariables["PANEL_SOURCE_HOSTED_ENTRY"] = "1";
+            startInfo.EnvironmentVariables["PANEL_SOURCE_HOSTED_SHADOW"] = "";
+            startInfo.EnvironmentVariables["PANEL_SOURCE_HOSTED_NON_MOCK"] =
+                controlledSourceExternal ? "1" : "";
+        }
         startInfo.EnvironmentVariables["DSH_HOME"] = dshHome;
         startInfo.EnvironmentVariables["DSH_TELEMETRY_DISABLED"] = "1";
         startInfo.EnvironmentVariables["NODE_NO_WARNINGS"] = "1";
@@ -162,6 +223,7 @@ internal static class SkillDockLauncher
             }
             Thread.Sleep(250);
         }
+        int processId = process.Id;
         process.Dispose();
 
         if (!ready)
@@ -172,18 +234,22 @@ internal static class SkillDockLauncher
         }
 
         WriteLauncherLog("Ready: " + url);
-        WriteLaunchResult(new ServerInfo
+        ServerInfo started = new ServerInfo
         {
             ok = true,
             url = url,
             port = port,
             driver = DriverName,
             workspace = workspace,
-            pid = 0
-        });
+            pid = processId,
+            launch_id = launchId,
+            origin = "http://127.0.0.1:" + port,
+            exact_url = BuildExactUrl(url, launchId, processId, port)
+        };
+        WriteLaunchResult(started);
         if (!noBrowser)
         {
-            OpenBrowser(url);
+            OpenBrowser(started);
         }
         if (!silent)
         {
@@ -284,11 +350,68 @@ internal static class SkillDockLauncher
         }
     }
 
-    private static void OpenBrowser(string url)
+    private static string BuildExactUrl(
+        string url,
+        string launchId,
+        int pid,
+        int port
+    )
     {
+        return url.TrimEnd('/') +
+            "/?runtime_launch_id=" + Uri.EscapeDataString(launchId) +
+            "&runtime_pid=" + pid +
+            "&runtime_port=" + port;
+    }
+
+    private static string ResolveEdgeExecutable()
+    {
+        string[] candidates = new string[]
+        {
+            Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
+                "Microsoft",
+                "Edge",
+                "Application",
+                "msedge.exe"
+            ),
+            Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+                "Microsoft",
+                "Edge",
+                "Application",
+                "msedge.exe"
+            )
+        };
+        foreach (string candidate in candidates)
+        {
+            if (File.Exists(candidate))
+            {
+                return candidate;
+            }
+        }
+        return "";
+    }
+
+    private static void OpenBrowser(ServerInfo info)
+    {
+        string exactUrl = info.exact_url;
+        if (String.IsNullOrWhiteSpace(exactUrl))
+        {
+            exactUrl = BuildExactUrl(info.url, info.launch_id, info.pid, info.port);
+        }
+        string edge = ResolveEdgeExecutable();
         ProcessStartInfo browser = new ProcessStartInfo();
-        browser.FileName = url;
-        browser.UseShellExecute = true;
+        if (!String.IsNullOrWhiteSpace(edge))
+        {
+            browser.FileName = edge;
+            browser.Arguments = "--new-window " + Quote(exactUrl);
+            browser.UseShellExecute = false;
+        }
+        else
+        {
+            browser.FileName = exactUrl;
+            browser.UseShellExecute = true;
+        }
         Process.Start(browser);
     }
 
@@ -308,11 +431,23 @@ internal static class SkillDockLauncher
                 json,
                 "\"workspace\"\\s*:\\s*\"((?:\\\\.|[^\"\\\\])*)\""
             );
-            if (!portMatch.Success || !workspaceMatch.Success)
+            Match pidMatch = Regex.Match(json, "\"pid\"\\s*:\\s*(\\d+)");
+            Match launchIdMatch = Regex.Match(
+                json,
+                "\"launch_id\"\\s*:\\s*\"([^\"]+)\""
+            );
+            if (
+                !portMatch.Success ||
+                !workspaceMatch.Success ||
+                !pidMatch.Success ||
+                !launchIdMatch.Success
+            )
             {
                 return false;
             }
             int port = Int32.Parse(portMatch.Groups[1].Value);
+            int pid = Int32.Parse(pidMatch.Groups[1].Value);
+            string launchId = launchIdMatch.Groups[1].Value;
             if (!IsHealthy(port))
             {
                 return false;
@@ -325,7 +460,15 @@ internal static class SkillDockLauncher
                 port = port,
                 driver = DriverName,
                 workspace = workspace,
-                pid = 0
+                pid = pid,
+                launch_id = launchId,
+                origin = "http://127.0.0.1:" + port,
+                exact_url = BuildExactUrl(
+                    "http://127.0.0.1:" + port + "/",
+                    launchId,
+                    pid,
+                    port
+                )
             };
             return true;
         }
@@ -427,11 +570,45 @@ internal static class SkillDockLauncher
     {
         get
         {
+            string configured = Environment.GetEnvironmentVariable(
+                "SKILLDOCK_LOCAL_ROOT"
+            );
+            if (!String.IsNullOrWhiteSpace(configured))
+            {
+                return Path.GetFullPath(configured);
+            }
             return Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 ProductName
             );
         }
+    }
+
+    private static string ResolveDshHome()
+    {
+        string configured = Environment.GetEnvironmentVariable(
+            "SKILLDOCK_DSH_HOME"
+        );
+        if (!String.IsNullOrWhiteSpace(configured))
+        {
+            return Path.GetFullPath(configured);
+        }
+        return Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            ".dsh"
+        );
+    }
+
+    private static string ResolveDshExecutable()
+    {
+        string configured = Environment.GetEnvironmentVariable(
+            "SKILLDOCK_DSH_EXECUTABLE"
+        );
+        if (!String.IsNullOrWhiteSpace(configured))
+        {
+            return Path.GetFullPath(configured);
+        }
+        return @"C:\dsh\DeepSeek Harness.exe";
     }
 
     private static string LauncherLogPath
@@ -467,5 +644,8 @@ internal static class SkillDockLauncher
         public string driver;
         public string workspace;
         public int pid;
+        public string launch_id;
+        public string origin;
+        public string exact_url;
     }
 }

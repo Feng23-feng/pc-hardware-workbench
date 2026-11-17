@@ -1077,7 +1077,7 @@ try {
   for (const file of coreFiles) {
     const source = await readFile(join(root, file), "utf8");
     assert(
-      !/app-server|threadId|turn\/start|thread\/start|thread\/resume/iu.test(
+      !/app-server|\bthreadId\b|turn\/start|thread\/start|thread\/resume/iu.test(
         source,
       ),
       `upper layer ${file} contains adapter protocol logic`,

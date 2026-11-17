@@ -1,0 +1,254 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skilldock.local/contracts/source-hosted-shared-task/v1/requests.schema.json",
+  "title": "source_hosted-shared-task-v1 requests",
+  "$defs": {
+    "snapshotRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "request_id"],
+      "properties": {
+        "schema_version": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/schemaVersion"
+        },
+        "request_id": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/requestId"
+        },
+        "include": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "task",
+              "execution",
+              "delivery_ack_state",
+              "pending_counts"
+            ]
+          }
+        },
+        "checkpoint": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "pullRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "request_id", "after"],
+      "properties": {
+        "schema_version": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/schemaVersion"
+        },
+        "request_id": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/requestId"
+        },
+        "after": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/streamRef"
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200,
+          "default": 50
+        }
+      }
+    },
+    "publishExpected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stream_generation",
+        "snapshot_id",
+        "snapshot_seq",
+        "task_revision",
+        "execution_epoch"
+      ],
+      "properties": {
+        "stream_generation": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/streamGeneration"
+        },
+        "snapshot_id": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/safeId"
+        },
+        "snapshot_seq": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/streamSequence"
+        },
+        "task_revision": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/taskRevision"
+        },
+        "execution_epoch": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/fencingEpoch"
+        }
+      }
+    },
+    "publishRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "request_id",
+        "idempotency_key",
+        "expected",
+        "events"
+      ],
+      "properties": {
+        "schema_version": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/schemaVersion"
+        },
+        "request_id": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/requestId"
+        },
+        "idempotency_key": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/idempotencyKey"
+        },
+        "expected": {
+          "$ref": "#/$defs/publishExpected"
+        },
+        "events": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "items": {
+            "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/eventDraft"
+          }
+        }
+      }
+    },
+    "ackRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "request_id",
+        "stream_generation",
+        "event_ids"
+      ],
+      "properties": {
+        "schema_version": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/schemaVersion"
+        },
+        "request_id": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/requestId"
+        },
+        "stream_generation": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/streamGeneration"
+        },
+        "event_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 200,
+          "items": {
+            "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/safeId"
+          }
+        }
+      }
+    },
+    "claimLeaseRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "request_id",
+        "idempotency_key",
+        "expected",
+        "target_mode",
+        "user_confirmation_id",
+        "reason"
+      ],
+      "properties": {
+        "schema_version": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/schemaVersion"
+        },
+        "request_id": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/requestId"
+        },
+        "idempotency_key": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/idempotencyKey"
+        },
+        "expected": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["execution_epoch", "task_revision", "checkpoint_id"],
+          "properties": {
+            "execution_epoch": {
+              "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/fencingEpoch"
+            },
+            "task_revision": {
+              "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/taskRevision"
+            },
+            "checkpoint_id": {
+              "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/safeId"
+            }
+          }
+        },
+        "target_mode": {
+          "type": "string",
+          "enum": ["source_hosted", "panel_hosted"]
+        },
+        "user_confirmation_id": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/safeId"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        }
+      }
+    },
+    "releaseLeaseRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "request_id",
+        "idempotency_key",
+        "expected",
+        "target_mode",
+        "user_confirmation_id",
+        "confirmation_kind",
+        "reason"
+      ],
+      "properties": {
+        "schema_version": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/schemaVersion"
+        },
+        "request_id": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/requestId"
+        },
+        "idempotency_key": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/idempotencyKey"
+        },
+        "expected": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["execution_epoch", "task_revision"],
+          "properties": {
+            "execution_epoch": {
+              "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/fencingEpoch"
+            },
+            "task_revision": {
+              "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/taskRevision"
+            }
+          }
+        },
+        "target_mode": {
+          "const": "suspended"
+        },
+        "user_confirmation_id": {
+          "$ref": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json#/$defs/safeId"
+        },
+        "confirmation_kind": {
+          "type": "string",
+          "enum": ["user_release", "trusted_shutdown", "security_reset"]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        }
+      }
+    }
+  }
+}

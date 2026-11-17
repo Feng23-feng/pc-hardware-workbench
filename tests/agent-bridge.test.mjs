@@ -49,6 +49,10 @@ try {
   assert.equal(driver.capabilities.supportsStructuredOutput, true);
   assert.equal(driver.capabilities.supportsCancellation, true);
   assert.equal(driver.capabilities.supportsStreaming, false);
+  assert.equal(driver.capabilities.supportsApprovals, false);
+  assert.equal(driver.capabilities.supportsApprovalDecision, false);
+  assert.deepEqual(driver.capabilities.approvalModes, []);
+  assert.deepEqual(driver.capabilities.sandboxModes, []);
 
   const started = await driver.startThread();
   assert.match(started.threadReference, /^session-/u);

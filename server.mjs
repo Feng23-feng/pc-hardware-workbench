@@ -21,11 +21,28 @@ import {
   driverPublicDescriptor,
   resolveAgentDriverName,
 } from "./lib/agents/index.mjs";
+import {
+  DEFAULT_AGENT_PERMISSION_PROFILE,
+  DEFAULT_SURFACE_MODE,
+  RUNTIME_RUNNING_CURRENT_WORKSPACE,
+  normalizeAgentPermissionProfile,
+  normalizeSurfaceMode,
+} from "./lib/agent-permissions.mjs";
+import { buildPermissionMatrix } from "./lib/permission-matrix.mjs";
 import { runPanelTurn } from "./lib/panel-response.mjs";
 import { mergePersistentPanelState } from "./lib/panel-state-merge.mjs";
 import { StateStore } from "./lib/state-store.mjs";
-import { buildDraftEvent } from "./lib/schema-validation.mjs";
 import {
+  buildDraftEvent,
+  validatePanelState,
+} from "./lib/schema-validation.mjs";
+import {
+  SOURCE_HOSTED_SUBMITTABLE_PHASES,
+  isSourceHostedStuckPhase,
+  isSourceHostedSubmittablePhase,
+} from "./lib/source-hosted-phase.mjs";
+import {
+  signHandoffToken,
   verifyHandoffToken,
 } from "./lib/handoff-capability.mjs";
 import {
@@ -38,10 +55,18 @@ import {
   loadWorkbenchManifest,
   publicManifestDescriptor,
 } from "./lib/workbench-manifest.mjs";
+import {
+  createSourceHostedShadowObserver,
+} from "./lib/source-hosted-shadow.mjs";
 
 const root = resolve(import.meta.dirname);
 const host = "127.0.0.1";
 const port = Number.parseInt(process.env.PANEL_PORT ?? "4319", 10);
+const runtimeStartedAt = new Date().toISOString();
+const runtimeLaunchId =
+  String(process.env.PANEL_LAUNCH_ID ?? "").trim() ||
+  `runtime-${process.pid}-${runtimeStartedAt}`;
+const runtimeOrigin = `http://${host}:${port}`;
 const runtimeDir = resolve(
   root,
   process.env.PANEL_RUNTIME_DIR ?? "runtime",
@@ -50,6 +75,27 @@ const agentWorkspace = resolve(process.env.PANEL_AGENT_WORKSPACE ?? root);
 if (!existsSync(agentWorkspace) || !statSync(agentWorkspace).isDirectory()) {
   throw new Error(`PANEL_AGENT_WORKSPACE is not a directory: ${agentWorkspace}`);
 }
+const configuredSandbox = String(process.env.PANEL_AGENT_SANDBOX ?? "").trim();
+const configuredApprovalPolicy = String(
+  process.env.PANEL_AGENT_APPROVAL_POLICY ?? "",
+).trim();
+const agentPermissionProfile = normalizeAgentPermissionProfile({
+  sandbox: configuredSandbox || DEFAULT_AGENT_PERMISSION_PROFILE.sandbox,
+  approvalPolicy:
+    configuredApprovalPolicy ||
+    DEFAULT_AGENT_PERMISSION_PROFILE.approvalPolicy,
+  source:
+    configuredSandbox || configuredApprovalPolicy
+      ? "environment"
+      : DEFAULT_AGENT_PERMISSION_PROFILE.source,
+});
+const surfaceMode = normalizeSurfaceMode(
+  process.env.PANEL_SURFACE_MODE ?? DEFAULT_SURFACE_MODE,
+);
+const sourceHostedEntryEnabled =
+  String(process.env.PANEL_SOURCE_HOSTED_ENTRY ?? "").trim() === "1";
+const sourceHostedNonMockEnabled =
+  String(process.env.PANEL_SOURCE_HOSTED_NON_MOCK ?? "").trim() === "1";
 let agentDriverName;
 try {
   agentDriverName = resolveAgentDriverName();
@@ -57,6 +103,17 @@ try {
   process.stderr.write(`Agent driver configuration error: ${error.message}\n`);
   process.exit(1);
 }
+if (
+  agentDriverName === "source-external" &&
+  (!sourceHostedEntryEnabled || !sourceHostedNonMockEnabled)
+) {
+  process.stderr.write(
+    "source-external requires PANEL_SOURCE_HOSTED_ENTRY=1 and " +
+      "PANEL_SOURCE_HOSTED_NON_MOCK=1; no server started.\n",
+  );
+  process.exit(1);
+}
+const sourceExternalDriver = agentDriverName === "source-external";
 const resetRequested = process.argv.includes("--reset-state");
 mkdirSync(runtimeDir, { recursive: true });
 const attachmentRoot = resolve(runtimeDir, "attachments");
@@ -65,6 +122,26 @@ const artifactRoot = resolve(runtimeDir, "artifacts");
 mkdirSync(attachmentRoot, { recursive: true });
 mkdirSync(taskArchiveDir, { recursive: true });
 mkdirSync(artifactRoot, { recursive: true });
+
+function publicRuntimeBinding() {
+  return {
+    launch_id: runtimeLaunchId,
+    pid: process.pid,
+    port,
+    origin: runtimeOrigin,
+    started_at: runtimeStartedAt,
+  };
+}
+
+function panelCookie() {
+  return `panel_token=${encodeURIComponent(panelCapabilityToken)}; HttpOnly; SameSite=Strict; Path=/; Max-Age=86400`;
+}
+
+function runtimeBindingCookie() {
+  return `runtime_binding_hint=${encodeURIComponent(
+    JSON.stringify(publicRuntimeBinding()),
+  )}; SameSite=Strict; Path=/; Max-Age=86400`;
+}
 
 function loadOrCreateSecret(fileName) {
   const tokenPath = resolve(runtimeDir, fileName);
@@ -77,9 +154,18 @@ function loadOrCreateSecret(fileName) {
 }
 
 const token = loadOrCreateSecret("capability-token");
+const panelCapabilityToken =
+  loadOrCreateSecret("panel-capability-token");
+const sourceCapabilityToken =
+  loadOrCreateSecret("source-capability-token");
 const handoffSecret = loadOrCreateSecret("handoff-secret");
 const store = new StateStore(runtimeDir);
 const state = store.load();
+const sourceHostedShadow = createSourceHostedShadowObserver({
+  log(entry) {
+    process.stderr.write(`${JSON.stringify(entry)}\n`);
+  },
+});
 const previousActiveSkill = state.active_skill ?? null;
 if (resetRequested) {
   store.reset();
@@ -185,6 +271,7 @@ state.task.timeline = state.task.timeline.map((entry, index) => ({
   source: String(entry.source ?? "surface"),
 }));
 state.task.sync ??= null;
+state.task.shared_task ??= null;
 await skillRuntime.expirePermissions(state.task, {
   appendEvent: (event) => store.appendEvent(event),
   save: () => store.save(),
@@ -195,6 +282,7 @@ function createAgentDriverInstance() {
   return createAgentDriver(agentDriverName, {
     cwd: agentWorkspace,
     agentDataDir: runtimeDir,
+    permissionProfile: agentPermissionProfile,
     protocolLogPath:
       process.env.PANEL_PROTOCOL_LOG === "1"
         ? resolve(runtimeDir, "agent-protocol.jsonl")
@@ -243,6 +331,20 @@ const staticFiles = new Map([
     ],
   ],
   [
+    "/runtime-binding.js",
+    [
+      "text/javascript; charset=utf-8",
+      resolve(root, "public", "runtime-binding.js"),
+    ],
+  ],
+  [
+    "/source-hosted-phase.js",
+    [
+      "text/javascript; charset=utf-8",
+      resolve(root, "public", "source-hosted-phase.js"),
+    ],
+  ],
+  [
     "/styles.css",
     ["text/css; charset=utf-8", resolve(root, "public", "styles.css")],
   ],
@@ -278,13 +380,32 @@ function parseCookies(header = "") {
   return result;
 }
 
-function isAuthorized(request) {
+function normalizeThreadReference(value) {
+  return String(value ?? "").trim().toLowerCase();
+}
+
+function isThreadReference(value) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/u
+    .test(normalizeThreadReference(value));
+}
+
+function requestCredentialRole(request) {
   const bearer = request.headers.authorization?.replace(/^Bearer\s+/i, "");
   const cookies = parseCookies(request.headers.cookie);
-  return (
-    (bearer && safeEqual(bearer, token)) ||
-    (cookies.panel_token && safeEqual(cookies.panel_token, token))
-  );
+  if (bearer && safeEqual(bearer, sourceCapabilityToken)) return "source";
+  if (bearer && safeEqual(bearer, panelCapabilityToken)) return "panel";
+  if (bearer && safeEqual(bearer, token)) return "master";
+  if (
+    cookies.panel_token &&
+    safeEqual(cookies.panel_token, panelCapabilityToken)
+  ) {
+    return "panel";
+  }
+  return null;
+}
+
+function isAuthorized(request) {
+  return requestCredentialRole(request) !== null;
 }
 
 function hasValidHost(request) {
@@ -360,12 +481,20 @@ function validateSyncImport(value) {
         : new Date().toISOString();
     return { externalId, role, text, createdAt };
   });
-  return { channelId, objective, summary, sourceSessionRef, messages };
+  return {
+    channelId,
+    objective,
+    summary,
+    sourceSessionRef,
+    messages,
+    panel: value.panel ?? null,
+  };
 }
 
 function publicAttachment(attachment) {
   return {
     id: attachment.id,
+    source_attachment_id: attachment.source_attachment_id ?? null,
     original_name: attachment.original_name,
     mime_type: attachment.mime_type,
     size: attachment.size,
@@ -379,13 +508,28 @@ function publicTask(task) {
   if (!task) {
     return null;
   }
+  let publicSharedTask = task.shared_task;
+  if (task.shared_task && typeof task.shared_task === "object") {
+    const {
+      source_tool_result: _sourceToolResult,
+      ...sharedTaskWithoutPrivateResult
+    } = task.shared_task;
+    publicSharedTask = sharedTaskWithoutPrivateResult;
+  }
   return {
     ...task,
+    shared_task: publicSharedTask,
     attachments: (task.attachments ?? []).map(publicAttachment),
-    timeline: (task.timeline ?? []).map((entry) => ({
-      ...entry,
-      attachments: (entry.attachments ?? []).map(publicAttachment),
-    })),
+    timeline: (task.timeline ?? []).map((entry) => {
+      const {
+        source_payload: _sourcePayload,
+        ...publicEntry
+      } = entry;
+      return {
+        ...publicEntry,
+        attachments: (entry.attachments ?? []).map(publicAttachment),
+      };
+    }),
   };
 }
 
@@ -417,11 +561,15 @@ function publicState() {
     last_turn: state.last_turn,
     activity: state.activity,
     handoff: state.handoff,
+    agent_permissions: agentDriver.permissionProfile,
+    surface: publicSurfaceState(),
+    permission_matrix: publicPermissionMatrix(),
+    runtime_binding: publicRuntimeBinding(),
     updated_at: state.updated_at,
     event_count: state.event_count,
     agent: {
       ...driverPublicDescriptor(agentDriver),
-      workspace: agentWorkspace,
+      workspace: sourceHostedTaskActive() ? null : agentWorkspace,
     },
     skill: {
       ...publicManifestDescriptor(workbenchManifest),
@@ -430,6 +578,28 @@ function publicState() {
     },
     agent_error: state.agent_error ?? null,
   };
+}
+
+function publicSurfaceState() {
+  return {
+    mode: surfaceMode,
+    runtime_state: RUNTIME_RUNNING_CURRENT_WORKSPACE,
+    loopback: true,
+    host,
+    port,
+    launch_id: runtimeLaunchId,
+    pid: process.pid,
+    origin: runtimeOrigin,
+  };
+}
+
+function publicPermissionMatrix() {
+  return buildPermissionMatrix({
+    agentPermission: agentDriver.permissionProfile,
+    surface: publicSurfaceState(),
+    task: state.task,
+    manifest: workbenchManifest,
+  });
 }
 
 function createTask(objective = "等待描述新任务") {
@@ -470,6 +640,36 @@ function taskContext() {
     instruction:
       "Reuse the supplied Skill context. Do not request repeated local collection unless the user explicitly asks.",
   };
+}
+
+function sanitizeSourceHostedPayload(value) {
+  if (Array.isArray(value)) {
+    return value.map(sanitizeSourceHostedPayload);
+  }
+  if (!value || typeof value !== "object") {
+    return value;
+  }
+  const deniedKeys = new Set([
+    "absolute_path",
+    "authorization",
+    "capability",
+    "cookie",
+    "local_path",
+    "panel_token",
+    "runtime_dir",
+    "source_token",
+    "token",
+    "workspace",
+  ]);
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter(([key]) => !deniedKeys.has(key))
+      .map(([key, item]) => [key, sanitizeSourceHostedPayload(item)]),
+  );
+}
+
+function sourceHostedTaskContext() {
+  return sanitizeSourceHostedPayload(taskContext());
 }
 
 function actionHost() {
@@ -519,6 +719,41 @@ function actionHost() {
     },
     updateTaskFromPanel: (panel) => updateTaskFromPanel(panel),
     buildTaskContext: () => taskContext(),
+    buildSourceHostedTaskContext: () => sourceHostedTaskContext(),
+    isSourceHosted: () => sourceHostedTaskActive(),
+    setSourceHostedToolResult: ({ packet, result }) => {
+      const receivedAt = new Date().toISOString();
+      state.task.shared_task.source_tool_result = {
+        schema_version: "1.0",
+        packet: sanitizeSourceHostedPayload(packet),
+        result: sanitizeSourceHostedPayload(result),
+        received_at: receivedAt,
+      };
+      markSourceHostedPhase("waiting_for_source_pull", {
+        last_tool_result_at: receivedAt,
+      });
+      state.phase = "ready";
+      state.task.phase = "ready";
+      state.activity = {
+        status: "waiting_for_source",
+        user_summary: result?.attachment?.original_name ?? "本地遥测分析",
+        started_at: receivedAt,
+        completed_at: null,
+        agent_summary: "",
+        next_action: "等待来源 Agent 返回结论。",
+        error: null,
+        turn_id: null,
+      };
+      store.appendEvent({
+        type: "source_hosted.local_tool_result",
+        task_id: state.task.task_id,
+        channel_id: state.task.shared_task.channel_id,
+        artifact_id: result?.artifact?.id ?? null,
+        analyzed_rows: result?.analysis?.analyzed_rows ?? null,
+        panel_turn_created: false,
+      });
+      store.save();
+    },
   };
 }
 
@@ -555,6 +790,7 @@ function archiveCurrentTask() {
     active_skill: state.active_skill,
     task: state.task,
     panel: state.panel,
+    draft: state.draft,
     activity: state.activity,
     last_turn: state.last_turn,
   };
@@ -565,6 +801,392 @@ function archiveCurrentTask() {
   );
 }
 
+function archiveSourceHostedCycle(reason) {
+  if (!sourceHostedTaskActive()) {
+    throw Object.assign(new Error("source-hosted Task is unavailable"), {
+      code: "recovery_unavailable",
+      statusCode: 409,
+    });
+  }
+  const cycleId = `cycle-${Date.now()}-${randomUUID()}`;
+  const fileName = `${state.task.task_id}-${cycleId}.json`;
+  const cycleArchiveDir = resolve(taskArchiveDir, "cycles");
+  mkdirSync(cycleArchiveDir, { recursive: true });
+  const filePath = resolve(cycleArchiveDir, fileName);
+  const snapshot = {
+    schema_version: "1.0",
+    archive_kind: "source_hosted_cycle_recovery",
+    archive_id: cycleId,
+    archived_at: new Date().toISOString(),
+    reason,
+    thread_id: state.thread_id,
+    thread_name: state.thread_name,
+    active_skill: structuredClone(state.active_skill),
+    phase: state.phase,
+    task: structuredClone(state.task),
+    panel: structuredClone(state.panel),
+    draft: structuredClone(state.draft),
+    activity: structuredClone(state.activity),
+    last_turn: structuredClone(state.last_turn),
+    error: state.error,
+  };
+  writeFileSync(
+    filePath,
+    `${JSON.stringify(snapshot, null, 2)}\n`,
+    { encoding: "utf8", mode: 0o600 },
+  );
+  return {
+    archive_id: cycleId,
+    archive_ref: relative(taskArchiveDir, filePath).replaceAll("\\", "/"),
+    draft_attachment_count: state.draft.attachments.length,
+    attachment_count: state.task.attachments.length,
+    artifact_count: state.task.artifacts?.length ?? 0,
+    timeline_count: state.task.timeline.length,
+  };
+}
+
+function restoreStateSnapshot(snapshot) {
+  store.replaceStateInPlace(snapshot);
+}
+
+function sourceHostedTaskActive() {
+  return state.task?.shared_task?.mode === "source_hosted";
+}
+
+function rejectNonSubmittableSourceHostedPhase(response) {
+  if (!sourceHostedTaskActive()) return false;
+  const phase = state.task.shared_task.phase;
+  if (isSourceHostedSubmittablePhase(phase)) return false;
+  writeJson(response, 409, {
+    error:
+      "source_hosted panel operation is not valid in the current phase",
+    code: "phase_not_submittable",
+    phase,
+    recovery_available: isSourceHostedStuckPhase(phase),
+  });
+  return true;
+}
+
+function normalizeThreadBindingRef(value) {
+  return normalizeThreadReference(value);
+}
+
+function normalizeSourceAttachmentId(value) {
+  const normalized = String(value ?? "").trim();
+  if (!normalized) return null;
+  if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{7,199}$/u.test(normalized)) {
+    throw Object.assign(
+      new Error("source attachment id is invalid"),
+      {
+        code: "attachment_source_identity_invalid",
+        statusCode: 400,
+      },
+    );
+  }
+  return normalized;
+}
+
+function findReusableAttachment(sourceAttachmentId, sha256) {
+  const candidates = [
+    ...(state.task?.attachments ?? []),
+    ...state.draft.attachments,
+  ];
+  if (sourceAttachmentId) {
+    const sameSource = candidates.find(
+      (attachment) =>
+        attachment.source_attachment_id === sourceAttachmentId,
+    );
+    if (sameSource && sameSource.sha256 !== sha256) {
+      throw Object.assign(
+        new Error("source attachment id is bound to different content"),
+        {
+          code: "attachment_source_identity_conflict",
+          statusCode: 409,
+        },
+      );
+    }
+    if (sameSource) return sameSource;
+  }
+  return candidates.find(
+    (attachment) =>
+      attachment.sha256 === sha256 &&
+      (
+        !attachment.source_attachment_id ||
+        attachment.source_attachment_id === sourceAttachmentId
+      ),
+  ) ?? null;
+}
+
+function deduplicateTaskAttachmentsByContent() {
+  if (!state.task) return [];
+  const seen = new Map();
+  const kept = [];
+  const removed = [];
+  for (const attachment of state.task.attachments ?? []) {
+    const key = String(attachment.sha256 ?? "").toLowerCase();
+    if (!key || !seen.has(key)) {
+      if (key) seen.set(key, attachment.id);
+      kept.push(attachment);
+      continue;
+    }
+    removed.push(attachment);
+  }
+  if (removed.length === 0) return removed;
+  const removedIds = new Set(removed.map((attachment) => attachment.id));
+  state.task.attachments = kept;
+  state.task.domain_refs = (state.task.domain_refs ?? []).filter(
+    (reference) => !removedIds.has(reference),
+  );
+  state.task.evidence_refs = (state.task.evidence_refs ?? []).filter(
+    (reference) => !removedIds.has(reference),
+  );
+  if (state.task.domain_state?.evidence_refs) {
+    state.task.domain_state.evidence_refs =
+      state.task.domain_state.evidence_refs.filter(
+        (reference) => !removedIds.has(reference),
+      );
+  }
+  // Keep the superseded files so the archived Task remains a complete,
+  // verifiable snapshot. Only the active Task projection is deduplicated.
+  return removed;
+}
+
+function markSourceHostedPhase(phase, extra = {}) {
+  if (!sourceHostedTaskActive()) return false;
+  state.task.shared_task = {
+    ...state.task.shared_task,
+    phase,
+    updated_at: new Date().toISOString(),
+    ...extra,
+  };
+  return true;
+}
+
+function sourceHostedClaimFailure(
+  status,
+  code,
+  message,
+  extra = {},
+) {
+  return {
+    ok: false,
+    status,
+    code,
+    message,
+    ...extra,
+  };
+}
+
+function sourceHostedClaimIdentity(claim) {
+  return {
+    intent_event_id: claim.intentEventId,
+    submission_sequence: claim.submissionSequence,
+    attachment_id: claim.attachmentId || null,
+    attachment_sha256: claim.attachmentSha256 || null,
+    require_source_result: claim.requireSourceResult,
+  };
+}
+
+function sourceHostedClaimsMatch(left, right) {
+  if (!left || !right) return false;
+  return (
+    left.intent_event_id === right.intent_event_id &&
+    left.submission_sequence === right.submission_sequence &&
+    (left.attachment_id ?? null) === (right.attachment_id ?? null) &&
+    (left.attachment_sha256 ?? null) ===
+      (right.attachment_sha256 ?? null) &&
+    Boolean(left.require_source_result) ===
+      Boolean(right.require_source_result)
+  );
+}
+
+function inspectSourceHostedClaim(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return sourceHostedClaimFailure(
+      400,
+      "claim_contract_invalid",
+      "source-hosted claim must be an object",
+    );
+  }
+  if (value.schema_version !== "1.0") {
+    return sourceHostedClaimFailure(
+      400,
+      "claim_contract_invalid",
+      "source-hosted claim schema_version must be 1.0",
+    );
+  }
+  const taskRef = String(value.task_ref ?? "").trim();
+  const channelId = String(value.channel_id ?? "").trim();
+  const sourceSessionRef = normalizeThreadReference(
+    value.source_session_ref,
+  );
+  const intentEventId = String(value.intent_event_id ?? "").trim();
+  const submissionSequence = Number(value.submission_sequence);
+  const attachmentId = String(value.attachment_id ?? "").trim();
+  const attachmentSha256 = String(value.attachment_sha256 ?? "")
+    .trim()
+    .toLowerCase();
+  const requireSourceResult = value.require_source_result === true;
+  if (
+    !taskRef ||
+    !channelId ||
+    !intentEventId ||
+    !Number.isInteger(submissionSequence) ||
+    submissionSequence <= 0
+  ) {
+    return sourceHostedClaimFailure(
+      400,
+      "claim_anchor_missing",
+      "task_ref, channel_id, intent_event_id, and submission_sequence are required",
+    );
+  }
+  if (
+    (attachmentId && !/^[A-Za-z0-9][A-Za-z0-9._:-]{7,199}$/u.test(attachmentId)) ||
+    (attachmentSha256 && !/^[0-9a-f]{64}$/u.test(attachmentSha256))
+  ) {
+    return sourceHostedClaimFailure(
+      400,
+      "claim_anchor_invalid",
+      "attachment identity is invalid",
+    );
+  }
+  if (requireSourceResult && (!attachmentId || !attachmentSha256)) {
+    return sourceHostedClaimFailure(
+      400,
+      "claim_anchor_missing",
+      "source result claims require attachment_id and attachment_sha256",
+    );
+  }
+  const sharedTask = state.task?.shared_task;
+  if (!sharedTask || sharedTask.mode !== "source_hosted") {
+    return sourceHostedClaimFailure(
+      409,
+      "claim_unavailable",
+      "the active Task is not source host owned",
+    );
+  }
+  if (taskRef !== state.task.task_id) {
+    return sourceHostedClaimFailure(
+      409,
+      "claim_task_mismatch",
+      "source-hosted Task binding mismatch",
+      {
+        expected_task_ref: taskRef,
+        actual_task_ref: state.task.task_id,
+      },
+    );
+  }
+  if (channelId !== sharedTask.channel_id) {
+    return sourceHostedClaimFailure(
+      409,
+      "claim_channel_mismatch",
+      "source-hosted channel binding mismatch",
+    );
+  }
+  if (
+    !sourceSessionRef ||
+    sourceSessionRef !== sharedTask.source_session_ref
+  ) {
+    return sourceHostedClaimFailure(
+      409,
+      "claim_source_session_mismatch",
+      "source-hosted source Session binding mismatch",
+    );
+  }
+  const timeline = state.task.timeline ?? [];
+  const intentEntry = timeline.find(
+    (entry) =>
+      entry.seq === submissionSequence &&
+      entry.source === "source_hosted_intent" &&
+      entry.external_id === intentEventId,
+  );
+  if (!intentEntry) {
+    return sourceHostedClaimFailure(
+      409,
+      "claim_anchor_mismatch",
+      "source intent does not match the current submission",
+    );
+  }
+  if (attachmentId) {
+    const submissionAttachment = (intentEntry.attachments ?? []).find(
+      (attachment) => attachment.id === attachmentId,
+    );
+    if (
+      !submissionAttachment ||
+      String(submissionAttachment.sha256 ?? "").toLowerCase() !==
+        attachmentSha256
+    ) {
+      return sourceHostedClaimFailure(
+        409,
+        "claim_anchor_mismatch",
+        "attachment does not match the current source intent",
+      );
+    }
+  }
+  if (requireSourceResult) {
+    const sourceToolResult = sharedTask.source_tool_result;
+    const packet = sourceToolResult?.packet;
+    const toolResult = packet?.tool_result;
+    const returnedAttachmentId = String(
+      toolResult?.attachment?.id ?? "",
+    ).trim();
+    const returnedSha256 = String(
+      toolResult?.attachment?.sha256 ?? "",
+    )
+      .trim()
+      .toLowerCase();
+    const sourceEvidenceIds = Array.isArray(
+      toolResult?.artifact?.source_evidence_ids,
+    )
+      ? toolResult.artifact.source_evidence_ids
+      : [];
+    const packetCreatedAt = Date.parse(String(packet?.created_at ?? ""));
+    const submissionCreatedAt = Date.parse(
+      String(intentEntry.created_at ?? ""),
+    );
+    if (
+      packet?.task_id !== state.task.task_id ||
+      returnedAttachmentId !== attachmentId ||
+      returnedSha256 !== attachmentSha256 ||
+      !sourceEvidenceIds.includes(attachmentId)
+    ) {
+      return sourceHostedClaimFailure(
+        409,
+        "claim_result_stale",
+        "the pending source result belongs to another attachment",
+        {
+          returned_attachment_id: returnedAttachmentId || null,
+          returned_sha256: returnedSha256 || null,
+        },
+      );
+    }
+    if (
+      !Number.isFinite(packetCreatedAt) ||
+      !Number.isFinite(submissionCreatedAt) ||
+      packetCreatedAt < submissionCreatedAt
+    ) {
+      return sourceHostedClaimFailure(
+        409,
+        "claim_result_stale",
+        "the pending source result predates the current submission",
+      );
+    }
+  }
+  return {
+    ok: true,
+    claim: {
+      taskRef,
+      channelId,
+      sourceSessionRef,
+      intentEventId,
+      submissionSequence,
+      attachmentId: attachmentId || null,
+      attachmentSha256: attachmentSha256 || null,
+      requireSourceResult,
+    },
+  };
+}
+
 function appendTimelineEntry({
   role,
   text,
@@ -572,6 +1194,7 @@ function appendTimelineEntry({
   createdAt = new Date().toISOString(),
   source = "surface",
   externalId = null,
+  sourcePayload = null,
 }) {
   const nextSequence =
     state.task.timeline.reduce(
@@ -588,6 +1211,7 @@ function appendTimelineEntry({
     source,
     external_id: externalId,
     attachments: attachments.map(publicAttachment),
+    ...(sourcePayload ? { source_payload: sourcePayload } : {}),
   };
   state.task.timeline.push(entry);
   return entry;
@@ -600,6 +1224,71 @@ function pushTimeline(role, text, attachments = []) {
     attachments,
     source: "surface",
   });
+}
+
+function queueSourceHostedInteraction(event) {
+  if (!sourceHostedTaskActive()) return null;
+  let text;
+  if (event.type === "option_selected") {
+    const option = state.panel?.question?.options?.find(
+      (item) => item.id === event.option_id,
+    );
+    text = [
+      state.panel?.question?.prompt
+        ? `用户回答：${state.panel.question.prompt}`
+        : "用户选择了一个面板选项。",
+      `选择：${option?.label ?? event.option_id}`,
+    ].join("\n");
+  } else if (event.type === "evidence_added") {
+    text = [
+      `用户补充证据：${event.label}`,
+      event.detail || null,
+    ].filter(Boolean).join("\n");
+  } else {
+    return null;
+  }
+  const entry = appendTimelineEntry({
+    role: "user",
+    text,
+    source: "source_hosted_intent",
+    externalId: `source-intent-${event.event_id}`,
+  });
+  markSourceHostedPhase("waiting_for_source_pull", {
+    last_intent_at: entry.created_at,
+    last_intent_id: event.event_id,
+  });
+  state.task.phase = "ready";
+  state.phase = "ready";
+  return entry;
+}
+
+function queueSourceHostedSubmission({ freeText, attachments }) {
+  const text = [
+    freeText || "用户提交了受控硬件分析请求。",
+    attachments.length
+      ? `附件：${attachments.map((item) => item.original_name).join("、")}`
+      : "",
+  ].filter(Boolean).join("\n");
+  const entry = appendTimelineEntry({
+    role: "user",
+    text,
+    attachments,
+    source: "source_hosted_intent",
+    externalId: `source-submission-${crypto.randomUUID()}`,
+    sourcePayload: {
+      type: "source_hosted_panel_submission",
+      free_text: freeText,
+      attachments: attachments.map(publicAttachmentForAgent)
+        .map(({ local_path: _localPath, ...attachment }) => attachment),
+    },
+  });
+  markSourceHostedPhase("waiting_for_source_pull", {
+    last_intent_at: entry.created_at,
+    last_intent_id: entry.external_id,
+  });
+  state.task.phase = "ready";
+  state.phase = "ready";
+  return entry;
 }
 
 function findTaskAttachment(id) {
@@ -755,6 +1444,7 @@ async function parseMultipart(request) {
 function publicAttachmentForAgent(attachment) {
   return {
     id: attachment.id,
+    source_attachment_id: attachment.source_attachment_id ?? null,
     original_name: attachment.original_name,
     mime_type: attachment.mime_type,
     size: attachment.size,
@@ -874,7 +1564,58 @@ function recordAgentError(error) {
   return agentError;
 }
 
+async function submitSourceHosted(request, response) {
+  const phase = state.task.shared_task.phase;
+  if (!isSourceHostedSubmittablePhase(phase)) {
+    writeJson(response, 409, {
+      error: "source_hosted panel submission is not valid in the current phase",
+      code: "phase_not_submittable",
+      phase,
+      recovery_available: isSourceHostedStuckPhase(phase),
+    });
+    return;
+  }
+  const body = await readJson(request);
+  const freeText = String(body.free_text ?? "").trim().slice(0, 2000);
+  if (!freeText && state.draft.attachments.length === 0) {
+    throw new Error("请输入电脑遇到的问题或上传 CSV");
+  }
+  const attachments = commitDraftAttachments();
+  const entry = queueSourceHostedSubmission({
+    freeText,
+    attachments: state.task.attachments.filter((attachment) =>
+      attachments.some((item) => item.id === attachment.id)
+    ),
+  });
+  state.draft = { events: [], attachments: [] };
+  state.last_turn = null;
+  state.error = null;
+  store.appendEvent({
+    type: "source_hosted.panel_submission",
+    task_id: state.task.task_id,
+    channel_id: state.task.shared_task.channel_id,
+    intent_message_id: entry.id,
+    intent_external_id: entry.external_id,
+    attachment_count: attachments.length,
+    panel_turn_created: false,
+  });
+  store.save();
+  writeJson(response, 200, publicState());
+}
+
 async function submit(request, response) {
+  if (sourceHostedTaskActive()) {
+    if (sourceHostedNonMockEnabled) {
+      await submitSourceHosted(request, response);
+    } else {
+      writeJson(response, 409, {
+        error: "source_hosted Task 不允许面板创建模型 Turn",
+        code: "panel_turn_forbidden_in_source_hosted",
+        execution_owner: "source",
+      });
+    }
+    return;
+  }
   if (submitInFlight) {
     writeJson(response, 409, { error: "agent 正在进行上一回合" });
     return;
@@ -1093,7 +1834,165 @@ async function startNewTask({ newThread }) {
   store.save();
 }
 
+async function recoverSourceHostedTask(request, response) {
+  if (!sourceHostedTaskActive()) {
+    writeJson(response, 409, {
+      error: "source_hosted recovery is not available for this Task",
+      code: "recovery_unavailable",
+    });
+    return;
+  }
+  const errorRecovery =
+    state.phase === "error" || state.task.phase === "error";
+  const stuckCycleRecovery = isSourceHostedStuckPhase(
+    state.task.shared_task.phase,
+  );
+  if (!errorRecovery && !stuckCycleRecovery) {
+    writeJson(response, 409, {
+      error: "source_hosted Task is not in a recoverable error state",
+      code: "recovery_not_required",
+    });
+    return;
+  }
+  const body = await readJson(request, { maxBytes: 8_192 });
+  if (body.confirm !== "recover_current_task") {
+    writeJson(response, 403, {
+      error: "explicit current-Task recovery confirmation is required",
+      code: "confirmation_required",
+    });
+    return;
+  }
+
+  const before = structuredClone(state);
+  try {
+    if (stuckCycleRecovery) {
+      const previousPhase = state.task.shared_task.phase;
+      const previousIntentId = state.task.shared_task.last_intent_id ?? null;
+      const previousSourceToolResultAt =
+        state.task.shared_task.source_tool_result?.received_at ?? null;
+      const cycleArchive = archiveSourceHostedCycle(
+        "stuck_source_agent_pulled",
+      );
+      const recoveredAt = new Date().toISOString();
+      state.draft = { events: [], attachments: [] };
+      state.panel = null;
+      state.last_turn = null;
+      state.activity = null;
+      state.error = null;
+      state.agent_error = null;
+      state.task.permission_request = null;
+      state.task.phase = "ready";
+      state.phase = "ready";
+      markSourceHostedPhase("source_owned", {
+        cycle_generation:
+          Number(state.task.shared_task.cycle_generation ?? 0) + 1,
+        last_intent_at: null,
+        last_intent_id: null,
+        cycle_recovery: {
+          recovered_at: recoveredAt,
+          previous_phase: previousPhase,
+          previous_intent_id: previousIntentId,
+          previous_source_tool_result_at:
+            previousSourceToolResultAt,
+          archive_id: cycleArchive.archive_id,
+          archive_ref: cycleArchive.archive_ref,
+        },
+      });
+      store.appendEvent({
+        type: "source_hosted.stuck_cycle_recovered",
+        task_id: state.task.task_id,
+        channel_id: state.task.shared_task.channel_id,
+        previous_phase: previousPhase,
+        previous_intent_id: previousIntentId,
+        archive_ref: cycleArchive.archive_ref,
+        draft_attachment_count: cycleArchive.draft_attachment_count,
+        attachment_count: cycleArchive.attachment_count,
+        artifact_count: cycleArchive.artifact_count,
+        timeline_count: cycleArchive.timeline_count,
+        panel_turn_created: false,
+        thread_created: false,
+      });
+      store.save();
+      writeJson(response, 200, {
+        ...publicState(),
+        recovered: true,
+        recovery_kind: "stuck_cycle",
+        cycle_archive_ref: cycleArchive.archive_ref,
+        archived_draft_attachment_count:
+          cycleArchive.draft_attachment_count,
+        deduplicated_attachment_count: 0,
+      });
+      return;
+    }
+
+    const cycleArchive = archiveSourceHostedCycle(
+      "source_hosted_error_recovery",
+    );
+    archiveCurrentTask();
+    const deduplicated = deduplicateTaskAttachmentsByContent();
+    state.draft = { events: [], attachments: [] };
+    state.panel = null;
+    state.last_turn = null;
+    state.activity = null;
+    state.error = null;
+    state.agent_error = null;
+    state.task.permission_request = null;
+    state.task.phase = "ready";
+    state.phase = "ready";
+
+    const sourceToolResult = state.task.shared_task.source_tool_result;
+    if (sourceToolResult) {
+      const waitingAt = new Date().toISOString();
+      markSourceHostedPhase("waiting_for_source_pull", {
+        last_tool_result_at:
+          sourceToolResult.received_at ?? waitingAt,
+      });
+      state.activity = {
+        status: "waiting_for_source",
+        user_summary:
+          sourceToolResult.result?.attachment?.original_name ??
+          "本地遥测分析",
+        started_at:
+          sourceToolResult.received_at ?? waitingAt,
+        completed_at: null,
+        agent_summary: "",
+        next_action: "回到当前 Agent 对话发送“同步面板”继续。",
+        error: null,
+        turn_id: null,
+      };
+    } else {
+      markSourceHostedPhase("source_owned");
+    }
+
+    store.appendEvent({
+      type: "source_hosted.task_recovered",
+      task_id: state.task.task_id,
+      channel_id: state.task.shared_task.channel_id,
+      deduplicated_attachment_count: deduplicated.length,
+      archive_ref: cycleArchive.archive_ref,
+      phase: state.task.shared_task.phase,
+      panel_turn_created: false,
+      thread_created: false,
+    });
+    store.save();
+    writeJson(response, 200, {
+      ...publicState(),
+      recovered: true,
+      recovery_kind: "error",
+      cycle_archive_ref: cycleArchive.archive_ref,
+      deduplicated_attachment_count: deduplicated.length,
+    });
+  } catch (error) {
+    restoreStateSnapshot(before);
+    writeJson(response, error.statusCode ?? 500, {
+      error: error.message || "source_hosted recovery failed",
+      code: error.code || "recovery_failed",
+    });
+  }
+}
+
 async function uploadAttachment(request, response) {
+  if (rejectNonSubmittableSourceHostedPhase(response)) return;
   const form = await parseMultipart(request);
   const file = form.get("file");
   if (!file || typeof file.arrayBuffer !== "function" || typeof file.name !== "string") {
@@ -1115,6 +2014,58 @@ async function uploadAttachment(request, response) {
     return;
   }
   const buffer = Buffer.from(await file.arrayBuffer());
+  const sha256 = createHash("sha256").update(buffer).digest("hex");
+  let sourceAttachmentId;
+  try {
+    sourceAttachmentId = normalizeSourceAttachmentId(
+      request.headers["x-source-attachment-id"],
+    );
+  } catch (error) {
+    writeJson(response, error.statusCode ?? 400, {
+      error: error.message,
+      code: error.code ?? "attachment_source_identity_invalid",
+    });
+    return;
+  }
+  if (!sourceAttachmentId) {
+    sourceAttachmentId = `upload-file:${sha256}`;
+  }
+  let reusedAttachment;
+  try {
+    reusedAttachment = findReusableAttachment(
+      sourceAttachmentId,
+      sha256,
+    );
+  } catch (error) {
+    writeJson(response, error.statusCode ?? 409, {
+      error: error.message,
+      code: error.code ?? "attachment_source_identity_conflict",
+    });
+    return;
+  }
+  if (reusedAttachment) {
+    state.error = null;
+    store.appendEvent({
+      type: "attachment_reused",
+      event_id: crypto.randomUUID(),
+      created_at: new Date().toISOString(),
+      attachment_id: reusedAttachment.id,
+      source_attachment_id:
+        reusedAttachment.source_attachment_id ?? sourceAttachmentId,
+      sha256,
+    });
+    store.save();
+    writeJson(response, 200, {
+      ...publicState(),
+      attachment_reuse: {
+        id: reusedAttachment.id,
+        source_attachment_id:
+          reusedAttachment.source_attachment_id ?? sourceAttachmentId,
+        sha256,
+      },
+    });
+    return;
+  }
   const id = `attachment-${randomUUID()}`;
   const storedName = `${id}-${originalName}`;
   const localPath = resolve(attachmentRoot, storedName);
@@ -1124,10 +2075,11 @@ async function uploadAttachment(request, response) {
   writeFileSync(localPath, buffer, { mode: 0o600 });
   const attachment = {
     id,
+    source_attachment_id: sourceAttachmentId,
     original_name: originalName,
     mime_type: mimeType,
     size: buffer.length,
-    sha256: createHash("sha256").update(buffer).digest("hex"),
+    sha256,
     added_at: new Date().toISOString(),
     local_path: localPath,
     preview: attachmentPreview(buffer, extension),
@@ -1151,6 +2103,7 @@ async function decidePermission(request, response) {
     writeJson(response, 409, { error: "当前没有可授权的任务" });
     return;
   }
+  if (rejectNonSubmittableSourceHostedPhase(response)) return;
   const body = await readJson(request);
   const outcome = await skillRuntime.decidePermission({
     task: state.task,
@@ -1172,6 +2125,7 @@ async function revokePermission(request, response) {
     writeJson(response, 409, { error: "当前没有可撤销权限的任务" });
     return;
   }
+  if (rejectNonSubmittableSourceHostedPhase(response)) return;
   const body = await readJson(request);
   const outcome = await skillRuntime.revokePermission({
     task: state.task,
@@ -1202,6 +2156,7 @@ async function invokeSkillAction(
     writeJson(response, 409, { error: "请先创建 Task" });
     return;
   }
+  if (rejectNonSubmittableSourceHostedPhase(response)) return;
   const action = skillRuntime.getLocalAction(actionId);
   if (!action) {
     writeJson(response, 404, {
@@ -1465,7 +2420,12 @@ function buildResumePacket() {
   };
 }
 
-function receiveHandoff(request, response, url) {
+function receiveHandoff(
+  request,
+  response,
+  url,
+  { sourceHostedEntry = false } = {},
+) {
   const handoffToken = url.searchParams.get("token");
   let verified;
   try {
@@ -1478,10 +2438,78 @@ function receiveHandoff(request, response, url) {
     writeJson(response, 409, { error: "handoff token has already been used" });
     return;
   }
+  const packet = verified.packet;
+  const packetThreadId = normalizeThreadBindingRef(packet.thread_id);
+  const packetEnvironmentThreadId = normalizeThreadBindingRef(
+    packet.environment_thread_id,
+  );
+  if (
+    sourceHostedEntry &&
+    !packetEnvironmentThreadId
+  ) {
+    writeJson(response, 409, {
+      error:
+        "source_hosted entry requires the current environment Thread id",
+      code: "thread_binding_missing",
+    });
+    return;
+  }
+  if (
+    sourceHostedEntry &&
+    packetEnvironmentThreadId &&
+    packetEnvironmentThreadId !== packetThreadId
+  ) {
+    writeJson(response, 409, {
+      error:
+        "source_session_ref must equal the current environment Thread id",
+      code: "thread_binding_mismatch",
+      source_session_ref: packetThreadId,
+      environment_thread_id: packetEnvironmentThreadId,
+    });
+    return;
+  }
+  if (
+    sourceHostedEntry &&
+    state.task?.shared_task?.environment_thread_id &&
+    state.task.shared_task.environment_thread_id !==
+      packetEnvironmentThreadId
+  ) {
+    writeJson(response, 409, {
+      error:
+        "source_hosted Task is already bound to another environment Thread",
+      code: "thread_rebinding_forbidden",
+    });
+    return;
+  }
+  if (
+    sourceHostedEntry &&
+    state.task?.shared_task?.mode === "source_hosted" &&
+    state.task.task_id !== packet.task_id
+  ) {
+    writeJson(response, 409, {
+      error: "source_hosted entry is limited to one current Task",
+      code: "single_task_scope",
+    });
+    return;
+  }
+  const sourceHostedChannelId = sourceHostedEntry
+    ? `chat:source-hosted:${packetThreadId}`
+    : null;
+  if (
+    sourceHostedEntry &&
+    state.task?.shared_task?.mode === "source_hosted" &&
+    state.task.sync?.source_session_ref &&
+    state.task.sync.source_session_ref !== packetThreadId
+  ) {
+    writeJson(response, 409, {
+      error: "source_hosted Task is already bound to another source Session",
+      code: "source_session_scope",
+    });
+    return;
+  }
   state.handoff_consumed_nonces.push(verified.nonce);
   state.handoff_consumed_nonces =
     state.handoff_consumed_nonces.slice(-200);
-  const packet = verified.packet;
   if (!state.task || state.task.task_id !== packet.task_id) {
     archiveCurrentTask();
     const domain = skillRuntime.createTaskState({ taskId: packet.task_id });
@@ -1522,10 +2550,64 @@ function receiveHandoff(request, response, url) {
     state.task.summary = packet.summary || state.task.summary;
     skillRuntime.applyHandoff({ task: state.task, packet });
   }
+  const preserveSourceHostedError =
+    sourceHostedEntry &&
+    state.task?.shared_task?.mode === "source_hosted" &&
+    (
+      state.phase === "error" ||
+      state.task.phase === "error"
+    );
+  if (sourceHostedEntry) {
+    const previousSharedTask = state.task.shared_task;
+    const reopensSameTask = (
+      previousSharedTask?.mode === "source_hosted" &&
+      previousSharedTask.channel_id === sourceHostedChannelId &&
+      previousSharedTask.source_session_ref === packetThreadId &&
+      (
+        !previousSharedTask.environment_thread_id ||
+        previousSharedTask.environment_thread_id ===
+          packetEnvironmentThreadId
+      )
+    );
+    const boundAt =
+      reopensSameTask
+        ? previousSharedTask.bound_at
+        : new Date().toISOString();
+    state.task.sync = {
+      schema_version: "1.0",
+      channel_id: sourceHostedChannelId,
+      source_session_ref: packetThreadId,
+      created_at:
+        state.task.sync?.channel_id === sourceHostedChannelId
+          ? state.task.sync.created_at
+          : new Date().toISOString(),
+    };
+    state.task.shared_task = {
+      ...(reopensSameTask ? previousSharedTask : {}),
+      schema_version: "1.0",
+      mode: "source_hosted",
+      execution_owner: "source",
+      channel_id: sourceHostedChannelId,
+      source_session_ref: packetThreadId,
+      environment_thread_id:
+        packetEnvironmentThreadId ||
+        previousSharedTask?.environment_thread_id ||
+        null,
+      phase: reopensSameTask ? previousSharedTask.phase : "source_owned",
+      bound_at: boundAt,
+      updated_at: new Date().toISOString(),
+    };
+    state.task.phase =
+      preserveSourceHostedError ? "error" : "ready";
+  }
   state.handoff = {
     schema_version: "1.0",
-    status: "task_resume_packet",
-    support_level: "task-resume-packet",
+    status: sourceHostedEntry
+      ? "source_hosted_entry"
+      : "task_resume_packet",
+    support_level: sourceHostedEntry
+      ? "source-hosted-shared-task-entry"
+      : "task-resume-packet",
     native_thread_attached:
       agentDriver.capabilities.supportsActiveThreadAttach === true,
     native_attachment_error:
@@ -1536,16 +2618,18 @@ function receiveHandoff(request, response, url) {
     queue_capability: "one-way-experimental",
     queue_message_sent: false,
     reply_visibility: "unavailable",
-    panel_view_mode: "independent",
+    panel_view_mode: sourceHostedEntry
+      ? "source_hosted_shared_task"
+      : "independent",
     source_thread_role: "return-target",
     context_applied: true,
     local_surface_handoff: true,
     native_owner_changed: false,
-    thread_id: packet.thread_id,
-    environment_thread_id: packet.environment_thread_id,
+    thread_id: packetThreadId,
+    environment_thread_id: packetEnvironmentThreadId || null,
     thread_id_mismatch:
-      Boolean(packet.environment_thread_id) &&
-      packet.environment_thread_id !== packet.thread_id,
+      Boolean(packetEnvironmentThreadId) &&
+      packetEnvironmentThreadId !== packetThreadId,
     task_id: packet.task_id,
     objective: packet.objective,
     summary: packet.summary,
@@ -1557,11 +2641,13 @@ function receiveHandoff(request, response, url) {
     received_at: new Date().toISOString(),
     token_expires_at: verified.expires_at,
   };
-  state.error = null;
+  if (!preserveSourceHostedError) {
+    state.error = null;
+  }
   store.appendEvent({
     type: "handoff.received",
-    thread_id: packet.thread_id,
-    environment_thread_id: packet.environment_thread_id,
+    thread_id: packetThreadId,
+    environment_thread_id: packetEnvironmentThreadId || null,
     thread_id_mismatch: state.handoff.thread_id_mismatch,
     task_id: packet.task_id,
     active_skill_id: state.active_skill?.skill_id ?? null,
@@ -1571,24 +2657,45 @@ function receiveHandoff(request, response, url) {
   });
   store.appendEvent({
     type: "handoff.native_attachment_blocked",
-    thread_id: packet.thread_id,
+    thread_id: packetThreadId,
     reason: state.handoff.native_attachment_error,
     queue_message_sent: false,
   });
   store.appendEvent({
     type: "handoff.local_surface_handoff",
-    thread_id: packet.thread_id,
+    thread_id: packetThreadId,
     task_id: packet.task_id,
     panel_thread_id: state.thread_id,
-    panel_view_mode: "independent",
+    panel_view_mode: sourceHostedEntry
+      ? "source_hosted_shared_task"
+      : "independent",
     native_owner_changed: false,
   });
+  if (sourceHostedEntry) {
+    store.appendEvent({
+      type: "source_hosted.entry_opened",
+      task_id: packet.task_id,
+      channel_id: sourceHostedChannelId,
+      source_session_ref: packetThreadId,
+      panel_view_mode: "source_hosted_shared_task",
+      panel_turn_created: false,
+    });
+  }
   store.save();
+  const redirectUrl = new URL("/", `http://${request.headers.host}`);
+  for (const name of [
+    "runtime_launch_id",
+    "runtime_pid",
+    "runtime_port",
+  ]) {
+    if (url.searchParams.has(name)) {
+      redirectUrl.searchParams.set(name, url.searchParams.get(name));
+    }
+  }
   response.writeHead(303, {
-    Location: "/",
+    Location: `${redirectUrl.pathname}${redirectUrl.search}`,
     "Cache-Control": "no-store",
-    "Set-Cookie":
-      `panel_token=${encodeURIComponent(token)}; HttpOnly; SameSite=Strict; Path=/; Max-Age=86400`,
+    "Set-Cookie": [panelCookie(), runtimeBindingCookie()],
     "Referrer-Policy": "no-referrer",
     "Content-Length": 0,
   });
@@ -1614,8 +2721,7 @@ async function route(request, response) {
       "Referrer-Policy": "no-referrer",
     };
     if (url.pathname === "/") {
-      headers["Set-Cookie"] =
-        `panel_token=${encodeURIComponent(token)}; HttpOnly; SameSite=Strict; Path=/; Max-Age=86400`;
+      headers["Set-Cookie"] = [panelCookie(), runtimeBindingCookie()];
     }
     response.writeHead(200, headers);
     response.end(body);
@@ -1629,11 +2735,43 @@ async function route(request, response) {
       agent_ready: Boolean(agentDriver.activeThreadReference),
       workspace: agentWorkspace,
       capabilities: agentDriver.capabilities,
+      agent_permission: agentDriver.permissionProfile,
+      surface: publicSurfaceState(),
+      runtime_binding: publicRuntimeBinding(),
+      permission_matrix: publicPermissionMatrix(),
+      limitations:
+        agentDriver.capabilities.supportsApprovalDecision === true
+          ? []
+          : ["Host approval decisions are unavailable in this driver."],
     });
     return;
   }
 
+  if (
+    request.method === "GET" &&
+    url.pathname === "/source-hosted/open"
+  ) {
+    if (!sourceHostedEntryEnabled) {
+      writeJson(response, 404, { error: "not found" });
+      return;
+    }
+    receiveHandoff(
+      request,
+      response,
+      url,
+      { sourceHostedEntry: true },
+    );
+    return;
+  }
+
   if (request.method === "GET" && url.pathname === "/handoff/open") {
+    if (sourceHostedTaskActive()) {
+      writeJson(response, 409, {
+        error: "source_hosted 单 Task 模式不允许普通 handoff 切换",
+        code: "single_task_scope",
+      });
+      return;
+    }
     receiveHandoff(request, response, url);
     return;
   }
@@ -1642,9 +2780,157 @@ async function route(request, response) {
     writeJson(response, 401, { error: "missing or invalid capability token" });
     return;
   }
+  const credentialRole = requestCredentialRole(request);
+  const sourceSyncEndpoint =
+    url.pathname === "/api/task/sync/import" ||
+    url.pathname === "/api/task/sync/export" ||
+    url.pathname === "/api/task/sync/claim";
+  if (sourceSyncEndpoint) {
+    // source_hosted Tasks require the dedicated source credential. In normal
+    // mode sync remains a host/master operation; the browser panel credential
+    // is never sufficient.
+    const requiredRole = sourceHostedTaskActive() ? "source" : "master";
+    if (credentialRole !== requiredRole) {
+      writeJson(response, 403, {
+        error: "source capability is required for this endpoint",
+        code: "source_capability_required",
+      });
+      return;
+    }
+  } else if (credentialRole === "source") {
+    writeJson(response, 403, {
+      error: "source capability cannot use the panel API",
+      code: "panel_capability_required",
+    });
+    return;
+  }
 
   if (request.method === "GET" && url.pathname === "/api/state") {
     writeJson(response, 200, publicState());
+    return;
+  }
+
+  if (
+    request.method === "POST" &&
+    url.pathname === "/api/source-hosted/entry"
+  ) {
+    if (
+      !sourceHostedEntryEnabled ||
+      !sourceHostedNonMockEnabled
+    ) {
+      writeJson(response, 404, {
+        error: "source-hosted entry is unavailable",
+        code: "source_hosted_entry_disabled",
+      });
+      return;
+    }
+    if (credentialRole !== "master") {
+      writeJson(response, 403, {
+        error: "master capability is required for source-hosted entry",
+        code: "master_capability_required",
+      });
+      return;
+    }
+    const body = await readJson(request, { maxBytes: 32_768 });
+    const taskId = String(body.task_id ?? "").trim();
+    const sourceSessionRef = String(body.source_session_ref ?? "")
+      .trim()
+      .toLowerCase();
+    const environmentThreadId = normalizeThreadBindingRef(
+      body.environment_thread_id,
+    );
+    const objective = String(body.objective ?? "").trim().slice(0, 160);
+    const summary = String(body.summary ?? "").trim().slice(0, 800);
+    if (
+      !isThreadReference(sourceSessionRef) ||
+      (environmentThreadId && !isThreadReference(environmentThreadId))
+    ) {
+      writeJson(response, 400, {
+        error: "source-hosted Thread references must be UUIDs",
+        code: "thread_binding_invalid",
+      });
+      return;
+    }
+    if (!environmentThreadId) {
+      writeJson(response, 409, {
+        error:
+          "source_hosted entry requires the current environment Thread id",
+        code: "thread_binding_missing",
+      });
+      return;
+    }
+    if (environmentThreadId !== sourceSessionRef) {
+      writeJson(response, 409, {
+        error:
+          "source_session_ref must equal the current environment Thread id",
+        code: "thread_binding_mismatch",
+        source_session_ref: sourceSessionRef,
+        environment_thread_id: environmentThreadId,
+      });
+      return;
+    }
+    if (
+      sourceHostedTaskActive() &&
+      state.task.task_id !== taskId
+    ) {
+      writeJson(response, 409, {
+        error: "source_hosted entry is limited to one current Task",
+        code: "single_task_scope",
+      });
+      return;
+    }
+    if (
+      sourceHostedTaskActive() &&
+      state.task.shared_task.source_session_ref !== sourceSessionRef
+    ) {
+      writeJson(response, 409, {
+        error: "source_hosted Task is already bound to another source Session",
+        code: "source_session_scope",
+      });
+      return;
+    }
+    if (
+      sourceHostedTaskActive() &&
+      state.task.shared_task.environment_thread_id &&
+      state.task.shared_task.environment_thread_id !== environmentThreadId
+    ) {
+      writeJson(response, 409, {
+        error:
+          "source_hosted Task is already bound to another environment Thread",
+        code: "thread_rebinding_forbidden",
+      });
+      return;
+    }
+    const signed = signHandoffToken({
+      thread_id: sourceSessionRef,
+      environment_thread_id: environmentThreadId,
+      task_id: taskId,
+      objective,
+      summary,
+      domain_state:
+        body.domain_state && typeof body.domain_state === "object"
+          ? body.domain_state
+          : {},
+      domain_refs: Array.isArray(body.domain_refs) ? body.domain_refs : [],
+      read_only: true,
+      source: "agent-skill",
+    }, handoffSecret, {
+      ttlSeconds: Math.max(
+        15,
+        Math.min(600, Number(body.ttl_seconds ?? 120)),
+      ),
+    });
+    const entryUrl = new URL(`http://${host}:${port}/source-hosted/open`);
+    entryUrl.searchParams.set("token", signed.token);
+    const channelId = `chat:source-hosted:${signed.packet.thread_id}`;
+    writeJson(response, 200, {
+      ok: true,
+      url: entryUrl.toString(),
+      task_ref: signed.packet.task_id,
+      channel_id: channelId,
+      source_session_ref: signed.packet.thread_id,
+      expires_at: signed.expires_at,
+    });
     return;
   }
 
@@ -1652,6 +2938,86 @@ async function route(request, response) {
     const sync = validateSyncImport(
       await readJson(request, { maxBytes: 262_144 }),
     );
+    let sourcePanel = null;
+    const existingMessageIds = new Set(
+      state.task?.timeline
+        ?.map((entry) => entry.external_id)
+        .filter(Boolean) ?? [],
+    );
+    if (sourceHostedTaskActive()) {
+      const sharedTask = state.task.shared_task;
+      if (sync.channelId !== sharedTask.channel_id) {
+        writeJson(response, 409, {
+          error: "source_hosted channel binding mismatch",
+          code: "channel_binding_mismatch",
+        });
+        return;
+      }
+      if (
+        !sync.sourceSessionRef ||
+        sync.sourceSessionRef !== sharedTask.source_session_ref
+      ) {
+        writeJson(response, 409, {
+          error: "source_hosted source Session binding mismatch",
+          code: "source_session_scope",
+        });
+        return;
+      }
+      if (sharedTask.phase !== "source_agent_pulled") {
+        writeJson(response, 409, {
+          error: "source result import requires source_agent_pulled phase",
+          code: "phase_conflict",
+          phase: sharedTask.phase,
+        });
+        return;
+      }
+      const hasNewAgentResult = sync.messages.some(
+        (message) =>
+          message.role === "agent" &&
+          !existingMessageIds.has(message.externalId),
+      );
+      if (!hasNewAgentResult) {
+        writeJson(response, 409, {
+          error: "a new agent result is required",
+          code: "source_result_required",
+          phase: sharedTask.phase,
+        });
+        return;
+      }
+      if (sync.panel !== null) {
+        const pendingResult = sharedTask.source_tool_result ?? null;
+        if (!sourceHostedNonMockEnabled) {
+          writeJson(response, 403, {
+            error: "source-hosted panel result requires the non-mock gate",
+            code: "source_hosted_non_mock_disabled",
+          });
+          return;
+        }
+        if (!pendingResult) {
+          writeJson(response, 409, {
+            error: "no verified local tool result is pending",
+            code: "source_tool_result_required",
+          });
+          return;
+        }
+        try {
+          const candidatePanel = validatePanelState(sync.panel);
+          sourcePanel =
+            await skillRuntime.completeSourceHostedAgentResult({
+              task: state.task,
+              panel: candidatePanel,
+              packet: pendingResult.packet,
+              localResult: pendingResult.result,
+            });
+        } catch (error) {
+          writeJson(response, 422, {
+            error: error?.message || "source-hosted panel result is invalid",
+            code: error?.code || "source_panel_invalid",
+          });
+          return;
+        }
+      }
+    }
     let createdTask = false;
     const placeholderTask =
       Boolean(state.task) &&
@@ -1701,12 +3067,8 @@ async function route(request, response) {
     if (sync.sourceSessionRef) {
       state.task.sync.source_session_ref = sync.sourceSessionRef;
     }
-    const existingMessageIds = new Set(
-      state.task.timeline
-        .map((entry) => entry.external_id)
-        .filter(Boolean),
-    );
     let importedCount = 0;
+    let importedAgentCount = 0;
     let skippedCount = 0;
     for (const message of sync.messages) {
       if (existingMessageIds.has(message.externalId)) {
@@ -1722,8 +3084,52 @@ async function route(request, response) {
       });
       existingMessageIds.add(message.externalId);
       importedCount += 1;
+      if (message.role === "agent") importedAgentCount += 1;
     }
     state.task.sync.last_import_at = new Date().toISOString();
+    if (sourceHostedTaskActive() && importedAgentCount > 0) {
+      const sourceResultAt = new Date().toISOString();
+      markSourceHostedPhase("source_result_synced", {
+        last_source_result_at: new Date().toISOString(),
+      });
+      if (sourcePanel) {
+        state.panel = sourcePanel;
+        state.phase =
+          sourcePanel.status === "needs_input"
+            ? "needs_input"
+            : sourcePanel.status;
+        state.last_turn = null;
+        updateTaskFromPanel(sourcePanel);
+        state.task.last_turn = null;
+        state.task.shared_task.source_tool_result.resolved_at =
+          sourceResultAt;
+        state.activity = {
+          status: "completed",
+          user_summary:
+            state.task.shared_task.source_tool_result
+              ?.result?.attachment?.original_name ?? "PCHW telemetry analysis",
+          started_at:
+            state.task.shared_task.source_tool_result?.received_at ??
+            sourceResultAt,
+          completed_at: sourceResultAt,
+          agent_summary: sourcePanel.turn_summary,
+          next_action: sourcePanel.priorityAction?.title ?? "",
+          error: null,
+          turn_id: null,
+          source_hosted: true,
+        };
+      }
+      store.appendEvent({
+        type: "source_hosted.result_synced",
+        task_id: state.task.task_id,
+        channel_id: state.task.shared_task.channel_id,
+        imported_count: importedCount,
+        source_session_ref: sync.sourceSessionRef || null,
+        panel_turn_created: false,
+        panel_result_present: Boolean(sourcePanel),
+        artifact_count: sourcePanel?.artifact_refs?.length ?? 0,
+      });
+    }
     state.task.phase = "ready";
     state.phase = "ready";
     state.error = null;
@@ -1745,19 +3151,155 @@ async function route(request, response) {
       created_task: createdTask,
     });
     store.save();
+    const formalTaskId = state.task.task_id;
+    const formalObjective = state.task.objective;
+    const formalCursor = state.task.timeline.reduce(
+      (maximum, entry) =>
+        Number.isInteger(entry.seq) ? Math.max(maximum, entry.seq) : maximum,
+      0,
+    );
     writeJson(response, 200, {
       ok: true,
-      task_ref: state.task.task_id,
+      task_ref: formalTaskId,
       channel_id: sync.channelId,
       imported_count: importedCount,
       skipped_count: skippedCount,
       created_task: createdTask,
-      cursor:
-        state.task.timeline.reduce(
-          (maximum, entry) =>
-            Number.isInteger(entry.seq) ? Math.max(maximum, entry.seq) : maximum,
-          0,
+      cursor: formalCursor,
+      shared_task_phase:
+        state.task.shared_task?.phase ?? null,
+    });
+    if (sourceHostedShadow.shouldObserve) {
+      const formalMessages = state.task.timeline
+        .filter(
+          (entry) =>
+            entry.source === "chat" &&
+            typeof entry.external_id === "string",
+        )
+        .map((entry) => ({
+          external_id: entry.external_id,
+          role: entry.role,
+          text: entry.text,
+          created_at: entry.created_at,
+          seq: entry.seq,
+        }));
+      setImmediate(() => {
+        sourceHostedShadow.observeSyncImport({
+          formal_task_id: formalTaskId,
+          channel_id: sync.channelId,
+          source_session_ref: sync.sourceSessionRef,
+          objective: formalObjective,
+          cursor: formalCursor,
+          messages: formalMessages,
+        }).catch(() => {});
+      });
+    }
+    return;
+  }
+
+  if (request.method === "POST" && url.pathname === "/api/task/sync/claim") {
+    const suppliedSourceSessionRef = normalizeThreadReference(
+      request.headers["x-source-session-ref"],
+    );
+    if (
+      !sourceHostedTaskActive() ||
+      !suppliedSourceSessionRef ||
+      suppliedSourceSessionRef !==
+        state.task.shared_task.source_session_ref
+    ) {
+      writeJson(response, 409, {
+        ok: false,
+        error: "source_hosted source Session binding mismatch",
+        code: "claim_source_session_mismatch",
+      });
+      return;
+    }
+    const inspected = inspectSourceHostedClaim(
+      await readJson(request, { maxBytes: 16_384 }),
+    );
+    if (!inspected.ok) {
+      writeJson(response, inspected.status, {
+        ok: false,
+        error: inspected.message,
+        code: inspected.code,
+        ...Object.fromEntries(
+          Object.entries(inspected).filter(
+            ([key]) => !["ok", "status", "code", "message"].includes(key),
+          ),
         ),
+      });
+      return;
+    }
+    const claim = inspected.claim;
+    if (claim.sourceSessionRef !== suppliedSourceSessionRef) {
+      writeJson(response, 409, {
+        ok: false,
+        error: "source-hosted source Session binding mismatch",
+        code: "claim_source_session_mismatch",
+      });
+      return;
+    }
+    const claimIdentity = sourceHostedClaimIdentity(claim);
+    const sharedTask = state.task.shared_task;
+    if (
+      ["source_agent_pulled", "source_result_synced"].includes(
+        sharedTask.phase,
+      ) &&
+      sourceHostedClaimsMatch(sharedTask.last_source_pull_claim, claimIdentity)
+    ) {
+      writeJson(response, 200, {
+        ok: true,
+        claimed: true,
+        idempotent: true,
+        task_ref: state.task.task_id,
+        phase: sharedTask.phase,
+        claim: sharedTask.last_source_pull_claim,
+      });
+      return;
+    }
+    if (sharedTask.phase !== "waiting_for_source_pull") {
+      writeJson(response, 409, {
+        ok: false,
+        error: "source pull claim is not valid in the current phase",
+        code: "claim_phase_conflict",
+        phase: sharedTask.phase,
+        recovery_available: isSourceHostedStuckPhase(sharedTask.phase),
+      });
+      return;
+    }
+    const claimedAt = new Date().toISOString();
+    markSourceHostedPhase("source_agent_pulled", {
+      last_source_pull_at: claimedAt,
+      last_source_pull_cursor: claim.submissionSequence,
+      last_source_pull_intent_id: claim.intentEventId,
+      last_source_pull_attachment_id: claim.attachmentId,
+      last_source_pull_attachment_sha256: claim.attachmentSha256,
+      last_source_pull_claim: claimIdentity,
+    });
+    store.appendEvent({
+      type: claim.requireSourceResult
+        ? "source_hosted.source_result_claimed"
+        : "source_hosted.agent_pulled",
+      task_id: state.task.task_id,
+      channel_id: sharedTask.channel_id,
+      source_session_ref: claim.sourceSessionRef,
+      intent_event_id: claim.intentEventId,
+      submission_sequence: claim.submissionSequence,
+      attachment_id: claim.attachmentId,
+      attachment_sha256: claim.attachmentSha256,
+      source_result_required: claim.requireSourceResult,
+      explicit_claim: true,
+      panel_turn_created: false,
+      thread_created: false,
+    });
+    store.save();
+    writeJson(response, 200, {
+      ok: true,
+      claimed: true,
+      idempotent: false,
+      task_ref: state.task.task_id,
+      phase: state.task.shared_task.phase,
+      claim: state.task.shared_task.last_source_pull_claim,
     });
     return;
   }
@@ -1775,6 +3317,28 @@ async function route(request, response) {
       url.searchParams.get("channel_id") ?? "",
     ).trim();
     const currentChannel = state.task?.sync?.channel_id ?? null;
+    if (sourceHostedTaskActive()) {
+      const sourceSessionRef = String(
+        request.headers["x-source-session-ref"] ?? "",
+      ).trim();
+      if (requestedChannel !== state.task.shared_task.channel_id) {
+        writeJson(response, 409, {
+          error: "source_hosted channel binding mismatch",
+          code: "channel_binding_mismatch",
+        });
+        return;
+      }
+      if (
+        !sourceSessionRef ||
+        sourceSessionRef !== state.task.shared_task.source_session_ref
+      ) {
+        writeJson(response, 409, {
+          error: "source_hosted source Session binding mismatch",
+          code: "source_session_scope",
+        });
+        return;
+      }
+    }
     if (requestedChannel && requestedChannel !== currentChannel) {
       writeJson(response, 409, {
         error: "当前 Task 不属于请求的主对话通道",
@@ -1795,7 +3359,28 @@ async function route(request, response) {
         text: entry.text,
         created_at: entry.created_at,
         source: entry.source ?? "surface",
+        attachments: (entry.attachments ?? []).map(publicAttachment),
+        source_payload: entry.source_payload ?? null,
       }));
+    if (
+      sourceHostedTaskActive() &&
+      messages.some((message) => message.source === "source_hosted_intent")
+    ) {
+      if (
+        ![
+          "waiting_for_source_pull",
+          "source_agent_pulled",
+          "source_result_synced",
+        ].includes(state.task.shared_task.phase)
+      ) {
+        writeJson(response, 409, {
+          error: "source intent export is not valid in the current phase",
+          code: "phase_conflict",
+          phase: state.task.shared_task.phase,
+        });
+        return;
+      }
+    }
     const cursor = timeline.reduce(
       (maximum, entry) =>
         Number.isInteger(entry.seq) ? Math.max(maximum, entry.seq) : maximum,
@@ -1810,9 +3395,12 @@ async function route(request, response) {
       objective: state.task?.objective ?? "",
       summary: state.task?.summary ?? "",
       phase: state.phase,
+      shared_task: state.task?.shared_task ?? null,
       panel: state.panel,
       last_turn: state.last_turn,
       messages,
+      source_tool_result:
+        state.task?.shared_task?.source_tool_result ?? null,
       cursor,
     });
     return;
@@ -1932,6 +3520,7 @@ async function route(request, response) {
   }
 
   if (request.method === "POST" && url.pathname === "/api/event") {
+    if (rejectNonSubmittableSourceHostedPhase(response)) return;
     const body = await readJson(request);
     const event = buildDraftEvent(body, state.panel);
     if (event.type === "option_selected") {
@@ -1944,6 +3533,18 @@ async function route(request, response) {
       skillRuntime.recordEvidence({ task: state.task, evidence: event });
     }
     store.appendEvent({ type: `ui.${event.type}`, event });
+    const sourceIntent = queueSourceHostedInteraction(event);
+    if (sourceIntent) {
+      store.appendEvent({
+        type: "source_hosted.intent_queued",
+        task_id: state.task.task_id,
+        channel_id: state.task.shared_task.channel_id,
+        intent_message_id: sourceIntent.id,
+        intent_event_id: event.event_id,
+        intent_type: event.type,
+        panel_turn_created: false,
+      });
+    }
     state.error = null;
     store.save();
     writeJson(response, 200, publicState());
@@ -1957,8 +3558,23 @@ async function route(request, response) {
 
   if (
     request.method === "POST" &&
+    url.pathname === "/api/task/recover"
+  ) {
+    await recoverSourceHostedTask(request, response);
+    return;
+  }
+
+  if (
+    request.method === "POST" &&
     (url.pathname === "/api/task/new" || url.pathname === "/api/reset")
   ) {
+    if (sourceHostedTaskActive()) {
+      writeJson(response, 409, {
+        error: "source_hosted 单 Task 模式不允许清空当前任务",
+        code: "single_task_scope",
+      });
+      return;
+    }
     if (submitInFlight) {
       writeJson(response, 409, { error: "agent 回合进行中，暂时不能重置" });
       return;
@@ -1973,6 +3589,13 @@ async function route(request, response) {
     (url.pathname === "/api/session/new" ||
       url.pathname === "/api/thread/new")
   ) {
+    if (sourceHostedTaskActive()) {
+      writeJson(response, 409, {
+        error: "source_hosted 单 Task 模式不允许创建新对话",
+        code: "single_task_scope",
+      });
+      return;
+    }
     if (submitInFlight) {
       writeJson(response, 409, { error: "agent 回合进行中，暂时不能新建对话" });
       return;
@@ -2007,6 +3630,7 @@ async function shutdown() {
   }
   shuttingDown = true;
   await agentDriver.close().catch(() => {});
+  await sourceHostedShadow.close().catch(() => {});
   server.close(() => process.exit(0));
   setTimeout(() => process.exit(0), 2_000).unref();
 }
@@ -2041,68 +3665,75 @@ state.agent_workspace = agentWorkspace;
 store.save();
 
 try {
-  const previousThreadReference = state.session_ref;
   await agentDriver.initialize();
-  let started;
-  let resumeError = null;
-  if (
-    previousThreadReference &&
-    agentDriver.capabilities.supportsThreadResume
-  ) {
-    try {
-      started = await agentDriver.resumeThread(previousThreadReference);
-    } catch (error) {
-      resumeError = agentDriver.classifyError(error);
-      started = await agentDriver.startThread();
-    }
-  } else {
-    started = await agentDriver.startThread();
-    if (previousThreadReference) {
-      resumeError = new AgentDriverError(
-        "blocked",
-        "thread_resume_unsupported",
-        `${agentDriver.displayName} does not support Session resume`,
-      );
-    }
-  }
-  const activeThreadReference = started.threadReference;
-  setSessionReference(activeThreadReference);
-  if (resumeError) {
-    state.agent_error = {
-      classification: resumeError.classification,
-      code: resumeError.code,
-      message: resumeError.message,
-      occurred_at: new Date().toISOString(),
-    };
-    setSessionRecovered({
-      previous_thread_id: previousThreadReference,
-      thread_id: activeThreadReference,
-      recovered_at: new Date().toISOString(),
-      message:
-        "原 Agent Session 不可用，已创建新 Session；任务与共享证据仍已复用。",
-    });
-    store.appendEvent({
-      type: "thread.resume_failed",
-      previous_error: resumeError.message,
-      error_class: resumeError.classification,
-      error_code: resumeError.code,
-      previous_thread_id: previousThreadReference,
-      new_thread_id: activeThreadReference,
-    });
-  } else {
+  if (sourceExternalDriver) {
+    setSessionReference(null);
+    setSessionName("电脑硬件工作台");
     setSessionRecovered(null);
     state.agent_error = null;
-  }
-  await updateThreadName(
-    state.panel,
-    workspaceChanged ? "新任务" : "已恢复任务",
-  );
-  if (!state.last_turn) {
-    store.appendEvent({
-      type: "session.started",
-      thread_id: activeThreadReference,
-      thread_name: state.thread_name,
-    });
+  } else {
+    const previousThreadReference = state.session_ref;
+    let started;
+    let resumeError = null;
+    if (
+      previousThreadReference &&
+      agentDriver.capabilities.supportsThreadResume
+    ) {
+      try {
+        started = await agentDriver.resumeThread(previousThreadReference);
+      } catch (error) {
+        resumeError = agentDriver.classifyError(error);
+        started = await agentDriver.startThread();
+      }
+    } else {
+      started = await agentDriver.startThread();
+      if (previousThreadReference) {
+        resumeError = new AgentDriverError(
+          "blocked",
+          "thread_resume_unsupported",
+          `${agentDriver.displayName} does not support Session resume`,
+        );
+      }
+    }
+    const activeThreadReference = started.threadReference;
+    setSessionReference(activeThreadReference);
+    if (resumeError) {
+      state.agent_error = {
+        classification: resumeError.classification,
+        code: resumeError.code,
+        message: resumeError.message,
+        occurred_at: new Date().toISOString(),
+      };
+      setSessionRecovered({
+        previous_thread_id: previousThreadReference,
+        thread_id: activeThreadReference,
+        recovered_at: new Date().toISOString(),
+        message:
+          "原 Agent Session 不可用，已创建新 Session；任务与共享证据仍已复用。",
+      });
+      store.appendEvent({
+        type: "thread.resume_failed",
+        previous_error: resumeError.message,
+        error_class: resumeError.classification,
+        error_code: resumeError.code,
+        previous_thread_id: previousThreadReference,
+        new_thread_id: activeThreadReference,
+      });
+    } else {
+      setSessionRecovered(null);
+      state.agent_error = null;
+    }
+    await updateThreadName(
+      state.panel,
+      workspaceChanged ? "新任务" : "已恢复任务",
+    );
+    if (!state.last_turn) {
+      store.appendEvent({
+        type: "session.started",
+        thread_id: activeThreadReference,
+        thread_name: state.thread_name,
+      });
+    }
   }
   archiveCurrentTask();
   store.save();
@@ -2114,6 +3745,13 @@ try {
       driver: agentDriverName,
       workspace: agentWorkspace,
       capabilities: agentDriver.capabilities,
+      agent_permission: agentDriver.permissionProfile,
+      surface: publicSurfaceState(),
+      runtime_binding: publicRuntimeBinding(),
+      launch_id: runtimeLaunchId,
+      exact_url: `${runtimeOrigin}/?runtime_launch_id=${encodeURIComponent(
+        runtimeLaunchId,
+      )}&runtime_pid=${process.pid}&runtime_port=${port}`,
       started_at: new Date().toISOString(),
     };
     writeFileSync(

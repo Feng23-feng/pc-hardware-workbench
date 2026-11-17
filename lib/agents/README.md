@@ -44,6 +44,9 @@ drivers do not depend on the artifact/permission UI.
   "supportsActiveThreadAttach": false,
   "supportsStructuredOutput": true,
   "supportsApprovals": false,
+  "supportsApprovalDecision": false,
+  "sandboxModes": ["read-only", "workspace-write", "danger-full-access"],
+  "approvalModes": ["never"],
   "supportsThreadNaming": true,
   "supportsCancellation": true,
   "adapterStatus": "experimental"
@@ -53,6 +56,11 @@ drivers do not depend on the artifact/permission UI.
 The upper layer reads capabilities instead of assuming transport behavior.
 Unsupported resume or attach is a `blocked` capability boundary, not a protocol
 error hidden in Task state.
+
+`permissionProfile` is the effective Agent sandbox and approval policy exposed
+by the Driver. It is separate from Task-local capability grants. A Driver that
+cannot relay an approval request and decision must not list `on-request` in
+`approvalModes`.
 
 ## Errors
 
@@ -75,6 +83,7 @@ classification, stable code, and user-safe message.
 | `dsh` | isolated headless adapter, experimental | yes | yes | no | prompt+parse compatibility | no |
 | `agent-bridge` | local Agent Bridge 0.1 draft | no | declared | no | declared | no |
 | `mock` | deterministic test adapter | yes | yes | no | yes | no |
+| `source-external` | controlled source-hosted preview only; owns no panel Thread | no | no | no | no | no |
 | MCP / CLI | not implemented | — | — | — | — | — |
 
 Select with:
@@ -86,9 +95,16 @@ $env:PANEL_AGENT_DRIVER = "agent-bridge"
 $env:PANEL_AGENT_BRIDGE_URL = "http://127.0.0.1:4400"
 $env:PANEL_AGENT_BRIDGE_TOKEN = "<loopback capability token>"
 $env:PANEL_AGENT_DRIVER = "mock"
+$env:PANEL_AGENT_DRIVER = "source-external"
 ```
 
 Invalid values fail before the server starts and list allowed drivers.
+
+`source-external` is rejected unless both
+`PANEL_SOURCE_HOSTED_ENTRY=1` and `PANEL_SOURCE_HOSTED_NON_MOCK=1` are present.
+It never creates a panel Thread and rejects every panel model Turn. The only real
+Codex Thread for the controlled PCHW path is created and owned by the explicit
+source runner, which imports one validated result through the source credential.
 
 ## Agent Bridge 0.1 draft
 

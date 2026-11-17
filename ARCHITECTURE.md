@@ -1,7 +1,7 @@
 # Architecture decision record
 
-Status: active development in the independent SkillDock `0.1.0-dev` version
-line, 2026-11-15.
+Status: Windows release-candidate preparation in the independent SkillDock
+`0.1.0-rc.1` version line, 2026-11-17. Formal release remains closed.
 
 ## Decision
 
@@ -341,11 +341,44 @@ the permission card; result judgement remains in the existing answer card.
 Revocation is immediate for future uncached analysis. Restart expiry runs before
 the HTTP listener starts.
 
+The card is a generic presentation and decision surface. Skill code supplies the
+request title, explanation, facts, scope, labels, and allowlisted continuation;
+the host supplies the common once/task/deny/revoke controls. It does not accept
+arbitrary HTML, shell commands, paths, or network targets from the Skill.
+
 ## Permission profiles
 
 The spike runs with a `read-only supervised` profile and explicit
 `approvalPolicy: never`. Sensitive actions are therefore unavailable, but the
 panel remains visible.
+
+The Agent permission profile, surface mode, and Task capability profile are
+separate contracts:
+
+- Agent sandbox: `read-only`, `workspace-write`, `danger-full-access`;
+- Agent approvals: `on-request`, `never`;
+- surface: `chat`, `read-only`, `interactive`, `developer`;
+- Task grants: fixed Skill-local capabilities such as CSV analysis.
+
+`permission_matrix` is a derived status projection over those independent
+contracts. It reports Runtime launch, selected-file read, Task artifact write,
+Agent workspace write, Skill Runtime external network, and manual-only hardware
+boundaries. It does not merge ownership or create a grant:
+
+- file read and artifact write follow the current Task request/grant;
+- Agent workspace write remains `blocked` or `host-managed` according to the
+  Agent sandbox, never according to the Surface mode;
+- Skill Runtime external network is reported separately from the Agent host's
+  network policy; loopback is not external network;
+- hardware remains `manual-only` in every profile.
+
+Each Driver validates the requested Agent profile against modes it can actually
+operate. A Driver that cannot relay an approval event and decision must reject
+`on-request` instead of silently executing with `never`.
+
+The launcher exposes the Runtime as `running-current-workspace`. A runtime that
+belongs to another workspace is not stopped without an explicit replacement
+decision.
 
 Future profiles may expose additional actions, but permission growth must be
 approved action by action. The current allowlisted telemetry analysis is a fixed

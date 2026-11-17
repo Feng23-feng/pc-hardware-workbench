@@ -39,6 +39,14 @@ The neutral interface supports:
   "connected": true,
   "supportsStreaming": true,
   "supportsThreadResume": true,
+  "supportsApprovalDecision": false,
+  "sandboxModes": ["read-only", "workspace-write", "danger-full-access"],
+  "approvalModes": ["never"],
+  "permission_profile": {
+    "sandbox": "read-only",
+    "approvalPolicy": "never",
+    "source": "safe-default"
+  },
   "supportsActiveThreadAttach": false,
   "supportsStructuredOutput": true,
   "supportsApprovals": false
@@ -178,7 +186,10 @@ Endpoints:
 - `POST /api/event` records one local `option_selected` or `evidence_added`
   event and starts no agent turn.
 - `POST /api/attachments` copies one whitelisted local file into private runtime
-  storage and returns updated draft state.
+  storage and returns updated draft state. A supplied
+  `X-Source-Attachment-Id` is bound to the content SHA-256; an existing matching
+  draft or Task attachment is reused rather than duplicated. If the header is
+  absent, the server derives the upload identity from the content hash.
 - `GET /api/attachments/:id/content` serves a local image or text preview.
 - `DELETE /api/attachments/:id` removes an unsent draft attachment.
 - `POST /api/skill/actions/:id` invokes a manifest-declared local action.
@@ -189,6 +200,12 @@ Endpoints:
 - `GET /handoff/open?token=<signed-handoff>` validates and consumes a compact
   current-chat Task Resume Packet, sets the panel capability cookie, and
   redirects to `/`.
+- `GET /source-hosted/open?token=<signed-handoff>` is an opt-in single-Task
+  entry that exists only when `PANEL_SOURCE_HOSTED_ENTRY=1`; it binds the
+  source Session and Task, sets the panel cookie, and redirects to the existing
+  `/` page. The non-mock profile requires
+  `source_session_ref === environment_thread_id`; missing or mismatched Thread
+  binding is rejected before Task or handoff mutation.
 - `GET /api/resume-packet` returns a compact, sanitized Resume summary for
   copying back into the source Codex conversation. It creates no turn and calls
   no queue.
@@ -199,6 +216,11 @@ Endpoints:
 - `POST /api/submit` sends the current draft as one turn.
 - `POST /api/task/new` clears the current task view while keeping the current
   Codex thread and shared evidence. The task is created on first submission.
+- `POST /api/task/recover` is available only for a source-hosted Task in an
+  error/interrupted phase. With
+  `{"confirm":"recover_current_task"}`, it archives the error state, keeps the
+  same Task and Thread, collapses duplicate attachment projections, clears the
+  stale error, and returns to `source_owned` or `waiting_for_source_pull`.
 - `POST /api/thread/new` is the advanced independent-dialog action and creates a
   new app-owned thread.
 - `POST /api/shutdown` stops the supervisor and its active Agent driver.
@@ -443,6 +465,128 @@ timeline messages. The response includes:
 The browser copies this Markdown to the clipboard. Queueing remains absent from
 the default action.
 
+## Source-hosted single-Task entry
+
+The gated `/source-hosted/open` entry is disabled by default and returns 404
+unless `PANEL_SOURCE_HOSTED_ENTRY` is exactly `1`.
+
+When enabled, it consumes the same signed handoff format as `/handoff/open` and
+binds:
+
+- exact source Session;
+- exact `task_id`;
+- derived channel `chat:source-hosted:<source-session-id>`;
+- `task.shared_task.mode = source_hosted`;
+- `task.shared_task.phase = source_owned`.
+
+Only one source-hosted Task may be current. A different Task or source Session
+is rejected with `single_task_scope` or `source_session_scope`.
+
+The entry redirects to the existing `/` page and sets the existing panel cookie.
+No new UI or launcher entry is wired.
+
+In this mode:
+
+- `/api/event` keeps the local draft event and append-only queues a
+  `source_hosted_intent` timeline item;
+- `/api/submit` returns
+  `409 / panel_turn_forbidden_in_source_hosted` and creates no provider Turn;
+- `/api/task/sync/export` is read-only and never changes the shared phase;
+- `/api/task/sync/claim` validates the exact intent/submission/result anchors
+  and explicitly, idempotently advances the phase to `source_agent_pulled`;
+- `/api/task/sync/import` moves the phase to `source_result_synced` after the
+  source Agent publishes a result;
+- the page observes intent and result through the normal `/api/state` and Task
+  timeline.
+
+The initial single-Task mock closure is:
+
+```text
+signed entry
+  -> existing page
+  -> local user event
+  -> waiting_for_source_pull
+  -> read-only Agent export
+  -> freshness-bound explicit claim
+  -> source_agent_pulled
+  -> Agent result import
+  -> source_result_synced
+  -> page state
+```
+
+### Credential separation
+
+Source-hosted mode uses three separate local credentials:
+
+```text
+runtime/capability-token           master/local control
+runtime/panel-capability-token     same-origin panel cookie
+runtime/source-capability-token    source Agent sync Bearer
+```
+
+`/` and `/source-hosted/open` set only the panel capability cookie. They never
+put the master or source capability in browser state.
+
+While a source-hosted Task is active:
+
+- panel cookie or master credential may use normal UI/read/local-action routes;
+- only source Bearer may call `/api/task/sync/export`,
+  `/api/task/sync/claim`, and `/api/task/sync/import`;
+- source Bearer may not call panel routes;
+- panel cookie calling source sync routes returns
+  `403 source_capability_required`;
+- source Bearer calling panel routes returns
+  `403 panel_capability_required`;
+- normal `/handoff/open` returns `409 single_task_scope`;
+- Task/new/session/new/reset routes return `409 single_task_scope`.
+
+### Immutable binding
+
+Source-hosted Task binding is:
+
+```text
+task_id
+chat:source-hosted:<source-session-id>
+source-session-id
+```
+
+Source import rejects a mismatched channel with
+`channel_binding_mismatch`. Export/import require the exact source Session;
+mismatch returns `source_session_scope` before any Task mutation.
+
+### Phase machine
+
+Legal phases:
+
+```text
+source_owned
+  -> waiting_for_source_pull
+  -> source_agent_pulled
+  -> source_result_synced
+```
+
+Rules:
+
+- panel event may start/continue a waiting cycle from `source_owned`,
+  `waiting_for_source_pull`, or `source_result_synced`;
+- panel event is rejected in `source_agent_pulled`;
+- source export validates channel and source Session and returns the current
+  projection without writing Task state;
+- source claim validates Task, channel, source Session, intent event,
+  submission sequence, attachment identity, and (when required) the freshly
+  generated source result before advancing
+  `waiting_for_source_pull -> source_agent_pulled`;
+- claim is idempotent for the same anchor tuple and appends exactly one
+  `source_hosted.source_result_claimed` audit event;
+- stale source results, anchor mismatches, and repeated claims with another
+  anchor fail without changing phase, timeline, or event count;
+- source import is accepted only in `source_agent_pulled`;
+- import must contain a new `agent`-role result;
+- user-only import, skipped export, duplicate result import, wrong Session, and
+  wrong channel fail without changing timeline or phase;
+- `/api/submit` always fails in source_hosted mode with
+  `panel_turn_forbidden_in_source_hosted`.
+
 ## Capability grants
 
 Each Task has:
@@ -472,7 +616,10 @@ Pending request fields include:
 - Task-relative `artifact_root_ref`;
 - normalized analysis window and signature;
 - request expiry;
-- network/command/system-write limitations.
+- network/command/system-write limitations;
+- a presentation envelope and an optional continuation descriptor for the
+  generic permission card. The continuation identifies only the allowlisted
+  local action to resume after a decision.
 
 Grant fields add:
 
@@ -594,7 +741,7 @@ name derived from the active workbench objective, for example
 `硬件调试：确认现有 CSV 是否覆盖黑屏或掉帧事件`.
 
 Discoverability of a saved Thread through a fresh `thread/list` probe remains an
-adapter-specific diagnostic outside the 0.1.0-dev product test suite. Exact-ID
+adapter-specific diagnostic outside the current product test suite. Exact-ID
 resume is the supported recovery path.
 
 ## Permissions
@@ -602,6 +749,75 @@ resume is the supported recovery path.
 The thread is created/resumed with `read-only` and `approvalPolicy: never`. The
 UI exposes the resulting `read-only supervised` boundary and does not hide the
 panel. Action-by-action permission escalation is reserved for the next phase.
+
+`GET /api/state` also exposes:
+
+```json
+{
+  "agent_permissions": {
+    "sandbox": "read-only",
+    "approvalPolicy": "never",
+    "source": "safe-default"
+  },
+  "surface": {
+    "mode": "read-only",
+    "runtime_state": "running-current-workspace",
+    "loopback": true
+  },
+  "permission_matrix": {
+    "schema_version": "1.0",
+    "states": [
+      {
+        "id": "runtime_launch",
+        "owner": "skilldock",
+        "status": "active-current-workspace"
+      },
+      {
+        "id": "local_file_read",
+        "owner": "skill-runtime",
+        "status": "approval-required"
+      },
+      {
+        "id": "task_artifact_write",
+        "owner": "skill-runtime",
+        "status": "approval-required"
+      },
+      {
+        "id": "workspace_write",
+        "owner": "agent-host",
+        "status": "blocked"
+      },
+      {
+        "id": "external_network",
+        "owner": "skill-runtime",
+        "status": "disabled"
+      },
+      {
+        "id": "hardware_control",
+        "owner": "skill",
+        "status": "manual-only"
+      }
+    ]
+  }
+}
+```
+
+These fields are independent of the Task's Skill capability profile. The Agent
+profile may be selected with `PANEL_AGENT_SANDBOX` and
+`PANEL_AGENT_APPROVAL_POLICY`; the surface mode uses `PANEL_SURFACE_MODE`.
+Unsupported combinations fail before the Driver is used.
+
+`permission_matrix` is a derived public status projection, never an additional
+grant source. `local_file_read` and `task_artifact_write` reflect the current
+Task request/grant state. `workspace_write` remains owned by the Agent host and
+cannot be granted by SkillDock. `external_network.disabled` describes the Skill
+Runtime only; loopback is local surface transport, and the Agent host's network
+policy is not inferred. Hardware control is always `manual-only`.
+
+The permission card renders `presentation.facts` rather than a CSV-specific
+schema and exposes explicit `allow_once`, `allow_task`, and `deny` decisions plus
+grant revocation. Host approval events and decision return are not part of this
+projection; they require the separate P3 Approval Relay contract.
 
 ## Codex adapter exchange
 

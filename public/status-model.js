@@ -14,6 +14,9 @@ export function deriveActivityMode({
   if (phase === "interrupted") {
     return "interrupted";
   }
+  if (activity?.status === "waiting_for_source") {
+    return "waiting_for_source";
+  }
   if (submitPending || phase === "running") {
     if (
       optimisticPhase === "sent" &&

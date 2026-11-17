@@ -6,7 +6,7 @@ DSH are adapters, not product concepts.
 
 Version lines are independent:
 
-- SkillDock application: `0.1.0-dev`
+- SkillDock application: `0.1.0-rc.1` (release candidate, not released)
 - SkillSurface contract: `1.0`
 - SkillRuntime contract: `1.0`
 - AgentDriver contract: `1.0`
@@ -17,6 +17,37 @@ The long-term Agent compatibility route is described in
 [AGENT-BRIDGE.md](AGENT-BRIDGE.md); its protocol remains a draft.
 The primary user journey is Skill-triggered, not a manually launched desktop
 application; see [SKILL-TRIGGERED-UX.md](SKILL-TRIGGERED-UX.md).
+
+## Windows release candidate
+
+The current candidate is SkillDock `0.1.0-rc.1` with PC Hardware Workbench
+`2.8.0`. The R7 user-experience evidence was produced from the `2.7.4` source
+tree. The only distributable Windows archive is:
+
+```text
+dist/SkillDock-PCHW-0.1.0-rc.1-win-x64.zip
+```
+
+Build and verify it without changing the formal entry:
+
+```powershell
+pnpm build:win-rc
+pnpm verify:win-rc
+```
+
+The RC remains default-off. Default traffic, the formal default entry,
+background write, coordinator recovery, automatic hardware changes, and public
+release stay closed. Clean-Windows install/uninstall acceptance and explicit
+user release signoff are still required. See
+[`release/0.1.0-rc.1`](release/0.1.0-rc.1).
+
+Host scope is intentionally narrow: this version promises the
+`pchw-source-hosted` SkillDock panel only under Codex. DSH and other hosts may
+install `pc-hardware-workbench` and use its chat, collection, and CSV-analysis
+capabilities, but must not be told that the SkillDock panel is available there.
+`launch-panel.ps1` requires `CODEX_THREAD_ID` and fails with
+`thread_binding_missing` when that identity is absent. See
+[`SUPPORT-MATRIX.md`](release/0.1.0-rc.1/SUPPORT-MATRIX.md).
 
 ## Run
 
@@ -68,6 +99,26 @@ Invalid driver names fail before the server listens. P4 established the
 Codex/Mock boundary; P5 adds DSH headless. DSH Web uses a panel-owned child
 process so the panel never reads or copies an existing browser cookie. The
 adapter remains experimental.
+
+The effective Agent permission and the SkillDock surface mode are exposed
+separately:
+
+```powershell
+$env:PANEL_AGENT_SANDBOX = "read-only"       # default
+$env:PANEL_AGENT_APPROVAL_POLICY = "never"   # default
+$env:PANEL_SURFACE_MODE = "read-only"        # default
+```
+
+Supported Agent sandbox names are `read-only`, `workspace-write`, and
+`danger-full-access`. Approval names are `on-request` and `never`. A Driver
+rejects a requested combination it cannot support. The current Codex Driver
+can run the listed sandboxes, but it advertises `approvalModes: ["never"]`
+because it cannot yet relay approval events; it must not claim `on-request`
+support.
+
+Surface names are `chat`, `read-only`, `interactive`, and `developer`. `chat`
+launches no Runtime. The `launch-panel.ps1` entry accepts only non-chat surface
+modes.
 
 For a DSH Web trial that reuses the user's existing DSH login:
 
@@ -271,14 +322,15 @@ commands, system writes, and hardware changes are unavailable.
 
 Grant choices:
 
-- `允许本次分析`: one-time, 10-minute expiry, bound to one Task, attachment ID,
+- `仅本次允许`: one-time, 10-minute expiry, bound to one Task, attachment ID,
   SHA-256, artifact root, capability, and analysis window;
+- `本 Task 允许`: 2-hour expiry, reusable for another window of the same
+  attachment hash in the same Task;
 - `拒绝`: no script, artifact, or Agent turn;
-- optional `本 Task 内允许同类分析`: 2-hour expiry, reusable for another window
-  of the same attachment hash in the same Task.
 
-The current capability is shown as `只读监督` or
-`本 Task 已允许分析 CSV`, including scope, expiration, and a revoke action.
+The permission card is not CSV-specific. It renders Skill-supplied facts and a
+single allowlisted continuation through common once/task/deny controls. Active
+grants show scope, expiration, and a revoke action.
 Restarting the panel preserves unexpired/revoked state and marks newly expired
 grants with `permission.expired`.
 
@@ -553,6 +605,21 @@ The active Agent Session runs with only the capabilities advertised by its
 adapter. The UI shows the resulting permission boundary and does not hide the
 Task panel.
 
+`/api/state` and `/api/health` expose three independent projections:
+
+- `agent_permissions`: effective Agent sandbox and approval policy;
+- `surface`: surface mode and current-workspace Runtime state;
+- `permissions`: Task-local Skill capability grants.
+
+They also expose `permission_matrix`, a derived status view for Runtime launch,
+selected-file read, Task artifact write, Agent workspace write, Skill Runtime
+external network, and manual-only hardware control. It does not grant any of
+those actions. A SkillDock-disabled network does not describe the Agent host's
+network policy, and an Agent `workspace-write` sandbox does not create a separate
+SkillDock workspace grant.
+
+Opening or switching the surface never broadens any of these profiles.
+
 The local supervisor may invoke only the installed Workbench analyzer and chart
 renderer with generated argument arrays. The Agent receives no arbitrary shell
 access, and an uploaded file never becomes a command string.
@@ -562,7 +629,11 @@ must be approved action by action. The current telemetry broker is a fixed
 allowlisted local capability, not a general command runner. Hardware writes
 remain manual user actions in every profile.
 
+A different-workspace Runtime is not stopped implicitly. The launcher returns a
+blocking error until the caller makes an explicit replacement decision.
+
 ## Scope
 
-This is a spike, not a stable SDK product. See [`ARCHITECTURE.md`](ARCHITECTURE.md)
-and [`PROTOCOL.md`](PROTOCOL.md) for decisions and verified boundaries.
+This release candidate is not a stable SDK product and is not a formal
+production release. See [`ARCHITECTURE.md`](ARCHITECTURE.md) and
+[`PROTOCOL.md`](PROTOCOL.md) for decisions and verified boundaries.

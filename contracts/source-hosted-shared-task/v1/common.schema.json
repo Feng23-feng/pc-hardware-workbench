@@ -1,0 +1,1132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skilldock.local/contracts/source-hosted-shared-task/v1/common.schema.json",
+  "title": "source_hosted-shared-task-v1 common definitions",
+  "$defs": {
+    "contract": {
+      "const": "source_hosted-shared-task-v1"
+    },
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "safeId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$"
+    },
+    "requestId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$"
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$"
+    },
+    "dateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sha256Hex": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["source_hosted", "panel_hosted", "suspended"]
+    },
+    "executionOwner": {
+      "type": "string",
+      "enum": ["source", "panel", "none"]
+    },
+    "actorRole": {
+      "type": "string",
+      "enum": ["source", "panel"]
+    },
+    "eventAuthorRole": {
+      "type": "string",
+      "enum": ["source", "panel", "coordinator"]
+    },
+    "targetRole": {
+      "type": "string",
+      "enum": ["source", "panel", "both"]
+    },
+    "mailboxProfile": {
+      "type": "string",
+      "enum": ["standard", "recovery", "recovery_ack"]
+    },
+    "mailboxAction": {
+      "type": "string",
+      "enum": ["snapshot", "pull", "publish", "ack"]
+    },
+    "leaseAction": {
+      "type": "string",
+      "enum": ["claim_lease", "release_lease"]
+    },
+    "authority": {
+      "type": "string",
+      "enum": ["surface_input", "execution_result", "note"]
+    },
+    "eventKind": {
+      "type": "string",
+      "enum": [
+        "intent.user_action",
+        "intent.analysis_request",
+        "evidence.added",
+        "artifact.reference",
+        "agent.result",
+        "decision.proposal",
+        "decision.accepted",
+        "note",
+        "owner.claimed",
+        "owner.released",
+        "owner.switched"
+      ]
+    },
+    "streamGeneration": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{7,127}$"
+    },
+    "streamSequence": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "eventSequence": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "taskRevision": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "fencingEpoch": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "streamRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["generation", "seq"],
+      "properties": {
+        "generation": {
+          "$ref": "#/$defs/streamGeneration"
+        },
+        "seq": {
+          "$ref": "#/$defs/streamSequence"
+        }
+      }
+    },
+    "streamState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["generation", "head_seq", "min_retained_seq"],
+      "properties": {
+        "generation": {
+          "$ref": "#/$defs/streamGeneration"
+        },
+        "head_seq": {
+          "$ref": "#/$defs/streamSequence"
+        },
+        "min_retained_seq": {
+          "$ref": "#/$defs/eventSequence"
+        }
+      }
+    },
+    "executionState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "owner", "lease_id", "fencing_epoch"],
+      "properties": {
+        "mode": {
+          "$ref": "#/$defs/mode"
+        },
+        "owner": {
+          "$ref": "#/$defs/executionOwner"
+        },
+        "lease_id": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "fencing_epoch": {
+          "$ref": "#/$defs/fencingEpoch"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "source_hosted"
+              }
+            },
+            "required": ["mode"]
+          },
+          "then": {
+            "properties": {
+              "owner": {
+                "const": "source"
+              },
+              "lease_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "panel_hosted"
+              }
+            },
+            "required": ["mode"]
+          },
+          "then": {
+            "properties": {
+              "owner": {
+                "const": "panel"
+              },
+              "lease_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "suspended"
+              }
+            },
+            "required": ["mode"]
+          },
+          "then": {
+            "properties": {
+              "owner": {
+                "const": "none"
+              },
+              "lease_id": {
+                "const": null
+              }
+            }
+          }
+        }
+      ]
+    },
+    "eventOrigin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["session_ref", "turn_id", "item_id"],
+      "properties": {
+        "session_ref": {
+          "type": ["string", "null"],
+          "maxLength": 256
+        },
+        "turn_id": {
+          "type": ["string", "null"],
+          "maxLength": 256
+        },
+        "item_id": {
+          "type": ["string", "null"],
+          "maxLength": 256
+        }
+      }
+    },
+    "committedEventOrigin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["session_ref", "turn_id", "item_id", "client_event_id"],
+      "properties": {
+        "session_ref": {
+          "type": ["string", "null"],
+          "maxLength": 256
+        },
+        "turn_id": {
+          "type": ["string", "null"],
+          "maxLength": 256
+        },
+        "item_id": {
+          "type": ["string", "null"],
+          "maxLength": 256
+        },
+        "client_event_id": {
+          "$ref": "#/$defs/safeId"
+        }
+      }
+    },
+    "eventDraft": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "client_event_id",
+        "kind",
+        "authority",
+        "target_role",
+        "execution_epoch",
+        "origin",
+        "payload"
+      ],
+      "properties": {
+        "client_event_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "kind": {
+          "$ref": "#/$defs/eventKind"
+        },
+        "authority": {
+          "$ref": "#/$defs/authority"
+        },
+        "target_role": {
+          "$ref": "#/$defs/targetRole"
+        },
+        "execution_epoch": {
+          "$ref": "#/$defs/fencingEpoch"
+        },
+        "origin": {
+          "$ref": "#/$defs/eventOrigin"
+        },
+        "payload": {
+          "type": "object"
+        }
+      },
+      "not": {
+        "properties": {
+          "kind": {
+            "enum": ["owner.claimed", "owner.released", "owner.switched"]
+          }
+        },
+        "required": ["kind"]
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "intent.user_action"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "const": "surface_input"
+              },
+              "target_role": {
+                "enum": ["source", "both"]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "intent.analysis_request"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "const": "surface_input"
+              },
+              "target_role": {
+                "const": "source"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "evidence.added"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "const": "surface_input"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "artifact.reference"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "enum": ["surface_input", "note"]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "agent.result"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "const": "execution_result"
+              },
+              "target_role": {
+                "enum": ["panel", "both"]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "decision.proposal"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "enum": ["surface_input", "note"]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "decision.accepted"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "const": "execution_result"
+              },
+              "target_role": {
+                "enum": ["panel", "both"]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "note"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "const": "note"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id",
+        "stream_seq",
+        "kind",
+        "authority",
+        "author_role",
+        "target_role",
+        "execution_epoch",
+        "origin",
+        "payload",
+        "created_at"
+      ],
+      "properties": {
+        "event_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "stream_seq": {
+          "$ref": "#/$defs/eventSequence"
+        },
+        "kind": {
+          "$ref": "#/$defs/eventKind"
+        },
+        "authority": {
+          "type": "string",
+          "enum": ["surface_input", "execution_result", "note", "owner_transition"]
+        },
+        "author_role": {
+          "$ref": "#/$defs/eventAuthorRole"
+        },
+        "target_role": {
+          "$ref": "#/$defs/targetRole"
+        },
+        "execution_epoch": {
+          "$ref": "#/$defs/fencingEpoch"
+        },
+        "origin": {
+          "$ref": "#/$defs/committedEventOrigin"
+        },
+        "payload": {
+          "type": "object"
+        },
+        "created_at": {
+          "$ref": "#/$defs/dateTime"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "intent.user_action"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "const": "surface_input"
+              },
+              "author_role": {
+                "enum": ["source", "panel"]
+              },
+              "target_role": {
+                "enum": ["source", "both"]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "intent.analysis_request"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "const": "surface_input"
+              },
+              "author_role": {
+                "const": "panel"
+              },
+              "target_role": {
+                "const": "source"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "evidence.added"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "const": "surface_input"
+              },
+              "author_role": {
+                "enum": ["source", "panel"]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "artifact.reference"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "enum": ["surface_input", "note"]
+              },
+              "author_role": {
+                "const": "panel"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "agent.result"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "const": "execution_result"
+              },
+              "author_role": {
+                "enum": ["source", "panel"]
+              },
+              "target_role": {
+                "enum": ["panel", "both"]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "decision.proposal"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "enum": ["surface_input", "note"]
+              },
+              "author_role": {
+                "enum": ["source", "panel"]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "decision.accepted"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "const": "execution_result"
+              },
+              "author_role": {
+                "enum": ["source", "panel"]
+              },
+              "target_role": {
+                "enum": ["panel", "both"]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "note"
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "const": "note"
+              },
+              "author_role": {
+                "enum": ["source", "panel"]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": ["owner.claimed", "owner.released", "owner.switched"]
+              }
+            },
+            "required": ["kind"]
+          },
+          "then": {
+            "properties": {
+              "authority": {
+                "const": "owner_transition"
+              },
+              "author_role": {
+                "const": "coordinator"
+              },
+              "target_role": {
+                "const": "both"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "eventReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event_id", "client_event_id", "stream_seq", "created_at"],
+      "properties": {
+        "event_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "client_event_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "stream_seq": {
+          "$ref": "#/$defs/eventSequence"
+        },
+        "created_at": {
+          "$ref": "#/$defs/dateTime"
+        }
+      }
+    },
+    "deliveryAckEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "generation",
+        "delivered_seq_prefix",
+        "ack_coverage_prefix"
+      ],
+      "properties": {
+        "generation": {
+          "$ref": "#/$defs/streamGeneration"
+        },
+        "delivered_seq_prefix": {
+          "$ref": "#/$defs/streamSequence"
+        },
+        "ack_coverage_prefix": {
+          "$ref": "#/$defs/streamSequence"
+        }
+      }
+    },
+    "deliveryAckState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "panel"],
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/deliveryAckEntry"
+        },
+        "panel": {
+          "$ref": "#/$defs/deliveryAckEntry"
+        }
+      }
+    },
+    "pendingCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["for_source", "for_panel"],
+      "properties": {
+        "for_source": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "for_panel": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "taskState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "contract",
+        "task_id",
+        "channel_id",
+        "workspace_id",
+        "mode",
+        "execution",
+        "task_revision",
+        "stream",
+        "snapshot_seq",
+        "objective",
+        "state",
+        "pending"
+      ],
+      "properties": {
+        "schema_version": {
+          "$ref": "#/$defs/schemaVersion"
+        },
+        "contract": {
+          "$ref": "#/$defs/contract"
+        },
+        "task_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "channel_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "workspace_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "mode": {
+          "$ref": "#/$defs/mode"
+        },
+        "execution": {
+          "$ref": "#/$defs/executionState"
+        },
+        "task_revision": {
+          "$ref": "#/$defs/taskRevision"
+        },
+        "stream": {
+          "$ref": "#/$defs/streamState"
+        },
+        "snapshot_seq": {
+          "$ref": "#/$defs/streamSequence"
+        },
+        "objective": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "state": {
+          "type": "object"
+        },
+        "pending": {
+          "$ref": "#/$defs/pendingCounts"
+        }
+      }
+    },
+    "snapshotMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "snapshot_id",
+        "stream_generation",
+        "snapshot_seq",
+        "task_revision",
+        "stream_head_seq",
+        "min_retained_seq",
+        "issued_at",
+        "expires_at"
+      ],
+      "properties": {
+        "snapshot_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "stream_generation": {
+          "$ref": "#/$defs/streamGeneration"
+        },
+        "snapshot_seq": {
+          "$ref": "#/$defs/streamSequence"
+        },
+        "task_revision": {
+          "$ref": "#/$defs/taskRevision"
+        },
+        "stream_head_seq": {
+          "$ref": "#/$defs/streamSequence"
+        },
+        "min_retained_seq": {
+          "$ref": "#/$defs/eventSequence"
+        },
+        "issued_at": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "expires_at": {
+          "$ref": "#/$defs/dateTime"
+        }
+      }
+    },
+    "nextSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["snapshot_id", "snapshot_seq", "task_revision", "expires_at"],
+      "properties": {
+        "snapshot_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "snapshot_seq": {
+          "$ref": "#/$defs/streamSequence"
+        },
+        "task_revision": {
+          "$ref": "#/$defs/taskRevision"
+        },
+        "expires_at": {
+          "$ref": "#/$defs/dateTime"
+        }
+      }
+    },
+    "checkpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "checkpoint_id",
+        "generation",
+        "snapshot_seq",
+        "task_revision",
+        "fencing_epoch",
+        "required_coverage_prefix",
+        "expires_at"
+      ],
+      "properties": {
+        "checkpoint_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "generation": {
+          "$ref": "#/$defs/streamGeneration"
+        },
+        "snapshot_seq": {
+          "$ref": "#/$defs/streamSequence"
+        },
+        "task_revision": {
+          "$ref": "#/$defs/taskRevision"
+        },
+        "fencing_epoch": {
+          "$ref": "#/$defs/fencingEpoch"
+        },
+        "required_coverage_prefix": {
+          "$ref": "#/$defs/streamSequence"
+        },
+        "expires_at": {
+          "$ref": "#/$defs/dateTime"
+        }
+      }
+    },
+    "mailboxCapability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "handle_id",
+        "contract",
+        "audience",
+        "actor_id",
+        "actor_role",
+        "mailbox_profile",
+        "workspace_id",
+        "task_id",
+        "channel_id",
+        "execution_epoch",
+        "allowed_actions",
+        "permitted_authority",
+        "issued_at",
+        "expires_at",
+        "rotation_generation"
+      ],
+      "properties": {
+        "handle_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "contract": {
+          "$ref": "#/$defs/contract"
+        },
+        "audience": {
+          "const": "skilldock-task-mailbox"
+        },
+        "actor_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "actor_role": {
+          "$ref": "#/$defs/actorRole"
+        },
+        "mailbox_profile": {
+          "$ref": "#/$defs/mailboxProfile"
+        },
+        "workspace_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "task_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "channel_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "execution_epoch": {
+          "$ref": "#/$defs/fencingEpoch"
+        },
+        "allowed_actions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/mailboxAction"
+          }
+        },
+        "permitted_authority": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/authority"
+          }
+        },
+        "issued_at": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "expires_at": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "rotation_generation": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mailbox_profile": {
+                "const": "standard"
+              }
+            },
+            "required": ["mailbox_profile"]
+          },
+          "then": {
+            "properties": {
+              "allowed_actions": {
+                "type": "array",
+                "uniqueItems": true,
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "enum": ["snapshot", "pull", "publish", "ack"]
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mailbox_profile": {
+                "const": "recovery"
+              }
+            },
+            "required": ["mailbox_profile"]
+          },
+          "then": {
+            "properties": {
+              "allowed_actions": {
+                "type": "array",
+                "uniqueItems": true,
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "enum": ["snapshot", "pull"]
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mailbox_profile": {
+                "const": "recovery_ack"
+              }
+            },
+            "required": ["mailbox_profile"]
+          },
+          "then": {
+            "properties": {
+              "allowed_actions": {
+                "type": "array",
+                "uniqueItems": true,
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "enum": ["snapshot", "pull", "ack"]
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "leaseControlCapability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "handle_id",
+        "contract",
+        "audience",
+        "actor_id",
+        "workspace_id",
+        "task_id",
+        "allowed_actions",
+        "issued_at",
+        "expires_at",
+        "rotation_generation"
+      ],
+      "properties": {
+        "handle_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "contract": {
+          "$ref": "#/$defs/contract"
+        },
+        "audience": {
+          "const": "skilldock-lease-control"
+        },
+        "actor_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "workspace_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "task_id": {
+          "$ref": "#/$defs/safeId"
+        },
+        "allowed_actions": {
+          "type": "array",
+          "uniqueItems": true,
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/leaseAction"
+          }
+        },
+        "issued_at": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "expires_at": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "rotation_generation": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    }
+  }
+}

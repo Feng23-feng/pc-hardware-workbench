@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "profile_id": "source-hosted-node24-node-sqlite-process-v1",
+  "status": "frozen",
+  "runtime": {
+    "node_minimum": "24.22.1",
+    "node_maximum_exclusive": "25.0.0",
+    "node_verified": "24.22.1",
+    "sqlite_minimum": "3.53.4",
+    "sqlite_maximum_exclusive": "3.54.0",
+    "sqlite_verified": "3.53.4"
+  },
+  "driver": {
+    "name": "node:sqlite",
+    "api": "DatabaseSync",
+    "native_addon": false,
+    "isolation": "dedicated-coordinator-process",
+    "single_database_owner": true
+  },
+  "database": {
+    "schema_version": 1,
+    "journal_mode": "wal",
+    "synchronous": "FULL",
+    "foreign_keys": "ON",
+    "trusted_schema": "OFF",
+    "busy_timeout_ms": 5000,
+    "transaction_mode": "BEGIN IMMEDIATE"
+  },
+  "activation": {
+    "default_enabled": false,
+    "allowed_mode": "shadow",
+    "fail_closed": true,
+    "requires_runtime_probe": true,
+    "requires_database_probe": true,
+    "requires_process_isolation": true
+  },
+  "rejected_for_v1": {
+    "node_below_minimum": true,
+    "node_25_or_newer": true,
+    "sqlite_3_54_or_newer_without_review": true,
+    "in_process_and_multiple_database_owners": true,
+    "default_traffic_enablement": true
+  }
+}

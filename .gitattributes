@@ -4,3 +4,4 @@
 *.jpeg binary
 *.webp binary
 *.zip binary
+release/0.1.0-rc.1/licenses/*.txt whitespace=-space-before-tab
