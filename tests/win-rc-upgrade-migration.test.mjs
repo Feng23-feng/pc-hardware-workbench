@@ -102,10 +102,10 @@ function runtimeState(objective, task, sharedTask) {
       selected_at: now,
     },
     skill_discovery: null,
-    session_ref: task.shared_task?.source_session_ref ?? null,
+    session_ref: null,
     session_name: "电脑硬件工作台",
     session_recovered: null,
-    thread_id: task.shared_task?.source_session_ref ?? null,
+    thread_id: null,
     thread_name: "电脑硬件工作台",
     thread_recovered: null,
     task: {
@@ -124,6 +124,7 @@ function runtimeState(objective, task, sharedTask) {
     created_at: now,
     updated_at: now,
     event_count: 5,
+    agent_workspace: workspace,
   };
 }
 
