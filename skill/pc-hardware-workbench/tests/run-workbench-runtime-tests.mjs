@@ -156,7 +156,7 @@ class TestSkillRuntime {
   buildTaskContext({ task }) {
     return {
       skill_id: "pc-hardware-workbench",
-      skill_version: "2.7.4",
+      skill_version: "2.8.0",
       runtime_id: "pc-hardware-workbench",
       domain_context: task?.domain_state ?? {},
       domain_refs: task?.domain_refs ?? [],
@@ -291,7 +291,17 @@ try {
     taskId,
     attachment,
     window: { warmup_seconds: 0, duration_seconds: 30 },
+    continuation: {
+      action_id: capability.id,
+      attachment_id: attachment.id,
+      window: { warmup_seconds: 0, duration_seconds: 30 },
+    },
     now: Date.parse("2026-11-15T00:00:00Z"),
+  });
+  assert.deepEqual(request.continuation, {
+    action_id: capability.id,
+    attachment_id: attachment.id,
+    window: { warmup_seconds: 0, duration_seconds: 30 },
   });
   const grant = createCapabilityGrant({
     request,

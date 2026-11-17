@@ -55,6 +55,7 @@ export function createPermissionRequest({
   taskId,
   attachment,
   window,
+  continuation = null,
   now = Date.now(),
 }) {
   if (
@@ -83,6 +84,7 @@ export function createPermissionRequest({
     general_command: "unavailable",
     system_write: "unavailable",
     presentation,
+    continuation,
     requested_at: new Date(now).toISOString(),
     expires_at: new Date(now + PERMISSION_REQUEST_TTL_MS).toISOString(),
   };

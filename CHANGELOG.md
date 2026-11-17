@@ -1,5 +1,13 @@
 ﻿# 电脑硬件工作台版本记录
 
+## 2.8.0 — 2026-11-17
+
+- 新增当前 Codex 对话的 SkillDock 操作面板入口，支持当前 Task、附件上下文、一次性本地分析权限、验证 SVG、判断卡和同 Task 重启恢复；
+- 新增 freshness/claim 与只读 `source-external` 运行边界，面板不得创建额外 Thread、后台写入或恢复流程；
+- PCHW Skill 仍可由 DSH 等宿主用于聊天、采集和 CSV 分析，但 SkillDock 面板只承诺 Codex；缺少 `CODEX_THREAD_ID` 时安全失败；
+- 发布包移除测试 runner、mock/dev 入口、DSH 启动器和写权限 profile；安装副本与权威源码保持同一 Skill 身份；
+- R7 真实验收来源仍为 2.7.4；2.8.0 clean-Windows 人工签收继续为发布阻塞。
+
 ## 2.7.4 — 2026-11-14
 
 - 将入口的二级 reference 目录迁移到各任务的主 reference：Entry 从 10,562 B 降至 8,744 B，Quick 初始加载从 19,571 B 降至 17,753 B；

@@ -276,7 +276,7 @@ function publicArtifact(record) {
   };
 }
 
-function analysisSummary(analysis, buffer) {
+export function analysisSummary(analysis, buffer) {
   return {
     analyzer_version: analysis.AnalyzerVersion ?? "unknown",
     header_line: analysis.HeaderLine ?? 1,
@@ -312,7 +312,7 @@ function analysisSummary(analysis, buffer) {
   };
 }
 
-function verifiedBlocks(analysis, artifact) {
+export function verifiedBlocks(analysis, artifact) {
   const metrics = (analysis.metrics ?? []).slice(0, 6);
   if (metrics.length === 0) {
     return [];

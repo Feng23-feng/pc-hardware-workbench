@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [string]$SkillRoot,
 
@@ -135,6 +135,8 @@ if ($null -ne $resolvedRoot) {
         "scripts/analyze-presentmon.ps1",
         "scripts/skilldock/launch-panel.ps1",
         "scripts/skilldock/sync-panel.ps1",
+        "scripts/skilldock/wait-panel.ps1",
+        "scripts/skilldock/submit-panel-result.ps1",
         "scripts/verify-hardware-claim.ps1",
         "assets/evidence-card-template.html",
         "references/integration/evidence-package.md",

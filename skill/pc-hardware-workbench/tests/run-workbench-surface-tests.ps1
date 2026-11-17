@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
     [string]$SkillRoot
@@ -47,8 +47,12 @@ try {
     $surface = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/integration/workbench-surface.md") -Encoding UTF8
     $runtimeDoc = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/integration/workbench-runtime.md") -Encoding UTF8
     $skilldock = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/integration/skilldock-surface.md") -Encoding UTF8
+    $agentInterface = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "agents/openai.yaml") -Encoding UTF8
     $skilldockLauncher = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "scripts/skilldock/launch-panel.ps1") -Encoding UTF8
     $skilldockSync = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "scripts/skilldock/sync-panel.ps1") -Encoding UTF8
+    $skilldockWait = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "scripts/skilldock/wait-panel.ps1") -Encoding UTF8
+    $skilldockFreshness = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "scripts/skilldock/source-result-freshness.ps1") -Encoding UTF8
+    $skilldockSubmit = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "scripts/skilldock/submit-panel-result.ps1") -Encoding UTF8
     $triage = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/triage/triage-checklist.md") -Encoding UTF8
 
     Assert-ContainsAll $skill @(
@@ -58,6 +62,15 @@ try {
         "chart, evidence table, artifact", "explicit surface intents",
         "channel IDs", "context files"
     ) "SKILL.md surface routing"
+    Assert-ContainsAll $skill @(
+        "never synthesize a separate Runtime launch command",
+        "never show raw JSON or a panel component tree",
+        "Do not create, fork, attach, or resume another Thread",
+        "Thread-binding mismatch must fail closed"
+    ) "SKILL.md SkillDock execution boundary"
+    Assert-ContainsAll $agentInterface @(
+        "launch-panel.ps1"
+    ) "DSH interface SkillDock boundary"
     Assert-ContainsAll $surface @(
         "[workbench-runtime.md](workbench-runtime.md)"
     ) "Installed runtime route"
@@ -77,17 +90,66 @@ try {
         "independent panel-owned Agent Session",
         "Never claim the graph is open", "Chat context handoff",
         "Returning to chat", "channel_id", "sync-panel.ps1",
-        "not native attachment"
+        "not native attachment", "SurfaceMode", "ReplaceWorkspace",
+        "runtime_state", "approval_decision_supported",
+        "Do not reconstruct the Runtime launch",
+        "without starting or rewriting it",
+        "display_summary", "Never paste the raw JSON or component tree",
+        "already in sync", "pchw-source-hosted", "submit-panel-result.ps1",
+        "error_code", "environment variables or test flags",
+        "attachments", "private absolute path", "prefilled",
+        "wait-panel.ps1", "panel_wait_timeout", "phase_not_submittable",
+        "source_agent_pulled", "cycle_generation",
+        "ExpectedAttachmentSha256", "ExpectedSubmissionSequence",
+        "panel_sync_stale_result", "stale",
+        "thread_binding_mismatch", "thread_rebinding_forbidden",
+        "source_attachment_id", "恢复当前 Task"
     ) "SkillDock-triggered surface"
     Assert-ContainsAll $skilldockLauncher @(
         "--ensure", "--workspace", "launch-result.json",
         "ChatContextFile", "task/sync/import",
-        "Invoke-RestMethod", "capability token"
+        "Invoke-RestMethod", "capability token", "ReplaceWorkspace",
+        "--replace-workspace", "PANEL_SURFACE_MODE", "surface_mode",
+        "agent_permission", "permission_matrix", "approval_decision_supported",
+        "SKILLDOCK_LOCAL_ROOT", "ConvertTo-Json -Compress -Depth 8",
+        "pchw-source-hosted", "source-hosted/entry", "source_session_ref",
+        "channel_id", "error_code", "fallback_reason",
+        "SKILLDOCK_AGENT_DRIVER", "SKILLDOCK_INTERNAL_PREVIEW",
+        "Resolve-ContextAttachment", "/api/attachments",
+        "CODEX_THREAD_ID", "thread_binding_mismatch",
+        "X-Source-Attachment-Id", "source_attachment_id",
+        "RuntimeLaunchId", "runtime_binding", "runtime_launch_id"
     ) "SkillDock launcher boundary"
     Assert-ContainsAll $skilldockSync @(
         "ChannelId", "AfterSequence", "task/sync/export",
-        "capability-token", "ConvertTo-Json"
+        "Invoke-SourceHostedResultClaim",
+        "source-capability-token", "X-Source-Session-Ref",
+        "pchw-source-hosted", "ConvertTo-Json", "display_summary",
+        "ExpectedTaskId", "ExpectedAttachmentId",
+        "ExpectedAttachmentSha256", "ExpectedSubmissionSequence",
+        "panel_sync_stale_result", "source-result-freshness",
+        "claim_result_stale"
     ) "SkillDock return-sync boundary"
+    Assert-ContainsAll $skilldockSubmit @(
+        "ChannelId", "SourceSessionRef", "PanelFile", "MessageText",
+        "source-capability-token", "task/sync/import",
+        "X-Source-Session-Ref", "shared_task_phase"
+    ) "SkillDock source-result writeback boundary"
+    Assert-ContainsAll $skilldockWait @(
+        "ChannelId", "SourceSessionRef", "source-capability-token",
+        "X-Source-Session-Ref", "source_tool_result", "panel_wait_timeout",
+        "ExpectedTaskId", "ExpectedAttachmentId",
+        "ExpectedAttachmentSha256", "ExpectedSubmissionSequence",
+        "stale_result_observed", "source-result-freshness", "ConvertTo-Json",
+        "Invoke-SourceHostedResultClaim", "panel_wait_claim_failed"
+    ) "SkillDock source-result wait boundary"
+    Assert-ContainsAll $skilldockFreshness @(
+        "ExpectedTaskId", "ExpectedAttachmentId",
+        "ExpectedAttachmentSha256", "ExpectedSubmissionSequence",
+        "ExpectedIntentEventId", "stale_source_result",
+        "fresh_source_result", "result_after_submission",
+        "task/sync/claim", "Invoke-SourceHostedResultClaim"
+    ) "SkillDock source-result freshness boundary"
 
     $envelope = Get-MarkdownSection $closure "Result envelope"
     Assert-True (-not [string]::IsNullOrWhiteSpace($envelope)) "The result-envelope contract is missing."

@@ -6,6 +6,8 @@ param(
 
     [string]$ArchiveUrl = "https://github.com/Feng23-feng/pc-hardware-workbench/archive/refs/heads/main.zip",
 
+    [string]$SourceDirectory = "",
+
     [switch]$Force
 )
 
@@ -87,6 +89,97 @@ function Assert-NoReparsePointInPath {
         if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
             throw "BackupRoot cannot traverse a symbolic link, junction, or other reparse point: $current"
         }
+    }
+}
+
+function Get-FileSha256Hex {
+    param([Parameter(Mandatory = $true)][string]$Path)
+
+    $sha = [Security.Cryptography.SHA256]::Create()
+    $stream = [IO.File]::OpenRead($Path)
+    try {
+        $bytes = $sha.ComputeHash($stream)
+        return (($bytes | ForEach-Object {
+            $_.ToString("x2")
+        }) -join "")
+    }
+    finally {
+        $stream.Dispose()
+        $sha.Dispose()
+    }
+}
+
+function Get-SkillTreeIdentity {
+    param([Parameter(Mandatory = $true)][string]$Root)
+
+    $resolvedRoot = [IO.Path]::GetFullPath($Root).TrimEnd('\')
+    if (-not (Test-Path -LiteralPath $resolvedRoot -PathType Container)) {
+        throw "Skill tree does not exist: $resolvedRoot"
+    }
+    $paths = New-Object System.Collections.Generic.List[string]
+    $stack = New-Object System.Collections.Generic.Stack[System.IO.DirectoryInfo]
+    $stack.Push((Get-Item -LiteralPath $resolvedRoot -Force))
+    while ($stack.Count -gt 0) {
+        $directory = $stack.Pop()
+        foreach ($entry in @($directory.EnumerateFileSystemInfos())) {
+            if (($entry.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
+                throw "Skill tree contains a reparse point: $($entry.FullName)"
+            }
+            if ($entry -is [System.IO.DirectoryInfo]) {
+                $stack.Push($entry)
+                continue
+            }
+            $relativePath = $entry.FullName.Substring(
+                $resolvedRoot.Length
+            ).TrimStart('\').Replace('\', '/')
+            if ($relativePath -ieq "INSTALL-INFO.json") {
+                continue
+            }
+            $paths.Add($relativePath) | Out-Null
+        }
+    }
+
+    $sortedPaths = $paths.ToArray()
+    [Array]::Sort($sortedPaths, [StringComparer]::Ordinal)
+    $manifest = New-Object System.Text.StringBuilder
+    foreach ($relativePath in $sortedPaths) {
+        $filePath = Join-Path $resolvedRoot $relativePath.Replace('/', '\')
+        $fileHash = Get-FileSha256Hex -Path $filePath
+        [void]$manifest.Append("$fileHash  $relativePath`n")
+    }
+    $manifestBytes = (New-Object Text.UTF8Encoding($false)).GetBytes(
+        $manifest.ToString()
+    )
+    $treeSha = [Security.Cryptography.SHA256]::Create()
+    try {
+        $treeHashBytes = $treeSha.ComputeHash($manifestBytes)
+        $treeHash = (($treeHashBytes | ForEach-Object {
+            $_.ToString("x2")
+        }) -join "")
+    }
+    finally {
+        $treeSha.Dispose()
+    }
+    $runtimePath = Join-Path $resolvedRoot "runtime.mjs"
+    $manifestPath = Join-Path $resolvedRoot "workbench.manifest.json"
+    $runtimeHash = if (Test-Path -LiteralPath $runtimePath -PathType Leaf) {
+        Get-FileSha256Hex -Path $runtimePath
+    } else {
+        $null
+    }
+    $manifestFileHash = if (
+        Test-Path -LiteralPath $manifestPath -PathType Leaf
+    ) {
+        Get-FileSha256Hex -Path $manifestPath
+    } else {
+        $null
+    }
+    return [pscustomobject]@{
+        TreeSha256 = $treeHash
+        TreeFileCount = $sortedPaths.Count
+        RuntimeSha256 = $runtimeHash
+        ManifestSha256 = $manifestFileHash
+        TreeHashAlgorithm = "sha256-manifest-v1"
     }
 }
 
@@ -173,15 +266,25 @@ function Write-InstallInfo {
         throw "Installed Skill version metadata is missing from: $manifestPath"
     }
 
+    $identity = Get-SkillTreeIdentity -Root $Destination
     $installInfo = [pscustomobject]@{
         Product = "PC Hardware Workbench"
         Version = $versionMatch.Groups[1].Value
         ReleaseLabel = "main"
         GitCommit = $null
         InstalledAt = [datetimeoffset]::Now.ToString("o")
-        InstallSource = "source-archive"
+        InstallSource = if ($SourceArchive -like "local-source:*") {
+            "local-source"
+        } else {
+            "source-archive"
+        }
         SourceArchive = $SourceArchive
         Installer = "tools/install-skill.ps1"
+        TreeSha256 = $identity.TreeSha256
+        TreeFileCount = $identity.TreeFileCount
+        RuntimeSha256 = $identity.RuntimeSha256
+        ManifestSha256 = $identity.ManifestSha256
+        TreeHashAlgorithm = $identity.TreeHashAlgorithm
     }
     $json = $installInfo | ConvertTo-Json -Depth 5
     [IO.File]::WriteAllText(
@@ -208,7 +311,50 @@ $skillScanRoot = Get-EffectiveSkillScanRoot -InstallParent $destinationParent
 Assert-BackupOutsideSkillScanRoot `
     -ResolvedBackupRoot $BackupRoot `
     -SkillScanRoot $skillScanRoot
-$safeArchiveSource = Get-SafeArchiveSource -Value $ArchiveUrl
+$localSkillSource = $null
+if (-not [string]::IsNullOrWhiteSpace($SourceDirectory)) {
+    $resolvedSourceDirectory = [IO.Path]::GetFullPath(
+        $SourceDirectory
+    ).TrimEnd('\')
+    if (
+        (Test-Path -LiteralPath $resolvedSourceDirectory -PathType Leaf) -or
+        -not (Test-Path -LiteralPath $resolvedSourceDirectory -PathType Container)
+    ) {
+        throw "SourceDirectory must be an existing directory: $resolvedSourceDirectory"
+    }
+    if (Test-Path -LiteralPath (
+        Join-Path $resolvedSourceDirectory "SKILL.md"
+    ) -PathType Leaf) {
+        $localSkillSource = $resolvedSourceDirectory
+    }
+    else {
+        $nestedSkill = Join-Path `
+            $resolvedSourceDirectory `
+            "skill\pc-hardware-workbench"
+        if (Test-Path -LiteralPath $nestedSkill -PathType Container) {
+            $localSkillSource = $nestedSkill
+        }
+    }
+    if ([string]::IsNullOrWhiteSpace($localSkillSource)) {
+        throw "SourceDirectory does not contain the PC Hardware Workbench Skill: $resolvedSourceDirectory"
+    }
+    if (
+        $Destination.Equals(
+            $localSkillSource,
+            [StringComparison]::OrdinalIgnoreCase
+        ) -or
+        $Destination.StartsWith(
+            $localSkillSource.TrimEnd('\') + '\',
+            [StringComparison]::OrdinalIgnoreCase
+        )
+    ) {
+        throw "Destination cannot be inside SourceDirectory"
+    }
+    $safeArchiveSource = "local-source:$(Split-Path -Leaf $localSkillSource)"
+}
+else {
+    $safeArchiveSource = Get-SafeArchiveSource -Value $ArchiveUrl
+}
 
 $destinationExists = Test-Path -LiteralPath $Destination
 if ($destinationExists -and -not $Force) {
@@ -225,34 +371,52 @@ try {
     New-Item -ItemType Directory -Path $temporaryRoot -Force | Out-Null
     New-Item -ItemType Directory -Path $expandedPath -Force | Out-Null
 
-    Write-Host "Downloading PC Hardware Workbench from:"
-    Write-Host "  $safeArchiveSource"
-    Invoke-WebRequest -UseBasicParsing -Uri $ArchiveUrl -OutFile $archivePath
-    Expand-Archive -LiteralPath $archivePath -DestinationPath $expandedPath -Force
-
-    $directSkillSource = Join-Path $expandedPath "skill\pc-hardware-workbench"
-    if (Test-Path -LiteralPath $directSkillSource -PathType Container) {
-        $skillCandidates = @($directSkillSource)
+    if ($localSkillSource) {
+        Write-Host "Installing PC Hardware Workbench from local source:"
+        Write-Host "  $localSkillSource"
+        $skillSource = $localSkillSource
     }
     else {
-        $skillCandidates = @(
-            Get-ChildItem -LiteralPath $expandedPath -Directory |
-                ForEach-Object {
-                    $candidate = Join-Path $_.FullName "skill\pc-hardware-workbench"
-                    if (Test-Path -LiteralPath $candidate -PathType Container) {
-                        $candidate
+        Write-Host "Downloading PC Hardware Workbench from:"
+        Write-Host "  $safeArchiveSource"
+        Invoke-WebRequest -UseBasicParsing -Uri $ArchiveUrl -OutFile $archivePath
+        Expand-Archive `
+            -LiteralPath $archivePath `
+            -DestinationPath $expandedPath `
+            -Force
+
+        $directSkillSource = Join-Path `
+            $expandedPath `
+            "skill\pc-hardware-workbench"
+        if (Test-Path -LiteralPath $directSkillSource -PathType Container) {
+            $skillCandidates = @($directSkillSource)
+        }
+        else {
+            $skillCandidates = @(
+                Get-ChildItem -LiteralPath $expandedPath -Directory |
+                    ForEach-Object {
+                        $candidate = Join-Path `
+                            $_.FullName `
+                            "skill\pc-hardware-workbench"
+                        if (
+                            Test-Path `
+                                -LiteralPath $candidate `
+                                -PathType Container
+                        ) {
+                            $candidate
+                        }
                     }
-                }
-        )
-    }
-    if ($skillCandidates.Count -ne 1) {
-        throw "Expected one Skill tree in the downloaded archive, found $($skillCandidates.Count)."
+            )
+        }
+        if ($skillCandidates.Count -ne 1) {
+            throw "Expected one Skill tree in the downloaded archive, found $($skillCandidates.Count)."
+        }
+        $skillSource = $skillCandidates[0]
     }
 
-    $skillSource = $skillCandidates[0]
     $manifest = Join-Path $skillSource "SKILL.md"
     if (-not (Test-Path -LiteralPath $manifest -PathType Leaf)) {
-        throw "Downloaded archive does not contain skill\pc-hardware-workbench\SKILL.md."
+        throw "Skill source does not contain SKILL.md: $manifest"
     }
 
     New-Item -ItemType Directory -Path $BackupRoot -Force | Out-Null

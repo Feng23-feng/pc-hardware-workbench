@@ -389,6 +389,24 @@ class PcHardwareWorkbenchRuntime {
     );
   }
 
+  completeSourceHostedAgentResult({
+    task,
+    panel,
+    packet,
+    localResult,
+  }) {
+    if (!localResult?.analysis || !localResult?.artifact) {
+      throw new this.SkillRuntimeError(
+        "source_result_missing_verified_tool",
+        "Source-hosted PCHW result requires a verified local analysis.",
+      );
+    }
+    return this.validatePanelResult(
+      this.broker.applyVerifiedResult(panel, localResult),
+      { packet },
+    );
+  }
+
   refreshCapabilityProfile(task) {
     if (!task) return null;
     task.capability_profile =
@@ -452,6 +470,8 @@ class PcHardwareWorkbenchRuntime {
         ],
         task_scope_label: "本 Task 内允许同类分析（仅限此附件 hash）",
         approve_label: "允许本次分析",
+        allow_once_label: "仅本次允许",
+        allow_task_label: "本 Task 允许",
         deny_label: "拒绝",
         approved_title: "已允许本次数据分析",
         approved_text: "授权仅覆盖当前附件、调用和 artifact 范围。",
@@ -461,6 +481,11 @@ class PcHardwareWorkbenchRuntime {
       taskId: task.task_id,
       attachment,
       window,
+      continuation: {
+        action_id: CAPABILITY,
+        attachment_id: attachment.id,
+        window,
+      },
     });
     task.permission_request = request;
     this.refreshCapabilityProfile(task);
@@ -694,14 +719,16 @@ class PcHardwareWorkbenchRuntime {
       this.refreshCapabilityProfile(task);
     } else {
       consumeCapabilityGrant(grant);
-      host.appendEvent({
-        type: "permission.consumed",
-        grant_id: grant.grant_id,
-        capability: grant.capability,
-        task_id: grant.task_id,
-        scope: grant.scope,
-        consumed_at: grant.consumed_at ?? grant.last_used_at,
-      });
+      if (grant.scope === "one-time") {
+        host.appendEvent({
+          type: "permission.consumed",
+          grant_id: grant.grant_id,
+          capability: grant.capability,
+          task_id: grant.task_id,
+          scope: grant.scope,
+          consumed_at: grant.consumed_at,
+        });
+      }
     }
 
     host.setSubmitting(true);
@@ -754,7 +781,10 @@ class PcHardwareWorkbenchRuntime {
       task_id: task.task_id,
       session_ref: host.getSessionReference(),
       attachment_id: attachment.id,
-      task_context: host.buildTaskContext(),
+      task_context:
+        typeof host.isSourceHosted === "function" && host.isSourceHosted()
+          ? host.buildSourceHostedTaskContext()
+          : host.buildTaskContext(),
       tool_result: {
         tool: "skill.local_action",
         read_only: true,
@@ -768,6 +798,54 @@ class PcHardwareWorkbenchRuntime {
     };
     host.appendEvent({ type: "ui.panel_tool_result", packet });
     host.save();
+    if (
+      typeof host.isSourceHosted === "function" &&
+      host.isSourceHosted()
+    ) {
+      if (!task.artifacts.some((artifact) => artifact.id === result.artifact.id)) {
+        task.artifacts.push(result.artifact);
+      }
+      task.actions ??= [];
+      task.actions.push({
+        id: `action-${randomUUID()}`,
+        action_id: actionId,
+        attachment_id: attachment.id,
+        source_sha256: attachment.sha256,
+        window: packet.tool_result.analysis.requested_window,
+        cache_hit: result.cache_hit,
+        artifact_id: result.artifact.id,
+        local_completed_at: new Date().toISOString(),
+        source_result_pending: true,
+      });
+      task.permission_request = null;
+      this.refreshCapabilityProfile(task);
+      host.setSourceHostedToolResult({ packet, result });
+      host.pushTimeline(
+        "tool",
+        `本地分析完成 ${attachment.original_name}：` +
+          `${packet.tool_result.analysis.analyzed_rows} 行；` +
+          "图表已生成，等待来源 Agent 返回结论。",
+      );
+      host.appendEvent({
+        type: "action.local_completed",
+        action_id: actionId,
+        attachment_id: attachment.id,
+        artifact_id: result.artifact.id,
+        cache_hit: result.cache_hit,
+        task_id: task.task_id,
+        session_ref: host.getSessionReference(),
+        source_result_pending: true,
+      });
+      host.save();
+      host.setSubmitting(false);
+      return {
+        statusCode: 202,
+        body: {
+          source_hosted_pending: true,
+          artifact_ref: result.artifact.id,
+        },
+      };
+    }
     try {
       const agentResult = await host.runAgent(packet);
       host.setAgentError(null);

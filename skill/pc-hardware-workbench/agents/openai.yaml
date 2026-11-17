@@ -1,7 +1,7 @@
 interface:
   display_name: "电脑硬件工作台"
   short_description: "用一个入口完成排障、配置采集、用户声明核验、PresentMon 帧时间、证据包、只读监控、案卷报告、环境诊断、升级判断和单变量显卡起步候选"
-  default_prompt: "使用 $pc-hardware-workbench 判断我要排障、读取配置、调校还是升级；如果我不知道怎么选，就先用白话带我一步步开始。显卡调参时先完成安全门禁，再给一个可回退的用户手动候选。"
+  default_prompt: "使用 $pc-hardware-workbench 判断我要排障、读取配置、调校还是升级；如果我不知道怎么选，就先用白话带我一步步开始。显卡调参时先完成安全门禁，再给一个可回退的用户手动候选。需要打开 SkillDock 时，严格运行 Skill 内的 launch-panel.ps1，不要自行拼接 Runtime 启动命令，也不要让我设置环境变量或测试开关。图表任务打开面板后优先运行 wait-panel.ps1，在同一轮对话中等待已验证的本地结果；超时再让我说“同步面板”。拿到结果后，用 submit-panel-result.ps1 把结论写回同一 Task；只回复自然语言摘要、未决问题和下一步，不要粘贴 JSON 或组件树。"
 
 policy:
   allow_implicit_invocation: true

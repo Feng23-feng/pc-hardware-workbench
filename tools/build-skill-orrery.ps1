@@ -73,6 +73,14 @@ function Get-SectorId {
 
     if ($RelativePath -eq "SKILL.md") { return "core" }
     if ($RelativePath.StartsWith("agents/", [StringComparison]::Ordinal)) { return "core" }
+    if ($RelativePath -in @(
+        "capability-grants.mjs",
+        "runtime.mjs",
+        "shared-evidence-store.mjs",
+        "workbench.manifest.json"
+    )) { return "integration" }
+    if ($RelativePath -eq "telemetry-broker.mjs") { return "scripts" }
+    if ($RelativePath.StartsWith("schemas/", [StringComparison]::Ordinal)) { return "core" }
     if ($RelativePath.StartsWith("assets/", [StringComparison]::Ordinal)) { return "integration" }
     if ($RelativePath.StartsWith("references/integration/", [StringComparison]::Ordinal)) { return "integration" }
     if ($RelativePath.StartsWith("references/triage/", [StringComparison]::Ordinal)) { return "triage" }
