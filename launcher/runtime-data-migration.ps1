@@ -1,5 +1,21 @@
 . (Join-Path $PSScriptRoot "runtime-paths.ps1")
 
+function Get-SkillDockFileSha256 {
+    param([Parameter(Mandatory = $true)][string]$Path)
+
+    $sha = [Security.Cryptography.SHA256]::Create()
+    $stream = [IO.File]::OpenRead($Path)
+    try {
+        return (($sha.ComputeHash($stream) | ForEach-Object {
+            $_.ToString("x2")
+        }) -join "")
+    }
+    finally {
+        $stream.Dispose()
+        $sha.Dispose()
+    }
+}
+
 function Get-SkillDockDataInventory {
     param([Parameter(Mandatory = $true)][string]$Root)
 
@@ -21,8 +37,7 @@ function Get-SkillDockDataInventory {
         $relative = $file.FullName.Substring($resolvedRoot.Length).
             TrimStart("\").
             Replace("\", "/")
-        $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $file.FullName).
-            Hash.ToLowerInvariant()
+        $hash = Get-SkillDockFileSha256 -Path $file.FullName
         $entries.Add([pscustomobject]@{
             path = $relative
             bytes = [int64]$file.Length
