@@ -436,9 +436,84 @@ try {
             -Encoding UTF8
         if (
             $surfaceText -cmatch
-                "SKILLDOCK_INTERNAL_PREVIEW|runtime-dsh-web|SkillDock-DSH|DSH_HOME|DSH|DeepSeek|\.dsh|mock-agent-driver|dsh-agent-driver|agent-bridge-driver|open-workbench"
+                "SKILLDOCK_INTERNAL_PREVIEW|SkillDock-DSH|DSH_HOME|DSH|DeepSeek|\.dsh|mock-agent-driver|dsh-agent-driver|agent-bridge-driver|open-workbench"
         ) {
             throw "Development entry token remains in package surface: $($surfaceFile.FullName)"
+        }
+    }
+
+    $runtimePathHelpers = @(
+        (Join-Path $packageRoot "runtime-paths.ps1"),
+        (Join-Path $packageRoot "integrations\skilldock\runtime-paths.ps1"),
+        (Join-Path `
+            $packageRoot `
+            "skills\pc-hardware-workbench\scripts\skilldock\runtime-paths.ps1")
+    )
+    foreach ($helperPath in $runtimePathHelpers) {
+        if (-not (Test-Path -LiteralPath $helperPath -PathType Leaf)) {
+            throw "Packaged runtime path helper is missing: $helperPath"
+        }
+    }
+    $helperHashes = @(
+        $runtimePathHelpers |
+            ForEach-Object {
+                Get-TextSha256 -Text (
+                    (Get-Content -Raw -LiteralPath $_ -Encoding UTF8).
+                        Replace("`r`n", "`n").
+                        Replace("`r", "`n")
+                )
+            } |
+            Sort-Object -Unique
+    )
+    if ($helperHashes.Count -ne 1) {
+        throw "Packaged runtime path helpers do not have matching content."
+    }
+    foreach ($requiredPath in @(
+        "runtime-data-migration.ps1",
+        "integrations\skilldock\launch-panel.ps1",
+        "integrations\skilldock\sync-panel.ps1",
+        "integrations\skilldock\wait-panel.ps1",
+        "integrations\skilldock\submit-panel-result.ps1",
+        "skills\pc-hardware-workbench\scripts\skilldock\launch-panel.ps1",
+        "skills\pc-hardware-workbench\scripts\skilldock\sync-panel.ps1",
+        "skills\pc-hardware-workbench\scripts\skilldock\wait-panel.ps1",
+        "skills\pc-hardware-workbench\scripts\skilldock\submit-panel-result.ps1"
+    )) {
+        if (-not (Test-Path -LiteralPath (
+            Join-Path $packageRoot $requiredPath
+        ) -PathType Leaf)) {
+            throw "Required runtime integration file is missing: $requiredPath"
+        }
+    }
+    foreach ($scriptDirectory in @(
+        (Join-Path $packageRoot "integrations\skilldock"),
+        (Join-Path `
+            $packageRoot `
+            "skills\pc-hardware-workbench\scripts\skilldock")
+    )) {
+        foreach ($scriptName in @(
+            "launch-panel.ps1",
+            "sync-panel.ps1",
+            "wait-panel.ps1",
+            "submit-panel-result.ps1"
+        )) {
+            $scriptPath = Join-Path $scriptDirectory $scriptName
+            $scriptText = Get-Content -Raw -LiteralPath $scriptPath
+            if ($scriptText -match "runtime-dsh-web|runtime-pchw") {
+                throw (
+                    "SkillDock data-root name is hard-coded outside the " +
+                    "shared resolver: $scriptPath"
+                )
+            }
+            if ($scriptText -notmatch 'runtime-paths\.ps1') {
+                throw "SkillDock script does not load runtime-paths.ps1: $scriptPath"
+            }
+            if ($scriptText -match "server-info\.json") {
+                throw (
+                    "SkillDock script directly trusts server-info.json: " +
+                    $scriptPath
+                )
+            }
         }
     }
 

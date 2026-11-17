@@ -34,6 +34,9 @@ The installer refuses to overwrite a different existing Skill unless
 `-ReplaceExisting` is supplied. Replacement moves the old tree to
 `%USERPROFILE%\.codex\skills\.skilldock-backups` before installing.
 
+When upgrading from an earlier RC-installed PCHW tree, add
+`-ReplaceExisting`. The old tree is backed up before the atomic replacement.
+
 The installer compares the bundled runtime/reference subset with the subset
 identity in `RC-MANIFEST.json`. Test runners and fixture-only material are not
 part of the package.
@@ -51,6 +54,25 @@ The installer creates a versioned Runtime directory under
 `%LOCALAPPDATA%\SkillDock`, atomically updates
 `%LOCALAPPDATA%\SkillDock\runtime-location.json`, and backs up older active
 Runtime directories under `%LOCALAPPDATA%\SkillDockBackups\runtime`.
+
+The canonical Runtime data root is `%LOCALAPPDATA%\SkillDock\runtime-pchw`.
+Before any migration write, the installer copies legacy
+`runtime-dsh-web` Task/attachment/artifact/evidence data to
+`%LOCALAPPDATA%\SkillDockBackups\data`. The default `Auto` policy migrates only
+when the canonical data root is unused.
+
+If both data roots contain state, installation stops with
+`runtime_data_conflict`; the installer never silently merges them. A one-source
+upgrade is explicit:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass `
+  -File ".\Install SkillDock Runtime.ps1" `
+  -LegacyDataPolicy PreferLegacy
+```
+
+Use this only after reviewing the retained data backup. The legacy source
+directory remains recoverable after migration.
 
 The installed Skill is the normal user entry. Ask a hardware question in the
 current Codex conversation and accept the offered graphical workspace; ordinary

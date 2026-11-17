@@ -541,6 +541,12 @@ Copy-Item `
     -LiteralPath (Join-Path $PSScriptRoot "uninstall-pchw-skill.ps1") `
     -Destination (Join-Path $OutputDirectory "Uninstall PCHW Skill.ps1")
 Copy-Item `
+    -LiteralPath (Join-Path $PSScriptRoot "runtime-paths.ps1") `
+    -Destination (Join-Path $OutputDirectory "runtime-paths.ps1")
+Copy-Item `
+    -LiteralPath (Join-Path $PSScriptRoot "runtime-data-migration.ps1") `
+    -Destination (Join-Path $OutputDirectory "runtime-data-migration.ps1")
+Copy-Item `
     -LiteralPath (Join-Path $PSScriptRoot "skill-tree-identity.ps1") `
     -Destination (Join-Path $OutputDirectory "skill-tree-identity.ps1")
 
@@ -625,6 +631,12 @@ $ReleasePowerShellScripts.Add(
 $ReleasePowerShellScripts.Add(
     (Join-Path $OutputDirectory "Uninstall SkillDock.ps1")
 )
+$ReleasePowerShellScripts.Add(
+    (Join-Path $OutputDirectory "runtime-paths.ps1")
+)
+$ReleasePowerShellScripts.Add(
+    (Join-Path $OutputDirectory "runtime-data-migration.ps1")
+)
 foreach ($script in @(
     Get-ChildItem `
         -LiteralPath (Join-Path $PackageIntegrations "skilldock") `
@@ -633,9 +645,22 @@ foreach ($script in @(
 )) {
     $ReleasePowerShellScripts.Add($script.FullName)
 }
+foreach ($name in @(
+    "runtime-paths.ps1",
+    "launch-panel.ps1",
+    "sync-panel.ps1",
+    "wait-panel.ps1",
+    "submit-panel-result.ps1",
+    "source-result-freshness.ps1"
+)) {
+    $ReleasePowerShellScripts.Add(
+        (Join-Path `
+            $OutputDirectory `
+            "skills\pc-hardware-workbench\scripts\skilldock\$name")
+    )
+}
 foreach ($scriptPath in $ReleasePowerShellScripts) {
     $scriptText = Read-Utf8Text -Path $scriptPath
-    $scriptText = $scriptText.Replace("runtime-dsh-web", "runtime-pchw")
     $scriptText = $scriptText.Replace(
         'Join-Path $RepositoryRoot "dist\SkillDock-DSH"',
         'throw "RC installer must be run from the extracted package root."'
@@ -655,6 +680,67 @@ foreach ($scriptPath in $ReleasePowerShellScripts) {
             "Release PowerShell syntax check failed: $scriptPath - " +
             (@($scriptErrors | ForEach-Object Message) -join " | ")
         )
+    }
+}
+
+$RuntimePathHelpers = @(
+    (Join-Path $OutputDirectory "runtime-paths.ps1"),
+    (Join-Path `
+        $OutputDirectory `
+        "integrations\skilldock\runtime-paths.ps1"),
+    (Join-Path `
+        $OutputDirectory `
+        "skills\pc-hardware-workbench\scripts\skilldock\runtime-paths.ps1")
+)
+foreach ($helperPath in $RuntimePathHelpers) {
+    if (-not (Test-Path -LiteralPath $helperPath -PathType Leaf)) {
+        throw "Runtime path helper is missing from the RC: $helperPath"
+    }
+}
+$RuntimePathHelperHashes = @(
+    $RuntimePathHelpers |
+        ForEach-Object {
+            Get-TextSha256 -Text (
+                (Read-Utf8Text -Path $_).
+                    Replace("`r`n", "`n").
+                    Replace("`r", "`n")
+            )
+        } |
+        Sort-Object -Unique
+)
+if ($RuntimePathHelperHashes.Count -ne 1) {
+    throw "Packaged runtime path helpers do not have the same content."
+}
+foreach ($scriptDirectory in @(
+    (Join-Path $OutputDirectory "integrations\skilldock"),
+    (Join-Path `
+        $OutputDirectory `
+        "skills\pc-hardware-workbench\scripts\skilldock")
+)) {
+    foreach ($scriptName in @(
+        "launch-panel.ps1",
+        "sync-panel.ps1",
+        "wait-panel.ps1",
+        "submit-panel-result.ps1"
+    )) {
+        $scriptPath = Join-Path $scriptDirectory $scriptName
+        if (-not (Test-Path -LiteralPath $scriptPath -PathType Leaf)) {
+            throw "Required SkillDock script is missing: $scriptPath"
+        }
+        $script = Get-Item -LiteralPath $scriptPath
+        $scriptText = Read-Utf8Text -Path $script.FullName
+        if ($scriptText -match "runtime-dsh-web|runtime-pchw") {
+            throw (
+                "SkillDock data-root name is hard-coded outside the shared " +
+                "resolver: $($script.FullName)"
+            )
+        }
+        if ($scriptText -notmatch 'runtime-paths\.ps1') {
+            throw (
+                "SkillDock script does not load the shared runtime path " +
+                "resolver: $($script.FullName)"
+            )
+        }
     }
 }
 
@@ -875,6 +961,7 @@ Write-NormalizedJson `
     -Value $SourceState
 
 $IntegrationFiles = @(
+    "runtime-paths.ps1",
     "launch-panel.ps1",
     "sync-panel.ps1",
     "wait-panel.ps1",

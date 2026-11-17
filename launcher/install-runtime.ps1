@@ -2,12 +2,17 @@ param(
     [string]$SourceDirectory = "",
     [string]$TargetDirectory = "",
     [string]$LocalRoot = "",
-    [string]$BackupRoot = ""
+    [string]$BackupRoot = "",
+    [string]$DataBackupRoot = "",
+    [ValidateSet("Auto", "PreferLegacy", "KeepCurrent")]
+    [string]$LegacyDataPolicy = "Auto"
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 $RepositoryRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot "runtime-paths.ps1")
+. (Join-Path $PSScriptRoot "runtime-data-migration.ps1")
 
 function Get-AvailableBackupPath {
     param(
@@ -60,34 +65,34 @@ function Stop-PointedRuntime {
     ) {
         return
     }
-    $infoPath = Join-Path $LocalRoot "runtime-dsh-web\server-info.json"
-    if (-not (Test-Path -LiteralPath $infoPath -PathType Leaf)) {
-        return
-    }
     try {
-        $info = Get-Content -Raw -LiteralPath $infoPath | ConvertFrom-Json
-        $port = [int]$info.port
-        if ($port -le 0) {
-            return
-        }
-        $health = Invoke-RestMethod `
-            -Uri "http://127.0.0.1:$port/api/health" `
-            -TimeoutSec 5
-        if (-not $health.ok) {
+        $context = Get-SkillDockRuntimeContext -LocalRoot $LocalRoot
+        if ($null -eq $context) {
             return
         }
     }
     catch {
         return
     }
-    $process = Start-Process `
-        -FilePath $RuntimePath `
-        -ArgumentList @("--stop", "--silent") `
-        -WindowStyle Hidden `
-        -Wait `
-        -PassThru
+    $previousLocalRoot = $env:SKILLDOCK_LOCAL_ROOT
+    try {
+        $env:SKILLDOCK_LOCAL_ROOT = $LocalRoot
+        $process = Start-Process `
+            -FilePath $RuntimePath `
+            -ArgumentList @("--stop", "--silent") `
+            -WindowStyle Hidden `
+            -Wait `
+            -PassThru
+    }
+    finally {
+        $env:SKILLDOCK_LOCAL_ROOT = $previousLocalRoot
+    }
     if ($process.ExitCode -ne 0) {
         throw "The previous SkillDock Runtime could not be stopped: $RuntimePath"
+    }
+    Start-Sleep -Milliseconds 500
+    if ($null -ne (Get-SkillDockRuntimeContext -LocalRoot $LocalRoot)) {
+        throw "The previous SkillDock Runtime is still healthy after stop."
     }
 }
 
@@ -141,6 +146,12 @@ if ([string]::IsNullOrWhiteSpace($BackupRoot)) {
     $BackupRoot = Join-Path $env:LOCALAPPDATA "SkillDockBackups\runtime"
 }
 $BackupRoot = [IO.Path]::GetFullPath($BackupRoot).TrimEnd('\')
+if ([string]::IsNullOrWhiteSpace($DataBackupRoot)) {
+    $DataBackupRoot = Join-Path (Split-Path -Parent $BackupRoot) "data"
+}
+$DataBackupRoot = [IO.Path]::GetFullPath(
+    $DataBackupRoot
+).TrimEnd('\')
 if (
     $BackupRoot.Equals($LocalRoot, [StringComparison]::OrdinalIgnoreCase) -or
     $BackupRoot.StartsWith(
@@ -151,6 +162,7 @@ if (
     throw "BackupRoot must stay outside the active LocalRoot"
 }
 Assert-NoReparsePointInPath -Path $BackupRoot
+Assert-NoReparsePointInPath -Path $DataBackupRoot
 
 $PointerPath = Join-Path $LocalRoot "runtime-location.json"
 $PreviousRuntimePath = ""
@@ -164,6 +176,15 @@ if (Test-Path -LiteralPath $PointerPath -PathType Leaf) {
     }
 }
 
+Stop-PointedRuntime `
+    -RuntimePath $PreviousRuntimePath `
+    -LocalRoot $LocalRoot
+
+$DataMigration = Invoke-SkillDockRuntimeDataMigration `
+    -LocalRoot $LocalRoot `
+    -DataBackupRoot $DataBackupRoot `
+    -Policy $LegacyDataPolicy
+
 New-Item -ItemType Directory -Path $TargetDirectory -Force | Out-Null
 $RuntimeEntries = @(
     "SkillDock.exe",
@@ -172,6 +193,7 @@ $RuntimeEntries = @(
     "Stop SkillDock.cmd",
     "Uninstall SkillDock.ps1",
     "Uninstall PCHW Skill.ps1",
+    "runtime-paths.ps1",
     "skill-tree-identity.ps1",
     "RC-MANIFEST.json"
 )
@@ -195,10 +217,6 @@ $LauncherPath = Join-Path $TargetDirectory "SkillDock.exe"
 if (-not (Test-Path -LiteralPath $LauncherPath -PathType Leaf)) {
     throw "Runtime installation did not produce SkillDock.exe: $TargetDirectory"
 }
-
-Stop-PointedRuntime `
-    -RuntimePath $PreviousRuntimePath `
-    -LocalRoot $LocalRoot
 
 $ActiveRuntimes = New-Object System.Collections.Generic.List[System.IO.DirectoryInfo]
 foreach ($child in @(Get-ChildItem -LiteralPath $LocalRoot -Directory -Force)) {
@@ -243,6 +261,8 @@ if ($remainingRuntimes.Count -gt 0) {
     installed_at = [DateTimeOffset]::Now.ToString("o")
     previous_runtime_path = $PreviousRuntimePath
     backup_root = $BackupRoot
+    data_backup_root = $DataBackupRoot
+    legacy_data_migration = $DataMigration
 } | ConvertTo-Json | Set-Content -LiteralPath $PointerPath -Encoding UTF8
 
 [pscustomobject]@{
@@ -251,5 +271,7 @@ if ($remainingRuntimes.Count -gt 0) {
     version = $PackageVersion
     installed_at = [DateTimeOffset]::Now.ToString("o")
     backup_root = $BackupRoot
+    data_backup_root = $DataBackupRoot
+    legacy_data_migration = $DataMigration
     backups = @($MovedBackups)
 } | ConvertTo-Json -Depth 4 -Compress

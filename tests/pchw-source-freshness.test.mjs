@@ -209,7 +209,15 @@ try {
     const url = new URL(request.url, "http://127.0.0.1");
     response.setHeader("Content-Type", "application/json");
     if (url.pathname === "/api/health") {
-      response.end(JSON.stringify({ ok: true }));
+      response.end(JSON.stringify({
+        ok: true,
+        runtime_binding: {
+          pid: process.pid,
+          port: address.port,
+          launch_id: "freshness-test-runtime-launch",
+          origin: `http://127.0.0.1:${address.port}`,
+        },
+      }));
       return;
     }
     if (url.pathname === "/api/task/sync/export") {
@@ -309,6 +317,8 @@ try {
     `${JSON.stringify({
       pid: process.pid,
       port: address.port,
+      launch_id: "freshness-test-runtime-launch",
+      origin: `http://127.0.0.1:${address.port}`,
     })}\n`,
     { encoding: "utf8", mode: 0o600 },
   );

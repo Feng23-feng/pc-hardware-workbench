@@ -25,6 +25,11 @@ must not be uploaded to an npm registry.
 - CSV to verified local analyzer packet to verified SVG to panel answer.
 - Explicit fresh source-result claim and one panel writeback.
 - Same-Task Runtime restart with panel and artifact identity retained.
+- Upgrade from the legacy `runtime-dsh-web` data root without silently losing
+  the old Task, attachments, artifacts, or evidence.
+- Stale `server-info.json` from an older data root is ignored; the current
+  launch result and health Runtime binding determine the active PID/port/launch
+  identity.
 - The primary entry is started by the installed PCHW Skill from the current
   Codex conversation; ordinary users do not launch a runner or configure
   environment variables.
@@ -52,7 +57,8 @@ The R7 source was PCHW `2.7.4`. Its installed tree identity is
 `f6eab543414ef6b208706b4367b7adb152db3bd5c5288390a0f30a5189a95eb1`
 with 134 files. The distributable `2.8.0` archive applies the semantic version
 bump, excludes the Skill's `tests/` directory, and records the resulting
-installation subset hash separately in `RC-MANIFEST.json`.
+installation subset hash separately in `RC-MANIFEST.json`. The 2.8.0 source now
+contains 135 files; the 2.7.4 R7 provenance above remains 134 files.
 
 The RC package also removes non-product mock/DSH adapters, developer entry
 scripts, background shadow observation, and the recovery route from its
@@ -96,6 +102,20 @@ R7 PASS receipt, is:
 
 The separately frozen DSH read-only observer is not part of this PCHW archive
 entry.
+
+## Upgrade and data recovery
+
+All installed SkillDock helpers use one shared runtime path resolver. The
+canonical data root is `runtime-pchw`; `runtime-dsh-web` is supported only as a
+legacy migration source. Before migration, the installer copies the complete
+legacy data tree to `%LOCALAPPDATA%\SkillDockBackups\data` and verifies the
+copy.
+
+If both data roots contain state, the installer fails closed with
+`runtime_data_conflict`. No automatic merge or overwrite is allowed.
+`-LegacyDataPolicy PreferLegacy` deliberately selects the legacy Task set after
+the backup has been created; the old source directory remains available for
+recovery.
 
 For reference only: parameters related to hardware controls must put safety
 first, and all hardware changes remain manual user actions outside this release.

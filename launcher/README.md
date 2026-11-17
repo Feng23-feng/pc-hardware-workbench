@@ -106,15 +106,26 @@ available for rollback outside the active root:
 ```
 
 The installer stops a healthy pointed Runtime, moves all old active
-`Runtime-*`/`Runtime` program directories to that backup root, preserves
-`runtime-dsh-web` Task/evidence state, and leaves exactly one active Runtime
-program directory before updating the pointer.
+`Runtime-*`/`Runtime` program directories to that backup root, and leaves
+exactly one active Runtime program directory before updating the pointer. The
+canonical user-data root is `runtime-pchw`.
+
+Before creating the new Runtime, the installer checks the legacy
+`runtime-dsh-web` data root through `runtime-data-migration.ps1`. If legacy data
+exists and the canonical root is unused, `Auto` migration copies the complete
+legacy data tree into a verified backup under
+`%LOCALAPPDATA%\SkillDockBackups\data`, then activates a verified copy as
+`runtime-pchw`. If both data roots contain state, installation fails closed with
+`runtime_data_conflict`; no merge is attempted. `-LegacyDataPolicy PreferLegacy`
+is the explicit one-source replacement after reviewing the backup plan.
 
 `SkillDock.exe --ensure --workspace <path>` is idempotent. It reuses the healthy
 instance for the same workspace and writes a token-free
 `%LOCALAPPDATA%\SkillDock\launch-result.json` containing the local URL. The
 Skill-facing wrapper in `integrations/skilldock/launch-panel.ps1` consumes that
-result.
+result. All SkillDock helpers load `runtime-paths.ps1`; current
+`launch-result.json` plus `/api/health` `runtime_binding` is authoritative, and
+stale `server-info.json` from another data root is ignored.
 
 If a healthy instance belongs to a different workspace, the launcher now refuses
 to stop it by default. Repeat the launch with `--replace-workspace` only after

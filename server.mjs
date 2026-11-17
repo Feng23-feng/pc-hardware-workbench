@@ -3,6 +3,7 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  renameSync,
   statSync,
   unlinkSync,
   writeFileSync,
@@ -71,6 +72,21 @@ const runtimeDir = resolve(
   root,
   process.env.PANEL_RUNTIME_DIR ?? "runtime",
 );
+
+function writeTextFileAtomic(filePath, text, options = {}) {
+  const temporaryPath =
+    `${filePath}.${process.pid}.${randomUUID()}.tmp`;
+  try {
+    writeFileSync(temporaryPath, text, options);
+    renameSync(temporaryPath, filePath);
+  }
+  finally {
+    if (existsSync(temporaryPath)) {
+      unlinkSync(temporaryPath);
+    }
+  }
+}
+
 const agentWorkspace = resolve(process.env.PANEL_AGENT_WORKSPACE ?? root);
 if (!existsSync(agentWorkspace) || !statSync(agentWorkspace).isDirectory()) {
   throw new Error(`PANEL_AGENT_WORKSPACE is not a directory: ${agentWorkspace}`);
@@ -3754,7 +3770,7 @@ try {
       )}&runtime_pid=${process.pid}&runtime_port=${port}`,
       started_at: new Date().toISOString(),
     };
-    writeFileSync(
+    writeTextFileAtomic(
       resolve(runtimeDir, "server-info.json"),
       `${JSON.stringify(info, null, 2)}\n`,
       { encoding: "utf8", mode: 0o600 },

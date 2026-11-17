@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -217,13 +218,13 @@ internal static class SkillDockLauncher
 
     private static int StopServer(bool silent)
     {
-        string infoPath = Path.Combine(LocalRoot, "runtime-pchw", "server-info.json");
         string tokenPath = Path.Combine(
             LocalRoot,
             "runtime-pchw",
             "capability-token"
         );
-        if (!File.Exists(infoPath) || !File.Exists(tokenPath))
+        ServerInfo running;
+        if (!TryGetHealthyServer(out running) || !File.Exists(tokenPath))
         {
             if (!silent)
             {
@@ -236,27 +237,7 @@ internal static class SkillDockLauncher
             }
             return 0;
         }
-
-        string info = File.ReadAllText(infoPath);
-        Match portMatch = Regex.Match(info, "\"port\"\\s*:\\s*(\\d+)");
-        if (!portMatch.Success)
-        {
-            throw new InvalidOperationException("The server port is unavailable.");
-        }
-        int port = Int32.Parse(portMatch.Groups[1].Value);
-        if (!IsHealthy(port))
-        {
-            try
-            {
-                File.Delete(infoPath);
-            }
-            catch
-            {
-                // A stale metadata cleanup failure is reported by the next launch.
-            }
-            WriteLauncherLog("Already stopped.");
-            return 0;
-        }
+        int port = running.port;
         string token = File.ReadAllText(tokenPath).Trim();
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(
             "http://127.0.0.1:" + port + "/api/shutdown"
@@ -383,7 +364,7 @@ internal static class SkillDockLauncher
     private static bool TryGetHealthyServer(out ServerInfo info)
     {
         info = null;
-        string infoPath = Path.Combine(LocalRoot, "runtime-pchw", "server-info.json");
+        string infoPath = Path.Combine(LocalRoot, "launch-result.json");
         if (!File.Exists(infoPath))
         {
             return false;
@@ -391,48 +372,59 @@ internal static class SkillDockLauncher
         try
         {
             string json = File.ReadAllText(infoPath);
-            Match portMatch = Regex.Match(json, "\"port\"\\s*:\\s*(\\d+)");
-            Match workspaceMatch = Regex.Match(
-                json,
-                "\"workspace\"\\s*:\\s*\"((?:\\\\.|[^\"\\\\])*)\""
-            );
-            Match pidMatch = Regex.Match(json, "\"pid\"\\s*:\\s*(\\d+)");
-            Match launchIdMatch = Regex.Match(
-                json,
-                "\"launch_id\"\\s*:\\s*\"([^\"]+)\""
-            );
+            JavaScriptSerializer serializer = new JavaScriptSerializer();
+            ServerInfo candidate = serializer.Deserialize<ServerInfo>(json);
             if (
-                !portMatch.Success ||
-                !workspaceMatch.Success ||
-                !pidMatch.Success ||
-                !launchIdMatch.Success
+                candidate == null ||
+                !candidate.ok ||
+                candidate.port <= 0 ||
+                candidate.pid <= 0 ||
+                String.IsNullOrWhiteSpace(candidate.workspace) ||
+                String.IsNullOrWhiteSpace(candidate.launch_id)
             )
             {
                 return false;
             }
-            int port = Int32.Parse(portMatch.Groups[1].Value);
-            int pid = Int32.Parse(pidMatch.Groups[1].Value);
-            string launchId = launchIdMatch.Groups[1].Value;
-            if (!IsHealthy(port))
+            int bindingPid;
+            int bindingPort;
+            string bindingLaunchId;
+            string bindingOrigin;
+            if (!TryGetHealthBinding(
+                candidate.port,
+                out bindingPid,
+                out bindingPort,
+                out bindingLaunchId,
+                out bindingOrigin
+            ))
             {
                 return false;
             }
-            string workspace = Regex.Unescape(workspaceMatch.Groups[1].Value);
+            string candidateOrigin =
+                "http://127.0.0.1:" + candidate.port;
+            if (
+                bindingPid != candidate.pid ||
+                bindingPort != candidate.port ||
+                bindingLaunchId != candidate.launch_id ||
+                bindingOrigin != candidateOrigin
+            )
+            {
+                return false;
+            }
             info = new ServerInfo
             {
                 ok = true,
-                url = "http://127.0.0.1:" + port + "/",
-                port = port,
+                url = candidateOrigin + "/",
+                port = candidate.port,
                 driver = DriverName,
-                workspace = workspace,
-                pid = pid,
-                launch_id = launchId,
-                origin = "http://127.0.0.1:" + port,
+                workspace = candidate.workspace,
+                pid = candidate.pid,
+                launch_id = candidate.launch_id,
+                origin = candidateOrigin,
                 exact_url = BuildExactUrl(
-                    "http://127.0.0.1:" + port + "/",
-                    launchId,
-                    pid,
-                    port
+                    candidateOrigin + "/",
+                    candidate.launch_id,
+                    candidate.pid,
+                    candidate.port
                 )
             };
             return true;
@@ -443,14 +435,100 @@ internal static class SkillDockLauncher
         }
     }
 
+    private static bool TryGetHealthBinding(
+        int port,
+        out int pid,
+        out int bindingPort,
+        out string launchId,
+        out string origin
+    )
+    {
+        pid = 0;
+        bindingPort = 0;
+        launchId = "";
+        origin = "";
+        try
+        {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(
+                "http://127.0.0.1:" + port + "/api/health"
+            );
+            request.Timeout = 1000;
+            request.ReadWriteTimeout = 1000;
+            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+            using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+            {
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    return false;
+                }
+                JavaScriptSerializer serializer = new JavaScriptSerializer();
+                Dictionary<string, object> payload =
+                    serializer.DeserializeObject(reader.ReadToEnd())
+                    as Dictionary<string, object>;
+                object okValue;
+                object bindingValue;
+                if (
+                    payload == null ||
+                    !payload.TryGetValue("ok", out okValue) ||
+                    !Convert.ToBoolean(okValue) ||
+                    !payload.TryGetValue("runtime_binding", out bindingValue)
+                )
+                {
+                    return false;
+                }
+                Dictionary<string, object> binding =
+                    bindingValue as Dictionary<string, object>;
+                if (binding == null)
+                {
+                    return false;
+                }
+                pid = Convert.ToInt32(binding["pid"]);
+                bindingPort = Convert.ToInt32(binding["port"]);
+                launchId = Convert.ToString(binding["launch_id"]);
+                origin = Convert.ToString(binding["origin"]).TrimEnd('/');
+                return (
+                    pid > 0 &&
+                    bindingPort == port &&
+                    !String.IsNullOrWhiteSpace(launchId) &&
+                    !String.IsNullOrWhiteSpace(origin)
+                );
+            }
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     private static void WriteLaunchResult(ServerInfo info)
     {
         Directory.CreateDirectory(LocalRoot);
+        string resultPath = Path.Combine(LocalRoot, "launch-result.json");
+        string temporaryPath = resultPath + "." +
+            Guid.NewGuid().ToString("N") + ".tmp";
         File.WriteAllText(
-            Path.Combine(LocalRoot, "launch-result.json"),
+            temporaryPath,
             new JavaScriptSerializer().Serialize(info) + "\r\n",
             Encoding.UTF8
         );
+        try
+        {
+            if (File.Exists(resultPath))
+            {
+                File.Replace(temporaryPath, resultPath, null);
+            }
+            else
+            {
+                File.Move(temporaryPath, resultPath);
+            }
+        }
+        finally
+        {
+            if (File.Exists(temporaryPath))
+            {
+                File.Delete(temporaryPath);
+            }
+        }
     }
 
     private static int FindFreePort()

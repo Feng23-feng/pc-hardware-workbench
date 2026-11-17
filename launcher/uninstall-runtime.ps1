@@ -8,6 +8,7 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "runtime-paths.ps1")
 
 function Assert-SafeCleanupRoot {
     param(
@@ -119,8 +120,14 @@ if (Test-Path -LiteralPath $PointerPath) {
 }
 
 if ($PurgeUserData) {
+    foreach ($runtimeDataRoot in @(
+        Get-SkillDockRuntimeDirectoryCandidates -LocalRoot $LocalRoot
+    )) {
+        if (Test-Path -LiteralPath $runtimeDataRoot) {
+            Remove-Item -LiteralPath $runtimeDataRoot -Recurse -Force
+        }
+    }
     foreach ($name in @(
-        "runtime-dsh-web",
         "launcher.log",
         "launch-result.json"
     )) {

@@ -56,6 +56,7 @@ else {
 $DshDevHarness = Join-Path $LauncherRoot "start-dsh-dev.ps1"
 $DshInstalledHarness = Join-Path $LauncherRoot "start-dsh-installed.ps1"
 $UninstallScript = Join-Path $LauncherRoot "uninstall-runtime.ps1"
+$RuntimePathsScript = Join-Path $LauncherRoot "runtime-paths.ps1"
 $PackageJsonPath = Join-Path $RepositoryRoot "package.json"
 $PackageJson = Get-Content -Raw -LiteralPath $PackageJsonPath | ConvertFrom-Json
 $PackageVersion = [string]$PackageJson.version
@@ -68,7 +69,8 @@ foreach ($required in @(
     $PackageJsonPath,
     $DshDevHarness,
     $DshInstalledHarness,
-    $UninstallScript
+    $UninstallScript,
+    $RuntimePathsScript
 )) {
     if (-not (Test-Path -LiteralPath $required -PathType Leaf)) {
         throw "Build input is missing: $required"
@@ -125,6 +127,9 @@ Copy-Item `
 Copy-Item `
     -LiteralPath $UninstallScript `
     -Destination (Join-Path $OutputDirectory "Uninstall SkillDock.ps1")
+Copy-Item `
+    -LiteralPath $RuntimePathsScript `
+    -Destination (Join-Path $OutputDirectory "runtime-paths.ps1")
 
 $StopScript = @"
 @echo off

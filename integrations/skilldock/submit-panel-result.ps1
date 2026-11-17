@@ -23,23 +23,14 @@ $ErrorActionPreference = "Stop"
 $Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [Console]::OutputEncoding = $Utf8NoBom
 $OutputEncoding = $Utf8NoBom
+. (Join-Path $PSScriptRoot "runtime-paths.ps1")
 
 try {
-    if ([string]::IsNullOrWhiteSpace($RuntimeDirectory)) {
-        $localRoot = if ([string]::IsNullOrWhiteSpace($env:SKILLDOCK_LOCAL_ROOT)) {
-            Join-Path $env:LOCALAPPDATA "SkillDock"
-        }
-        else {
-            [IO.Path]::GetFullPath($env:SKILLDOCK_LOCAL_ROOT)
-        }
-        $RuntimeDirectory = Join-Path $localRoot "runtime-dsh-web"
-    }
-    $infoPath = Join-Path $RuntimeDirectory "server-info.json"
+    $runtimeContext = Get-SkillDockRuntimeAccessContext `
+        -RuntimeDirectory $RuntimeDirectory
+    $RuntimeDirectory = $runtimeContext.runtime_directory
     $tokenPath = Join-Path $RuntimeDirectory "source-capability-token"
-    if (
-        -not (Test-Path -LiteralPath $infoPath -PathType Leaf) -or
-        -not (Test-Path -LiteralPath $tokenPath -PathType Leaf)
-    ) {
+    if (-not (Test-Path -LiteralPath $tokenPath -PathType Leaf)) {
         throw "SkillDock source-hosted runtime is not running."
     }
     $resolvedPanel = (Resolve-Path -LiteralPath $PanelFile -ErrorAction Stop).Path
@@ -55,11 +46,9 @@ try {
         throw "Panel result must be one JSON object."
     }
 
-    $info = Get-Content -LiteralPath $infoPath -Raw | ConvertFrom-Json
+    $info = $runtimeContext.result
     $sourceToken = (Get-Content -LiteralPath $tokenPath -Raw).Trim()
-    $health = Invoke-RestMethod `
-        -Uri "http://127.0.0.1:$($info.port)/api/health" `
-        -TimeoutSec 5
+    $health = $runtimeContext.health
     if (-not $health.ok) {
         throw "SkillDock health check failed."
     }

@@ -2,8 +2,8 @@
 
 ## SkillDock 0.1.0-rc.1 / PCHW 2.8.0 - 2026-11-17
 
-Release candidate preparation only. This version has not been committed,
-tagged, uploaded, or formally released.
+Release candidate preparation only. Local preparation commits exist, but the
+candidate has not been pushed, tagged, uploaded, or formally released.
 
 ### Added
 
@@ -14,6 +14,12 @@ tagged, uploaded, or formally released.
 - RC installation, uninstall, permissions, support-boundary, and
   clean-Windows acceptance documents.
 - Explicit default-off and manual-only hardware boundaries in the RC package.
+- Shared runtime path resolution for launch, sync, wait, submit, installer, and
+  uninstaller scripts.
+- Verified legacy Runtime data migration with mandatory pre-write backup and
+  fail-closed dual-root conflict handling.
+- Upgrade regression covering stale `server-info.json`, old Task recovery,
+  current PID/port launch binding, and retained Task/attachment/artifact data.
 
 ### Verified before RC packaging
 
@@ -23,6 +29,8 @@ tagged, uploaded, or formally released.
 - Answer card, verified SVG, evidence, uncertainty, low-risk actions, and copy
   actions passed.
 - Same-Task restart preserved the panel and artifact identity.
+- Stale legacy Runtime metadata no longer makes a healthy canonical Runtime fail
+  with `runtime_binding_mismatch`.
 - Static checks, full tests, installed-root mock/Edge, install identity, Skill
   validation, and worktree whitespace checks passed in the R7 receipt.
 
@@ -34,4 +42,4 @@ tagged, uploaded, or formally released.
 - Coordinator recovery.
 - Automatic BIOS, firmware, driver, clock, voltage, power, fan, memory-timing,
   or operating-system changes.
-- Commit, tag, upload, public release, and release signoff.
+- Tag, push, upload, public release, and release signoff.
