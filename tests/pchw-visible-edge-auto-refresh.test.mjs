@@ -370,7 +370,9 @@ try {
       }),
     },
   );
-  assert.equal(entryResponse.ok, true, await entryResponse.text());
+  if (!entryResponse.ok) {
+    throw new Error(await entryResponse.text());
+  }
   const entry = await entryResponse.json();
 
   const debuggingPort = await findFreePort();
@@ -445,30 +447,32 @@ try {
     nodeId: fileInputNode.nodeId,
     files: [csvPath],
   });
-  await waitForDom(
-    `(() => ({
-      inputDisabled: document.querySelector("#composer-file-input")?.disabled ?? true,
-      attachmentText:
-        document.querySelector(".task-data-sources .attachment-card strong")
-          ?.textContent?.trim() ?? "",
-      draftAttachment:
-        document.querySelector(".composer-attachment strong")
-          ?.textContent?.trim() ?? ""
-    }))()`,
-    (value) =>
-      value.inputDisabled === false &&
-      (
-        value.attachmentText.includes("visible-edge-auto-refresh.csv") ||
-        value.draftAttachment.includes("visible-edge-auto-refresh.csv")
-      ),
-    "CSV upload in visible Edge",
-  );
+  await evaluate(`(() => {
+    document.querySelector("#composer-file-input")
+      ?.dispatchEvent(new Event("change", { bubbles: true }));
+    return true;
+  })()`);
   await evaluate(`(() => {
     const input = document.querySelector("#symptom");
     input.value = ${JSON.stringify(objective)};
     input.dispatchEvent(new Event("input", { bubbles: true }));
     return true;
   })()`);
+  await waitForDom(
+    `(() => ({
+      inputDisabled: document.querySelector("#composer-file-input")?.disabled ?? true,
+      attachmentNames:
+        [...document.querySelectorAll(".composer .attachment-card strong")]
+          .map((item) => item.textContent.trim()),
+      sendDisabled:
+        document.querySelector("#send-button")?.disabled ?? true
+    }))()`,
+    (value) =>
+      value.inputDisabled === false &&
+      value.attachmentNames.includes("visible-edge-auto-refresh.csv") &&
+      value.sendDisabled === false,
+    "CSV upload in visible Edge",
+  );
   const sendClicked = await evaluate(`(() => {
     const button = document.querySelector("#send-button");
     if (!button || button.disabled) return false;
@@ -519,6 +523,8 @@ try {
       autoButton:
         document.querySelector("#source-result-auto-refresh")
           ?.textContent?.trim() ?? "",
+      manualSyncCardPresent:
+        Boolean(document.querySelector(".handoff-strip")),
       instanceId: window.__panelInstanceId,
       navigationType:
         performance.getEntriesByType("navigation")[0]?.type ?? ""
@@ -526,7 +532,8 @@ try {
     (value) =>
       value.title === "正在等待来源 Agent" &&
       value.detail.includes("无需刷新页面") &&
-      value.autoButton.includes("等待自动刷新"),
+      value.autoButton.includes("等待自动刷新") &&
+      value.manualSyncCardPresent === false,
     "waiting for source Agent",
   );
   await mkdir(evidenceRoot, { recursive: true });
@@ -628,18 +635,8 @@ try {
     claimed.source_tool_result?.packet?.tool_result?.artifact;
   assert.ok(artifact?.id);
   const template = await readJson(panelTemplatePath);
-  const oldArtifact = template.artifact_refs?.[0];
-  assert.ok(oldArtifact?.id);
-  let panel = JSON.parse(
-    JSON.stringify(template)
-      .replaceAll(oldArtifact.id, artifact.id)
-      .replaceAll(oldArtifact.sha256, artifact.sha256)
-      .replaceAll(
-        String(oldArtifact.relative_path ?? ""),
-        String(artifact.relative_path ?? ""),
-      ),
-  );
-  panel.artifact_refs = [artifact];
+  let panel = structuredClone(template);
+  panel.artifact_refs = [];
   panel.current_goal = objective;
   panel = validatePanelState(panel);
   const panelPath = join(tempRoot, "visible-edge-panel.json");
@@ -647,7 +644,10 @@ try {
   const imported = await runPowerShell(
     join(skilldockScriptRoot, "submit-panel-result.ps1"),
     [
-      ...commonPanelArgs,
+      "-ChannelId",
+      `chat:source-hosted:${sourceSessionRef}`,
+      "-SourceSessionRef",
+      sourceSessionRef,
       "-PanelFile",
       panelPath,
       "-MessageText",
@@ -656,6 +656,8 @@ try {
       objective,
       "-Summary",
       panel.turn_summary ?? "",
+      "-RuntimeDirectory",
+      runtimeDir,
     ],
     launcherEnv,
   );

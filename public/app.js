@@ -607,6 +607,18 @@ function renderHandoffCard() {
   if (!state.task?.task_id) {
     return null;
   }
+  const sharedTask = state.task.shared_task;
+  if (
+    sharedTask?.mode === "source_hosted" &&
+    (
+      state.activity?.status === "waiting_for_source" ||
+      ["waiting_for_source_pull", "source_agent_pulled"].includes(
+        sharedTask.phase,
+      )
+    )
+  ) {
+    return null;
+  }
   const handoff = state.handoff ?? {};
   const attached = handoff.native_thread_attached === true;
   return el("section", { class: "handoff-strip", "aria-label": "任务来源" }, [

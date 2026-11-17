@@ -641,6 +641,8 @@ async function captureWaitingForSourceEvidence(
           autoRefresh:
             document.querySelector("#source-result-auto-refresh")
               ?.textContent?.trim() ?? "",
+          handoffPresent:
+            Boolean(document.querySelector(".handoff-strip")),
           waitingPanel:
             document.querySelector("#source-agent-result-waiting")
               ?.textContent?.trim() ?? ""
@@ -653,6 +655,7 @@ async function captureWaitingForSourceEvidence(
         value.detail.includes("自动显示") &&
         value.instruction.includes("无需操作") &&
         value.autoRefresh.includes("等待自动刷新") &&
+        value.handoffPresent === false &&
         value.waitingPanel.includes("正在等待来源 Agent 返回结论")
       ) {
         break;
@@ -663,6 +666,7 @@ async function captureWaitingForSourceEvidence(
     assert.match(value.detail, /自动显示/u);
     assert.match(value.instruction, /无需操作/u);
     assert.match(value.autoRefresh, /等待自动刷新/u);
+    assert.equal(value.handoffPresent, false);
     assert.match(value.waitingPanel, /正在等待来源 Agent 返回结论/u);
     const screenshot = await browser.cdp.send("Page.captureScreenshot", {
       format: "png",
