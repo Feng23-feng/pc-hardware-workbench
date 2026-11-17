@@ -218,6 +218,14 @@ try {
     if ([string]$manifest.gates.formal_release -ne "not-performed") {
         throw "RC manifest must not claim a formal release."
     }
+    if ([string]$manifest.gates.commit -ne "local-only") {
+        throw "RC manifest must identify the package source as a local-only commit."
+    }
+    foreach ($gateName in @("tag", "upload", "formal_release")) {
+        if ([string]$manifest.gates.$gateName -ne "not-performed") {
+            throw "RC manifest contains an unexpected completed gate: $gateName"
+        }
+    }
     if ([string]$manifest.boundaries.formal_default_entry -ne "closed") {
         throw "RC package must keep the formal default entry closed."
     }
@@ -562,6 +570,7 @@ try {
             inventory_and_hashes = "passed"
             clean_windows_install_uninstall = "pending"
             user_release_signoff = "pending"
+            source_commit = "local-only"
             formal_release = "not-performed"
         }
         boundaries = [ordered]@{

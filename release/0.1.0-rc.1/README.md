@@ -41,7 +41,8 @@ belong under `dist/archive/` and must not be treated as the current candidate.
 | RC package build and hash verification | Produced by this release-prep batch |
 | Clean Windows profile/VM install and uninstall | PENDING |
 | User release signoff | PENDING |
-| Commit / tag / push / upload / publish | NOT PERFORMED |
+| Local preparation commits | COMPLETED |
+| Tag / push / upload / formal publish | NOT PERFORMED |
 
 Read [RELEASE-NOTES.md](RELEASE-NOTES.md),
 [KNOWN-LIMITATIONS.md](KNOWN-LIMITATIONS.md),
