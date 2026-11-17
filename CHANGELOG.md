@@ -20,6 +20,9 @@ candidate has not been pushed, tagged, uploaded, or formally released.
   fail-closed dual-root conflict handling.
 - Upgrade regression covering stale `server-info.json`, old Task recovery,
   current PID/port launch binding, and retained Task/attachment/artifact data.
+- Same-page automatic refresh from local analysis through source-Agent writeback;
+  the waiting state is explicit and no longer requires manual reload or a
+  “sync panel” action.
 
 ### Verified before RC packaging
 
@@ -31,6 +34,9 @@ candidate has not been pushed, tagged, uploaded, or formally released.
 - Same-Task restart preserved the panel and artifact identity.
 - Stale legacy Runtime metadata no longer makes a healthy canonical Runtime fail
   with `runtime_binding_mismatch`.
+- Page focus/visibility and all source-hosted result phases now trigger bounded
+  state refreshes, preventing a background-throttled poll from leaving the page
+  stale until F5.
 - Static checks, full tests, installed-root mock/Edge, install identity, Skill
   validation, and worktree whitespace checks passed in the R7 receipt.
 

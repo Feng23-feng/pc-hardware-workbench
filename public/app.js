@@ -17,7 +17,11 @@ const saveStatus = document.querySelector("#save-status");
 let state = null;
 let freeText = "";
 let pollTimer = null;
+let pollInFlight = false;
 let lastPollStateKey = "";
+let stateRefreshSequence = 0;
+let lastAppliedStateRefresh = 0;
+let sourceResultPollingActive = false;
 let noticeText = "";
 let submitPending = false;
 let optimisticPhase = null;
@@ -246,8 +250,9 @@ function statusCopy(mode) {
   }
   if (mode === "waiting_for_source") {
     return {
-      label: "本地分析已完成",
-      detail: "图表与指标已保存。回到当前 Agent 对话发送“同步面板”继续生成结论。",
+      label: "正在等待来源 Agent",
+      detail:
+        "本地分析、SVG 和指标已保存。请保持页面打开；来源 Agent 写回结论后会自动显示，无需刷新页面。",
     };
   }
   if (mode === "replied") {
@@ -545,7 +550,7 @@ function renderPrimaryStatusBlock() {
             el("p", {
               text:
                 waitingForSource
-                  ? "回到当前对话发送：同步面板"
+                  ? "无需操作；来源 Agent 返回结论后页面会自动更新。"
                   : sourceHostedRecovery
                     ? sourceHostedPhaseState().recovery_available
                       ? "归档当前卡住的 cycle，并恢复为可提交状态。"
@@ -558,14 +563,13 @@ function renderPrimaryStatusBlock() {
                           "先描述电脑现在遇到的问题。",
             }),
             waitingForSource
-              ? copyButton(
-                  "复制“同步面板”",
-                  "同步面板",
-                  "primary",
-                  {
-                    successLabel: "已复制，回到对话发送",
-                  },
-                )
+              ? el("button", {
+                  class: "status-action",
+                  id: "source-result-auto-refresh",
+                  type: "button",
+                  disabled: true,
+                  text: "等待自动刷新…",
+                })
               : el("button", {
                   class: "status-action",
                   type: "button",
@@ -1727,6 +1731,39 @@ function renderSourceHostedPhaseNotice() {
   if (!phaseState.source_hosted || phaseState.submittable) {
     return null;
   }
+  if (phaseState.phase === "source_agent_pulled") {
+    return el(
+      "section",
+      {
+        class: "phase-waiting",
+        id: "source-agent-result-waiting",
+        "data-phase": phaseState.phase,
+        "data-recovery-available": String(
+          phaseState.recovery_available,
+        ),
+        role: "status",
+        "aria-live": "polite",
+      },
+      [
+        el("strong", {
+          text: "正在等待来源 Agent 返回结论",
+        }),
+        el("p", {
+          text:
+            "本地分析、SVG 和指标已经保存。请保持此页打开；结论写回后会自动显示，无需按 F5。",
+        }),
+        phaseState.recovery_available
+          ? el("button", {
+              class: "secondary",
+              type: "button",
+              disabled: recoveryPending,
+              text: recoveryPending ? "正在恢复…" : phaseState.recovery_label,
+              onclick: recoverSourceHostedTask,
+            })
+          : null,
+      ],
+    );
+  }
   return el(
     "section",
     {
@@ -2701,8 +2738,13 @@ async function sendSubmission() {
 }
 
 async function refreshState() {
+  const requestSequence = ++stateRefreshSequence;
   const result = await requestJson("/api/state");
-  if (result.ok) {
+  if (
+    result.ok &&
+    requestSequence >= lastAppliedStateRefresh
+  ) {
+    lastAppliedStateRefresh = requestSequence;
     state = result.data;
   }
   return result;
@@ -2713,18 +2755,34 @@ function stopPolling() {
     clearTimeout(pollTimer);
     pollTimer = null;
   }
+  pollInFlight = false;
   lastPollStateKey = "";
 }
 
 function shouldPollState() {
   const sharedTask = state?.task?.shared_task;
-  return (
-    state?.phase === "running" ||
-    (sharedTask?.mode === "source_hosted" &&
-      ["waiting_for_source_pull", "source_agent_pulled"].includes(
-        sharedTask.phase,
-      ))
-  );
+  if (state?.phase === "running") {
+    return true;
+  }
+  if (sharedTask?.mode !== "source_hosted") {
+    return false;
+  }
+  if (
+    ["waiting_for_source_pull", "source_agent_pulled"].includes(
+      sharedTask.phase,
+    )
+  ) {
+    sourceResultPollingActive = true;
+    return true;
+  }
+  if (
+    sharedTask.phase === "source_result_synced" &&
+    sourceResultPollingActive &&
+    !state.panel
+  ) {
+    return true;
+  }
+  return false;
 }
 
 function pollStateKey() {
@@ -2745,21 +2803,38 @@ function pollStateKey() {
 }
 
 function startPolling() {
-  if (pollTimer) {
+  if (pollTimer || pollInFlight) {
     return;
   }
-  lastPollStateKey = pollStateKey();
+  if (!lastPollStateKey) {
+    lastPollStateKey = pollStateKey();
+  }
   const poll = async () => {
-    const result = await refreshState().catch(() => null);
-    const nextStateKey = pollStateKey();
-    if (result?.ok && nextStateKey !== lastPollStateKey) {
-      lastPollStateKey = nextStateKey;
-      render();
+    pollTimer = null;
+    if (pollInFlight) {
+      return;
+    }
+    pollInFlight = true;
+    try {
+      const result = await refreshState().catch(() => null);
+      const nextStateKey = pollStateKey();
+      if (result?.ok && nextStateKey !== lastPollStateKey) {
+        lastPollStateKey = nextStateKey;
+        render();
+      }
+      const sharedTask = state?.task?.shared_task;
+      if (
+        sharedTask?.phase === "source_result_synced" &&
+        state?.panel
+      ) {
+        sourceResultPollingActive = false;
+      }
+    }
+    finally {
+      pollInFlight = false;
     }
     if (shouldPollState()) {
       pollTimer = setTimeout(poll, 1500);
-    } else {
-      pollTimer = null;
     }
   };
   pollTimer = setTimeout(poll, 1500);
@@ -2878,6 +2953,37 @@ async function boot() {
   }
   render();
 }
+
+let pageWakeRefreshInFlight = null;
+async function refreshAfterPageWake() {
+  if (
+    document.visibilityState === "hidden" ||
+    !state ||
+    pageWakeRefreshInFlight
+  ) {
+    return;
+  }
+  pageWakeRefreshInFlight = (async () => {
+    const result = await refreshState().catch(() => null);
+    if (result?.ok) {
+      lastPollStateKey = pollStateKey();
+      render();
+    }
+  })();
+  try {
+    await pageWakeRefreshInFlight;
+  }
+  finally {
+    pageWakeRefreshInFlight = null;
+  }
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    refreshAfterPageWake();
+  }
+});
+window.addEventListener("focus", refreshAfterPageWake);
 
 window.addEventListener("offline", () => {
   runtimeBindingHealth = { ok: false };

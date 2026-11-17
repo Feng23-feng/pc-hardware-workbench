@@ -30,6 +30,9 @@ must not be uploaded to an npm registry.
 - Stale `server-info.json` from an older data root is ignored; the current
   launch result and health Runtime binding determine the active PID/port/launch
   identity.
+- After the one-time permission and local artifact completion, the page keeps a
+  visible “waiting for the source Agent” state and automatically updates when
+  the Agent result is synchronized; no F5 or manual sync action is required.
 - The primary entry is started by the installed PCHW Skill from the current
   Codex conversation; ordinary users do not launch a runner or configure
   environment variables.

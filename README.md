@@ -208,6 +208,10 @@ The smoke test uses a deterministic mock agent and verifies:
 - an explicit independent-Session action changes Session while retaining shared
   device evidence;
 - a state refresh recovers the Session, Task, answer card, composer, and files;
+- source-hosted waiting, Agent-pulled, and result-synced phases refresh the same
+  page automatically without requiring F5;
+- page focus/visibility immediately rechecks state after the browser was in the
+  background;
 - persisted running activity includes the submitted user content;
 - completed activity includes the agent `turn_summary`;
 - duplicate submission is rejected while a turn is running;

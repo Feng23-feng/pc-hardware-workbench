@@ -616,8 +616,14 @@ async function captureBrowserEvidence(baseUrl, panelToken, {
   }
 }
 
-async function captureWaitingForSourceEvidence(baseUrl, panelToken) {
-  const browser = await launchBrowserPage(baseUrl, panelToken);
+async function captureWaitingForSourceEvidence(
+  baseUrl,
+  panelToken,
+  { existingBrowser = null } = {},
+) {
+  const ownsBrowser = existingBrowser === null;
+  const browser =
+    existingBrowser ?? await launchBrowserPage(baseUrl, panelToken);
   try {
     let value = null;
     for (let attempt = 0; attempt < 160; attempt += 1) {
@@ -632,28 +638,32 @@ async function captureWaitingForSourceEvidence(baseUrl, panelToken) {
           instruction:
             document.querySelector("#status-block .status-next p")
               ?.textContent?.trim() ?? "",
-          copyButton:
-            [...document.querySelectorAll("#status-block button")]
-              .map((button) => button.textContent.trim())
-              .find((text) => text.includes("同步面板")) ?? ""
+          autoRefresh:
+            document.querySelector("#source-result-auto-refresh")
+              ?.textContent?.trim() ?? "",
+          waitingPanel:
+            document.querySelector("#source-agent-result-waiting")
+              ?.textContent?.trim() ?? ""
         }))()`,
         returnByValue: true,
       });
       value = evaluated.result.value;
       if (
-        value.title === "本地分析已完成" &&
-        value.detail.includes("回到当前 Agent 对话") &&
-        value.instruction.includes("同步面板") &&
-        value.copyButton
+        value.title === "正在等待来源 Agent" &&
+        value.detail.includes("自动显示") &&
+        value.instruction.includes("无需操作") &&
+        value.autoRefresh.includes("等待自动刷新") &&
+        value.waitingPanel.includes("正在等待来源 Agent 返回结论")
       ) {
         break;
       }
       await sleep(100);
     }
-    assert.equal(value?.title, "本地分析已完成");
-    assert.match(value.detail, /回到当前 Agent 对话/u);
-    assert.match(value.instruction, /同步面板/u);
-    assert.match(value.copyButton, /同步面板/u);
+    assert.equal(value?.title, "正在等待来源 Agent");
+    assert.match(value.detail, /自动显示/u);
+    assert.match(value.instruction, /无需操作/u);
+    assert.match(value.autoRefresh, /等待自动刷新/u);
+    assert.match(value.waitingPanel, /正在等待来源 Agent 返回结论/u);
     const screenshot = await browser.cdp.send("Page.captureScreenshot", {
       format: "png",
       fromSurface: true,
@@ -671,7 +681,7 @@ async function captureWaitingForSourceEvidence(baseUrl, panelToken) {
       dom: value,
       screenshot_path: screenshotName,
       screenshot_sha256: sha256(screenshotBuffer),
-      evidence_source: "real_headless_browser_dom",
+      evidence_source: "same_page_browser_polling_dom",
       api_state_used_for_browser_acceptance: false,
       observed_at: new Date().toISOString(),
     };
@@ -682,7 +692,9 @@ async function captureWaitingForSourceEvidence(baseUrl, panelToken) {
     );
     return evidence;
   } finally {
-    await browser.close();
+    if (ownsBrowser) {
+      await browser.close();
+    }
   }
 }
 
@@ -690,9 +702,11 @@ async function performHumanPanelFlow(
   baseUrl,
   panelToken,
   hardwareProblem,
+  { keepOpen = false } = {},
 ) {
   const browser = await launchBrowserPage(baseUrl, panelToken, {
     initScript: `
+      window.__panelInstanceId = crypto.randomUUID();
       window.__panelBootErrors = [];
       window.addEventListener("error", (event) => {
         window.__panelBootErrors.push(
@@ -863,14 +877,14 @@ async function performHumanPanelFlow(
         detail:
           document.querySelector("#status-block .status-detail")
             ?.textContent?.trim() ?? "",
-        copySync:
-          [...document.querySelectorAll("button")]
-            .some((button) => button.textContent.includes("同步面板"))
+        autoRefresh:
+          document.querySelector("#source-result-auto-refresh")
+            ?.textContent?.trim() ?? ""
       }))()`,
       (value) =>
-        value.title === "本地分析已完成" &&
-        value.detail.includes("回到当前 Agent 对话") &&
-        value.copySync,
+        value.title === "正在等待来源 Agent" &&
+        value.detail.includes("无需刷新页面") &&
+        value.autoRefresh.includes("等待自动刷新"),
       "human local-analysis completion",
     );
     const screenshot = await browser.cdp.send("Page.captureScreenshot", {
@@ -906,9 +920,14 @@ async function performHumanPanelFlow(
       `${JSON.stringify(evidence, null, 2)}\n`,
       { encoding: "utf8", mode: 0o600 },
     );
-    return evidence;
+    return {
+      evidence,
+      browser: keepOpen ? browser : null,
+    };
   } finally {
-    await browser.close();
+    if (!keepOpen) {
+      await browser.close();
+    }
   }
 }
 
@@ -984,13 +1003,13 @@ async function captureRecoveryUiEvidence(baseUrl, panelToken, currentState) {
       const evaluated = await browser.cdp.send("Runtime.evaluate", {
         expression: `(() => ({
           phase:
-            document.querySelector("#source-hosted-phase-lock")
+            document.querySelector("#source-agent-result-waiting")
               ?.dataset.phase ?? "",
           recoveryAvailable:
-            document.querySelector("#source-hosted-phase-lock")
+            document.querySelector("#source-agent-result-waiting")
               ?.dataset.recoveryAvailable ?? "",
           recoveryAction:
-            [...document.querySelectorAll("#source-hosted-phase-lock button")]
+            [...document.querySelectorAll("#source-agent-result-waiting button")]
               .some((button) =>
                 button.textContent.includes("恢复当前 Task")
               ),
@@ -1044,7 +1063,7 @@ async function captureRecoveryUiEvidence(baseUrl, panelToken, currentState) {
     );
     const clicked = await browser.cdp.send("Runtime.evaluate", {
       expression: `(() => {
-        const button = [...document.querySelectorAll("#source-hosted-phase-lock button")]
+        const button = [...document.querySelectorAll("#source-agent-result-waiting button")]
           .find((item) => item.textContent.includes("恢复当前 Task"));
         if (!button) return false;
         button.click();
@@ -1060,7 +1079,7 @@ async function captureRecoveryUiEvidence(baseUrl, panelToken, currentState) {
           calls: window.__pchwRecoveryCalls,
           notice: document.querySelector(".notice")?.textContent?.trim() ?? "",
           phaseLockPresent:
-            Boolean(document.querySelector("#source-hosted-phase-lock")),
+            Boolean(document.querySelector("#source-agent-result-waiting")),
           fileInputDisabled:
             document.querySelector("#composer-file-input")?.disabled ?? true,
           attachmentCount:
@@ -1488,11 +1507,20 @@ try {
     );
   assert.equal(attachmentEvents.length, 1);
 
-  const humanFlowEvidence = await performHumanPanelFlow(
+  const humanFlow = await performHumanPanelFlow(
     server.baseUrl,
     panelToken,
     "4K 高画质游戏约 20 分钟后掉帧，GPU 功耗和有效频率下降，温度接近上限。",
+    { keepOpen: true },
   );
+  const humanFlowEvidence = humanFlow.evidence;
+  browser = humanFlow.browser;
+  const panelInstance = await browser.cdp.send("Runtime.evaluate", {
+    expression: "window.__panelInstanceId",
+    returnByValue: true,
+  });
+  const panelInstanceId = panelInstance.result.value;
+  assert.match(panelInstanceId, /^[a-f0-9-]{20,}$/u);
   assert.equal(humanFlowEvidence.waiting_for_source_visible, true);
   response = await fetch(`${server.baseUrl}/api/state`, {
     headers: panelHeaders(panelToken),
@@ -1557,19 +1585,24 @@ try {
   assert.equal(waited.freshness.returned_attachment_id, csvId);
   assert.equal(waited.freshness.returned_sha256, csvSha256);
   assert.ok(waited.source_tool_result?.packet?.tool_result?.analysis);
-  browser = await launchBrowserPage(server.baseUrl, panelToken);
   let phaseUi = null;
   for (let attempt = 0; attempt < 220; attempt += 1) {
     const evaluated = await browser.cdp.send("Runtime.evaluate", {
       expression: `(() => {
-        const lock = document.querySelector("#source-hosted-phase-lock");
+        const waiting = document.querySelector("#source-agent-result-waiting");
         return {
-          phase: lock?.dataset.phase ?? "",
+          phase: waiting?.dataset.phase ?? "",
           recoveryAvailable:
-            lock?.dataset.recoveryAvailable ?? "",
-          text: lock?.textContent?.trim() ?? "",
+            waiting?.dataset.recoveryAvailable ?? "",
+          waitingText: waiting?.textContent?.trim() ?? "",
+          statusTitle:
+            document.querySelector("#status-block .status-title")
+              ?.textContent?.trim() ?? "",
+          statusDetail:
+            document.querySelector("#status-block .status-detail")
+              ?.textContent?.trim() ?? "",
           recoveryButton:
-            [...(lock?.querySelectorAll("button") ?? [])]
+            [...(waiting?.querySelectorAll("button") ?? [])]
               .some((button) => button.textContent.includes("恢复当前 Task")),
           fileInputDisabled:
             document.querySelector("#composer-file-input")?.disabled ?? true,
@@ -1584,8 +1617,11 @@ try {
     phaseUi = evaluated.result.value;
     if (
       phaseUi.phase === "source_agent_pulled" &&
+      phaseUi.waitingText.includes("正在等待来源 Agent 返回结论") &&
+      phaseUi.statusTitle === "正在等待来源 Agent" &&
+      phaseUi.statusDetail.includes("自动显示") &&
       phaseUi.recoveryAvailable === "true" &&
-      phaseUi.recoveryButton &&
+      phaseUi.recoveryButton === true &&
       phaseUi.fileInputDisabled &&
       phaseUi.sendDisabled &&
       phaseUi.analyzeDisabled
@@ -1595,6 +1631,9 @@ try {
     await sleep(100);
   }
   assert.equal(phaseUi.phase, "source_agent_pulled");
+  assert.match(phaseUi.waitingText, /正在等待来源 Agent 返回结论/u);
+  assert.equal(phaseUi.statusTitle, "正在等待来源 Agent");
+  assert.match(phaseUi.statusDetail, /自动显示/u);
   assert.equal(phaseUi.recoveryAvailable, "true");
   assert.equal(phaseUi.recoveryButton, true);
   assert.equal(phaseUi.fileInputDisabled, true);
@@ -1603,8 +1642,9 @@ try {
   const waitingEvidence = await captureWaitingForSourceEvidence(
     server.baseUrl,
     panelToken,
+    { existingBrowser: browser },
   );
-  assert.equal(waitingEvidence.dom.title, "本地分析已完成");
+  assert.equal(waitingEvidence.dom.title, "正在等待来源 Agent");
   const exported = waited;
   assert.equal(exported.phase, "source_agent_pulled");
   assert.equal(
@@ -1803,6 +1843,9 @@ try {
       return {
         title: document.title,
         userAgent: navigator.userAgent,
+        panelInstanceId: window.__panelInstanceId,
+        navigationType:
+          performance.getEntriesByType("navigation")[0]?.type ?? "",
         judgementText:
           document.querySelector(".answer-judgement")?.textContent?.trim() ?? "",
         chartCaption:
@@ -1827,6 +1870,8 @@ try {
   });
   const dom = domEvaluation.result.value;
   assert.equal(dom.title, "SkillDock");
+  assert.equal(dom.panelInstanceId, panelInstanceId);
+  assert.notEqual(dom.navigationType, "reload");
   assert.ok(dom.judgementText.length >= 20);
   assert.ok(dom.chartImageWidth > 0);
   assert.ok(dom.chartImageHeight > 0);

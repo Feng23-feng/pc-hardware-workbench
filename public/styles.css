@@ -1507,6 +1507,26 @@ h1 {
   background: var(--danger-soft);
 }
 
+.phase-waiting {
+  display: grid;
+  gap: 6px;
+  margin: 16px 36px 0;
+  padding: 14px 16px;
+  border: 1px solid #b7c9d8;
+  border-radius: 10px;
+  color: #173b56;
+  background: #edf5fb;
+}
+
+.phase-waiting strong {
+  font-size: 13px;
+}
+
+.phase-waiting p {
+  margin: 0;
+  color: inherit;
+}
+
 .phase-lock strong {
   font-size: 13px;
 }
@@ -2020,6 +2040,10 @@ button:disabled {
   }
 
   .phase-lock {
+    margin: 12px 20px 0;
+  }
+
+  .phase-waiting {
     margin: 12px 20px 0;
   }
 
