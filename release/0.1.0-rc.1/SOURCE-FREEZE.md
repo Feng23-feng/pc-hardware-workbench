@@ -47,18 +47,19 @@ candidate. The outer ZIP sidecar is the authoritative transfer hash.
 
 ```text
 current authoritative source version: 2.8.0
-current source tree SHA-256:          f2c60c8a3ac9ae818542d89f89442a15a8710f75ae4c8a428973d7e7ddb4f4a1
+canonical clean source tree SHA-256:  75f770e040cae4fc3ff1076ae40df2b8a19e1389d03efe80f0da4995145419a3
 current source file count:            134
 R7 evidence source version:           2.7.4
 R7 source tree SHA-256:               f6eab543414ef6b208706b4367b7adb152db3bd5c5288390a0f30a5189a95eb1
 R7 source file count:                 134
 ```
 
-The current source hash is taken from the authoritative Git worktree at
-`pc-hardware-workbench/skill/pc-hardware-workbench`. The installed copy was
-synchronized from that tree through the repository's atomic installer. The R7
-hash is retained only as provenance for the accepted user-experience receipt.
-The final candidate build records the exact PCHW branch, commit, clean/dirty
-count, and Git status SHA-256 in `SOURCE-STATE.json`. The package verifier
-rejects missing or mismatched provenance and requires zero dirty entries in both
-repositories before the package can pass inventory verification.
+The current source hash is the canonical clean checkout produced from the PCHW
+commit and its `.gitattributes`. An older working tree could hash differently
+because unconverted CRLF files were still present even when Git reported the
+same content blob. The R7 hash is retained only as provenance for the accepted
+user-experience receipt. The final candidate build records the exact PCHW
+branch, commit, clean/dirty count, and Git status SHA-256 in `SOURCE-STATE.json`.
+The package verifier rejects missing or mismatched provenance and requires zero
+dirty entries in both repositories before the package can pass inventory
+verification.
