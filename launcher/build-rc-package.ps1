@@ -645,20 +645,6 @@ foreach ($script in @(
 )) {
     $ReleasePowerShellScripts.Add($script.FullName)
 }
-foreach ($name in @(
-    "runtime-paths.ps1",
-    "launch-panel.ps1",
-    "sync-panel.ps1",
-    "wait-panel.ps1",
-    "submit-panel-result.ps1",
-    "source-result-freshness.ps1"
-)) {
-    $ReleasePowerShellScripts.Add(
-        (Join-Path `
-            $OutputDirectory `
-            "skills\pc-hardware-workbench\scripts\skilldock\$name")
-    )
-}
 foreach ($scriptPath in $ReleasePowerShellScripts) {
     $scriptText = Read-Utf8Text -Path $scriptPath
     $scriptText = $scriptText.Replace(
@@ -696,6 +682,19 @@ foreach ($helperPath in $RuntimePathHelpers) {
     if (-not (Test-Path -LiteralPath $helperPath -PathType Leaf)) {
         throw "Runtime path helper is missing from the RC: $helperPath"
     }
+    $helperTokens = $null
+    $helperErrors = $null
+    [void][System.Management.Automation.Language.Parser]::ParseFile(
+        $helperPath,
+        [ref]$helperTokens,
+        [ref]$helperErrors
+    )
+    if ($helperErrors.Count -gt 0) {
+        throw (
+            "Packaged runtime path helper has a syntax error: " +
+            $helperPath
+        )
+    }
 }
 $RuntimePathHelperHashes = @(
     $RuntimePathHelpers |
@@ -729,6 +728,19 @@ foreach ($scriptDirectory in @(
         }
         $script = Get-Item -LiteralPath $scriptPath
         $scriptText = Read-Utf8Text -Path $script.FullName
+        $tokens = $null
+        $errors = $null
+        [void][System.Management.Automation.Language.Parser]::ParseFile(
+            $scriptPath,
+            [ref]$tokens,
+            [ref]$errors
+        )
+        if ($errors.Count -gt 0) {
+            throw (
+                "Packaged SkillDock script has a syntax error: " +
+                $scriptPath
+            )
+        }
         if ($scriptText -match "runtime-dsh-web|runtime-pchw") {
             throw (
                 "SkillDock data-root name is hard-coded outside the shared " +
