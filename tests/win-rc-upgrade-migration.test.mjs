@@ -351,10 +351,14 @@ try {
     "utf8",
   );
   for (const [name, value] of Object.entries({
-    "capability-token": "legacy-master-token",
-    "panel-capability-token": "legacy-panel-token",
-    "source-capability-token": "legacy-source-token",
-    "handoff-secret": "legacy-handoff-secret",
+    "capability-token":
+      "legacy-master-token-0123456789abcdef0123456789abcdef",
+    "panel-capability-token":
+      "legacy-panel-token-0123456789abcdef0123456789abcdef",
+    "source-capability-token":
+      "legacy-source-token-0123456789abcdef0123456789abcdef",
+    "handoff-secret":
+      "legacy-handoff-secret-0123456789abcdef0123456789abcdef",
   })) {
     await writeFile(join(legacyRoot, name), `${value}\n`, "utf8");
     await writeFile(join(canonicalRoot, name), `current-${value}\n`, "utf8");
