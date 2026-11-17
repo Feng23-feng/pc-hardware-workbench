@@ -17,7 +17,11 @@ function Get-FileSha256 {
 }
 
 function Get-TextSha256 {
-    param([Parameter(Mandatory = $true)][string]$Text)
+    param(
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyString()]
+        [string]$Text
+    )
 
     $utf8 = New-Object System.Text.UTF8Encoding($false)
     $sha256 = [Security.Cryptography.SHA256]::Create()
