@@ -4,7 +4,9 @@ param(
 
     [string]$ArchivePath = "",
 
-    [string]$PchwSkillDirectory = ""
+    [string]$PchwSkillDirectory = "",
+
+    [switch]$AllowDirtySource
 )
 
 Set-StrictMode -Version Latest
@@ -237,6 +239,8 @@ $PchwGitBranch = "unavailable"
 $PchwGitHead = "unavailable"
 $PchwGitDirtyEntries = -1
 $PchwGitStatusSha256 = $null
+$PchwGlobalDirtyEntries = -1
+$PchwGlobalStatusSha256 = $null
 if ($PchwGit) {
     $PchwGitPrefix = @(
         "-C",
@@ -256,12 +260,32 @@ if ($PchwGit) {
     if ($LASTEXITCODE -eq 0 -and $pchwBranch.Count -gt 0) {
         $PchwGitBranch = [string]$pchwBranch[0]
     }
+    $pchwGlobalStatusLines = @(
+        & $PchwGit.Source `
+            @PchwGitPrefix `
+            status `
+            --porcelain=v1 `
+            --untracked-files=all `
+            2>$null
+    )
+    if ($LASTEXITCODE -eq 0) {
+        $PchwGlobalDirtyEntries = @(
+            $pchwGlobalStatusLines |
+                Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+        ).Count
+        $PchwGlobalStatusSha256 =
+            Get-TextSha256 -Text ($pchwGlobalStatusLines -join "`n")
+    }
+    $resolvedPchwRoot = [IO.Path]::GetFullPath($PchwRepositoryRoot).TrimEnd("\")
+    $relativePchwSkill = $resolvedSkill.Substring($resolvedPchwRoot.Length + 1)
     $pchwStatusLines = @(
         & $PchwGit.Source `
             @PchwGitPrefix `
             status `
             --porcelain=v1 `
             --untracked-files=all `
+            -- `
+            $relativePchwSkill `
             2>$null
     )
     if ($LASTEXITCODE -eq 0) {
@@ -276,10 +300,11 @@ if ($PchwGit) {
 if (-not $PchwGit) {
     throw "A Git checkout is required to prove PCHW release provenance."
 }
-if ($PchwGitDirtyEntries -ne 0) {
+if ($PchwGitDirtyEntries -ne 0 -and -not $AllowDirtySource) {
     throw (
-        "PCHW repository must be clean before building the RC; " +
-        "dirty entry count: $PchwGitDirtyEntries"
+        "PCHW packaged Skill source must be clean before building an " +
+        "official RC; dirty entry count: $PchwGitDirtyEntries. " +
+        "Use -AllowDirtySource only for a local acceptance candidate."
     )
 }
 
@@ -765,6 +790,10 @@ Copy-Item `
     -Destination $PackageReleaseDocs `
     -Recurse `
     -Force
+$InnerAcceptanceHarness = Join-Path $PackageReleaseDocs "acceptance-bundle"
+if (Test-Path -LiteralPath $InnerAcceptanceHarness) {
+    Remove-Item -LiteralPath $InnerAcceptanceHarness -Recurse -Force
+}
 
 $Readme = @"
 SkillDock + PC Hardware Workbench $ReleaseVersion
@@ -914,17 +943,37 @@ if ($Git) {
 if (-not $Git) {
     throw "A Git checkout is required to prove SkillDock release provenance."
 }
-if ($GitDirtyEntries -ne 0) {
+if ($GitDirtyEntries -ne 0 -and -not $AllowDirtySource) {
     throw (
-        "SkillDock repository must be clean before building the RC; " +
-        "dirty entry count: $GitDirtyEntries"
+        "SkillDock repository must be clean before building an official " +
+        "RC; dirty entry count: $GitDirtyEntries. Use -AllowDirtySource " +
+        "only for a local acceptance candidate."
     )
 }
 
 $BuiltAt = [DateTimeOffset]::UtcNow.ToString("o")
+$LocalUncommittedCandidate = [bool]$AllowDirtySource
+$CandidateReleaseState = if ($LocalUncommittedCandidate) {
+    "local-candidate-clean-ui-pending"
+}
+else {
+    [string]$ReleaseConfig.release_state
+}
+$CandidateCommitState = if ($LocalUncommittedCandidate) {
+    "local-uncommitted"
+}
+else {
+    "local-only"
+}
 $SourceState = [ordered]@{
     schema_version = "1.0"
     release_id = $ReleaseVersion
+    source_state = if ($LocalUncommittedCandidate) {
+        "local-uncommitted-candidate"
+    }
+    else {
+        "clean-local-checkout"
+    }
     branch = $GitBranch
     head = $GitHead
     dirty_entry_count = $GitDirtyEntries
@@ -964,6 +1013,9 @@ $SourceState = [ordered]@{
     pchw_repository_head = $PchwGitHead
     pchw_repository_dirty_entry_count = $PchwGitDirtyEntries
     pchw_repository_status_sha256 = $PchwGitStatusSha256
+    pchw_repository_dirty_scope = $relativePchwSkill.Replace("\", "/")
+    pchw_repository_global_dirty_entry_count = $PchwGlobalDirtyEntries
+    pchw_repository_global_status_sha256 = $PchwGlobalStatusSha256
     packaged_pchw_tree_sha256 = $PackagedSkillIdentity.tree_sha256
     packaged_pchw_tree_file_count = $PackagedSkillIdentity.tree_file_count
     builder_sha256 = Get-FileSha256 -Path $PSCommandPath
@@ -994,7 +1046,7 @@ $RcManifest = [ordered]@{
     product = [string]$ReleaseConfig.product
     release_id = $ReleaseVersion
     package_basename = $PackageBaseName
-    release_state = [string]$ReleaseConfig.release_state
+    release_state = $CandidateReleaseState
     application_version = $ReleaseVersion
     platform = [string]$ReleaseConfig.platform
     support = [ordered]@{
@@ -1020,12 +1072,13 @@ $RcManifest = [ordered]@{
     }
     gates = [ordered]@{
         r7_current_user_thread_final_effect = "passed"
-        real_edge_user_acceptance = "passed"
-        same_task_restart = "passed"
+        real_edge_user_acceptance = "clean-ui-pending"
+        same_task_restart = "clean-ui-pending"
+        automated_portable_regression = "passed"
         package_hash_and_inventory = "built-pending-verification"
         clean_windows_install_uninstall = "pending"
         user_release_signoff = "pending"
-        commit = "local-only"
+        commit = $CandidateCommitState
         tag = "not-performed"
         upload = "not-performed"
         formal_release = "not-performed"
@@ -1064,6 +1117,9 @@ $RcManifest = [ordered]@{
         pchw_repository_head = $PchwGitHead
         pchw_repository_dirty_entry_count = $PchwGitDirtyEntries
         pchw_repository_status_sha256 = $PchwGitStatusSha256
+        pchw_repository_dirty_scope = $relativePchwSkill.Replace("\", "/")
+        pchw_repository_global_dirty_entry_count = $PchwGlobalDirtyEntries
+        pchw_repository_global_status_sha256 = $PchwGlobalStatusSha256
         builder_sha256 = Get-FileSha256 -Path $PSCommandPath
         pre_manifest_file_count = $PreManifestFiles.Count
     }

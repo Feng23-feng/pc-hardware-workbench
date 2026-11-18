@@ -1,5 +1,37 @@
 # Changelog
 
+## 2026-11-18 local P1 candidate
+
+- Preserve caller-provided `PANEL_SKILL_ROOTS` and
+  `PANEL_SKILL_MANIFEST` in the portable Windows launcher.
+- Require the running Runtime to load `pc-hardware-workbench` `2.8.0` with
+  `status=active`, at least one discovered candidate, and
+  `telemetry.csv.analyze`; otherwise stop and fail closed instead of accepting
+  `workbench.compat-fixture`.
+- Open the panel URL through interactive `explorer.exe` rather than the Codex
+  sandbox URL broker or a direct `msedge.exe` launch.
+- Do not hide the Explorer handoff window; hidden shell launches can create no
+  interactive Edge page.
+- Require a short-lived browser page-load acknowledgement after handoff;
+  otherwise return `interactive_desktop_unavailable` and stop the Runtime
+  started by that failed attempt.
+- Replace the long signed source-hosted token in the browser URL with a
+  one-time short `open_id`; the signed packet stays server-side and the open
+  ticket expires quickly.
+- When automatic Explorer handoff cannot obtain a page ACK, return an explicit
+  manual-open URL and local `.url` shortcut instead of stopping the Runtime or
+  claiming success.
+- Add a dedicated existing-install upgrade entry. It backs up an older PCHW
+  Skill, installs the verified replacement, and restores the old directory if
+  installation or tree validation fails.
+- Add structured `skill_runtime_mismatch`, `runtime_access_blocked`, and
+  `interactive_desktop_unavailable` fallback states.
+- Add portable-launcher Skill-root tests and visible-Edge UI-flow regression
+  assertions for `permission.requested` and verified SVG content.
+
+This is an uncommitted local acceptance candidate. Clean Windows user
+acceptance remains pending.
+
 ## SkillDock 0.1.0-rc.1 / PCHW 2.8.0 - 2026-11-17
 
 Release candidate preparation only. Local preparation commits exist, but the

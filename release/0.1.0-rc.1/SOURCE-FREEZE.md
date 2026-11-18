@@ -1,10 +1,16 @@
 # Source freeze for 0.1.0-rc.1
 
 The RC builder records the branch, HEAD, dirty-entry count, Git status SHA-256,
-and build timestamp in `SOURCE-STATE.json`. It refuses to build unless both the
-SkillDock checkout and its sibling PCHW checkout are clean Git repositories. It
-also refuses to build when `dist` still contains a root-level ZIP. The builder
-never creates a commit, tag, or remote change.
+packaged-PCHW dirty scope, and build timestamp in `SOURCE-STATE.json`. Official
+RC builds require clean SkillDock and packaged PCHW sources.
+
+An explicitly flagged `-AllowDirtySource` build is supported only for a local
+acceptance candidate when the user prohibits commits. Such a package records
+`release_state=local-candidate-clean-ui-pending` and
+`gates.commit=local-uncommitted`; the verifier requires a matching explicit
+flag and still keeps clean UI, install/uninstall, signoff, tag, push, upload,
+and formal release pending. The builder never creates a commit, tag, or remote
+change.
 
 ## Included package inputs
 
@@ -47,19 +53,14 @@ candidate. The outer ZIP sidecar is the authoritative transfer hash.
 
 ```text
 current authoritative source version: 2.8.0
-canonical clean source tree SHA-256:  882b069e891d1eb3246afeb3708b9dbff4a2c9c6727fcb8baaccb57e86464a1a
+current candidate tree SHA-256:       e8da9db938fc6c3e9846a499b4d6664c0f30457b754dcf101cec175159f48fae
 current source file count:            135
 R7 evidence source version:           2.7.4
 R7 source tree SHA-256:               f6eab543414ef6b208706b4367b7adb152db3bd5c5288390a0f30a5189a95eb1
 R7 source file count:                 134
 ```
 
-The current source hash is the canonical clean checkout produced from the PCHW
-commit and its `.gitattributes`. An older working tree could hash differently
-because unconverted CRLF files were still present even when Git reported the
-same content blob. The R7 hash is retained only as provenance for the accepted
-user-experience receipt. The final candidate build records the exact PCHW
-branch, commit, clean/dirty count, and Git status SHA-256 in `SOURCE-STATE.json`.
-The package verifier rejects missing or mismatched provenance and requires zero
-dirty entries in both repositories before the package can pass inventory
-verification.
+The current source hash identifies the uncommitted P1-fix candidate. The R7
+hash is retained only as provenance for the accepted user-experience receipt.
+The final candidate build records the exact PCHW branch, commit, packaged-Skill
+dirty count, global dirty count, and status hashes in `SOURCE-STATE.json`.

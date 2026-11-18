@@ -4,6 +4,45 @@ Date: 2026-11-17 (+08:00)
 
 Status: **release candidate; not released**
 
+## 2026-11-18 local P1 candidate
+
+This working-tree candidate supersedes the prior `19b7849d...` archive for
+acceptance preparation only. It is uncommitted and must not be treated as a
+formal release.
+
+Current pinned RC:
+
+The adjacent `.sha256` sidecar and verification JSON are authoritative for the
+exact archive bytes and digest.
+
+- The Portable Runtime now preserves caller-provided `PANEL_SKILL_ROOTS` and
+  `PANEL_SKILL_MANIFEST`.
+- Startup fails closed unless `pc-hardware-workbench` `2.8.0` is active with at
+  least one discovered/compatible candidate and `telemetry.csv.analyze`.
+- The Skill launcher resolves interactive `explorer.exe` and hands the final
+  URL to it as one quoted argument. It does not use the sandbox URL broker or
+  start `msedge.exe` directly, and it does not hide the Explorer handoff.
+- Source-hosted entry URLs use a short one-time `open_id`; the signed packet is
+  held server-side for the short ticket lifetime.
+- Automatic browser launch is best-effort. If page ACK does not arrive, the
+  launcher returns `manual_open_required=true` with `manual_open_url` and a
+  local `.url` shortcut, keeps Runtime data, and never reports automatic
+  success.
+- Existing installations use a separate upgrade entry. The prior PCHW Skill is
+  moved to `.codex\skills\.skilldock-backups`; failed new installs are moved
+  aside and the old Skill is restored. An identical installed tree is
+  idempotent and performs no replacement. Clean acceptance remains strict and
+  refuses an existing Skill.
+- Explorer handoff succeeds only after the panel page acknowledges a
+  short-lived handoff probe. Silent handoff success is rejected as
+  `interactive_desktop_unavailable`, and a Runtime started for that attempt is
+  stopped while preserving Task data.
+- `runtime_access_blocked`, `interactive_desktop_unavailable`, and
+  `skill_runtime_mismatch` have structured fallback states.
+- Automated portable-launcher and visible-Edge regressions pass.
+- Clean Windows user click, default ACL approval, Edge crash isolation,
+  restart, uninstall, and user signoff remain pending.
+
 ## Identity
 
 | Layer | Version |

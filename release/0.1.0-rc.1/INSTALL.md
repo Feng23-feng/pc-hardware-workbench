@@ -3,6 +3,12 @@
 No administrator rights are required. Do not run the RC in a production profile
 before the clean-Windows acceptance is complete.
 
+For the supported clean-Windows acceptance route, extract the outer acceptance
+ZIP and double-click its root `Start-Acceptance.cmd`. That controller validates
+the outer bundle and pinned RC, runs preflight, and installs both components.
+The lower-level commands below are diagnostic/advanced recovery steps, not the
+primary user installation path.
+
 ## 1. Verify the archive
 
 Keep the ZIP sidecar beside the archive:

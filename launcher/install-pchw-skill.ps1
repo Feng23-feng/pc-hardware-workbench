@@ -49,6 +49,8 @@ if (
 }
 
 New-Item -ItemType Directory -Path $resolvedSkillsRoot -Force | Out-Null
+$backupRoot = Join-Path $resolvedSkillsRoot ".skilldock-backups"
+$backupPath = $null
 if (Test-Path -LiteralPath $target) {
     $existingIdentity = Get-SkillTreeIdentity -Root $target
     if (
@@ -67,7 +69,6 @@ if (Test-Path -LiteralPath $target) {
     if (-not $ReplaceExisting) {
         throw "PCHW Skill already exists and differs. Re-run with -ReplaceExisting after reviewing the backup behavior."
     }
-    $backupRoot = Join-Path $resolvedSkillsRoot ".skilldock-backups"
     New-Item -ItemType Directory -Path $backupRoot -Force | Out-Null
     $backupPath = Join-Path $backupRoot (
         "pc-hardware-workbench-" +
@@ -93,6 +94,47 @@ try {
         -Force `
         -ErrorAction SilentlyContinue
     Move-Item -LiteralPath $staging -Destination $target
+
+    [pscustomobject]@{
+        schema_version = "1.0"
+        skill = "pc-hardware-workbench"
+        version = [string]$releaseManifest.pchw_skill.version
+        tree_sha256 = $expectedHash
+        tree_file_count = $expectedCount
+        installed_at = [DateTimeOffset]::Now.ToString("o")
+    } | ConvertTo-Json | Set-Content `
+        -LiteralPath (Join-Path $target "INSTALL-INFO.json") `
+        -Encoding UTF8
+
+    $installedIdentity = Get-SkillTreeIdentity -Root $target
+    if (
+        $installedIdentity.tree_sha256 -ne $expectedHash -or
+        $installedIdentity.tree_file_count -ne $expectedCount
+    ) {
+        throw "Installed PCHW Skill tree does not match the RC manifest."
+    }
+}
+catch {
+    $installError = $_
+    $failedTargetPath = $null
+    if (Test-Path -LiteralPath $target) {
+        New-Item -ItemType Directory -Path $backupRoot -Force | Out-Null
+        $failedTargetPath = Join-Path $backupRoot (
+            "pc-hardware-workbench-failed-install-" +
+            (Get-Date -Format "yyyyMMdd-HHmmss") +
+            "-" +
+            [guid]::NewGuid().ToString("N").Substring(0, 8)
+        )
+        Move-Item -LiteralPath $target -Destination $failedTargetPath
+    }
+    if ($backupPath -and (Test-Path -LiteralPath $backupPath)) {
+        Move-Item -LiteralPath $backupPath -Destination $target
+    }
+    Write-Warning (
+        "PCHW Skill installation failed and was rolled back. " +
+        "Failed install backup: $failedTargetPath"
+    )
+    throw $installError
 }
 finally {
     if (Test-Path -LiteralPath $staging) {
@@ -101,28 +143,10 @@ finally {
 }
 
 [pscustomobject]@{
-    schema_version = "1.0"
-    skill = "pc-hardware-workbench"
-    version = [string]$releaseManifest.pchw_skill.version
-    tree_sha256 = $expectedHash
-    tree_file_count = $expectedCount
-    installed_at = [DateTimeOffset]::Now.ToString("o")
-} | ConvertTo-Json | Set-Content `
-    -LiteralPath (Join-Path $target "INSTALL-INFO.json") `
-    -Encoding UTF8
-
-$installedIdentity = Get-SkillTreeIdentity -Root $target
-if (
-    $installedIdentity.tree_sha256 -ne $expectedHash -or
-    $installedIdentity.tree_file_count -ne $expectedCount
-) {
-    throw "Installed PCHW Skill tree does not match the RC manifest."
-}
-
-[pscustomobject]@{
     ok = $true
     changed = $true
     target = $target
+    backup_path = $backupPath
     tree_sha256 = $expectedHash
     tree_file_count = $expectedCount
 } | ConvertTo-Json -Compress

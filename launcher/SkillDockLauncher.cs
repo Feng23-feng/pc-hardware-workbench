@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -12,6 +13,9 @@ using System.Web.Script.Serialization;
 internal static class SkillDockLauncher
 {
     private const string ProductName = "SkillDock";
+    private const string ExpectedSkillId = "pc-hardware-workbench";
+    private const string ExpectedSkillVersion = "2.8.0";
+    private static string failureCode = "launcher_start_failed";
     private static string DriverName
     {
         get
@@ -39,6 +43,19 @@ internal static class SkillDockLauncher
         }
         catch (Exception error)
         {
+            if (error is LaunchFailureException)
+            {
+                failureCode = ((LaunchFailureException)error).Code;
+            }
+            else if (
+                error is UnauthorizedAccessException ||
+                error is DirectoryNotFoundException ||
+                error is FileNotFoundException
+            )
+            {
+                failureCode = "runtime_access_blocked";
+            }
+            TryWriteLaunchFailure(failureCode, error.Message);
             WriteLauncherLog(error.ToString());
             if (!silent)
             {
@@ -72,9 +89,22 @@ internal static class SkillDockLauncher
         string configuredSkillRoots = Environment.GetEnvironmentVariable(
             "SKILLDOCK_SKILL_ROOTS"
         );
-        string skillRoots = String.IsNullOrWhiteSpace(configuredSkillRoots)
-            ? codexSkills + ";" + dshSkills
-            : configuredSkillRoots;
+        string callerSkillRoots = Environment.GetEnvironmentVariable(
+            "PANEL_SKILL_ROOTS"
+        );
+        string skillRoots = callerSkillRoots != null
+            ? callerSkillRoots
+            : (
+                configuredSkillRoots != null
+                    ? configuredSkillRoots
+                    : codexSkills + ";" + dshSkills
+            );
+        string callerSkillManifest = Environment.GetEnvironmentVariable(
+            "PANEL_SKILL_MANIFEST"
+        );
+        string callerWorkbenchManifest = Environment.GetEnvironmentVariable(
+            "PANEL_WORKBENCH_MANIFEST"
+        );
         string runtimeDirectory = Path.Combine(LocalRoot, "runtime-dsh-web");
         bool replaceWorkspace = HasArgument(args, "--replace-workspace");
         bool internalPreview = String.Equals(
@@ -150,6 +180,7 @@ internal static class SkillDockLauncher
             }
             else
             {
+                ValidateActiveSkill(existing.port, runtimeDirectory);
                 WriteLaunchResult(existing);
                 if (!noBrowser)
                 {
@@ -183,7 +214,17 @@ internal static class SkillDockLauncher
         startInfo.EnvironmentVariables["PANEL_RUNTIME_DIR"] = runtimeDirectory;
         startInfo.EnvironmentVariables["PANEL_AGENT_DRIVER"] = DriverName;
         startInfo.EnvironmentVariables["PANEL_SKILL_ROOTS"] = skillRoots;
-        startInfo.EnvironmentVariables["PANEL_SKILL_ID"] = "pc-hardware-workbench";
+        startInfo.EnvironmentVariables["PANEL_SKILL_ID"] = ExpectedSkillId;
+        if (callerSkillManifest != null)
+        {
+            startInfo.EnvironmentVariables["PANEL_SKILL_MANIFEST"] =
+                callerSkillManifest;
+        }
+        if (callerWorkbenchManifest != null)
+        {
+            startInfo.EnvironmentVariables["PANEL_WORKBENCH_MANIFEST"] =
+                callerWorkbenchManifest;
+        }
         startInfo.EnvironmentVariables["PANEL_AGENT_WORKSPACE"] = workspace;
         if (internalPreview)
         {
@@ -223,15 +264,26 @@ internal static class SkillDockLauncher
             }
             Thread.Sleep(250);
         }
-        int processId = process.Id;
-        process.Dispose();
-
         if (!ready)
         {
+            process.Dispose();
             throw new TimeoutException(
                 "The SkillDock server did not become ready within 40 seconds."
             );
         }
+
+        try
+        {
+            ValidateActiveSkill(port, runtimeDirectory);
+        }
+        catch
+        {
+            StopStartedServer(process, port, runtimeDirectory);
+            process.Dispose();
+            throw;
+        }
+        int processId = process.Id;
+        process.Dispose();
 
         WriteLauncherLog("Ready: " + url);
         ServerInfo started = new ServerInfo
@@ -399,20 +451,233 @@ internal static class SkillDockLauncher
         {
             exactUrl = BuildExactUrl(info.url, info.launch_id, info.pid, info.port);
         }
-        string edge = ResolveEdgeExecutable();
+        string explorerPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.Windows),
+            "explorer.exe"
+        );
+        if (!File.Exists(explorerPath))
+        {
+            throw new LaunchFailureException(
+                "interactive_desktop_unavailable",
+                "Windows Explorer is unavailable, so the interactive desktop " +
+                "could not be asked to open SkillDock."
+            );
+        }
         ProcessStartInfo browser = new ProcessStartInfo();
-        if (!String.IsNullOrWhiteSpace(edge))
+        browser.FileName = explorerPath;
+        browser.Arguments = Quote(exactUrl);
+        browser.UseShellExecute = true;
+        Process browserProcess = Process.Start(browser);
+        if (browserProcess == null)
         {
-            browser.FileName = edge;
-            browser.Arguments = "--new-window " + Quote(exactUrl);
-            browser.UseShellExecute = false;
+            throw new LaunchFailureException(
+                "interactive_desktop_unavailable",
+                "Windows Shell did not accept the SkillDock URL."
+            );
         }
-        else
+        browserProcess.Dispose();
+        WriteLauncherLog("Browser handoff: windows-shell " + exactUrl);
+    }
+
+    private static void ValidateActiveSkill(int port, string runtimeDirectory)
+    {
+        string tokenPath = Path.Combine(runtimeDirectory, "capability-token");
+        if (!File.Exists(tokenPath))
         {
-            browser.FileName = exactUrl;
-            browser.UseShellExecute = true;
+            throw new LaunchFailureException(
+                "skill_runtime_mismatch",
+                "SkillDock did not create the capability token required for " +
+                "active-Skill validation."
+            );
         }
-        Process.Start(browser);
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create(
+            "http://127.0.0.1:" + port + "/api/state"
+        );
+        request.Timeout = 5000;
+        request.ReadWriteTimeout = 5000;
+        request.Headers["Authorization"] =
+            "Bearer " + File.ReadAllText(tokenPath).Trim();
+        using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+        using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+        {
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                throw new LaunchFailureException(
+                    "skill_runtime_mismatch",
+                    "SkillDock rejected active-Skill validation."
+                );
+            }
+            JavaScriptSerializer serializer = new JavaScriptSerializer();
+            Dictionary<string, object> state =
+                serializer.DeserializeObject(reader.ReadToEnd())
+                as Dictionary<string, object>;
+            Dictionary<string, object> skill = null;
+            if (state != null && state.ContainsKey("skill"))
+            {
+                skill = state["skill"] as Dictionary<string, object>;
+            }
+            if (skill == null)
+            {
+                throw new LaunchFailureException(
+                    "skill_runtime_mismatch",
+                    "SkillDock state does not describe an active Skill."
+                );
+            }
+            string skillId = Convert.ToString(skill.ContainsKey("skill_id")
+                ? skill["skill_id"]
+                : null);
+            string skillVersion = Convert.ToString(skill.ContainsKey("skill_version")
+                ? skill["skill_version"]
+                : null);
+            string status = Convert.ToString(skill.ContainsKey("status")
+                ? skill["status"]
+                : null);
+            int candidateCount = 0;
+            int compatibleCount = 0;
+            Dictionary<string, object> discovery = null;
+            if (skill.ContainsKey("discovery"))
+            {
+                discovery = skill["discovery"] as Dictionary<string, object>;
+            }
+            if (discovery != null)
+            {
+                if (discovery.ContainsKey("candidate_count"))
+                {
+                    candidateCount = Convert.ToInt32(
+                        discovery["candidate_count"]
+                    );
+                }
+                if (discovery.ContainsKey("compatible_count"))
+                {
+                    compatibleCount = Convert.ToInt32(
+                        discovery["compatible_count"]
+                    );
+                }
+            }
+            bool hasAnalyzeCapability = false;
+            object capabilitiesValue;
+            if (skill.TryGetValue("capabilities", out capabilitiesValue))
+            {
+                object[] capabilities = capabilitiesValue as object[];
+                if (capabilities == null && capabilitiesValue is object)
+                {
+                    capabilities = new object[] { capabilitiesValue };
+                }
+                foreach (object capabilityValue in capabilities ?? new object[0])
+                {
+                    Dictionary<string, object> capability =
+                        capabilityValue as Dictionary<string, object>;
+                    if (
+                        capability != null &&
+                        capability.ContainsKey("id") &&
+                        String.Equals(
+                            Convert.ToString(capability["id"]),
+                            "telemetry.csv.analyze",
+                            StringComparison.Ordinal
+                        )
+                    )
+                    {
+                        hasAnalyzeCapability = true;
+                        break;
+                    }
+                }
+            }
+            if (
+                !String.Equals(skillId, ExpectedSkillId, StringComparison.Ordinal) ||
+                !String.Equals(
+                    skillVersion,
+                    ExpectedSkillVersion,
+                    StringComparison.Ordinal
+                ) ||
+                !String.Equals(status, "active", StringComparison.Ordinal) ||
+                candidateCount < 1 ||
+                compatibleCount < 1 ||
+                !hasAnalyzeCapability
+            )
+            {
+                throw new LaunchFailureException(
+                    "skill_runtime_mismatch",
+                    "SkillDock loaded " + (skillId ?? "(none)") + " " +
+                    (skillVersion ?? "(none)") + " with status " +
+                    (status ?? "(none)") + ", candidate_count=" +
+                    candidateCount + ", compatible_count=" +
+                    compatibleCount + ", telemetry.csv.analyze=" +
+                    (hasAnalyzeCapability ? "present" : "missing") +
+                    ". Refusing compatibility-fixture fallback."
+                );
+            }
+        }
+    }
+
+    private static void StopStartedServer(
+        Process process,
+        int port,
+        string runtimeDirectory
+    )
+    {
+        try
+        {
+            string tokenPath = Path.Combine(runtimeDirectory, "capability-token");
+            if (File.Exists(tokenPath))
+            {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(
+                    "http://127.0.0.1:" + port + "/api/shutdown"
+                );
+                request.Method = "POST";
+                request.ContentType = "application/json";
+                request.Headers["Authorization"] =
+                    "Bearer " + File.ReadAllText(tokenPath).Trim();
+                byte[] body = Encoding.UTF8.GetBytes("{}");
+                request.ContentLength = body.Length;
+                using (Stream stream = request.GetRequestStream())
+                {
+                    stream.Write(body, 0, body.Length);
+                }
+                using (HttpWebResponse response =
+                    (HttpWebResponse)request.GetResponse())
+                {
+                }
+            }
+        }
+        catch
+        {
+            // Fall back to terminating the launcher-owned child below.
+        }
+        try
+        {
+            if (process != null && !process.WaitForExit(5000))
+            {
+                process.Kill();
+                process.WaitForExit(5000);
+            }
+        }
+        catch
+        {
+            // The original validation failure remains the primary error.
+        }
+    }
+
+    private static void TryWriteLaunchFailure(string code, string message)
+    {
+        try
+        {
+            Directory.CreateDirectory(LocalRoot);
+            string failurePath = Path.Combine(LocalRoot, "launch-failure.json");
+            Dictionary<string, object> payload = new Dictionary<string, object>();
+            payload["ok"] = false;
+            payload["error_code"] = code;
+            payload["error"] = message;
+            payload["failed_at"] = DateTimeOffset.Now.ToString("o");
+            File.WriteAllText(
+                failurePath,
+                new JavaScriptSerializer().Serialize(payload) + "\r\n",
+                Encoding.UTF8
+            );
+        }
+        catch
+        {
+            // The launch-panel also probes writability before starting.
+        }
     }
 
     private static bool TryGetHealthyServer(out ServerInfo info)
@@ -647,5 +912,16 @@ internal static class SkillDockLauncher
         public string launch_id;
         public string origin;
         public string exact_url;
+    }
+
+    private sealed class LaunchFailureException : Exception
+    {
+        public string Code { get; private set; }
+
+        public LaunchFailureException(string code, string message)
+            : base(message)
+        {
+            Code = code;
+        }
     }
 }

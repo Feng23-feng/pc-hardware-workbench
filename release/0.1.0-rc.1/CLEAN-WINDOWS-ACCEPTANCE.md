@@ -16,16 +16,20 @@ contains SkillDock, PCHW, Task data, Edge state, and prior permissions.
 
 ## Install
 
-1. Extract the RC ZIP to a new local directory.
-2. Run `Install PCHW Skill.ps1`.
-3. Confirm the installed Skill subset matches the PCHW tree hash and file count
+1. Extract the outer clean-Windows acceptance ZIP to a new local directory.
+2. Double-click the root `Start-Acceptance.cmd`; keep the only primary entry.
+3. Confirm the window says `Acceptance startup: PASS`, then inspect
+   `payload\evidence\acceptance-start-result.json`.
+4. Confirm the installed Skill subset matches the PCHW tree hash and file count
    recorded in the package's `RC-MANIFEST.json`.
-4. Run the installed Skill validator from the Codex tool environment.
-5. Run `Install SkillDock Runtime.ps1`.
-6. Confirm exactly one active `Runtime-*` directory and a valid
+5. Confirm exactly one active `Runtime-*` directory and a valid
    `runtime-location.json`, with version `0.1.0-rc.1`.
-7. Confirm the bundled Node reports `v24.22.1`.
-8. Confirm default traffic and the formal default entry are still off/closed.
+6. Confirm the bundled Node reports `v24.22.1`.
+7. Confirm default traffic and the formal default entry are still off/closed.
+
+The controller invokes the packaged installers. Do not replace its validation,
+preflight, or install stages with manual script execution. The numbered scripts
+under `payload` remain diagnostic-only.
 
 ## Controlled PCHW flow
 
@@ -43,6 +47,37 @@ contains SkillDock, PCHW, Task data, Edge state, and prior permissions.
 9. Restart the same Runtime, reopen the same Task, and compare Task count,
    phase, panel hash, artifact ID, and artifact SHA-256.
 
+## Runtime access and desktop handoff
+
+1. First test the default `%LOCALAPPDATA%\SkillDock` data root in the actual
+   Codex Ask-for-approval profile. If access is denied, record
+   `runtime_access_blocked` and continue in chat; do not call it a default pass.
+2. Repeat only after the user explicitly approves a writable portable data root.
+   Label that run `permission_fallback`, not clean default acceptance.
+3. Verify portable Runtime discovery with an explicit Skill root or manifest,
+   and confirm the page will not open when the target Skill is absent.
+4. Confirm the Skill obtains the URL and hands it to interactive
+   `explorer.exe`. Do not use the sandbox URL broker or start `msedge.exe`
+   directly as the supported path. The Explorer handoff must not be hidden.
+5. Confirm the page acknowledges the short-lived handoff probe. Explorer
+   process success without a page acknowledgement is
+   `interactive_desktop_unavailable`.
+6. If manual fallback is returned, verify the displayed “手动打开面板” path,
+   open `manual_open_url` or `manual_open_file`, and confirm the same probe ACK.
+
+## Edge crash isolation
+
+Preserve Application and Windows Error Reporting events without deciding the
+product result from a crash page alone.
+
+1. Open an ordinary page in the user's normal Edge profile.
+2. Open the same page in a fresh Edge profile.
+3. Open the SkillDock URL by pasting it manually into an already-running Edge.
+4. Trigger the SkillDock URL through the Skill/interactive-Explorer path.
+5. Record each result and every `msedge.exe` `0x80000003` or
+   `RADAR_PRE_LEAK_64` event. If a browser window is absent or crashes, stop and
+   leave the final product verdict pending rather than retrying APIs.
+
 ## Uninstall and residue
 
 1. Stop the Runtime and confirm its health endpoint is unavailable.
@@ -58,6 +93,10 @@ contains SkillDock, PCHW, Task data, Edge state, and prior permissions.
 
 - Every step passes with recorded evidence.
 - No API/headless browser substitutes for the user-facing Edge check.
+- No submit, analysis, or permission-decision API substitutes for the user's
+  page clicks.
+- The browser path must preserve the ordinary-Edge, clean-Edge, manual-URL, and
+  Windows-Shell evidence separately.
 - No real Codex Thread is created solely for packaging or installation tests.
 - No test runner, mock adapter, development route, or DSH entry is exposed.
 - No BIOS, firmware, driver, clock, voltage, power, fan, memory-timing, or OS

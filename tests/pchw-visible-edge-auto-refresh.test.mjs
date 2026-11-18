@@ -254,6 +254,20 @@ async function waitForDom(expression, predicate, label, attempts = 220) {
   throw new Error(`${label} timed out: ${JSON.stringify(value)}`);
 }
 
+async function waitForFileText(path, predicate, label, attempts = 120) {
+  let value = "";
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      value = await readFile(path, "utf8");
+      if (predicate(value)) return value;
+    } catch {
+      // The event file appears after the first panel action.
+    }
+    await sleep(100);
+  }
+  throw new Error(`${label} timed out`);
+}
+
 async function findFreePort() {
   return new Promise((resolvePromise, rejectPromise) => {
     import("node:net").then(({ createServer }) => {
@@ -310,6 +324,7 @@ try {
   const launcherEnv = {
     ...process.env,
     SKILLDOCK_LOCAL_ROOT: localRoot,
+    PANEL_SKILL_ROOTS: join(packageRoot, "skills"),
     NODE_NO_WARNINGS: "1",
   };
   const launched = await runProcess(
@@ -343,6 +358,21 @@ try {
   const sourceToken = (
     await readFile(join(runtimeDir, "source-capability-token"), "utf8")
   ).trim();
+  const initialStateResponse = await fetch(`${baseUrl}/api/state`, {
+    headers: { Authorization: `Bearer ${masterToken}` },
+  });
+  assert.equal(initialStateResponse.ok, true);
+  const initialState = await initialStateResponse.json();
+  assert.equal(initialState.skill.skill_id, "pc-hardware-workbench");
+  assert.equal(initialState.skill.skill_version, "2.8.0");
+  assert.equal(initialState.skill.status, "active");
+  assert.ok(initialState.skill.discovery.candidate_count >= 1);
+  assert.ok(initialState.skill.discovery.compatible_count >= 1);
+  assert.ok(
+    initialState.skill.capabilities.some(
+      (capability) => capability.id === "telemetry.csv.analyze",
+    ),
+  );
   const sourceSessionRef = randomUUID();
   const taskId = `task-pchw-visible-${sourceSessionRef}`;
   const objective =
@@ -504,6 +534,11 @@ try {
       value.present &&
       value.labels.includes("仅本次允许"),
     "permission card",
+  );
+  await waitForFileText(
+    join(runtimeDir, "events.jsonl"),
+    (text) => text.includes("\"type\":\"permission.requested\""),
+    "permission.requested event",
   );
   assert.equal(await evaluate(`(() => {
     const button = [...document.querySelectorAll("#permission-card button")]
@@ -679,6 +714,7 @@ try {
         chartLoaded: Boolean(
           image && image.complete && image.naturalWidth > 0
         ),
+        chartSource: image?.getAttribute("src") ?? "",
         title: document.title
       };
     })()`,
@@ -691,6 +727,26 @@ try {
   );
   assert.equal(answerDom.instanceId, panelInstanceId.id);
   assert.notEqual(answerDom.navigationType, "reload");
+  const chartPayload = await evaluate(
+    `(async () => {
+      const image = document.querySelector(".analysis-chart img");
+      if (!image) return { ok: false };
+      const response = await fetch(image.src);
+      const text = await response.text();
+      return {
+        ok: response.ok,
+        contentType: response.headers.get("content-type") ?? "",
+        prefix: text.trim().slice(0, 160)
+      };
+    })()`,
+    { awaitPromise: true },
+  );
+  assert.equal(chartPayload.ok, true);
+  assert.ok(
+    chartPayload.contentType.includes("image/svg+xml") ||
+      chartPayload.prefix.startsWith("<svg"),
+    JSON.stringify(chartPayload),
+  );
   const answerScreenshot = await cdp.send("Page.captureScreenshot", {
     format: "png",
     fromSurface: true,

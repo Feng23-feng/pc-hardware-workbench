@@ -3,7 +3,9 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$ArchivePath,
 
-    [string]$VerificationPath = ""
+    [string]$VerificationPath = "",
+
+    [switch]$AllowDirtyLocalCandidate
 )
 
 Set-StrictMode -Version Latest
@@ -199,7 +201,9 @@ try {
         throw "RC manifest does not record a full PCHW commit SHA."
     }
     if (
+        -not $AllowDirtyLocalCandidate -and
         [int]$manifest.build_provenance.dirty_entry_count -ne 0 -or
+        -not $AllowDirtyLocalCandidate -and
         [int]$manifest.build_provenance.pchw_repository_dirty_entry_count -ne 0
     ) {
         throw "RC provenance is dirty; only clean source checkouts may be packaged."
@@ -212,14 +216,29 @@ try {
             throw "Archive top-level directory does not match the release ID."
         }
     }
-    if ([string]$manifest.release_state -ne "release-candidate-not-released") {
+    $allowedReleaseStates = if ($AllowDirtyLocalCandidate) {
+        @(
+            "release-candidate-not-released",
+            "local-candidate-clean-ui-pending"
+        )
+    }
+    else {
+        @("release-candidate-not-released")
+    }
+    if ([string]$manifest.release_state -notin $allowedReleaseStates) {
         throw "RC manifest has an unexpected release state."
     }
     if ([string]$manifest.gates.formal_release -ne "not-performed") {
         throw "RC manifest must not claim a formal release."
     }
-    if ([string]$manifest.gates.commit -ne "local-only") {
-        throw "RC manifest must identify the package source as a local-only commit."
+    $allowedCommitStates = if ($AllowDirtyLocalCandidate) {
+        @("local-only", "local-uncommitted")
+    }
+    else {
+        @("local-only")
+    }
+    if ([string]$manifest.gates.commit -notin $allowedCommitStates) {
+        throw "RC manifest has an unexpected local commit state."
     }
     foreach ($gateName in @("tag", "upload", "formal_release")) {
         if ([string]$manifest.gates.$gateName -ne "not-performed") {
@@ -640,12 +659,17 @@ try {
                 [int]$manifest.build_provenance.pchw_repository_dirty_entry_count
             pchw_status_sha256 =
                 [string]$manifest.build_provenance.pchw_repository_status_sha256
+            skilldock_dirty_entry_count =
+                [int]$manifest.build_provenance.dirty_entry_count
+            skilldock_status_sha256 =
+                [string]$manifest.build_provenance.git_status_sha256
         }
         gates = [ordered]@{
             inventory_and_hashes = "passed"
             clean_windows_install_uninstall = "pending"
+            clean_ui_user_acceptance = "pending"
             user_release_signoff = "pending"
-            source_commit = "local-only"
+            source_commit = [string]$manifest.gates.commit
             formal_release = "not-performed"
         }
         boundaries = [ordered]@{

@@ -1,6 +1,6 @@
 # SkillDock / PCHW 0.1.0-rc.1
 
-Status: **release candidate preparation only; not released**.
+Status: **local acceptance candidate; uncommitted; not released**.
 
 This candidate combines SkillDock application `0.1.0-rc.1` with the packaged
 PC Hardware Workbench Skill `2.8.0`. It is not a production release and does
@@ -22,26 +22,30 @@ SkillDock panel is available there. `launch-panel.ps1` requires
 ## Candidate package
 
 ```text
-dist/SkillDock-PCHW-0.1.0-rc.1-win-x64.zip
-dist/SkillDock-PCHW-0.1.0-rc.1-win-x64.zip.sha256
+dist/SkillDock-PCHW-0.1.0-rc.1-win-x64-p1fix-safe-upgrade-local-candidate-20261118.zip
+dist/SkillDock-PCHW-0.1.0-rc.1-win-x64-p1fix-safe-upgrade-local-candidate-20261118.zip.sha256
 ```
 
-The builder rejects replacement of an existing candidate. Historical packages
-belong under `dist/archive/` and must not be treated as the current candidate.
+The adjacent `.sha256` sidecar and verification JSON are authoritative for the
+exact archive bytes and digest. The builder rejects replacement of an existing
+candidate. Historical packages belong under `dist/archive/` and must not be
+treated as the current candidate.
 
 ## Current gates
 
 | Gate | State |
 | --- | --- |
 | PCHW R7 current-user-Thread FINAL-EFFECT | PASS |
-| Real Edge user acceptance | PASS |
-| Same-Task restart | PASS |
+| Automated visible-Edge P1 regression | PASS |
+| Clean Windows user click / restart | PENDING |
+| Default Runtime ACL approval | PENDING |
+| Edge isolation matrix | PENDING |
 | Source and installed PCHW identity | PASS |
 | Static/full regression at R7 | PASS |
 | RC package build and hash verification | Produced by this release-prep batch |
 | Clean Windows profile/VM install and uninstall | PENDING |
 | User release signoff | PENDING |
-| Local preparation commits | COMPLETED |
+| Source state | LOCAL UNCOMMITTED CANDIDATE |
 | Tag / push / upload / formal publish | NOT PERFORMED |
 
 Read [RELEASE-NOTES.md](RELEASE-NOTES.md),

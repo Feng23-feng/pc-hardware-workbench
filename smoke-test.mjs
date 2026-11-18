@@ -364,6 +364,28 @@ try {
       discoveredDuplicate.selected?.skill.id === "generic-demo",
     "duplicate manifest paths were not deduplicated",
   );
+  const discoveredEmptyConfiguredRoots = discoverSkillManifests({
+    projectRoot: root,
+    explicitValue: null,
+    configuredRoots: "",
+  });
+  assert(
+    discoveredEmptyConfiguredRoots.selected === null &&
+      discoveredEmptyConfiguredRoots.candidates.length === 0 &&
+      discoveredEmptyConfiguredRoots.fallbackRequired,
+    "an explicitly empty Skill root list silently fell back to default roots",
+  );
+  const discoveredMissingConfiguredRoots = discoverSkillManifests({
+    projectRoot: root,
+    explicitValue: null,
+    configuredRoots: join(root, "missing-configured-skill-root"),
+  });
+  assert(
+    discoveredMissingConfiguredRoots.selected === null &&
+      discoveredMissingConfiguredRoots.candidates.length === 0 &&
+      discoveredMissingConfiguredRoots.fallbackRequired,
+    "a missing configured Skill root silently selected another Skill",
+  );
 
   const discoveryRoot = await mkdtemp(
     join(tmpdir(), "agent-panel-discovery-"),

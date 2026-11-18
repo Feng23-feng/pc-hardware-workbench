@@ -159,6 +159,48 @@ function runtimeBindingCookie() {
   )}; SameSite=Strict; Path=/; Max-Age=86400`;
 }
 
+const browserHandoffProbes = new Map();
+const sourceHostedOpenTickets = new Map();
+
+function getRequestCookie(request, name) {
+  for (const part of String(request.headers.cookie ?? "").split(";")) {
+    const separator = part.indexOf("=");
+    if (separator < 0) continue;
+    const key = part.slice(0, separator).trim();
+    if (key !== name) continue;
+    try {
+      return decodeURIComponent(part.slice(separator + 1).trim());
+    } catch {
+      return "";
+    }
+  }
+  return "";
+}
+
+function browserHandoffProbeCookie(probeId) {
+  return `skilldock_handoff_probe=${encodeURIComponent(
+    probeId,
+  )}; HttpOnly; SameSite=Strict; Path=/; Max-Age=120`;
+}
+
+function pruneBrowserHandoffProbes() {
+  const now = Date.now();
+  for (const [probeId, probe] of browserHandoffProbes) {
+    if (probe.expires_at_ms <= now) {
+      browserHandoffProbes.delete(probeId);
+    }
+  }
+}
+
+function pruneSourceHostedOpenTickets() {
+  const now = Date.now();
+  for (const [openId, ticket] of sourceHostedOpenTickets) {
+    if (ticket.expires_at_ms <= now) {
+      sourceHostedOpenTickets.delete(openId);
+    }
+  }
+}
+
 function loadOrCreateSecret(fileName) {
   const tokenPath = resolve(runtimeDir, fileName);
   if (existsSync(tokenPath)) {
@@ -2711,7 +2753,16 @@ function receiveHandoff(
   response.writeHead(303, {
     Location: `${redirectUrl.pathname}${redirectUrl.search}`,
     "Cache-Control": "no-store",
-    "Set-Cookie": [panelCookie(), runtimeBindingCookie()],
+    "Set-Cookie": [
+      panelCookie(),
+      runtimeBindingCookie(),
+      ...(
+        url.searchParams.has("handoff_probe") &&
+        browserHandoffProbes.has(url.searchParams.get("handoff_probe"))
+          ? [browserHandoffProbeCookie(url.searchParams.get("handoff_probe"))]
+          : []
+      ),
+    ],
     "Referrer-Policy": "no-referrer",
     "Content-Length": 0,
   });
@@ -2723,7 +2774,7 @@ async function route(request, response) {
     writeJson(response, 403, { error: "invalid host" });
     return;
   }
-  const url = new URL(request.url, `http://${request.headers.host}`);
+  let url = new URL(request.url, `http://${request.headers.host}`);
 
   if (request.method === "GET" && staticFiles.has(url.pathname)) {
     const [contentType, filePath] = staticFiles.get(url.pathname);
@@ -2738,6 +2789,11 @@ async function route(request, response) {
     };
     if (url.pathname === "/") {
       headers["Set-Cookie"] = [panelCookie(), runtimeBindingCookie()];
+      const probeId = getRequestCookie(request, "skilldock_handoff_probe");
+      const probe = browserHandoffProbes.get(probeId);
+      if (probe && probe.expires_at_ms > Date.now()) {
+        probe.acknowledged_at = new Date().toISOString();
+      }
     }
     response.writeHead(200, headers);
     response.end(body);
@@ -2770,6 +2826,22 @@ async function route(request, response) {
     if (!sourceHostedEntryEnabled) {
       writeJson(response, 404, { error: "not found" });
       return;
+    }
+    const openId = url.searchParams.get("open_id");
+    if (openId) {
+      pruneSourceHostedOpenTickets();
+      const ticket = sourceHostedOpenTickets.get(openId);
+      sourceHostedOpenTickets.delete(openId);
+      if (!ticket || ticket.expires_at_ms <= Date.now()) {
+        writeJson(response, 410, {
+          error: "source-hosted open ticket is invalid or expired",
+          code: "source_hosted_open_expired",
+        });
+        return;
+      }
+      url = new URL(request.url, `http://${request.headers.host}`);
+      url.searchParams.delete("open_id");
+      url.searchParams.set("token", ticket.token);
     }
     receiveHandoff(
       request,
@@ -2817,6 +2889,54 @@ async function route(request, response) {
     writeJson(response, 403, {
       error: "source capability cannot use the panel API",
       code: "panel_capability_required",
+    });
+    return;
+  }
+
+  if (
+    request.method === "POST" &&
+    url.pathname === "/api/browser-handoff/probe"
+  ) {
+    pruneBrowserHandoffProbes();
+    const probeId = randomUUID();
+    const expiresAt = Date.now() + 600_000;
+    browserHandoffProbes.set(probeId, {
+      probe_id: probeId,
+      launch_id: runtimeLaunchId,
+      created_at: new Date().toISOString(),
+      expires_at_ms: expiresAt,
+      acknowledged_at: null,
+    });
+    writeJson(response, 201, {
+      ok: true,
+      probe_id: probeId,
+      launch_id: runtimeLaunchId,
+      expires_at: new Date(expiresAt).toISOString(),
+    });
+    return;
+  }
+
+  if (
+    request.method === "GET" &&
+    url.pathname === "/api/browser-handoff/status"
+  ) {
+    pruneBrowserHandoffProbes();
+    const probeId = url.searchParams.get("probe_id") ?? "";
+    const probe = browserHandoffProbes.get(probeId);
+    if (!probe) {
+      writeJson(response, 404, {
+        ok: false,
+        status: "unknown_or_expired",
+      });
+      return;
+    }
+    writeJson(response, 200, {
+      ok: true,
+      status: probe.acknowledged_at ? "acknowledged" : "pending",
+      probe_id: probe.probe_id,
+      launch_id: probe.launch_id,
+      acknowledged_at: probe.acknowledged_at,
+      expires_at: new Date(probe.expires_at_ms).toISOString(),
     });
     return;
   }
@@ -2937,7 +3057,13 @@ async function route(request, response) {
       ),
     });
     const entryUrl = new URL(`http://${host}:${port}/source-hosted/open`);
-    entryUrl.searchParams.set("token", signed.token);
+    pruneSourceHostedOpenTickets();
+    const openId = randomBytes(18).toString("base64url");
+    sourceHostedOpenTickets.set(openId, {
+      token: signed.token,
+      expires_at_ms: Date.parse(signed.expires_at),
+    });
+    entryUrl.searchParams.set("open_id", openId);
     const channelId = `chat:source-hosted:${signed.packet.thread_id}`;
     writeJson(response, 200, {
       ok: true,
