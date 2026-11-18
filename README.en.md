@@ -7,8 +7,10 @@ DeepSeek Harness. It brings system inventory, troubleshooting, telemetry analysi
 guided tuning, and upgrade decisions into one workflow while leaving every
 persistent hardware change to the user.
 
-The current release line is a **2.8.0 test build** and has not been formally
-released. Automated tests and targeted human review pass, but broad real-device
+The current public pre-release line is **PCHW Skill 2.8.0 + SkillDock Runtime
+0.1.0-rc.1**; it has not been formally released. Here `2.8.0` is the PCHW Skill
+version and `0.1.0-rc.1` is the SkillDock application version. Automated tests
+and targeted human review pass, but broad real-device
 coverage, clean-Windows install/uninstall, and the remaining human scenarios are
 still in progress. The project does not claim this test build is stable or fully
 validated.
@@ -94,7 +96,8 @@ integrated package; do not mix multiple Skills or old Runtime directories.
 
 ### Codex + SkillDock
 
-1. Download the Codex integrated package and verify its `.sha256` sidecar.
+1. Download the Codex integrated package and verify it with `SHA256SUMS.txt` or
+   the asset digest shown on GitHub.
 2. Extract it and double-click `Install.cmd`.
 3. If an older PCHW Skill exists, the installer backs it up and upgrades it; do
    not delete the old Skill first.

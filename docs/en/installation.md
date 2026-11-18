@@ -40,7 +40,7 @@ package files.
 ### Install
 
 1. Download `SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip`.
-2. Verify it against the `.sha256` sidecar.
+2. Verify it with `SHA256SUMS.txt` or the GitHub asset digest.
 3. Extract the full directory.
 4. Double-click `Install.cmd`.
 5. Wait for completion, then reopen Codex.

@@ -6,7 +6,8 @@
 故障排查、遥测分析、手动调校和升级判断收敛到一个 Skill，同时把每一次硬件变更
 留给用户亲手完成。
 
-当前版本为 **2.8.0 测试版**，尚未正式发布。完整自动测试和定向人工审阅已通过；
+当前公开预发布线是 **PCHW Skill 2.8.0 + SkillDock Runtime 0.1.0-rc.1**，尚未正式发布。
+其中 `2.8.0` 是 PCHW Skill 版本，`0.1.0-rc.1` 是 SkillDock 应用版本。完整自动测试和定向人工审阅已通过；
 真实设备覆盖、干净 Windows 安装/卸载和其余交互场景签署仍在继续。项目不会把
 测试版包装成稳定版。
 
@@ -81,7 +82,7 @@ SHA256SUMS.txt
 
 ### Codex + SkillDock
 
-1. 下载并校验 Codex 集成包及 `.sha256`。
+1. 下载 Codex 集成包，并按 Release 中的 `SHA256SUMS.txt` 或 GitHub 页面显示的 asset digest 校验。
 2. 解压后双击 `Install.cmd`。
 3. 已有旧版 PCHW Skill 时，安装器会先备份，再执行安全升级；不需要先删除旧 Skill。
 4. 安装完成后打开 Codex 当前对话。

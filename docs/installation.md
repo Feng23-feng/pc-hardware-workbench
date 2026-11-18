@@ -40,7 +40,7 @@ ZIP、Skill 目录和 Runtime 混在一起。
 ### 安装
 
 1. 下载 `SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip`。
-2. 核对 ZIP 与 `.sha256` sidecar。
+2. 按 Release 中的 `SHA256SUMS.txt` 或 GitHub asset digest 核对 ZIP。
 3. 解压完整目录。
 4. 双击 `Install.cmd`。
 5. 等待安装完成，然后重新打开 Codex。
