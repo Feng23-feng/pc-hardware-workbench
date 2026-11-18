@@ -42,8 +42,8 @@ under `payload` remain diagnostic-only.
 6. Confirm a fresh source result is explicitly claimed for the same Task,
    attachment, Session, and SHA-256.
 7. Confirm one panel writeback with no stale source result.
-8. Confirm the page advances through waiting and source-writeback states
-   automatically, without refresh or F5.
+8. Confirm the page advances automatically through waiting and source-writeback
+   states.
 9. Verify the answer card, verified SVG, supports/conflicts/context,
    uncertainty, low-risk actions, and both copy actions.
 10. Restart the same Runtime, reopen the same Task, and compare Task count,

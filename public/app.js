@@ -252,7 +252,7 @@ function statusCopy(mode) {
     return {
       label: "正在等待来源 Agent",
       detail:
-        "本地分析、SVG 和指标已保存。请保持页面打开；来源 Agent 写回结论后会自动显示，无需刷新页面。",
+        "本地分析、SVG 和指标已保存。请保持页面打开；来源 Agent 写回结论后会自动显示。",
     };
   }
   if (mode === "replied") {
@@ -707,6 +707,7 @@ function renderPermissionCard() {
   }
   const presentation = request.presentation ?? {};
   const phaseCanDecide = sourceHostedPhaseState().can_decide_permission;
+  const allowTaskAvailable = presentation.allow_task_available === true;
   const facts = Array.isArray(presentation.facts)
     ? presentation.facts
     : [
@@ -778,13 +779,17 @@ function renderPermissionCard() {
                   "仅本次允许",
             onclick: () => decidePermissionRequest("allow_once"),
           }),
-          el("button", {
-            class: "secondary",
-            type: "button",
-            disabled: permissionPending || !phaseCanDecide,
-            text: presentation.allow_task_label ?? "本 Task 允许",
-            onclick: () => decidePermissionRequest("allow_task"),
-          }),
+          allowTaskAvailable
+            ? el("button", {
+                class: "secondary",
+                type: "button",
+                disabled: permissionPending || !phaseCanDecide,
+                text:
+                  presentation.allow_task_label ??
+                  "同一附件后续分析",
+                onclick: () => decidePermissionRequest("allow_task"),
+              })
+            : null,
           el("button", {
             class: "secondary",
             type: "button",
@@ -795,9 +800,10 @@ function renderPermissionCard() {
         ]),
         el("p", {
           class: "permission-scope-note",
-          text:
-            presentation.task_scope_label ??
-            "“仅本次”使用后即失效；“本 Task”只覆盖当前 Task 中声明的同类操作，并会过期。",
+          text: allowTaskAvailable
+            ? presentation.task_scope_label ??
+              "“同一附件后续分析”仅在当前 Task 保留 2 小时；更换附件需重新授权。"
+            : "本次授权只用于当前附件和一次本地分析；完成后失效。",
         }),
         el("p", {
           class: "permission-expiry",
@@ -1762,7 +1768,7 @@ function renderSourceHostedPhaseNotice() {
         }),
         el("p", {
           text:
-            "本地分析、SVG 和指标已经保存。请保持此页打开；结论写回后会自动显示，无需按 F5。",
+            "本地分析、SVG 和指标已经保存。请保持此页打开；结论写回后会自动显示。",
         }),
         phaseState.recovery_available
           ? el("button", {

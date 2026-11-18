@@ -566,7 +566,7 @@ try {
     }))()`,
     (value) =>
       value.title === "正在等待来源 Agent" &&
-      value.detail.includes("无需刷新页面") &&
+      value.detail.includes("会自动显示") &&
       value.autoButton.includes("等待自动刷新") &&
       value.manualSyncCardPresent === false,
     "waiting for source Agent",

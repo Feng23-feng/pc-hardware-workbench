@@ -33,7 +33,7 @@ evidence\30-uninstall-clean.png
 - 结论直接回答 CSV 中的掉帧问题
 - 支持/冲突/背景、不确定性、低风险建议均可见
 - 两个复制操作可用
-- Agent 写回后页面自动出现结果，无需刷新或按 F5
+- Agent 写回后页面自动出现结果
 - 点击分析后出现新的 permission.requested，且“仅本次允许”是真人页面点击
 - submit、analysis、permission decide API 没有被 Agent 代替点击
 - 默认 Runtime ACL 结果已记录；Public portable 只标为 fallback

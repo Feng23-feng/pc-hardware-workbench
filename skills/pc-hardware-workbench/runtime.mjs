@@ -22,6 +22,18 @@ import {
 
 export const CAPABILITY = "telemetry.csv.analyze";
 
+function completedOneTimeAttachmentAnalysis(task, attachment) {
+  return (task?.actions ?? []).some(
+    (action) =>
+      action.action_id === CAPABILITY &&
+      action.attachment_id === attachment?.id &&
+      action.source_sha256 === attachment?.sha256 &&
+      action.permission_scope === "one-time" &&
+      Boolean(action.artifact_id) &&
+      Boolean(action.local_completed_at || action.completed_at),
+  );
+}
+
 export function enforceDisplayEvidenceContract(panel, packet) {
   if (
     !["1.1", "1.2"].includes(panel.schema_version) ||
@@ -438,6 +450,7 @@ class PcHardwareWorkbenchRuntime {
     ) {
       return existing;
     }
+    const allowTask = completedOneTimeAttachmentAnalysis(task, attachment);
     const request = createPermissionRequest({
       capability: CAPABILITY,
       presentation: {
@@ -468,13 +481,16 @@ class PcHardwareWorkbenchRuntime {
             value: "联网、执行任意命令、修改系统或更改硬件设置",
           },
         ],
-        task_scope_label: "本 Task 内允许同类分析（仅限此附件 hash）",
+        allow_task_available: allowTask,
+        task_scope_label:
+          "同一附件后续分析仅在当前 Task 保留 2 小时；更换附件需重新授权。",
         approve_label: "允许本次分析",
         allow_once_label: "仅本次允许",
-        allow_task_label: "本 Task 允许",
+        allow_task_label: "同一附件后续分析",
         deny_label: "拒绝",
-        approved_title: "已允许本次数据分析",
-        approved_text: "授权仅覆盖当前附件、调用和 artifact 范围。",
+        approved_title: "已允许本地数据分析",
+        approved_text:
+          "授权仅覆盖当前 Task、此附件和固定只读分析，不扩大为通用命令或网络访问。",
         continue_label: "继续分析",
         denied_title: "已拒绝本次数据分析",
       },
@@ -583,6 +599,18 @@ class PcHardwareWorkbenchRuntime {
     }
     if (!["allow_once", "allow_task"].includes(body.decision)) {
       return { statusCode: 400, error: "权限决定无效" };
+    }
+    if (
+      body.decision === "allow_task" &&
+      !completedOneTimeAttachmentAnalysis(task, {
+        id: current.attachment_id,
+        sha256: current.attachment_sha256,
+      })
+    ) {
+      return {
+        statusCode: 409,
+        error: "同一附件完成过一次一次性分析后，才可使用后续分析授权",
+      };
     }
     const scope = body.decision === "allow_once" ? "one-time" : "task";
     const grant = createCapabilityGrant({ request: current, scope });
@@ -714,10 +742,14 @@ class PcHardwareWorkbenchRuntime {
         },
       };
     }
+    let permissionScope = "cache";
+    let permissionGrantId = null;
     if (cached) {
       task.permission_request = null;
       this.refreshCapabilityProfile(task);
     } else {
+      permissionScope = grant.scope;
+      permissionGrantId = grant.grant_id;
       consumeCapabilityGrant(grant);
       if (grant.scope === "one-time") {
         host.appendEvent({
@@ -814,6 +846,8 @@ class PcHardwareWorkbenchRuntime {
         window: packet.tool_result.analysis.requested_window,
         cache_hit: result.cache_hit,
         artifact_id: result.artifact.id,
+        permission_scope: permissionScope,
+        permission_grant_id: permissionGrantId,
         local_completed_at: new Date().toISOString(),
         source_result_pending: true,
       });
@@ -871,6 +905,8 @@ class PcHardwareWorkbenchRuntime {
           : null,
         cache_hit: result.cache_hit,
         artifact_id: result.artifact.id,
+        permission_scope: permissionScope,
+        permission_grant_id: permissionGrantId,
         completed_at: new Date().toISOString(),
       });
       host.completeActivity({ turnId: agentResult.turnId, panel });

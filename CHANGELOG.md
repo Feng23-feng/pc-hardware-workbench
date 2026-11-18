@@ -68,7 +68,7 @@ candidate has not been pushed, tagged, uploaded, or formally released.
   with `runtime_binding_mismatch`.
 - Page focus/visibility and all source-hosted result phases now trigger bounded
   state refreshes, preventing a background-throttled poll from leaving the page
-  stale until F5.
+  stale.
 - Static checks, full tests, installed-root mock/Edge, install identity, Skill
   validation, and worktree whitespace checks passed in the R7 receipt.
 

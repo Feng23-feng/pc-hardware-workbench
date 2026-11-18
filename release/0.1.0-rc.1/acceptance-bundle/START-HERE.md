@@ -113,8 +113,7 @@ acceptance-assets\ACCEPTANCE-FIXTURE-NOT-FOR-DISTRIBUTION.csv
 - 不确定性和两到三条低风险建议；
 - 两个复制操作。
 
-Agent 写回结果后，页面应自动从等待状态更新到可查看结果；不要刷新页面，
-不要按 F5，也不要手动寻找开发入口。
+Agent 写回结果后，页面应自动从等待状态更新到可查看结果。
 
 如果点击“分析这份数据”后没有出现权限卡，或时间线里没有新的
 `permission.requested`，本轮判为失败候选，不要用 API 补齐。

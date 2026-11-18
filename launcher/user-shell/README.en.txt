@@ -50,6 +50,11 @@ The permission applies only to that local analysis. It does not become a
 long-term grant. Do not let another person or Agent click permission, submit,
 or analyze actions for you.
 
+After the same attachment has completed one successful local analysis, a repeat
+analysis may show “同一附件后续分析” (repeat analysis for this attachment). It
+applies only to that CSV in the current Task for two hours. A different
+attachment still requires a new “仅本次允许” decision.
+
 If the panel does not open automatically
 ========================================
 
@@ -69,8 +74,7 @@ View results
 
 When analysis finishes, the page shows a real chart, a conclusion for the
 current data, supporting and conflicting evidence, uncertainty, and low-risk
-recommendations. The page updates automatically when the result returns; do not
-press F5.
+recommendations. The page updates automatically when the result returns.
 
 After closing and reopening, the same Task, attachment, chart, and conclusion
 should be restored.

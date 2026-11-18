@@ -53,14 +53,15 @@ candidate. The outer ZIP sidecar is the authoritative transfer hash.
 
 ```text
 current authoritative source version: 2.8.0
-current candidate tree SHA-256:       9cc295baa4892d4bebbfcac42d1ed39cb3434ff9e33b31cf631402fbac2c524d
+current candidate tree SHA-256:       eb95d8fa12dc519f4b8f4b88288ae24ef02cb7e111f53802ff573856f053f9e8
 current source file count:            135
+PCHW source commit:                   09bd68b96f160847564e57ba733a45c39780e54a
 R7 evidence source version:           2.7.4
 R7 source tree SHA-256:               f6eab543414ef6b208706b4367b7adb152db3bd5c5288390a0f30a5189a95eb1
 R7 source file count:                 134
 ```
 
-The current source hash identifies the uncommitted P1-fix candidate. The R7
-hash is retained only as provenance for the accepted user-experience receipt.
-The final candidate build records the exact PCHW branch, commit, packaged-Skill
-dirty count, global dirty count, and status hashes in `SOURCE-STATE.json`.
+The current source hash is frozen from the clean PCHW commit above. The R7 hash
+is retained only as provenance for the accepted user-experience receipt. The
+final candidate build records the exact PCHW branch, commit, packaged-Skill dirty
+count, global dirty count, and status hashes in `SOURCE-STATE.json`.

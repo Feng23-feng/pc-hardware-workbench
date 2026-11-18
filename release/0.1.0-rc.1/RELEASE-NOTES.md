@@ -71,7 +71,7 @@ must not be uploaded to an npm registry.
   identity.
 - After the one-time permission and local artifact completion, the page keeps a
   visible “waiting for the source Agent” state and automatically updates when
-  the Agent result is synchronized; no F5 or manual sync action is required.
+  the Agent result is synchronized.
 - The primary entry is started by the installed PCHW Skill from the current
   Codex conversation; ordinary users do not launch a runner or configure
   environment variables.
@@ -100,7 +100,10 @@ The R7 source was PCHW `2.7.4`. Its installed tree identity is
 with 134 files. The distributable `2.8.0` archive applies the semantic version
 bump, excludes the Skill's `tests/` directory, and records the resulting
 installation subset hash separately in `RC-MANIFEST.json`. The 2.8.0 source now
-contains 135 files; the 2.7.4 R7 provenance above remains 134 files.
+contains 135 files at tree SHA-256
+`eb95d8fa12dc519f4b8f4b88288ae24ef02cb7e111f53802ff573856f053f9e8`
+from PCHW commit `09bd68b96f160847564e57ba733a45c39780e54a`; the 2.7.4 R7
+provenance above remains 134 files.
 
 The RC package also removes non-product mock/DSH adapters, developer entry
 scripts, background shadow observation, and the recovery route from its

@@ -811,6 +811,8 @@ async function performHumanPanelFlow(
       "first permission",
     );
     assert.equal(permission.present, true);
+    assert.equal(permission.buttons.includes("本 Task 允许"), false);
+    assert.equal(permission.buttons.includes("同一附件后续分析"), false);
 
     const deny = await browser.cdp.send("Runtime.evaluate", {
       expression: `(() => {
@@ -846,7 +848,7 @@ async function performHumanPanelFlow(
       returnByValue: true,
     });
     assert.equal(retry.result.value, true);
-    await waitFor(
+    const retryPermission = await waitFor(
       `(() => {
         const card = document.querySelector("#permission-card");
         return {
@@ -862,6 +864,8 @@ async function performHumanPanelFlow(
         value.buttons.includes("仅本次允许"),
       "retry permission",
     );
+    assert.equal(retryPermission.buttons.includes("本 Task 允许"), false);
+    assert.equal(retryPermission.buttons.includes("同一附件后续分析"), false);
     const allow = await browser.cdp.send("Runtime.evaluate", {
       expression: `(() => {
         const button = [...document.querySelectorAll("#permission-card button")]
@@ -887,7 +891,7 @@ async function performHumanPanelFlow(
       }))()`,
       (value) =>
         value.title === "正在等待来源 Agent" &&
-        value.detail.includes("无需刷新页面") &&
+        value.detail.includes("会自动显示") &&
         value.autoRefresh.includes("等待自动刷新"),
       "human local-analysis completion",
     );

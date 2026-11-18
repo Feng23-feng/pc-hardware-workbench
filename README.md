@@ -208,8 +208,8 @@ The smoke test uses a deterministic mock agent and verifies:
 - an explicit independent-Session action changes Session while retaining shared
   device evidence;
 - a state refresh recovers the Session, Task, answer card, composer, and files;
-- source-hosted waiting, Agent-pulled, and result-synced phases refresh the same
-  page automatically without requiring F5;
+- source-hosted waiting, Agent-pulled, and result-synced phases update the same
+  page automatically;
 - page focus/visibility immediately rechecks state after the browser was in the
   background;
 - persisted running activity includes the submitted user content;
@@ -328,12 +328,15 @@ Grant choices:
 
 - `仅本次允许`: one-time, 10-minute expiry, bound to one Task, attachment ID,
   SHA-256, artifact root, capability, and analysis window;
-- `本 Task 允许`: 2-hour expiry, reusable for another window of the same
-  attachment hash in the same Task;
+- `同一附件后续分析`: available only after the same Task, attachment ID, and
+  SHA-256 have completed one successful one-time analysis; 2-hour expiry and
+  reusable only for another window of that same attachment in the same Task;
 - `拒绝`: no script, artifact, or Agent turn;
 
 The permission card is not CSV-specific. It renders Skill-supplied facts and a
-single allowlisted continuation through common once/task/deny controls. Active
+single allowlisted continuation through common once/conditional-repeat/deny
+controls. The repeat control is omitted until the completed one-time analysis
+condition is met, and the server rejects a premature direct request. Active
 grants show scope, expiration, and a revoke action.
 Restarting the panel preserves unexpired/revoked state and marks newly expired
 grants with `permission.expired`.

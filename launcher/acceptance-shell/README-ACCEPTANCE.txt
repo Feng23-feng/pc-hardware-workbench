@@ -61,7 +61,7 @@ payload\evidence\acceptance-start-<时间>\acceptance-start.log
 - 上传验收 fixture CSV；
 - 只点一次“仅本次允许”；
 - 确认真实 SVG、具体判断、证据、不确定性、低风险建议和复制操作；
-- 结果自动出现，不按 F5；
+- 结果自动出现；
 - 重启后仍是同一 Task、附件、artifact 和结论。
 
 默认 LOCALAPPDATA 不可写时，必须记录安全回退。Ask-for-approval 下自动浏览器

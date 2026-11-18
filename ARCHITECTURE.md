@@ -343,8 +343,10 @@ the HTTP listener starts.
 
 The card is a generic presentation and decision surface. Skill code supplies the
 request title, explanation, facts, scope, labels, and allowlisted continuation;
-the host supplies the common once/task/deny/revoke controls. It does not accept
-arbitrary HTML, shell commands, paths, or network targets from the Skill.
+the host supplies the common once/conditional-repeat/deny/revoke controls. The
+repeat control is unavailable until the same Task and attachment have completed
+one successful one-time analysis. The card does not accept arbitrary HTML, shell
+commands, paths, or network targets from the Skill.
 
 ## Permission profiles
 
