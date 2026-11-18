@@ -104,7 +104,9 @@ try {
         "ExpectedAttachmentSha256", "ExpectedSubmissionSequence",
         "panel_sync_stale_result", "stale",
         "thread_binding_mismatch", "thread_rebinding_forbidden",
-        "source_attachment_id", "恢复当前 Task"
+        "source_attachment_id", "恢复当前 Task",
+        "Windows ShellExecute", "runtime_access_blocked",
+        "interactive_desktop_unavailable"
     ) "SkillDock-triggered surface"
     Assert-ContainsAll $skilldockLauncher @(
         "--ensure", "--workspace", "launch-result.json",
@@ -120,8 +122,18 @@ try {
         "CODEX_THREAD_ID", "thread_binding_mismatch",
         "X-Source-Attachment-Id", "source_attachment_id",
         "RuntimeLaunchId", "runtime_binding", "runtime_launch_id",
-        "RuntimeMetadataState", "IgnoredRuntimeMetadata"
+        "RuntimeMetadataState", "IgnoredRuntimeMetadata",
+        "Assert-SkillDockLocalRootWritable",
+        "Open-InteractiveDesktopUrl", 'Join-Path $env:WINDIR "explorer.exe"',
+        "-FilePath $explorerPath", "-ArgumentList $quotedUrl",
+        "New-BrowserHandoffProbe", "Wait-BrowserHandoffAcknowledgement",
+        "New-ManualBrowserOpenFile", "Stop-LaunchPanelRuntime",
+        "manual_open_required", "manual_open_url", "manual_open_file",
+        "runtime_access_blocked", "interactive_desktop_unavailable"
     ) "SkillDock launcher boundary"
+    Assert-True (
+        $skilldockLauncher -notmatch "msedge\.exe"
+    ) "SkillDock launcher must not start Edge directly from the sandbox."
     Assert-ContainsAll $skilldockSync @(
         "ChannelId", "AfterSequence", "task/sync/export",
         "Invoke-SourceHostedResultClaim",

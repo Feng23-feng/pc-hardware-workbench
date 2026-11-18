@@ -40,6 +40,19 @@ ChatContextFile that names a different source Session must fail closed with
 `thread_binding_mismatch`. Reopening the same Task from another environment
 Thread is also rejected.
 
+The Skill-side launcher hands the final `SkillDock` URL to Windows
+ShellExecute. It must not start `msedge.exe` directly from the Codex sandbox,
+because that can create a browser process without a window on the interactive
+desktop. The Explorer handoff process must not be hidden.
+
+After the Explorer handoff, the launcher must receive a page-load
+acknowledgement for a short-lived handoff probe. Explorer process success alone
+is not a successful panel launch, and cross-user window enumeration is not
+required.
+
+The browser entry URL uses a short one-time `open_id`. The signed source-hosted
+packet remains server-side and is not embedded in the address bar.
+
 ## Entry
 
 Use the current Agent workspace, not the installed Skill directory. Resolve the
@@ -235,6 +248,15 @@ Never claim the graph is open when no URL was returned.
 Use `error_code` only to choose a safe recovery path. Do not expose environment
 variable names, runner details, capability tokens, or stack traces to the user.
 For `runtime_missing`, offer to continue in chat or install the SkillDock Runtime.
+For `runtime_access_blocked`, continue in chat and report that the default local
+runtime directory was not writable. Use a portable data root only after an
+explicit user decision, and mark the run as a fallback rather than a default
+clean-windows pass.
+For `interactive_desktop_unavailable`, continue in chat without claiming the
+panel opened automatically. If `manual_open_required` is true, tell the user
+exactly “手动打开面板” and offer `manual_open_url` or `manual_open_file`. Keep
+the Runtime alive for that local fallback. Do not ask the user to find a runner
+or launch a development entry.
 For `workspace_conflict` or `surface_profile_unavailable`, keep the current chat
 and explain that another local workspace/profile is active. Never force a stop.
 For `thread_binding_mismatch`, `thread_binding_missing`, or

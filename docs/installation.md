@@ -4,128 +4,102 @@
 
 ## 系统要求
 
-- Windows 10 或 Windows 11；
+- Windows 10 或 Windows 11 x64；
 - 自动采集需要 Windows PowerShell 5.1 或 PowerShell 7；
 - 其他操作系统只提供手动排障指导，不自动读取硬件；
-- 可选监控需要已经运行的 LibreHardwareMonitor；本项目不会安装或启动它。
+- 可选监控需要用户已经启动 LibreHardwareMonitor；本项目不会安装或启动它。
 
-## Codex：一键安装
+当前 `2.8.0` 仍是测试版，尚未正式发布。干净 Windows 安装、卸载和完整用户签收
+继续作为发布门禁。
 
-安装脚本会下载 `main` 分支压缩包，只把
-`skill/pc-hardware-workbench` 复制到 Codex Skill 目录，不会运行硬件采集器。
+## 先选一种包
 
-1. 在普通 PowerShell 中下载安装脚本。
-2. 运行安装脚本。
-3. 重启 Codex。
-4. 输入 `$pc-hardware-workbench` 验证 Skill 已出现。
+按使用场景安装对应的包。不要把同一个 PCHW Skill 的多个副本放进同一个宿主的
+Skill 扫描目录。
 
-```powershell
-$installer = Join-Path $env:TEMP "install-pc-hardware-workbench.ps1"
-curl.exe -fsSL "https://raw.githubusercontent.com/Feng23-feng/pc-hardware-workbench/main/tools/install-skill.ps1" -o $installer
-powershell -NoProfile -ExecutionPolicy Bypass -File $installer
+| 包 | 适用场景 | 包含 | 操作面板 |
+| --- | --- | --- | --- |
+| 简易便携包 | 不安装 Skill 宿主 | PowerShell 采集、CSV、图表和报告 | 无 SkillDock，使用本地菜单 |
+| DSH core-only 包 | DeepSeek Harness | PCHW Skill、DSH 适配 | 无 SkillDock |
+| Codex + SkillDock 包 | Codex Desktop 当前对话 | PCHW Skill、SkillDock Runtime、单一安装入口 | 仅 Codex |
+
+当前候选资产名称：
+
+```text
+pc-hardware-portable-v2.8.0.zip
+pc-hardware-workbench-deepseek-harness-v2.8.0.zip
+SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip
 ```
 
-默认安装到：
+2.8.0 尚未正式发布；只使用 Releases 中实际存在的文件和对应 SHA-256 sidecar，
+不要把旧版本的 ZIP、Skill 目录和 Runtime 混在一起。
+
+## Codex + SkillDock
+
+### 安装
+
+1. 下载 `SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip`。
+2. 核对 ZIP 与 `.sha256` sidecar。
+3. 解压完整目录。
+4. 双击 `Install.cmd`。
+5. 等待安装完成，然后重新打开 Codex。
+
+安装器会自动判断当前环境：
+
+- 没有旧版 PCHW Skill 时执行全新安装；
+- 已有旧版时先备份，再执行安全升级；
+- 替换或后续 Runtime 验证失败时恢复旧 Skill；
+- 不需要用户选择 clean 或 upgrade 模式。
+
+安装器只复制 PCHW Skill 和 SkillDock Runtime，不运行硬件采集器，不请求管理员
+权限，不自动启动 `SkillDock.exe`。
+
+### 安装位置
 
 ```text
 %USERPROFILE%\.codex\skills\pc-hardware-workbench
+%LOCALAPPDATA%\SkillDock
 ```
 
-升级时加 `-Force`。脚本会把旧版本移出 Codex 的 Skill 扫描目录，再安装新版本：
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File $installer -Force
-```
-
-默认备份位置：
+已有 Skill 的备份位于：
 
 ```text
-%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\
+%USERPROFILE%\.codex\skills\.skilldock-backups
 ```
 
-不要把旧版本留在 `%USERPROFILE%\.codex\skills` 下。Codex 会扫描该目录中的
-`SKILL.md`；带原清单的旧备份会和当前版本形成同名 Skill，造成路由歧义或启动警告。
-新版安装器还会把旧安装器留在 `skills` 目录内的 `.backup-*` 副本迁移到上述
-备份目录。需要自定义位置时，使用 `-BackupRoot <目录>`，该目录不能位于 Skill
-扫描根内，也不能通过符号链接、目录联接或其他重解析点指向扫描根。
-
-## Codex：手动安装
-
-从源码安装时，复制整个 Skill 目录：
+Runtime 与迁移数据的备份位于：
 
 ```text
-skill\pc-hardware-workbench
+%LOCALAPPDATA%\SkillDockBackups
 ```
 
-目标位置：
+### 当前对话打开面板
+
+安装后不需要手动寻找 runner、端口、token 或环境变量。在 Codex 当前对话中说：
 
 ```text
-%USERPROFILE%\.codex\skills\pc-hardware-workbench
+我玩游戏二十分钟后开始掉帧，这是 HWiNFO CSV。可以打开图形化分析吗？
 ```
 
-如果目标已经存在，先把当前目录移动到：
+同意后，页面应带入当前 Task、问题和支持的附件。首次本地分析选择一次
+“仅本次允许”，即可查看 SVG、判断、支持与冲突、不确定性和低风险建议。
 
-```text
-%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\
-```
+如果 Ask-for-approval 模式使自动打开失败，使用提示中的“手动打开面板”短期链接
+或本地 `.url` 快捷方式。结果返回后页面自动更新，不需要按 F5。
 
-不要只复制 `SKILL.md`；入口依赖同目录下的 `scripts/`、`references/` 和 `assets/`。
-
-## Codex：从 Release ZIP 安装
-
-每个测试版 Release 提供两个 Codex 附件：
-
-1. 打开 GitHub Releases。
-2. 选择 `pc-hardware-workbench-v<版本>-installer.zip`，解压后运行
-   `Install-PC-Hardware-Workbench.cmd`，适合自动安装和覆盖升级。
-3. 或选择 `pc-hardware-workbench-v<版本>-manual.zip`，解压后得到
-   `pc-hardware-workbench/`，将它移动到
-   `%USERPROFILE%\.codex\skills\pc-hardware-workbench`，适合手动管理安装。
-   `manual.zip` 不会自动备份，覆盖前应先把旧目录移动到
-   `%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\`。
-4. 自动安装器发现旧版本时，会先放到
-   `%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\`。
-5. 重启 Codex，输入 `$pc-hardware-workbench`。
-
-`installer.zip` 内保留 `安装说明.txt` 和 `BUILD-INFO.json`，可以核对版本、提交
-和构建时间，并附带 `README.en.md` 与英文安装、隐私安全文档；`manual.zip` 内只有
-Skill 目录。不要直接把 ZIP 文件放进 Skill 目录；Codex 需要的是解压后的
-`pc-hardware-workbench` 文件夹。
-
-## 让 AI 安装
-
-完整提示词见 [AI 安装提示词](AI-INSTALL.md)。提示词明确要求 AI：
-
-- 安装前检查目标目录；
-- 不覆盖现有版本，先把旧版移出 Skill 扫描目录；
-- 只复制 Skill 树；
-- 验证 `SKILL.md`、`scripts/` 和 `references/`；
-- 不运行采集器、不提权、不修改硬件设置。
-
-## SkillDock 操作面板
-
-PCHW Skill 是可独立安装的领域 Skill；SkillDock 是单独的本地 Runtime。两者都安装后，
-当前 Codex 对话中的 PCHW Skill 才能触发 `pchw-source-hosted` 操作面板。面板入口
-由 Skill 自己启动，用户只需要描述硬件问题并在页面出现后确认是否打开。
-
-SkillDock Runtime 的安装、升级和回滚方式见发布包内的安装说明。Runtime 未安装、
-权限不足或已有其他工作区在运行时，Skill 会保持对话可用，不应要求用户手工寻找
-runner、端口或环境变量。
-
-本版只有 Codex 当前对话承诺 SkillDock 面板。DSH 可以安装并使用 PCHW Skill 的聊天、
-采集和 CSV 分析核心能力，但没有 SkillDock 面板入口。
+关闭并重启后，同一 Task、附件、图表和结论应恢复，不创建第二个 Thread。
 
 ## DeepSeek Harness
 
-适配说明见 [`adapters/dsh/README.md`](../adapters/dsh/README.md)。
+DSH 使用 core-only 包，不安装 SkillDock Runtime。
 
-Skill 默认安装目录：
+默认 Skill 目录：
 
 ```text
 %USERPROFILE%\.dsh\skills\pc-hardware-workbench
 ```
 
-如果设置了 `DSH_HOME`，使用：
+设置 `DSH_HOME` 时：
 
 ```text
 %DSH_HOME%\skills\pc-hardware-workbench
@@ -137,66 +111,93 @@ Skill 默认安装目录：
 /pc-hardware-workbench
 ```
 
-Harness 首次加载时可以选择 `AGENTS.md` 或 `DEEPSEEK.md` 作为项目适配入口。
+DSH 可以使用配置读取、排障、聊天、采集和 CSV 分析，但没有本版 Codex
+SkillDock 面板。适配细节见 [DSH adapter](../adapters/dsh/README.md)。
 
-DSH 不包含本版 SkillDock 操作面板；不要从 DSH 安装或调用 SkillDock Runtime。
+## 简易便携包
 
-## Portable Windows 工具
-
-不需要 Skill 宿主时，可以运行独立版本：
+不需要 Codex、DSH 或 SkillDock。解压后运行：
 
 ```powershell
 cd portable
 .\开始使用.cmd
 ```
 
-非硬件自检：
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\start.ps1 -SelfTest
-```
-
-交互菜单中需要选择标准或隐私脱敏模式，并输入 `y` 确认只读操作。只有直接运行
-实机自检命令时才需要显式提供以下参数：
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass `
-  -File .\start.ps1 -SelfTest -AllowLiveCollector -CollectorPrivacyMode Redacted
-```
+在菜单中选择标准或隐私脱敏模式，再明确同意只读采集。便携包只在本机处理数据；
+可选图表与报告保存在用户选择的本地目录。
 
 ## 验证安装
 
-检查关键文件：
+Codex core Skill：
 
 ```powershell
 $skill = Join-Path $HOME ".codex\skills\pc-hardware-workbench"
 Test-Path (Join-Path $skill "SKILL.md")
 Test-Path (Join-Path $skill "scripts")
 Test-Path (Join-Path $skill "references")
-Get-Content (Join-Path $skill "INSTALL-INFO.json") -Raw
 ```
 
-前三项都应为 `True`。`INSTALL-INFO.json` 记录版本、release 标签、提交来源和安装
-时间；手动安装没有该文件时，以 ZIP 文件名和 `SKILL.md` 版本为准。如果 Codex 中
-仍看不到 Skill，先重启应用。
+前三项都应为 `True`。如果 Codex 中仍看不到 Skill，先重启 Codex。
+
+Codex + SkillDock 还应确认 Runtime 指针存在：
+
+```powershell
+$pointer = Join-Path $env:LOCALAPPDATA "SkillDock\runtime-location.json"
+Test-Path $pointer
+```
+
+不要把端口、令牌或本机绝对路径发布到 Issue 中。
 
 ## 更新与回滚
 
-- 更新使用安装脚本和 `-Force`；
-- 安装脚本会把旧版本移动到 `.codex\skill-backups\pc-hardware-workbench\`；
-- 回滚时关闭 Codex，将当前目录移到别处，再把备份目录改回
-  `.codex\skills\pc-hardware-workbench`；
-- 同一时间只保留一个包含 `SKILL.md` 的活动 Workbench 目录，避免同名 Skill
-  被重复发现；
-- 不要删除或覆盖正在使用中的旧版本，除非已经确认备份存在。
+### Codex + SkillDock
+
+再次运行新包中的 `Install.cmd`。安装器会：
+
+- 比较并验证旧 Skill；
+- 备份旧目录；
+- 安装新 Skill；
+- 备份旧 Runtime；
+- 在冲突或失败时保留备份并回到对话。
+
+### DSH
+
+关闭 DSH，将旧 Skill 目录移到备份位置，再安装新 core-only 包。不要把两个包含
+`SKILL.md` 的版本同时留在 DSH 扫描根中。
 
 ## 卸载
 
-关闭 Codex 后，删除目标 Skill 目录：
+### Codex + SkillDock
+
+打开已安装的 SkillDock 程序目录，运行其中的 SkillDock 卸载脚本。默认卸载移除
+程序和快捷入口，但保留 Task 数据与备份。只有确认不再需要恢复时才彻底清理数据。
+
+### DSH
+
+关闭 DSH 后删除：
 
 ```text
-%USERPROFILE%\.codex\skills\pc-hardware-workbench
+%USERPROFILE%\.dsh\skills\pc-hardware-workbench
 ```
 
-删除前可以先把目录移动到其他备份位置。隐私和数据边界见
-[隐私与安全边界](privacy-and-safety.md)。
+### 便携包
+
+先确认没有正在运行的采集或报告进程，再删除解压目录。用户自行选择的报告目录
+不会被便携包自动清理。
+
+## 支持矩阵
+
+| 宿主 | PCHW 聊天、采集与 CSV | SkillDock 面板 |
+| --- | --- | --- |
+| Codex 当前用户对话 | 支持 | 支持，唯一承诺的面板宿主 |
+| DeepSeek Harness | 支持 | 不提供 |
+| 其他 Agent 宿主 | 可按其文件访问能力使用 Skill | 不承诺 |
+| 简易便携包 | 不依赖 Skill 宿主 | 无 SkillDock，独立本地工具 |
+
+## 已知限制
+
+- `2.8.0` 尚未正式发布，干净 Windows 签收仍待完成。
+- SkillDock 面板只支持 Codex 当前用户对话。
+- Panel 不可用、权限被拒绝或工作区冲突时必须回到对话，不能暴露开发入口。
+- 实时采集取决于 Windows 权限和宿主沙箱，不能把权限拒绝误报为缺件。
+- 不自动修改 BIOS、固件、驱动、频率、电压、功耗、风扇或内存时序。

@@ -29,6 +29,12 @@ $Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 $OutputEncoding = $Utf8NoBom
 . (Join-Path $PSScriptRoot "runtime-paths.ps1")
 $failureCode = "surface_unavailable"
+$browserHandoff = ""
+$runtimeStartedHere = $false
+$localRoot = ""
+$manualOpenRequired = $false
+$manualOpenUrl = ""
+$manualOpenFile = ""
 
 function Write-JsonResult {
     param(
@@ -49,9 +55,13 @@ function Write-JsonResult {
         [string]$RuntimeDataDirectory = "",
         [string]$RuntimeMetadataState = "",
         [string[]]$IgnoredRuntimeMetadata = @(),
+        [bool]$ManualOpenRequired = $false,
+        [string]$ManualOpenUrl = "",
+        [string]$ManualOpenFile = "",
         [object]$AgentPermission = $null,
         [object]$PermissionMatrix = $null,
         [bool]$ApprovalDecisionSupported = $false,
+        [string]$BrowserHandoff = "",
         [string[]]$Limitations = @(),
         [string]$ErrorCode = "",
         [string]$FallbackReason = "",
@@ -76,9 +86,13 @@ function Write-JsonResult {
         runtime_data_directory = $RuntimeDataDirectory
         runtime_metadata_state = $RuntimeMetadataState
         ignored_runtime_metadata = @($IgnoredRuntimeMetadata)
+        manual_open_required = $ManualOpenRequired
+        manual_open_url = $ManualOpenUrl
+        manual_open_file = $ManualOpenFile
         agent_permission = $AgentPermission
         permission_matrix = $PermissionMatrix
         approval_decision_supported = $ApprovalDecisionSupported
+        browser_handoff = $BrowserHandoff
         limitations = @($Limitations)
         error_code = $ErrorCode
         fallback_reason = $FallbackReason
@@ -339,6 +353,194 @@ function Open-SourceHostedBootstrap {
     }
 }
 
+function Assert-SkillDockLocalRootWritable {
+    param([Parameter(Mandatory = $true)][string]$LocalRoot)
+
+    $probePath = Join-Path `
+        $LocalRoot `
+        (".skilldock-write-probe-" + [guid]::NewGuid().ToString("N"))
+    try {
+        [IO.Directory]::CreateDirectory($LocalRoot) | Out-Null
+        $stream = [IO.File]::Open(
+            $probePath,
+            [IO.FileMode]::CreateNew,
+            [IO.FileAccess]::Write,
+            [IO.FileShare]::None
+        )
+        try {
+            $bytes = [Text.Encoding]::UTF8.GetBytes("probe")
+            $stream.Write($bytes, 0, $bytes.Length)
+        }
+        finally {
+            $stream.Dispose()
+        }
+    }
+    catch {
+        $failureCode = "runtime_access_blocked"
+        throw (
+            "SkillDock runtime data directory is not writable: $LocalRoot. " +
+            "Continue in chat or use an explicitly approved writable portable " +
+            "data root."
+        )
+    }
+    finally {
+        if ([IO.File]::Exists($probePath)) {
+            [IO.File]::Delete($probePath)
+        }
+    }
+}
+
+function Add-UrlQueryParameter {
+    param(
+        [Parameter(Mandatory = $true)][string]$Url,
+        [Parameter(Mandatory = $true)][string]$Name,
+        [Parameter(Mandatory = $true)][string]$Value
+    )
+
+    $separator = if ($Url.Contains("?")) { "&" } else { "?" }
+    return "$Url$separator$([Uri]::EscapeDataString($Name))=$([Uri]::EscapeDataString($Value))"
+}
+
+function New-BrowserHandoffProbe {
+    param(
+        [Parameter(Mandatory = $true)][string]$BaseUrl,
+        [Parameter(Mandatory = $true)][string]$RuntimeToken
+    )
+
+    $probe = Invoke-RestMethod `
+        -Uri "$($BaseUrl.TrimEnd('/'))/api/browser-handoff/probe" `
+        -Method Post `
+        -Headers @{ Authorization = "Bearer $RuntimeToken" } `
+        -ContentType "application/json; charset=utf-8" `
+        -Body "{}" `
+        -TimeoutSec 10
+    if (
+        -not [bool]$probe.ok -or
+        [string]::IsNullOrWhiteSpace([string]$probe.probe_id)
+    ) {
+        throw "SkillDock did not create a browser-handoff probe."
+    }
+    return [string]$probe.probe_id
+}
+
+function Wait-BrowserHandoffAcknowledgement {
+    param(
+        [Parameter(Mandatory = $true)][string]$BaseUrl,
+        [Parameter(Mandatory = $true)][string]$RuntimeToken,
+        [Parameter(Mandatory = $true)][string]$ProbeId
+    )
+
+    $timeoutMilliseconds = 6000
+    if ($env:SKILLDOCK_TEST_HANDOFF_TIMEOUT_MS -match '^\d+$') {
+        $timeoutMilliseconds = [int]$env:SKILLDOCK_TEST_HANDOFF_TIMEOUT_MS
+    }
+    $deadline = [DateTime]::UtcNow.AddMilliseconds($timeoutMilliseconds)
+    do {
+        try {
+            $status = Invoke-RestMethod `
+                -Uri (
+                    "$($BaseUrl.TrimEnd('/'))/api/browser-handoff/status" +
+                    "?probe_id=$([Uri]::EscapeDataString($ProbeId))"
+                ) `
+                -Method Get `
+                -Headers @{ Authorization = "Bearer $RuntimeToken" } `
+                -TimeoutSec 5
+            if ([string]$status.status -eq "acknowledged") {
+                return
+            }
+        }
+        catch {
+            # The page may still be starting or the probe may have expired.
+        }
+        Start-Sleep -Milliseconds 250
+    } while ([DateTime]::UtcNow -lt $deadline)
+    throw (
+        "SkillDock browser handoff was not acknowledged by the panel page " +
+        "within $timeoutMilliseconds ms."
+    )
+}
+
+function New-ManualBrowserOpenFile {
+    param(
+        [Parameter(Mandatory = $true)][string]$RuntimeDirectory,
+        [Parameter(Mandatory = $true)][string]$Url,
+        [Parameter(Mandatory = $true)][string]$ProbeId
+    )
+
+    $handoffDirectory = Join-Path $RuntimeDirectory "browser-handoff"
+    [IO.Directory]::CreateDirectory($handoffDirectory) | Out-Null
+    $path = Join-Path $handoffDirectory "Open-SkillDock-$ProbeId.url"
+    $content = (
+        "[InternetShortcut]`r`n" +
+        "URL=$Url`r`n"
+    )
+    [IO.File]::WriteAllText(
+        $path,
+        $content,
+        [Text.Encoding]::ASCII
+    )
+    return $path
+}
+
+function Open-InteractiveDesktopUrl {
+    param([Parameter(Mandatory = $true)][string]$Url)
+
+    $explorerPath = Join-Path $env:WINDIR "explorer.exe"
+    if (-not (Test-Path -LiteralPath $explorerPath -PathType Leaf)) {
+        throw "Windows Explorer is unavailable."
+    }
+    $quotedUrl = '"' + $Url.Replace('"', '\"') + '"'
+    $process = Start-Process `
+        -FilePath $explorerPath `
+        -ArgumentList $quotedUrl `
+        -PassThru `
+        -ErrorAction Stop
+    if ($null -eq $process) {
+        throw "Windows Explorer did not accept the SkillDock URL."
+    }
+    if ($process.HasExited -and $process.ExitCode -ne 0) {
+        throw (
+            "Windows Explorer rejected the SkillDock URL with exit code " +
+            "$($process.ExitCode)."
+        )
+    }
+}
+
+function Stop-LaunchPanelRuntime {
+    param(
+        [string]$LocalRoot,
+        [string]$LaunchPanelLauncherPath
+    )
+
+    if (
+        [string]::IsNullOrWhiteSpace($LocalRoot) -or
+        [string]::IsNullOrWhiteSpace($LaunchPanelLauncherPath)
+    ) {
+        return
+    }
+    $previousLocalRoot = $env:SKILLDOCK_LOCAL_ROOT
+    try {
+        $env:SKILLDOCK_LOCAL_ROOT = $LocalRoot
+        Start-Process `
+            -FilePath $LaunchPanelLauncherPath `
+            -ArgumentList @("--stop", "--silent") `
+            -WindowStyle Hidden `
+            -Wait `
+            -ErrorAction Stop | Out-Null
+    }
+    catch {
+        # Preserve the primary browser-handoff error.
+    }
+    finally {
+        if ($null -eq $previousLocalRoot) {
+            Remove-Item Env:SKILLDOCK_LOCAL_ROOT -ErrorAction SilentlyContinue
+        }
+        else {
+            $env:SKILLDOCK_LOCAL_ROOT = $previousLocalRoot
+        }
+    }
+}
+
 try {
     $resolvedWorkspace = (Resolve-Path -LiteralPath $Workspace -ErrorAction Stop).Path
     if (-not (Test-Path -LiteralPath $resolvedWorkspace -PathType Container)) {
@@ -403,6 +605,11 @@ try {
     }
 
     if (-not $result -or -not $result.ok -or -not $result.url) {
+        Assert-SkillDockLocalRootWritable -LocalRoot $localRoot
+        $failurePath = Join-Path $localRoot "launch-failure.json"
+        if (Test-Path -LiteralPath $failurePath -PathType Leaf) {
+            Remove-Item -LiteralPath $failurePath -Force
+        }
         if (Test-Path -LiteralPath $resultPath) {
             Remove-Item -LiteralPath $resultPath -Force
         }
@@ -435,10 +642,12 @@ try {
                 $env:SKILLDOCK_INTERNAL_PREVIEW = "1"
                 $env:SKILLDOCK_INTERNAL_PREVIEW_NON_MOCK = "1"
             }
-            Start-Process `
+            $runtimeStartedHere = $true
+            $launcherProcess = Start-Process `
                 -FilePath $LauncherPath `
                 -ArgumentList $arguments `
-                -WindowStyle Hidden | Out-Null
+                -WindowStyle Hidden `
+                -PassThru
         }
         finally {
             foreach ($name in $profileVariables) {
@@ -465,6 +674,42 @@ try {
                 if ($result -and $result.ok -and $result.url) {
                     break
                 }
+            }
+            if (Test-Path -LiteralPath $failurePath -PathType Leaf) {
+                try {
+                    $failure = Get-Content `
+                        -LiteralPath $failurePath `
+                        -Raw |
+                        ConvertFrom-Json
+                    if (
+                        $failure -and
+                        -not [bool]$failure.ok -and
+                        -not [string]::IsNullOrWhiteSpace(
+                            [string]$failure.error_code
+                        )
+                    ) {
+                        $failureCode = [string]$failure.error_code
+                        throw (
+                            "SkillDock launch failed with " +
+                            "$failureCode`: $([string]$failure.error)"
+                        )
+                    }
+                }
+                catch {
+                    if ($failureCode -ne "launch_timeout") {
+                        throw
+                    }
+                }
+            }
+            if (
+                $launcherProcess -and
+                $launcherProcess.HasExited -and
+                $launcherProcess.ExitCode -ne 0
+            ) {
+                throw (
+                    "SkillDock launcher exited before producing a launch " +
+                    "result (code $($launcherProcess.ExitCode))."
+                )
             }
         } while ([DateTime]::UtcNow -lt $deadline)
 
@@ -601,7 +846,7 @@ try {
                 summary = [string]$context.summary
                 domain_state = $domainState
                 domain_refs = $domainRefs
-                ttl_seconds = 120
+                ttl_seconds = 600
             }
             $entryBytes = [Text.Encoding]::UTF8.GetBytes(
                 ($entryBody | ConvertTo-Json -Depth 12 -Compress)
@@ -651,25 +896,39 @@ try {
             $taskRef = [string]$entry.task_ref
             $channelId = [string]$entry.channel_id
             $resolvedSourceSessionRef = [string]$entry.source_session_ref
-            $finalUrl = Add-RuntimeBindingToUrl `
+            $bindingUrl = Add-RuntimeBindingToUrl `
                 -Url ([string]$entry.url) `
                 -Binding $runtimeBinding
             if (-not $NoBrowser) {
-                $edgeCandidates = @(
-                    (Join-Path ${env:ProgramFiles(x86)} "Microsoft\Edge\Application\msedge.exe"),
-                    (Join-Path $env:ProgramFiles "Microsoft\Edge\Application\msedge.exe")
-                )
-                $edge = $edgeCandidates |
-                    Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } |
-                    Select-Object -First 1
-                if ($edge) {
-                    Start-Process `
-                        -FilePath $edge `
-                        -ArgumentList @("--new-window", $finalUrl) | Out-Null
+                try {
+                    $probeId = New-BrowserHandoffProbe `
+                        -BaseUrl ([string]$result.url) `
+                        -RuntimeToken $runtimeToken
+                    $finalUrl = Add-UrlQueryParameter `
+                        -Url $bindingUrl `
+                        -Name "handoff_probe" `
+                        -Value $probeId
+                    $manualOpenUrl = $finalUrl
+                    $manualOpenFile = New-ManualBrowserOpenFile `
+                        -RuntimeDirectory $runtimeDirectory `
+                        -Url $manualOpenUrl `
+                        -ProbeId $probeId
+                    Open-InteractiveDesktopUrl -Url $finalUrl
+                    Wait-BrowserHandoffAcknowledgement `
+                        -BaseUrl ([string]$result.url) `
+                        -RuntimeToken $runtimeToken `
+                        -ProbeId $probeId
+                    $browserHandoff = "windows-shell"
                 }
-                else {
-                    Start-Process -FilePath $finalUrl | Out-Null
+                catch {
+                    $failureCode = "interactive_desktop_unavailable"
+                    $browserHandoff = "manual-required"
+                    $manualOpenRequired = $true
+                    throw
                 }
+            }
+            else {
+                $finalUrl = $bindingUrl
             }
         }
         else {
@@ -719,6 +978,7 @@ try {
         -AgentPermission $health.agent_permission `
         -PermissionMatrix $health.permission_matrix `
         -ApprovalDecisionSupported $approvalDecisionSupported `
+        -BrowserHandoff $browserHandoff `
         -Limitations $limitations
 }
 catch {
@@ -744,6 +1004,12 @@ catch {
         elseif ($message -match "did not return a launch result") {
             $failureCode = "launch_timeout"
         }
+        elseif ($message -match "runtime data directory is not writable") {
+            $failureCode = "runtime_access_blocked"
+        }
+        elseif ($message -match "Windows Explorer|ShellExecute|Windows Shell|Win32") {
+            $failureCode = "interactive_desktop_unavailable"
+        }
     }
     $fallbackReason = if (
         $failureCode -in @(
@@ -754,14 +1020,41 @@ catch {
     ) {
         "Continue in the current Codex conversation; do not create or switch Threads."
     }
+    elseif ($failureCode -eq "runtime_access_blocked") {
+        "Continue in chat; the default local runtime directory was not writable."
+    }
+    elseif ($failureCode -eq "interactive_desktop_unavailable") {
+        if ($manualOpenRequired) {
+            "Open the returned manual-open URL or .url shortcut to continue."
+        }
+        else {
+            "Continue in chat; Windows did not confirm an interactive desktop handoff."
+        }
+    }
+    elseif ($failureCode -eq "skill_runtime_mismatch") {
+        "Continue in chat; the required PC Hardware Workbench Skill was not active."
+    }
     else {
         "Continue in chat; the local surface was not confirmed open."
+    }
+    if (
+        $failureCode -eq "interactive_desktop_unavailable" -and
+        -not $manualOpenRequired -and
+        $runtimeStartedHere
+    ) {
+        Stop-LaunchPanelRuntime `
+            -LocalRoot $localRoot `
+            -LaunchPanelLauncherPath $LauncherPath
     }
     Write-JsonResult `
         -Ok $false `
         -SelectedSurfaceMode $SurfaceMode `
         -ErrorCode $failureCode `
         -FallbackReason $fallbackReason `
+        -BrowserHandoff $browserHandoff `
+        -ManualOpenRequired $manualOpenRequired `
+        -ManualOpenUrl $manualOpenUrl `
+        -ManualOpenFile $manualOpenFile `
         -ErrorMessage $errorMessage
     exit 1
 }

@@ -8568,9 +8568,31 @@
         <nav class="dse-hero-actions" aria-label="主要入口">
           <a class="dse-hero-action primary" href="#dse-home-flow">开始自查</a>
         </nav>
-        <p class="dse-hero-safety dse-home-status-line">测试版 · 只读 · 变更由你手动应用；判断与测试计划不会自动修改硬件。</p>
+        <p class="dse-hero-safety dse-home-status-line">测试版 · 尚未正式发布 · 只读 · 变更由你手动应用；判断与测试计划不会自动修改硬件。</p>
       </div>
     </header>
+
+    <section class="dse-candidate" aria-labelledby="dse-package-choice-title">
+      <div class="dse-candidate-intro">
+        <p class="dse-candidate-state">当前测试版 · 尚未正式发布</p>
+        <h2 id="dse-package-choice-title">选择适合你的使用方式</h2>
+        <p class="dse-candidate-lead">三种包按使用场景拆分。GitHub 入口说明用途，正式下载仍以 Releases 中实际存在的文件和 SHA-256 sidecar 为准。</p>
+      </div>
+      <dl class="dse-candidate-summary">
+        <div>
+          <dt>简易便携包</dt>
+          <dd>不安装 Codex、DSH 或 SkillDock。直接运行本地只读采集、CSV、图表和报告工具。</dd>
+        </div>
+        <div>
+          <dt>DSH core-only</dt>
+          <dd>面向 DeepSeek Harness，提供 PCHW Skill 的聊天、采集和 CSV 分析；不提供 SkillDock 面板。</dd>
+        </div>
+        <div>
+          <dt>Codex + SkillDock</dt>
+          <dd>面向 Codex Desktop 当前用户对话，包含 PCHW Skill、SkillDock Runtime 和单一安装入口。</dd>
+        </div>
+      </dl>
+    </section>
 
     <section class="dse-candidate" aria-labelledby="dse-skilldock-guide-title">
       <div class="dse-candidate-intro">
@@ -8593,7 +8615,11 @@
         </div>
         <div>
           <dt>查看结果并回聊天</dt>
-          <dd>页面显示真实 SVG、具体判断、支持与冲突证据、不确定性和低风险建议；复制后回到当前对话继续。</dd>
+          <dd>页面显示真实 SVG、具体判断、支持与冲突证据、不确定性和低风险建议；结果返回后自动更新，不需要按 F5，复制后回到当前对话继续。</dd>
+        </div>
+        <div>
+          <dt>手动打开回退</dt>
+          <dd>Ask-for-approval 下自动交接失败时，使用“手动打开面板”的短期链接或本地 .url 快捷方式继续。</dd>
         </div>
         <div>
           <dt>同 Task 重启恢复</dt>
@@ -8762,12 +8788,12 @@
       <div class="dse-candidate-intro">
         <p class="dse-candidate-state">当前测试版</p>
         <h2 id="dse-candidate-title">可以使用 尚未正式稳定</h2>
-        <p class="dse-candidate-lead">自动测试已通过，真实设备覆盖和人工体验仍在补充。页面只提供判断与测试计划，最终操作由你确认。</p>
+        <p class="dse-candidate-lead">自动测试和定向审阅已通过，真实设备覆盖、干净 Windows 安装卸载和完整用户签收仍在继续。页面只演示判断与计划，最终操作由你确认。</p>
       </div>
       <dl class="dse-candidate-summary">
         <div>
           <dt>版本状态</dt>
-          <dd>当前测试分支；GitHub main 保留最近一次已推送版本。</dd>
+          <dd>当前测试版尚未正式发布；GitHub main 可能领先于最近一个公开 Release。</dd>
         </div>
         <div>
           <dt>读取方式</dt>
@@ -8775,7 +8801,7 @@
         </div>
         <div>
           <dt>当前限制</dt>
-          <dd>自动测试已通过，真实设备覆盖和人工体验验收仍在补充。</dd>
+          <dd>真实设备覆盖、干净 Windows 安装卸载和完整用户签收仍在补充。</dd>
         </div>
       </dl>
     </section>
@@ -9935,7 +9961,7 @@
             ["2.7.2", "Live smoke 适配器语义与动态状态提示", "2026-11-14", "PREVIOUS LOCAL", ["live collector smoke 不再把标准模式本来没有 AdapterName 的 CIM/WMI 身份行误判为脱敏丢失。", "所有显示器继续保留 Redacted.AdapterName -ceq Standard.AdapterName 差分判据；只有标准模式确有适配器名时才检查 [redacted] 和 GPU 匹配。", "无适配器链接的显示器数量改为非失败提示，并新增空值、保留、清空和 [redacted] 四种合成回归。", "Gantt accepted-values 清单改为由 allowedStatuses 动态生成，移除 done 后提示不再把它列为可接受值。", "采集器输出、隐私规则和 done 状态语义保持不变。"], "Collector static/live smoke、Gantt regression、完整非实时回归和 skill validator 通过；多显示器真实环境由 Harness 复核。", "2.7.3 之前的测试版 test.1；工作台 2.7.2，文件星球 114 个文件；112 个版本记录。"],
             ["2.7.3", "失败消息前缀去重", "2026-11-14", "PREVIOUS LOCAL", ["monitor adapter helper 不再重复返回 Redacted monitor 主语，只保留 changed monitor adapter name 等谓语消息。", "定位前缀 Redacted monitor N 统一由 live smoke 调用方添加，语义和退出码保持不变。", "新增回归禁止 helper 消息再次包含 Redacted monitor 前缀。", "该版仅修改失败路径文案，不修改采集器、隐私规则、硬件逻辑或 Gantt 状态。"], "Collector static/live smoke、monitor adapter 合成回归、完整非实时回归和 skill validator 通过；人工行为签署仍为 PENDING。", "2.7.4 之前的测试版 test.1；工作台 2.7.3，文件星球 114 个文件；113 个版本记录。"],
             ["2.7.4", "入口路由分层与预算回收", "2026-11-14", "PREVIOUS LOCAL", ["Entry 从 10,562 B 降至 8,744 B，Quick 初始加载从 19,571 B 降至 17,753 B。", "五个顶层路线只打开各自主 reference；采集、实验、GPU、VRAM、LHM、PresentMon 和购买决策细节由主 reference 按条件继续路由。", "物理安全、调校入口门禁、参数提示、证据强度、隐私和不自动修改硬件等边界继续常驻入口。", "交互契约测试改为验证一跳路由，同时检查二级 reference 的可达性；未改变采集器、评测脚本或硬件行为。"], "Interaction contract、完整非实时与 live Both 回归、Skill validator、portable sync 和站点运行时检查通过；用户对三项定向场景的人工审阅 3/3 通过，并批准发布测试候选版。", "2.8.0 之前的测试版 test.1；工作台 2.7.4，文件星球 115 个文件；114 个版本记录。"],
-            ["2.8.0", "Codex 当前对话 SkillDock 入口", "2026-11-17", "CURRENT CANDIDATE", ["用户在当前 Codex 对话中提出硬件问题并同意后，Skill 启动本地 SkillDock 面板并带入当前 Task 与支持的附件。", "一次性本地分析授权产生真实 SVG、具体判断、证据与不确定性，并可在同 Task 重启后恢复。", "DSH 与其他宿主可继续使用聊天、采集和 CSV 分析，但不承诺 SkillDock 面板；缺少 CODEX_THREAD_ID 时安全失败。"], "R7 真实 Edge、一次性权限、fresh claim、单次写回和同 Task 重启 PASS；2.8.0 全量测试与 Skill validator PASS；clean-Windows 人工签收仍 PENDING。", "当前测试版；工作台 2.8.0，文件星球 135 个文件；115 个版本记录。"]
+            ["2.8.0", "Codex 当前对话 SkillDock 入口", "2026-11-17", "CURRENT CANDIDATE", ["用户在当前 Codex 对话中提出硬件问题并同意后，Skill 启动本地 SkillDock 面板并带入当前 Task 与支持的附件。", "一次性本地分析授权产生真实 SVG、具体判断、证据与不确定性；结果自动回写，关闭并重启后可在同 Task 恢复。", "Ask-for-approval 下自动交接失败时提供“手动打开面板”的短期链接或本地 .url；DSH 与其他宿主不提供该面板。"], "R7 真实 Edge、一次性权限、fresh claim、单次写回和同 Task 重启 PASS；2.8.0 全量测试与 Skill validator PASS；三包尚未正式发布，clean-Windows 人工签收仍 PENDING。", "当前 2.8.0 测试版；简易便携、DSH core-only、Codex + SkillDock 分开提供；文件星球 135 个文件；115 个版本记录。"]
           ]
         },
         {
