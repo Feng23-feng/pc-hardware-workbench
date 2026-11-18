@@ -1,6 +1,6 @@
 # SkillDock / PCHW 0.1.0-rc.1
 
-Status: **local acceptance candidate; uncommitted; not released**.
+Status: **clean local acceptance candidate; committed locally; not released**.
 
 This candidate combines SkillDock application `0.1.0-rc.1` with the packaged
 PC Hardware Workbench Skill `2.8.0`. It is not a production release and does
@@ -22,8 +22,8 @@ SkillDock panel is available there. `launch-panel.ps1` requires
 ## Candidate package
 
 ```text
-dist/SkillDock-PCHW-0.1.0-rc.1-win-x64-p1fix-safe-upgrade-local-candidate-20261118.zip
-dist/SkillDock-PCHW-0.1.0-rc.1-win-x64-p1fix-safe-upgrade-local-candidate-20261118.zip.sha256
+dist/SkillDock-PCHW-0.1.0-rc.1-win-x64.zip
+dist/SkillDock-PCHW-0.1.0-rc.1-win-x64.zip.sha256
 ```
 
 The adjacent `.sha256` sidecar and verification JSON are authoritative for the
@@ -45,7 +45,7 @@ treated as the current candidate.
 | RC package build and hash verification | Produced by this release-prep batch |
 | Clean Windows profile/VM install and uninstall | PENDING |
 | User release signoff | PENDING |
-| Source state | LOCAL UNCOMMITTED CANDIDATE |
+| Source state | CLEAN LOCAL COMMITTED CANDIDATE |
 | Tag / push / upload / formal publish | NOT PERFORMED |
 
 Read [RELEASE-NOTES.md](RELEASE-NOTES.md),

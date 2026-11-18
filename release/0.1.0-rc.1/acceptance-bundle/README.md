@@ -35,9 +35,6 @@ The existing PCHW Skill is moved to
 `.codex\skills\.skilldock-backups` before replacement. Installation validates
 the new tree and restores the old Skill if installation fails.
 
-This bundle is an RC acceptance harness, not a public release. The pinned RC is
-the safe-upgrade local candidate with SHA-256:
-
-```text
-469a6f3e39c567d58fc78ab58ca0d8de7e9aa30231c67acaf4f02a2c8c038d3c
-```
+This bundle is an RC acceptance harness, not a public release. The pinned RC
+filename, byte count, and SHA-256 are recorded in `OUTER-BUNDLE-INFO.json`; the
+adjacent `.sha256` sidecar and verification JSON are authoritative.

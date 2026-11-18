@@ -4,15 +4,14 @@
 清单和诊断说明。
 
 这个目录只用于干净 Windows 用户或 VM 的人工验收，**不是公开发布包**。
-当前候选 RC 固定在本文件同目录的
-`SkillDock-PCHW-0.1.0-rc.1-win-x64-p1fix-safe-upgrade-local-candidate-20261118.zip`。
+当前候选 RC 位于本文件同目录。文件名、字节数和 SHA-256 以
+`OUTER-BUNDLE-INFO.json`、相邻 `.sha256` sidecar 和 verification JSON 为准。
 
 ## 当前 RC
 
 ```text
-bytes:   36756757
-SHA-256: 469a6f3e39c567d58fc78ab58ca0d8de7e9aa30231c67acaf4f02a2c8c038d3c
-state:   local-candidate-clean-ui-pending
+identity: OUTER-BUNDLE-INFO.json + adjacent sidecar
+state:    clean-local-committed-clean-windows-pending
 ```
 
 ## 主流程：只双击一个入口

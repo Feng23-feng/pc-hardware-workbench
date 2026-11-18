@@ -6,9 +6,9 @@ Status: **release candidate; not released**
 
 ## 2026-11-18 local P1 candidate
 
-This working-tree candidate supersedes the prior `19b7849d...` archive for
-acceptance preparation only. It is uncommitted and must not be treated as a
-formal release.
+This clean locally committed candidate supersedes the prior `19b7849d...`
+archive for acceptance preparation only. It has not been pushed, tagged,
+uploaded, or formally released.
 
 Current pinned RC:
 

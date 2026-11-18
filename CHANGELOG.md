@@ -29,8 +29,9 @@
 - Add portable-launcher Skill-root tests and visible-Edge UI-flow regression
   assertions for `permission.requested` and verified SVG content.
 
-This is an uncommitted local acceptance candidate. Clean Windows user
-acceptance remains pending.
+This is a clean locally committed acceptance candidate. Clean Windows user
+acceptance remains pending; the source has not been pushed, tagged, uploaded, or
+formally released.
 
 ## SkillDock 0.1.0-rc.1 / PCHW 2.8.0 - 2026-11-17
 
