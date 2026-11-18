@@ -21,7 +21,7 @@ Test-Path (Join-Path $skill "SKILL.md")
 返回 `False` 时重新运行安装器。返回 `True` 但 Codex 中仍不可用时，重启 Codex
 后再次输入 `$pc-hardware-workbench`。
 
-## Codex 集成包无法开始安装
+## SkillDock 面板包无法开始安装
 
 确认已解压完整 ZIP，并双击根目录 `Install.cmd`。安装不需要管理员权限，也不应
 要求用户手动启动 `SkillDock.exe`、寻找 runner、设置端口或环境变量。

@@ -64,14 +64,15 @@ PCHW Portable 2.8.0**，目前没有正式版。
 [下载当前测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1)，
 按使用场景只选一个包；不要把同一个 Skill 的多个副本放进同一个宿主扫描目录。
 普通用户默认选择不含面板的纯 PCHW Skill；只有明确需要网页操作面板时，再选择
-Codex + SkillDock 集成包。没有 Agent，或希望完全不安装时，选择独立便携工具。
+SkillDock 面板包（需已安装 Codex）。没有 Agent，或希望完全不安装时，选择独立
+便携工具。
 
 | 包 | 适合谁 | 包含 | SkillDock 面板 |
 | --- | --- | --- | --- |
 | PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板） | 普通用户默认选择；Codex 单独使用，或已有 DSH / 其他兼容 Agent 宿主 | 仅 PCHW Skill 2.8.0 发布子集 | 无 |
 | PCHW Portable（独立 Windows，无需 Agent） | 没有 Codex / DSH，或不希望安装 Skill 与 Runtime | 独立菜单、采集、CSV 与证据工具 | 无 |
 | SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺 SkillDock 应用与 Node | SkillDock Runtime + Node.js 24.22.1 | 仅 Codex 当前对话 |
-| Codex + SkillDock 集成包 | 明确需要图形操作面板的 Codex Desktop 用户 | PCHW Skill、SkillDock Runtime、单一安装入口 | 仅 Codex 当前对话 |
+| SkillDock 面板包（用于 Codex） | 已安装 Codex Desktop，并明确需要图形操作面板 | PCHW Skill、SkillDock Runtime、安装入口 | 仅 Codex 当前对话 |
 
 当前 GitHub 测试版文件：
 
@@ -85,6 +86,22 @@ SHA256SUMS.txt
 
 这是公开测试版，clean Windows 安装/卸载和最终签收仍为 PENDING。不要混装多个
 Skill 或旧 Runtime。
+
+<a id="what-is-skilldock"></a>
+
+### SkillDock 是什么
+
+SkillDock 是 PCHW 在 **Codex 当前任务**中可选的图形操作面板。用户提出硬件问题
+并提供 CSV 等文件后，面板会带入当前任务、问题和附件，集中展示图表、结论、证据
+冲突、不确定性与下一步建议。本地分析需要明确授权；结果返回后页面自动更新，
+关闭重开仍可恢复同一任务。
+
+SkillDock 不是独立 Agent，也不替代 Codex：推理和对话仍在 Codex 中完成，它负责
+本地可视化与交互。面板仅支持 Codex，DSH 和其他 Agent 使用无面板的通用 Skill。
+
+如果只需要聊天、硬件采集和 CSV 分析，选择无面板的 PCHW Skill 即可，不必安装
+SkillDock；完全不需要 Agent 时，才选择独立便携包。SkillDock 对硬件始终只读，
+不会自动修改任何硬件设置。
 
 <a id="pchw-portable"></a>
 
@@ -100,9 +117,11 @@ Skill 或旧 Runtime。
 `Date/Time`、`时间戳` 和 `日期时间` 列，并输出实际采样跨度。所有硬件变更仍由
 用户手动完成。
 
-### Codex + SkillDock
+### SkillDock 面板包（用于 Codex）
 
-1. 下载 Codex 集成包，并按 Release 中的 `SHA256SUMS.txt` 或 GitHub 页面显示的 asset digest 校验。
+使用前需要安装 Codex Desktop。
+
+1. 下载 SkillDock 面板包，并按 Release 中的 `SHA256SUMS.txt` 或 GitHub 页面显示的 asset digest 校验。
 2. 解压后双击 `Install.cmd`。
 3. 已有旧版 PCHW Skill 时，安装器会先备份，再执行安全升级；不需要先删除旧 Skill。
 4. 安装完成后打开 Codex 当前对话。
@@ -115,7 +134,7 @@ Skill 或旧 Runtime。
 
 ### PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板）
 
-这个包只包含 PCHW Skill，不是 Codex + SkillDock 集成包，也不含 SkillDock、
+这个包只包含 PCHW Skill，不是 SkillDock 面板包，也不含 SkillDock、
 Node、测试 runner 或 DSH 观察窗。它可用于 Codex、DSH 或其他兼容 Agent 宿主，
 适合不需要面板的用户。将 `pc-hardware-workbench` 目录安装到目标 Agent 的 Skill
 扫描目录。Codex 默认位置：

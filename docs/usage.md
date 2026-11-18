@@ -9,7 +9,7 @@
   Codex 用户，以及已有 DSH 或其他兼容 Agent 宿主；普通用户默认选择这一包。
 - **PCHW Portable（独立 Windows，无需 Agent）。** 适合没有 Codex / DSH，或不
   希望安装 Skill 与 Runtime 的用户。
-- **Codex + SkillDock 集成包。** 适合明确需要网页操作面板的 Codex 当前对话用户。
+- **SkillDock 面板包（用于 Codex）。** 适合已安装 Codex、并明确需要网页操作面板的用户。
 - **SkillDock Runtime-only。** 适合已经安装兼容 PCHW Skill，只缺应用和 Node。
 
 按实际使用的宿主选择包；同一个宿主的 Skill 扫描目录只保留一个活动版本。
@@ -79,7 +79,7 @@ PCHW 的聊天、采集和 CSV 分析，但不提供这个面板。
 
 ## PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板）
 
-这个包只提供 PCHW Skill 的聊天、采集和 CSV 分析能力，不是 Codex + SkillDock
+这个包只提供 PCHW Skill 的聊天、采集和 CSV 分析能力，不是 SkillDock 面板包，
 集成包。DSH 中调用：
 
 ```text

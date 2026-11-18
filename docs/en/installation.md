@@ -17,16 +17,16 @@ pending.
 ## Choose one distribution
 
 Most users should start with the PCHW Skill package without the panel. Choose
-the Codex + SkillDock integrated package only when you specifically want the
-graphical workspace. If no Agent is available or you want no installation at all,
-use PCHW Portable.
+the SkillDock panel bundle only when Codex is already installed and you
+specifically want the graphical workspace. If no Agent is available or you want
+no installation at all, use PCHW Portable.
 
 | Package | Use it when | Includes | Panel |
 | --- | --- | --- | --- |
 | PCHW Skill (Codex / DSH / other Agents; no panel) | Default choice; use Codex alone or with DSH / another compatible Agent host | PCHW Skill release subset only | No |
 | PCHW Portable (standalone Windows; no Agent) | You do not use Codex / DSH, or want no Skill or Runtime installation | Standalone menu, collection, CSV, and evidence tools | No |
 | SkillDock Runtime-only | A compatible PCHW Skill is installed and only the application and Node are missing | SkillDock Runtime, Node.js 24.22.1 | Current Codex conversation only |
-| Codex + SkillDock integrated | Codex Desktop users who specifically want the graphical panel | PCHW Skill, SkillDock Runtime, one installer | Current Codex conversation only |
+| SkillDock panel bundle (for Codex) | Codex Desktop is installed and you specifically want the graphical panel | PCHW Skill, SkillDock Runtime, installer | Current Codex conversation only |
 
 [Download the current GitHub test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1):
 
@@ -60,7 +60,9 @@ The portable build runs locally, does not initiate network access, and never
 changes BIOS, firmware, drivers, clocks, voltage, power limits, fans, or memory
 timings automatically.
 
-## Codex + SkillDock
+## SkillDock panel bundle (for Codex)
+
+Codex Desktop must already be installed.
 
 ### Install
 
@@ -123,8 +125,8 @@ second Thread.
 
 ## PCHW Skill (Codex / DSH / other Agents; no panel)
 
-This package contains the PCHW Skill only. It is not the Codex + SkillDock
-integrated package and contains no SkillDock Runtime, Node.js, or DSH observer.
+This package contains the PCHW Skill only. It is not the SkillDock panel bundle
+and contains no SkillDock Runtime, Node.js, or DSH observer.
 It works in Codex, DSH, and other compatible Agent hosts and is intended for
 users who do not need the panel. Place `pc-hardware-workbench` in the target
 Agent's Skill directory.
@@ -189,7 +191,7 @@ Test-Path (Join-Path $skill "references")
 All three checks should return `True`. If Codex still cannot see the Skill, restart
 Codex.
 
-For Codex + SkillDock, confirm the Runtime pointer:
+For the SkillDock panel bundle, confirm the Runtime pointer:
 
 ```powershell
 $pointer = Join-Path $env:LOCALAPPDATA "SkillDock\runtime-location.json"
@@ -200,7 +202,7 @@ Do not publish ports, tokens, or local absolute paths to an Issue.
 
 ## Upgrade and rollback
 
-### Codex + SkillDock
+### SkillDock panel bundle (for Codex)
 
 Run `Install.cmd` from the new package. The installer validates the old Skill, backs
 it up, installs the new Skill, backs up old Runtime directories, and keeps backups
@@ -214,7 +216,7 @@ the new PCHW Skill package. Do not leave two Skill directories containing
 
 ## Uninstall
 
-### Codex + SkillDock
+### SkillDock panel bundle (for Codex)
 
 Open the installed SkillDock program directory and run its SkillDock uninstall
 script. The default uninstall removes the program and shortcuts while preserving Task

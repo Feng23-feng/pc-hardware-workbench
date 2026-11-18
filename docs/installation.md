@@ -17,14 +17,15 @@
 按使用场景安装对应的包。不要把同一个 PCHW Skill 的多个副本放进同一个宿主的
 Skill 扫描目录。
 普通用户默认选择不含面板的纯 PCHW Skill；只有明确需要网页操作面板时，再选择
-Codex + SkillDock 集成包。没有 Agent，或希望完全不安装时，选择 PCHW Portable。
+SkillDock 面板包（需已安装 Codex）。没有 Agent，或希望完全不安装时，选择
+PCHW Portable。
 
 | 包 | 适用场景 | 包含 | 操作面板 |
 | --- | --- | --- | --- |
 | PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板） | 普通用户默认选择；Codex 单独使用，或已有 DSH / 其他兼容 Agent 宿主 | 仅 PCHW Skill 发布子集 | 无 |
 | PCHW Portable（独立 Windows，无需 Agent） | 没有 Codex / DSH，或不希望安装 Skill 与 Runtime | 独立菜单、采集、CSV 与证据工具 | 无 |
 | SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺应用与 Node | SkillDock Runtime、Node.js 24.22.1 | 仅 Codex 当前对话 |
-| Codex + SkillDock 集成包 | 明确需要图形操作面板的 Codex Desktop 用户 | PCHW Skill、SkillDock Runtime、单一安装入口 | 仅 Codex |
+| SkillDock 面板包（用于 Codex） | 已安装 Codex Desktop，并明确需要图形操作面板 | PCHW Skill、SkillDock Runtime、安装入口 | 仅 Codex |
 
 [下载当前 GitHub 测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1)：
 
@@ -54,7 +55,9 @@ ZIP、Skill 目录和 Runtime 混在一起。
 便携包完全在本地运行，不主动联网，不会自动修改 BIOS、固件、驱动、频率、电压、
 功耗、风扇或内存时序。
 
-## Codex + SkillDock
+## SkillDock 面板包（用于 Codex）
+
+使用前需要安装 Codex Desktop。
 
 ### 安装
 
@@ -113,7 +116,7 @@ Runtime 与迁移数据的备份位于：
 
 ## PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板）
 
-这个包只包含 PCHW Skill，不是 Codex + SkillDock 集成包，也不安装 SkillDock
+这个包只包含 PCHW Skill，不是 SkillDock 面板包，也不安装 SkillDock
 Runtime、Node 或 DSH 观察窗。它可用于 Codex、DSH 或其他兼容 Agent 宿主，适合
 不需要面板的用户。把包内 `pc-hardware-workbench` 目录放到目标 Agent 的 Skill
 扫描目录。
@@ -174,7 +177,7 @@ Test-Path (Join-Path $skill "references")
 
 前三项都应为 `True`。如果 Codex 中仍看不到 Skill，先重启 Codex。
 
-Codex + SkillDock 还应确认 Runtime 指针存在：
+SkillDock 面板包还应确认 Runtime 指针存在：
 
 ```powershell
 $pointer = Join-Path $env:LOCALAPPDATA "SkillDock\runtime-location.json"
@@ -185,7 +188,7 @@ Test-Path $pointer
 
 ## 更新与回滚
 
-### Codex + SkillDock
+### SkillDock 面板包（用于 Codex）
 
 再次运行新包中的 `Install.cmd`。安装器会：
 
@@ -202,7 +205,7 @@ Test-Path $pointer
 
 ## 卸载
 
-### Codex + SkillDock
+### SkillDock 面板包（用于 Codex）
 
 打开已安装的 SkillDock 程序目录，运行其中的 SkillDock 卸载脚本。默认卸载移除
 程序和快捷入口，但保留 Task 数据与备份。只有确认不再需要恢复时才彻底清理数据。

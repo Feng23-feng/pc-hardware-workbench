@@ -78,16 +78,16 @@ The interactive project pages are currently available in Chinese:
 then choose exactly one package. Do not place multiple copies of the same Skill
 in one host's scan directory.
 Most users should start with the PCHW Skill package without the panel. Choose
-the Codex + SkillDock integrated package only when you specifically want the
-graphical workspace. If no Agent is available, or you want no installation at
-all, use the standalone Portable tool.
+the SkillDock panel bundle only when Codex is already installed and you
+specifically want the graphical workspace. If no Agent is available, or you want
+no installation at all, use the standalone Portable tool.
 
 | Package | Choose it when | Includes | SkillDock panel |
 | --- | --- | --- | --- |
 | PCHW Skill (Codex / DSH / other Agents; no panel) | Default choice; use Codex alone or with DSH / another compatible Agent host | PCHW Skill 2.8.0 release subset only | No |
 | PCHW Portable (standalone Windows; no Agent) | You do not use Codex / DSH, or want no Skill or Runtime installation | Standalone menu, collection, CSV, and evidence tools | No |
 | SkillDock Runtime-only | A compatible PCHW Skill is installed and only the Runtime and Node are missing | SkillDock Runtime + Node.js 24.22.1 | Current Codex conversation only |
-| Codex + SkillDock integrated | Codex Desktop users who specifically want the graphical panel | PCHW Skill, SkillDock Runtime, one installer | Current Codex conversation only |
+| SkillDock panel bundle (for Codex) | Codex Desktop is installed and you specifically want the graphical panel | PCHW Skill, SkillDock Runtime, installer | Current Codex conversation only |
 
 Current GitHub test-build files:
 
@@ -102,6 +102,27 @@ SHA256SUMS.txt
 This is a public test build. Clean-Windows installation, uninstallation, and
 final signoff remain PENDING. Do not mix multiple Skills or old Runtime
 directories.
+
+<a id="what-is-skilldock"></a>
+
+### What is SkillDock?
+
+SkillDock is an optional graphical workspace for PCHW in the **current Codex
+task**. After the user asks a hardware question and provides files such as CSV
+exports, the panel carries in the current task, question, and attachments and
+shows charts, conclusions, conflicting evidence, uncertainty, and next actions.
+Local analysis requires explicit authorization; results update the page
+automatically, and closing and reopening SkillDock restores the same task.
+
+SkillDock is not a separate Agent and does not replace Codex. Reasoning and
+conversation still happen in Codex; SkillDock provides the local visual and
+interactive layer. The panel is supported only in Codex. DSH and other Agents use
+the generic Skill without a panel.
+
+If you only need chat, hardware collection, and CSV analysis, use the PCHW Skill
+without SkillDock. Use the standalone Portable build only when you do not want an
+Agent at all. SkillDock is read-only with respect to hardware and never changes
+hardware settings automatically.
 
 <a id="pchw-portable"></a>
 
@@ -119,9 +140,11 @@ panel. Its shared telemetry analyzer `1.2.4` recognizes `Timestamp`, `DateTime`,
 `Date/Time`, and their Chinese equivalents, and reports the sampled span. Every
 hardware change remains manual.
 
-### Codex + SkillDock
+### SkillDock panel bundle (for Codex)
 
-1. Download the Codex integrated package and verify it with `SHA256SUMS.txt` or
+Codex Desktop must already be installed.
+
+1. Download the SkillDock panel bundle and verify it with `SHA256SUMS.txt` or
    the asset digest shown on GitHub.
 2. Extract it and double-click `Install.cmd`.
 3. If an older PCHW Skill exists, the installer backs it up and upgrades it; do
@@ -137,8 +160,8 @@ from the same verified package.
 
 ### PCHW Skill (Codex / DSH / other Agents; no panel)
 
-This package contains the PCHW Skill only. It is not the Codex + SkillDock
-integrated package and contains no SkillDock application, Node.js, test runner,
+This package contains the PCHW Skill only. It is not the SkillDock panel bundle
+and contains no SkillDock application, Node.js, test runner,
 or DSH observer. It works in Codex, DSH, and other compatible Agent hosts and is
 intended for users who do not need the panel. Put `pc-hardware-workbench` in the
 target Agent's Skill directory. The default Codex location is:
