@@ -125,7 +125,13 @@ function Read-ZipText {
         [Parameter(Mandatory = $true)][string]$EntryPath
     )
 
-    $entry = $Archive.GetEntry($EntryPath)
+    $normalizedEntryPath = $EntryPath.Replace("\", "/")
+    $entry = @(
+        $Archive.Entries |
+            Where-Object {
+                $_.FullName.Replace("\", "/") -eq $normalizedEntryPath
+            }
+    ) | Select-Object -First 1
     if ($null -eq $entry) {
         throw "Required RC entry is missing: $EntryPath"
     }
