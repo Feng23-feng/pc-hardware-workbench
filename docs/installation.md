@@ -9,7 +9,7 @@
 - 其他操作系统只提供手动排障指导，不自动读取硬件；
 - 可选监控需要用户已经启动 LibreHardwareMonitor；本项目不会安装或启动它。
 
-当前 `2.8.0` 仍是测试版，尚未正式发布。干净 Windows 安装、卸载和完整用户签收
+当前 `2.8.0` 是测试版，目前没有正式版。干净 Windows 安装、卸载和完整用户签收
 继续作为发布门禁。
 
 ## 先选一种包
@@ -25,7 +25,7 @@ Codex + SkillDock 集成包。
 | SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺应用与 Node | SkillDock Runtime、Node.js 24.22.1 | 仅 Codex 当前对话 |
 | Codex + SkillDock 集成包 | 明确需要图形操作面板的 Codex Desktop 用户 | PCHW Skill、SkillDock Runtime、单一安装入口 | 仅 Codex |
 
-[下载当前 GitHub 预发布资产](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1)：
+[下载当前 GitHub 测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1)：
 
 ```text
 PCHW-Skill-2.8.0-rc.1.zip
@@ -34,7 +34,7 @@ SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip
 SHA256SUMS.txt
 ```
 
-这是公开预发布；clean Windows 安装、卸载和最终签收仍是 PENDING。不要把旧版本
+这是公开测试版；clean Windows 安装、卸载和最终签收仍是 PENDING。不要把旧版本
 ZIP、Skill 目录和 Runtime 混在一起。
 
 ## Codex + SkillDock
@@ -208,7 +208,7 @@ Test-Path $pointer
 
 ## 已知限制
 
-- `2.8.0` 尚未正式发布，干净 Windows 签收仍待完成。
+- `2.8.0` 目前只有测试版，没有正式版；干净 Windows 签收仍待完成。
 - SkillDock 面板只支持 Codex 当前用户对话。
 - Panel 不可用、权限被拒绝或工作区冲突时必须回到对话，不能暴露开发入口。
 - 实时采集取决于 Windows 权限和宿主沙箱，不能把权限拒绝误报为缺件。

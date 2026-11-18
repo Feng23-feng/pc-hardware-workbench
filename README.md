@@ -6,7 +6,8 @@
 故障排查、遥测分析、手动调校和升级判断收敛到一个 Skill，同时把每一次硬件变更
 留给用户亲手完成。
 
-当前公开预发布线是 **PCHW Skill 2.8.0 + SkillDock Runtime 0.1.0-rc.1**，尚未正式发布。
+当前可下载的是 **PCHW Skill 2.8.0 + SkillDock Runtime 0.1.0-rc.1 测试版**，
+目前没有正式版。
 其中 `2.8.0` 是 PCHW Skill 版本，`0.1.0-rc.1` 是 SkillDock 应用版本。完整自动测试和定向人工审阅已通过；
 真实设备覆盖、干净 Windows 安装/卸载和其余交互场景签署仍在继续。项目不会把
 测试版包装成稳定版。
@@ -59,7 +60,7 @@
 
 ## 三种下载包
 
-[下载当前预发布资产](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1)，
+[下载当前测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1)，
 按使用场景只选一个包；不要把同一个 Skill 的多个副本放进同一个宿主扫描目录。
 普通用户默认选择不含面板的纯 PCHW Skill；只有明确需要网页操作面板时，再选择
 Codex + SkillDock 集成包。
@@ -70,7 +71,7 @@ Codex + SkillDock 集成包。
 | SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺 SkillDock 应用与 Node | SkillDock Runtime + Node.js 24.22.1 | 仅 Codex 当前对话 |
 | Codex + SkillDock 集成包 | 明确需要图形操作面板的 Codex Desktop 用户 | PCHW Skill、SkillDock Runtime、单一安装入口 | 仅 Codex 当前对话 |
 
-当前 GitHub 预发布资产：
+当前 GitHub 测试版文件：
 
 ```text
 PCHW-Skill-2.8.0-rc.1.zip
@@ -79,7 +80,7 @@ SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip
 SHA256SUMS.txt
 ```
 
-这是公开预发布，clean Windows 安装/卸载和最终签收仍为 PENDING。不要混装多个
+这是公开测试版，clean Windows 安装/卸载和最终签收仍为 PENDING。不要混装多个
 Skill 或旧 Runtime。
 
 ### Codex + SkillDock
@@ -207,7 +208,7 @@ Skill 会根据问题进入配置、排障、遥测、调参或升级路线。�
 
 ## 已知限制
 
-- `2.8.0` 仍是测试版，尚未正式发布；
+- `2.8.0` 是当前测试版，目前没有正式版；
 - 干净 Windows 安装/卸载、真实设备覆盖和完整用户签收仍在进行；
 - SkillDock 面板只承诺 Codex 当前用户对话；
 - Ask-for-approval 模式可能要求使用“手动打开面板”链接或 `.url`；

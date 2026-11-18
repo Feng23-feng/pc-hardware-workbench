@@ -3,12 +3,12 @@
 ## 2.8.0 — 2026-11-17（2026-11-18 文档与分发更新）
 
 - 新增当前 Codex 对话的 SkillDock 操作面板入口，支持当前 Task、附件上下文、一次性本地分析权限、验证 SVG、判断卡和同 Task 重启恢复；
-- 将公开预发布入口明确为三种互斥类型：通用 PCHW Skill（无面板）、SkillDock Runtime-only、Codex + SkillDock 集成包；
+- 将当前测试版下载入口明确为三种互斥类型：通用 PCHW Skill（无面板）、SkillDock Runtime-only、Codex + SkillDock 集成包；
 - 普通用户默认使用不含面板的通用 PCHW Skill；只有明确需要图形操作面板时才选择 Codex 集成包；
 - Codex 集成包使用 `Install.cmd` 自动判断全新安装或备份升级；不再要求用户选择 clean/upgrade 模式；
 - 更新 GitHub 中文/英文入口和安装、使用、排障文档，说明 SkillDock 面板只在 Codex 当前对话中承诺；
 - 补充 Ask-for-approval 下的“手动打开面板”链接或 `.url` 回退、一次性“仅本次允许”、结果自动更新、同 Task 重启和卸载流程；
-- 2.8.0 继续标记为测试版且尚未正式发布；干净 Windows 安装/卸载与用户签收仍为发布阻塞；
+- 2.8.0 当前仅为测试版，尚无正式版；干净 Windows 安装/卸载与用户签收仍待完成；
 - 新增 freshness/claim 与只读 `source-external` 运行边界，面板不得创建额外 Thread、后台写入或恢复流程；
 - SkillDock 的 launch/sync/wait/submit 统一使用当前 `launch-result.json` 与 `/api/health` 的 `runtime_binding`，集中解析 `runtime-pchw` 并兼容旧 `runtime-dsh-web`；陈旧 `server-info.json` 不再使健康的新 Runtime 假失败；
 - 升级保留旧 Task、附件、artifact 和 evidence：迁移前建立完整数据备份；新旧数据根同时有内容时默认失败关闭，只有显式 `PreferLegacy` 才执行不合并的替换迁移；

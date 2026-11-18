@@ -7,12 +7,12 @@ DeepSeek Harness. It brings system inventory, troubleshooting, telemetry analysi
 guided tuning, and upgrade decisions into one workflow while leaving every
 persistent hardware change to the user.
 
-The current public pre-release line is **PCHW Skill 2.8.0 + SkillDock Runtime
-0.1.0-rc.1**; it has not been formally released. Here `2.8.0` is the PCHW Skill
-version and `0.1.0-rc.1` is the SkillDock application version. Automated tests
-and targeted human review pass, but broad real-device
-coverage, clean-Windows install/uninstall, and the remaining human scenarios are
-still in progress. The project does not claim this test build is stable or fully
+The current downloadable build is **PCHW Skill 2.8.0 + SkillDock Runtime
+0.1.0-rc.1, a test build**. There is no stable release yet. Here `2.8.0` is the
+PCHW Skill version and `0.1.0-rc.1` is the SkillDock application version.
+Automated tests and targeted human review pass, but broad real-device coverage,
+clean-Windows install/uninstall, and the remaining human scenarios are still in
+progress. The project does not claim this test build is stable or fully
 validated.
 
 ![File orrery preview](docs/skill-evolution/assets/orrery-preview.png)
@@ -71,7 +71,7 @@ The interactive project pages are currently available in Chinese:
 
 ## Three download packages
 
-[Download the current pre-release assets](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1),
+[Download the current test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1),
 then choose exactly one package. Do not place multiple copies of the same Skill
 in one host's scan directory.
 Most users should start with the PCHW Skill package without the panel. Choose
@@ -84,7 +84,7 @@ graphical workspace.
 | SkillDock Runtime-only | A compatible PCHW Skill is installed and only the Runtime and Node are missing | SkillDock Runtime + Node.js 24.22.1 | Current Codex conversation only |
 | Codex + SkillDock integrated | Codex Desktop users who specifically want the graphical panel | PCHW Skill, SkillDock Runtime, one installer | Current Codex conversation only |
 
-Current GitHub pre-release assets:
+Current GitHub test-build files:
 
 ```text
 PCHW-Skill-2.8.0-rc.1.zip
@@ -93,7 +93,7 @@ SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip
 SHA256SUMS.txt
 ```
 
-This is a public pre-release. Clean-Windows installation, uninstallation, and
+This is a public test build. Clean-Windows installation, uninstallation, and
 final signoff remain PENDING. Do not mix multiple Skills or old Runtime
 directories.
 
@@ -294,9 +294,9 @@ Chinese. The contributing and security policies are available in English.
 ## Version and license
 
 Use [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
-and [CHANGELOG.md](CHANGELOG.md) as the source of version status. The current release
-line is a `2.8.0` test build and has not been formally released. GitHub main may be
-ahead of the latest public Release.
+and [CHANGELOG.md](CHANGELOG.md) as the source of version status. The current
+build is a `2.8.0` test build, and no stable release has been published. GitHub
+main may be ahead of the downloadable test build.
 
 Source code is available under the [MIT License](LICENSE).
 

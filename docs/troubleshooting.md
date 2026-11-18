@@ -6,7 +6,7 @@
 - 已安装兼容 PCHW Skill，只缺 SkillDock 应用与 Node：使用 Runtime-only；
 - 使用 Codex Desktop 并希望从当前对话打开操作面板：使用集成包。
 
-2.8.0 尚未正式发布。不要混装旧版 Skill、旧 Runtime 和当前 ZIP。
+2.8.0 目前只有测试版，没有正式版。不要混装旧版 Skill、旧 Runtime 和当前 ZIP。
 
 ## Codex 中看不到 Skill
 

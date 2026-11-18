@@ -10,9 +10,9 @@
 - Optional monitoring requires an already-running LibreHardwareMonitor instance.
   This project does not install or start it.
 
-The current `2.8.0` build is a test build and has not been formally released.
-Clean-Windows installation, uninstallation, and complete user signoff remain release
-blockers.
+The current `2.8.0` build is a test build, and no stable release exists yet.
+Clean-Windows installation, uninstallation, and complete user signoff remain
+pending.
 
 ## Choose one distribution
 
@@ -26,7 +26,7 @@ graphical workspace.
 | SkillDock Runtime-only | A compatible PCHW Skill is installed and only the application and Node are missing | SkillDock Runtime, Node.js 24.22.1 | Current Codex conversation only |
 | Codex + SkillDock integrated | Codex Desktop users who specifically want the graphical panel | PCHW Skill, SkillDock Runtime, one installer | Current Codex conversation only |
 
-[Download the current GitHub pre-release assets](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1):
+[Download the current GitHub test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1):
 
 ```text
 PCHW-Skill-2.8.0-rc.1.zip
@@ -35,7 +35,7 @@ SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip
 SHA256SUMS.txt
 ```
 
-This is a public pre-release. Clean-Windows installation, uninstallation, and
+This is a public test build. Clean-Windows installation, uninstallation, and
 final signoff remain PENDING. Do not mix old and current Skill, Runtime, or
 package files.
 
@@ -217,7 +217,7 @@ Close DSH and remove:
 
 ## Known limitations
 
-- `2.8.0` has not been formally released; clean-Windows signoff remains pending.
+- `2.8.0` currently has no stable release; clean-Windows signoff remains pending.
 - The SkillDock panel is supported only in the current Codex user conversation.
 - If the panel is unavailable, permission is denied, or another workspace is active,
   continue in chat without exposing a developer entry.
