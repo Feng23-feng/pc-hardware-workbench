@@ -142,9 +142,14 @@ After you agree, the Skill opens the local panel with the current question, Task
 and supported attachment context. The first analysis asks for an explicit
 one-time permission. The result includes a real SVG chart, a concrete judgement,
 supporting and conflicting evidence, uncertainty, and two or three low-risk
-actions. The page updates when the result returns; do not press F5. Copy the
+actions. The page updates automatically when the result returns. Copy the
 result back to the current Codex conversation. The same Task, chart, and
 conclusion remain available after SkillDock is closed and restarted.
+
+After the same attachment has completed one successful local analysis, a repeat
+analysis may offer “同一附件后续分析” (repeat analysis for this attachment). It
+still covers only that CSV in the current Task and lasts for two hours. A
+different attachment requires a new one-time decision.
 
 If Codex Ask-for-approval mode prevents automatic opening, use the short-lived
 manual link or local `.url` shortcut shown by the Skill. If the default runtime

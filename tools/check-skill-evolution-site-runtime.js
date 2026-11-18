@@ -563,9 +563,9 @@ async function testHomeViewport(siteUrl, name, width, height) {
     })()`);
     check(
       candidateStatus.state === "当前测试版" &&
-      candidateStatus.title === "可以使用 尚未正式稳定" &&
-      candidateStatus.lead.includes("真实设备覆盖") &&
-      candidateStatus.rowLabels.join(",") === "版本状态,读取方式,当前限制" &&
+      candidateStatus.title === "选择适合你的使用方式" &&
+      candidateStatus.lead.includes("按使用场景") &&
+      candidateStatus.rowLabels.join(",") === "简易便携包,DSH core-only,Codex + SkillDock,回退与状态" &&
       candidateStatus.rowCopies.every(copy => copy.length > 0) &&
       candidateStatus.gapAfterFilePlanet >= (name === "desktop" ? 72 : 44) &&
       candidateStatus.belowFilePlanet,
@@ -1248,10 +1248,10 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       !initial.statusActionsVisible &&
       initial.visiblePanelCount === 0 &&
       initial.currentTheme === "尚未选择" &&
-      initial.modeButtonCount === 4 &&
+      initial.modeButtonCount === 5 &&
       initial.pressedModeCount === 0 &&
       initial.taskChooserVisible &&
-      initial.taskChoiceCount === 4 &&
+      initial.taskChoiceCount === 5 &&
       initial.tuneStepsHidden &&
       !initial.contextBridgeVisible &&
       initial.backdropScene === "",
@@ -1279,6 +1279,27 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
         horizontalOverflow: initial.horizontalOverflow
       })}).`
     );
+
+    await clickByPointer(connection, '[data-demo-mode="skilldock"]');
+    const skilldockMode = await evaluate(connection, `(() => ({
+      pressed: document.querySelector('[data-demo-mode="skilldock"]')?.getAttribute("aria-pressed") || "",
+      panelVisible: (document.querySelector('.dse-demo-panel[data-demo-mode="skilldock"]')?.getBoundingClientRect().height || 0) > 0,
+      title: document.querySelector("#dse-skilldock-title")?.textContent.trim() || "",
+      note: document.querySelector('.dse-demo-panel[data-demo-mode="skilldock"] .dse-process-note')?.textContent.trim() || "",
+      guideSteps: document.querySelectorAll("#dse-mode-guide-steps li").length,
+      guideSummary: document.getElementById("dse-mode-guide-summary")?.textContent.trim() || ""
+    }))()`);
+    check(
+      skilldockMode.pressed === "true" &&
+      skilldockMode.panelVisible &&
+      skilldockMode.title === "从当前对话到同一 Task 恢复" &&
+      skilldockMode.note.includes("手动链接或 .url") &&
+      skilldockMode.note.includes("结果自动回写") &&
+      skilldockMode.guideSteps === 4 &&
+      skilldockMode.guideSummary.includes("当前 Codex 对话"),
+      `${prefix}SkillDock operation mode is incomplete (${JSON.stringify(skilldockMode)}).`
+    );
+
     await clickByPointer(connection, '[data-demo-mode="terms"]');
     const initialTerms = await evaluate(connection, `(() => ({
       coreCount: document.querySelectorAll("#dse-term-core-row [data-term-id]").length,

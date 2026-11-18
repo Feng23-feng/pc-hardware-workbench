@@ -333,6 +333,102 @@ try {
     }),
   );
   assert.equal(consumeCapabilityGrant(grant).status, "consumed");
+
+  const permissionHost = {
+    events: [],
+    appendEvent(event) {
+      this.events.push(event);
+    },
+    save() {},
+  };
+  const firstPermissionTask = runtime.createTaskState({
+    taskId: "task-runtime-first-permission",
+  });
+  firstPermissionTask.task_id = "task-runtime-first-permission";
+  const firstPermissionRequest = runtime.ensurePermissionRequest(
+    firstPermissionTask,
+    attachment,
+    { warmup_seconds: 0, duration_seconds: 30 },
+    permissionHost,
+  );
+  assert.equal(
+    firstPermissionRequest.presentation.allow_task_available,
+    false,
+    "first analysis must not expose a reusable attachment grant",
+  );
+  assert.equal(
+    firstPermissionRequest.presentation.allow_task_label,
+    "同一附件后续分析",
+  );
+  const prematureTaskGrant = await runtime.decidePermission({
+    task: firstPermissionTask,
+    body: {
+      request_id: firstPermissionRequest.request_id,
+      decision: "allow_task",
+    },
+    host: permissionHost,
+  });
+  assert.equal(prematureTaskGrant.statusCode, 409);
+
+  const repeatPermissionTask = runtime.createTaskState({
+    taskId: "task-runtime-repeat-permission",
+  });
+  repeatPermissionTask.task_id = "task-runtime-repeat-permission";
+  repeatPermissionTask.actions = [];
+  repeatPermissionTask.actions.push({
+    action_id: capability.id,
+    attachment_id: attachment.id,
+    source_sha256: attachment.sha256,
+    artifact_id: "artifact-runtime-repeat",
+    permission_scope: "one-time",
+    local_completed_at: "2026-11-15T00:01:00Z",
+  });
+  const repeatPermissionRequest = runtime.ensurePermissionRequest(
+    repeatPermissionTask,
+    attachment,
+    { warmup_seconds: 0, duration_seconds: 60 },
+    permissionHost,
+  );
+  assert.equal(
+    repeatPermissionRequest.presentation.allow_task_available,
+    true,
+    "completed one-time analysis should enable repeat analysis",
+  );
+  const repeatTaskGrant = await runtime.decidePermission({
+    task: repeatPermissionTask,
+    body: {
+      request_id: repeatPermissionRequest.request_id,
+      decision: "allow_task",
+    },
+    host: permissionHost,
+  });
+  assert.equal(repeatTaskGrant.statusCode, 200);
+  assert.equal(repeatPermissionTask.grants.at(-1).scope, "task");
+
+  const differentAttachmentTask = runtime.createTaskState({
+    taskId: "task-runtime-other-attachment",
+  });
+  differentAttachmentTask.task_id = "task-runtime-other-attachment";
+  differentAttachmentTask.actions = [];
+  differentAttachmentTask.actions.push({
+    action_id: capability.id,
+    attachment_id: attachment.id,
+    source_sha256: attachment.sha256,
+    artifact_id: "artifact-runtime-original",
+    permission_scope: "one-time",
+    local_completed_at: "2026-11-15T00:01:00Z",
+  });
+  const differentAttachmentRequest = runtime.ensurePermissionRequest(
+    differentAttachmentTask,
+    { ...attachment, id: "attachment-runtime-other", sha256: "b".repeat(64) },
+    { warmup_seconds: 0, duration_seconds: 30 },
+    permissionHost,
+  );
+  assert.equal(
+    differentAttachmentRequest.presentation.allow_task_available,
+    false,
+    "a different attachment must require a new one-time analysis",
+  );
 } finally {
   rmSync(tempRoot, { recursive: true, force: true });
 }

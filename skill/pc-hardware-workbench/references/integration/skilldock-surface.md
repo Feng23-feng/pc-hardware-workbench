@@ -281,6 +281,16 @@ particular, an Agent `workspace-write` profile does not grant SkillDock an
 independent workspace-write permission, and a disabled SkillDock external
 network does not prove that the Agent host has disabled its own network access.
 
+The first local-analysis permission card exposes one primary choice,
+“仅本次允许”, plus denial. It must not expose a reusable attachment grant before
+the same attachment has completed one successful one-time analysis. Only when
+that same Task, attachment ID, and SHA-256 already have a completed one-time
+analysis may a later permission request show “同一附件后续分析”. That grant is
+limited to the same Task, attachment, artifact scope, and fixed read-only
+capability for two hours; a different attachment always requires a new
+one-time decision. The Runtime must enforce the same condition even if a client
+crafts an `allow_task` request directly.
+
 ## Returning to chat
 
 When the user returns to chat after using the surface, run:

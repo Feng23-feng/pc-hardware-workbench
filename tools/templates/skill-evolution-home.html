@@ -8559,66 +8559,6 @@
       </div>
     </header>
 
-    <section class="dse-candidate" aria-labelledby="dse-package-choice-title">
-      <div class="dse-candidate-intro">
-        <p class="dse-candidate-state">当前测试版 · 尚未正式发布</p>
-        <h2 id="dse-package-choice-title">选择适合你的使用方式</h2>
-        <p class="dse-candidate-lead">三种包按使用场景拆分。GitHub 入口说明用途，正式下载仍以 Releases 中实际存在的文件和 SHA-256 sidecar 为准。</p>
-      </div>
-      <dl class="dse-candidate-summary">
-        <div>
-          <dt>简易便携包</dt>
-          <dd>不安装 Codex、DSH 或 SkillDock。直接运行本地只读采集、CSV、图表和报告工具。</dd>
-        </div>
-        <div>
-          <dt>DSH core-only</dt>
-          <dd>面向 DeepSeek Harness，提供 PCHW Skill 的聊天、采集和 CSV 分析；不提供 SkillDock 面板。</dd>
-        </div>
-        <div>
-          <dt>Codex + SkillDock</dt>
-          <dd>面向 Codex Desktop 当前用户对话，包含 PCHW Skill、SkillDock Runtime 和单一安装入口。</dd>
-        </div>
-      </dl>
-    </section>
-
-    <section class="dse-candidate" aria-labelledby="dse-skilldock-guide-title">
-      <div class="dse-candidate-intro">
-        <p class="dse-candidate-state">界面怎么用</p>
-        <h2 id="dse-skilldock-guide-title">从对话打开 SkillDock 面板</h2>
-        <p class="dse-candidate-lead">在 Codex 当前对话中描述硬件问题，例如“这份 HWiNFO CSV 显示游戏二十分钟后掉帧，请打开图形化分析”。同意后只需上传或选择 CSV，并完成一次明确的本地分析授权。</p>
-      </div>
-      <dl class="dse-candidate-summary">
-        <div>
-          <dt>提出问题和附件</dt>
-          <dd>当前 Codex 对话中的问题、Task 和可用附件会被带入面板。</dd>
-        </div>
-        <div>
-          <dt>同意打开</dt>
-          <dd>面板由 Skill 启动；普通用户不需要寻找 runner、端口或环境变量。</dd>
-        </div>
-        <div>
-          <dt>仅本次允许</dt>
-          <dd>首次本地分析只请求一次只读权限；拒绝后仍然可以继续普通对话。</dd>
-        </div>
-        <div>
-          <dt>查看结果并回聊天</dt>
-          <dd>页面显示真实 SVG、具体判断、支持与冲突证据、不确定性和低风险建议；结果返回后自动更新，不需要按 F5，复制后回到当前对话继续。</dd>
-        </div>
-        <div>
-          <dt>手动打开回退</dt>
-          <dd>Ask-for-approval 下自动交接失败时，使用“手动打开面板”的短期链接或本地 .url 快捷方式继续。</dd>
-        </div>
-        <div>
-          <dt>同 Task 重启恢复</dt>
-          <dd>关闭并重启后，同一 Task、图表和结论仍可恢复，不创建第二个 Thread。</dd>
-        </div>
-        <div>
-          <dt>宿主范围</dt>
-          <dd>本版只有 Codex 当前对话承诺该面板。DSH 和其他宿主可使用 PCHW 的聊天、采集和 CSV 分析，但没有这个面板。</dd>
-        </div>
-      </dl>
-    </section>
-
     <section class="dse-howto dse-home-flow" id="dse-home-flow"
       aria-labelledby="dse-how-title">
       <div class="dse-section-intro">
@@ -8774,21 +8714,25 @@
     <section class="dse-candidate" aria-labelledby="dse-candidate-title">
       <div class="dse-candidate-intro">
         <p class="dse-candidate-state">当前测试版</p>
-        <h2 id="dse-candidate-title">可以使用 尚未正式稳定</h2>
-        <p class="dse-candidate-lead">自动测试和定向审阅已通过，真实设备覆盖、干净 Windows 安装卸载和完整用户签收仍在继续。页面只演示判断与计划，最终操作由你确认。</p>
+        <h2 id="dse-candidate-title">选择适合你的使用方式</h2>
+        <p class="dse-candidate-lead">按使用场景选择一个包。电脑硬件工作台只在 Codex 当前对话中提供 SkillDock 面板。</p>
       </div>
       <dl class="dse-candidate-summary">
         <div>
-          <dt>版本状态</dt>
-          <dd>当前测试版尚未正式发布；GitHub main 可能领先于最近一个公开 Release。</dd>
+          <dt>简易便携包</dt>
+          <dd>无需 Codex 或 DSH，直接使用本地只读采集、CSV、图表和报告。</dd>
         </div>
         <div>
-          <dt>读取方式</dt>
-          <dd>只在你明确允许时读取本地信息，不会自动修改硬件。</dd>
+          <dt>DSH core-only</dt>
+          <dd>用于 DeepSeek Harness 的聊天、采集和 CSV 分析，没有 SkillDock 面板。</dd>
         </div>
         <div>
-          <dt>当前限制</dt>
-          <dd>真实设备覆盖、干净 Windows 安装卸载和完整用户签收仍在补充。</dd>
+          <dt>Codex + SkillDock</dt>
+          <dd>使用 Install.cmd 安装；当前对话带入 Task 与附件，选择“仅本次允许”后显示图表和判断。</dd>
+        </div>
+        <div>
+          <dt>回退与状态</dt>
+          <dd>自动打开失败时使用手动链接或 .url；结果自动更新，同一 Task 可恢复。当前仍为测试版且尚未正式发布。</dd>
         </div>
       </dl>
     </section>

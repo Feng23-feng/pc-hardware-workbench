@@ -6,7 +6,7 @@
 - 将分发入口明确为三种互斥类型：简易便携包、DSH core-only 包、Codex + SkillDock 集成包；
 - Codex 集成包使用普通用户入口 `Install.cmd` 自动判断全新安装或备份升级；不再要求用户选择 clean/upgrade 模式；
 - 更新 GitHub 中文/英文入口和安装、使用、排障文档，说明 SkillDock 面板只在 Codex 当前对话中承诺；
-- 补充 Ask-for-approval 下的“手动打开面板”链接或 `.url` 回退、一次性“仅本次允许”、自动更新无需 F5、同 Task 重启和卸载流程；
+- 补充 Ask-for-approval 下的“手动打开面板”链接或 `.url` 回退、一次性“仅本次允许”、结果自动更新、同 Task 重启和卸载流程；
 - 2.8.0 继续标记为测试版且尚未正式发布；干净 Windows 安装/卸载与用户签收仍为发布阻塞；
 - 新增 freshness/claim 与只读 `source-external` 运行边界，面板不得创建额外 Thread、后台写入或恢复流程；
 - SkillDock 的 launch/sync/wait/submit 统一使用当前 `launch-result.json` 与 `/api/health` 的 `runtime_binding`，集中解析 `runtime-pchw` 并兼容旧 `runtime-dsh-web`；陈旧 `server-info.json` 不再使健康的新 Runtime 假失败；

@@ -270,6 +270,7 @@ if ($errors.Count -eq 0) {
         'id="dse-advanced-summary"',
         'aria-controls="dse-advanced-content"',
         'data-demo-mode="terms"',
+        'data-demo-mode="skilldock"',
         'data-demo-mode="tune"',
         'data-demo-mode="triage"',
         'data-demo-mode="record"',
@@ -316,11 +317,11 @@ if ($errors.Count -eq 0) {
     $demoModeButtons = [regex]::Matches($interactiveHtml, '<button[^>]*class="dse-filter"[^>]*data-demo-mode="([^"]+)"')
     $demoModeNames = @($demoModeButtons | ForEach-Object { $_.Groups[1].Value })
     if (
-        $demoModeButtons.Count -ne 4 -or
-        @($demoModeNames | Sort-Object -Unique).Count -ne 4 -or
+        $demoModeButtons.Count -ne 5 -or
+        @($demoModeNames | Sort-Object -Unique).Count -ne 5 -or
         @($demoModeNames | Where-Object { $_ -match '^(identity|evidence)$' }).Count -gt 0
     ) {
-        $errors.Add("Interactive page must expose exactly four consolidated demo themes.") | Out-Null
+        $errors.Add("Interactive page must expose exactly five consolidated demo themes.") | Out-Null
     }
     if ($interactiveHtml -match 'class="dse-guided-reason"[^>]*\sopen(?:\s|>)') {
         $errors.Add("Interactive evidence reasoning must be collapsed by default.") | Out-Null

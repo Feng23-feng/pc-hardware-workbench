@@ -89,7 +89,7 @@ low-risk actions.
 
 If Codex Ask-for-approval mode prevents automatic opening, use the short-lived
 “Open the panel manually” link or local `.url` shortcut shown by the Skill. The page
-updates when the result returns; do not press F5. Closing and reopening SkillDock
+updates automatically when the result returns. Closing and reopening SkillDock
 should restore the same Task, attachments, chart, and conclusion without creating a
 second Thread.
 
