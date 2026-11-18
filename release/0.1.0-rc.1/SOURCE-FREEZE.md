@@ -53,7 +53,7 @@ candidate. The outer ZIP sidecar is the authoritative transfer hash.
 
 ```text
 current authoritative source version: 2.8.0
-current candidate tree SHA-256:       e8da9db938fc6c3e9846a499b4d6664c0f30457b754dcf101cec175159f48fae
+current candidate tree SHA-256:       9cc295baa4892d4bebbfcac42d1ed39cb3434ff9e33b31cf631402fbac2c524d
 current source file count:            135
 R7 evidence source version:           2.7.4
 R7 source tree SHA-256:               f6eab543414ef6b208706b4367b7adb152db3bd5c5288390a0f30a5189a95eb1
