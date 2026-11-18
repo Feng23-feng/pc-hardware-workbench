@@ -7,10 +7,11 @@ DeepSeek Harness. It brings system inventory, troubleshooting, telemetry analysi
 guided tuning, and upgrade decisions into one workflow while leaving every
 persistent hardware change to the user.
 
-The current release line is a **2.7.4 test build**. Automated tests and a targeted
-three-scenario human review pass, but broad real-device coverage, human review of
-the remaining scenarios, and broad stability validation are still in progress. The
-project does not claim this test build is stable or fully validated.
+The current release line is a **2.8.0 test build** and has not been formally
+released. Automated tests and targeted human review pass, but broad real-device
+coverage, clean-Windows install/uninstall, and the remaining human scenarios are
+still in progress. The project does not claim this test build is stable or fully
+validated.
 
 ![File orrery preview](docs/skill-evolution/assets/orrery-preview.png)
 
@@ -23,11 +24,13 @@ The interactive project pages are currently available in Chinese:
 
 - [What it does](#what-it-does)
 - [Quick start](#quick-start)
+- [Open the SkillDock panel](#open-the-skilldock-panel)
 - [Example prompts](#example-prompts)
 - [Safety model](#safety-model)
+- [Support matrix](#support-matrix)
+- [Known limitations](#known-limitations)
 - [Documentation](#documentation)
 - [FAQ](#faq)
-- [Development and testing](#development-and-testing)
 - [Version and license](#version-and-license)
 
 ## What it does
@@ -64,119 +67,114 @@ The interactive project pages are currently available in Chinese:
 - **Remains read-only.** It does not modify BIOS, clocks, voltage, power limits, fans,
   memory timings, or firmware automatically.
 
-## Quick start
+## Three download packages
 
-### Install for Codex
+[Download the current pre-release assets](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1),
+then choose exactly one package. Do not place multiple copies of the same Skill
+in one host's scan directory.
 
-The installer copies only the Skill tree. It does not run the hardware collector or
-request administrator privileges.
+| Package | Choose it when | Includes | SkillDock panel |
+| --- | --- | --- | --- |
+| PCHW Skill-only | You already have Codex, DSH, or another compatible Agent host | PCHW Skill 2.8.0 release subset only | No |
+| SkillDock Runtime-only | A compatible PCHW Skill is installed and only the Runtime and Node are missing | SkillDock Runtime + Node.js 24.22.1 | Current Codex conversation only |
+| Codex + SkillDock integrated | Most Codex Desktop users | PCHW Skill, SkillDock Runtime, one installer | Current Codex conversation only |
 
-```powershell
-$installer = Join-Path $env:TEMP "install-pc-hardware-workbench.ps1"
-curl.exe -fsSL "https://raw.githubusercontent.com/Feng23-feng/pc-hardware-workbench/main/tools/install-skill.ps1" -o $installer
-powershell -NoProfile -ExecutionPolicy Bypass -File $installer
-```
-
-Restart Codex, then invoke:
-
-```text
-$pc-hardware-workbench
-```
-
-The default installation path is:
+Current GitHub pre-release assets:
 
 ```text
-%USERPROFILE%\.codex\skills\pc-hardware-workbench
+PCHW-Skill-2.8.0-rc.1.zip
+SkillDock-Runtime-0.1.0-rc.1-win-x64.zip
+SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip
+SHA256SUMS.txt
 ```
 
-To upgrade, rerun the installer with `-Force`:
+This is a public pre-release. Clean-Windows installation, uninstallation, and
+final signoff remain PENDING. Most Codex Desktop users should choose the
+integrated package; do not mix multiple Skills or old Runtime directories.
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File $installer -Force
-```
+### Codex + SkillDock
 
-The previous version is moved outside the Codex Skill scan path:
+1. Download the Codex integrated package and verify its `.sha256` sidecar.
+2. Extract it and double-click `Install.cmd`.
+3. If an older PCHW Skill exists, the installer backs it up and upgrades it; do
+   not delete the old Skill first.
+4. Open the current Codex conversation after installation.
+5. Describe the hardware problem and explicitly accept the graphical workspace.
 
-```text
-%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\
-```
+Do not look for a runner, port, token, environment variable, or manually start
+`SkillDock.exe`. The installer places both the PCHW Skill and SkillDock Runtime
+from the same verified package.
 
-This prevents an old backup from being discovered as a second Skill with the same
-name. The installer also migrates older `.backup-*` directories found inside the
-Skill scan root.
+### PCHW Skill-only
 
-### Install from a release ZIP
-
-Open [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
-and choose one of these Codex packages:
-
-- `pc-hardware-workbench-v<version>-installer.zip`: extract it and run
-  `Install-PC-Hardware-Workbench.cmd`.
-- `pc-hardware-workbench-v<version>-manual.zip`: extract it and place the included
-  `pc-hardware-workbench/` folder at
-  `%USERPROFILE%\.codex\skills\pc-hardware-workbench`.
-
-Before a manual upgrade, move an existing installation to a timestamped directory
-under `%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\`. The manual ZIP does
-not perform a backup automatically.
-
-The installer ZIP also includes `README.en.md` and the English installation and
-privacy guides.
-
-Do not place the ZIP itself inside the Skill directory.
-
-### Let an AI install it
-
-```text
-Install the PC Hardware Workbench Skill from:
-https://github.com/Feng23-feng/pc-hardware-workbench
-
-Copy only skill\pc-hardware-workbench to:
-%USERPROFILE%\.codex\skills\pc-hardware-workbench
-
-If the destination already exists, move it to a timestamped directory under:
-%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\
-
-Do not leave an older copy inside .codex\skills. Verify that SKILL.md, scripts, and
-references are present. Do not run the hardware collector, request administrator
-privileges, or modify BIOS, drivers, or system settings.
-```
-
-See [Installation and upgrade](docs/en/installation.md) for full instructions.
-
-### DeepSeek Harness
-
-The default Harness Skill path is:
+The Skill-only package contains the PCHW Skill and no SkillDock application,
+Node.js, test runner, or DSH observer. Put `pc-hardware-workbench` in the target
+Agent's Skill directory. The default DSH location is:
 
 ```text
 %USERPROFILE%\.dsh\skills\pc-hardware-workbench
 ```
 
-Invoke it with:
+Then invoke:
 
 ```text
 /pc-hardware-workbench
 ```
 
-See the [DeepSeek Harness adapter](adapters/dsh/README.md) for adapter details.
+See [Installation and upgrade](docs/en/installation.md#pchw-skill-only) for details.
 
-### Portable Windows tools
+### SkillDock Runtime-only
 
-The portable bundle can be used without a Skill host:
-
-```powershell
-cd portable
-.\开始使用.cmd
-```
-
-The interactive Portable UI is currently Chinese-only. In the menu, select either the
-standard or privacy-redacted mode and enter `y` to authorize the read-only collection.
-For a direct live self-test command, use:
+Use this package only when a compatible PCHW Skill is already installed and the
+SkillDock application plus Node.js are missing. Extract it and run:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass `
-  -File .\start.ps1 -SelfTest -AllowLiveCollector -CollectorPrivacyMode Redacted
+powershell -NoProfile -ExecutionPolicy Bypass -File ".\Install SkillDock Runtime.ps1"
 ```
+
+After installation, open the panel from the current Codex conversation. Do not
+launch `SkillDock.exe` manually for the normal user path.
+
+The portable tools perform only user-approved local read-only collection and
+generate charts or reports when needed.
+
+## Open the SkillDock panel
+
+After the PCHW Skill and SkillDock Runtime are installed, describe the problem and
+your evidence in the current Codex conversation:
+
+```text
+The game starts stuttering after about twenty minutes. Here is the HWiNFO CSV.
+Can you open the graphical analysis?
+```
+
+After you agree, the Skill opens the local panel with the current question, Task,
+and supported attachment context. The first analysis asks for an explicit
+one-time permission. The result includes a real SVG chart, a concrete judgement,
+supporting and conflicting evidence, uncertainty, and two or three low-risk
+actions. The page updates automatically when the result returns. Copy the
+result back to the current Codex conversation. The same Task, chart, and
+conclusion remain available after SkillDock is closed and restarted.
+
+After the same attachment has completed one successful local analysis, a repeat
+analysis may offer “同一附件后续分析” (repeat analysis for this attachment). It
+still covers only that CSV in the current Task and lasts for two hours. A
+different attachment requires a new one-time decision.
+
+If Codex Ask-for-approval mode prevents automatic opening, use the short-lived
+manual link or local `.url` shortcut shown by the Skill. If the default runtime
+directory is not writable, the panel cannot start, or another workspace is
+active, continue in the current conversation without creating a second Thread.
+
+This release promises the `pchw-source-hosted` SkillDock panel only for the
+current Codex conversation. DSH and other hosts may use the PCHW Skill for
+chat, collection, and CSV analysis, but they are not promised this panel. If
+permission is denied, the panel cannot start, or another workspace is active,
+continue in chat; losing the panel must not break the conversation.
+
+The panel performs only user-approved read-only analysis and Task artifact
+writes. It never changes BIOS, firmware, drivers, clocks, voltages, power
+limits, fans, or memory timings automatically.
 
 ## Example prompts
 
@@ -227,6 +225,26 @@ Hardware parameters are test starting points, not guarantees. Safety takes prior
 
 Read [Privacy and safety boundaries](docs/en/privacy-and-safety.md) for the full policy.
 
+## Support matrix
+
+| Host | Configuration, troubleshooting, chat, CSV | SkillDock panel |
+| --- | --- | --- |
+| Current Codex conversation | Supported | Supported |
+| DeepSeek Harness | Supported | Not provided |
+| Other Agent hosts | Use according to the host's file access | Not promised |
+
+## Known limitations
+
+- `2.8.0` remains a test build and has not been formally released;
+- clean-Windows install/uninstall, real-device coverage, and complete user signoff
+  are still in progress;
+- the SkillDock panel is promised only for the current Codex conversation;
+- Ask-for-approval mode may require the “Open the panel manually” link or `.url`
+  shortcut;
+- DSH and other hosts do not receive this SkillDock panel;
+- background autonomous analysis, automatic recovery, and automatic hardware
+  changes are not provided.
+
 ## Documentation
 
 - [English installation and upgrade](docs/en/installation.md)
@@ -235,7 +253,6 @@ Read [Privacy and safety boundaries](docs/en/privacy-and-safety.md) for the full
 - [Chinese usage guide](docs/usage.md)
 - [Chinese architecture](docs/architecture.md)
 - [Chinese troubleshooting](docs/troubleshooting.md)
-- [Chinese testing and release checks](docs/testing.md)
 - [Changelog](CHANGELOG.md)
 - [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
 - [Contributing](CONTRIBUTING.md)
@@ -258,29 +275,12 @@ Chinese. The contributing and security policies are available in English.
 - **GPU tuning is blocked.** Provide the exact GPU, current control values, baseline,
   fixed workload, recovery path, and stop conditions.
 
-## Development and testing
-
-The repository contains the Skill, a DeepSeek Harness adapter, portable Windows tools,
-automated tests, release packaging, and the project website.
-
-The commands below require a source checkout. They are not needed to use an installed
-or portable release package.
-
-Run the structural validator:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass `
-  -File .\tools\validate-skill.ps1
-```
-
-See [Testing and release checks](docs/testing.md) for the full suite and package
-verification workflow.
-
 ## Version and license
 
 Use [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
 and [CHANGELOG.md](CHANGELOG.md) as the source of version status. The current release
-line is a `2.7.4` test build.
+line is a `2.8.0` test build and has not been formally released. GitHub main may be
+ahead of the latest public Release.
 
 Source code is available under the [MIT License](LICENSE).
 

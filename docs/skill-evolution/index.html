@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <meta name="description" content="PC Hardware Workbench 2.7.4: read-only hardware evidence and practical next-step guidance.">
+  <meta name="description" content="PC Hardware Workbench 2.8.0: read-only hardware evidence and practical next-step guidance.">
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="./crt-backdrop.css">
 
@@ -8568,7 +8568,7 @@
         <nav class="dse-hero-actions" aria-label="主要入口">
           <a class="dse-hero-action primary" href="#dse-home-flow">开始自查</a>
         </nav>
-        <p class="dse-hero-safety dse-home-status-line">测试版 · 只读 · 变更由你手动应用；判断与测试计划不会自动修改硬件。</p>
+        <p class="dse-hero-safety dse-home-status-line">测试版 · 尚未正式发布 · 只读 · 变更由你手动应用；判断与测试计划不会自动修改硬件。</p>
       </div>
     </header>
 
@@ -8704,14 +8704,14 @@
     </nav>
 
     <nav class="dse-explore dse-explore-primary" aria-label="文件星球">
-      <a href="orrery/" aria-label="进入文件星球，查看 115 个文件如何组成一个 Skill">
+      <a href="orrery/" aria-label="进入文件星球，查看 135 个文件如何组成一个 Skill">
         <span class="dse-explore-copy">
           <span class="dse-explore-kicker">文件星球</span>
-          <strong class="dse-explore-title">看清 115 个文件如何组成一个 Skill</strong>
+          <strong class="dse-explore-title">看清 135 个文件如何组成一个 Skill</strong>
           <small class="dse-explore-description">按职责分区、轨道和关联，查看规则、脚本和测试如何协同。</small>
           <span class="dse-explore-bottom">
             <span class="dse-file-map" aria-hidden="true">
-              <span>115 个文件</span>
+              <span>135 个文件</span>
               <span>7 个职责分区</span>
             </span>
             <span class="dse-explore-cta">进入文件星球 <span aria-hidden="true">→</span></span>
@@ -8727,21 +8727,25 @@
     <section class="dse-candidate" aria-labelledby="dse-candidate-title">
       <div class="dse-candidate-intro">
         <p class="dse-candidate-state">当前测试版</p>
-        <h2 id="dse-candidate-title">可以使用 尚未正式稳定</h2>
-        <p class="dse-candidate-lead">自动测试已通过，真实设备覆盖和人工体验仍在补充。页面只提供判断与测试计划，最终操作由你确认。</p>
+        <h2 id="dse-candidate-title">选择适合你的使用方式</h2>
+        <p class="dse-candidate-lead">按使用场景选择一个包。<a href="https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1">下载当前预发布资产</a>。电脑硬件工作台只在 Codex 当前对话中提供 SkillDock 面板。</p>
       </div>
       <dl class="dse-candidate-summary">
         <div>
-          <dt>版本状态</dt>
-          <dd>当前测试分支；GitHub main 保留最近一次已推送版本。</dd>
+          <dt>PCHW Skill-only</dt>
+          <dd>已有兼容 Agent 宿主时，只安装 PCHW Skill 发布子集，不含 SkillDock。</dd>
         </div>
         <div>
-          <dt>读取方式</dt>
-          <dd>只在你明确允许时读取本地信息，不会自动修改硬件。</dd>
+          <dt>SkillDock Runtime-only</dt>
+          <dd>已安装兼容 PCHW Skill 时，只补 SkillDock 应用和 Node.js。</dd>
         </div>
         <div>
-          <dt>当前限制</dt>
-          <dd>自动测试已通过，真实设备覆盖和人工体验验收仍在补充。</dd>
+          <dt>Codex + SkillDock</dt>
+          <dd>使用 Install.cmd 安装；当前对话带入 Task 与附件，选择“仅本次允许”后显示图表和判断。</dd>
+        </div>
+        <div>
+          <dt>回退与状态</dt>
+          <dd>自动打开失败时使用手动链接或 .url；结果自动更新，同一 Task 可恢复。当前仍为测试版且尚未正式发布。</dd>
         </div>
       </dl>
     </section>
@@ -8865,7 +8869,7 @@
           </span>
           <span class="dse-orientation-link-copy">
             <strong>查看文件星球</strong>
-            <small>当前 115 个 Skill 文件如何组成 7 个职责分区与可交互轨道</small>
+            <small>当前 135 个 Skill 文件如何组成 7 个职责分区与可交互轨道</small>
           </span>
         </a>
       </nav>
@@ -9900,7 +9904,8 @@
             ["2.7.1", "Gantt done 状态与语义修正", "2026-11-14", "PREVIOUS LOCAL", ["Gantt 新增独立 done 状态：表示执行结束但未表达通过或失败结论；pass 与 fail 继续只表示结果判定。", "complete、completed、finished 只归一化为 done，不再错误映射为 pass。", "done 使用独立蓝灰色，任务无障碍标题包含规范化状态，避免只靠颜色区分。", "非法状态提示列出全部允许值，并新增 done/pass 差异、别名、大小写、planned 配色回退和非法状态测试。", "证据管线自动产出甘特、计划图嵌入 evidence card、裸 -Phase 覆盖声明和计划/实测关联继续推迟到后续独立设计。"], "Telemetry chart regression、Gantt status contract、完整非实时回归和 skill validator 通过；人工行为签署仍为 PENDING。", "2.7.2 之前的测试版 test.1；工作台 2.7.1，文件星球 114 个文件；111 个版本记录。"],
             ["2.7.2", "Live smoke 适配器语义与动态状态提示", "2026-11-14", "PREVIOUS LOCAL", ["live collector smoke 不再把标准模式本来没有 AdapterName 的 CIM/WMI 身份行误判为脱敏丢失。", "所有显示器继续保留 Redacted.AdapterName -ceq Standard.AdapterName 差分判据；只有标准模式确有适配器名时才检查 [redacted] 和 GPU 匹配。", "无适配器链接的显示器数量改为非失败提示，并新增空值、保留、清空和 [redacted] 四种合成回归。", "Gantt accepted-values 清单改为由 allowedStatuses 动态生成，移除 done 后提示不再把它列为可接受值。", "采集器输出、隐私规则和 done 状态语义保持不变。"], "Collector static/live smoke、Gantt regression、完整非实时回归和 skill validator 通过；多显示器真实环境由 Harness 复核。", "2.7.3 之前的测试版 test.1；工作台 2.7.2，文件星球 114 个文件；112 个版本记录。"],
             ["2.7.3", "失败消息前缀去重", "2026-11-14", "PREVIOUS LOCAL", ["monitor adapter helper 不再重复返回 Redacted monitor 主语，只保留 changed monitor adapter name 等谓语消息。", "定位前缀 Redacted monitor N 统一由 live smoke 调用方添加，语义和退出码保持不变。", "新增回归禁止 helper 消息再次包含 Redacted monitor 前缀。", "该版仅修改失败路径文案，不修改采集器、隐私规则、硬件逻辑或 Gantt 状态。"], "Collector static/live smoke、monitor adapter 合成回归、完整非实时回归和 skill validator 通过；人工行为签署仍为 PENDING。", "2.7.4 之前的测试版 test.1；工作台 2.7.3，文件星球 114 个文件；113 个版本记录。"],
-            ["2.7.4", "入口路由分层与预算回收", "2026-11-14", "CURRENT CANDIDATE", ["Entry 从 10,562 B 降至 8,744 B，Quick 初始加载从 19,571 B 降至 17,753 B。", "五个顶层路线只打开各自主 reference；采集、实验、GPU、VRAM、LHM、PresentMon 和购买决策细节由主 reference 按条件继续路由。", "物理安全、调校入口门禁、参数提示、证据强度、隐私和不自动修改硬件等边界继续常驻入口。", "交互契约测试改为验证一跳路由，同时检查二级 reference 的可达性；未改变采集器、评测脚本或硬件行为。"], "Interaction contract、完整非实时与 live Both 回归、Skill validator、portable sync 和站点运行时检查通过；用户对三项定向场景的人工审阅 3/3 通过，并批准发布测试候选版。", "当前测试版 test.1；工作台 2.7.4，文件星球 115 个文件；114 个版本记录。"]
+            ["2.7.4", "入口路由分层与预算回收", "2026-11-14", "PREVIOUS LOCAL", ["Entry 从 10,562 B 降至 8,744 B，Quick 初始加载从 19,571 B 降至 17,753 B。", "五个顶层路线只打开各自主 reference；采集、实验、GPU、VRAM、LHM、PresentMon 和购买决策细节由主 reference 按条件继续路由。", "物理安全、调校入口门禁、参数提示、证据强度、隐私和不自动修改硬件等边界继续常驻入口。", "交互契约测试改为验证一跳路由，同时检查二级 reference 的可达性；未改变采集器、评测脚本或硬件行为。"], "Interaction contract、完整非实时与 live Both 回归、Skill validator、portable sync 和站点运行时检查通过；用户对三项定向场景的人工审阅 3/3 通过，并批准发布测试候选版。", "2.8.0 之前的测试版 test.1；工作台 2.7.4，文件星球 115 个文件；114 个版本记录。"],
+            ["2.8.0", "Codex 当前对话 SkillDock 入口", "2026-11-17", "CURRENT CANDIDATE", ["用户在当前 Codex 对话中提出硬件问题并同意后，Skill 启动本地 SkillDock 面板并带入当前 Task 与支持的附件。", "一次性本地分析授权产生真实 SVG、具体判断、证据与不确定性；结果自动回写，关闭并重启后可在同 Task 恢复。", "Ask-for-approval 下自动交接失败时提供“手动打开面板”的短期链接或本地 .url；DSH 与其他宿主不提供该面板。"], "R7 真实 Edge、一次性权限、fresh claim、单次写回和同 Task 重启 PASS；三个预发布资产已上传；clean-Windows 人工签收仍 PENDING。", "当前 2.8.0 预发布；PCHW Skill-only、SkillDock Runtime-only、Codex + SkillDock 集成包分开提供；文件星球 135 个文件；115 个版本记录。"]
           ]
         },
         {
@@ -10944,7 +10949,7 @@
         },
         {
           id: "core-gpu-integration", track: "core", code: "WB-09", title: "GPU 自动候选整合",
-          summary: "2.7.4 测试版 · 入口路由分层 · 预算回收",
+          summary: "2.8.0 测试版 · 入口路由分层 · 预算回收",
           status: "done", state: "已整合",
           goal: "把经过分类防火墙和证据门禁验证的 GPU 自动候选并入正式安全调参路线，不再维护独立产品线。",
           action: "用户只提出一个目标，Skill 在条件齐全后生成一张手动应用的单变量实验卡；失败时回到已验证的稳定配置。",
@@ -11112,7 +11117,7 @@
 
       function userFacingReleaseState(state) {
         return {
-          "CURRENT CANDIDATE": "2.7.4 测试版",
+          "CURRENT CANDIDATE": "2.8.0 测试版",
           "PREVIOUS LOCAL": "历史测试版",
           RELEASED: "已发布"
         }[state] || state;

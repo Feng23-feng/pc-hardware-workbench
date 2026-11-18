@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.0",
+  "skill": {
+    "id": "pc-hardware-workbench",
+    "name": "PC Hardware Workbench",
+    "version": "2.8.0",
+    "root": "."
+  },
+  "runtime": {
+    "id": "pc-hardware-workbench",
+    "entry": "./runtime.mjs"
+  },
+  "ui": {
+    "state_schema_version": "1.2",
+    "state_schema_path": "./schemas/ui-state.schema.json",
+    "event_schema_version": "1.0",
+    "event_schema_path": "./schemas/events.schema.json"
+  },
+  "artifacts": {
+    "namespace": "telemetry",
+    "allowed_kinds": [
+      "chart",
+      "table",
+      "report"
+    ]
+  },
+  "domain": {
+    "capabilities": [
+      {
+        "id": "telemetry.csv.analyze",
+        "kind": "broker",
+        "implementation": "telemetry-broker",
+        "permissions": [
+          "local_file_read",
+          "artifact_write"
+        ],
+        "ui": {
+          "label": "分析这份数据",
+          "description": "在本机只读解析已提交的遥测 CSV，并生成验证过的图表。",
+          "attachment_extensions": [
+            ".csv"
+          ]
+        }
+      }
+    ]
+  },
+  "permissions": {
+    "default_profile": {
+      "profile": "read-only-supervised",
+      "network": "disabled",
+      "general_command": "unavailable",
+      "system_write": "manual-only"
+    },
+    "required": [
+      {
+        "capability": "telemetry.csv.analyze",
+        "scope": "action",
+        "reason": "读取一个已提交的本地 CSV，并向当前 Task 的 artifact 目录写入图表。"
+      }
+    ]
+  },
+  "components": {
+    "block_types": [
+      "markdown",
+      "metrics",
+      "chart",
+      "table",
+      "callout",
+      "artifact-download"
+    ]
+  },
+  "resume_handoff": {
+    "required": true,
+    "format": "markdown",
+    "includes": [
+      "task",
+      "session_ref",
+      "domain_context",
+      "domain_refs",
+      "judgement",
+      "uncertainty",
+      "priority_action",
+      "artifact_refs"
+    ]
+  },
+  "adapter_requirements": {
+    "required_capabilities": [
+      "text_input",
+      "session_resume"
+    ],
+    "optional_capabilities": [
+      "structured_output",
+      "cancellation"
+    ]
+  }
+}

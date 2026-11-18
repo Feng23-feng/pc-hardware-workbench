@@ -4,213 +4,203 @@
 
 ## Requirements
 
-- Windows 10 or Windows 11.
+- Windows 10 or Windows 11 x64.
 - Windows PowerShell 5.1 or PowerShell 7 for automated collection.
-- Other operating systems receive manual troubleshooting guidance only; the Skill
-  does not read hardware automatically there.
-- Optional monitoring requires an already-running LibreHardwareMonitor instance. This
-  project does not install or start it.
+- Other operating systems receive manual troubleshooting guidance only.
+- Optional monitoring requires an already-running LibreHardwareMonitor instance.
+  This project does not install or start it.
 
-## Codex one-command installation
+The current `2.8.0` build is a test build and has not been formally released.
+Clean-Windows installation, uninstallation, and complete user signoff remain release
+blockers.
 
-The installer downloads the `main` branch archive and copies only
-`skill/pc-hardware-workbench` into the Codex Skill directory. It does not run the
-hardware collector.
+## Choose one distribution
 
-1. Open a normal PowerShell window.
-2. Download and run the installer.
-3. Restart Codex.
-4. Invoke `$pc-hardware-workbench` to verify that the Skill is available.
+| Package | Use it when | Includes | Panel |
+| --- | --- | --- | --- |
+| PCHW Skill-only | Codex, DSH, or another compatible Agent host is already available | PCHW Skill release subset only | No |
+| SkillDock Runtime-only | A compatible PCHW Skill is installed and only the application and Node are missing | SkillDock Runtime, Node.js 24.22.1 | Current Codex conversation only |
+| Codex + SkillDock integrated | Most Codex Desktop users | PCHW Skill, SkillDock Runtime, one installer | Current Codex conversation only |
 
-```powershell
-$installer = Join-Path $env:TEMP "install-pc-hardware-workbench.ps1"
-curl.exe -fsSL "https://raw.githubusercontent.com/Feng23-feng/pc-hardware-workbench/main/tools/install-skill.ps1" -o $installer
-powershell -NoProfile -ExecutionPolicy Bypass -File $installer
+[Download the current GitHub pre-release assets](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1):
+
+```text
+PCHW-Skill-2.8.0-rc.1.zip
+SkillDock-Runtime-0.1.0-rc.1-win-x64.zip
+SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip
+SHA256SUMS.txt
 ```
 
-The default destination is:
+This is a public pre-release. Clean-Windows installation, uninstallation, and
+final signoff remain PENDING. Do not mix old and current Skill, Runtime, or
+package files.
+
+## Codex + SkillDock
+
+### Install
+
+1. Download `SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip`.
+2. Verify it against the `.sha256` sidecar.
+3. Extract the full directory.
+4. Double-click `Install.cmd`.
+5. Wait for completion, then reopen Codex.
+
+The installer automatically chooses the correct path:
+
+- clean installation when no PCHW Skill exists;
+- backup-based upgrade when an older Skill exists;
+- restore of the old Skill if replacement or later Runtime validation fails.
+
+The user does not choose a clean or upgrade mode. The installer does not run the
+hardware collector, request administrator rights, or start `SkillDock.exe`.
+
+### Install locations
 
 ```text
 %USERPROFILE%\.codex\skills\pc-hardware-workbench
+%LOCALAPPDATA%\SkillDock
 ```
 
-To upgrade, add `-Force`:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File $installer -Force
-```
-
-The previous version is moved outside the Codex Skill scan root:
+Existing Skill backups:
 
 ```text
-%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\
+%USERPROFILE%\.codex\skills\.skilldock-backups
 ```
 
-Do not leave an older version under `%USERPROFILE%\.codex\skills`. Codex scans that
-tree for `SKILL.md`, so an old backup containing the original manifest can be
-discovered as a second Skill with the same name, causing route ambiguity or startup
-warnings.
-
-The current installer also migrates `.backup-*` directories left inside the Skill
-scan root by older installer versions. To choose a custom backup directory, pass
-`-BackupRoot <directory>`. The path must be outside the Skill scan root and must not
-pass through a symbolic link, directory junction, or other reparse point that leads
-back to that root.
-
-## Codex manual installation
-
-When installing from source, copy the complete Skill directory:
+Runtime and migration backups:
 
 ```text
-skill\pc-hardware-workbench
+%LOCALAPPDATA%\SkillDockBackups
 ```
 
-to:
+### Open the panel from the current conversation
+
+Do not search for a runner, port, token, or environment variable. In the current
+Codex conversation, ask a hardware question:
 
 ```text
-%USERPROFILE%\.codex\skills\pc-hardware-workbench
+The game starts stuttering after about twenty minutes. This is the HWiNFO CSV.
+Can you open the graphical analysis for this task?
 ```
 
-If that destination already exists, move it to a timestamped directory under:
+After you agree, the page should carry in the current Task, question, and supported
+attachments. For the first local analysis, choose “仅本次允许” (Allow this time only)
+to view the chart, judgement, supporting and conflicting evidence, uncertainty, and
+low-risk actions.
 
-```text
-%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\
-```
+If Codex Ask-for-approval mode prevents automatic opening, use the short-lived
+“Open the panel manually” link or local `.url` shortcut shown by the Skill. The page
+updates automatically when the result returns. Closing and reopening SkillDock
+should restore the same Task, attachments, chart, and conclusion without creating a
+second Thread.
 
-Do not copy only `SKILL.md`. The entry point depends on the adjacent `scripts/`,
-`references/`, and `assets/` directories.
+## PCHW Skill-only
 
-## Codex release ZIP installation
+The Skill-only package contains no SkillDock Runtime, Node.js, or DSH observer.
+Place `pc-hardware-workbench` in the target Agent's Skill directory.
 
-Each test release provides two Codex assets:
-
-1. Open [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases).
-2. Choose `pc-hardware-workbench-v<version>-installer.zip`, extract it, and run
-   `Install-PC-Hardware-Workbench.cmd`. This package supports automatic installation
-   and upgrade.
-3. Alternatively, choose `pc-hardware-workbench-v<version>-manual.zip`, extract the
-   included `pc-hardware-workbench/` directory, and place it at
-   `%USERPROFILE%\.codex\skills\pc-hardware-workbench`. The manual ZIP does not create
-   a backup automatically, so first move any existing installation under
-   `%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\`.
-4. If the automatic installer finds an old version, it first moves it to
-   `%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\`.
-5. Restart Codex and invoke `$pc-hardware-workbench`.
-
-The installer ZIP includes `安装说明.txt` and `BUILD-INFO.json` so that version,
-commit, and build time can be checked. It also includes `README.en.md` and the English
-installation and privacy guides. The manual ZIP contains only the Skill directory. Do
-not place either ZIP file directly inside the Skill directory. Codex needs the
-extracted `pc-hardware-workbench` folder.
-
-## Let an AI install it
-
-```text
-Install the PC Hardware Workbench Skill from:
-https://github.com/Feng23-feng/pc-hardware-workbench
-
-Before installation, inspect the destination:
-%USERPROFILE%\.codex\skills\pc-hardware-workbench
-
-Copy only skill\pc-hardware-workbench from the repository.
-
-If the destination already exists, do not overwrite it. Move it to a timestamped
-directory under:
-%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\
-
-Do not leave an older copy inside .codex\skills. After installation, verify that
-SKILL.md, scripts, and references are present. Do not run the hardware collector,
-request administrator privileges, or modify BIOS, drivers, or system settings.
-Report the installation path, backup path if any, and the required Codex restart step.
-```
-
-## DeepSeek Harness
-
-See the [DeepSeek Harness adapter](../../adapters/dsh/README.md).
-
-The default Skill path is:
+Default DSH Skill path:
 
 ```text
 %USERPROFILE%\.dsh\skills\pc-hardware-workbench
 ```
 
-When `DSH_HOME` is set, use:
+When `DSH_HOME` is set:
 
 ```text
 %DSH_HOME%\skills\pc-hardware-workbench
 ```
 
-Invoke the Skill with:
+Invoke:
 
 ```text
 /pc-hardware-workbench
 ```
 
-On first load, the Harness adapter can use `AGENTS.md` or `DEEPSEEK.md` as its project
-entry point.
+PCHW can be used for configuration, troubleshooting, chat, collection, and CSV
+analysis. It does not provide the Codex `pchw-source-hosted` SkillDock panel.
+See the [DSH adapter](../../adapters/dsh/README.md) for details.
 
-## Portable Windows tools
+## SkillDock Runtime-only
 
-The standalone version does not require a Skill host. Its interactive interface is
-currently Chinese-only:
-
-```powershell
-cd portable
-.\开始使用.cmd
-```
-
-Run the non-hardware self-test with:
+Use this only when a compatible PCHW Skill is already installed and the
+SkillDock application plus Node.js are missing:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\start.ps1 -SelfTest
+powershell -NoProfile -ExecutionPolicy Bypass -File ".\Install SkillDock Runtime.ps1"
 ```
 
-For interactive collection, choose either the standard or privacy-redacted mode in
-the menu and enter `y` to authorize the read-only operation. The command-line flags
-are required for a direct live self-test:
+After installation, open the panel from the current Codex conversation. Do not
+launch `SkillDock.exe` manually for the normal user path.
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass `
-  -File .\start.ps1 -SelfTest -AllowLiveCollector -CollectorPrivacyMode Redacted
-```
+## Verify installation
 
-## Verify the installation
-
-Check the key paths:
+Codex core Skill:
 
 ```powershell
 $skill = Join-Path $HOME ".codex\skills\pc-hardware-workbench"
 Test-Path (Join-Path $skill "SKILL.md")
 Test-Path (Join-Path $skill "scripts")
 Test-Path (Join-Path $skill "references")
-Get-Content (Join-Path $skill "INSTALL-INFO.json") -Raw
 ```
 
-The first three checks should return `True`. `INSTALL-INFO.json` records the version,
-release label, commit source, and installation time. A manual installation may not
-have this file; use the ZIP filename and the `SKILL.md` version instead. If the Skill
-is still absent from Codex, restart the application before retrying the invocation.
+All three checks should return `True`. If Codex still cannot see the Skill, restart
+Codex.
+
+For Codex + SkillDock, confirm the Runtime pointer:
+
+```powershell
+$pointer = Join-Path $env:LOCALAPPDATA "SkillDock\runtime-location.json"
+Test-Path $pointer
+```
+
+Do not publish ports, tokens, or local absolute paths to an Issue.
 
 ## Upgrade and rollback
 
-- Upgrade by rerunning the installer with `-Force`.
-- The installer moves the old version to
-  `.codex\skill-backups\pc-hardware-workbench\`.
-- To roll back, close Codex, move the current Skill directory elsewhere, and move the
-  selected backup directory back to
-  `.codex\skills\pc-hardware-workbench`.
-- Keep only one active Workbench directory containing `SKILL.md` at a time to avoid
-  duplicate Skill discovery.
-- Do not remove or overwrite an active installation until the rollback backup has been
-  verified.
+### Codex + SkillDock
+
+Run `Install.cmd` from the new package. The installer validates the old Skill, backs
+it up, installs the new Skill, backs up old Runtime directories, and keeps backups
+when a conflict or failure occurs.
+
+### PCHW Skill-only / DSH
+
+Close the host, move the old Skill directory to a backup location, and install
+the new Skill-only package. Do not leave two Skill directories containing
+`SKILL.md` in the same DSH scan root.
 
 ## Uninstall
 
-Close Codex before removing:
+### Codex + SkillDock
+
+Open the installed SkillDock program directory and run its SkillDock uninstall
+script. The default uninstall removes the program and shortcuts while preserving Task
+data and backups. Purge data only when recovery is no longer needed.
+
+### DSH
+
+Close DSH and remove:
 
 ```text
-%USERPROFILE%\.codex\skills\pc-hardware-workbench
+%USERPROFILE%\.dsh\skills\pc-hardware-workbench
 ```
 
-You can move the directory to another backup location before deleting it. Read
-[Privacy and safety boundaries](privacy-and-safety.md) for the data-handling policy.
+## Support matrix
+
+| Host | PCHW chat, collection, CSV | SkillDock panel |
+| --- | --- | --- |
+| Current Codex user conversation | Supported | Supported; only promised panel host |
+| DeepSeek Harness | Supported | Not provided |
+| Other Agent hosts | Use according to host file access | Not promised |
+
+## Known limitations
+
+- `2.8.0` has not been formally released; clean-Windows signoff remains pending.
+- The SkillDock panel is supported only in the current Codex user conversation.
+- If the panel is unavailable, permission is denied, or another workspace is active,
+  continue in chat without exposing a developer entry.
+- Live collection depends on Windows permissions and the host sandbox; do not report
+  permission denial as missing hardware.
+- No automatic changes to BIOS, firmware, drivers, clocks, voltage, power limits,
+  fans, or memory timings.

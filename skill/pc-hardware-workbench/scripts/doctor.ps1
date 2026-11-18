@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [string]$SkillRoot,
 
@@ -133,6 +133,10 @@ if ($null -ne $resolvedRoot) {
         "scripts/render-gantt-chart.ps1",
         "scripts/run-evidence-pipeline.ps1",
         "scripts/analyze-presentmon.ps1",
+        "scripts/skilldock/launch-panel.ps1",
+        "scripts/skilldock/sync-panel.ps1",
+        "scripts/skilldock/wait-panel.ps1",
+        "scripts/skilldock/submit-panel-result.ps1",
         "scripts/verify-hardware-claim.ps1",
         "assets/evidence-card-template.html",
         "references/integration/evidence-package.md",
@@ -153,6 +157,19 @@ if ($null -ne $resolvedRoot) {
         "references/integration/lhm-adapter.md",
         "references/integration/visual-evidence.md"
     )
+    $workbenchManifestPath = Join-Path $resolvedRoot "workbench.manifest.json"
+    if (Test-Path -LiteralPath $workbenchManifestPath -PathType Leaf) {
+        $requiredFiles += @(
+            "runtime.mjs",
+            "capability-grants.mjs",
+            "shared-evidence-store.mjs",
+            "telemetry-broker.mjs",
+            "schemas/workbench-manifest.schema.json",
+            "schemas/ui-state.schema.json",
+            "schemas/events.schema.json",
+            "references/integration/workbench-runtime.md"
+        )
+    }
     $missingFiles = New-Object System.Collections.Generic.List[string]
     foreach ($relativePath in $requiredFiles) {
         $candidate = Join-Path $resolvedRoot $relativePath

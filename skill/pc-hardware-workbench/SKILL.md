@@ -2,7 +2,7 @@
 name: pc-hardware-workbench
 description: Integrate Windows-focused read-only hardware inventory, telemetry charting, evidence-gated troubleshooting, guided overclocking with deterministic GPU starting candidates, and upgrade-purchase decisions through one routed workflow. Other systems receive manual guidance only. Keep tuning-only requests free of unsolicited purchase advice; never modify hardware automatically or bypass permissions or anti-cheat.
 metadata:
-  version: "2.7.4"
+  version: "2.8.0"
   short-description: "One routed entry for hardware inventory, telemetry visuals, triage, deterministic GPU candidates, and purchase decisions"
 ---
 
@@ -20,7 +20,35 @@ one-variable choice, pass/abort criteria, and recovery; end with one next action
 question, cancel, stop, or handoff. Read
 [interaction-closure.md](references/integration/interaction-closure.md) and
 [cross-mode-handoffs.md](references/integration/cross-mode-handoffs.md) only
-when resuming or mixing routes.
+when composing a nontrivial result, resuming, or mixing routes. Read
+[workbench-surface.md](references/integration/workbench-surface.md) only when a
+Task may continue across chat, a workbench panel, or another agent surface, or
+when choosing where to continue.
+Read [skilldock-surface.md](references/integration/skilldock-surface.md) only
+when the host has SkillDock Runtime and a chart, evidence table, artifact, or
+repeated structured interaction would materially improve the Task.
+Treat phrases such as “打开 SkillDock”“打开操作面板”“用 SkillDock 继续”“同步面板”
+or “把面板结果拿回来” as explicit surface intents; handle script names, channel
+IDs, cursors, and context files internally without asking the user to supply them.
+For the source-hosted PCHW profile, use only the current Codex Thread. Do not
+create, fork, attach, or resume another Thread for a launch or recovery; a
+Thread-binding mismatch must fail closed.
+For these intents, run the installed Skill's `launch-panel.ps1` or
+`sync-panel.ps1`; never synthesize a separate Runtime launch command.
+After `sync-panel.ps1`, never show raw JSON or a panel component tree. Reply
+“已同步面板结果”, then give the current judgement, unresolved item, and next action.
+When the synced state contains a verified local tool result, use
+`submit-panel-result.ps1` to write the generated panel conclusion back to the
+same Task. Keep the user on natural-language terms; do not request environment
+variables, test flags, channel IDs, source-session IDs, or private file paths.
+For a PCHW chart Task, prefer running `wait-panel.ps1` immediately after launch
+so the same conversation turn can receive the verified local result
+automatically. Pass the expected Task, attachment, SHA-256, submission sequence,
+and intent event ID; never accept an older `source_tool_result`. Fall back to
+“同步面板” only when that wait times out. If the panel reports
+`phase_not_submittable`, stop upload/submit/analyze actions. For
+`source_agent_pulled`, use only one explicit same-Task recovery that preserves
+the prior cycle as an archive; never create a Task or Thread.
 
 Use a private case for multi-turn, multi-evidence,
 baseline/change/test, or chat-loss-prone work. Create/resume it before large
@@ -166,10 +194,14 @@ stabilize and measure first; evaluate purchase only if the target remains unmet.
 
 ## Response shape
 
-Reply in the user's language and lead with the result or next action. For novices,
-translate terms and hide internal fields. For complex evidence, separate facts,
-measurements, history, and assumptions. Detail requests expand evidence and
-uncertainty without changing safety or asking the user to choose a mode again.
+Reply in the user's language and lead with the current judgement and one priority
+action. Scale length to the task: a concept answer is one or two paragraphs;
+ordinary troubleshooting is two paragraphs plus an action; complex or
+multi-source evidence adds only decision-changing evidence and at most two or
+three recommendations. Never show the internal result envelope or repeat the same
+conclusion as a status, summary, and next step. For novices, translate terms and
+hide internal fields. Detail requests expand evidence and uncertainty without
+changing safety or asking the user to choose a mode again.
 For timed multi-phase plans, add one Gantt from telemetry-analysis.md; skip
 single steps.
 

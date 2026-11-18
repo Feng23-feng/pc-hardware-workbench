@@ -425,7 +425,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       primaryPaths: [...document.querySelectorAll(".dse-explore-primary a")].map(link => link.getAttribute("href")),
       heroVersion: document.getElementById("dse-hero-version")?.textContent.trim() || "",
       visibleVersionCount: (
-        document.getElementById("dse-root")?.innerText.match(/2\.7\.4/g) || []
+        document.getElementById("dse-root")?.innerText.match(/2\.8\.0/g) || []
       ).length,
       technicalClosed: !document.querySelector(".dse-home-technical")?.open,
       technicalSummary: document.querySelector(".dse-home-technical > summary")?.innerText.trim() || "",
@@ -468,7 +468,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
     );
     check(!initial.aboutPresent, `${prefix}removed philosophy section still exists.`);
     check(
-      initial.heroVersion === "2.7.4" &&
+      initial.heroVersion === "2.8.0" &&
       initial.visibleVersionCount === 1,
       `${prefix}homepage should expose the current version exactly once (${JSON.stringify({
         heroVersion: initial.heroVersion,
@@ -527,21 +527,23 @@ async function testHomeViewport(siteUrl, name, width, height) {
       };
     })()`);
     check(
-      filePlanetCard.title.includes("115 个文件") &&
+      filePlanetCard.title.includes("135 个文件") &&
       filePlanetCard.cta.includes("进入文件星球") &&
       filePlanetCard.previewWidth >= 280 &&
       filePlanetCard.previewHeight >= (name === "desktop" ? 300 : 160) &&
       filePlanetCard.imageLoaded &&
       filePlanetCard.canvasCount === 0 &&
-      (name === "desktop"
+      (name === "desktop" || name === "compact-desktop"
         ? filePlanetCard.linkColumns.split(" ").filter(Boolean).length === 2
         : filePlanetCard.previewBeforeCopy),
       `${prefix}file planet entry is not a working two-column/mobile preview card (${JSON.stringify(filePlanetCard)}).`
     );
     const candidateStatus = await evaluate(connection, `(() => {
-      const section = document.querySelector(".dse-candidate");
+      const section = document.querySelector("#dse-candidate-title")?.closest(".dse-candidate");
       const explore = document.querySelector(".dse-explore-primary");
-      const rows = [...document.querySelectorAll(".dse-candidate-summary > div")];
+      const rows = section
+        ? [...section.querySelectorAll(".dse-candidate-summary > div")]
+        : [];
       return {
         state: section?.querySelector(".dse-candidate-state")?.textContent.trim() || "",
         title: section?.querySelector("#dse-candidate-title")?.textContent.trim() || "",
@@ -561,9 +563,9 @@ async function testHomeViewport(siteUrl, name, width, height) {
     })()`);
     check(
       candidateStatus.state === "当前测试版" &&
-      candidateStatus.title === "可以使用 尚未正式稳定" &&
-      candidateStatus.lead.includes("真实设备覆盖") &&
-      candidateStatus.rowLabels.join(",") === "版本状态,读取方式,当前限制" &&
+      candidateStatus.title === "选择适合你的使用方式" &&
+      candidateStatus.lead.includes("按使用场景") &&
+      candidateStatus.rowLabels.join(",") === "PCHW Skill-only,SkillDock Runtime-only,Codex + SkillDock,回退与状态" &&
       candidateStatus.rowCopies.every(copy => copy.length > 0) &&
       candidateStatus.gapAfterFilePlanet >= (name === "desktop" ? 72 : 44) &&
       candidateStatus.belowFilePlanet,
@@ -776,7 +778,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
     })()`, 2500);
     const opened = await evaluate(connection, `(() => ({
       open: Boolean(document.querySelector(".dse-home-technical")?.open),
-      version: document.querySelector(".dse-home-technical")?.innerText.includes("2.7.4") || false,
+      version: document.querySelector(".dse-home-technical")?.innerText.includes("2.8.0") || false,
       versionCodeSize: Number.parseFloat(getComputedStyle(document.querySelector(".dse-version-code")).fontSize),
       versionButtons: document.querySelectorAll(".dse-version").length,
       summaryExpanded: document.getElementById("dse-home-technical-summary")?.getAttribute("aria-expanded") || "",
@@ -787,7 +789,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       opened.open &&
       opened.version &&
       opened.versionCodeSize >= 16 &&
-      opened.versionButtons === 114 &&
+      opened.versionButtons === 115 &&
       opened.summaryExpanded === "true" &&
       opened.actionText.includes("收起技术资料"),
       `${prefix}technical archive does not open correctly (${JSON.stringify(opened)}).`
@@ -845,7 +847,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       !publicMap.prototypeTrack &&
       !publicMap.convergence &&
       publicMap.coreCodes.includes("WB-09") &&
-      publicMap.integrationTitle.includes("2.7.4 测试版") &&
+      publicMap.integrationTitle.includes("2.8.0 测试版") &&
       publicMap.archiveSeries.some(label => label.includes("GPU 自动候选整合史 / 3.x")),
       `${prefix}public map still exposes the retired prototype as a parallel product (${JSON.stringify(publicMap)}).`
     );
@@ -1216,7 +1218,7 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
         backdropScene: document.documentElement.dataset.crtSceneIntent || "",
         compareStepPresent: Boolean(document.querySelector('[data-tune-step-link="compare"]')),
         comparePanelVisible: (document.getElementById("dse-tune-compare-panel")?.getBoundingClientRect().height || 0) > 0,
-        visibleVersionNumber: document.getElementById("dse-root")?.innerText.includes("2.7.4") || false
+        visibleVersionNumber: document.getElementById("dse-root")?.innerText.includes("2.8.0") || false
       };
     })()`);
     check(initial.title.includes("高级模式"), `${prefix}browser title is not user-facing.`);
@@ -1224,7 +1226,7 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
     check(
       initial.status.includes("当前测试版") &&
       initial.status.includes("只读演示") &&
-      !initial.status.includes("2.7.4"),
+      !initial.status.includes("2.8.0"),
       `${prefix}advanced page does not use the public test-release label.`
     );
     check(
@@ -1246,10 +1248,10 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
       !initial.statusActionsVisible &&
       initial.visiblePanelCount === 0 &&
       initial.currentTheme === "尚未选择" &&
-      initial.modeButtonCount === 4 &&
+      initial.modeButtonCount === 5 &&
       initial.pressedModeCount === 0 &&
       initial.taskChooserVisible &&
-      initial.taskChoiceCount === 4 &&
+      initial.taskChoiceCount === 5 &&
       initial.tuneStepsHidden &&
       !initial.contextBridgeVisible &&
       initial.backdropScene === "",
@@ -1277,6 +1279,27 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
         horizontalOverflow: initial.horizontalOverflow
       })}).`
     );
+
+    await clickByPointer(connection, '[data-demo-mode="skilldock"]');
+    const skilldockMode = await evaluate(connection, `(() => ({
+      pressed: document.querySelector('[data-demo-mode="skilldock"]')?.getAttribute("aria-pressed") || "",
+      panelVisible: (document.querySelector('.dse-demo-panel[data-demo-mode="skilldock"]')?.getBoundingClientRect().height || 0) > 0,
+      title: document.querySelector("#dse-skilldock-title")?.textContent.trim() || "",
+      note: document.querySelector('.dse-demo-panel[data-demo-mode="skilldock"] .dse-process-note')?.textContent.trim() || "",
+      guideSteps: document.querySelectorAll("#dse-mode-guide-steps li").length,
+      guideSummary: document.getElementById("dse-mode-guide-summary")?.textContent.trim() || ""
+    }))()`);
+    check(
+      skilldockMode.pressed === "true" &&
+      skilldockMode.panelVisible &&
+      skilldockMode.title === "从当前对话到同一 Task 恢复" &&
+      skilldockMode.note.includes("手动链接或 .url") &&
+      skilldockMode.note.includes("结果自动回写") &&
+      skilldockMode.guideSteps === 4 &&
+      skilldockMode.guideSummary.includes("当前 Codex 对话"),
+      `${prefix}SkillDock operation mode is incomplete (${JSON.stringify(skilldockMode)}).`
+    );
+
     await clickByPointer(connection, '[data-demo-mode="terms"]');
     const initialTerms = await evaluate(connection, `(() => ({
       coreCount: document.querySelectorAll("#dse-term-core-row [data-term-id]").length,
@@ -2182,6 +2205,7 @@ async function main() {
   try {
     await waitForDebugEndpoint();
     await testHomeViewport(siteUrl, "desktop", 1440, 1000);
+    await testHomeViewport(siteUrl, "compact-desktop", 1024, 768);
     await testHomeViewport(siteUrl, "mobile", 390, 844);
     await testPreviewRootReturn(previewRootUrl);
     await testInteractiveViewport(interactiveUrl, "desktop", 1440, 1000);

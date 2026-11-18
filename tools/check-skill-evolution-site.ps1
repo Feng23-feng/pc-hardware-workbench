@@ -10,6 +10,7 @@ if ([string]::IsNullOrWhiteSpace($RepositoryRoot)) {
 
 $errors = New-Object System.Collections.Generic.List[string]
 $siteRoot = Join-Path $RepositoryRoot "docs\skill-evolution"
+$pagesIndexPath = Join-Path $RepositoryRoot "docs\index.html"
 $indexPath = Join-Path $siteRoot "index.html"
 $interactivePath = Join-Path $siteRoot "interactive\index.html"
 $homeTemplatePath = Join-Path $RepositoryRoot "tools\templates\skill-evolution-home.html"
@@ -21,6 +22,7 @@ $orreryPath = Join-Path $siteRoot "orrery\index.html"
 $frozenPath = Join-Path $siteRoot "orrery\FROZEN.json"
 
 foreach ($path in @(
+    $pagesIndexPath,
     $indexPath,
     $interactivePath,
     $homeTemplatePath,
@@ -33,6 +35,19 @@ foreach ($path in @(
 )) {
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
         $errors.Add("Missing site file: $path") | Out-Null
+    }
+}
+
+if ($errors.Count -eq 0) {
+    $pagesIndex = Get-Content -Raw -LiteralPath $pagesIndexPath -Encoding UTF8
+    if (
+        $pagesIndex -notmatch
+            '<meta http-equiv="refresh" content="0; url=\./skill-evolution/">' -or
+        $pagesIndex -notmatch 'href="\./skill-evolution/"'
+    ) {
+        $errors.Add(
+            "docs/index.html must redirect the Pages root to skill-evolution."
+        ) | Out-Null
     }
 }
 
@@ -270,6 +285,7 @@ if ($errors.Count -eq 0) {
         'id="dse-advanced-summary"',
         'aria-controls="dse-advanced-content"',
         'data-demo-mode="terms"',
+        'data-demo-mode="skilldock"',
         'data-demo-mode="tune"',
         'data-demo-mode="triage"',
         'data-demo-mode="record"',
@@ -316,11 +332,11 @@ if ($errors.Count -eq 0) {
     $demoModeButtons = [regex]::Matches($interactiveHtml, '<button[^>]*class="dse-filter"[^>]*data-demo-mode="([^"]+)"')
     $demoModeNames = @($demoModeButtons | ForEach-Object { $_.Groups[1].Value })
     if (
-        $demoModeButtons.Count -ne 4 -or
-        @($demoModeNames | Sort-Object -Unique).Count -ne 4 -or
+        $demoModeButtons.Count -ne 5 -or
+        @($demoModeNames | Sort-Object -Unique).Count -ne 5 -or
         @($demoModeNames | Where-Object { $_ -match '^(identity|evidence)$' }).Count -gt 0
     ) {
-        $errors.Add("Interactive page must expose exactly four consolidated demo themes.") | Out-Null
+        $errors.Add("Interactive page must expose exactly five consolidated demo themes.") | Out-Null
     }
     if ($interactiveHtml -match 'class="dse-guided-reason"[^>]*\sopen(?:\s|>)') {
         $errors.Add("Interactive evidence reasoning must be collapsed by default.") | Out-Null
@@ -334,11 +350,14 @@ if ($errors.Count -eq 0) {
     else {
         $segment = $homeTemplate.Substring($start, $end - $start)
         $versionCount = [regex]::Matches($segment, '(?m)^\s*\["\d+\.\d+\.\d+(?:-r\d+)?",').Count
-        if ($versionCount -ne 114) {
-            $errors.Add("Home source version count is $versionCount, expected 114.") | Out-Null
+        if ($versionCount -ne 115) {
+            $errors.Add("Home source version count is $versionCount, expected 115.") | Out-Null
         }
-        if ($segment -notmatch '\["2\.7\.4"[^\r\n]*CURRENT CANDIDATE') {
-            $errors.Add("Home source current 2.7.4 archive record is missing.") | Out-Null
+        if ($segment -notmatch '\["2\.8\.0"[^\r\n]*CURRENT CANDIDATE') {
+            $errors.Add("Home source current 2.8.0 archive record is missing.") | Out-Null
+        }
+        if ($segment -notmatch '\["2\.7\.4"[^\r\n]*PREVIOUS LOCAL') {
+            $errors.Add("Home source previous 2.7.4 archive record is missing.") | Out-Null
         }
         if ($segment -notmatch '\["2\.6\.0"[^\r\n]*PREVIOUS LOCAL') {
             $errors.Add("Home source previous 2.6.0 archive record is missing.") | Out-Null
@@ -389,8 +408,8 @@ if ($errors.Count -eq 0) {
     if ($orreryHtml -notmatch '\u5F53\u524D\u6587\u4EF6\u661F\u7CFB|\u5F53\u524D\u5FEB\u7167') {
         $errors.Add("Orrery does not identify its current snapshot.") | Out-Null
     }
-    if ($orreryHtml -notmatch '115 \u4E2A\u6587\u4EF6') {
-        $errors.Add("Orrery does not expose the current 115-file snapshot.") | Out-Null
+    if ($orreryHtml -notmatch '135 \u4E2A\u6587\u4EF6') {
+        $errors.Add("Orrery does not expose the current 135-file snapshot.") | Out-Null
     }
     if ($orreryHtml -match 'archive/1\.5\.2/') {
         $errors.Add("Orrery still exposes the local-only 1.5.2 archive.") | Out-Null
@@ -432,7 +451,7 @@ if ($errors.Count -eq 0) {
     finally {
         $sha256.Dispose()
     }
-    if ($frozen.version -ne "2.7.4" -or $frozen.status -ne "frozen" -or [int]$frozen.fileCount -ne 115) {
+    if ($frozen.version -ne "2.8.0" -or $frozen.status -ne "frozen" -or [int]$frozen.fileCount -ne 135) {
         $errors.Add("Orrery FROZEN.json version/status/file count is unexpected.") | Out-Null
     }
     if ([int]$frozen.bytes -ne $orreryBytes.Length -or $frozen.sha256 -ne $orreryHash) {
@@ -448,4 +467,4 @@ if ($errors.Count -gt 0) {
     exit 1
 }
 
-Write-Host "Skill evolution site check: PASS (two canonical templates, single visible path, technical archives folded, 115-file orrery, JavaScript syntax)" -ForegroundColor Green
+Write-Host "Skill evolution site check: PASS (two canonical templates, single visible path, technical archives folded, 135-file orrery, JavaScript syntax)" -ForegroundColor Green

@@ -209,7 +209,7 @@ $skill = Get-Content -LiteralPath $skillPath -Raw -Encoding UTF8
 $referenceOnlyNotice = [regex]::Unescape('\u53C2\u6570\u4EC5\u4F9B\u53C2\u8003\uFF0C\u8BF7\u4EE5\u5B89\u5168\u4E3A\u7B2C\u4E00\u8981\u52A1\u3002')
 $englishReferenceOnlyNotice = "For reference only - put safety first."
 
-Assert-Contains $skill '(?m)^  version: "2\.7\.4"\r?$' "metadata.version should be 2.7.4."
+Assert-Contains $skill '(?m)^  version: "2\.8\.0"\r?$' "metadata.version should be 2.8.0."
 Assert-Contains $skill 'r23 collector' "The Skill maintenance summary collector revision disagrees with the collector code."
 Assert-Contains $skill 'while power-path\s+evidence is incomplete' "The Advice intensity route does not include incomplete power-path evidence."
 Assert-Contains $skill 'hidden or\s+manufacturer-limited power' "The Advice intensity summary is narrower than the hidden or manufacturer-limited scope."
@@ -368,7 +368,7 @@ Assert-Contains $experimentLoop 'prior card clearly belongs to the same device' 
 Assert-Contains $experimentLoop 'status: reviewed' "The experiment loop does not persist review status."
 
 $interactionClosure = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/integration/interaction-closure.md") -Raw -Encoding UTF8
-Assert-Contains $interactionClosure 'Session context' "Interaction closure has no current-session context."
+Assert-Contains $interactionClosure 'Task context' "Interaction closure has no current-Task context."
 
 $expectation = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/tuning/expectation-direction.md") -Raw -Encoding UTF8
 Assert-Contains $expectation 'Required expectation card' "The configuration-based expectation card is missing."
@@ -683,7 +683,7 @@ Assert-Contains $ganttRendererSource 'complete/completed/finished are aliases fo
 $analyzer = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "scripts/analyze-telemetry.ps1") `
     -Label "scripts/analyze-telemetry.ps1"
-Assert-Contains $analyzer 'AnalyzerVersion = "1\.2\.3"' "Analyzer behavior changed without an AnalyzerVersion bump."
+Assert-Contains $analyzer 'AnalyzerVersion = "1\.2\.4"' "Analyzer behavior changed without an AnalyzerVersion bump."
 Assert-Contains $analyzer 'surplus trailing empty field' "HWiNFO rows with one surplus trailing empty field are not recovered explicitly."
 Assert-Contains $analyzer 'MaxInputMegabytes' "Telemetry analyzer has no large-file safety limit."
 Assert-Contains $analyzer 'ChartData' "Telemetry analyzer does not expose validated chart data."

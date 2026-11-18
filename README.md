@@ -6,8 +6,9 @@
 故障排查、遥测分析、手动调校和升级判断收敛到一个 Skill，同时把每一次硬件变更
 留给用户亲手完成。
 
-当前版本为 **2.7.4 测试版**。完整自动测试和三项定向人工审阅已通过；真实设备覆盖、
-其余交互场景的人工签署和广泛稳定性验证仍在继续，项目不会把测试版包装成稳定版。
+当前版本为 **2.8.0 测试版**，尚未正式发布。完整自动测试和定向人工审阅已通过；
+真实设备覆盖、干净 Windows 安装/卸载和其余交互场景签署仍在继续。项目不会把
+测试版包装成稳定版。
 
 ![文件星球预览](docs/skill-evolution/assets/orrery-preview.png)
 
@@ -19,11 +20,13 @@
 
 - [功能](#功能)
 - [快速开始](#快速开始)
+- [打开 SkillDock 操作面板](#打开-skilldock-操作面板)
 - [使用示例](#使用示例)
 - [安全边界](#安全边界)
+- [支持矩阵](#支持矩阵)
+- [已知限制](#已知限制)
 - [文档](#文档)
 - [常见问题](#常见问题)
-- [开发与测试](#开发与测试)
 - [版本与许可](#版本与许可)
 
 ## 功能
@@ -53,100 +56,90 @@
   的本机 LibreHardwareMonitor、视觉截图说明和跨轮硬件案卷。
 - **始终只读。** 不自动修改 BIOS、频率、电压、功耗、风扇、内存时序或固件。
 
-## 快速开始
+## 三种下载包
 
-### Codex 一键安装
+[下载当前预发布资产](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1)，
+按使用场景只选一个包；不要把同一个 Skill 的多个副本放进同一个宿主扫描目录。
 
-安装脚本只复制 Skill 文件，不运行硬件采集器，也不请求管理员权限。
+| 包 | 适合谁 | 包含 | SkillDock 面板 |
+| --- | --- | --- | --- |
+| PCHW Skill-only | 已有 Codex、DSH 或其他兼容 Agent 宿主 | 仅 PCHW Skill 2.8.0 发布子集 | 无 |
+| SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺 SkillDock 应用与 Node | SkillDock Runtime + Node.js 24.22.1 | 仅 Codex 当前对话 |
+| Codex + SkillDock 集成包 | 大多数 Codex Desktop 用户 | PCHW Skill、SkillDock Runtime、单一安装入口 | 仅 Codex 当前对话 |
 
-1. 打开普通 PowerShell。
-2. 下载安装脚本。
-3. 运行安装脚本。
-4. 重启 Codex，然后输入 `$pc-hardware-workbench`。
-
-```powershell
-$installer = Join-Path $env:TEMP "install-pc-hardware-workbench.ps1"
-curl.exe -fsSL "https://raw.githubusercontent.com/Feng23-feng/pc-hardware-workbench/main/tools/install-skill.ps1" -o $installer
-powershell -NoProfile -ExecutionPolicy Bypass -File $installer
-```
-
-默认安装位置：
+当前 GitHub 预发布资产：
 
 ```text
-%USERPROFILE%\.codex\skills\pc-hardware-workbench
+PCHW-Skill-2.8.0-rc.1.zip
+SkillDock-Runtime-0.1.0-rc.1-win-x64.zip
+SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip
+SHA256SUMS.txt
 ```
 
-更新时重新运行安装器并加 `-Force`。旧版本会先移动到 Skill 扫描目录之外：
+这是公开预发布，clean Windows 安装/卸载和最终签收仍为 PENDING。普通用户优先
+选择 Codex 集成包；不要混装多个 Skill 或旧 Runtime。
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File $installer -Force
-```
+### Codex + SkillDock
 
-备份位于：
+1. 下载并校验 Codex 集成包及 `.sha256`。
+2. 解压后双击 `Install.cmd`。
+3. 已有旧版 PCHW Skill 时，安装器会先备份，再执行安全升级；不需要先删除旧 Skill。
+4. 安装完成后打开 Codex 当前对话。
+5. 描述硬件问题并明确同意打开图形化分析。
 
-```text
-%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\
-```
+用户不需要寻找 runner、端口、token 或环境变量，也不需要手动启动
+`SkillDock.exe`。安装器会从同一个候选包中安装 PCHW Skill 与 SkillDock Runtime。
 
-也可以从 [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
-下载 Codex 版 `installer.zip` 或 `manual.zip`。`installer.zip` 解压后双击
-`Install-PC-Hardware-Workbench.cmd`；`manual.zip` 解压后直接得到可手动放置的
-`pc-hardware-workbench/`。如果已有安装，自动安装器会先创建带时间戳、但不参与
-Skill 扫描的备份。
+### PCHW Skill-only
 
-`manual.zip` 不会自动备份；手动升级前，应先把现有目录移动到
-`%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\`。
-
-`installer.zip` 还包含 `README.en.md` 和英文安装、隐私安全文档。
-
-### 让 AI 安装
-
-可以直接把下面的提示词交给能执行本地命令的 AI：
-
-```text
-请安装 PC Hardware Workbench Skill：
-https://github.com/Feng23-feng/pc-hardware-workbench
-
-只复制仓库中的 skill\pc-hardware-workbench 到：
-%USERPROFILE%\.codex\skills\pc-hardware-workbench
-
-如果目标已存在，先移动到
-%USERPROFILE%\.codex\skill-backups\pc-hardware-workbench\ 下带时间戳的备份。
-不要把旧版本继续留在 .codex\skills 里。安装后确认 SKILL.md、scripts
-和 references 都存在。不要运行硬件采集器，不要请求管理员权限，
-不要修改 BIOS、驱动或系统设置。
-```
-
-完整版见 [AI 安装提示词](docs/AI-INSTALL.md)。
-
-### DeepSeek Harness
-
-Skill 默认放到：
+Skill-only 包只包含 PCHW Skill，不含 SkillDock、Node、测试 runner 或 DSH 观察窗。
+将 `pc-hardware-workbench` 目录安装到目标 Agent 的 Skill 扫描目录。DSH 默认位置：
 
 ```text
 %USERPROFILE%\.dsh\skills\pc-hardware-workbench
 ```
 
-调用：
+详细步骤见 [安装与升级](docs/installation.md#pchw-skill-only)。
 
-```text
-/pc-hardware-workbench
-```
+### SkillDock Runtime-only
 
-Harness 适配和详细步骤见
-[安装与升级](docs/installation.md#deepseek-harness)与
-[DSH adapter](adapters/dsh/README.md)。
-
-### 独立 Windows 工具
-
-不安装 Codex Skill，也可以直接运行 Portable 版本：
+此包只供已经安装兼容 PCHW Skill、但缺少 SkillDock 应用与 Node 的高级用户使用。
+解压后运行：
 
 ```powershell
-cd portable
-.\开始使用.cmd
+powershell -NoProfile -ExecutionPolicy Bypass -File ".\Install SkillDock Runtime.ps1"
 ```
 
-详见 [安装与升级](docs/installation.md#portable-windows-工具)。
+安装后仍从 Codex 当前对话触发面板，不需要手动启动 `SkillDock.exe`。
+
+## 打开 SkillDock 操作面板
+
+安装 PCHW Skill 和 SkillDock Runtime 后，不需要寻找 runner 或设置环境变量。
+在 Codex 当前对话中直接描述问题和附件，例如：
+
+```text
+我玩游戏二十分钟后开始掉帧，这是 HWiNFO CSV。可以打开图形化分析吗？
+```
+
+同意打开后，Skill 会把当前问题、Task 和支持的附件带入本地面板。首次分析时，
+页面会请求一次明确的“仅本次允许”；允许后可以查看真实 SVG、具体判断、支持与冲突
+证据、不确定性，以及两到三条低风险采集建议。结果会自动写回页面。
+复制结果回到当前 Codex 对话继续；关闭并重启后，同一 Task、图表和结论仍可恢复。
+
+同一附件成功完成一次本地分析后，重复分析时才可能出现“同一附件后续分析”。
+它仍只覆盖当前 Task 中的这份 CSV，2 小时内有效；更换附件需要重新选择
+“仅本次允许”。
+
+如果 Codex 的 Ask-for-approval 模式使页面无法自动打开，页面会提示“手动打开面板”。
+使用提示中的短期链接或本地 `.url` 快捷方式打开同一面板即可。默认 Runtime 目录
+不可写、面板无法启动或已有其他工作区时，留在当前对话继续，不创建第二个 Thread。
+
+本版只有 Codex 当前对话承诺 `pchw-source-hosted` SkillDock 面板。DSH 和其他宿主
+仍可使用 PCHW 的聊天、采集和 CSV 分析核心能力，但不承诺打开这个面板。权限被拒绝、
+面板无法启动或当前工作区冲突时，继续在对话中处理即可；页面不存在不会阻断对话。
+
+SkillDock 面板只执行用户确认的只读分析和 Task artifact 写入，不会自动修改 BIOS、
+固件、驱动、频率、电压、功耗、风扇或内存时序。
 
 ## 使用示例
 
@@ -191,13 +184,29 @@ Skill 会根据问题进入配置、排障、遥测、调参或升级路线。�
 
 完整说明见 [隐私与安全边界](docs/privacy-and-safety.md)。
 
+## 支持矩阵
+
+| 宿主 | 配置、排障、聊天、CSV | SkillDock 面板 |
+| --- | --- | --- |
+| Codex 当前用户对话 | 支持 | 支持 |
+| DeepSeek Harness | 支持 | 不提供 |
+| 其他 Agent 宿主 | 按宿主文件访问能力使用 | 不承诺 |
+
+## 已知限制
+
+- `2.8.0` 仍是测试版，尚未正式发布；
+- 干净 Windows 安装/卸载、真实设备覆盖和完整用户签收仍在进行；
+- SkillDock 面板只承诺 Codex 当前用户对话；
+- Ask-for-approval 模式可能要求使用“手动打开面板”链接或 `.url`；
+- DSH 和其他宿主没有本版 SkillDock 面板；
+- 不提供后台自动分析、自动恢复或自动硬件修改。
+
 ## 文档
 
 - [安装与升级](docs/installation.md)
 - [使用方式](docs/usage.md)
 - [技术架构](docs/architecture.md)
 - [常见问题](docs/troubleshooting.md)
-- [测试与发布检查](docs/testing.md)
 - [隐私与安全边界](docs/privacy-and-safety.md)
 - [English README](README.en.md)
 - [English installation](docs/en/installation.md)
@@ -221,27 +230,11 @@ Skill 会根据问题进入配置、排障、遥测、调参或升级路线。�
 
 更多问题见 [常见问题](docs/troubleshooting.md)。
 
-## 开发与测试
-
-仓库包含 Skill、DeepSeek Harness 适配、Portable 工具、自动测试、发布打包和
-项目说明站。
-
-以下命令需要在源码 checkout 中运行；仅安装或使用发布包时不需要执行。
-
-快速结构验证：
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass `
-  -File .\tools\validate-skill.ps1
-```
-
-完整测试、同步检查、发布打包和验证环境说明见
-[测试与发布检查](docs/testing.md)。
-
 ## 版本与许可
 
 版本状态以 [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
-和 [CHANGELOG.md](CHANGELOG.md) 为准。当前工作台版本为 `2.7.4` 测试版。
+和 [CHANGELOG.md](CHANGELOG.md) 为准。当前工作台版本为 `2.8.0` 测试版，尚未正式
+发布；GitHub main 可能领先于最近一个公开 Release。
 
 源码使用 [MIT License](LICENSE)。
 

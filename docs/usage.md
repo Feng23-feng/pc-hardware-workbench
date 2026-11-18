@@ -1,5 +1,16 @@
 # 使用方式
 
+当前 `2.8.0` 为测试版且尚未正式发布。本文只描述已经交付或当前候选包中实际存在
+的用户路径。
+
+## 三种使用入口
+
+- **Codex + SkillDock 集成包。** 适合大多数 Codex 当前对话用户。
+- **PCHW Skill-only。** 适合已有 Codex、DSH 或其他兼容 Agent 宿主，只缺 Skill。
+- **SkillDock Runtime-only。** 适合已经安装兼容 PCHW Skill，只缺应用和 Node。
+
+按实际使用的宿主选择包；同一个宿主的 Skill 扫描目录只保留一个活动版本。
+
 ## 在 Codex 中调用
 
 ```text
@@ -13,6 +24,61 @@ $pc-hardware-workbench
 - “这份 HWiNFO CSV 里有没有异常趋势？”
 - “我想给这张显卡降温，先确认能不能安全调参。”
 - “现在这套配置值得升级显卡还是继续保留？”
+
+## SkillDock 操作面板
+
+需要图表、证据对照或连续操作时，可以直接在 Codex 当前对话中说：
+
+```text
+这份 HWiNFO CSV 显示游戏二十分钟后掉帧。请打开 SkillDock 做图形化分析。
+```
+
+普通用户不需要启动 runner、记端口、创建 token 或设置测试开关。
+
+1. Codex 先询问是否打开本地图形化分析；
+2. 同意后，面板带入当前问题、Task 和可用附件；
+3. 用户上传 CSV，或选择对话中已经提供的附件；
+4. 首次本地分析弹出权限卡，选择“仅本次允许”；
+5. 页面显示真实 SVG、具体判断、支持/冲突/背景证据和不确定性；
+6. 结果写回后页面会自动更新；
+7. 用户复制结果回到当前 Codex 对话，或继续在面板补充问题；
+8. 关闭并重启 SkillDock 后，同一 Task、附件、图表和结论仍可恢复，不创建
+   第二个 Thread。
+
+首次权限卡不提供长期按钮。只有同一附件已经成功完成一次一次性本地分析后，
+下一次重复分析才可能显示“同一附件后续分析”。它只在当前 Task 中对该 CSV
+有效两小时，不会覆盖新附件。
+
+本版只有 Codex 当前对话承诺 `pchw-source-hosted` 面板。DSH 和其他宿主可以使用
+PCHW 的聊天、采集和 CSV 分析，但不提供这个面板。
+
+出现以下情况时回到普通对话即可：
+
+- 不准备授予本地分析权限；
+- SkillDock 未安装或无法启动；
+- 当前已有另一个工作区面板；
+- 页面加载失败或结果没有返回。
+
+在 Codex 的 “Ask for approval” 模式下，如果交互式浏览器交接失败，Skill 会提示
+“手动打开面板”。此时使用页面提供的短期链接或本地 `.url` 快捷方式打开同一面板，
+再继续 CSV 提交和一次性权限。
+
+面板不会自动修改 BIOS、固件、驱动、频率、电压、功耗、风扇或内存时序。
+
+## PCHW Skill-only
+
+Skill-only 包只提供 PCHW Skill 的聊天、采集和 CSV 分析能力。DSH 中调用：
+
+```text
+/pc-hardware-workbench
+```
+
+DSH 不安装、不启动 SkillDock Runtime，也不承诺 `pchw-source-hosted` 面板。
+
+## SkillDock Runtime-only
+
+这是已有兼容 PCHW Skill 时的补装包，只添加 SkillDock 应用和 Node.js。安装后仍从
+Codex 当前对话触发面板；不需要手动启动 `SkillDock.exe`。
 
 ## 常见输入
 

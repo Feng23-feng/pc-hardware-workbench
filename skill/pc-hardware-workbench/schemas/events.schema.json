@@ -1,0 +1,413 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "panel-event.schema.json",
+  "title": "SkillDock User Event",
+  "anyOf": [
+    {
+      "title": "user_message",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "type",
+        "event_id",
+        "created_at",
+        "text"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0",
+          "type": "string"
+        },
+        "type": {
+          "const": "user_message",
+          "type": "string"
+        },
+        "event_id": {
+          "$ref": "#/$defs/eventId"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "task_context": {
+          "$ref": "#/$defs/taskContext"
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/attachment"
+          }
+        }
+      }
+    },
+    {
+      "title": "option_selected",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "type",
+        "event_id",
+        "created_at",
+        "question_id",
+        "option_id"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0",
+          "type": "string"
+        },
+        "type": {
+          "const": "option_selected",
+          "type": "string"
+        },
+        "event_id": {
+          "$ref": "#/$defs/eventId"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "question_id": {
+          "type": "string"
+        },
+        "option_id": {
+          "type": "string"
+        }
+      }
+    },
+    {
+      "title": "evidence_added",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "type",
+        "event_id",
+        "created_at",
+        "label",
+        "detail",
+        "source"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0",
+          "type": "string"
+        },
+        "type": {
+          "const": "evidence_added",
+          "type": "string"
+        },
+        "event_id": {
+          "$ref": "#/$defs/eventId"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "detail": {
+          "type": "string",
+          "maxLength": 240
+        },
+        "source": {
+          "enum": [
+            "user_reported",
+            "observed_current"
+          ]
+        }
+      }
+    },
+    {
+      "title": "panel_submission",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "type",
+        "submission_id",
+        "created_at",
+        "events",
+        "free_text"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0",
+          "type": "string"
+        },
+        "type": {
+          "const": "panel_submission",
+          "type": "string"
+        },
+        "submission_id": {
+          "$ref": "#/$defs/eventId"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "events": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/anyOf/0"
+              },
+              {
+                "$ref": "#/anyOf/1"
+              },
+              {
+                "$ref": "#/anyOf/2"
+              }
+            ]
+          }
+        },
+        "free_text": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "task_context": {
+          "$ref": "#/$defs/taskContext"
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/attachment"
+          }
+        }
+      }
+    },
+    {
+      "title": "attachment_added",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "type",
+        "event_id",
+        "created_at",
+        "attachment"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0",
+          "type": "string"
+        },
+        "type": {
+          "const": "attachment_added",
+          "type": "string"
+        },
+        "event_id": {
+          "$ref": "#/$defs/eventId"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "attachment": {
+          "$ref": "#/$defs/attachment"
+        }
+      }
+    },
+    {
+      "title": "task_submitted",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "type",
+        "event_id",
+        "created_at",
+        "task_id",
+        "session_ref",
+        "user_event_id",
+        "user_summary",
+        "attachment_ids"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0",
+          "type": "string"
+        },
+        "type": {
+          "const": "task_submitted",
+          "type": "string"
+        },
+        "event_id": {
+          "$ref": "#/$defs/eventId"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "task_id": {
+          "type": "string"
+        },
+        "session_ref": {
+          "type": "string",
+          "description": "Portable Agent Session reference."
+        },
+        "thread_id": {
+          "type": "string",
+          "description": "Compatibility alias for pre-P8 state and events."
+        },
+        "user_event_id": {
+          "type": "string"
+        },
+        "user_summary": {
+          "type": "string"
+        },
+        "attachment_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "eventId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{8,96}$"
+    },
+    "taskContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_id",
+        "session_ref",
+        "objective",
+        "phase",
+        "summary",
+        "device_snapshot_ref",
+        "evidence_refs",
+        "device_snapshot",
+        "instruction"
+      ],
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "session_ref": {
+          "type": "string"
+        },
+        "objective": {
+          "type": "string"
+        },
+        "phase": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "device_snapshot_ref": {
+          "type": "string"
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/attachment"
+          }
+        },
+        "device_snapshot": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "device_alias",
+            "captured_date",
+            "age_days",
+            "identity_quality",
+            "privacy_mode",
+            "summary",
+            "evidence"
+          ],
+          "properties": {
+            "device_alias": {
+              "type": "string"
+            },
+            "captured_date": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "age_days": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "identity_quality": {
+              "type": "string"
+            },
+            "privacy_mode": {
+              "type": "string"
+            },
+            "summary": {
+              "type": "string"
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "instruction": {
+          "type": "string"
+        }
+      }
+    },
+    "attachment": {
+      "type": "object",
+      "required": [
+        "id",
+        "original_name",
+        "mime_type",
+        "size",
+        "sha256",
+        "local_path"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "original_name": {
+          "type": "string"
+        },
+        "mime_type": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer"
+        },
+        "sha256": {
+          "type": "string"
+        },
+        "local_path": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
