@@ -74,12 +74,15 @@ The interactive project pages are currently available in Chinese:
 [Download the current pre-release assets](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1),
 then choose exactly one package. Do not place multiple copies of the same Skill
 in one host's scan directory.
+Most users should start with the PCHW Skill package without the panel. Choose
+the Codex + SkillDock integrated package only when you specifically want the
+graphical workspace.
 
 | Package | Choose it when | Includes | SkillDock panel |
 | --- | --- | --- | --- |
-| PCHW Skill-only | You already have Codex, DSH, or another compatible Agent host | PCHW Skill 2.8.0 release subset only | No |
+| PCHW Skill (Codex / DSH / other Agents; no panel) | Default choice; use Codex alone or with DSH / another compatible Agent host | PCHW Skill 2.8.0 release subset only | No |
 | SkillDock Runtime-only | A compatible PCHW Skill is installed and only the Runtime and Node are missing | SkillDock Runtime + Node.js 24.22.1 | Current Codex conversation only |
-| Codex + SkillDock integrated | Most Codex Desktop users | PCHW Skill, SkillDock Runtime, one installer | Current Codex conversation only |
+| Codex + SkillDock integrated | Codex Desktop users who specifically want the graphical panel | PCHW Skill, SkillDock Runtime, one installer | Current Codex conversation only |
 
 Current GitHub pre-release assets:
 
@@ -91,8 +94,8 @@ SHA256SUMS.txt
 ```
 
 This is a public pre-release. Clean-Windows installation, uninstallation, and
-final signoff remain PENDING. Most Codex Desktop users should choose the
-integrated package; do not mix multiple Skills or old Runtime directories.
+final signoff remain PENDING. Do not mix multiple Skills or old Runtime
+directories.
 
 ### Codex + SkillDock
 
@@ -108,11 +111,21 @@ Do not look for a runner, port, token, environment variable, or manually start
 `SkillDock.exe`. The installer places both the PCHW Skill and SkillDock Runtime
 from the same verified package.
 
-### PCHW Skill-only
+<a id="pchw-skill-only"></a>
 
-The Skill-only package contains the PCHW Skill and no SkillDock application,
-Node.js, test runner, or DSH observer. Put `pc-hardware-workbench` in the target
-Agent's Skill directory. The default DSH location is:
+### PCHW Skill (Codex / DSH / other Agents; no panel)
+
+This package contains the PCHW Skill only. It is not the Codex + SkillDock
+integrated package and contains no SkillDock application, Node.js, test runner,
+or DSH observer. It works in Codex, DSH, and other compatible Agent hosts and is
+intended for users who do not need the panel. Put `pc-hardware-workbench` in the
+target Agent's Skill directory. The default Codex location is:
+
+```text
+%USERPROFILE%\.codex\skills\pc-hardware-workbench
+```
+
+The default DSH location is:
 
 ```text
 %USERPROFILE%\.dsh\skills\pc-hardware-workbench

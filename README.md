@@ -61,12 +61,14 @@
 
 [下载当前预发布资产](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1)，
 按使用场景只选一个包；不要把同一个 Skill 的多个副本放进同一个宿主扫描目录。
+普通用户默认选择不含面板的纯 PCHW Skill；只有明确需要网页操作面板时，再选择
+Codex + SkillDock 集成包。
 
 | 包 | 适合谁 | 包含 | SkillDock 面板 |
 | --- | --- | --- | --- |
-| PCHW Skill-only | 已有 Codex、DSH 或其他兼容 Agent 宿主 | 仅 PCHW Skill 2.8.0 发布子集 | 无 |
+| PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板） | 普通用户默认选择；Codex 单独使用，或已有 DSH / 其他兼容 Agent 宿主 | 仅 PCHW Skill 2.8.0 发布子集 | 无 |
 | SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺 SkillDock 应用与 Node | SkillDock Runtime + Node.js 24.22.1 | 仅 Codex 当前对话 |
-| Codex + SkillDock 集成包 | 大多数 Codex Desktop 用户 | PCHW Skill、SkillDock Runtime、单一安装入口 | 仅 Codex 当前对话 |
+| Codex + SkillDock 集成包 | 明确需要图形操作面板的 Codex Desktop 用户 | PCHW Skill、SkillDock Runtime、单一安装入口 | 仅 Codex 当前对话 |
 
 当前 GitHub 预发布资产：
 
@@ -77,8 +79,8 @@ SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip
 SHA256SUMS.txt
 ```
 
-这是公开预发布，clean Windows 安装/卸载和最终签收仍为 PENDING。普通用户优先
-选择 Codex 集成包；不要混装多个 Skill 或旧 Runtime。
+这是公开预发布，clean Windows 安装/卸载和最终签收仍为 PENDING。不要混装多个
+Skill 或旧 Runtime。
 
 ### Codex + SkillDock
 
@@ -91,10 +93,20 @@ SHA256SUMS.txt
 用户不需要寻找 runner、端口、token 或环境变量，也不需要手动启动
 `SkillDock.exe`。安装器会从同一个候选包中安装 PCHW Skill 与 SkillDock Runtime。
 
-### PCHW Skill-only
+<a id="pchw-skill-only"></a>
 
-Skill-only 包只包含 PCHW Skill，不含 SkillDock、Node、测试 runner 或 DSH 观察窗。
-将 `pc-hardware-workbench` 目录安装到目标 Agent 的 Skill 扫描目录。DSH 默认位置：
+### PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板）
+
+这个包只包含 PCHW Skill，不是 Codex + SkillDock 集成包，也不含 SkillDock、
+Node、测试 runner 或 DSH 观察窗。它可用于 Codex、DSH 或其他兼容 Agent 宿主，
+适合不需要面板的用户。将 `pc-hardware-workbench` 目录安装到目标 Agent 的 Skill
+扫描目录。Codex 默认位置：
+
+```text
+%USERPROFILE%\.codex\skills\pc-hardware-workbench
+```
+
+DSH 默认位置：
 
 ```text
 %USERPROFILE%\.dsh\skills\pc-hardware-workbench

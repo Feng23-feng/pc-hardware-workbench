@@ -2,7 +2,7 @@
 
 ## 不确定该下载哪个包
 
-- 已有 Codex、DSH 或其他兼容 Agent 宿主，只缺 Skill：使用 PCHW Skill-only；
+- 使用 Codex、DSH 或其他兼容 Agent 宿主，只缺 Skill：使用通用 PCHW Skill（无面板）；
 - 已安装兼容 PCHW Skill，只缺 SkillDock 应用与 Node：使用 Runtime-only；
 - 使用 Codex Desktop 并希望从当前对话打开操作面板：使用集成包。
 

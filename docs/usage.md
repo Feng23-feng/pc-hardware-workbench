@@ -5,8 +5,9 @@
 
 ## 三种使用入口
 
-- **Codex + SkillDock 集成包。** 适合大多数 Codex 当前对话用户。
-- **PCHW Skill-only。** 适合已有 Codex、DSH 或其他兼容 Agent 宿主，只缺 Skill。
+- **PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板）。** 适合不需要面板的
+  Codex 用户，以及已有 DSH 或其他兼容 Agent 宿主；普通用户默认选择这一包。
+- **Codex + SkillDock 集成包。** 适合明确需要网页操作面板的 Codex 当前对话用户。
 - **SkillDock Runtime-only。** 适合已经安装兼容 PCHW Skill，只缺应用和 Node。
 
 按实际使用的宿主选择包；同一个宿主的 Skill 扫描目录只保留一个活动版本。
@@ -65,9 +66,10 @@ PCHW 的聊天、采集和 CSV 分析，但不提供这个面板。
 
 面板不会自动修改 BIOS、固件、驱动、频率、电压、功耗、风扇或内存时序。
 
-## PCHW Skill-only
+## PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板）
 
-Skill-only 包只提供 PCHW Skill 的聊天、采集和 CSV 分析能力。DSH 中调用：
+这个包只提供 PCHW Skill 的聊天、采集和 CSV 分析能力，不是 Codex + SkillDock
+集成包。DSH 中调用：
 
 ```text
 /pc-hardware-workbench

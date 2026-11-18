@@ -16,11 +16,15 @@ blockers.
 
 ## Choose one distribution
 
+Most users should start with the PCHW Skill package without the panel. Choose
+the Codex + SkillDock integrated package only when you specifically want the
+graphical workspace.
+
 | Package | Use it when | Includes | Panel |
 | --- | --- | --- | --- |
-| PCHW Skill-only | Codex, DSH, or another compatible Agent host is already available | PCHW Skill release subset only | No |
+| PCHW Skill (Codex / DSH / other Agents; no panel) | Default choice; use Codex alone or with DSH / another compatible Agent host | PCHW Skill release subset only | No |
 | SkillDock Runtime-only | A compatible PCHW Skill is installed and only the application and Node are missing | SkillDock Runtime, Node.js 24.22.1 | Current Codex conversation only |
-| Codex + SkillDock integrated | Most Codex Desktop users | PCHW Skill, SkillDock Runtime, one installer | Current Codex conversation only |
+| Codex + SkillDock integrated | Codex Desktop users who specifically want the graphical panel | PCHW Skill, SkillDock Runtime, one installer | Current Codex conversation only |
 
 [Download the current GitHub pre-release assets](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1):
 
@@ -94,10 +98,27 @@ updates automatically when the result returns. Closing and reopening SkillDock
 should restore the same Task, attachments, chart, and conclusion without creating a
 second Thread.
 
-## PCHW Skill-only
+<a id="pchw-skill-only"></a>
 
-The Skill-only package contains no SkillDock Runtime, Node.js, or DSH observer.
-Place `pc-hardware-workbench` in the target Agent's Skill directory.
+## PCHW Skill (Codex / DSH / other Agents; no panel)
+
+This package contains the PCHW Skill only. It is not the Codex + SkillDock
+integrated package and contains no SkillDock Runtime, Node.js, or DSH observer.
+It works in Codex, DSH, and other compatible Agent hosts and is intended for
+users who do not need the panel. Place `pc-hardware-workbench` in the target
+Agent's Skill directory.
+
+Default Codex Skill path:
+
+```text
+%USERPROFILE%\.codex\skills\pc-hardware-workbench
+```
+
+When `CODEX_HOME` is set:
+
+```text
+%CODEX_HOME%\skills\pc-hardware-workbench
+```
 
 Default DSH Skill path:
 
@@ -164,10 +185,10 @@ Run `Install.cmd` from the new package. The installer validates the old Skill, b
 it up, installs the new Skill, backs up old Runtime directories, and keeps backups
 when a conflict or failure occurs.
 
-### PCHW Skill-only / DSH
+### PCHW Skill (Codex / DSH / other Agents; no panel)
 
 Close the host, move the old Skill directory to a backup location, and install
-the new Skill-only package. Do not leave two Skill directories containing
+the new PCHW Skill package. Do not leave two Skill directories containing
 `SKILL.md` in the same DSH scan root.
 
 ## Uninstall

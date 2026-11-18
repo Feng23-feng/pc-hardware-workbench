@@ -565,7 +565,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       candidateStatus.state === "当前测试版" &&
       candidateStatus.title === "选择适合你的使用方式" &&
       candidateStatus.lead.includes("按使用场景") &&
-      candidateStatus.rowLabels.join(",") === "PCHW Skill-only,SkillDock Runtime-only,Codex + SkillDock,回退与状态" &&
+      candidateStatus.rowLabels.join(",") === "PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板）,SkillDock Runtime-only,Codex + SkillDock,回退与状态" &&
       candidateStatus.rowCopies.every(copy => copy.length > 0) &&
       candidateStatus.gapAfterFilePlanet >= (name === "desktop" ? 72 : 44) &&
       candidateStatus.belowFilePlanet,

@@ -10154,7 +10154,7 @@
           <div class="dse-demo-panel-head">
             <div>
               <h3 id="dse-skilldock-title">从当前对话到同一 Task 恢复</h3>
-              <p class="dse-demo-panel-sub">这条流程只在 Codex 当前对话中运行。普通用户不需要手动启动 SkillDock 或配置端口、令牌和环境变量。</p>
+              <p class="dse-demo-panel-sub">这条流程只在选择集成包后的 Codex 当前对话中运行。用户不需要手动启动 SkillDock 或配置端口、令牌和环境变量。</p>
             </div>
             <span class="dse-demo-step">4 步</span>
           </div>
@@ -11504,7 +11504,7 @@
             ["2.7.2", "Live smoke 适配器语义与动态状态提示", "2026-11-14", "PREVIOUS LOCAL", ["live collector smoke 不再把标准模式本来没有 AdapterName 的 CIM/WMI 身份行误判为脱敏丢失。", "所有显示器继续保留 Redacted.AdapterName -ceq Standard.AdapterName 差分判据；只有标准模式确有适配器名时才检查 [redacted] 和 GPU 匹配。", "无适配器链接的显示器数量改为非失败提示，并新增空值、保留、清空和 [redacted] 四种合成回归。", "Gantt accepted-values 清单改为由 allowedStatuses 动态生成，移除 done 后提示不再把它列为可接受值。", "采集器输出、隐私规则和 done 状态语义保持不变。"], "Collector static/live smoke、Gantt regression、完整非实时回归和 skill validator 通过；多显示器真实环境由 Harness 复核。", "2.7.3 之前的测试版 test.1；工作台 2.7.2，文件星球 114 个文件；112 个版本记录。"],
             ["2.7.3", "失败消息前缀去重", "2026-11-14", "PREVIOUS LOCAL", ["monitor adapter helper 不再重复返回 Redacted monitor 主语，只保留 changed monitor adapter name 等谓语消息。", "定位前缀 Redacted monitor N 统一由 live smoke 调用方添加，语义和退出码保持不变。", "新增回归禁止 helper 消息再次包含 Redacted monitor 前缀。", "该版仅修改失败路径文案，不修改采集器、隐私规则、硬件逻辑或 Gantt 状态。"], "Collector static/live smoke、monitor adapter 合成回归、完整非实时回归和 skill validator 通过；人工行为签署仍为 PENDING。", "2.7.4 之前的测试版 test.1；工作台 2.7.3，文件星球 114 个文件；113 个版本记录。"],
             ["2.7.4", "入口路由分层与预算回收", "2026-11-14", "PREVIOUS LOCAL", ["Entry 从 10,562 B 降至 8,744 B，Quick 初始加载从 19,571 B 降至 17,753 B。", "五个顶层路线只打开各自主 reference；采集、实验、GPU、VRAM、LHM、PresentMon 和购买决策细节由主 reference 按条件继续路由。", "物理安全、调校入口门禁、参数提示、证据强度、隐私和不自动修改硬件等边界继续常驻入口。", "交互契约测试改为验证一跳路由，同时检查二级 reference 的可达性；未改变采集器、评测脚本或硬件行为。"], "Interaction contract、完整非实时与 live Both 回归、Skill validator、portable sync 和站点运行时检查通过；用户对三项定向场景的人工审阅 3/3 通过，并批准发布测试候选版。", "2.8.0 之前的测试版 test.1；工作台 2.7.4，文件星球 115 个文件；114 个版本记录。"],
-            ["2.8.0", "Codex 当前对话 SkillDock 入口", "2026-11-17", "CURRENT CANDIDATE", ["用户在当前 Codex 对话中提出硬件问题并同意后，Skill 启动本地 SkillDock 面板并带入当前 Task 与支持的附件。", "一次性本地分析授权产生真实 SVG、具体判断、证据与不确定性；结果自动回写，关闭并重启后可在同 Task 恢复。", "Ask-for-approval 下自动交接失败时提供“手动打开面板”的短期链接或本地 .url；DSH 与其他宿主不提供该面板。"], "R7 真实 Edge、一次性权限、fresh claim、单次写回和同 Task 重启 PASS；三个预发布资产已上传；clean-Windows 人工签收仍 PENDING。", "当前 2.8.0 预发布；PCHW Skill-only、SkillDock Runtime-only、Codex + SkillDock 集成包分开提供；文件星球 135 个文件；115 个版本记录。"]
+            ["2.8.0", "Codex 当前对话 SkillDock 入口", "2026-11-17", "CURRENT CANDIDATE", ["用户在当前 Codex 对话中提出硬件问题并同意后，Skill 启动本地 SkillDock 面板并带入当前 Task 与支持的附件。", "一次性本地分析授权产生真实 SVG、具体判断、证据与不确定性；结果自动回写，关闭并重启后可在同 Task 恢复。", "Ask-for-approval 下自动交接失败时提供“手动打开面板”的短期链接或本地 .url；DSH 与其他宿主不提供该面板。"], "R7 真实 Edge、一次性权限、fresh claim、单次写回和同 Task 重启 PASS；三个预发布资产已上传；clean-Windows 人工签收仍 PENDING。", "当前 2.8.0 预发布；PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板）、SkillDock Runtime-only、Codex + SkillDock 集成包分开提供；文件星球 135 个文件；115 个版本记录。"]
           ]
         },
         {

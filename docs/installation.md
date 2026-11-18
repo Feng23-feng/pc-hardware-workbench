@@ -16,12 +16,14 @@
 
 按使用场景安装对应的包。不要把同一个 PCHW Skill 的多个副本放进同一个宿主的
 Skill 扫描目录。
+普通用户默认选择不含面板的纯 PCHW Skill；只有明确需要网页操作面板时，再选择
+Codex + SkillDock 集成包。
 
 | 包 | 适用场景 | 包含 | 操作面板 |
 | --- | --- | --- | --- |
-| PCHW Skill-only | 已有 Codex、DSH 或其他兼容 Agent 宿主 | 仅 PCHW Skill 发布子集 | 无 |
+| PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板） | 普通用户默认选择；Codex 单独使用，或已有 DSH / 其他兼容 Agent 宿主 | 仅 PCHW Skill 发布子集 | 无 |
 | SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺应用与 Node | SkillDock Runtime、Node.js 24.22.1 | 仅 Codex 当前对话 |
-| Codex + SkillDock 集成包 | Codex Desktop 普通用户 | PCHW Skill、SkillDock Runtime、单一安装入口 | 仅 Codex |
+| Codex + SkillDock 集成包 | 明确需要图形操作面板的 Codex Desktop 用户 | PCHW Skill、SkillDock Runtime、单一安装入口 | 仅 Codex |
 
 [下载当前 GitHub 预发布资产](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1)：
 
@@ -90,10 +92,26 @@ Runtime 与迁移数据的备份位于：
 
 关闭并重启后，同一 Task、附件、图表和结论应恢复，不创建第二个 Thread。
 
-## PCHW Skill-only
+<a id="pchw-skill-only"></a>
 
-Skill-only 包只包含 PCHW Skill，不安装 SkillDock Runtime、Node 或 DSH 观察窗。
-把包内 `pc-hardware-workbench` 目录放到目标 Agent 的 Skill 扫描目录。
+## PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板）
+
+这个包只包含 PCHW Skill，不是 Codex + SkillDock 集成包，也不安装 SkillDock
+Runtime、Node 或 DSH 观察窗。它可用于 Codex、DSH 或其他兼容 Agent 宿主，适合
+不需要面板的用户。把包内 `pc-hardware-workbench` 目录放到目标 Agent 的 Skill
+扫描目录。
+
+Codex 默认 Skill 目录：
+
+```text
+%USERPROFILE%\.codex\skills\pc-hardware-workbench
+```
+
+设置 `CODEX_HOME` 时：
+
+```text
+%CODEX_HOME%\skills\pc-hardware-workbench
+```
 
 DSH 默认 Skill 目录：
 
@@ -160,10 +178,10 @@ Test-Path $pointer
 - 备份旧 Runtime；
 - 在冲突或失败时保留备份并回到对话。
 
-### PCHW Skill-only / DSH
+### PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板）
 
-关闭宿主，将旧 Skill 目录移到备份位置，再安装新的 Skill-only 包。不要把两个包含
-`SKILL.md` 的版本同时留在 DSH 扫描根中。
+关闭宿主，将旧 Skill 目录移到备份位置，再安装新的 PCHW Skill 包。不要把两个
+包含 `SKILL.md` 的版本同时留在 DSH 扫描根中。
 
 ## 卸载
 
