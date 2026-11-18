@@ -2,13 +2,14 @@
 
 [中文](README.md) | [English](README.en.md)
 
-一个面向 Codex 和 DeepSeek Harness 的 Windows 只读硬件工作台。它把配置读取、
-故障排查、遥测分析、手动调校和升级判断收敛到一个 Skill，同时把每一次硬件变更
-留给用户亲手完成。
+一个面向 Windows 的只读硬件工作台。它可用于 Codex、DeepSeek Harness 或其他
+兼容 Agent，也提供不需要 Agent、API 或安装的独立便携工具。它把配置读取、故障
+排查、遥测分析、手动调校和升级判断收敛到一套工作流，同时把每一次硬件变更留给
+用户亲手完成。
 
-当前可下载的是 **PCHW Skill 2.8.0 + SkillDock Runtime 0.1.0-rc.1 测试版**，
-目前没有正式版。
-其中 `2.8.0` 是 PCHW Skill 版本，`0.1.0-rc.1` 是 SkillDock 应用版本。完整自动测试和定向人工审阅已通过；
+当前测试版包含 **PCHW Skill 2.8.0、SkillDock Runtime 0.1.0-rc.1 和独立
+PCHW Portable 2.8.0**，目前没有正式版。
+其中 `2.8.0` 是 PCHW Skill 与 Portable 版本，`0.1.0-rc.1` 是 SkillDock 应用版本。完整自动测试和定向人工审阅已通过；
 真实设备覆盖、干净 Windows 安装/卸载和其余交互场景签署仍在继续。项目不会把
 测试版包装成稳定版。
 
@@ -58,16 +59,17 @@
   的本机 LibreHardwareMonitor、视觉截图说明和跨轮硬件案卷。
 - **始终只读。** 不自动修改 BIOS、频率、电压、功耗、风扇、内存时序或固件。
 
-## 三种下载包
+## 四种下载包
 
 [下载当前测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1)，
 按使用场景只选一个包；不要把同一个 Skill 的多个副本放进同一个宿主扫描目录。
 普通用户默认选择不含面板的纯 PCHW Skill；只有明确需要网页操作面板时，再选择
-Codex + SkillDock 集成包。
+Codex + SkillDock 集成包。没有 Agent，或希望完全不安装时，选择独立便携工具。
 
 | 包 | 适合谁 | 包含 | SkillDock 面板 |
 | --- | --- | --- | --- |
 | PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板） | 普通用户默认选择；Codex 单独使用，或已有 DSH / 其他兼容 Agent 宿主 | 仅 PCHW Skill 2.8.0 发布子集 | 无 |
+| PCHW Portable（独立 Windows，无需 Agent） | 没有 Codex / DSH，或不希望安装 Skill 与 Runtime | 独立菜单、采集、CSV 与证据工具 | 无 |
 | SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺 SkillDock 应用与 Node | SkillDock Runtime + Node.js 24.22.1 | 仅 Codex 当前对话 |
 | Codex + SkillDock 集成包 | 明确需要图形操作面板的 Codex Desktop 用户 | PCHW Skill、SkillDock Runtime、单一安装入口 | 仅 Codex 当前对话 |
 
@@ -75,6 +77,7 @@ Codex + SkillDock 集成包。
 
 ```text
 PCHW-Skill-2.8.0-rc.1.zip
+pc-hardware-portable-v2.8.0-rc.1.zip
 SkillDock-Runtime-0.1.0-rc.1-win-x64.zip
 SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip
 SHA256SUMS.txt
@@ -82,6 +85,20 @@ SHA256SUMS.txt
 
 这是公开测试版，clean Windows 安装/卸载和最终签收仍为 PENDING。不要混装多个
 Skill 或旧 Runtime。
+
+<a id="pchw-portable"></a>
+
+### PCHW Portable 便携工具（无需 Agent）
+
+1. 下载 `pc-hardware-portable-v2.8.0-rc.1.zip`，并按 `SHA256SUMS.txt` 或
+   GitHub asset digest 校验。
+2. 解压完整目录，不需要安装、管理员权限、API key 或网络连接。
+3. 双击 `开始使用.cmd` 进入菜单。
+
+便携版提供配置读取、排障、遥测 CSV、PresentMon、证据包和手动调校指导，但不
+提供 SkillDock 面板。它共享的遥测分析器 `1.2.4` 支持 `Timestamp`、`DateTime`、
+`Date/Time`、`时间戳` 和 `日期时间` 列，并输出实际采样跨度。所有硬件变更仍由
+用户手动完成。
 
 ### Codex + SkillDock
 

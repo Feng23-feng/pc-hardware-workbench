@@ -17,11 +17,12 @@
 按使用场景安装对应的包。不要把同一个 PCHW Skill 的多个副本放进同一个宿主的
 Skill 扫描目录。
 普通用户默认选择不含面板的纯 PCHW Skill；只有明确需要网页操作面板时，再选择
-Codex + SkillDock 集成包。
+Codex + SkillDock 集成包。没有 Agent，或希望完全不安装时，选择 PCHW Portable。
 
 | 包 | 适用场景 | 包含 | 操作面板 |
 | --- | --- | --- | --- |
 | PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板） | 普通用户默认选择；Codex 单独使用，或已有 DSH / 其他兼容 Agent 宿主 | 仅 PCHW Skill 发布子集 | 无 |
+| PCHW Portable（独立 Windows，无需 Agent） | 没有 Codex / DSH，或不希望安装 Skill 与 Runtime | 独立菜单、采集、CSV 与证据工具 | 无 |
 | SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺应用与 Node | SkillDock Runtime、Node.js 24.22.1 | 仅 Codex 当前对话 |
 | Codex + SkillDock 集成包 | 明确需要图形操作面板的 Codex Desktop 用户 | PCHW Skill、SkillDock Runtime、单一安装入口 | 仅 Codex |
 
@@ -29,6 +30,7 @@ Codex + SkillDock 集成包。
 
 ```text
 PCHW-Skill-2.8.0-rc.1.zip
+pc-hardware-portable-v2.8.0-rc.1.zip
 SkillDock-Runtime-0.1.0-rc.1-win-x64.zip
 SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip
 SHA256SUMS.txt
@@ -36,6 +38,21 @@ SHA256SUMS.txt
 
 这是公开测试版；clean Windows 安装、卸载和最终签收仍是 PENDING。不要把旧版本
 ZIP、Skill 目录和 Runtime 混在一起。
+
+<a id="pchw-portable"></a>
+
+## PCHW Portable（独立 Windows，无需 Agent）
+
+这个包不需要 Codex、DSH、API key、安装程序或管理员权限。校验 ZIP 后解压完整
+目录，双击 `开始使用.cmd` 即可进入菜单。
+
+便携版提供只读配置采集、排障、HWiNFO / PresentMon CSV、证据包、遥测图表和手动
+调校指导，但不提供 SkillDock 面板或 Agent 对话能力。共享遥测分析器 `1.2.4`
+支持 `Timestamp`、`DateTime`、`Date/Time`、`时间戳` 和 `日期时间` 列，并输出
+实际采样跨度。
+
+便携包完全在本地运行，不主动联网，不会自动修改 BIOS、固件、驱动、频率、电压、
+功耗、风扇或内存时序。
 
 ## Codex + SkillDock
 

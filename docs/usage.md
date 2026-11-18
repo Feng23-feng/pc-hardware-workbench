@@ -3,14 +3,25 @@
 当前 `2.8.0` 为测试版，目前没有正式版。本文只描述当前测试包中实际存在的用户
 路径。
 
-## 三种使用入口
+## 四种使用入口
 
 - **PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板）。** 适合不需要面板的
   Codex 用户，以及已有 DSH 或其他兼容 Agent 宿主；普通用户默认选择这一包。
+- **PCHW Portable（独立 Windows，无需 Agent）。** 适合没有 Codex / DSH，或不
+  希望安装 Skill 与 Runtime 的用户。
 - **Codex + SkillDock 集成包。** 适合明确需要网页操作面板的 Codex 当前对话用户。
 - **SkillDock Runtime-only。** 适合已经安装兼容 PCHW Skill，只缺应用和 Node。
 
 按实际使用的宿主选择包；同一个宿主的 Skill 扫描目录只保留一个活动版本。
+
+## 在 PCHW Portable 中使用
+
+校验并解压 `pc-hardware-portable-v2.8.0-rc.1.zip` 后，双击 `开始使用.cmd`，再按
+菜单选择配置读取、排障、遥测分析、PresentMon 或手动调校。它不依赖 Agent、
+API、网络、安装程序或管理员权限，也不提供 SkillDock 面板。
+
+共享遥测分析器 `1.2.4` 支持整列 ISO 时间字段，并输出实际采样跨度。便携工具
+不会自动修改任何硬件设置。
 
 ## 在 Codex 中调用
 

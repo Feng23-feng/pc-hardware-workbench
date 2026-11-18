@@ -18,11 +18,13 @@ pending.
 
 Most users should start with the PCHW Skill package without the panel. Choose
 the Codex + SkillDock integrated package only when you specifically want the
-graphical workspace.
+graphical workspace. If no Agent is available or you want no installation at all,
+use PCHW Portable.
 
 | Package | Use it when | Includes | Panel |
 | --- | --- | --- | --- |
 | PCHW Skill (Codex / DSH / other Agents; no panel) | Default choice; use Codex alone or with DSH / another compatible Agent host | PCHW Skill release subset only | No |
+| PCHW Portable (standalone Windows; no Agent) | You do not use Codex / DSH, or want no Skill or Runtime installation | Standalone menu, collection, CSV, and evidence tools | No |
 | SkillDock Runtime-only | A compatible PCHW Skill is installed and only the application and Node are missing | SkillDock Runtime, Node.js 24.22.1 | Current Codex conversation only |
 | Codex + SkillDock integrated | Codex Desktop users who specifically want the graphical panel | PCHW Skill, SkillDock Runtime, one installer | Current Codex conversation only |
 
@@ -30,6 +32,7 @@ graphical workspace.
 
 ```text
 PCHW-Skill-2.8.0-rc.1.zip
+pc-hardware-portable-v2.8.0-rc.1.zip
 SkillDock-Runtime-0.1.0-rc.1-win-x64.zip
 SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip
 SHA256SUMS.txt
@@ -38,6 +41,24 @@ SHA256SUMS.txt
 This is a public test build. Clean-Windows installation, uninstallation, and
 final signoff remain PENDING. Do not mix old and current Skill, Runtime, or
 package files.
+
+<a id="pchw-portable"></a>
+
+## PCHW Portable (standalone Windows; no Agent)
+
+This package requires no Codex, DSH, API key, installer, or administrator rights.
+Verify the ZIP, extract the complete directory, and double-click `开始使用.cmd` to
+open the menu.
+
+The portable build provides read-only inventory, troubleshooting, HWiNFO and
+PresentMon CSV analysis, evidence packages, telemetry charts, and guided manual
+tuning. It does not provide an Agent conversation or the SkillDock panel. The
+shared telemetry analyzer `1.2.4` recognizes `Timestamp`, `DateTime`, `Date/Time`,
+and their Chinese equivalents, and reports the sampled span.
+
+The portable build runs locally, does not initiate network access, and never
+changes BIOS, firmware, drivers, clocks, voltage, power limits, fans, or memory
+timings automatically.
 
 ## Codex + SkillDock
 

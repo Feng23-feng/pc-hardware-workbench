@@ -2,14 +2,17 @@
 
 [中文](README.md) | [English](README.en.md)
 
-PC Hardware Workbench is a Windows-focused, read-only hardware Skill for Codex and
-DeepSeek Harness. It brings system inventory, troubleshooting, telemetry analysis,
-guided tuning, and upgrade decisions into one workflow while leaving every
-persistent hardware change to the user.
+PC Hardware Workbench is a Windows-focused, read-only hardware workbench usable
+from Codex, DeepSeek Harness, or another compatible Agent. It also provides a
+standalone portable tool that needs no Agent, API, or installation. It brings
+system inventory, troubleshooting, telemetry analysis, guided tuning, and upgrade
+decisions into one workflow while leaving every persistent hardware change to the
+user.
 
-The current downloadable build is **PCHW Skill 2.8.0 + SkillDock Runtime
-0.1.0-rc.1, a test build**. There is no stable release yet. Here `2.8.0` is the
-PCHW Skill version and `0.1.0-rc.1` is the SkillDock application version.
+The current test build includes **PCHW Skill 2.8.0, SkillDock Runtime 0.1.0-rc.1,
+and standalone PCHW Portable 2.8.0**. There is no stable release yet. Here `2.8.0`
+is the PCHW Skill and Portable version and `0.1.0-rc.1` is the SkillDock application
+version.
 Automated tests and targeted human review pass, but broad real-device coverage,
 clean-Windows install/uninstall, and the remaining human scenarios are still in
 progress. The project does not claim this test build is stable or fully
@@ -69,18 +72,20 @@ The interactive project pages are currently available in Chinese:
 - **Remains read-only.** It does not modify BIOS, clocks, voltage, power limits, fans,
   memory timings, or firmware automatically.
 
-## Three download packages
+## Four download packages
 
 [Download the current test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1),
 then choose exactly one package. Do not place multiple copies of the same Skill
 in one host's scan directory.
 Most users should start with the PCHW Skill package without the panel. Choose
 the Codex + SkillDock integrated package only when you specifically want the
-graphical workspace.
+graphical workspace. If no Agent is available, or you want no installation at
+all, use the standalone Portable tool.
 
 | Package | Choose it when | Includes | SkillDock panel |
 | --- | --- | --- | --- |
 | PCHW Skill (Codex / DSH / other Agents; no panel) | Default choice; use Codex alone or with DSH / another compatible Agent host | PCHW Skill 2.8.0 release subset only | No |
+| PCHW Portable (standalone Windows; no Agent) | You do not use Codex / DSH, or want no Skill or Runtime installation | Standalone menu, collection, CSV, and evidence tools | No |
 | SkillDock Runtime-only | A compatible PCHW Skill is installed and only the Runtime and Node are missing | SkillDock Runtime + Node.js 24.22.1 | Current Codex conversation only |
 | Codex + SkillDock integrated | Codex Desktop users who specifically want the graphical panel | PCHW Skill, SkillDock Runtime, one installer | Current Codex conversation only |
 
@@ -88,6 +93,7 @@ Current GitHub test-build files:
 
 ```text
 PCHW-Skill-2.8.0-rc.1.zip
+pc-hardware-portable-v2.8.0-rc.1.zip
 SkillDock-Runtime-0.1.0-rc.1-win-x64.zip
 SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip
 SHA256SUMS.txt
@@ -96,6 +102,22 @@ SHA256SUMS.txt
 This is a public test build. Clean-Windows installation, uninstallation, and
 final signoff remain PENDING. Do not mix multiple Skills or old Runtime
 directories.
+
+<a id="pchw-portable"></a>
+
+### PCHW Portable (standalone Windows; no Agent)
+
+1. Download `pc-hardware-portable-v2.8.0-rc.1.zip` and verify it with
+   `SHA256SUMS.txt` or the GitHub asset digest.
+2. Extract the complete directory. No installation, administrator rights, API key,
+   or network connection is required.
+3. Double-click `开始使用.cmd` to open the menu.
+
+The portable build covers inventory, troubleshooting, telemetry CSV, PresentMon,
+evidence packages, and guided manual tuning, but it does not provide the SkillDock
+panel. Its shared telemetry analyzer `1.2.4` recognizes `Timestamp`, `DateTime`,
+`Date/Time`, and their Chinese equivalents, and reports the sampled span. Every
+hardware change remains manual.
 
 ### Codex + SkillDock
 

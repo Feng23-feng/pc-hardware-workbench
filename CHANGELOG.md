@@ -3,8 +3,9 @@
 ## 2.8.0 — 2026-11-17（2026-11-18 文档与分发更新）
 
 - 新增当前 Codex 对话的 SkillDock 操作面板入口，支持当前 Task、附件上下文、一次性本地分析权限、验证 SVG、判断卡和同 Task 重启恢复；
-- 将当前测试版下载入口明确为三种互斥类型：通用 PCHW Skill（无面板）、SkillDock Runtime-only、Codex + SkillDock 集成包；
+- 将当前测试版下载入口明确为四种互斥类型：通用 PCHW Skill（无面板）、PCHW Portable、SkillDock Runtime-only、Codex + SkillDock 集成包；
 - 普通用户默认使用不含面板的通用 PCHW Skill；只有明确需要图形操作面板时才选择 Codex 集成包；
+- 恢复独立 PCHW Portable 2.8.0 便携包；共享遥测分析器升至 1.2.4，支持整列 ISO 时间字段并输出实际采样跨度；
 - Codex 集成包使用 `Install.cmd` 自动判断全新安装或备份升级；不再要求用户选择 clean/upgrade 模式；
 - 更新 GitHub 中文/英文入口和安装、使用、排障文档，说明 SkillDock 面板只在 Codex 当前对话中承诺；
 - 补充 Ask-for-approval 下的“手动打开面板”链接或 `.url` 回退、一次性“仅本次允许”、结果自动更新、同 Task 重启和卸载流程；
