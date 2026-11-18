@@ -4,11 +4,27 @@ $ErrorActionPreference = "Stop"
 $script:BundleRoot = Split-Path -Parent $PSScriptRoot
 $script:ReleaseVersion = "0.1.0-rc.1"
 $script:PackageBaseName = "SkillDock-PCHW-0.1.0-rc.1-win-x64"
-$script:ArchiveBaseName =
-    "SkillDock-PCHW-0.1.0-rc.1-win-x64-p1fix-safe-upgrade-local-candidate-20261118"
-$script:ExpectedArchiveBytes = 36756757
-$script:ExpectedArchiveSha256 =
-    "469a6f3e39c567d58fc78ab58ca0d8de7e9aa30231c67acaf4f02a2c8c038d3c"
+$script:OuterInfoPath = Join-Path $script:BundleRoot "OUTER-BUNDLE-INFO.json"
+if (-not (Test-Path -LiteralPath $script:OuterInfoPath -PathType Leaf)) {
+    throw "OUTER-BUNDLE-INFO.json is missing."
+}
+$script:OuterInfo = Get-Content -Raw -LiteralPath $script:OuterInfoPath |
+    ConvertFrom-Json
+$script:ArchiveFileName = [string]$script:OuterInfo.rc_archive.file
+if ([string]::IsNullOrWhiteSpace($script:ArchiveFileName)) {
+    throw "OUTER-BUNDLE-INFO.json does not name the RC archive."
+}
+$script:ArchiveBaseName = [IO.Path]::GetFileNameWithoutExtension(
+    $script:ArchiveFileName
+)
+$script:ExpectedArchiveBytes = [int64]$script:OuterInfo.rc_archive.bytes
+$script:ExpectedArchiveSha256 = [string]$script:OuterInfo.rc_archive.sha256
+if (
+    $script:ExpectedArchiveBytes -le 0 -or
+    $script:ExpectedArchiveSha256 -notmatch "^[a-f0-9]{64}$"
+) {
+    throw "OUTER-BUNDLE-INFO.json has an invalid RC archive identity."
+}
 
 function Get-BundlePath {
     param([Parameter(Mandatory = $true)][string]$RelativePath)
