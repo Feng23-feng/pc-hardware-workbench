@@ -10,6 +10,7 @@ if ([string]::IsNullOrWhiteSpace($RepositoryRoot)) {
 
 $errors = New-Object System.Collections.Generic.List[string]
 $siteRoot = Join-Path $RepositoryRoot "docs\skill-evolution"
+$pagesIndexPath = Join-Path $RepositoryRoot "docs\index.html"
 $indexPath = Join-Path $siteRoot "index.html"
 $interactivePath = Join-Path $siteRoot "interactive\index.html"
 $homeTemplatePath = Join-Path $RepositoryRoot "tools\templates\skill-evolution-home.html"
@@ -21,6 +22,7 @@ $orreryPath = Join-Path $siteRoot "orrery\index.html"
 $frozenPath = Join-Path $siteRoot "orrery\FROZEN.json"
 
 foreach ($path in @(
+    $pagesIndexPath,
     $indexPath,
     $interactivePath,
     $homeTemplatePath,
@@ -33,6 +35,19 @@ foreach ($path in @(
 )) {
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
         $errors.Add("Missing site file: $path") | Out-Null
+    }
+}
+
+if ($errors.Count -eq 0) {
+    $pagesIndex = Get-Content -Raw -LiteralPath $pagesIndexPath -Encoding UTF8
+    if (
+        $pagesIndex -notmatch
+            '<meta http-equiv="refresh" content="0; url=\./skill-evolution/">' -or
+        $pagesIndex -notmatch 'href="\./skill-evolution/"'
+    ) {
+        $errors.Add(
+            "docs/index.html must redirect the Pages root to skill-evolution."
+        ) | Out-Null
     }
 }
 
