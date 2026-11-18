@@ -533,7 +533,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       filePlanetCard.previewHeight >= (name === "desktop" ? 300 : 160) &&
       filePlanetCard.imageLoaded &&
       filePlanetCard.canvasCount === 0 &&
-      (name === "desktop"
+      (name === "desktop" || name === "compact-desktop"
         ? filePlanetCard.linkColumns.split(" ").filter(Boolean).length === 2
         : filePlanetCard.previewBeforeCopy),
       `${prefix}file planet entry is not a working two-column/mobile preview card (${JSON.stringify(filePlanetCard)}).`
@@ -565,7 +565,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       candidateStatus.state === "当前测试版" &&
       candidateStatus.title === "选择适合你的使用方式" &&
       candidateStatus.lead.includes("按使用场景") &&
-      candidateStatus.rowLabels.join(",") === "简易便携包,DSH core-only,Codex + SkillDock,回退与状态" &&
+      candidateStatus.rowLabels.join(",") === "PCHW Skill-only,SkillDock Runtime-only,Codex + SkillDock,回退与状态" &&
       candidateStatus.rowCopies.every(copy => copy.length > 0) &&
       candidateStatus.gapAfterFilePlanet >= (name === "desktop" ? 72 : 44) &&
       candidateStatus.belowFilePlanet,
@@ -2205,6 +2205,7 @@ async function main() {
   try {
     await waitForDebugEndpoint();
     await testHomeViewport(siteUrl, "desktop", 1440, 1000);
+    await testHomeViewport(siteUrl, "compact-desktop", 1024, 768);
     await testHomeViewport(siteUrl, "mobile", 390, 844);
     await testPreviewRootReturn(previewRootUrl);
     await testInteractiveViewport(interactiveUrl, "desktop", 1440, 1000);

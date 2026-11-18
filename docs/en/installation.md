@@ -18,21 +18,22 @@ blockers.
 
 | Package | Use it when | Includes | Panel |
 | --- | --- | --- | --- |
-| Portable | You do not need a Skill host | Local read-only collection, CSV, charts, reports | No SkillDock; local menu |
-| DSH core-only | You use DeepSeek Harness | PCHW Skill and DSH adapter | No SkillDock panel |
-| Codex + SkillDock | You use Codex Desktop | PCHW Skill, SkillDock Runtime, one installer | Current Codex conversation only |
+| PCHW Skill-only | Codex, DSH, or another compatible Agent host is already available | PCHW Skill release subset only | No |
+| SkillDock Runtime-only | A compatible PCHW Skill is installed and only the application and Node are missing | SkillDock Runtime, Node.js 24.22.1 | Current Codex conversation only |
+| Codex + SkillDock integrated | Most Codex Desktop users | PCHW Skill, SkillDock Runtime, one installer | Current Codex conversation only |
 
-Current candidate names:
+[Download the current GitHub pre-release assets](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1):
 
 ```text
-pc-hardware-portable-v2.8.0.zip
-pc-hardware-workbench-deepseek-harness-v2.8.0.zip
+PCHW-Skill-2.8.0-rc.1.zip
+SkillDock-Runtime-0.1.0-rc.1-win-x64.zip
 SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip
+SHA256SUMS.txt
 ```
 
-`2.8.0` has not been formally released. Use only files that actually exist in
-Releases together with their SHA-256 sidecars. Do not mix old and current Skill,
-Runtime, or package files.
+This is a public pre-release. Clean-Windows installation, uninstallation, and
+final signoff remain PENDING. Do not mix old and current Skill, Runtime, or
+package files.
 
 ## Codex + SkillDock
 
@@ -93,11 +94,12 @@ updates automatically when the result returns. Closing and reopening SkillDock
 should restore the same Task, attachments, chart, and conclusion without creating a
 second Thread.
 
-## DSH core-only
+## PCHW Skill-only
 
-DSH uses the core-only package and does not install SkillDock Runtime.
+The Skill-only package contains no SkillDock Runtime, Node.js, or DSH observer.
+Place `pc-hardware-workbench` in the target Agent's Skill directory.
 
-Default Skill path:
+Default DSH Skill path:
 
 ```text
 %USERPROFILE%\.dsh\skills\pc-hardware-workbench
@@ -115,22 +117,21 @@ Invoke:
 /pc-hardware-workbench
 ```
 
-DSH can use PCHW for configuration, troubleshooting, chat, collection, and CSV
-analysis. It does not provide the Codex `pchw-source-hosted` SkillDock panel. See
-the [DSH adapter](../../adapters/dsh/README.md) for details.
+PCHW can be used for configuration, troubleshooting, chat, collection, and CSV
+analysis. It does not provide the Codex `pchw-source-hosted` SkillDock panel.
+See the [DSH adapter](../../adapters/dsh/README.md) for details.
 
-## Portable package
+## SkillDock Runtime-only
 
-No Codex, DSH, or SkillDock installation is required:
+Use this only when a compatible PCHW Skill is already installed and the
+SkillDock application plus Node.js are missing:
 
 ```powershell
-cd portable
-.\开始使用.cmd
+powershell -NoProfile -ExecutionPolicy Bypass -File ".\Install SkillDock Runtime.ps1"
 ```
 
-Choose standard or privacy-redacted mode, then explicitly approve the read-only
-collection. The portable package processes data locally and writes charts or reports
-only to a location selected by the user.
+After installation, open the panel from the current Codex conversation. Do not
+launch `SkillDock.exe` manually for the normal user path.
 
 ## Verify installation
 
@@ -163,11 +164,11 @@ Run `Install.cmd` from the new package. The installer validates the old Skill, b
 it up, installs the new Skill, backs up old Runtime directories, and keeps backups
 when a conflict or failure occurs.
 
-### DSH
+### PCHW Skill-only / DSH
 
-Close DSH, move the old Skill directory to a backup location, and install the new
-core-only package. Do not leave two Skill directories containing `SKILL.md` in the
-same DSH scan root.
+Close the host, move the old Skill directory to a backup location, and install
+the new Skill-only package. Do not leave two Skill directories containing
+`SKILL.md` in the same DSH scan root.
 
 ## Uninstall
 
@@ -185,11 +186,6 @@ Close DSH and remove:
 %USERPROFILE%\.dsh\skills\pc-hardware-workbench
 ```
 
-### Portable package
-
-Confirm that no collector or report process is running, then delete the extracted
-directory. User-selected report directories are not removed automatically.
-
 ## Support matrix
 
 | Host | PCHW chat, collection, CSV | SkillDock panel |
@@ -197,7 +193,6 @@ directory. User-selected report directories are not removed automatically.
 | Current Codex user conversation | Supported | Supported; only promised panel host |
 | DeepSeek Harness | Supported | Not provided |
 | Other Agent hosts | Use according to host file access | Not promised |
-| Portable package | No Skill host required | No SkillDock; standalone local tools |
 
 ## Known limitations
 

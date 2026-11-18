@@ -67,28 +67,30 @@ The interactive project pages are currently available in Chinese:
 - **Remains read-only.** It does not modify BIOS, clocks, voltage, power limits, fans,
   memory timings, or firmware automatically.
 
-## Choose one package
+## Three download packages
 
-Choose the package that matches where you use the Workbench. Do not place
-multiple copies of the same Skill in one host's scan directory.
+[Download the current pre-release assets](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1),
+then choose exactly one package. Do not place multiple copies of the same Skill
+in one host's scan directory.
 
-| Package | Choose it when | Includes | Panel |
+| Package | Choose it when | Includes | SkillDock panel |
 | --- | --- | --- | --- |
-| Portable | You do not want a Skill host | Local read-only collection, CSV analysis, charts, reports | No SkillDock; local menu |
-| DSH core-only | You use DeepSeek Harness | PCHW Skill and DSH adapter | No SkillDock panel |
-| Codex + SkillDock | You use Codex Desktop and want the panel | PCHW Skill, SkillDock Runtime, one installer | Current Codex conversation only |
+| PCHW Skill-only | You already have Codex, DSH, or another compatible Agent host | PCHW Skill 2.8.0 release subset only | No |
+| SkillDock Runtime-only | A compatible PCHW Skill is installed and only the Runtime and Node are missing | SkillDock Runtime + Node.js 24.22.1 | Current Codex conversation only |
+| Codex + SkillDock integrated | Most Codex Desktop users | PCHW Skill, SkillDock Runtime, one installer | Current Codex conversation only |
 
-Current candidate asset names:
+Current GitHub pre-release assets:
 
 ```text
-pc-hardware-portable-v2.8.0.zip
-pc-hardware-workbench-deepseek-harness-v2.8.0.zip
+PCHW-Skill-2.8.0-rc.1.zip
+SkillDock-Runtime-0.1.0-rc.1-win-x64.zip
 SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip
+SHA256SUMS.txt
 ```
 
-Version 2.8.0 has not been formally released. Treat the files and SHA-256
-sidecars actually present in Releases as authoritative, and do not mix assets
-from older package schemes.
+This is a public pre-release. Clean-Windows installation, uninstallation, and
+final signoff remain PENDING. Most Codex Desktop users should choose the
+integrated package; do not mix multiple Skills or old Runtime directories.
 
 ### Codex + SkillDock
 
@@ -103,27 +105,35 @@ Do not look for a runner, port, token, environment variable, or manually start
 `SkillDock.exe`. The installer places both the PCHW Skill and SkillDock Runtime
 from the same verified package.
 
-### DSH core-only
+### PCHW Skill-only
 
-The DSH package contains the PCHW Skill and Harness adapter, but no SkillDock
-panel. Place the Skill under
-`%USERPROFILE%\.dsh\skills\pc-hardware-workbench`, then invoke:
+The Skill-only package contains the PCHW Skill and no SkillDock application,
+Node.js, test runner, or DSH observer. Put `pc-hardware-workbench` in the target
+Agent's Skill directory. The default DSH location is:
+
+```text
+%USERPROFILE%\.dsh\skills\pc-hardware-workbench
+```
+
+Then invoke:
 
 ```text
 /pc-hardware-workbench
 ```
 
-See [Installation and upgrade](docs/en/installation.md) for details.
+See [Installation and upgrade](docs/en/installation.md#pchw-skill-only) for details.
 
-### Portable Windows tools
+### SkillDock Runtime-only
 
-No Codex, DSH, or SkillDock installation is required. Extract the portable
-package and run:
+Use this package only when a compatible PCHW Skill is already installed and the
+SkillDock application plus Node.js are missing. Extract it and run:
 
 ```powershell
-cd portable
-.\开始使用.cmd
+powershell -NoProfile -ExecutionPolicy Bypass -File ".\Install SkillDock Runtime.ps1"
 ```
+
+After installation, open the panel from the current Codex conversation. Do not
+launch `SkillDock.exe` manually for the normal user path.
 
 The portable tools perform only user-approved local read-only collection and
 generate charts or reports when needed.
@@ -222,7 +232,6 @@ Read [Privacy and safety boundaries](docs/en/privacy-and-safety.md) for the full
 | Current Codex conversation | Supported | Supported |
 | DeepSeek Harness | Supported | Not provided |
 | Other Agent hosts | Use according to the host's file access | Not promised |
-| Portable package | No Skill host required | No SkillDock |
 
 ## Known limitations
 

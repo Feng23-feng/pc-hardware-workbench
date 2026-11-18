@@ -2,9 +2,9 @@
 
 ## 不确定该下载哪个包
 
-- 只想读取配置或分析 CSV，不需要宿主：使用简易便携包；
-- 使用 DeepSeek Harness：使用 DSH core-only 包；
-- 使用 Codex Desktop，并希望从当前对话打开操作面板：使用 Codex + SkillDock 包。
+- 已有 Codex、DSH 或其他兼容 Agent 宿主，只缺 Skill：使用 PCHW Skill-only；
+- 已安装兼容 PCHW Skill，只缺 SkillDock 应用与 Node：使用 Runtime-only；
+- 使用 Codex Desktop 并希望从当前对话打开操作面板：使用集成包。
 
 2.8.0 尚未正式发布。不要混装旧版 Skill、旧 Runtime 和当前 ZIP。
 

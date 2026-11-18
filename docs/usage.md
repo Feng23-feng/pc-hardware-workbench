@@ -5,10 +5,9 @@
 
 ## 三种使用入口
 
-- **Codex + SkillDock。** 适合在 Codex 当前对话中提交 CSV、查看图表和复制结论。
-- **DSH core-only。** 适合在 DeepSeek Harness 中使用 PCHW 的聊天、采集和 CSV
-  分析；没有 SkillDock 面板。
-- **简易便携包。** 不依赖 Skill 宿主，直接运行本机只读采集与报告工具。
+- **Codex + SkillDock 集成包。** 适合大多数 Codex 当前对话用户。
+- **PCHW Skill-only。** 适合已有 Codex、DSH 或其他兼容 Agent 宿主，只缺 Skill。
+- **SkillDock Runtime-only。** 适合已经安装兼容 PCHW Skill，只缺应用和 Node。
 
 按实际使用的宿主选择包；同一个宿主的 Skill 扫描目录只保留一个活动版本。
 
@@ -66,9 +65,9 @@ PCHW 的聊天、采集和 CSV 分析，但不提供这个面板。
 
 面板不会自动修改 BIOS、固件、驱动、频率、电压、功耗、风扇或内存时序。
 
-## DSH core-only
+## PCHW Skill-only
 
-DSH 中只提供 PCHW Skill 的聊天、采集和 CSV 分析能力。调用：
+Skill-only 包只提供 PCHW Skill 的聊天、采集和 CSV 分析能力。DSH 中调用：
 
 ```text
 /pc-hardware-workbench
@@ -76,10 +75,10 @@ DSH 中只提供 PCHW Skill 的聊天、采集和 CSV 分析能力。调用：
 
 DSH 不安装、不启动 SkillDock Runtime，也不承诺 `pchw-source-hosted` 面板。
 
-## 简易便携包
+## SkillDock Runtime-only
 
-运行 `portable\开始使用.cmd` 后，选择标准或隐私脱敏模式，并明确同意只读采集。
-便携包不需要 Codex 或 DSH，也不会自动修改任何硬件设置。
+这是已有兼容 PCHW Skill 时的补装包，只添加 SkillDock 应用和 Node.js。安装后仍从
+Codex 当前对话触发面板；不需要手动启动 `SkillDock.exe`。
 
 ## 常见输入
 

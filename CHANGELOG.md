@@ -3,7 +3,7 @@
 ## 2.8.0 — 2026-11-17（2026-11-18 文档与分发更新）
 
 - 新增当前 Codex 对话的 SkillDock 操作面板入口，支持当前 Task、附件上下文、一次性本地分析权限、验证 SVG、判断卡和同 Task 重启恢复；
-- 将分发入口明确为三种互斥类型：简易便携包、DSH core-only 包、Codex + SkillDock 集成包；
+- 将公开预发布入口明确为三种互斥类型：PCHW Skill-only、SkillDock Runtime-only、Codex + SkillDock 集成包；
 - Codex 集成包使用普通用户入口 `Install.cmd` 自动判断全新安装或备份升级；不再要求用户选择 clean/upgrade 模式；
 - 更新 GitHub 中文/英文入口和安装、使用、排障文档，说明 SkillDock 面板只在 Codex 当前对话中承诺；
 - 补充 Ask-for-approval 下的“手动打开面板”链接或 `.url` 回退、一次性“仅本次允许”、结果自动更新、同 Task 重启和卸载流程；

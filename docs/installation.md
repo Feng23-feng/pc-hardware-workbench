@@ -19,20 +19,21 @@ Skill 扫描目录。
 
 | 包 | 适用场景 | 包含 | 操作面板 |
 | --- | --- | --- | --- |
-| 简易便携包 | 不安装 Skill 宿主 | PowerShell 采集、CSV、图表和报告 | 无 SkillDock，使用本地菜单 |
-| DSH core-only 包 | DeepSeek Harness | PCHW Skill、DSH 适配 | 无 SkillDock |
-| Codex + SkillDock 包 | Codex Desktop 当前对话 | PCHW Skill、SkillDock Runtime、单一安装入口 | 仅 Codex |
+| PCHW Skill-only | 已有 Codex、DSH 或其他兼容 Agent 宿主 | 仅 PCHW Skill 发布子集 | 无 |
+| SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺应用与 Node | SkillDock Runtime、Node.js 24.22.1 | 仅 Codex 当前对话 |
+| Codex + SkillDock 集成包 | Codex Desktop 普通用户 | PCHW Skill、SkillDock Runtime、单一安装入口 | 仅 Codex |
 
-当前候选资产名称：
+[下载当前 GitHub 预发布资产](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1)：
 
 ```text
-pc-hardware-portable-v2.8.0.zip
-pc-hardware-workbench-deepseek-harness-v2.8.0.zip
+PCHW-Skill-2.8.0-rc.1.zip
+SkillDock-Runtime-0.1.0-rc.1-win-x64.zip
 SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip
+SHA256SUMS.txt
 ```
 
-2.8.0 尚未正式发布；只使用 Releases 中实际存在的文件和对应 SHA-256 sidecar，
-不要把旧版本的 ZIP、Skill 目录和 Runtime 混在一起。
+这是公开预发布；clean Windows 安装、卸载和最终签收仍是 PENDING。不要把旧版本
+ZIP、Skill 目录和 Runtime 混在一起。
 
 ## Codex + SkillDock
 
@@ -89,11 +90,12 @@ Runtime 与迁移数据的备份位于：
 
 关闭并重启后，同一 Task、附件、图表和结论应恢复，不创建第二个 Thread。
 
-## DeepSeek Harness
+## PCHW Skill-only
 
-DSH 使用 core-only 包，不安装 SkillDock Runtime。
+Skill-only 包只包含 PCHW Skill，不安装 SkillDock Runtime、Node 或 DSH 观察窗。
+把包内 `pc-hardware-workbench` 目录放到目标 Agent 的 Skill 扫描目录。
 
-默认 Skill 目录：
+DSH 默认 Skill 目录：
 
 ```text
 %USERPROFILE%\.dsh\skills\pc-hardware-workbench
@@ -111,20 +113,18 @@ DSH 使用 core-only 包，不安装 SkillDock Runtime。
 /pc-hardware-workbench
 ```
 
-DSH 可以使用配置读取、排障、聊天、采集和 CSV 分析，但没有本版 Codex
-SkillDock 面板。适配细节见 [DSH adapter](../adapters/dsh/README.md)。
+PCHW Skill 可以使用配置读取、排障、聊天、采集和 CSV 分析，但没有本版 Codex
+SkillDock 面板。DSH 适配细节见 [DSH adapter](../adapters/dsh/README.md)。
 
-## 简易便携包
+## SkillDock Runtime-only
 
-不需要 Codex、DSH 或 SkillDock。解压后运行：
+仅在已经安装兼容 PCHW Skill、但缺少 SkillDock 应用和 Node 时使用。解压后运行：
 
 ```powershell
-cd portable
-.\开始使用.cmd
+powershell -NoProfile -ExecutionPolicy Bypass -File ".\Install SkillDock Runtime.ps1"
 ```
 
-在菜单中选择标准或隐私脱敏模式，再明确同意只读采集。便携包只在本机处理数据；
-可选图表与报告保存在用户选择的本地目录。
+安装完成后仍从 Codex 当前对话触发面板，不需要手动启动 `SkillDock.exe`。
 
 ## 验证安装
 
@@ -160,9 +160,9 @@ Test-Path $pointer
 - 备份旧 Runtime；
 - 在冲突或失败时保留备份并回到对话。
 
-### DSH
+### PCHW Skill-only / DSH
 
-关闭 DSH，将旧 Skill 目录移到备份位置，再安装新 core-only 包。不要把两个包含
+关闭宿主，将旧 Skill 目录移到备份位置，再安装新的 Skill-only 包。不要把两个包含
 `SKILL.md` 的版本同时留在 DSH 扫描根中。
 
 ## 卸载
@@ -180,11 +180,6 @@ Test-Path $pointer
 %USERPROFILE%\.dsh\skills\pc-hardware-workbench
 ```
 
-### 便携包
-
-先确认没有正在运行的采集或报告进程，再删除解压目录。用户自行选择的报告目录
-不会被便携包自动清理。
-
 ## 支持矩阵
 
 | 宿主 | PCHW 聊天、采集与 CSV | SkillDock 面板 |
@@ -192,7 +187,6 @@ Test-Path $pointer
 | Codex 当前用户对话 | 支持 | 支持，唯一承诺的面板宿主 |
 | DeepSeek Harness | 支持 | 不提供 |
 | 其他 Agent 宿主 | 可按其文件访问能力使用 Skill | 不承诺 |
-| 简易便携包 | 不依赖 Skill 宿主 | 无 SkillDock，独立本地工具 |
 
 ## 已知限制
 

@@ -56,26 +56,28 @@
   的本机 LibreHardwareMonitor、视觉截图说明和跨轮硬件案卷。
 - **始终只读。** 不自动修改 BIOS、频率、电压、功耗、风扇、内存时序或固件。
 
-## 三种使用方式
+## 三种下载包
 
-按使用场景选择对应的包；不要把同一个 Skill 的多个副本放进同一个宿主扫描目录。
+[下载当前预发布资产](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1)，
+按使用场景只选一个包；不要把同一个 Skill 的多个副本放进同一个宿主扫描目录。
 
-| 包 | 适合谁 | 包含 | 操作面板 |
+| 包 | 适合谁 | 包含 | SkillDock 面板 |
 | --- | --- | --- | --- |
-| 简易便携包 | 不想安装 Skill 或宿主 | 本地 PowerShell 硬件采集、CSV、图表和报告 | 无 SkillDock，使用本地菜单 |
-| DSH core-only 包 | 使用 DeepSeek Harness | PCHW Skill 与 DSH 适配 | 无 SkillDock 面板 |
-| Codex + SkillDock 包 | 使用 Codex Desktop，并需要当前对话操作面板 | PCHW Skill、SkillDock Runtime、单一安装入口 | 仅 Codex 当前对话 |
+| PCHW Skill-only | 已有 Codex、DSH 或其他兼容 Agent 宿主 | 仅 PCHW Skill 2.8.0 发布子集 | 无 |
+| SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺 SkillDock 应用与 Node | SkillDock Runtime + Node.js 24.22.1 | 仅 Codex 当前对话 |
+| Codex + SkillDock 集成包 | 大多数 Codex Desktop 用户 | PCHW Skill、SkillDock Runtime、单一安装入口 | 仅 Codex 当前对话 |
 
-当前候选资产名称：
+当前 GitHub 预发布资产：
 
 ```text
-pc-hardware-portable-v2.8.0.zip
-pc-hardware-workbench-deepseek-harness-v2.8.0.zip
+PCHW-Skill-2.8.0-rc.1.zip
+SkillDock-Runtime-0.1.0-rc.1-win-x64.zip
 SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip
+SHA256SUMS.txt
 ```
 
-2.8.0 尚未正式发布，以上是当前候选命名；以 Releases 中实际存在的文件和 SHA-256
-sidecar 为准。不要根据旧版本资产名混装。
+这是公开预发布，clean Windows 安装/卸载和最终签收仍为 PENDING。普通用户优先
+选择 Codex 集成包；不要混装多个 Skill 或旧 Runtime。
 
 ### Codex + SkillDock
 
@@ -88,27 +90,27 @@ sidecar 为准。不要根据旧版本资产名混装。
 用户不需要寻找 runner、端口、token 或环境变量，也不需要手动启动
 `SkillDock.exe`。安装器会从同一个候选包中安装 PCHW Skill 与 SkillDock Runtime。
 
-### DSH core-only
+### PCHW Skill-only
 
-DSH 包只提供 PCHW Skill 和 Harness 适配，不包含 SkillDock 面板。将包内 Skill
-安装到 `%USERPROFILE%\.dsh\skills\pc-hardware-workbench`，然后调用：
+Skill-only 包只包含 PCHW Skill，不含 SkillDock、Node、测试 runner 或 DSH 观察窗。
+将 `pc-hardware-workbench` 目录安装到目标 Agent 的 Skill 扫描目录。DSH 默认位置：
 
 ```text
-/pc-hardware-workbench
+%USERPROFILE%\.dsh\skills\pc-hardware-workbench
 ```
 
-详细步骤见 [安装与升级](docs/installation.md#deepseek-harness)。
+详细步骤见 [安装与升级](docs/installation.md#pchw-skill-only)。
 
-### 简易便携包
+### SkillDock Runtime-only
 
-不需要 Codex、DSH 或 SkillDock。解压便携包后运行：
+此包只供已经安装兼容 PCHW Skill、但缺少 SkillDock 应用与 Node 的高级用户使用。
+解压后运行：
 
 ```powershell
-cd portable
-.\开始使用.cmd
+powershell -NoProfile -ExecutionPolicy Bypass -File ".\Install SkillDock Runtime.ps1"
 ```
 
-便携包只在本机执行用户确认的只读采集，并在需要时生成图表或报告。
+安装后仍从 Codex 当前对话触发面板，不需要手动启动 `SkillDock.exe`。
 
 ## 打开 SkillDock 操作面板
 
@@ -189,7 +191,6 @@ Skill 会根据问题进入配置、排障、遥测、调参或升级路线。�
 | Codex 当前用户对话 | 支持 | 支持 |
 | DeepSeek Harness | 支持 | 不提供 |
 | 其他 Agent 宿主 | 按宿主文件访问能力使用 | 不承诺 |
-| 简易便携包 | 不依赖 Skill 宿主 | 无 SkillDock |
 
 ## 已知限制
 
