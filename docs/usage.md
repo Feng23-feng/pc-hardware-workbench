@@ -16,7 +16,7 @@
 
 ## 在 PCHW Portable 中使用
 
-校验并解压 `pc-hardware-portable-v2.8.0-rc.1.zip` 后，双击 `开始使用.cmd`，再按
+校验并解压 `pc-hardware-portable-v2.8.0-rc.2.zip` 后，双击 `开始使用.cmd`，再按
 菜单选择配置读取、排障、遥测分析、PresentMon 或手动调校。它不依赖 Agent、
 API、网络、安装程序或管理员权限，也不提供 SkillDock 面板。
 

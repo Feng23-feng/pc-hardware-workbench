@@ -28,13 +28,13 @@ no installation at all, use PCHW Portable.
 | SkillDock Runtime-only | A compatible PCHW Skill is installed and only the application and Node are missing | SkillDock Runtime, Node.js 24.22.1 | Current Codex conversation only |
 | SkillDock panel bundle (for Codex) | Codex Desktop is installed and you specifically want the graphical panel | PCHW Skill, SkillDock Runtime, installer | Current Codex conversation only |
 
-[Download the current GitHub test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1):
+[Download the current GitHub test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2):
 
 ```text
-PCHW-Skill-2.8.0-rc.1.zip
-pc-hardware-portable-v2.8.0-rc.1.zip
-SkillDock-Runtime-0.1.0-rc.1-win-x64.zip
-SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip
+PCHW-Skill-2.8.0-rc.2.zip
+pc-hardware-portable-v2.8.0-rc.2.zip
+SkillDock-Runtime-0.1.0-rc.2-win-x64.zip
+SkillDock-PCHW-0.1.0-rc.2-win-x64-user.zip
 SHA256SUMS.txt
 ```
 
@@ -66,7 +66,7 @@ Codex Desktop must already be installed.
 
 ### Install
 
-1. Download `SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip`.
+1. Download `SkillDock-PCHW-0.1.0-rc.2-win-x64-user.zip`.
 2. Verify it with `SHA256SUMS.txt` or the GitHub asset digest.
 3. Extract the full directory.
 4. Double-click `Install.cmd`.

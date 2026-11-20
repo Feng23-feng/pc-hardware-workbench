@@ -9,9 +9,9 @@ system inventory, troubleshooting, telemetry analysis, guided tuning, and upgrad
 decisions into one workflow while leaving every persistent hardware change to the
 user.
 
-The current test build includes **PCHW Skill 2.8.0, SkillDock Runtime 0.1.0-rc.1,
+The current test build includes **PCHW Skill 2.8.0, SkillDock Runtime 0.1.0-rc.2,
 and standalone PCHW Portable 2.8.0**. There is no stable release yet. Here `2.8.0`
-is the PCHW Skill and Portable version and `0.1.0-rc.1` is the SkillDock application
+is the PCHW Skill and Portable version and `0.1.0-rc.2` is the SkillDock application
 version.
 Automated tests and targeted human review pass, but broad real-device coverage,
 clean-Windows install/uninstall, and the remaining human scenarios are still in
@@ -74,7 +74,7 @@ The interactive project pages are currently available in Chinese:
 
 ## Four download packages
 
-[Download the current test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1),
+[Download the current test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2),
 then choose exactly one package. Do not place multiple copies of the same Skill
 in one host's scan directory.
 Most users should start with the PCHW Skill package without the panel. Choose
@@ -92,10 +92,10 @@ no installation at all, use the standalone Portable tool.
 Current GitHub test-build files:
 
 ```text
-PCHW-Skill-2.8.0-rc.1.zip
-pc-hardware-portable-v2.8.0-rc.1.zip
-SkillDock-Runtime-0.1.0-rc.1-win-x64.zip
-SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip
+PCHW-Skill-2.8.0-rc.2.zip
+pc-hardware-portable-v2.8.0-rc.2.zip
+SkillDock-Runtime-0.1.0-rc.2-win-x64.zip
+SkillDock-PCHW-0.1.0-rc.2-win-x64-user.zip
 SHA256SUMS.txt
 ```
 
@@ -128,7 +128,7 @@ hardware settings automatically.
 
 ### PCHW Portable (standalone Windows; no Agent)
 
-1. Download `pc-hardware-portable-v2.8.0-rc.1.zip` and verify it with
+1. Download `pc-hardware-portable-v2.8.0-rc.2.zip` and verify it with
    `SHA256SUMS.txt` or the GitHub asset digest.
 2. Extract the complete directory. No installation, administrator rights, API key,
    or network connection is required.

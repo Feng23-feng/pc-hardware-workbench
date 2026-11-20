@@ -8,8 +8,8 @@
 用户亲手完成。
 
 当前版本为 **2.8.0 测试版**，包含 PCHW Skill 2.8.0、SkillDock Runtime
-0.1.0-rc.1 和独立 PCHW Portable 2.8.0。目前没有正式版。
-其中 `2.8.0` 是 PCHW Skill 与 Portable 版本，`0.1.0-rc.1` 是 SkillDock 应用版本。完整自动测试和定向人工审阅已通过；
+0.1.0-rc.2 和独立 PCHW Portable 2.8.0。目前没有正式版。
+其中 `2.8.0` 是 PCHW Skill 与 Portable 版本，`0.1.0-rc.2` 是 SkillDock 应用版本。完整自动测试和定向人工审阅已通过；
 真实设备覆盖、干净 Windows 安装/卸载和其余交互场景签署仍在继续。项目不会把
 测试版包装成稳定版。
 
@@ -61,7 +61,7 @@
 
 ## 四种下载包
 
-[下载当前测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.1)，
+[下载当前测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2)，
 按使用场景只选一个包；不要把同一个 Skill 的多个副本放进同一个宿主扫描目录。
 普通用户默认选择不含面板的纯 PCHW Skill；只有明确需要网页操作面板时，再选择
 SkillDock 面板包（需已安装 Codex）。没有 Agent，或希望完全不安装时，选择独立
@@ -77,10 +77,10 @@ SkillDock 面板包（需已安装 Codex）。没有 Agent，或希望完全不�
 当前 GitHub 测试版文件：
 
 ```text
-PCHW-Skill-2.8.0-rc.1.zip
-pc-hardware-portable-v2.8.0-rc.1.zip
-SkillDock-Runtime-0.1.0-rc.1-win-x64.zip
-SkillDock-PCHW-0.1.0-rc.1-win-x64-user.zip
+PCHW-Skill-2.8.0-rc.2.zip
+pc-hardware-portable-v2.8.0-rc.2.zip
+SkillDock-Runtime-0.1.0-rc.2-win-x64.zip
+SkillDock-PCHW-0.1.0-rc.2-win-x64-user.zip
 SHA256SUMS.txt
 ```
 
@@ -107,7 +107,7 @@ SkillDock；完全不需要 Agent 时，才选择独立便携包。SkillDock 对
 
 ### PCHW Portable 便携工具（无需 Agent）
 
-1. 下载 `pc-hardware-portable-v2.8.0-rc.1.zip`，并按 `SHA256SUMS.txt` 或
+1. 下载 `pc-hardware-portable-v2.8.0-rc.2.zip`，并按 `SHA256SUMS.txt` 或
    GitHub asset digest 校验。
 2. 解压完整目录，不需要安装、管理员权限、API key 或网络连接。
 3. 双击 `开始使用.cmd` 进入菜单。
