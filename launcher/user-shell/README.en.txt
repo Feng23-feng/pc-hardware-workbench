@@ -1,8 +1,8 @@
-SkillDock + PC Hardware Workbench
+SkillDock panel bundle (for Codex) + PC Hardware Workbench
 User Guide
 
-This is the integrated Codex + SkillDock package. It installs both the PC
-Hardware Workbench Skill and the local SkillDock Runtime. The portable tools
+This bundle is for users who already have Codex Desktop. It installs both the
+PC Hardware Workbench Skill and the local SkillDock Runtime. The portable tools
 and DSH-only package are distributed separately.
 
 Supported environment
@@ -22,7 +22,9 @@ Install
 If an older version of PC Hardware Workbench is already installed, do not delete
 the old Skill first. Install.cmd detects the existing installation and performs
 the safe upgrade automatically. The upgrade backs up the old version and
-restores it if replacement fails.
+restores it if replacement fails. After a successful install, Runtime program
+backups rotate to the newest rollback copy only; Task data and migration data
+backups are not deleted automatically.
 
 Open PC Hardware Workbench
 ==========================

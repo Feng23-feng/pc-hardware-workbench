@@ -26,6 +26,12 @@
   installation or tree validation fails.
 - Add structured `skill_runtime_mismatch`, `runtime_access_blocked`, and
   `interactive_desktop_unavailable` fallback states.
+- Rotate Runtime program backups after a successful install, retaining the
+  newest one by default through `-RetainRuntimeBackups`; unrelated directories,
+  Task data, and migration-data backups remain untouched.
+- Fix integrated user-package metadata to record the embedded RC's real
+  top-level directory, and reject future builds where that layout binding is
+  inconsistent.
 - Add portable-launcher Skill-root tests and visible-Edge UI-flow regression
   assertions for `permission.requested` and verified SVG content.
 

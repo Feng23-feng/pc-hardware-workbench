@@ -277,7 +277,7 @@ try {
     $packageInfo = [ordered]@{
         schema_version = "1.0"
         package_kind = "integrated-user-installation"
-        package_base = $packageBaseName
+        package_base = [string]$rcVerification.package_basename
         primary_entry = "Install.cmd"
         root_entries = @(
             "README.txt",

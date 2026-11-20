@@ -107,8 +107,14 @@ available for rollback outside the active root:
 
 The installer stops a healthy pointed Runtime, moves all old active
 `Runtime-*`/`Runtime` program directories to that backup root, and leaves
-exactly one active Runtime program directory before updating the pointer. The
-canonical user-data root is `runtime-pchw`.
+exactly one active Runtime program directory before updating the pointer. After
+the pointer update succeeds, obsolete program backups are rotated to the newest
+one by default; `-RetainRuntimeBackups` accepts 1 through 20. Unrelated backup
+entries, Runtime data, and data-migration backups are never removed by this
+rotation. The Runtime referenced by the previous `runtime-location.json` is
+always retained even when its directory timestamp is older than a stale backup.
+Cleanup failures are reported but do not turn a successful Runtime installation
+into a failure. The canonical user-data root is `runtime-pchw`.
 
 Before creating the new Runtime, the installer checks the legacy
 `runtime-dsh-web` data root through `runtime-data-migration.ps1`. If legacy data

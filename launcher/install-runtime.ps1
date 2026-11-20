@@ -5,7 +5,9 @@ param(
     [string]$BackupRoot = "",
     [string]$DataBackupRoot = "",
     [ValidateSet("Auto", "PreferLegacy", "KeepCurrent")]
-    [string]$LegacyDataPolicy = "Auto"
+    [string]$LegacyDataPolicy = "Auto",
+    [ValidateRange(1, 20)]
+    [int]$RetainRuntimeBackups = 1
 )
 
 Set-StrictMode -Version Latest
@@ -50,6 +52,117 @@ function Assert-NoReparsePointInPath {
         if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
             throw "Backup path cannot traverse a reparse point: $current"
         }
+    }
+}
+
+function Invoke-RuntimeBackupRetention {
+    param(
+        [Parameter(Mandatory = $true)][string]$Root,
+        [Parameter(Mandatory = $true)][int]$RetainCount,
+        [string]$ProtectedPath = ""
+    )
+
+    if (-not (Test-Path -LiteralPath $Root -PathType Container)) {
+        return [pscustomobject]@{
+            retain_count = $RetainCount
+            retained = @()
+            removed = @()
+            failures = @()
+        }
+    }
+
+    $resolvedRoot = [IO.Path]::GetFullPath($Root).TrimEnd('\')
+    $resolvedProtectedPath = if ([string]::IsNullOrWhiteSpace($ProtectedPath)) {
+        ""
+    }
+    else {
+        [IO.Path]::GetFullPath($ProtectedPath).TrimEnd('\')
+    }
+    $backupDirectories = New-Object System.Collections.Generic.List[object]
+    foreach ($directory in @(
+        Get-ChildItem -LiteralPath $Root -Directory -Force
+    )) {
+        if (
+            (($directory.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) -or
+            [IO.Path]::GetFullPath($directory.FullName).TrimEnd('\') -eq
+                $resolvedRoot -or
+            [IO.Path]::GetDirectoryName($directory.FullName).TrimEnd('\') -ne
+                $resolvedRoot -or
+            $directory.Name -cnotmatch '^Runtime(?:-|$)'
+        ) {
+            continue
+        }
+        if (
+            $directory.Name -cmatch
+                '-backup-(?<stamp>\d{8}-\d{6})(?:-(?<duplicate>\d+))?$'
+        ) {
+            $backupDirectories.Add([pscustomobject]@{
+                Directory = $directory
+                BackupStamp = $Matches["stamp"]
+                Duplicate = if ([string]::IsNullOrWhiteSpace($Matches["duplicate"])) {
+                    0
+                }
+                else {
+                    [int]$Matches["duplicate"]
+                }
+                Protected = (
+                    -not [string]::IsNullOrWhiteSpace($resolvedProtectedPath) -and
+                    [IO.Path]::GetFullPath($directory.FullName).TrimEnd('\') -eq
+                        $resolvedProtectedPath
+                )
+            }) | Out-Null
+        }
+    }
+    $protectedBackups = @(
+        $backupDirectories |
+            Where-Object Protected |
+            Select-Object -First 1
+    )
+    $ordered = @(
+        $backupDirectories |
+            Where-Object { -not $_.Protected } |
+            Sort-Object BackupStamp, Duplicate, @{ Expression = {
+                $_.Directory.Name
+            }; Descending = $true } -Descending
+    )
+    $remainingSlots = [Math]::Max(0, $RetainCount - $protectedBackups.Count)
+    $retained = @(
+        $protectedBackups
+        $ordered | Select-Object -First $remainingSlots
+    )
+    $obsolete = @($ordered | Select-Object -Skip $remainingSlots)
+    $removed = New-Object System.Collections.Generic.List[string]
+    $failures = New-Object System.Collections.Generic.List[object]
+
+    foreach ($backupRecord in $obsolete) {
+        $backup = $backupRecord.Directory
+        try {
+            $fullPath = [IO.Path]::GetFullPath($backup.FullName).TrimEnd('\')
+            $resolvedRoot = [IO.Path]::GetFullPath($Root).TrimEnd('\')
+            if (
+                [IO.Path]::GetDirectoryName($fullPath).TrimEnd('\') -ne
+                    $resolvedRoot -or
+                $backup.Name -cnotmatch '^Runtime(?:-|$)' -or
+                (($backup.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0)
+            ) {
+                throw "Refusing to remove an unsafe Runtime backup path: $fullPath"
+            }
+            Remove-Item -LiteralPath $fullPath -Recurse -Force
+            $removed.Add($fullPath) | Out-Null
+        }
+        catch {
+            $failures.Add([pscustomobject]@{
+                path = $backup.FullName
+                error = [string]$_.Exception.Message
+            }) | Out-Null
+        }
+    }
+
+    return [pscustomobject]@{
+        retain_count = $RetainCount
+        retained = @($retained | ForEach-Object { $_.Directory.FullName })
+        removed = @($removed.ToArray())
+        failures = @($failures.ToArray())
     }
 }
 
@@ -175,6 +288,12 @@ if (Test-Path -LiteralPath $PointerPath -PathType Leaf) {
         throw "Existing runtime-location.json cannot be read: $PointerPath"
     }
 }
+$PreviousRuntimeDirectory = if ([string]::IsNullOrWhiteSpace($PreviousRuntimePath)) {
+    ""
+}
+else {
+    [IO.Path]::GetFullPath((Split-Path -Parent $PreviousRuntimePath)).TrimEnd('\')
+}
 
 Stop-PointedRuntime `
     -RuntimePath $PreviousRuntimePath `
@@ -234,12 +353,20 @@ foreach ($child in @(Get-ChildItem -LiteralPath $LocalRoot -Directory -Force)) {
 New-Item -ItemType Directory -Path $BackupRoot -Force | Out-Null
 $Stamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $MovedBackups = New-Object System.Collections.Generic.List[string]
+$PreviousRuntimeBackupPath = ""
 foreach ($activeRuntime in $ActiveRuntimes) {
     $backupPath = Get-AvailableBackupPath `
         -Root $BackupRoot `
         -PreferredName "$($activeRuntime.Name)-backup-$Stamp"
     Move-Item -LiteralPath $activeRuntime.FullName -Destination $backupPath
     $MovedBackups.Add($backupPath) | Out-Null
+    if (
+        -not [string]::IsNullOrWhiteSpace($PreviousRuntimeDirectory) -and
+        [IO.Path]::GetFullPath($activeRuntime.FullName).TrimEnd('\') -eq
+            $PreviousRuntimeDirectory
+    ) {
+        $PreviousRuntimeBackupPath = $backupPath
+    }
     Write-Host "Previous active Runtime moved to backup:"
     Write-Host "  $backupPath"
 }
@@ -265,6 +392,37 @@ if ($remainingRuntimes.Count -gt 0) {
     legacy_data_migration = $DataMigration
 } | ConvertTo-Json | Set-Content -LiteralPath $PointerPath -Encoding UTF8
 
+$BackupRetention = try {
+    Invoke-RuntimeBackupRetention `
+        -Root $BackupRoot `
+        -RetainCount $RetainRuntimeBackups `
+        -ProtectedPath $PreviousRuntimeBackupPath
+}
+catch {
+    [pscustomobject]@{
+        retain_count = $RetainRuntimeBackups
+        retained = @()
+        removed = @()
+        failures = @(
+            [pscustomobject]@{
+                path = $BackupRoot
+                error = [string]$_.Exception.Message
+            }
+        )
+    }
+}
+foreach ($removedBackup in @($BackupRetention.removed)) {
+    Write-Host "Removed obsolete Runtime backup:"
+    Write-Host "  $removedBackup"
+}
+foreach ($retentionFailure in @($BackupRetention.failures)) {
+    Write-Warning (
+        "Could not remove obsolete Runtime backup '{0}': {1}" -f
+        $retentionFailure.path,
+        $retentionFailure.error
+    )
+}
+
 [pscustomobject]@{
     runtime = $LauncherPath
     pointer = $PointerPath
@@ -274,4 +432,5 @@ if ($remainingRuntimes.Count -gt 0) {
     data_backup_root = $DataBackupRoot
     legacy_data_migration = $DataMigration
     backups = @($MovedBackups)
+    backup_retention = $BackupRetention
 } | ConvertTo-Json -Depth 4 -Compress

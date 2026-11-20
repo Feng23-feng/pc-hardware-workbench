@@ -8,7 +8,10 @@ param(
 
     [string]$BackupRoot = "",
 
-    [string]$DataBackupRoot = ""
+    [string]$DataBackupRoot = "",
+
+    [ValidateRange(1, 20)]
+    [int]$RetainRuntimeBackups = 1
 )
 
 Set-StrictMode -Version Latest
@@ -435,7 +438,9 @@ try {
             "-BackupRoot",
             $BackupRoot,
             "-DataBackupRoot",
-            $DataBackupRoot
+            $DataBackupRoot,
+            "-RetainRuntimeBackups",
+            [string]$RetainRuntimeBackups
         ) `
         -LogPath $logPath
     $runtimeResult = ConvertFrom-LastJsonLine -Text $runtimeOutput

@@ -235,6 +235,19 @@ try {
     $rcVerificationFile = [IO.Path]::GetFileName(
         [IO.Path]::ChangeExtension($rcPath, ".verification.json")
     )
+    $rcVerificationPath = Join-Path $payloadRoot $rcVerificationFile
+    if (-not (Test-Path -LiteralPath $rcVerificationPath -PathType Leaf)) {
+        throw "Embedded RC verification metadata is missing."
+    }
+    $embeddedRcVerification = Get-Content -Raw -LiteralPath (
+        $rcVerificationPath
+    ) | ConvertFrom-Json
+    if (
+        [string]$packageInfo.package_base -ne
+            [string]$embeddedRcVerification.package_basename
+    ) {
+        throw "User package_base does not match the embedded RC top-level directory."
+    }
     $expectedPayloadFiles = @(
         "BUNDLE-MANIFEST.sha256",
         "Install-User.ps1",
