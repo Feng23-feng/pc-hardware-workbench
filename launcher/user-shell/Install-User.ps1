@@ -457,6 +457,13 @@ try {
         throw "The installed Runtime failed version or launcher validation."
     }
 
+    $skillBackupPath = ""
+    $skillBackupProperty = $skillInstallResult.PSObject.Properties[
+        "backup_path"
+    ]
+    if ($null -ne $skillBackupProperty) {
+        $skillBackupPath = [string]$skillBackupProperty.Value
+    }
     $result = [ordered]@{
         schema_version = "1.0"
         status = "passed"
@@ -468,7 +475,7 @@ try {
         skills_root = $SkillsRoot
         installed_skill = [string]$skillInstallResult.target
         skill_changed = [bool]$skillInstallResult.changed
-        skill_backup_path = [string]$skillInstallResult.backup_path
+        skill_backup_path = $skillBackupPath
         runtime_pointer = $pointerPath
         runtime_path = [string]$pointer.runtime_path
         runtime_install_result = $runtimeResult

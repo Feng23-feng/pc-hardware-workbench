@@ -23,6 +23,12 @@ state, and emits package and archive hashes. The older
 `build-dsh-package.ps1` remains the isolated internal-preview fixture used by
 the package usability tests.
 
+Integrated user packages must also pass `verify-user-package.ps1`. That gate
+unpacks the embedded RC, rejects a Runtime installer that predates backup
+retention, and performs clean-then-upgrade installs in isolated temporary roots.
+It requires exactly one retained Runtime backup while preserving a Task-data
+marker.
+
 Build the DSH test package with Windows PowerShell:
 
 ```powershell

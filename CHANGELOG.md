@@ -32,6 +32,10 @@
 - Fix integrated user-package metadata to record the embedded RC's real
   top-level directory, and reject future builds where that layout binding is
   inconsistent.
+- Require user-package verification to run two isolated installs against the
+  embedded RC, proving one Runtime backup remains and Task data survives.
+- Allow an unchanged Skill on reinstall to omit `backup_path` without failing
+  the surrounding Runtime upgrade.
 - Add portable-launcher Skill-root tests and visible-Edge UI-flow regression
   assertions for `permission.requested` and verified SVG content.
 

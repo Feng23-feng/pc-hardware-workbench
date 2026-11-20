@@ -42,6 +42,147 @@ function Write-NormalizedJson {
     )
 }
 
+function Invoke-UserPackageRetentionGate {
+    param(
+        [Parameter(Mandatory = $true)][string]$PayloadRoot,
+        [Parameter(Mandatory = $true)][string]$RcArchivePath,
+        [Parameter(Mandatory = $true)][string]$ExpectedPackageBase,
+        [Parameter(Mandatory = $true)][string]$GateRoot
+    )
+
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $archive = [IO.Compression.ZipFile]::OpenRead($RcArchivePath)
+    try {
+        $installerEntryName = (
+            $ExpectedPackageBase + "\Install SkillDock Runtime.ps1"
+        )
+        $installerEntry = $archive.Entries |
+            Where-Object { $_.FullName -eq $installerEntryName } |
+            Select-Object -First 1
+        if ($null -eq $installerEntry) {
+            throw "Embedded RC Runtime installer is missing: $installerEntryName"
+        }
+        $reader = New-Object IO.StreamReader($installerEntry.Open())
+        try {
+            $installerText = $reader.ReadToEnd()
+        }
+        finally {
+            $reader.Dispose()
+        }
+    }
+    finally {
+        $archive.Dispose()
+    }
+    if (
+        $installerText -notmatch '\[int\]\$RetainRuntimeBackups' -or
+        $installerText -notmatch 'Invoke-RuntimeBackupRetention'
+    ) {
+        throw "Embedded RC Runtime installer predates backup retention."
+    }
+
+    $skillsRoot = Join-Path $GateRoot "skills"
+    $localRoot = Join-Path $GateRoot "local"
+    $backupRoot = Join-Path $GateRoot "runtime-backups"
+    $dataBackupRoot = Join-Path $GateRoot "data-backups"
+    $staleBackup = Join-Path $backupRoot "Runtime-stale-backup-20200101-000000"
+    New-Item -ItemType Directory -Path $staleBackup -Force | Out-Null
+    Set-Content `
+        -LiteralPath (Join-Path $staleBackup "stale.txt") `
+        -Value "stale"
+
+    $installerPath = Join-Path $PayloadRoot "Install-User.ps1"
+    $installerArguments = @(
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        $installerPath,
+        "-SkillsRoot",
+        $skillsRoot,
+        "-LocalRoot",
+        $localRoot,
+        "-BackupRoot",
+        $backupRoot,
+        "-DataBackupRoot",
+        $dataBackupRoot,
+        "-RetainRuntimeBackups",
+        "1"
+    )
+    $latestResultPath = Join-Path $localRoot "install-logs\latest-install-result.json"
+    $results = New-Object System.Collections.Generic.List[object]
+    for ($installNumber = 1; $installNumber -le 2; $installNumber++) {
+        $output = @(
+            & powershell.exe @installerArguments 2>&1
+        )
+        if ($LASTEXITCODE -ne 0) {
+            throw (
+                "Temporary user-package install $installNumber failed: " +
+                (($output | Out-String).Trim())
+            )
+        }
+        if (-not (Test-Path -LiteralPath $latestResultPath -PathType Leaf)) {
+            throw "Temporary user-package install did not write an install result."
+        }
+        $installResult = Get-Content -Raw -LiteralPath $latestResultPath |
+            ConvertFrom-Json
+        if ([string]$installResult.status -ne "passed") {
+            throw "Temporary user-package install $installNumber did not pass."
+        }
+        $results.Add($installResult) | Out-Null
+        if ($installNumber -eq 1) {
+            $canonicalRoot = Join-Path $localRoot "runtime-pchw"
+            New-Item -ItemType Directory -Path $canonicalRoot -Force |
+                Out-Null
+            Set-Content `
+                -LiteralPath (Join-Path $canonicalRoot "retention-gate-keep.txt") `
+                -Value "keep-task-data"
+        }
+    }
+
+    if (
+        [string]$results[0].mode -ne "clean" -or
+        [string]$results[1].mode -ne "upgrade"
+    ) {
+        throw "Runtime retention gate did not exercise clean and upgrade installs."
+    }
+    $retainedBackups = @(
+        Get-ChildItem -LiteralPath $backupRoot -Directory -Force |
+            Where-Object {
+                $_.Name -cmatch '^Runtime.*-backup-\d{8}-\d{6}(?:-\d+)?$'
+            }
+    )
+    if ($retainedBackups.Count -ne 1) {
+        throw "Runtime retention gate expected one backup, found $($retainedBackups.Count)."
+    }
+    if (Test-Path -LiteralPath $staleBackup) {
+        throw "Runtime retention gate did not remove the stale backup."
+    }
+    if (
+        -not (
+            Test-Path -LiteralPath (
+                Join-Path $localRoot "runtime-pchw\retention-gate-keep.txt"
+            ) -PathType Leaf
+        )
+    ) {
+        throw "Runtime retention gate removed Task data."
+    }
+    if (
+        [int]$results[1].runtime_install_result.backup_retention.retain_count -ne 1 -or
+        @($results[1].runtime_install_result.backup_retention.removed).Count -lt 1
+    ) {
+        throw "Runtime retention gate did not forward the retention policy."
+    }
+    return [pscustomobject][ordered]@{
+        status = "passed"
+        embedded_rc_installer = "current"
+        installs = 2
+        clean_then_upgrade = $true
+        retained_backup_count = $retainedBackups.Count
+        stale_backup_removed = $true
+        task_data_preserved = $true
+    }
+}
+
 function Get-RelativePath {
     param(
         [Parameter(Mandatory = $true)][string]$Root,
@@ -354,6 +495,12 @@ try {
         throw "User package automatic install-mode preflight did not pass."
     }
 
+    $retentionGate = Invoke-UserPackageRetentionGate `
+        -PayloadRoot $payloadRoot `
+        -RcArchivePath $rcPath `
+        -ExpectedPackageBase ([string]$embeddedRcVerification.package_basename) `
+        -GateRoot (Join-Path $tempRoot "retention-gate")
+
     if (-not [string]::IsNullOrWhiteSpace($BuildReportPath)) {
         $resolvedBuildReport = [IO.Path]::GetFullPath($BuildReportPath)
         if (-not (Test-Path -LiteralPath $resolvedBuildReport -PathType Leaf)) {
@@ -399,6 +546,7 @@ try {
             detected_mode = [string]$preflight.mode
             writes_performed = $false
         }
+        runtime_backup_retention = $retentionGate
         boundaries = [ordered]@{
             user_root_exposes_acceptance_scripts = $false
             test_fixture_in_user_package = $false
@@ -431,6 +579,7 @@ try {
         rc_sha256 = $rcSha256
         root_entries = $rootNames
         automatic_mode = [string]$preflight.mode
+        runtime_backup_retention = $retentionGate.status
         verification_path = if (
             [string]::IsNullOrWhiteSpace($VerificationPath)
         ) {
