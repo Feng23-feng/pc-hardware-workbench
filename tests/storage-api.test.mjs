@@ -32,6 +32,7 @@ const obsoleteBackup = join(
   "Runtime-old-backup-20261119-120000",
 );
 const unmanagedBackup = join(backupRoot, "ManualKeep");
+const installLogsRoot = join(localRoot, "install-logs");
 const port = await new Promise((resolvePromise, rejectPromise) => {
   const server = createTcpServer();
   server.unref();
@@ -73,6 +74,7 @@ await Promise.all([
   mkdir(protectedBackup, { recursive: true }),
   mkdir(obsoleteBackup, { recursive: true }),
   mkdir(unmanagedBackup, { recursive: true }),
+  mkdir(installLogsRoot, { recursive: true }),
 ]);
 await Promise.all([
   writeSizedFile(join(runtimeProgram, "SkillDock.exe"), 1024, "r"),
@@ -80,6 +82,7 @@ await Promise.all([
   writeSizedFile(join(protectedBackup, "app.bin"), 512, "p"),
   writeSizedFile(join(obsoleteBackup, "app.bin"), 1024, "o"),
   writeSizedFile(join(unmanagedBackup, "keep.bin"), 4096, "k"),
+  writeSizedFile(join(installLogsRoot, "install.log"), 128, "l"),
 ]);
 await Promise.all([
   writeEngineReference(
@@ -198,6 +201,30 @@ try {
   assert.match(events, /"type":"storage\.runtime_backup_cleanup"/u);
   assert.equal(events.includes(backupRoot), false);
   assert.equal(events.includes(localRoot), false);
+
+  result = await request("/api/storage/cleanup-install-logs", {
+    method: "POST",
+    body: JSON.stringify({ confirm: "wrong" }),
+  });
+  assert.equal(result.response.status, 400);
+  assert.equal(result.data.code, "confirmation_required");
+
+  result = await request("/api/storage/cleanup-install-logs", {
+    method: "POST",
+    body: JSON.stringify({ confirm: "cleanup-install-logs" }),
+  });
+  assert.equal(result.response.status, 200);
+  assert.equal(result.data.removed_file_count, 1);
+  assert.equal(result.data.reclaimed_bytes, 128);
+  assert.equal(result.data.audit_recorded, true);
+  await assert.rejects(() => stat(installLogsRoot), { code: "ENOENT" });
+
+  const finalEvents = await readFile(
+    join(runtimeDir, "events.jsonl"),
+    "utf8",
+  );
+  assert.match(finalEvents, /"type":"storage\.install_log_cleanup"/u);
+  assert.equal(finalEvents.includes(installLogsRoot), false);
 
   console.log("Storage API read and confirmed cleanup: PASS");
 } finally {

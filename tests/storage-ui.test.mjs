@@ -37,6 +37,7 @@ const obsoleteBackup = join(
   backupRoot,
   "Runtime-old-backup-20261119-120000",
 );
+const installLogsRoot = join(localRoot, "install-logs");
 const evidenceDir = process.env.STORAGE_UI_EVIDENCE_DIR
   ? resolve(process.env.STORAGE_UI_EVIDENCE_DIR)
   : "";
@@ -82,6 +83,7 @@ await Promise.all([
   mkdir(activeEngine, { recursive: true }),
   mkdir(protectedBackup, { recursive: true }),
   mkdir(obsoleteBackup, { recursive: true }),
+  mkdir(installLogsRoot, { recursive: true }),
 ]);
 await Promise.all([
   writeSizedFile(join(runtimeProgram, "SkillDock.exe"), 4096, "r"),
@@ -91,6 +93,7 @@ await Promise.all([
   writeSizedFile(join(runtimeDir, "artifacts", "chart.svg"), 2048, "s"),
   writeSizedFile(join(protectedBackup, "app.bin"), 1024, "p"),
   writeSizedFile(join(obsoleteBackup, "app.bin"), 2048, "o"),
+  writeSizedFile(join(installLogsRoot, "install.log"), 512, "l"),
 ]);
 await Promise.all([
   writeEngineReference(
@@ -337,6 +340,35 @@ try {
   );
   assert.equal((await stat(protectedBackup)).isDirectory(), true);
   await assert.rejects(() => stat(obsoleteBackup), { code: "ENOENT" });
+
+  await waitFor(
+    browser.cdp,
+    `[...document.querySelectorAll("#storage-dialog button")]
+      .some((button) => button.textContent.includes("选择清理安装日志"))`,
+    "install log cleanup action did not render",
+  );
+  await evaluate(
+    browser.cdp,
+    `[...document.querySelectorAll("#storage-dialog button")]
+      .find((button) => button.textContent.includes("选择清理安装日志")).click()`,
+  );
+  await waitFor(
+    browser.cdp,
+    `document.querySelector(".storage-install-confirm h3")?.textContent ===
+      "确认清理安装日志"`,
+    "install log confirmation did not render",
+  );
+  await evaluate(
+    browser.cdp,
+    `[...document.querySelectorAll(".storage-install-confirm button")]
+      .find((button) => button.textContent === "确认清理日志").click()`,
+  );
+  await waitFor(
+    browser.cdp,
+    `document.querySelector(".storage-message")?.textContent?.includes("安装日志")`,
+    "install log cleanup result did not render",
+  );
+  await assert.rejects(() => stat(installLogsRoot), { code: "ENOENT" });
 
   await browser.cdp.send("Emulation.setDeviceMetricsOverride", {
     width: 390,

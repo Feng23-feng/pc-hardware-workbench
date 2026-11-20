@@ -13,6 +13,9 @@
   confirmed cleanup action that removes only obsolete recognized Runtime
   backups while preserving the current Runtime, the recorded rollback backup,
   Task data, attachments, evidence, and unmanaged backup directories.
+- Add a separate confirmed cleanup for installer logs. It removes only
+  `LocalRoot\install-logs` and never touches Runtime, Task, attachment,
+  artifact, or rollback data.
 - Rotate Runtime program backups after a successful install, retaining one
   previous rollback copy by default while preserving the previous pointer target
   and leaving Task and migration-data backups untouched.

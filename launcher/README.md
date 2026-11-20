@@ -148,6 +148,9 @@ data, attachments, evidence, and unmanaged backup directories. It removes a
 shared engine only after all active and retained Runtime references have been
 scanned successfully.
 
+Installer logs use a separate confirmation endpoint and delete only
+`LocalRoot\install-logs`; they do not participate in Runtime backup rotation.
+
 Before creating the new Runtime, the installer checks the legacy
 `runtime-dsh-web` data root through `runtime-data-migration.ps1`. If legacy data
 exists and the canonical root is unused, `Auto` migration copies the complete

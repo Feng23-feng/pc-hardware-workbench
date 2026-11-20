@@ -68,6 +68,7 @@ import {
 } from "./lib/source-hosted-shadow.mjs";
 import {
   cleanupRuntimeBackups,
+  cleanupInstallLogs,
   getStorageSnapshot,
 } from "./lib/storage-maintenance.mjs";
 
@@ -3027,6 +3028,52 @@ async function route(request, response) {
           : error.message,
         code: error?.code ?? "storage_cleanup_failed",
       });
+    }
+    return;
+  }
+
+  if (
+    request.method === "POST" &&
+    url.pathname === "/api/storage/cleanup-install-logs"
+  ) {
+    const body = await readJson(request, { maxBytes: 4_096 });
+    try {
+      const result = await cleanupInstallLogs(
+        {
+          localRoot: storageLocalRoot,
+          runtimeDir,
+          localAppData: process.env.LOCALAPPDATA,
+        },
+        body,
+      );
+      let auditRecorded = true;
+      try {
+        store.appendEvent({
+          type: "storage.install_log_cleanup",
+          removed_file_count: result.removed_file_count,
+          reclaimed_bytes: result.reclaimed_bytes,
+        });
+      } catch {
+        auditRecorded = false;
+        process.stderr.write(
+          "Install log cleanup completed without an audit event.\n",
+        );
+      }
+      writeJson(response, 200, {
+        ...result,
+        audit_recorded: auditRecorded,
+      });
+    } catch (error) {
+      writeJson(
+        response,
+        error?.code === "confirmation_required" ? 400 : 500,
+        {
+          error: error?.code === "confirmation_required"
+            ? error.message
+            : "install log cleanup failed",
+          code: error?.code ?? "storage_cleanup_failed",
+        },
+      );
     }
     return;
   }

@@ -9,6 +9,7 @@ import {
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
+  cleanupInstallLogs,
   cleanupRuntimeBackups,
   getStorageSnapshot,
 } from "../lib/storage-maintenance.mjs";
@@ -174,6 +175,25 @@ try {
   assert.equal((await stat(unmanagedBackup)).isDirectory(), true);
   assert.equal((await stat(activeEngine)).isDirectory(), true);
   assert.equal((await stat(unmanagedEngine)).isDirectory(), true);
+
+  await assert.rejects(
+    () => cleanupInstallLogs(
+      { localRoot, runtimeDir },
+      { confirm: "wrong" },
+    ),
+    (error) => error.code === "confirmation_required",
+  );
+  const installLogCleanup = await cleanupInstallLogs(
+    { localRoot, runtimeDir },
+    { confirm: "cleanup-install-logs" },
+  );
+  assert.equal(installLogCleanup.removed, true);
+  assert.equal(installLogCleanup.removed_file_count, 1);
+  assert.equal(installLogCleanup.reclaimed_bytes, 32);
+  await assert.rejects(
+    () => stat(join(localRoot, "install-logs")),
+    { code: "ENOENT" },
+  );
 
   console.log("Storage inventory and safe Runtime backup cleanup: PASS");
 } finally {

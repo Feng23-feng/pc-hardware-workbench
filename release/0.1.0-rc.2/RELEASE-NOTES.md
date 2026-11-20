@@ -16,6 +16,8 @@ Status: **public test build; not a stable release**
   for obsolete recognized Runtime backups. The active Runtime, recorded
   rollback backup, Task data, attachments, evidence, and unmanaged directories
   are preserved.
+- Installer logs have a separate confirmed cleanup action limited to
+  `LocalRoot\install-logs`.
 - Runtime program backups now rotate after a successful install. The previous
   `runtime-location.json` target is always retained; the default retain count is
   one and can be raised with `-RetainRuntimeBackups`.

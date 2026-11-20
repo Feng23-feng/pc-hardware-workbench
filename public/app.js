@@ -54,6 +54,8 @@ let storageNotice = "";
 let storageLoading = false;
 let storageConfirmPending = false;
 let storageCleanupPending = false;
+let storageInstallConfirmPending = false;
+let storageInstallCleanupPending = false;
 let storageRequestSequence = 0;
 
 function el(tag, attributes = {}, children = []) {
@@ -2148,6 +2150,80 @@ function renderStorageCleanup(snapshot) {
   ]);
 }
 
+function renderInstallLogCleanup(snapshot) {
+  const installLogs = snapshot.categories?.install_logs ?? {
+    bytes: 0,
+    file_count: 0,
+  };
+  if ((installLogs.bytes ?? 0) <= 0) {
+    return null;
+  }
+  if (storageInstallConfirmPending) {
+    return el("section", {
+      class: "storage-confirm storage-install-confirm",
+      role: "alert",
+    }, [
+      el("h3", { text: "确认清理安装日志" }),
+      el("p", {
+        text:
+          `将删除 ${installLogs.file_count ?? 0} 个安装日志文件，释放 ` +
+          `${formatFileSize(installLogs.bytes ?? 0)}。` +
+          "Runtime、Task、附件、证据和回退备份不会受影响。",
+      }),
+      el("div", { class: "storage-actions" }, [
+        el("button", {
+          class: "secondary",
+          type: "button",
+          disabled: storageInstallCleanupPending,
+          text: "取消",
+          onclick: () => {
+            storageInstallConfirmPending = false;
+            renderStorage();
+            document.querySelector(
+              ".storage-install-cleanup .secondary",
+            )?.focus();
+          },
+        }),
+        el("button", {
+          class: "danger-action",
+          type: "button",
+          disabled: storageInstallCleanupPending,
+          text: storageInstallCleanupPending
+            ? "正在清理…"
+            : "确认清理日志",
+          onclick: cleanupInstallLogStorage,
+        }),
+      ]),
+    ]);
+  }
+
+  return el("section", { class: "storage-cleanup storage-install-cleanup" }, [
+    el("h3", { text: "安装日志" }),
+    el("p", {
+      text:
+        `当前有 ${installLogs.file_count ?? 0} 个日志文件，占用 ` +
+        `${formatFileSize(installLogs.bytes ?? 0)}。`,
+    }),
+    el("div", { class: "storage-actions" }, [
+      el("button", {
+        class: "secondary",
+        type: "button",
+        disabled: storageLoading,
+        text: "选择清理安装日志",
+        onclick: () => {
+          storageInstallConfirmPending = true;
+          storageNotice = "";
+          storageError = "";
+          renderStorage();
+          document.querySelector(
+            ".storage-install-confirm .secondary",
+          )?.focus();
+        },
+      }),
+    ]),
+  ]);
+}
+
 function renderStorage() {
   if (storageLoading && !storageSnapshot) {
     renderStorageLoading();
@@ -2223,6 +2299,7 @@ function renderStorage() {
     ]),
     renderStorageMessage(),
     renderStorageCleanup(storageSnapshot),
+    renderInstallLogCleanup(storageSnapshot),
     el("section", { class: "storage-breakdown" }, [
       el("h3", { text: "占用分类" }),
       el("ul", { class: "storage-list" }, rows),
@@ -2249,6 +2326,9 @@ async function loadStorage() {
   storageLoading = false;
   if (result.ok) {
     storageSnapshot = result.data;
+    if ((storageSnapshot.categories?.install_logs?.bytes ?? 0) <= 0) {
+      storageInstallConfirmPending = false;
+    }
   } else {
     storageError =
       result.data?.code === "storage_inventory_failed"
@@ -2291,6 +2371,33 @@ async function cleanupRuntimeBackupStorage() {
   document.querySelector(".storage-message")?.focus();
 }
 
+async function cleanupInstallLogStorage() {
+  storageInstallCleanupPending = true;
+  storageError = "";
+  storageNotice = "";
+  renderStorage();
+  const result = await requestJson(
+    "/api/storage/cleanup-install-logs",
+    {
+      method: "POST",
+      forceRuntimeBinding: true,
+      body: JSON.stringify({ confirm: "cleanup-install-logs" }),
+    },
+  );
+  storageInstallCleanupPending = false;
+  storageInstallConfirmPending = false;
+  if (result.ok) {
+    storageSnapshot = result.data.storage ?? storageSnapshot;
+    storageNotice =
+      `已清理 ${result.data.removed_file_count ?? 0} 个安装日志文件，` +
+      `释放 ${formatFileSize(result.data.reclaimed_bytes ?? 0)}。`;
+  } else {
+    storageError = result.data?.error ?? "安装日志清理失败，请稍后重试。";
+  }
+  renderStorage();
+  document.querySelector(".storage-message")?.focus();
+}
+
 async function openStorageDialog() {
   if (!storageDialog?.open) {
     if (typeof storageDialog?.showModal === "function") {
@@ -2300,6 +2407,7 @@ async function openStorageDialog() {
     }
   }
   storageConfirmPending = false;
+  storageInstallConfirmPending = false;
   storageNotice = "";
   storageError = "";
   await loadStorage();
@@ -3324,6 +3432,8 @@ storageDialog?.addEventListener("click", (event) => {
 storageDialog?.addEventListener("close", () => {
   storageConfirmPending = false;
   storageCleanupPending = false;
+  storageInstallConfirmPending = false;
+  storageInstallCleanupPending = false;
   storageNotice = "";
   storageError = "";
 });

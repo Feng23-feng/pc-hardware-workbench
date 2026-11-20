@@ -92,6 +92,9 @@ Cleanup never removes the active Runtime, the most recent rollback point, Task
 data, attachments, or evidence. Directories that do not use SkillDock's standard
 backup naming are left untouched.
 
+Installer logs have a separate cleanup action that removes only the install log
+directory.
+
 Safety
 ======
 

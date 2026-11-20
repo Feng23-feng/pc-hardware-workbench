@@ -589,6 +589,10 @@ confirmation. The active Runtime, the backup recorded by the current
 directories are always preserved. Shared engines are removed only after every
 active and retained Runtime reference has been checked.
 
+Installer logs have a separate confirmed cleanup action. It removes only
+`LocalRoot\install-logs` and does not touch Runtime, Task, attachment, artifact,
+or rollback data.
+
 ## Real acceptance path
 
 1. Start the panel.

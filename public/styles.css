@@ -2193,6 +2193,11 @@ button:disabled {
   background: var(--surface-muted);
 }
 
+.storage-install-cleanup,
+.storage-install-confirm {
+  margin-top: 12px;
+}
+
 .storage-confirm {
   border-color: #d8a59e;
   background: var(--danger-soft);

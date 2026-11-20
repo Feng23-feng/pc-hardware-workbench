@@ -190,6 +190,9 @@ Endpoints:
   `{"confirm":"cleanup-runtime-backups"}` and removes only obsolete recognized
   Runtime backups. It preserves the active Runtime, recorded rollback backup,
   Task data, attachments, evidence, and unmanaged directories.
+- `POST /api/storage/cleanup-install-logs` requires
+  `{"confirm":"cleanup-install-logs"}` and removes only
+  `LocalRoot\install-logs`.
 - `POST /api/event` records one local `option_selected` or `evidence_added`
   event and starts no agent turn.
 - `POST /api/attachments` copies one whitelisted local file into private runtime
