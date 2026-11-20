@@ -536,9 +536,15 @@ $LocalRoot = [IO.Path]::GetFullPath($LocalRoot).TrimEnd('\')
 
 if ([string]::IsNullOrWhiteSpace($TargetDirectory)) {
     $SafeVersion = $PackageVersion -replace '[^A-Za-z0-9._-]', '-'
-    $TargetDirectory = Join-Path $LocalRoot (
+    $TargetBase = Join-Path $LocalRoot (
         "Runtime-$SafeVersion-" + (Get-Date -Format "yyyyMMddHHmmss")
     )
+    $TargetDirectory = $TargetBase
+    $TargetDuplicate = 2
+    while (Test-Path -LiteralPath $TargetDirectory) {
+        $TargetDirectory = "$TargetBase-$TargetDuplicate"
+        $TargetDuplicate += 1
+    }
 }
 $TargetDirectory = [IO.Path]::GetFullPath($TargetDirectory).TrimEnd('\')
 if (

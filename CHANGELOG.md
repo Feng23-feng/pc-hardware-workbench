@@ -7,6 +7,8 @@
   `node.exe` instead of embedding a second copy. Launches verify the exact
   engine SHA-256 and fail closed when the reference is missing, malformed, or
   changed.
+- Default Runtime target names now add a numeric suffix when two installs land
+  in the same second instead of failing with an existing-directory error.
 - Add the top-bar local storage panel, authenticated storage inventory, and a
   confirmed cleanup action that removes only obsolete recognized Runtime
   backups while preserving the current Runtime, the recorded rollback backup,
