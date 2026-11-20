@@ -14,7 +14,7 @@ import { join, resolve } from "node:path";
 const repoRoot = resolve(import.meta.dirname, "..");
 const packageRoot = resolve(
   process.argv[2] ??
-    join(repoRoot, "dist", "SkillDock-PCHW-0.1.0-rc.1-win-x64"),
+    join(repoRoot, "dist", "SkillDock-PCHW-0.1.0-rc.2-win-x64"),
 );
 const installer = join(packageRoot, "Install PCHW Skill.ps1");
 for (const required of [installer]) {

@@ -53,7 +53,7 @@ const runtimeBackups = join(tempRoot, "runtime-backups");
 const dataBackups = join(tempRoot, "data-backups");
 const installedRuntimeDirectory = join(
   localRoot,
-  "Runtime-0.1.0-rc.1-upgrade-test",
+  "Runtime-0.1.0-rc.2-upgrade-test",
 );
 const canonicalRoot = join(localRoot, "runtime-pchw");
 const legacyRoot = join(localRoot, "runtime-dsh-web");

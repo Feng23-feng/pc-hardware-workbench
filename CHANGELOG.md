@@ -1,5 +1,19 @@
 # Changelog
 
+## SkillDock 0.1.0-rc.2 / PCHW 2.8.0 - 2026-11-20
+
+- Rotate Runtime program backups after a successful install, retaining one
+  previous rollback copy by default while preserving the previous pointer target
+  and leaving Task and migration-data backups untouched.
+- Add a user-package gate that inspects the embedded RC and performs clean then
+  upgrade installation in isolated roots, proving stale backups are removed and
+  Task data survives.
+- Fix integrated user-package `package_base` metadata and tolerate an unchanged
+  Skill reinstall without a `backup_path` field.
+- Add a reproducible Runtime-only package builder and verifier derived from the
+  verified integrated RC.
+- Bundle the PCHW Skill entry/guardrail update from PCHW `2.8.0` test build.
+
 ## 2026-11-18 local P1 candidate
 
 - Preserve caller-provided `PANEL_SKILL_ROOTS` and

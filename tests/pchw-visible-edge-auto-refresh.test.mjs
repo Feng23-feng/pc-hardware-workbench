@@ -18,7 +18,7 @@ const root = resolve(import.meta.dirname, "..");
 const packageRoot = resolve(
   process.argv[2] ??
     process.env.SKILLDOCK_RC_PACKAGE ??
-    join(root, "dist", "SkillDock-PCHW-0.1.0-rc.1-win-x64"),
+    join(root, "dist", "SkillDock-PCHW-0.1.0-rc.2-win-x64"),
 );
 const csvSource = resolve(
   process.env.PCHW_VISIBLE_EDGE_CSV ??

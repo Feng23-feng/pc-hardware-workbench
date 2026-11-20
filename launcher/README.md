@@ -14,10 +14,14 @@ Build the Windows release candidate with:
 ```powershell
 pnpm build:win-rc
 pnpm verify:win-rc
+pnpm build:win-user
+pnpm verify:win-user
+pnpm build:runtime-only
+pnpm verify:runtime-only
 ```
 
 The candidate is written as
-`dist/SkillDock-PCHW-0.1.0-rc.1-win-x64.zip`. The RC builder refuses to replace
+`dist/SkillDock-PCHW-0.1.0-rc.2-win-x64.zip`. The RC builder refuses to replace
 an existing candidate, bundles PCHW `2.8.0`, records the exact Git worktree
 state, and emits package and archive hashes. The older
 `build-dsh-package.ps1` remains the isolated internal-preview fixture used by
@@ -28,6 +32,10 @@ unpacks the embedded RC, rejects a Runtime installer that predates backup
 retention, and performs clean-then-upgrade installs in isolated temporary roots.
 It requires exactly one retained Runtime backup while preserving a Task-data
 marker.
+
+Runtime-only assets are derived from the same verified integrated RC with
+`build-runtime-package.ps1`; their verifier rejects Skill/docs/test content and
+checks the exact manifest and retention-capable installer.
 
 Build the DSH test package with Windows PowerShell:
 
