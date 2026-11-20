@@ -3,6 +3,7 @@
 ## 2.8.0 — 2026-11-17（2026-11-18 文档与分发更新）
 
 - 2026-11-20 重新发布 `rc.2` 测试资产：SkillDock Runtime 成功升级后仅保留最近一个程序回退点，Task 与迁移数据备份不参与轮转；
+- SkillDock 运行时路径助手支持内容寻址共享 Node 引擎；Runtime 与回退备份通过 `engine-location.json` 引用同一 `node.exe`，启动时校验版本路径与 SHA-256；
 - `rc.2` 用户包新增内嵌 RC 与两轮安装 Retention 门禁，并修复 Skill 未变化时缺少 `backup_path` 导致升级失败的问题；
 - Skill-only、SkillDock 用户包、Runtime-only 和 Portable 四个入口统一重打为 `rc.2`；PCHW Skill、入口瘦身与 12 场景护栏内容保持一致；
 - 新增当前 Codex 对话的 SkillDock 操作面板入口，支持当前 Task、附件上下文、一次性本地分析权限、验证 SVG、判断卡和同 Task 重启恢复；
