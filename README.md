@@ -7,8 +7,8 @@
 排查、遥测分析、手动调校和升级判断收敛到一套工作流，同时把每一次硬件变更留给
 用户亲手完成。
 
-当前测试版包含 **PCHW Skill 2.8.0、SkillDock Runtime 0.1.0-rc.1 和独立
-PCHW Portable 2.8.0**，目前没有正式版。
+当前版本为 **2.8.0 测试版**，包含 PCHW Skill 2.8.0、SkillDock Runtime
+0.1.0-rc.1 和独立 PCHW Portable 2.8.0。目前没有正式版。
 其中 `2.8.0` 是 PCHW Skill 与 Portable 版本，`0.1.0-rc.1` 是 SkillDock 应用版本。完整自动测试和定向人工审阅已通过；
 真实设备覆盖、干净 Windows 安装/卸载和其余交互场景签署仍在继续。项目不会把
 测试版包装成稳定版。

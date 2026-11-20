@@ -166,6 +166,16 @@ powershell -NoProfile -ExecutionPolicy Bypass `
   -File .\tools\run-behavior-evals.ps1 -SelfTest
 ```
 
+改动 `SKILL.md` 或关键引用后，先跑固定 12 场景护栏：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass `
+  -File .\tools\run-behavior-evals.ps1 -SelfTest -Guardrail
+```
+
+12 个场景 ID 固定保存在 `tools/behavior-evals/scenarios.json` 的
+`guardrail.scenarioIds`。`-Guardrail` 不能和 `-ScenarioIds` 同时使用。
+
 评分已有回答：
 
 ```powershell
@@ -179,6 +189,17 @@ powershell -NoProfile -ExecutionPolicy Bypass `
 沙箱、临时会话并禁用 hooks，回答、日志和报告全部写入
 `work\behavior-evals\<timestamp>\`。
 每个 `-Runs` 都使用独立的 `*.runN.md`，不会复用前一次回答。
+
+对源码执行固定 12 场景的一次实时检查：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass `
+  -File .\tools\run-behavior-evals.ps1 `
+  -Live -Guardrail -Runs 1 `
+  -SkillSourcePath .\skill\pc-hardware-workbench
+```
+
+`-Guardrail` 始终选择全部 12 个固定场景，不受默认 `-MaxCases 5` 限制。
 
 首次联调可只运行一个场景，再按 ID 补齐其余场景：
 

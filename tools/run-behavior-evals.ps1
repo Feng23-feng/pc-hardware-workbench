@@ -12,6 +12,8 @@ param(
 
     [switch]$SelfTest,
 
+    [switch]$Guardrail,
+
     [string]$CodexExecutable,
 
     [string[]]$ScenarioIds,
@@ -70,6 +72,35 @@ foreach ($scenario in $scenarios) {
     if (@($scenario.checks).Count -eq 0) {
         throw "Scenario '$($scenario.id)' has no checks."
     }
+}
+
+$guardrailIds = @()
+$guardrailScenarios = @()
+if ($null -ne $scenarioData.PSObject.Properties["guardrail"]) {
+    $guardrailData = $scenarioData.guardrail
+    $guardrailIds = @($guardrailData.scenarioIds | ForEach-Object { [string]$_ })
+    if ($guardrailIds.Count -ne 12) {
+        throw "Behavior guardrail must contain exactly 12 scenarios; found $($guardrailIds.Count)."
+    }
+    if (@($guardrailIds | Sort-Object -Unique).Count -ne $guardrailIds.Count) {
+        throw "Behavior guardrail contains duplicate scenario ids."
+    }
+    foreach ($guardrailId in $guardrailIds) {
+        if (-not $seenIds.ContainsKey($guardrailId)) {
+            throw "Behavior guardrail references unknown scenario id: $guardrailId"
+        }
+    }
+    $guardrailScenarios = @(
+        foreach ($guardrailId in $guardrailIds) {
+            $scenarios | Where-Object { [string]$_.id -eq $guardrailId }
+        }
+    )
+}
+if ($Guardrail -and $guardrailScenarios.Count -ne 12) {
+    throw "The behavior guardrail profile is missing or invalid."
+}
+if ($Guardrail -and $null -ne $ScenarioIds -and $ScenarioIds.Count -gt 0) {
+    throw "Use either -Guardrail or -ScenarioIds, not both."
 }
 
 function Invoke-TextCheck {
@@ -264,7 +295,8 @@ function Resolve-EvaluationAnswerPath {
 
 if ($SelfTest) {
     $failures = New-Object System.Collections.Generic.List[string]
-    foreach ($scenario in $scenarios) {
+    $selfTestScenarios = if ($Guardrail) { $guardrailScenarios } else { $scenarios }
+    foreach ($scenario in $selfTestScenarios) {
         $valid = Get-FixtureResult -Scenario $scenario -Kind "valid"
         if (-not $valid.passed) {
             $failures.Add("Valid fixture failed for '$($scenario.id)': $($valid.failed_check_ids -join ', ')") | Out-Null
@@ -301,11 +333,15 @@ if ($SelfTest) {
         }
         exit 1
     }
-    Write-Host "Behavior eval harness self-test: PASS ($($scenarios.Count) scenarios, valid and invalid fixtures)"
+    $profile = if ($Guardrail) { "guardrail-12" } else { "all" }
+    Write-Host "Behavior eval harness self-test: PASS ($($selfTestScenarios.Count) scenarios, profile $profile, valid and invalid fixtures)"
     exit 0
 }
 
-if ($null -ne $ScenarioIds -and $ScenarioIds.Count -gt 0) {
+if ($Guardrail) {
+    $selected = @($guardrailScenarios)
+}
+elseif ($null -ne $ScenarioIds -and $ScenarioIds.Count -gt 0) {
     $requestedIds = @(
         $ScenarioIds |
             ForEach-Object { $_ -split "," } |
@@ -327,7 +363,8 @@ if ($selected.Count -eq 0) {
 }
 if (-not $Live -and [string]::IsNullOrWhiteSpace($InputRoot)) {
     Write-Host "Behavior scenarios: $($scenarios.Count)"
-    Write-Host "Selected for this invocation: $($selected.Count); runs: $Runs"
+    $selectionLabel = if ($Guardrail) { "guardrail-12" } else { "requested/default" }
+    Write-Host "Selected for this invocation: $($selected.Count) ($selectionLabel); runs: $Runs"
     Write-Host "No model call was made. Use one of:"
     Write-Host "  -InputRoot <directory>  Score existing response files."
     Write-Host "  -Live                  Run the installed Skill through codex exec."
@@ -476,6 +513,7 @@ $report = [pscustomobject][ordered]@{
     repositoryRoot = $RepositoryRoot
     scenarioPath = $ScenarioPath
     selectedScenarioCount = $selected.Count
+    selectionProfile = if ($Guardrail) { "guardrail-12" } else { "requested/default" }
     runCount = $Runs
     responseRoot = $answerRoot
     passed = $passedCount

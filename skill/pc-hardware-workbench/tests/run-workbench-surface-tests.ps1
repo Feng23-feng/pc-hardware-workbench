@@ -60,14 +60,15 @@ try {
         "references/integration/workbench-surface.md",
         "only when a Task may continue across chat, a workbench panel, or another agent surface",
         "references/integration/skilldock-surface.md",
-        "chart, evidence table, artifact", "explicit surface intents",
-        "channel IDs", "context files"
-    ) "SKILL.md surface routing"
-    Assert-ContainsAll $skill @(
-        "never synthesize a separate Runtime launch command",
-        "never show raw JSON or a panel component tree",
-        "Do not create, fork, attach, or resume another Thread",
-        "Thread-binding mismatch must fail closed"
+        "when the host has SkillDock Runtime",
+        "chart, evidence table, artifact, or repeated structured interaction",
+        "explicit open, continue, or sync-panel intent",
+        "use only the installed helpers",
+        "never synthesize a Runtime launch",
+        "Use only the current Codex Thread",
+        "never create, fork, attach, or resume another Thread",
+        "fail closed on a binding mismatch",
+        "never expose raw JSON, credentials, or the panel component tree"
     ) "SKILL.md SkillDock execution boundary"
     Assert-ContainsAll $agentInterface @(
         "launch-panel.ps1"
