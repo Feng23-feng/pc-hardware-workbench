@@ -12,6 +12,8 @@
   Skill reinstall without a `backup_path` field.
 - Add a reproducible Runtime-only package builder and verifier derived from the
   verified integrated RC.
+- Explicit `-PurgeUserData` uninstall now removes `launch-failure.json`, so a
+  failed launch no longer leaves LocalRoot behind.
 - Bundle the PCHW Skill entry/guardrail update from PCHW `2.8.0` test build.
 
 ## 2026-11-18 local P1 candidate

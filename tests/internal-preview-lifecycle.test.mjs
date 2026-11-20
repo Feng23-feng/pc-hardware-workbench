@@ -6,6 +6,7 @@ import {
   mkdir,
   mkdtemp,
   readFile,
+  readdir,
   rm,
   writeFile,
 } from "node:fs/promises";
@@ -665,6 +666,10 @@ try {
     "Uninstall SkillDock.lifecycle.ps1",
   );
   await copyFile(packagedUninstallScript, retainedUninstallScript);
+  await copyFile(
+    join(targetRuntime, "runtime-paths.ps1"),
+    join(tempRoot, "runtime-paths.ps1"),
+  );
   const backupMarkerPath = join(backupRoot, "lifecycle-retained.marker");
   await writeFile(
     backupMarkerPath,
@@ -763,9 +768,13 @@ try {
   processInventories.after_purge_uninstall =
     await listProcessesUnderRoot(tempRoot);
   pathInventories.after_purge_uninstall = pathInventory();
+  const remainingLocalRootEntries = existsSync(localRoot)
+    ? await readdir(localRoot)
+    : [];
   assert.equal(
     pathInventories.after_purge_uninstall.local_root_exists,
     false,
+    `LocalRoot remains after purge: ${remainingLocalRootEntries.join(", ")}`,
   );
   assert.equal(
     pathInventories.after_purge_uninstall.backup_root_exists,

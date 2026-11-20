@@ -129,6 +129,7 @@ if ($PurgeUserData) {
     }
     foreach ($name in @(
         "launcher.log",
+        "launch-failure.json",
         "launch-result.json"
     )) {
         $target = Join-Path $LocalRoot $name
