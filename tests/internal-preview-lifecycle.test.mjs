@@ -676,6 +676,33 @@ try {
     "Retained by default uninstall; removed only by explicit purge.\n",
     { encoding: "utf8", mode: 0o600 },
   );
+  const launchFailureMarkerPath = join(localRoot, "launch-failure.json");
+  await writeFile(
+    launchFailureMarkerPath,
+    '{"ok":false,"error_code":"lifecycle-test"}\n',
+    { encoding: "utf8", mode: 0o600 },
+  );
+  const installLogsMarkerPath = join(
+    localRoot,
+    "install-logs",
+    "lifecycle-install.log",
+  );
+  await mkdir(dirname(installLogsMarkerPath), { recursive: true });
+  await writeFile(
+    installLogsMarkerPath,
+    "Retained by default uninstall; removed only by explicit purge.\n",
+    { encoding: "utf8", mode: 0o600 },
+  );
+  const migrationArtifactPath = join(
+    localRoot,
+    `.runtime-pchw-migrating-${"a".repeat(32)}`,
+  );
+  await mkdir(migrationArtifactPath, { recursive: true });
+  await writeFile(
+    join(migrationArtifactPath, "rollback.marker"),
+    "Retained by default uninstall; removed only by explicit purge.\n",
+    { encoding: "utf8", mode: 0o600 },
+  );
 
   processInventories.before_default_uninstall =
     await listProcessesUnderRoot(tempRoot);
@@ -717,7 +744,10 @@ try {
     existsSync(join(runtimeDirectoryAfterUninstall, "server-info.json")) &&
     existsSync(join(runtimeDirectoryAfterUninstall, "panel-capability-token")) &&
     existsSync(join(runtimeDirectoryAfterUninstall, "source-capability-token")) &&
-    existsSync(join(localRoot, "launch-result.json"))
+    existsSync(join(localRoot, "launch-result.json")) &&
+    existsSync(launchFailureMarkerPath) &&
+    existsSync(installLogsMarkerPath) &&
+    existsSync(migrationArtifactPath)
   );
   const defaultUninstallPreservedBackups = existsSync(backupMarkerPath);
   assert.equal(

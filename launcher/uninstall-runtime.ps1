@@ -137,6 +137,22 @@ if ($PurgeUserData) {
             Remove-Item -LiteralPath $target -Recurse -Force
         }
     }
+    $installLogs = Join-Path $LocalRoot "install-logs"
+    if (Test-Path -LiteralPath $installLogs) {
+        Remove-Item -LiteralPath $installLogs -Recurse -Force
+    }
+    if (Test-Path -LiteralPath $LocalRoot -PathType Container) {
+        foreach ($migrationDirectory in @(
+            Get-ChildItem -LiteralPath $LocalRoot -Directory -Force |
+                Where-Object {
+                    $_.Name -match
+                        '^\.runtime-pchw-(?:migrating|replaced)-[0-9a-f]{32}$'
+                }
+        )) {
+            Remove-Item -LiteralPath $migrationDirectory.FullName `
+                -Recurse -Force
+        }
+    }
 }
 
 if ($PurgeBackups -and (Test-Path -LiteralPath $BackupRoot)) {

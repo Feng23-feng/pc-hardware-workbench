@@ -19,8 +19,9 @@ Status: **public test build; not a stable release**
   longer fails when an unchanged Skill omits `backup_path`.
 - A reproducible Runtime-only builder derives a 40-entry package from the same
   verified integrated RC.
-- Explicit `-PurgeUserData` uninstall now removes `launch-failure.json`; a
-  previous launch failure no longer leaves the LocalRoot directory behind.
+- Explicit `-PurgeUserData` uninstall now removes `launch-failure.json`,
+  installer logs, and interrupted runtime-data migration directories; known
+  SkillDock state no longer leaves the LocalRoot directory behind.
 - The bundled PCHW `2.8.0` tree includes the reduced Skill entry and the fixed
   12-scenario behavior guardrail from the PCHW test line.
 
