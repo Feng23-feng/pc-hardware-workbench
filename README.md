@@ -124,6 +124,7 @@ SkillDock；完全不需要 Agent 时，才选择独立便携包。SkillDock 对
 1. 下载 SkillDock 面板包，并按 Release 中的 `SHA256SUMS.txt` 或 GitHub 页面显示的 asset digest 校验。
 2. 解压后双击 `Install.cmd`。
 3. 已有旧版 PCHW Skill 时，安装器会先备份，再执行安全升级；不需要先删除旧 Skill。
+   成功安装后，Runtime 程序备份只保留最近一个可回退版本，Task 数据不受影响。
 4. 安装完成后打开 Codex 当前对话。
 5. 描述硬件问题并明确同意打开图形化分析。
 

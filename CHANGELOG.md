@@ -7,6 +7,7 @@
 - 普通用户默认使用不含面板的通用 PCHW Skill；只有明确需要图形操作面板时才选择 SkillDock 面板包；
 - 恢复独立 PCHW Portable 2.8.0 便携包；共享遥测分析器升至 1.2.4，支持整列 ISO 时间字段并输出实际采样跨度；
 - SkillDock 面板包使用 `Install.cmd` 自动判断全新安装或备份升级；不再要求用户选择 clean/upgrade 模式；
+- SkillDock Runtime 成功升级后只保留最近一个程序备份，清理旧 `Runtime-*` 目录；Task 数据和迁移数据备份不参与轮转；
 - Skill 入口将 SkillDock 脚本、wait/sync 流程和错误码细节下沉到专用引用，`SKILL.md` 从 11,163 B 降至 9,954 B，同时保留当前 Thread、禁止伪造启动和失败关闭边界；
 - 行为评分器新增固定 12 场景 `guardrail-12`，补充物理危险正反例，并支持 `-Guardrail` 只运行高风险行为子集；
 - 更新 GitHub 中文/英文入口和安装、使用、排障文档，说明 SkillDock 面板只在 Codex 当前对话中承诺；

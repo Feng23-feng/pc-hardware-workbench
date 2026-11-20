@@ -100,6 +100,11 @@ Runtime and migration backups:
 %LOCALAPPDATA%\SkillDockBackups
 ```
 
+After a successful installation, Runtime program backups rotate to the newest
+single rollback copy; older `Runtime-*` program directories are removed. Task
+data, attachments, and migration-data backups do not participate in this
+rotation and remain subject to uninstall or explicit cleanup.
+
 ### Open the panel from the current conversation
 
 Do not search for a runner, port, token, or environment variable. In the current

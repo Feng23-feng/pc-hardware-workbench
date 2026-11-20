@@ -96,6 +96,10 @@ Runtime 与迁移数据的备份位于：
 %LOCALAPPDATA%\SkillDockBackups
 ```
 
+Runtime 程序备份在成功安装后轮转为最近一个可回退版本；更旧的
+`Runtime-*` 程序目录会被清理。Task 数据、任务附件和迁移数据备份不参与这个
+轮转，仍按卸载或显式清理流程处理。
+
 ### 当前对话打开面板
 
 安装后不需要手动寻找 runner、端口、token 或环境变量。在 Codex 当前对话中说：
