@@ -219,11 +219,15 @@ try {
     $allowedReleaseStates = if ($AllowDirtyLocalCandidate) {
         @(
             "release-candidate-not-released",
-            "local-candidate-clean-ui-pending"
+            "local-candidate-clean-ui-pending",
+            "release-candidate-prerelease"
         )
     }
     else {
-        @("release-candidate-not-released")
+        @(
+            "release-candidate-not-released",
+            "release-candidate-prerelease"
+        )
     }
     if ([string]$manifest.release_state -notin $allowedReleaseStates) {
         throw "RC manifest has an unexpected release state."

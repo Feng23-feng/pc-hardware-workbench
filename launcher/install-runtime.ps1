@@ -55,6 +55,304 @@ function Assert-NoReparsePointInPath {
     }
 }
 
+function Write-Utf8Json {
+    param(
+        [Parameter(Mandatory = $true)][string]$Path,
+        [Parameter(Mandatory = $true)][object]$Value
+    )
+
+    $encoding = New-Object System.Text.UTF8Encoding($false)
+    [IO.File]::WriteAllText(
+        $Path,
+        (($Value | ConvertTo-Json -Depth 8) + "`n"),
+        $encoding
+    )
+}
+
+function Get-FileSha256 {
+    param([Parameter(Mandatory = $true)][string]$Path)
+
+    $stream = [IO.File]::OpenRead($Path)
+    $sha256 = [Security.Cryptography.SHA256]::Create()
+    try {
+        $digest = $sha256.ComputeHash($stream)
+        return (
+            [BitConverter]::ToString($digest) -replace '-', ''
+        ).ToLowerInvariant()
+    }
+    finally {
+        $sha256.Dispose()
+        $stream.Dispose()
+    }
+}
+
+function Test-SkillDockEngineDirectory {
+    param(
+        [Parameter(Mandatory = $true)][string]$EngineDirectory,
+        [Parameter(Mandatory = $true)][string]$EngineId,
+        [Parameter(Mandatory = $true)][string]$NodeVersion,
+        [Parameter(Mandatory = $true)][string]$NodeSha256
+    )
+
+    $resolvedEngine = [IO.Path]::GetFullPath(
+        $EngineDirectory
+    ).TrimEnd('\')
+    if (
+        -not (Test-Path -LiteralPath $resolvedEngine -PathType Container) -or
+        (
+            (Get-Item -LiteralPath $resolvedEngine -Force).Attributes -band
+                [IO.FileAttributes]::ReparsePoint
+        ) -ne 0
+    ) {
+        throw "Shared Node engine directory is missing or unsafe: $resolvedEngine"
+    }
+    $metadataPath = Join-Path $resolvedEngine "ENGINE.json"
+    $nodePath = Join-Path $resolvedEngine "node.exe"
+    if (
+        -not (Test-Path -LiteralPath $metadataPath -PathType Leaf) -or
+        -not (Test-Path -LiteralPath $nodePath -PathType Leaf)
+    ) {
+        throw "Shared Node engine files are incomplete: $resolvedEngine"
+    }
+    $metadata = Get-Content -Raw -LiteralPath $metadataPath | ConvertFrom-Json
+    if (
+        [string]$metadata.schema_version -ne "1.0" -or
+        [string]$metadata.engine_id -ne $EngineId -or
+        [string]$metadata.node_version -ne $NodeVersion -or
+        [string]$metadata.node_sha256 -ne $NodeSha256 -or
+        [string]$metadata.node_path -ne $nodePath
+    ) {
+        throw "Shared Node engine metadata does not match its identity: $resolvedEngine"
+    }
+    $actualSha256 = Get-FileSha256 -Path $nodePath
+    if ($actualSha256 -ne $NodeSha256) {
+        throw "Shared Node engine digest does not match its metadata: $nodePath"
+    }
+    return [pscustomobject][ordered]@{
+        schema_version = "1.0"
+        engine_id = $EngineId
+        engine_path = $resolvedEngine
+        node_path = $nodePath
+        node_version = $NodeVersion
+        node_sha256 = $NodeSha256
+        reused = $true
+    }
+}
+
+function Install-SkillDockNodeEngine {
+    param(
+        [Parameter(Mandatory = $true)][string]$SourceNodePath,
+        [Parameter(Mandatory = $true)][string]$SourceLicensePath,
+        [Parameter(Mandatory = $true)][string]$LocalRoot
+    )
+
+    if (-not (Test-Path -LiteralPath $SourceNodePath -PathType Leaf)) {
+        throw "Source package does not contain node\node.exe."
+    }
+    $nodeSha256 = Get-FileSha256 -Path $SourceNodePath
+    $nodeVersion = [string](& $SourceNodePath --version 2>$null)
+    if ($LASTEXITCODE -ne 0 -or $nodeVersion.Trim() -notmatch '^v\d+\.\d+\.\d+$') {
+        throw "Source Node engine did not return a valid version."
+    }
+    $nodeVersion = $nodeVersion.Trim()
+    $safeVersion = $nodeVersion.TrimStart('v')
+    $engineId = "node-$safeVersion-$($nodeSha256.Substring(0, 16))"
+    $engineRoot = Get-SkillDockEngineRoot -LocalRoot $LocalRoot
+    Assert-NoReparsePointInPath -Path $engineRoot
+    New-Item -ItemType Directory -Path $engineRoot -Force | Out-Null
+    $engineDirectory = Join-Path $engineRoot $engineId
+    if (Test-Path -LiteralPath $engineDirectory) {
+        return Test-SkillDockEngineDirectory `
+            -EngineDirectory $engineDirectory `
+            -EngineId $engineId `
+            -NodeVersion $nodeVersion `
+            -NodeSha256 $nodeSha256
+    }
+
+    $stagingDirectory = Join-Path `
+        $engineRoot `
+        (".node-engine-" + [guid]::NewGuid().ToString("N") + ".tmp")
+    try {
+        New-Item -ItemType Directory -Path $stagingDirectory | Out-Null
+        $stagedNodePath = Join-Path $stagingDirectory "node.exe"
+        Copy-Item `
+            -LiteralPath $SourceNodePath `
+            -Destination $stagedNodePath `
+            -Force
+        if (Test-Path -LiteralPath $SourceLicensePath -PathType Leaf) {
+            Copy-Item `
+                -LiteralPath $SourceLicensePath `
+                -Destination (Join-Path $stagingDirectory "LICENSE") `
+                -Force
+        }
+        Write-Utf8Json `
+            -Path (Join-Path $stagingDirectory "ENGINE.json") `
+            -Value ([ordered]@{
+                schema_version = "1.0"
+                engine_id = $engineId
+                node_version = $nodeVersion
+                node_sha256 = $nodeSha256
+                node_path = (Join-Path $engineDirectory "node.exe")
+                installed_at = [DateTimeOffset]::Now.ToString("o")
+            })
+        $stagedSha256 = Get-FileSha256 -Path $stagedNodePath
+        if ($stagedSha256 -ne $nodeSha256) {
+            throw "Staged shared Node engine digest changed during copy."
+        }
+        try {
+            Move-Item `
+                -LiteralPath $stagingDirectory `
+                -Destination $engineDirectory
+        }
+        catch {
+            if (-not (Test-Path -LiteralPath $engineDirectory)) {
+                throw
+            }
+        }
+    }
+    finally {
+        if (Test-Path -LiteralPath $stagingDirectory) {
+            Remove-Item -LiteralPath $stagingDirectory -Recurse -Force
+        }
+    }
+
+    $installed = Test-SkillDockEngineDirectory `
+        -EngineDirectory $engineDirectory `
+        -EngineId $engineId `
+        -NodeVersion $nodeVersion `
+        -NodeSha256 $nodeSha256
+    return [pscustomobject][ordered]@{
+        schema_version = $installed.schema_version
+        engine_id = $installed.engine_id
+        engine_path = $installed.engine_path
+        node_path = $installed.node_path
+        node_version = $installed.node_version
+        node_sha256 = $installed.node_sha256
+        reused = $false
+    }
+}
+
+function Get-ReferencedSkillDockEngineIds {
+    param(
+        [Parameter(Mandatory = $true)][string]$LocalRoot,
+        [Parameter(Mandatory = $true)][string]$BackupRoot
+    )
+
+    $ids = New-Object 'System.Collections.Generic.HashSet[string]'
+    $failures = New-Object System.Collections.Generic.List[object]
+    foreach ($root in @($LocalRoot, $BackupRoot)) {
+        if (-not (Test-Path -LiteralPath $root -PathType Container)) {
+            continue
+        }
+        foreach ($runtimeDirectory in @(
+            Get-ChildItem -LiteralPath $root -Directory -Force |
+                Where-Object { $_.Name -cmatch '^Runtime(?:-|$)' }
+        )) {
+            $referencePath = Join-Path `
+                $runtimeDirectory.FullName `
+                "engine-location.json"
+            if (-not (Test-Path -LiteralPath $referencePath -PathType Leaf)) {
+                continue
+            }
+            try {
+                $reference = Get-Content `
+                    -Raw `
+                    -LiteralPath $referencePath | ConvertFrom-Json
+                $engineId = [string]$reference.engine_id
+                if (
+                    [string]$reference.schema_version -ne "1.0" -or
+                    [string]::IsNullOrWhiteSpace($engineId)
+                ) {
+                    throw "Malformed shared Node engine reference."
+                }
+                [void]$ids.Add($engineId)
+            }
+            catch {
+                $failures.Add([pscustomobject]@{
+                    path = $referencePath
+                    error = [string]$_.Exception.Message
+                }) | Out-Null
+            }
+        }
+    }
+    return [pscustomobject]@{
+        complete = $failures.Count -eq 0
+        ids = @($ids)
+        failures = @($failures.ToArray())
+    }
+}
+
+function Invoke-SkillDockEngineRetention {
+    param(
+        [Parameter(Mandatory = $true)][string]$LocalRoot,
+        [Parameter(Mandatory = $true)][string]$BackupRoot
+    )
+
+    $references = Get-ReferencedSkillDockEngineIds `
+        -LocalRoot $LocalRoot `
+        -BackupRoot $BackupRoot
+    $removed = New-Object System.Collections.Generic.List[string]
+    $failures = New-Object System.Collections.Generic.List[object]
+    if (-not $references.complete) {
+        return [pscustomobject]@{
+            retained = @($references.ids)
+            removed = @()
+            failures = @($references.failures)
+        }
+    }
+    $engineRoot = Get-SkillDockEngineRoot -LocalRoot $LocalRoot
+    if (-not (Test-Path -LiteralPath $engineRoot -PathType Container)) {
+        return [pscustomobject]@{
+            retained = @($references.ids)
+            removed = @()
+            failures = @()
+        }
+    }
+    $referenced = New-Object 'System.Collections.Generic.HashSet[string]'
+    foreach ($engineId in @($references.ids)) {
+        [void]$referenced.Add([string]$engineId)
+    }
+    foreach ($engineDirectory in @(
+        Get-ChildItem -LiteralPath $engineRoot -Directory -Force |
+            Where-Object {
+                $_.Name -cmatch
+                    '^node-\d+\.\d+\.\d+-[0-9a-f]{16}$'
+            }
+    )) {
+        if (
+            (($engineDirectory.Attributes -band
+                [IO.FileAttributes]::ReparsePoint) -ne 0) -or
+            $referenced.Contains($engineDirectory.Name)
+        ) {
+            continue
+        }
+        try {
+            $fullPath = [IO.Path]::GetFullPath(
+                $engineDirectory.FullName
+            ).TrimEnd('\')
+            if (
+                [IO.Path]::GetDirectoryName($fullPath).TrimEnd('\') -ne
+                    $engineRoot
+            ) {
+                throw "Refusing to remove an unsafe engine path: $fullPath"
+            }
+            Remove-Item -LiteralPath $fullPath -Recurse -Force
+            $removed.Add($fullPath) | Out-Null
+        }
+        catch {
+            $failures.Add([pscustomobject]@{
+                path = $engineDirectory.FullName
+                error = [string]$_.Exception.Message
+            }) | Out-Null
+        }
+    }
+    return [pscustomobject]@{
+        retained = @($references.ids)
+        removed = @($removed.ToArray())
+        failures = @($failures.ToArray())
+    }
+}
+
 function Invoke-RuntimeBackupRetention {
     param(
         [Parameter(Mandatory = $true)][string]$Root,
@@ -304,11 +602,15 @@ $DataMigration = Invoke-SkillDockRuntimeDataMigration `
     -DataBackupRoot $DataBackupRoot `
     -Policy $LegacyDataPolicy
 
+$SharedEngine = Install-SkillDockNodeEngine `
+    -SourceNodePath (Join-Path $SourceDirectory "node\node.exe") `
+    -SourceLicensePath (Join-Path $SourceDirectory "node\LICENSE") `
+    -LocalRoot $LocalRoot
+
 New-Item -ItemType Directory -Path $TargetDirectory -Force | Out-Null
 $RuntimeEntries = @(
     "SkillDock.exe",
     "app",
-    "node",
     "Stop SkillDock.cmd",
     "Uninstall SkillDock.ps1",
     "Uninstall PCHW Skill.ps1",
@@ -332,6 +634,16 @@ foreach ($entry in $RuntimeEntries) {
 if (-not $CopiedRuntimeEntry) {
     throw "Source package has no supported Runtime entries: $SourceDirectory"
 }
+Write-Utf8Json `
+    -Path (Join-Path $TargetDirectory "engine-location.json") `
+    -Value ([ordered]@{
+        schema_version = "1.0"
+        engine_id = [string]$SharedEngine.engine_id
+        engine_path = [string]$SharedEngine.engine_path
+        node_path = [string]$SharedEngine.node_path
+        node_version = [string]$SharedEngine.node_version
+        node_sha256 = [string]$SharedEngine.node_sha256
+    })
 $LauncherPath = Join-Path $TargetDirectory "SkillDock.exe"
 if (-not (Test-Path -LiteralPath $LauncherPath -PathType Leaf)) {
     throw "Runtime installation did not produce SkillDock.exe: $TargetDirectory"
@@ -390,6 +702,13 @@ if ($remainingRuntimes.Count -gt 0) {
     backup_root = $BackupRoot
     data_backup_root = $DataBackupRoot
     legacy_data_migration = $DataMigration
+    node_engine = [ordered]@{
+        engine_id = [string]$SharedEngine.engine_id
+        engine_path = [string]$SharedEngine.engine_path
+        node_path = [string]$SharedEngine.node_path
+        node_version = [string]$SharedEngine.node_version
+        node_sha256 = [string]$SharedEngine.node_sha256
+    }
 } | ConvertTo-Json | Set-Content -LiteralPath $PointerPath -Encoding UTF8
 
 $BackupRetention = try {
@@ -423,6 +742,35 @@ foreach ($retentionFailure in @($BackupRetention.failures)) {
     )
 }
 
+$EngineRetention = try {
+    Invoke-SkillDockEngineRetention `
+        -LocalRoot $LocalRoot `
+        -BackupRoot $BackupRoot
+}
+catch {
+    [pscustomobject]@{
+        retained = @()
+        removed = @()
+        failures = @(
+            [pscustomobject]@{
+                path = (Get-SkillDockEngineRoot -LocalRoot $LocalRoot)
+                error = [string]$_.Exception.Message
+            }
+        )
+    }
+}
+foreach ($removedEngine in @($EngineRetention.removed)) {
+    Write-Host "Removed unreferenced shared Node engine:"
+    Write-Host "  $removedEngine"
+}
+foreach ($engineFailure in @($EngineRetention.failures)) {
+    Write-Warning (
+        "Could not clean shared Node engine '{0}': {1}" -f
+        $engineFailure.path,
+        $engineFailure.error
+    )
+}
+
 [pscustomobject]@{
     runtime = $LauncherPath
     pointer = $PointerPath
@@ -433,4 +781,13 @@ foreach ($retentionFailure in @($BackupRetention.failures)) {
     legacy_data_migration = $DataMigration
     backups = @($MovedBackups)
     backup_retention = $BackupRetention
+    shared_engine = [ordered]@{
+        engine_id = [string]$SharedEngine.engine_id
+        engine_path = [string]$SharedEngine.engine_path
+        node_path = [string]$SharedEngine.node_path
+        node_version = [string]$SharedEngine.node_version
+        node_sha256 = [string]$SharedEngine.node_sha256
+        reused = [bool]$SharedEngine.reused
+    }
+    engine_retention = $EngineRetention
 } | ConvertTo-Json -Depth 4 -Compress

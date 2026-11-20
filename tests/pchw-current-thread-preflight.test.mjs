@@ -1,5 +1,13 @@
 import assert from "node:assert/strict";
 import {
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import {
   evaluatePreflightPhaseContract,
   readPersistedTaskBinding,
   resolveRuntimePackagePaths,
@@ -46,6 +54,36 @@ assert.notEqual(
   paths.serverPath,
   "C:\\Users\\Example\\AppData\\Local\\SkillDock\\app\\server.mjs",
 );
+
+const sharedRoot = mkdtempSync(join(tmpdir(), "skilldock-engine-path-"));
+try {
+  const localRoot = join(sharedRoot, "SkillDock");
+  const runtimeRoot = join(localRoot, "Runtime-shared-test");
+  const engineRoot = join(
+    localRoot,
+    "engines",
+    "node-24.22.1-0123456789abcdef",
+  );
+  mkdirSync(runtimeRoot, { recursive: true });
+  mkdirSync(engineRoot, { recursive: true });
+  const engineNodePath = join(engineRoot, "node.exe");
+  writeFileSync(
+    join(runtimeRoot, "engine-location.json"),
+    `${JSON.stringify({
+      schema_version: "1.0",
+      engine_id: "node-24.22.1-0123456789abcdef",
+      node_path: engineNodePath,
+      node_sha256: "a".repeat(64),
+    })}\n`,
+    "utf8",
+  );
+  const sharedPaths = resolveRuntimePackagePaths(
+    join(runtimeRoot, "SkillDock.exe"),
+  );
+  assert.equal(sharedPaths.nodePath, engineNodePath);
+} finally {
+  rmSync(sharedRoot, { recursive: true, force: true });
+}
 
 const binding = readPersistedTaskBinding({
   task: {

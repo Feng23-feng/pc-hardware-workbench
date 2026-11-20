@@ -1,5 +1,6 @@
 $script:SkillDockCanonicalRuntimeDataDirectoryName = "runtime-pchw"
 $script:SkillDockLegacyRuntimeDataDirectoryName = "runtime-dsh-web"
+$script:SkillDockEngineDirectoryName = "engines"
 
 function Get-SkillDockLocalRoot {
     param([string]$LocalRoot = "")
@@ -28,6 +29,53 @@ function Get-SkillDockRuntimeDirectoryCandidates {
             $LocalRoot `
             $script:SkillDockLegacyRuntimeDataDirectoryName)
     )
+}
+
+function Get-SkillDockEngineRoot {
+    param([Parameter(Mandatory = $true)][string]$LocalRoot)
+
+    return [IO.Path]::GetFullPath(
+        (Join-Path $LocalRoot $script:SkillDockEngineDirectoryName)
+    ).TrimEnd("\")
+}
+
+function Get-SkillDockRuntimeNodePath {
+    param(
+        [Parameter(Mandatory = $true)][string]$RuntimeDirectory,
+        [Parameter(Mandatory = $true)][string]$LocalRoot
+    )
+
+    $resolvedRuntime = [IO.Path]::GetFullPath(
+        $RuntimeDirectory
+    ).TrimEnd("\")
+    $legacyNodePath = Join-Path $resolvedRuntime "node\node.exe"
+    $referencePath = Join-Path $resolvedRuntime "engine-location.json"
+    if (-not (Test-Path -LiteralPath $referencePath -PathType Leaf)) {
+        return $legacyNodePath
+    }
+
+    $reference = Read-SkillDockJsonFile -Path $referencePath
+    if (
+        $null -eq $reference -or
+        [string]$reference.schema_version -ne "1.0" -or
+        [string]::IsNullOrWhiteSpace([string]$reference.engine_id) -or
+        [string]::IsNullOrWhiteSpace([string]$reference.node_path) -or
+        [string]$reference.node_sha256 -notmatch '^[0-9a-f]{64}$'
+    ) {
+        throw "Shared Node engine reference is malformed: $referencePath"
+    }
+
+    $engineRoot = Get-SkillDockEngineRoot -LocalRoot $LocalRoot
+    $nodePath = [IO.Path]::GetFullPath([string]$reference.node_path)
+    if (
+        -not $nodePath.StartsWith(
+            $engineRoot + "\",
+            [StringComparison]::OrdinalIgnoreCase
+        )
+    ) {
+        throw "Shared Node engine path escapes the engine root: $nodePath"
+    }
+    return $nodePath
 }
 
 function Get-SkillDockCanonicalRuntimeDirectory {

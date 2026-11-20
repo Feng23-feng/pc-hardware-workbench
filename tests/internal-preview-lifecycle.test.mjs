@@ -131,6 +131,7 @@ function pathInventory() {
     local_root_exists: existsSync(localRoot),
     backup_root_exists: existsSync(backupRoot),
     runtime_program_exists: existsSync(targetRuntime),
+    engine_root_exists: existsSync(join(localRoot, "engines")),
     launcher_pointer_exists: existsSync(
       join(localRoot, "runtime-location.json"),
     ),
@@ -318,6 +319,16 @@ try {
   assert.equal(install.code, 0, install.stderr);
   const pointer = await readJson(join(localRoot, "runtime-location.json"));
   assert.equal(pointer.runtime_path, join(targetRuntime, "SkillDock.exe"));
+  assert.equal(
+    pointer.node_engine?.engine_id,
+    `node-${process.versions.node}-${createHash("sha256")
+      .update(await readFile(process.execPath))
+      .digest("hex")
+      .slice(0, 16)}`,
+  );
+  assert.equal(existsSync(join(targetRuntime, "node")), false);
+  assert.equal(existsSync(join(targetRuntime, "engine-location.json")), true);
+  assert.equal(existsSync(pointer.node_engine.node_path), true);
   launcherPath = pointer.runtime_path;
   installedToCleanRoot = (
     existsSync(targetRuntime) &&
@@ -656,6 +667,38 @@ try {
   restartStatePersisted = state.task.shared_task.phase === previewPhase;
   assert.equal(restartStatePersisted, true);
 
+  const engineReferencePath = join(
+    targetRuntime,
+    "engine-location.json",
+  );
+  const originalEngineReference = await readFile(engineReferencePath, "utf8");
+  const tamperedEngineReference = JSON.parse(originalEngineReference);
+  tamperedEngineReference.node_sha256 = "0".repeat(64);
+  await writeFile(
+    engineReferencePath,
+    `${JSON.stringify(tamperedEngineReference, null, 2)}\n`,
+    "utf8",
+  );
+  try {
+    const tamperedLaunch = await runProcess(launcherPath, [
+      "--ensure",
+      "--silent",
+      "--no-browser",
+    ], {
+      env: {
+        ...process.env,
+        SKILLDOCK_LOCAL_ROOT: localRoot,
+      },
+    });
+    assert.notEqual(tamperedLaunch.code, 0);
+    const launchFailure = await readJson(
+      join(localRoot, "launch-failure.json"),
+    );
+    assert.equal(launchFailure.error_code, "shared_engine_hash_mismatch");
+  } finally {
+    await writeFile(engineReferencePath, originalEngineReference, "utf8");
+  }
+
   const packagedUninstallScript = join(
     targetRuntime,
     "Uninstall SkillDock.ps1",
@@ -763,6 +806,10 @@ try {
     true,
   );
   assert.equal(
+    pathInventories.after_default_uninstall.engine_root_exists,
+    true,
+  );
+  assert.equal(
     pathInventories.after_default_uninstall.backup_root_exists,
     true,
   );
@@ -810,6 +857,10 @@ try {
     pathInventories.after_purge_uninstall.backup_root_exists,
     false,
   );
+  assert.equal(
+    pathInventories.after_purge_uninstall.engine_root_exists,
+    false,
+  );
   assert.deepEqual(processInventories.after_purge_uninstall, []);
   activeUrl = null;
 
@@ -826,6 +877,7 @@ try {
   assert.equal(pathInventories.after_fixture_cleanup.temp_root_exists, false);
   assert.equal(pathInventories.after_fixture_cleanup.local_root_exists, false);
   assert.equal(pathInventories.after_fixture_cleanup.backup_root_exists, false);
+  assert.equal(pathInventories.after_fixture_cleanup.engine_root_exists, false);
   assert.deepEqual(processInventories.after_fixture_cleanup, []);
 
   const residueCandidates = [

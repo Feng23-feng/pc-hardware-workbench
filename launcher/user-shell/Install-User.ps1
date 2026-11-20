@@ -456,6 +456,42 @@ try {
     ) {
         throw "The installed Runtime failed version or launcher validation."
     }
+    $nodeEngineProperty = $pointer.PSObject.Properties["node_engine"]
+    $nodeEngine = if ($null -eq $nodeEngineProperty) {
+        $null
+    }
+    else {
+        $nodeEngineProperty.Value
+    }
+    if (
+        $null -eq $nodeEngine -or
+        [string]::IsNullOrWhiteSpace([string]$nodeEngine.engine_id) -or
+        [string]::IsNullOrWhiteSpace([string]$nodeEngine.node_path) -or
+        [string]$nodeEngine.node_sha256 -notmatch '^[0-9a-f]{64}$'
+    ) {
+        throw "The installed Runtime has no valid shared Node engine reference."
+    }
+    $engineRoot = [IO.Path]::GetFullPath(
+        (Join-Path $LocalRoot "engines")
+    ).TrimEnd("\")
+    $engineNodePath = [IO.Path]::GetFullPath(
+        [string]$nodeEngine.node_path
+    )
+    if (
+        -not $engineNodePath.StartsWith(
+            $engineRoot + "\",
+            [StringComparison]::OrdinalIgnoreCase
+        ) -or
+        -not (Test-Path -LiteralPath $engineNodePath -PathType Leaf)
+    ) {
+        throw "The installed shared Node engine is missing or outside LocalRoot."
+    }
+    if (
+        (Get-FileSha256 -Path $engineNodePath) -ne
+            [string]$nodeEngine.node_sha256
+    ) {
+        throw "The installed shared Node engine digest does not match its reference."
+    }
 
     $skillBackupPath = ""
     $skillBackupProperty = $skillInstallResult.PSObject.Properties[
@@ -478,6 +514,7 @@ try {
         skill_backup_path = $skillBackupPath
         runtime_pointer = $pointerPath
         runtime_path = [string]$pointer.runtime_path
+        node_engine = $nodeEngine
         runtime_install_result = $runtimeResult
         log_path = $logPath
     }

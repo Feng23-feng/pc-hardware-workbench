@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import {
   mkdir,
   readFile,
@@ -12,7 +12,9 @@ import { homedir } from "node:os";
 import {
   basename,
   dirname,
+  isAbsolute,
   join,
+  relative,
   resolve,
 } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -91,6 +93,33 @@ const defaultEvidencePath = join(
 export function resolveRuntimePackagePaths(runtimePointerPath) {
   const pointerPath = resolve(runtimePointerPath);
   const packageRoot = dirname(pointerPath);
+  const engineReferencePath = join(packageRoot, "engine-location.json");
+  let nodePath = join(packageRoot, "node", "node.exe");
+  if (existsSync(engineReferencePath)) {
+    const reference = JSON.parse(readFileSync(engineReferencePath, "utf8"));
+    if (
+      reference?.schema_version !== "1.0" ||
+      typeof reference.engine_id !== "string" ||
+      reference.engine_id.length === 0 ||
+      typeof reference.node_path !== "string" ||
+      !isAbsolute(reference.node_path) ||
+      typeof reference.node_sha256 !== "string" ||
+      !/^[0-9a-f]{64}$/u.test(reference.node_sha256)
+    ) {
+      throw new Error("Shared Node engine reference is malformed.");
+    }
+    const engineRoot = resolve(packageRoot, "..", "engines");
+    const resolvedNodePath = resolve(reference.node_path);
+    const nodeRelativePath = relative(engineRoot, resolvedNodePath);
+    if (
+      nodeRelativePath.length === 0 ||
+      nodeRelativePath.startsWith("..") ||
+      isAbsolute(nodeRelativePath)
+    ) {
+      throw new Error("Shared Node engine path escapes the engine root.");
+    }
+    nodePath = resolvedNodePath;
+  }
   return {
     pointerPath,
     packageRoot,
@@ -110,7 +139,8 @@ export function resolveRuntimePackagePaths(runtimePointerPath) {
       "public",
       "source-hosted-phase.js",
     ),
-    nodePath: join(packageRoot, "node", "node.exe"),
+    engineReferencePath,
+    nodePath,
   };
 }
 

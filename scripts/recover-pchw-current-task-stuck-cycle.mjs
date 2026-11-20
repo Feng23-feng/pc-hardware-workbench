@@ -10,6 +10,9 @@ import {
 } from "node:fs/promises";
 import { createServer } from "node:net";
 import { dirname, join, resolve } from "node:path";
+import {
+  resolveRuntimePackagePaths,
+} from "./preflight-pchw-current-user-thread-gate.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const localRoot = join(process.env.LOCALAPPDATA ?? "", "SkillDock");
@@ -118,9 +121,10 @@ assert.match(
 const pointer = JSON.parse(
   (await readFile(pointerPath, "utf8")).replace(/^\uFEFF/u, ""),
 );
-const packageRoot = dirname(resolve(pointer.runtime_path));
-const nodePath = join(packageRoot, "node", "node.exe");
-const serverPath = join(packageRoot, "app", "server.mjs");
+const runtimePaths = resolveRuntimePackagePaths(pointer.runtime_path);
+const packageRoot = runtimePaths.packageRoot;
+const nodePath = runtimePaths.nodePath;
+const serverPath = runtimePaths.serverPath;
 await stat(nodePath);
 await stat(serverPath);
 

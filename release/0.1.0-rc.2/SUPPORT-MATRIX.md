@@ -43,6 +43,9 @@ a PCHW Skill already exists. Existing Codex users should run
   `failed-install` backup and the old Skill is restored.
 - Runtime program directories are versioned and old active Runtime directories
   are moved to the Runtime backup root.
+- Runtime releases reference a content-addressed shared Node engine under
+  `%LOCALAPPDATA%\SkillDock\engines`; retained backups do not duplicate Node.
+  The launcher verifies the referenced engine digest before use.
 - Conflicting runtime data roots fail closed instead of being merged silently.
 
 The DSH read-only observer is an independently frozen component. Its existence

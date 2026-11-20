@@ -6,6 +6,10 @@ Status: **public test build; not a stable release**
 
 ## 2026-11-20 rc.2
 
+- Bundled Node is now installed once under `LocalRoot\engines` and referenced
+  by Runtime releases and retained backups. The engine is content-addressed by
+  Node version and SHA-256; launch rejects missing, malformed, or changed
+  shared engines instead of falling back to another Node.
 - Runtime program backups now rotate after a successful install. The previous
   `runtime-location.json` target is always retained; the default retain count is
   one and can be raised with `-RetainRuntimeBackups`.

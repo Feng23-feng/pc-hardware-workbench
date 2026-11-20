@@ -75,16 +75,24 @@ function Invoke-UserPackageRetentionGate {
     }
     if (
         $installerText -notmatch '\[int\]\$RetainRuntimeBackups' -or
-        $installerText -notmatch 'Invoke-RuntimeBackupRetention'
+        $installerText -notmatch 'Invoke-RuntimeBackupRetention' -or
+        $installerText -notmatch 'Install-SkillDockNodeEngine' -or
+        $installerText -notmatch 'engine-location\.json'
     ) {
-        throw "Embedded RC Runtime installer predates backup retention."
+        throw "Embedded RC Runtime installer predates shared Node or backup retention."
     }
 
     $skillsRoot = Join-Path $GateRoot "skills"
     $localRoot = Join-Path $GateRoot "local"
     $backupRoot = Join-Path $GateRoot "runtime-backups"
     $dataBackupRoot = Join-Path $GateRoot "data-backups"
+    $enginesRoot = Join-Path $localRoot "engines"
+    $staleEngine = Join-Path $enginesRoot "node-24.0.0-0123456789abcdef"
     $staleBackup = Join-Path $backupRoot "Runtime-stale-backup-20200101-000000"
+    New-Item -ItemType Directory -Path $staleEngine -Force | Out-Null
+    Set-Content `
+        -LiteralPath (Join-Path $staleEngine "stale.txt") `
+        -Value "stale"
     New-Item -ItemType Directory -Path $staleBackup -Force | Out-Null
     Set-Content `
         -LiteralPath (Join-Path $staleBackup "stale.txt") `
@@ -157,6 +165,57 @@ function Invoke-UserPackageRetentionGate {
     if (Test-Path -LiteralPath $staleBackup) {
         throw "Runtime retention gate did not remove the stale backup."
     }
+    if (Test-Path -LiteralPath $staleEngine) {
+        throw "Runtime retention gate did not remove the stale shared Node engine."
+    }
+    $pointer = Get-Content -Raw -LiteralPath (
+        Join-Path $localRoot "runtime-location.json"
+    ) | ConvertFrom-Json
+    $runtimeDirectory = Split-Path -Parent ([string]$pointer.runtime_path)
+    if (Test-Path -LiteralPath (Join-Path $runtimeDirectory "node")) {
+        throw "Active Runtime still contains a duplicate node directory."
+    }
+    $engineReferencePath = Join-Path `
+        $runtimeDirectory `
+        "engine-location.json"
+    if (-not (Test-Path -LiteralPath $engineReferencePath -PathType Leaf)) {
+        throw "Active Runtime is missing its shared Node engine reference."
+    }
+    $engineReference = Get-Content `
+        -Raw `
+        -LiteralPath $engineReferencePath | ConvertFrom-Json
+    $engineDirectories = @(
+        Get-ChildItem -LiteralPath $enginesRoot -Directory -Force |
+            Where-Object {
+                $_.Name -cmatch '^node-\d+\.\d+\.\d+-[0-9a-f]{16}$'
+            }
+    )
+    if (
+        $engineDirectories.Count -ne 1 -or
+        $engineDirectories[0].Name -ne [string]$engineReference.engine_id -or
+        [string]$pointer.node_engine.engine_id -ne
+            [string]$engineReference.engine_id
+    ) {
+        throw "Runtime retention gate did not converge on one shared Node engine."
+    }
+    if (Test-Path -LiteralPath (Join-Path $retainedBackups[0].FullName "node")) {
+        throw "Retained Runtime backup still contains a duplicate node directory."
+    }
+    $backupEngineReferencePath = Join-Path `
+        $retainedBackups[0].FullName `
+        "engine-location.json"
+    if (-not (Test-Path -LiteralPath $backupEngineReferencePath -PathType Leaf)) {
+        throw "Retained Runtime backup is missing its shared Node engine reference."
+    }
+    $backupEngineReference = Get-Content `
+        -Raw `
+        -LiteralPath $backupEngineReferencePath | ConvertFrom-Json
+    if (
+        [string]$backupEngineReference.engine_id -ne
+            [string]$engineReference.engine_id
+    ) {
+        throw "Retained Runtime backup does not reference the shared engine."
+    }
     if (
         -not (
             Test-Path -LiteralPath (
@@ -178,7 +237,11 @@ function Invoke-UserPackageRetentionGate {
         installs = 2
         clean_then_upgrade = $true
         retained_backup_count = $retainedBackups.Count
+        shared_engine_count = $engineDirectories.Count
         stale_backup_removed = $true
+        stale_engine_removed = $true
+        runtime_node_embedded = $false
+        backup_node_embedded = $false
         task_data_preserved = $true
     }
 }

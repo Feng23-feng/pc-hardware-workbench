@@ -105,9 +105,11 @@ try {
     )
     if (
         $installerText -notmatch '\[int\]\$RetainRuntimeBackups' -or
-        $installerText -notmatch 'Invoke-RuntimeBackupRetention'
+        $installerText -notmatch 'Invoke-RuntimeBackupRetention' -or
+        $installerText -notmatch 'Install-SkillDockNodeEngine' -or
+        $installerText -notmatch 'engine-location\.json'
     ) {
-        throw "Runtime package installer predates backup retention."
+        throw "Runtime package installer predates shared Node or backup retention."
     }
 
     $rcManifest = Get-Content -Raw -LiteralPath (

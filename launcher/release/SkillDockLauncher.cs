@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -69,7 +70,7 @@ internal static class SkillDockLauncher
     {
         string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
         string appDirectory = Path.Combine(baseDirectory, "app");
-        string nodePath = Path.Combine(baseDirectory, "node", "node.exe");
+        string nodePath = ResolveNodePath(baseDirectory);
         string serverPath = Path.Combine(appDirectory, "server.mjs");
         string requestedWorkspace = ArgumentValue(args, "--workspace");
         string workspace = ResolveWorkspace(requestedWorkspace);
@@ -392,6 +393,136 @@ internal static class SkillDockLauncher
             }
         }
         return "";
+    }
+
+    private static string ResolveNodePath(string baseDirectory)
+    {
+        string legacyNodePath = Path.Combine(
+            baseDirectory,
+            "node",
+            "node.exe"
+        );
+        string referencePath = Path.Combine(
+            baseDirectory,
+            "engine-location.json"
+        );
+        if (!File.Exists(referencePath))
+        {
+            return legacyNodePath;
+        }
+
+        string nodePath;
+        string expectedSha256;
+        string engineId;
+        try
+        {
+            JavaScriptSerializer serializer = new JavaScriptSerializer();
+            Dictionary<string, object> reference =
+                serializer.DeserializeObject(File.ReadAllText(referencePath))
+                as Dictionary<string, object>;
+            if (
+                reference == null ||
+                !reference.ContainsKey("schema_version") ||
+                !String.Equals(
+                    Convert.ToString(reference["schema_version"]),
+                    "1.0",
+                    StringComparison.Ordinal
+                )
+            )
+            {
+                throw new InvalidOperationException(
+                    "Unsupported shared Node engine reference schema."
+                );
+            }
+            engineId = Convert.ToString(
+                reference.ContainsKey("engine_id")
+                    ? reference["engine_id"]
+                    : null
+            );
+            nodePath = Convert.ToString(
+                reference.ContainsKey("node_path")
+                    ? reference["node_path"]
+                    : null
+            );
+            expectedSha256 = Convert.ToString(
+                reference.ContainsKey("node_sha256")
+                    ? reference["node_sha256"]
+                    : null
+            );
+        }
+        catch (Exception error)
+        {
+            throw new LaunchFailureException(
+                "shared_engine_reference_invalid",
+                "Shared Node engine reference is invalid: " + error.Message
+            );
+        }
+        if (
+            String.IsNullOrWhiteSpace(engineId) ||
+            String.IsNullOrWhiteSpace(nodePath) ||
+            expectedSha256 == null ||
+            !Regex.IsMatch(expectedSha256, "^[0-9a-f]{64}$")
+        )
+        {
+            throw new LaunchFailureException(
+                "shared_engine_reference_invalid",
+                "Shared Node engine reference is incomplete: " + referencePath
+            );
+        }
+
+        string engineRoot = Path.GetFullPath(
+            Path.Combine(LocalRoot, "engines")
+        ).TrimEnd(Path.DirectorySeparatorChar);
+        string resolvedNodePath = Path.GetFullPath(nodePath);
+        if (
+            !resolvedNodePath.StartsWith(
+                engineRoot + Path.DirectorySeparatorChar,
+                StringComparison.OrdinalIgnoreCase
+            )
+        )
+        {
+            throw new LaunchFailureException(
+                "shared_engine_reference_invalid",
+                "Shared Node engine path escapes the engine root: " +
+                resolvedNodePath
+            );
+        }
+        if (!File.Exists(resolvedNodePath))
+        {
+            throw new LaunchFailureException(
+                "shared_engine_unavailable",
+                "Shared Node engine is missing: " + resolvedNodePath
+            );
+        }
+        string actualSha256 = ComputeSha256(resolvedNodePath);
+        if (!String.Equals(
+            actualSha256,
+            expectedSha256,
+            StringComparison.OrdinalIgnoreCase
+        ))
+        {
+            throw new LaunchFailureException(
+                "shared_engine_hash_mismatch",
+                "Shared Node engine digest does not match its reference: " +
+                resolvedNodePath
+            );
+        }
+        return resolvedNodePath;
+    }
+
+    private static string ComputeSha256(string path)
+    {
+        using (FileStream stream = File.OpenRead(path))
+        using (SHA256 sha256 = SHA256.Create())
+        {
+            byte[] digest = sha256.ComputeHash(stream);
+            StringBuilder text = new StringBuilder(digest.Length * 2);
+            foreach (byte value in digest)
+            {
+                text.Append(value.ToString("x2"));
+            }
+            return text.ToString();
+        }
     }
 
     private static void OpenBrowser(ServerInfo info)

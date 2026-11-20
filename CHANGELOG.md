@@ -2,6 +2,11 @@
 
 ## SkillDock 0.1.0-rc.2 / PCHW 2.8.0 - 2026-11-20
 
+- Deduplicate bundled Node engines under `LocalRoot\engines`; installed Runtime
+  releases and retained backups now reference one content-addressed
+  `node.exe` instead of embedding a second copy. Launches verify the exact
+  engine SHA-256 and fail closed when the reference is missing, malformed, or
+  changed.
 - Rotate Runtime program backups after a successful install, retaining one
   previous rollback copy by default while preserving the previous pointer target
   and leaving Task and migration-data backups untouched.

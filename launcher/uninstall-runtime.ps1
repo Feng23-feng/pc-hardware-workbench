@@ -54,6 +54,110 @@ function Test-ReparsePath {
     return $false
 }
 
+function Remove-UnreferencedSharedNodeEngines {
+    param(
+        [Parameter(Mandatory = $true)][string]$LocalRoot,
+        [Parameter(Mandatory = $true)][string]$BackupRoot
+    )
+
+    $engineRoot = Get-SkillDockEngineRoot -LocalRoot $LocalRoot
+    if (-not (Test-Path -LiteralPath $engineRoot -PathType Container)) {
+        return [pscustomobject]@{
+            removed = @()
+            failures = @()
+        }
+    }
+    $referenced = New-Object 'System.Collections.Generic.HashSet[string]'
+    $failures = New-Object System.Collections.Generic.List[object]
+    foreach ($runtimeRoot in @($LocalRoot, $BackupRoot)) {
+        if (-not (Test-Path -LiteralPath $runtimeRoot -PathType Container)) {
+            continue
+        }
+        foreach ($runtimeDirectory in @(
+            Get-ChildItem -LiteralPath $runtimeRoot -Directory -Force |
+                Where-Object { $_.Name -cmatch '^Runtime(?:-|$)' }
+        )) {
+            $referencePath = Join-Path `
+                $runtimeDirectory.FullName `
+                "engine-location.json"
+            if (-not (Test-Path -LiteralPath $referencePath -PathType Leaf)) {
+                continue
+            }
+            try {
+                $reference = Get-Content `
+                    -Raw `
+                    -LiteralPath $referencePath | ConvertFrom-Json
+                $engineId = [string]$reference.engine_id
+                if (
+                    [string]$reference.schema_version -ne "1.0" -or
+                    [string]::IsNullOrWhiteSpace($engineId)
+                ) {
+                    throw "Malformed shared Node engine reference."
+                }
+                [void]$referenced.Add($engineId)
+            }
+            catch {
+                $failures.Add([pscustomobject]@{
+                    path = $referencePath
+                    error = [string]$_.Exception.Message
+                }) | Out-Null
+            }
+        }
+    }
+    if ($failures.Count -gt 0) {
+        return [pscustomobject]@{
+            removed = @()
+            failures = @($failures.ToArray())
+        }
+    }
+
+    $removed = New-Object System.Collections.Generic.List[string]
+    foreach ($engineDirectory in @(
+        Get-ChildItem -LiteralPath $engineRoot -Directory -Force |
+            Where-Object {
+                $_.Name -cmatch
+                    '^node-\d+\.\d+\.\d+-[0-9a-f]{16}$'
+            }
+    )) {
+        if (
+            (($engineDirectory.Attributes -band
+                [IO.FileAttributes]::ReparsePoint) -ne 0) -or
+            $referenced.Contains($engineDirectory.Name)
+        ) {
+            continue
+        }
+        try {
+            $fullPath = [IO.Path]::GetFullPath(
+                $engineDirectory.FullName
+            ).TrimEnd('\')
+            if (
+                [IO.Path]::GetDirectoryName($fullPath).TrimEnd('\') -ne
+                    $engineRoot
+            ) {
+                throw "Refusing to remove an unsafe engine path: $fullPath"
+            }
+            Remove-Item -LiteralPath $fullPath -Recurse -Force
+            $removed.Add($fullPath) | Out-Null
+        }
+        catch {
+            $failures.Add([pscustomobject]@{
+                path = $engineDirectory.FullName
+                error = [string]$_.Exception.Message
+            }) | Out-Null
+        }
+    }
+    if (
+        (Test-Path -LiteralPath $engineRoot -PathType Container) -and
+        @(Get-ChildItem -LiteralPath $engineRoot -Force).Count -eq 0
+    ) {
+        Remove-Item -LiteralPath $engineRoot -Force
+    }
+    return [pscustomobject]@{
+        removed = @($removed.ToArray())
+        failures = @($failures.ToArray())
+    }
+}
+
 if ([string]::IsNullOrWhiteSpace($LocalRoot)) {
     $LocalRoot = Join-Path $env:LOCALAPPDATA "SkillDock"
 }
@@ -159,6 +263,16 @@ if ($PurgeBackups -and (Test-Path -LiteralPath $BackupRoot)) {
     Remove-Item -LiteralPath $BackupRoot -Recurse -Force
 }
 
+$EngineCleanup = [pscustomobject]@{
+    removed = @()
+    failures = @()
+}
+if ($PurgeUserData -or $PurgeBackups) {
+    $EngineCleanup = Remove-UnreferencedSharedNodeEngines `
+        -LocalRoot $LocalRoot `
+        -BackupRoot $BackupRoot
+}
+
 if (
     $PurgeUserData -and
     (Test-Path -LiteralPath $LocalRoot -PathType Container) -and
@@ -173,6 +287,8 @@ if (
     backup_root = $BackupRoot
     stopped_runtime = $StoppedRuntime
     removed_runtime_directories = $RemovedRuntimeDirectories
+    removed_shared_engines = @($EngineCleanup.removed)
+    shared_engine_cleanup_failures = @($EngineCleanup.failures)
     purged_user_data = [bool]$PurgeUserData
     purged_backups = [bool]$PurgeBackups
 } | ConvertTo-Json -Compress

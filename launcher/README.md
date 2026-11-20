@@ -108,9 +108,16 @@ powershell -NoProfile -ExecutionPolicy Bypass `
 This installs a versioned runtime and atomically updates the runtime pointer:
 
 ```text
+%LOCALAPPDATA%\SkillDock\engines\node-<version>-<hash>\
 %LOCALAPPDATA%\SkillDock\Runtime-<version>-<timestamp>\
 %LOCALAPPDATA%\SkillDock\runtime-location.json
 ```
+
+The Runtime directory contains the launcher and application code but no private
+`node\` copy. It records an `engine-location.json` reference to the immutable
+shared engine. The launcher verifies the referenced `node.exe` SHA-256 before
+starting. A missing, malformed, or changed reference fails closed; it never
+falls back to a different system Node.
 
 An update never overwrites a running EXE. The previous runtime directory remains
 available for rollback outside the active root:
@@ -127,6 +134,10 @@ one by default; `-RetainRuntimeBackups` accepts 1 through 20. Unrelated backup
 entries, Runtime data, and data-migration backups are never removed by this
 rotation. The Runtime referenced by the previous `runtime-location.json` is
 always retained even when its directory timestamp is older than a stale backup.
+New-format backups also reference the shared engine, so exporting a rollback
+directory for use on another machine requires copying the referenced engine
+directory as well. Unreferenced engines are pruned only after all active and
+retained Runtime references have been checked successfully.
 Cleanup failures are reported but do not turn a successful Runtime installation
 into a failure. The canonical user-data root is `runtime-pchw`.
 
