@@ -10,6 +10,10 @@ Status: **public test build; not a stable release**
   by Runtime releases and retained backups. The engine is content-addressed by
   Node version and SHA-256; launch rejects missing, malformed, or changed
   shared engines instead of falling back to another Node.
+- The panel now exposes local storage categories and offers a confirmed cleanup
+  for obsolete recognized Runtime backups. The active Runtime, recorded
+  rollback backup, Task data, attachments, evidence, and unmanaged directories
+  are preserved.
 - Runtime program backups now rotate after a successful install. The previous
   `runtime-location.json` target is always retained; the default retain count is
   one and can be raised with `-RetainRuntimeBackups`.

@@ -81,6 +81,17 @@ recommendations. The page updates automatically when the result returns.
 After closing and reopening, the same Task, attachment, chart, and conclusion
 should be restored.
 
+Local storage
+=============
+
+`Local storage` in the top-right corner separates Runtime, shared Node engine,
+rollback backup, Task, attachment, artifact, and log usage. After confirmation,
+it can remove obsolete Runtime rollback backups.
+
+Cleanup never removes the active Runtime, the most recent rollback point, Task
+data, attachments, or evidence. Directories that do not use SkillDock's standard
+backup naming are left untouched.
+
 Safety
 ======
 

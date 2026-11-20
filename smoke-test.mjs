@@ -1143,6 +1143,12 @@ try {
   await waitForHealth();
   const page = await fetch(`${base}/`);
   assert(page.ok, "root page did not load");
+  const pageHtml = await page.text();
+  assert(
+    pageHtml.includes('id="storage-open-button"') &&
+      pageHtml.includes('id="storage-dialog"'),
+    "local storage controls are missing from the page",
+  );
   cookie = page.headers.getSetCookie()[0].split(";")[0];
 
   let result = await request("/api/state");

@@ -14,7 +14,14 @@ import {
   randomUUID,
   timingSafeEqual,
 } from "node:crypto";
-import { basename, extname, isAbsolute, relative, resolve } from "node:path";
+import {
+  basename,
+  dirname,
+  extname,
+  isAbsolute,
+  relative,
+  resolve,
+} from "node:path";
 import { Readable } from "node:stream";
 import {
   AgentDriverError,
@@ -59,6 +66,10 @@ import {
 import {
   createSourceHostedShadowObserver,
 } from "./lib/source-hosted-shadow.mjs";
+import {
+  cleanupRuntimeBackups,
+  getStorageSnapshot,
+} from "./lib/storage-maintenance.mjs";
 
 const root = resolve(import.meta.dirname);
 const host = "127.0.0.1";
@@ -71,6 +82,9 @@ const runtimeOrigin = `http://${host}:${port}`;
 const runtimeDir = resolve(
   root,
   process.env.PANEL_RUNTIME_DIR ?? "runtime",
+);
+const storageLocalRoot = resolve(
+  process.env.SKILLDOCK_LOCAL_ROOT || dirname(runtimeDir),
 );
 
 function writeTextFileAtomic(filePath, text, options = {}) {
@@ -2943,6 +2957,77 @@ async function route(request, response) {
 
   if (request.method === "GET" && url.pathname === "/api/state") {
     writeJson(response, 200, publicState());
+    return;
+  }
+
+  if (request.method === "GET" && url.pathname === "/api/storage") {
+    try {
+      writeJson(
+        response,
+        200,
+        await getStorageSnapshot({
+          localRoot: storageLocalRoot,
+          runtimeDir,
+          localAppData: process.env.LOCALAPPDATA,
+        }),
+      );
+    } catch {
+      writeJson(response, 500, {
+        error: "storage inventory failed",
+        code: "storage_inventory_failed",
+      });
+    }
+    return;
+  }
+
+  if (
+    request.method === "POST" &&
+    url.pathname === "/api/storage/cleanup-runtime-backups"
+  ) {
+    const body = await readJson(request, { maxBytes: 4_096 });
+    try {
+      const result = await cleanupRuntimeBackups(
+        {
+          localRoot: storageLocalRoot,
+          runtimeDir,
+          localAppData: process.env.LOCALAPPDATA,
+        },
+        body,
+      );
+      let auditRecorded = true;
+      try {
+        store.appendEvent({
+          type: "storage.runtime_backup_cleanup",
+          removed_backup_count: result.removed_backup_count,
+          reclaimed_bytes: result.reclaimed_bytes,
+          removed_engine_count:
+            result.engine_cleanup?.removed_engine_count ?? 0,
+          failure_count: result.failures.length,
+        });
+      } catch {
+        auditRecorded = false;
+        process.stderr.write(
+          "Storage cleanup completed without an audit event.\n",
+        );
+      }
+      writeJson(response, 200, {
+        ...result,
+        audit_recorded: auditRecorded,
+      });
+    } catch (error) {
+      const statusCode =
+        error?.code === "confirmation_required"
+          ? 400
+          : error?.code === "runtime_pointer_missing"
+            ? 409
+            : 500;
+      writeJson(response, statusCode, {
+        error: statusCode === 500
+          ? "storage cleanup failed"
+          : error.message,
+        code: error?.code ?? "storage_cleanup_failed",
+      });
+    }
     return;
   }
 

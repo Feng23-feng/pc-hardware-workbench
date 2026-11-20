@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light" />
     <title>SkillDock</title>
-    <link rel="stylesheet" href="/styles.css?v=20261117-auto-refresh2" />
+    <link rel="stylesheet" href="/styles.css?v=20261120-storage1" />
   </head>
   <body>
     <header class="topbar">
@@ -16,11 +16,55 @@
           <p>技能坞 · 本地 Skill 操作界面</p>
         </div>
       </div>
-      <div class="runtime-line">
-        <span class="status-dot" aria-hidden="true"></span>
-        <span id="runtime-status">连接 Agent</span>
+      <div class="topbar-actions">
+        <button
+          id="storage-open-button"
+          class="topbar-button"
+          type="button"
+          aria-haspopup="dialog"
+          aria-controls="storage-dialog"
+        >
+          本地存储
+        </button>
+        <div class="runtime-line">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="runtime-status">连接 Agent</span>
+        </div>
       </div>
     </header>
+
+    <dialog
+      id="storage-dialog"
+      class="storage-dialog"
+      aria-labelledby="storage-title"
+      aria-describedby="storage-description"
+    >
+      <div class="storage-dialog-shell">
+        <header class="storage-header">
+          <div>
+            <h2 id="storage-title">本地存储</h2>
+            <p id="storage-description">
+              SkillDock 程序、回退备份和当前 Task 数据的本地占用。
+            </p>
+          </div>
+          <button
+            id="storage-close-button"
+            class="storage-close"
+            type="button"
+          >
+            关闭
+          </button>
+        </header>
+        <div id="storage-content" class="storage-content" aria-live="polite">
+          <div class="storage-loading">
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-row"></div>
+            <div class="skeleton skeleton-row"></div>
+            <p class="muted">正在统计本地占用…</p>
+          </div>
+        </div>
+      </div>
+    </dialog>
 
     <main id="app" class="workspace" aria-live="polite">
       <section class="loading-layout" aria-label="正在加载">
@@ -39,6 +83,6 @@
     </footer>
 
     <noscript>此面板需要本地 JavaScript 才能连接 Agent。</noscript>
-    <script type="module" src="/app.js?v=20261117-auto-refresh2"></script>
+    <script type="module" src="/app.js?v=20261120-storage1"></script>
   </body>
 </html>

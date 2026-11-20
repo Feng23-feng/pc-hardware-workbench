@@ -7,6 +7,10 @@
   `node.exe` instead of embedding a second copy. Launches verify the exact
   engine SHA-256 and fail closed when the reference is missing, malformed, or
   changed.
+- Add the top-bar local storage panel, authenticated storage inventory, and a
+  confirmed cleanup action that removes only obsolete recognized Runtime
+  backups while preserving the current Runtime, the recorded rollback backup,
+  Task data, attachments, evidence, and unmanaged backup directories.
 - Rotate Runtime program backups after a successful install, retaining one
   previous rollback copy by default while preserving the previous pointer target
   and leaving Task and migration-data backups untouched.

@@ -183,6 +183,13 @@ must carry that cookie or a bearer token. The token is generated locally under
 Endpoints:
 
 - `GET /api/state` returns thread identity, panel state, draft, and status.
+- `GET /api/storage` returns an on-demand local storage inventory grouped by
+  Runtime, shared Node engines, Runtime backups, Task records, attachments,
+  artifacts, state, logs, and other local files.
+- `POST /api/storage/cleanup-runtime-backups` requires
+  `{"confirm":"cleanup-runtime-backups"}` and removes only obsolete recognized
+  Runtime backups. It preserves the active Runtime, recorded rollback backup,
+  Task data, attachments, evidence, and unmanaged directories.
 - `POST /api/event` records one local `option_selected` or `evidence_added`
   event and starts no agent turn.
 - `POST /api/attachments` copies one whitelisted local file into private runtime

@@ -158,6 +158,12 @@ try {
     if ($backups[0].Name -notmatch '^Runtime-old-backup-') {
         throw "Runtime backup retention did not keep the Runtime referenced by the previous pointer."
     }
+    if (
+        [string]$pointer.previous_runtime_backup_path -ne
+            [string]$backups[0].FullName
+    ) {
+        throw "Runtime pointer does not protect the previous rollback backup."
+    }
     if (Test-Path -LiteralPath (Join-Path $backups[0].FullName "node")) {
         throw "New-format Runtime backup still contains a duplicate node directory."
     }

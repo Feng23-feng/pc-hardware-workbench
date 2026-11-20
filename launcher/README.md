@@ -141,6 +141,13 @@ retained Runtime references have been checked successfully.
 Cleanup failures are reported but do not turn a successful Runtime installation
 into a failure. The canonical user-data root is `runtime-pchw`.
 
+The Runtime API exposes the same distinction through `GET /api/storage` and the
+explicit `POST /api/storage/cleanup-runtime-backups` confirmation endpoint. The
+panel cleanup preserves the current Runtime, the recorded rollback backup, Task
+data, attachments, evidence, and unmanaged backup directories. It removes a
+shared engine only after all active and retained Runtime references have been
+scanned successfully.
+
 Before creating the new Runtime, the installer checks the legacy
 `runtime-dsh-web` data root through `runtime-data-migration.ps1`. If legacy data
 exists and the canonical root is unused, `Auto` migration copies the complete

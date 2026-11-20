@@ -576,6 +576,19 @@ CSV/TXT/LOG/JSON files show a short text preview. Images show a local thumbnail.
 Uploading or deleting an unsent attachment does not start an agent turn.
 `attachment_added` and `task_submitted` are separate event-log records.
 
+## Local storage
+
+`本地存储` in the top bar opens an on-demand inventory of the current Runtime,
+shared Node engines, Task records, attachments, artifacts, Runtime state,
+installer logs, launcher state, and unmanaged local files. It never uploads the
+inventory and does not count every Task by walking user workspaces.
+
+The same panel can remove obsolete recognized Runtime backups after an inline
+confirmation. The active Runtime, the backup recorded by the current
+`runtime-location.json`, Task data, attachments, evidence, and unmanaged backup
+directories are always preserved. Shared engines are removed only after every
+active and retained Runtime reference has been checked.
+
 ## Real acceptance path
 
 1. Start the panel.

@@ -59,6 +59,7 @@ const expectedPackageFiles = Object.freeze([
   "Start-DSH-SkillDock-Dev.ps1",
   "Stop SkillDock.cmd",
   "Uninstall SkillDock.ps1",
+  "runtime-paths.ps1",
   "app/VERSIONING.md",
   "app/agent-bridge-host.mjs",
   "app/lib/agent-permissions.mjs",
@@ -81,6 +82,7 @@ const expectedPackageFiles = Object.freeze([
   "app/lib/skill-runtime.mjs",
   "app/lib/source-hosted-phase.mjs",
   "app/lib/source-hosted-shadow.mjs",
+  "app/lib/storage-maintenance.mjs",
   "app/lib/state-store.mjs",
   "app/lib/workbench-manifest.mjs",
   "app/open-workbench.mjs",
@@ -333,11 +335,6 @@ try {
       .split(sep)
       .join("/"),
   ).sort();
-  assert.equal(
-    packageRelativeFiles.length,
-    45,
-    "The extracted package must contain exactly 45 files.",
-  );
   const missingEntries = expectedPackageFiles.filter(
     (entry) => !packageRelativeFiles.includes(entry),
   );
@@ -346,6 +343,11 @@ try {
   );
   assert.deepEqual(missingEntries, []);
   assert.deepEqual(unexpectedEntries, []);
+  assert.equal(
+    packageRelativeFiles.length,
+    expectedPackageFiles.length,
+    `The extracted package must contain exactly ${expectedPackageFiles.length} files.`,
+  );
   assert.deepEqual(packageRelativeFiles, [...expectedPackageFiles]);
 
   const forbiddenSegments = new Set([

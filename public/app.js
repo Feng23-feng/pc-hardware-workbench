@@ -13,6 +13,10 @@ const app = document.querySelector("#app");
 const runtimeStatus = document.querySelector("#runtime-status");
 const runtimeDot = document.querySelector(".status-dot");
 const saveStatus = document.querySelector("#save-status");
+const storageOpenButton = document.querySelector("#storage-open-button");
+const storageDialog = document.querySelector("#storage-dialog");
+const storageCloseButton = document.querySelector("#storage-close-button");
+const storageContent = document.querySelector("#storage-content");
 
 let state = null;
 let freeText = "";
@@ -44,6 +48,13 @@ let runtimeBindingHealth = null;
 let runtimeBindingCheckedAt = 0;
 let runtimeBindingInFlight = null;
 let runtimeBindingTimer = null;
+let storageSnapshot = null;
+let storageError = "";
+let storageNotice = "";
+let storageLoading = false;
+let storageConfirmPending = false;
+let storageCleanupPending = false;
+let storageRequestSequence = 0;
 
 function el(tag, attributes = {}, children = []) {
   const node = document.createElement(tag);
@@ -1991,6 +2002,9 @@ function evidenceForm() {
 }
 
 function formatFileSize(size) {
+  if (size >= 1024 * 1024 * 1024) {
+    return `${(size / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+  }
   if (size < 1024) {
     return `${size} B`;
   }
@@ -1998,6 +2012,297 @@ function formatFileSize(size) {
     return `${(size / 1024).toFixed(1)} KB`;
   }
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+const storageCategories = [
+  ["current_runtime", "当前 Runtime"],
+  ["runtime_backups", "Runtime 回退备份"],
+  ["shared_engines", "共享 Node 引擎"],
+  ["task_records", "Task 记录"],
+  ["attachments", "附件"],
+  ["artifacts", "图表与证据"],
+  ["runtime_state", "运行状态与日志"],
+  ["install_logs", "安装日志"],
+  ["launcher_state", "启动器状态"],
+  ["other_local", "其他本地文件"],
+];
+
+function storageCategoryDetail(key, value) {
+  if (key === "runtime_backups") {
+    const unmanaged = value.unmanaged_directory_count ?? 0;
+    return (
+      `${value.directory_count ?? 0} 个目录` +
+      (unmanaged > 0 ? `，其中 ${unmanaged} 个未管理项会保留` : "")
+    );
+  }
+  if ((value.file_count ?? 0) > 0) {
+    return `${new Intl.NumberFormat("zh-CN").format(value.file_count)} 个文件`;
+  }
+  return "无占用";
+}
+
+function renderStorageLoading() {
+  storageContent.replaceChildren(
+    el("div", { class: "storage-loading" }, [
+      el("div", { class: "skeleton skeleton-short" }),
+      el("div", { class: "skeleton skeleton-row" }),
+      el("div", { class: "skeleton skeleton-row" }),
+      el("p", { class: "muted", text: "正在统计本地占用…" }),
+    ]),
+  );
+}
+
+function renderStorageMessage() {
+  if (!storageNotice && !storageError) {
+    return null;
+  }
+  return el("p", {
+    class: `storage-message${storageError ? " is-error" : ""}`,
+    role: storageError ? "alert" : "status",
+    tabindex: "-1",
+    text: storageError || storageNotice,
+  });
+}
+
+function renderStorageCleanup(snapshot) {
+  const cleanup = snapshot.cleanup ?? {};
+  const cleanableCount = cleanup.cleanable_backup_count ?? 0;
+  const protectedName = cleanup.protected_backup_name ?? "";
+  if (!cleanup.available) {
+    return el("section", { class: "storage-cleanup" }, [
+      el("h3", { text: "Runtime 回退备份" }),
+      el("p", {
+        text: protectedName
+          ? "没有可清理的旧备份。当前运行版本和最近一个回退点会保留。"
+          : "当前没有可清理的 Runtime 回退备份。",
+      }),
+    ]);
+  }
+
+  if (storageConfirmPending) {
+    return el("section", { class: "storage-confirm", role: "alert" }, [
+      el("h3", { text: "确认清理旧备份" }),
+      el("p", {
+        text:
+          `将删除 ${cleanableCount} 个旧 Runtime 备份，预计释放 ` +
+          `${formatFileSize(cleanup.estimated_reclaim_bytes ?? 0)}。` +
+          "最近一个回退点、当前 Runtime、Task、附件和证据都会保留。",
+      }),
+      protectedName
+        ? el("p", { class: "storage-protected" }, [
+            "保留的回退点：",
+            el("span", { class: "data", text: protectedName }),
+          ])
+        : null,
+      el("div", { class: "storage-actions" }, [
+        el("button", {
+          class: "secondary",
+          type: "button",
+          disabled: storageCleanupPending,
+          text: "取消",
+          onclick: () => {
+            storageConfirmPending = false;
+            renderStorage();
+            document.querySelector(".storage-cleanup .secondary")?.focus();
+          },
+        }),
+        el("button", {
+          class: "danger-action",
+          type: "button",
+          disabled: storageCleanupPending,
+          text: storageCleanupPending ? "正在清理…" : "确认清理",
+          onclick: cleanupRuntimeBackupStorage,
+        }),
+      ]),
+    ]);
+  }
+
+  return el("section", { class: "storage-cleanup" }, [
+    el("h3", { text: "Runtime 回退备份" }),
+    el("p", {
+      text:
+        `有 ${cleanableCount} 个旧备份可安全清理，预计释放 ` +
+        `${formatFileSize(cleanup.estimated_reclaim_bytes ?? 0)}。`,
+    }),
+    protectedName
+      ? el("p", { class: "storage-protected" }, [
+          "清理时保留：",
+          el("span", { class: "data", text: protectedName }),
+        ])
+      : null,
+    el("div", { class: "storage-actions" }, [
+      el("button", {
+        class: "secondary",
+        type: "button",
+        disabled: storageLoading,
+        text: "选择清理旧备份",
+        onclick: () => {
+          storageConfirmPending = true;
+          storageNotice = "";
+          storageError = "";
+          renderStorage();
+          document.querySelector(".storage-confirm .secondary")?.focus();
+        },
+      }),
+    ]),
+  ]);
+}
+
+function renderStorage() {
+  if (storageLoading && !storageSnapshot) {
+    renderStorageLoading();
+    return;
+  }
+  if (!storageSnapshot) {
+    storageContent.replaceChildren(
+      el("div", { class: "storage-error" }, [
+        el("h3", { text: "无法读取本地存储" }),
+        el("p", {
+          text: storageError || "本地服务没有返回存储信息。",
+        }),
+        el("button", {
+          class: "secondary",
+          type: "button",
+          text: "重新统计",
+          onclick: () => loadStorage(),
+        }),
+      ]),
+    );
+    return;
+  }
+
+  const totalBytes = Math.max(1, storageSnapshot.total?.bytes ?? 0);
+  const rows = storageCategories.map(([key, label]) => {
+    const value = storageSnapshot.categories?.[key] ?? {
+      bytes: 0,
+      file_count: 0,
+    };
+    const percent = Math.max(
+      0,
+      Math.min(100, ((value.bytes ?? 0) / totalBytes) * 100),
+    );
+    return el("li", { class: "storage-row" }, [
+      el("div", { class: "storage-row-main" }, [
+        el("span", { class: "storage-row-label", text: label }),
+        el("span", {
+          class: "storage-row-value data",
+          text: formatFileSize(value.bytes ?? 0),
+        }),
+      ]),
+      el("progress", {
+        class: "storage-meter",
+        max: "100",
+        value: percent.toFixed(1),
+        "aria-label": `${label}占用比例`,
+      }),
+      el("span", {
+        class: "storage-row-detail",
+        text: storageCategoryDetail(key, value),
+      }),
+    ]);
+  });
+
+  storageContent.replaceChildren(...[
+    el("section", { class: "storage-overview", "aria-label": "存储总览" }, [
+      el("div", { class: "storage-total" }, [
+        el("span", { text: "已用空间" }),
+        el("strong", { text: formatFileSize(storageSnapshot.total?.bytes ?? 0) }),
+        el("span", {
+          text: `${new Intl.NumberFormat("zh-CN").format(
+            storageSnapshot.total?.file_count ?? 0,
+          )} 个文件`,
+        }),
+      ]),
+      el("button", {
+        class: "secondary storage-refresh",
+        type: "button",
+        disabled: storageLoading,
+        text: storageLoading ? "刷新中…" : "刷新统计",
+        onclick: () => loadStorage(),
+      }),
+    ]),
+    renderStorageMessage(),
+    renderStorageCleanup(storageSnapshot),
+    el("section", { class: "storage-breakdown" }, [
+      el("h3", { text: "占用分类" }),
+      el("ul", { class: "storage-list" }, rows),
+    ]),
+    el("p", {
+      class: "storage-footnote",
+      text:
+        "只统计本机文件，不会上传。Task、附件和证据不会由这里的清理操作删除。",
+    }),
+  ].filter(Boolean));
+}
+
+async function loadStorage() {
+  const sequence = ++storageRequestSequence;
+  storageLoading = true;
+  storageError = "";
+  renderStorage();
+  const result = await requestJson("/api/storage", {
+    forceRuntimeBinding: true,
+  });
+  if (sequence !== storageRequestSequence) {
+    return;
+  }
+  storageLoading = false;
+  if (result.ok) {
+    storageSnapshot = result.data;
+  } else {
+    storageError =
+      result.data?.code === "storage_inventory_failed"
+        ? "统计失败。请确认本地服务仍可访问后重试。"
+        : result.data?.error ?? "无法读取本地存储。";
+  }
+  renderStorage();
+  document.querySelector(".storage-message")?.focus();
+}
+
+async function cleanupRuntimeBackupStorage() {
+  storageCleanupPending = true;
+  storageError = "";
+  storageNotice = "";
+  renderStorage();
+  const result = await requestJson(
+    "/api/storage/cleanup-runtime-backups",
+    {
+      method: "POST",
+      forceRuntimeBinding: true,
+      body: JSON.stringify({ confirm: "cleanup-runtime-backups" }),
+    },
+  );
+  storageCleanupPending = false;
+  storageConfirmPending = false;
+  if (result.ok) {
+    storageSnapshot = result.data.storage ?? storageSnapshot;
+    const removed = result.data.removed_backup_count ?? 0;
+    const reclaimed = formatFileSize(result.data.reclaimed_bytes ?? 0);
+    const failures =
+      (result.data.failures?.length ?? 0) +
+      (result.data.engine_cleanup?.failures?.length ?? 0);
+    storageNotice = failures
+      ? `已清理 ${removed} 个旧备份并释放 ${reclaimed}；另有 ${failures} 项未删除。`
+      : `已清理 ${removed} 个旧备份，释放 ${reclaimed}。`;
+  } else {
+    storageError = result.data?.error ?? "清理失败，请稍后重试。";
+  }
+  renderStorage();
+  document.querySelector(".storage-message")?.focus();
+}
+
+async function openStorageDialog() {
+  if (!storageDialog?.open) {
+    if (typeof storageDialog?.showModal === "function") {
+      storageDialog.showModal();
+    } else {
+      storageDialog?.setAttribute("open", "");
+    }
+  }
+  storageConfirmPending = false;
+  storageNotice = "";
+  storageError = "";
+  await loadStorage();
 }
 
 function renderAttachmentCards(
@@ -3007,6 +3312,20 @@ window.addEventListener("offline", () => {
   runtimeBindingHealth = { ok: false };
   applyRuntimeBindingEvaluation(state?.runtime_binding ?? null);
   render();
+});
+
+storageOpenButton?.addEventListener("click", openStorageDialog);
+storageCloseButton?.addEventListener("click", () => storageDialog?.close());
+storageDialog?.addEventListener("click", (event) => {
+  if (event.target === storageDialog) {
+    storageDialog.close();
+  }
+});
+storageDialog?.addEventListener("close", () => {
+  storageConfirmPending = false;
+  storageCleanupPending = false;
+  storageNotice = "";
+  storageError = "";
 });
 
 boot();

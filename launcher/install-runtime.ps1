@@ -699,6 +699,7 @@ if ($remainingRuntimes.Count -gt 0) {
     version = $PackageVersion
     installed_at = [DateTimeOffset]::Now.ToString("o")
     previous_runtime_path = $PreviousRuntimePath
+    previous_runtime_backup_path = $PreviousRuntimeBackupPath
     backup_root = $BackupRoot
     data_backup_root = $DataBackupRoot
     legacy_data_migration = $DataMigration
@@ -780,6 +781,7 @@ foreach ($engineFailure in @($EngineRetention.failures)) {
     data_backup_root = $DataBackupRoot
     legacy_data_migration = $DataMigration
     backups = @($MovedBackups)
+    previous_runtime_backup_path = $PreviousRuntimeBackupPath
     backup_retention = $BackupRetention
     shared_engine = [ordered]@{
         engine_id = [string]$SharedEngine.engine_id

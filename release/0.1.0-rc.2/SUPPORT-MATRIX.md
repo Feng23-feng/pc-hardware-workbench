@@ -46,6 +46,9 @@ a PCHW Skill already exists. Existing Codex users should run
 - Runtime releases reference a content-addressed shared Node engine under
   `%LOCALAPPDATA%\SkillDock\engines`; retained backups do not duplicate Node.
   The launcher verifies the referenced engine digest before use.
+- The top-bar storage panel separates Runtime, engine, Task, attachment,
+  artifact, log, and unmanaged usage. Confirmed cleanup is limited to obsolete
+  recognized Runtime backups and preserves the latest rollback point.
 - Conflicting runtime data roots fail closed instead of being merged silently.
 
 The DSH read-only observer is an independently frozen component. Its existence

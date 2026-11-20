@@ -843,6 +843,7 @@ $ReleaseChecks = @(
     (Join-Path $ReleaseAppRoot "server.mjs"),
     (Join-Path $ReleaseAppRoot "public\app.js"),
     (Join-Path $ReleaseAppRoot "lib\agent-permissions.mjs"),
+    (Join-Path $ReleaseAppRoot "lib\storage-maintenance.mjs"),
     (Join-Path $ReleaseAppRoot "lib\agents\index.mjs"),
     (Join-Path $ReleaseAppRoot "lib\agents\source-external-agent-driver.mjs")
 )

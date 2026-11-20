@@ -201,6 +201,12 @@ function Invoke-UserPackageRetentionGate {
     if (Test-Path -LiteralPath (Join-Path $retainedBackups[0].FullName "node")) {
         throw "Retained Runtime backup still contains a duplicate node directory."
     }
+    if (
+        [string]$pointer.previous_runtime_backup_path -ne
+            [string]$retainedBackups[0].FullName
+    ) {
+        throw "Runtime pointer does not protect the retained rollback backup."
+    }
     $backupEngineReferencePath = Join-Path `
         $retainedBackups[0].FullName `
         "engine-location.json"
