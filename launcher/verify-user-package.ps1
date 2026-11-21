@@ -54,10 +54,12 @@ function Invoke-UserPackageRetentionGate {
     $archive = [IO.Compression.ZipFile]::OpenRead($RcArchivePath)
     try {
         $installerEntryName = (
-            $ExpectedPackageBase + "\Install SkillDock Runtime.ps1"
+            $ExpectedPackageBase + "/Install SkillDock Runtime.ps1"
         )
         $installerEntry = $archive.Entries |
-            Where-Object { $_.FullName -eq $installerEntryName } |
+            Where-Object {
+                $_.FullName.Replace("\", "/") -eq $installerEntryName
+            } |
             Select-Object -First 1
         if ($null -eq $installerEntry) {
             throw "Embedded RC Runtime installer is missing: $installerEntryName"
