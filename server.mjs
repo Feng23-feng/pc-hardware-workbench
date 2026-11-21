@@ -76,6 +76,8 @@ import {
   beginTaskDataCleanup,
   createRuntimeBackupExport,
   createTaskDataExport,
+  hasTaskDataCleanupReceipt,
+  pruneStorageExports,
   recoverTaskDataCleanupQuarantines,
   resolveStorageExportDownload,
   verifyTaskDataExport,
@@ -165,6 +167,17 @@ if (startupCleanupRecovery.failures.length > 0) {
   process.stderr.write(
     `Task cleanup recovery left ${startupCleanupRecovery.pending} ` +
       `pending item(s): ${startupCleanupRecovery.failures.join(" | ")}\n`,
+  );
+}
+try {
+  await pruneStorageExports({
+    localRoot: storageLocalRoot,
+    runtimeDir,
+    localAppData: process.env.LOCALAPPDATA,
+  });
+} catch (error) {
+  process.stderr.write(
+    `Expired storage export cleanup failed: ${error?.message ?? error}\n`,
   );
 }
 const attachmentRoot = resolve(runtimeDir, "attachments");
@@ -3012,6 +3025,11 @@ async function route(request, response) {
 
   if (request.method === "GET" && url.pathname === "/api/storage") {
     try {
+      await pruneStorageExports({
+        localRoot: storageLocalRoot,
+        runtimeDir,
+        localAppData: process.env.LOCALAPPDATA,
+      });
       await recoverTaskDataCleanupQuarantines({
         localRoot: storageLocalRoot,
         runtimeDir,
@@ -3191,14 +3209,21 @@ async function route(request, response) {
         body,
         taskDataExportMetadata(),
       );
-      quarantine = await beginTaskDataCleanup({
-        localRoot: storageLocalRoot,
-        runtimeDir,
-        localAppData: process.env.LOCALAPPDATA,
-      });
+      quarantine = await beginTaskDataCleanup(
+        {
+          localRoot: storageLocalRoot,
+          runtimeDir,
+          localAppData: process.env.LOCALAPPDATA,
+        },
+        {
+          exportId: verified.record.export_id,
+          exportSha256: verified.record.sha256,
+        },
+      );
       const resetResult = store.resetForUserDataCleanup({
         exportId: verified.record.export_id,
         exportSha256: verified.record.sha256,
+        transactionId: quarantine.transactionId,
         threadReference: state.session_ref,
         threadName: state.session_name,
       });
@@ -3229,10 +3254,41 @@ async function route(request, response) {
         }).catch(() => null),
       });
     } catch (error) {
+      const code = String(error?.code ?? "task_data_cleanup_failed");
+      if (code.startsWith("task_export_")) {
+        const duplicate = await hasTaskDataCleanupReceipt(
+          {
+            localRoot: storageLocalRoot,
+            runtimeDir,
+            localAppData: process.env.LOCALAPPDATA,
+          },
+          {
+            exportId: String(body.export_id ?? ""),
+            exportSha256: String(body.export_sha256 ?? ""),
+          },
+        ).catch(() => false);
+        if (duplicate) {
+          writeJson(response, 200, {
+            ok: true,
+            cleanup_completed: true,
+            duplicate: true,
+            quarantine_cleanup_pending: false,
+            export_id: String(body.export_id ?? ""),
+            export_sha256: String(body.export_sha256 ?? ""),
+            audit_recorded: true,
+            state: publicState(),
+            storage: await getStorageSnapshot({
+              localRoot: storageLocalRoot,
+              runtimeDir,
+              localAppData: process.env.LOCALAPPDATA,
+            }).catch(() => null),
+          });
+          return;
+        }
+      }
       if (quarantine && !resetCommitted) {
         await quarantine.rollback().catch(() => {});
       }
-      const code = String(error?.code ?? "task_data_cleanup_failed");
       const clientError =
         code === "task_export_stale"
           ? "Task data changed after the export was generated. Generate a new export."

@@ -24,6 +24,9 @@
   fail closed, interrupted quarantine operations recover safely, and
   capability tokens, Runtime backups, installer logs, and the Agent Session are
   preserved.
+- Make completed Task cleanup replay-safe, recover the narrow crash window
+  between state commit and quarantine marker creation, and prune expired export
+  ZIPs at Runtime startup and storage refresh.
 - Rotate Runtime program backups after a successful install, retaining one
   previous rollback copy by default while preserving the previous pointer target
   and leaving Task and migration-data backups untouched.

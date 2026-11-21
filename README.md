@@ -593,6 +593,8 @@ The retained rollback backup can be exported as a local ZIP. When its
 `engine-location.json` points at a shared Node engine, the archive includes that
 exact engine and records both the Runtime backup and engine SHA-256 values.
 Downloads are authenticated, content-verified, and expire after 24 hours.
+Expired export files are pruned at Runtime startup and whenever the storage
+panel refreshes.
 
 Installer logs have a separate confirmed cleanup action. It removes only
 `LocalRoot\install-logs` and does not touch Runtime, Task, attachment, artifact,
@@ -606,8 +608,10 @@ The server re-checks the archive SHA-256 and current state revision, so an old o
 expired export cannot delete data that changed afterward. On success the old
 Task data is moved to a quarantine directory, a fresh Task namespace is written,
 and the quarantine is removed; an interrupted cleanup is restored on the next
-start when the reset did not commit. Capability tokens, handoff secrets, shared
-engines, Runtime backups, installer logs, and the current Agent Session remain.
+start when the reset did not commit. A retry of an already committed cleanup
+returns the same success receipt instead of reporting a false stale failure.
+Capability tokens, handoff secrets, shared engines, Runtime backups, installer
+logs, and the current Agent Session remain.
 
 Generated exports are stored under `LocalRoot\storage-exports` and are preserved
 by a default uninstall. Explicit `-PurgeUserData` removes them with the other

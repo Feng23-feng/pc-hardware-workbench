@@ -322,6 +322,22 @@ try {
     (await stat(join(runtimeDir, "capability-token"))).isFile(),
     true,
   );
+  const duplicateCleanup = await request("/api/storage/cleanup-task-data", {
+    method: "POST",
+    body: JSON.stringify({
+      confirm: "cleanup-task-data",
+      export_id: taskExport.data.export_id,
+      export_sha256: taskExport.data.sha256,
+    }),
+  });
+  assert.equal(duplicateCleanup.response.status, 200);
+  assert.equal(duplicateCleanup.data.duplicate, true);
+  assert.equal(duplicateCleanup.data.cleanup_completed, true);
+  assert.equal(duplicateCleanup.data.state.task, null);
+  assert.equal(
+    (await stat(join(runtimeDir, "tasks"))).isDirectory(),
+    true,
+  );
   const taskCleanupEvents = await readFile(
     join(runtimeDir, "events.jsonl"),
     "utf8",

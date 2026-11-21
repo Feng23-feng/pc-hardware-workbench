@@ -15,6 +15,8 @@ import {
   beginTaskDataCleanup,
   createRuntimeBackupExport,
   createTaskDataExport,
+  hasTaskDataCleanupReceipt,
+  pruneStorageExports,
   recoverTaskDataCleanupQuarantines,
   verifyTaskDataExport,
 } from "../lib/storage-exports.mjs";
@@ -224,9 +226,12 @@ try {
     ),
     (error) => error.code === "task_export_expired",
   );
-  await writeFile(
-    recExportRecordPath,
-    `${JSON.stringify(originalTaskRecord, null, 2)}\n`,
+  const pruned = await pruneStorageExports({ localRoot, runtimeDir });
+  assert.equal(pruned.removed, 1);
+  await assert.rejects(() => stat(recExportRecordPath), { code: "ENOENT" });
+  await assert.rejects(
+    () => stat(join(localRoot, "storage-exports", taskExport.export_id)),
+    { code: "ENOENT" },
   );
 
   const interrupted = await beginTaskDataCleanup({ localRoot, runtimeDir });
@@ -258,6 +263,67 @@ try {
   await assert.rejects(() => stat(committedQuarantine), {
     code: "ENOENT",
   });
+
+  const receipt = {
+    exportId: "task-export-crash-window",
+    exportSha256: "a".repeat(64),
+  };
+  const stateCommittedCleanup = await beginTaskDataCleanup(
+    { localRoot, runtimeDir },
+    receipt,
+  );
+  await writeFile(
+    join(runtimeDir, "state.json"),
+    `${JSON.stringify({
+      schema_version: "1.0",
+      storage_cleanup: {
+        schema_version: "1.0",
+        transaction_id: stateCommittedCleanup.transactionId,
+        export_id: receipt.exportId,
+        export_sha256: receipt.exportSha256,
+      },
+    }, null, 2)}\n`,
+  );
+  assert.equal(
+    await hasTaskDataCleanupReceipt(
+      { localRoot, runtimeDir },
+      receipt,
+    ),
+    true,
+  );
+  assert.equal(
+    await hasTaskDataCleanupReceipt(
+      { localRoot, runtimeDir },
+      { ...receipt, exportSha256: "b".repeat(64) },
+    ),
+    false,
+  );
+  const stateCommittedRecovery =
+    await recoverTaskDataCleanupQuarantines({
+      localRoot,
+      runtimeDir,
+    });
+  assert.equal(stateCommittedRecovery.removed, 1);
+  assert.equal(stateCommittedRecovery.pending, 0);
+  await assert.rejects(() => stat(stateCommittedCleanup.quarantinePath), {
+    code: "ENOENT",
+  });
+  await writeFile(join(runtimeDir, "state.json"), "{}\n");
+  await writeFile(
+    join(runtimeDir, "events.jsonl"),
+    `${JSON.stringify({
+      type: "storage.task_data_cleanup",
+      export_id: receipt.exportId,
+      export_sha256: receipt.exportSha256,
+    })}\n`,
+  );
+  assert.equal(
+    await hasTaskDataCleanupReceipt(
+      { localRoot, runtimeDir },
+      receipt,
+    ),
+    true,
+  );
 
   const cleanup = await beginTaskDataCleanup({ localRoot, runtimeDir });
   await assert.rejects(() => stat(join(runtimeDir, "tasks")), {

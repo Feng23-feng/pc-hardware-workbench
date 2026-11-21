@@ -23,6 +23,9 @@ Status: **public test build; not a stable release**
   Stale/expired exports fail closed, quarantine recovery protects interrupted
   cleanup, and capability tokens, Runtime backups, installer logs, and the
   Agent Session are preserved.
+- Completed cleanup retries return the original success, the state-commit crash
+  window is recoverable, and expired export ZIPs are pruned at startup and
+  storage refresh.
 - Installer logs have a separate confirmed cleanup action limited to
   `LocalRoot\install-logs`.
 - Runtime program backups now rotate after a successful install. The previous
