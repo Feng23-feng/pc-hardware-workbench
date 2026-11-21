@@ -9,8 +9,9 @@
 - 其他操作系统只提供手动排障指导，不自动读取硬件；
 - 可选监控需要用户已经启动 LibreHardwareMonitor；本项目不会安装或启动它。
 
-当前 `2.8.0` 是测试版，目前没有正式版。干净 Windows 安装、卸载和完整用户签收
-继续作为发布门禁。
+当前 PCHW `2.8.0` 是测试版，SkillDock 源码候选是 `0.1.0-rc.3`，目前都没有
+正式版。SkillDock rc.3 尚未发布，最后公开测试包仍为 `0.1.0-rc.2`。干净
+Windows 安装、卸载和完整用户签收继续作为发布门禁。
 
 ## 先选一种包
 
@@ -27,7 +28,7 @@ PCHW Portable。
 | SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺应用与 Node | SkillDock Runtime、Node.js 24.22.1 | 仅 Codex 当前对话 |
 | SkillDock 面板包（用于 Codex） | 已安装 Codex Desktop，并明确需要图形操作面板 | PCHW Skill、SkillDock Runtime、安装入口 | 仅 Codex |
 
-[下载当前 GitHub 测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2)：
+[下载最后公开 GitHub 测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2)：
 
 ```text
 PCHW-Skill-2.8.0-rc.2.zip
@@ -37,8 +38,9 @@ SkillDock-PCHW-0.1.0-rc.2-win-x64-user.zip
 SHA256SUMS.txt
 ```
 
-这是公开测试版；clean Windows 安装、卸载和最终签收仍是 PENDING。不要把旧版本
-ZIP、Skill 目录和 Runtime 混在一起。
+列表仍是上一公开测试包，对应 SkillDock `0.1.0-rc.2`；rc.3 发布后再替换为
+`SkillDock-*-0.1.0-rc.3-win-x64*`。clean Windows 安装、卸载和最终签收仍是
+PENDING。不要把旧版本 ZIP、Skill 目录和 Runtime 混在一起。
 
 <a id="pchw-portable"></a>
 
@@ -115,6 +117,21 @@ Runtime 程序备份在成功安装后轮转为最近一个可回退版本；更
 或本地 `.url` 快捷方式。结果返回后页面会自动更新。
 
 关闭并重启后，同一 Task、附件、图表和结论应恢复，不创建第二个 Thread。
+
+### 本地存储
+
+页面顶部的“本地存储”用于查看和清理 SkillDock 本机占用：
+
+- “导出最近回退备份”会生成含受保护 Runtime 回退、共享 Node 引擎和逐文件
+  SHA-256 清单的 ZIP；损坏或逃逸引擎目录的引用会 fail closed。
+- Task/证据必须先导出一份与当前 State、Session 和事件计数绑定的 ZIP，并点击
+  下载后，清理按钮才会解锁。
+- 清理前还会二次确认。过期、哈希不符或导出后数据发生变化的文件不会删除 Task。
+- 清理会保留 Agent Session、权限凭证、Runtime、共享引擎、安装日志和回退备份。
+
+导出文件位于 `%LOCALAPPDATA%\SkillDock\storage-exports`。下载有效期 24 小时；
+过期文件在 Runtime 启动或刷新存储面板时清理。默认卸载保留导出，显式
+`-PurgeUserData` 才会删除。
 
 <a id="pchw-skill-only"></a>
 
@@ -212,7 +229,8 @@ Test-Path $pointer
 ### SkillDock 面板包（用于 Codex）
 
 打开已安装的 SkillDock 程序目录，运行其中的 SkillDock 卸载脚本。默认卸载移除
-程序和快捷入口，但保留 Task 数据与备份。只有确认不再需要恢复时才彻底清理数据。
+程序和快捷入口，但保留 Task 数据、导出与备份。只有确认不再需要恢复时才彻底
+清理数据。
 
 ### DSH
 

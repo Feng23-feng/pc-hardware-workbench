@@ -9,10 +9,11 @@ system inventory, troubleshooting, telemetry analysis, guided tuning, and upgrad
 decisions into one workflow while leaving every persistent hardware change to the
 user.
 
-The current test build includes **PCHW Skill 2.8.0, SkillDock Runtime 0.1.0-rc.2,
-and standalone PCHW Portable 2.8.0**. There is no stable release yet. Here `2.8.0`
-is the PCHW Skill and Portable version and `0.1.0-rc.2` is the SkillDock application
-version.
+The current source candidate combines **PCHW Skill 2.8.0 with SkillDock
+0.1.0-rc.3** and keeps standalone PCHW Portable 2.8.0. There is no stable release
+yet, and SkillDock rc.3 has not been published as a public test package. The last
+public test package remains `0.1.0-rc.2`. Here `2.8.0` is the PCHW Skill and
+Portable version and `0.1.0-rc.3` is the SkillDock source-candidate version.
 Automated tests and targeted human review pass, but broad real-device coverage,
 clean-Windows install/uninstall, and the remaining human scenarios are still in
 progress. The project does not claim this test build is stable or fully
@@ -74,7 +75,7 @@ The interactive project pages are currently available in Chinese:
 
 ## Four download packages
 
-[Download the current test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2),
+[Download the last public test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2),
 then choose exactly one package. Do not place multiple copies of the same Skill
 in one host's scan directory.
 Most users should start with the PCHW Skill package without the panel. Choose
@@ -89,7 +90,7 @@ no installation at all, use the standalone Portable tool.
 | SkillDock Runtime-only | A compatible PCHW Skill is installed and only the Runtime and Node are missing | SkillDock Runtime + Node.js 24.22.1 | Current Codex conversation only |
 | SkillDock panel bundle (for Codex) | Codex Desktop is installed and you specifically want the graphical panel | PCHW Skill, SkillDock Runtime, installer | Current Codex conversation only |
 
-Current GitHub test-build files:
+The current public GitHub test-build files still use SkillDock `0.1.0-rc.2`:
 
 ```text
 PCHW-Skill-2.8.0-rc.2.zip
@@ -123,6 +124,12 @@ If you only need chat, hardware collection, and CSV analysis, use the PCHW Skill
 without SkillDock. Use the standalone Portable build only when you do not want an
 Agent at all. SkillDock is read-only with respect to hardware and never changes
 hardware settings automatically.
+
+The rc.3 source candidate adds a local storage panel. It exports the protected
+Runtime rollback backup with its shared Node engine and a per-file SHA-256
+manifest. A Task/evidence export must be downloaded before cleanup is unlocked;
+stale, expired, or tampered exports fail closed. Cleanup preserves the Agent
+Session, capabilities, Runtime, shared engine, and rollback backup.
 
 <a id="pchw-portable"></a>
 
@@ -232,6 +239,14 @@ current Codex conversation. DSH and other hosts may use the PCHW Skill for
 chat, collection, and CSV analysis, but they are not promised this panel. If
 permission is denied, the panel cannot start, or another workspace is active,
 continue in chat; losing the panel must not break the conversation.
+
+Use **Local storage** in the panel header to export the protected Runtime
+rollback backup, including its shared Node engine and per-file SHA-256 manifest.
+Task and evidence cleanup requires a downloaded, state-bound export and a second
+confirmation; stale, expired, or tampered exports fail closed. Cleanup preserves
+the current Agent Session, capabilities, Runtime, shared engine, installer logs,
+and rollback backup. Export links expire after 24 hours, and expired files are
+pruned on Runtime startup or storage-panel refresh.
 
 The panel performs only user-approved read-only analysis and Task artifact
 writes. It never changes BIOS, firmware, drivers, clocks, voltages, power

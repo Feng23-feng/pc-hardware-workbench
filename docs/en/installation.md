@@ -10,9 +10,10 @@
 - Optional monitoring requires an already-running LibreHardwareMonitor instance.
   This project does not install or start it.
 
-The current `2.8.0` build is a test build, and no stable release exists yet.
-Clean-Windows installation, uninstallation, and complete user signoff remain
-pending.
+The current PCHW `2.8.0` build is a test build and the SkillDock source candidate
+is `0.1.0-rc.3`; neither has a stable release. SkillDock rc.3 has not been
+published, and the last public test package remains `0.1.0-rc.2`. Clean-Windows
+installation, uninstallation, and complete user signoff remain pending.
 
 ## Choose one distribution
 
@@ -28,7 +29,7 @@ no installation at all, use PCHW Portable.
 | SkillDock Runtime-only | A compatible PCHW Skill is installed and only the application and Node are missing | SkillDock Runtime, Node.js 24.22.1 | Current Codex conversation only |
 | SkillDock panel bundle (for Codex) | Codex Desktop is installed and you specifically want the graphical panel | PCHW Skill, SkillDock Runtime, installer | Current Codex conversation only |
 
-[Download the current GitHub test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2):
+[Download the last public GitHub test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2):
 
 ```text
 PCHW-Skill-2.8.0-rc.2.zip
@@ -38,9 +39,11 @@ SkillDock-PCHW-0.1.0-rc.2-win-x64-user.zip
 SHA256SUMS.txt
 ```
 
-This is a public test build. Clean-Windows installation, uninstallation, and
-final signoff remain PENDING. Do not mix old and current Skill, Runtime, or
-package files.
+These assets remain the previous public package for SkillDock `0.1.0-rc.2`.
+After rc.3 is published, replace them with the matching
+`SkillDock-*-0.1.0-rc.3-win-x64*` files. Clean-Windows installation,
+uninstallation, and final signoff remain PENDING. Do not mix old and current
+Skill, Runtime, or package files.
 
 <a id="pchw-portable"></a>
 
@@ -125,6 +128,26 @@ If Codex Ask-for-approval mode prevents automatic opening, use the short-lived
 updates automatically when the result returns. Closing and reopening SkillDock
 should restore the same Task, attachments, chart, and conclusion without creating a
 second Thread.
+
+### Local storage
+
+Use **Local storage** in the page header to inspect and manage SkillDock data on
+this machine:
+
+- **Export latest rollback backup** creates a ZIP containing the protected
+  Runtime rollback, its exact shared Node engine, and a per-file SHA-256
+  manifest. Missing, malformed, or mismatched engine references fail closed.
+- A Task/evidence export bound to the current state, Session, and event count
+  must be downloaded before cleanup unlocks.
+- A second confirmation follows. Expired, tampered, or stale exports cannot
+  delete changed Task data.
+- Cleanup preserves the Agent Session, capabilities, Runtime, shared engine,
+  installer logs, and rollback backup.
+
+Exports live under `%LOCALAPPDATA%\SkillDock\storage-exports`. Download links are
+valid for 24 hours; expired files are pruned when the Runtime starts or the
+storage panel refreshes. Default uninstall preserves exports, while explicit
+`-PurgeUserData` removes them.
 
 <a id="pchw-skill-only"></a>
 

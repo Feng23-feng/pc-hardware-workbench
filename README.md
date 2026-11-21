@@ -7,9 +7,10 @@
 排查、遥测分析、手动调校和升级判断收敛到一套工作流，同时把每一次硬件变更留给
 用户亲手完成。
 
-当前版本为 **2.8.0 测试版**，包含 PCHW Skill 2.8.0、SkillDock Runtime
-0.1.0-rc.2 和独立 PCHW Portable 2.8.0。目前没有正式版。
-其中 `2.8.0` 是 PCHW Skill 与 Portable 版本，`0.1.0-rc.2` 是 SkillDock 应用版本。完整自动测试和定向人工审阅已通过；
+当前版本为 **2.8.0 测试版**；源码候选同时集成 SkillDock `0.1.0-rc.3`，并保留
+独立 PCHW Portable 2.8.0。目前没有正式版，SkillDock rc.3 也尚未发布为公开测试包；
+最后公开测试包仍是 `0.1.0-rc.2`。其中 `2.8.0` 是 PCHW Skill 与 Portable 版本，
+`0.1.0-rc.3` 是 SkillDock 源码候选的应用版本。完整自动测试和定向人工审阅已通过；
 真实设备覆盖、干净 Windows 安装/卸载和其余交互场景签署仍在继续。项目不会把
 测试版包装成稳定版。
 
@@ -61,7 +62,7 @@
 
 ## 四种下载包
 
-[下载当前测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2)，
+[下载最后公开测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2)，
 按使用场景只选一个包；不要把同一个 Skill 的多个副本放进同一个宿主扫描目录。
 普通用户默认选择不含面板的纯 PCHW Skill；只有明确需要网页操作面板时，再选择
 SkillDock 面板包（需已安装 Codex）。没有 Agent，或希望完全不安装时，选择独立
@@ -74,7 +75,7 @@ SkillDock 面板包（需已安装 Codex）。没有 Agent，或希望完全不�
 | SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺 SkillDock 应用与 Node | SkillDock Runtime + Node.js 24.22.1 | 仅 Codex 当前对话 |
 | SkillDock 面板包（用于 Codex） | 已安装 Codex Desktop，并明确需要图形操作面板 | PCHW Skill、SkillDock Runtime、安装入口 | 仅 Codex 当前对话 |
 
-当前 GitHub 测试版文件：
+当前公开 GitHub 测试版文件仍对应 SkillDock `0.1.0-rc.2`：
 
 ```text
 PCHW-Skill-2.8.0-rc.2.zip
@@ -98,6 +99,10 @@ SkillDock 是 PCHW 在 **Codex 当前任务**中可选的图形操作面板。�
 
 SkillDock 不是独立 Agent，也不替代 Codex：推理和对话仍在 Codex 中完成，它负责
 本地可视化与交互。面板仅支持 Codex，DSH 和其他 Agent 使用无面板的通用 Skill。
+
+rc.3 源码候选增加本地存储面板：可导出受保护的 Runtime 回退备份（含共享 Node
+引擎和逐文件 SHA-256 清单）；Task 与证据必须先下载当前导出，才能二次确认清空。
+清理会保留 Agent Session、权限凭证、Runtime、共享引擎和回退备份。
 
 如果只需要聊天、硬件采集和 CSV 分析，选择无面板的 PCHW Skill 即可，不必安装
 SkillDock；完全不需要 Agent 时，才选择独立便携包。SkillDock 对硬件始终只读，
@@ -176,6 +181,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ".\Install SkillDock Runtime
 页面会请求一次明确的“仅本次允许”；允许后可以查看真实 SVG、具体判断、支持与冲突
 证据、不确定性，以及两到三条低风险采集建议。结果会自动写回页面。
 复制结果回到当前 Codex 对话继续；关闭并重启后，同一 Task、图表和结论仍可恢复。
+
+需要管理本机占用时，使用页面顶部的“本地存储”。可导出最近一个 Runtime 回退
+备份；Task 清理必须先下载导出并确认，过期、损坏或导出后数据发生变化的文件
+不能解锁清理。导出 ZIP 默认保留在 `%LOCALAPPDATA%\SkillDock\storage-exports`，
+下载有效期 24 小时，过期文件会在 Runtime 启动或刷新存储面板时清理。
 
 同一附件成功完成一次本地分析后，重复分析时才可能出现“同一附件后续分析”。
 它仍只覆盖当前 Task 中的这份 CSV，2 小时内有效；更换附件需要重新选择
