@@ -9,9 +9,9 @@
 - 其他操作系统只提供手动排障指导，不自动读取硬件；
 - 可选监控需要用户已经启动 LibreHardwareMonitor；本项目不会安装或启动它。
 
-当前 PCHW `2.8.0` 是测试版，SkillDock 源码候选是 `0.1.0-rc.3`，目前都没有
-正式版。SkillDock rc.3 尚未发布，最新公开发布的测试包仍为 `0.1.0-rc.2`。干净
-Windows 安装、卸载和完整用户签收继续作为发布门禁。
+当前 PCHW `2.8.0` 是测试版，最新公开测试包集成 SkillDock `0.1.0-rc.3`，目前
+没有正式版。PCHW Skill 与 Portable 源码未变化，因此继续提供各自的
+`2.8.0-rc.2` 资产。干净 Windows 安装、卸载和完整用户签收继续作为发布门禁。
 
 ## 先选一种包
 
@@ -28,19 +28,19 @@ PCHW Portable。
 | SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺应用与 Node | SkillDock Runtime、Node.js 24.22.1 | 仅 Codex 当前对话 |
 | SkillDock 面板包（用于 Codex） | 已安装 Codex Desktop，并明确需要图形操作面板 | PCHW Skill、SkillDock Runtime、安装入口 | 仅 Codex |
 
-[下载最新测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2)：
+[下载最新测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.3)：
 
 ```text
 PCHW-Skill-2.8.0-rc.2.zip
 pc-hardware-portable-v2.8.0-rc.2.zip
-SkillDock-Runtime-0.1.0-rc.2-win-x64.zip
-SkillDock-PCHW-0.1.0-rc.2-win-x64-user.zip
+SkillDock-Runtime-0.1.0-rc.3-win-x64.zip
+SkillDock-PCHW-0.1.0-rc.3-win-x64-user.zip
 SHA256SUMS.txt
 ```
 
-列表仍是上一公开测试包，对应 SkillDock `0.1.0-rc.2`；rc.3 发布后再替换为
-`SkillDock-*-0.1.0-rc.3-win-x64*`。clean Windows 安装、卸载和最终签收仍是
-PENDING。不要把旧版本 ZIP、Skill 目录和 Runtime 混在一起。
+SkillDock 资产为 `0.1.0-rc.3`；PCHW Skill 与 Portable 资产继续使用未变化的
+`2.8.0-rc.2`。clean Windows 安装、卸载和最终签收仍是 PENDING。不要把旧版本
+ZIP、Skill 目录和 Runtime 混在一起。
 
 <a id="pchw-portable"></a>
 
@@ -63,7 +63,7 @@ PENDING。不要把旧版本 ZIP、Skill 目录和 Runtime 混在一起。
 
 ### 安装
 
-1. 下载 `SkillDock-PCHW-0.1.0-rc.2-win-x64-user.zip`。
+1. 下载 `SkillDock-PCHW-0.1.0-rc.3-win-x64-user.zip`。
 2. 按 Release 中的 `SHA256SUMS.txt` 或 GitHub asset digest 核对 ZIP。
 3. 解压完整目录。
 4. 双击 `Install.cmd`。

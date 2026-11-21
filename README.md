@@ -7,10 +7,10 @@
 排查、遥测分析、手动调校和升级判断收敛到一套工作流，同时把每一次硬件变更留给
 用户亲手完成。
 
-当前版本为 **2.8.0 测试版**；源码候选同时集成 SkillDock `0.1.0-rc.3`，并保留
-独立 PCHW Portable 2.8.0。目前没有正式版，SkillDock rc.3 也尚未发布为公开测试包；
-最新公开发布的测试包仍是 `0.1.0-rc.2`。其中 `2.8.0` 是 PCHW Skill 与 Portable 版本，
-`0.1.0-rc.3` 是 SkillDock 源码候选的应用版本。完整自动测试和定向人工审阅已通过；
+当前版本为 **2.8.0 测试版**；最新公开测试包集成 SkillDock `0.1.0-rc.3`，并保留
+独立 PCHW Portable 2.8.0。目前没有正式版。其中 `2.8.0` 是 PCHW Skill 与 Portable
+版本，`0.1.0-rc.3` 是 SkillDock 应用版本；PCHW Skill 与 Portable 源码未变化，
+因此继续提供各自的 2.8.0-rc.2 资产。完整自动测试和定向人工审阅已通过；
 真实设备覆盖、干净 Windows 安装/卸载和其余交互场景签署仍在继续。项目不会把
 测试版包装成稳定版。
 
@@ -62,7 +62,7 @@
 
 ## 四种下载包
 
-[下载最新测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2)，
+[下载最新测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.3)，
 按使用场景只选一个包；不要把同一个 Skill 的多个副本放进同一个宿主扫描目录。
 普通用户默认选择不含面板的纯 PCHW Skill；只有明确需要网页操作面板时，再选择
 SkillDock 面板包（需已安装 Codex）。没有 Agent，或希望完全不安装时，选择独立
@@ -75,13 +75,13 @@ SkillDock 面板包（需已安装 Codex）。没有 Agent，或希望完全不�
 | SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺 SkillDock 应用与 Node | SkillDock Runtime + Node.js 24.22.1 | 仅 Codex 当前对话 |
 | SkillDock 面板包（用于 Codex） | 已安装 Codex Desktop，并明确需要图形操作面板 | PCHW Skill、SkillDock Runtime、安装入口 | 仅 Codex 当前对话 |
 
-当前公开 GitHub 测试版文件仍对应 SkillDock `0.1.0-rc.2`：
+当前公开 GitHub 测试版文件：
 
 ```text
 PCHW-Skill-2.8.0-rc.2.zip
 pc-hardware-portable-v2.8.0-rc.2.zip
-SkillDock-Runtime-0.1.0-rc.2-win-x64.zip
-SkillDock-PCHW-0.1.0-rc.2-win-x64-user.zip
+SkillDock-Runtime-0.1.0-rc.3-win-x64.zip
+SkillDock-PCHW-0.1.0-rc.3-win-x64-user.zip
 SHA256SUMS.txt
 ```
 
@@ -100,7 +100,7 @@ SkillDock 是 PCHW 在 **Codex 当前任务**中可选的图形操作面板。�
 SkillDock 不是独立 Agent，也不替代 Codex：推理和对话仍在 Codex 中完成，它负责
 本地可视化与交互。面板仅支持 Codex，DSH 和其他 Agent 使用无面板的通用 Skill。
 
-rc.3 源码候选增加本地存储面板：可导出受保护的 Runtime 回退备份（含共享 Node
+rc.3 增加本地存储面板：可导出受保护的 Runtime 回退备份（含共享 Node
 引擎和逐文件 SHA-256 清单）；Task 与证据必须先下载当前导出，才能二次确认清空。
 清理会保留 Agent Session、权限凭证、Runtime、共享引擎和回退备份。
 

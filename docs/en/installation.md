@@ -10,10 +10,11 @@
 - Optional monitoring requires an already-running LibreHardwareMonitor instance.
   This project does not install or start it.
 
-The current PCHW `2.8.0` build is a test build and the SkillDock source candidate
-is `0.1.0-rc.3`; neither has a stable release. SkillDock rc.3 has not been
-published, and the latest published test package remains `0.1.0-rc.2`. Clean-Windows
-installation, uninstallation, and complete user signoff remain pending.
+The current PCHW `2.8.0` build is a test build and the latest public package
+includes SkillDock `0.1.0-rc.3`; neither has a stable release. The PCHW Skill and
+Portable source trees did not change, so their matching assets remain
+`2.8.0-rc.2`. Clean-Windows installation, uninstallation, and complete user
+signoff remain pending.
 
 ## Choose one distribution
 
@@ -29,21 +30,20 @@ no installation at all, use PCHW Portable.
 | SkillDock Runtime-only | A compatible PCHW Skill is installed and only the application and Node are missing | SkillDock Runtime, Node.js 24.22.1 | Current Codex conversation only |
 | SkillDock panel bundle (for Codex) | Codex Desktop is installed and you specifically want the graphical panel | PCHW Skill, SkillDock Runtime, installer | Current Codex conversation only |
 
-[Download the latest test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2):
+[Download the latest test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.3):
 
 ```text
 PCHW-Skill-2.8.0-rc.2.zip
 pc-hardware-portable-v2.8.0-rc.2.zip
-SkillDock-Runtime-0.1.0-rc.2-win-x64.zip
-SkillDock-PCHW-0.1.0-rc.2-win-x64-user.zip
+SkillDock-Runtime-0.1.0-rc.3-win-x64.zip
+SkillDock-PCHW-0.1.0-rc.3-win-x64-user.zip
 SHA256SUMS.txt
 ```
 
-These assets remain the previous public package for SkillDock `0.1.0-rc.2`.
-After rc.3 is published, replace them with the matching
-`SkillDock-*-0.1.0-rc.3-win-x64*` files. Clean-Windows installation,
-uninstallation, and final signoff remain PENDING. Do not mix old and current
-Skill, Runtime, or package files.
+The SkillDock assets are `0.1.0-rc.3`; the unchanged PCHW Skill and Portable
+assets remain `2.8.0-rc.2`. Clean-Windows installation, uninstallation, and final
+signoff remain PENDING. Do not mix old and current Skill, Runtime, or package
+files.
 
 <a id="pchw-portable"></a>
 
@@ -69,7 +69,7 @@ Codex Desktop must already be installed.
 
 ### Install
 
-1. Download `SkillDock-PCHW-0.1.0-rc.2-win-x64-user.zip`.
+1. Download `SkillDock-PCHW-0.1.0-rc.3-win-x64-user.zip`.
 2. Verify it with `SHA256SUMS.txt` or the GitHub asset digest.
 3. Extract the full directory.
 4. Double-click `Install.cmd`.

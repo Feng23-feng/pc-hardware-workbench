@@ -9,11 +9,11 @@ system inventory, troubleshooting, telemetry analysis, guided tuning, and upgrad
 decisions into one workflow while leaving every persistent hardware change to the
 user.
 
-The current source candidate combines **PCHW Skill 2.8.0 with SkillDock
+The latest public test package combines **PCHW Skill 2.8.0 with SkillDock
 0.1.0-rc.3** and keeps standalone PCHW Portable 2.8.0. There is no stable release
-yet, and SkillDock rc.3 has not been published as a public test package. The
-latest published test package remains `0.1.0-rc.2`. Here `2.8.0` is the PCHW Skill and
-Portable version and `0.1.0-rc.3` is the SkillDock source-candidate version.
+yet. Here `2.8.0` is the PCHW Skill and Portable version and `0.1.0-rc.3` is the
+SkillDock application version. The PCHW Skill and Portable source trees did not
+change, so their matching RC assets remain `2.8.0-rc.2`.
 Automated tests and targeted human review pass, but broad real-device coverage,
 clean-Windows install/uninstall, and the remaining human scenarios are still in
 progress. The project does not claim this test build is stable or fully
@@ -75,7 +75,7 @@ The interactive project pages are currently available in Chinese:
 
 ## Four download packages
 
-[Download the latest test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2),
+[Download the latest test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.3),
 then choose exactly one package. Do not place multiple copies of the same Skill
 in one host's scan directory.
 Most users should start with the PCHW Skill package without the panel. Choose
@@ -90,13 +90,13 @@ no installation at all, use the standalone Portable tool.
 | SkillDock Runtime-only | A compatible PCHW Skill is installed and only the Runtime and Node are missing | SkillDock Runtime + Node.js 24.22.1 | Current Codex conversation only |
 | SkillDock panel bundle (for Codex) | Codex Desktop is installed and you specifically want the graphical panel | PCHW Skill, SkillDock Runtime, installer | Current Codex conversation only |
 
-The current public GitHub test-build files still use SkillDock `0.1.0-rc.2`:
+Current public GitHub test-build files:
 
 ```text
 PCHW-Skill-2.8.0-rc.2.zip
 pc-hardware-portable-v2.8.0-rc.2.zip
-SkillDock-Runtime-0.1.0-rc.2-win-x64.zip
-SkillDock-PCHW-0.1.0-rc.2-win-x64-user.zip
+SkillDock-Runtime-0.1.0-rc.3-win-x64.zip
+SkillDock-PCHW-0.1.0-rc.3-win-x64-user.zip
 SHA256SUMS.txt
 ```
 
@@ -125,7 +125,7 @@ without SkillDock. Use the standalone Portable build only when you do not want a
 Agent at all. SkillDock is read-only with respect to hardware and never changes
 hardware settings automatically.
 
-The rc.3 source candidate adds a local storage panel. It exports the protected
+rc.3 adds a local storage panel. It exports the protected
 Runtime rollback backup with its shared Node engine and a per-file SHA-256
 manifest. A Task/evidence export must be downloaded before cleanup is unlocked;
 stale, expired, or tampered exports fail closed. Cleanup preserves the Agent
