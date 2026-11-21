@@ -10,7 +10,7 @@
 - 可选监控需要用户已经启动 LibreHardwareMonitor；本项目不会安装或启动它。
 
 当前 PCHW `2.8.0` 是测试版，SkillDock 源码候选是 `0.1.0-rc.3`，目前都没有
-正式版。SkillDock rc.3 尚未发布，最后公开测试包仍为 `0.1.0-rc.2`。干净
+正式版。SkillDock rc.3 尚未发布，最新公开发布的测试包仍为 `0.1.0-rc.2`。干净
 Windows 安装、卸载和完整用户签收继续作为发布门禁。
 
 ## 先选一种包
@@ -28,7 +28,7 @@ PCHW Portable。
 | SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺应用与 Node | SkillDock Runtime、Node.js 24.22.1 | 仅 Codex 当前对话 |
 | SkillDock 面板包（用于 Codex） | 已安装 Codex Desktop，并明确需要图形操作面板 | PCHW Skill、SkillDock Runtime、安装入口 | 仅 Codex |
 
-[下载最后公开 GitHub 测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2)：
+[下载最新测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2)：
 
 ```text
 PCHW-Skill-2.8.0-rc.2.zip

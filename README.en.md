@@ -11,8 +11,8 @@ user.
 
 The current source candidate combines **PCHW Skill 2.8.0 with SkillDock
 0.1.0-rc.3** and keeps standalone PCHW Portable 2.8.0. There is no stable release
-yet, and SkillDock rc.3 has not been published as a public test package. The last
-public test package remains `0.1.0-rc.2`. Here `2.8.0` is the PCHW Skill and
+yet, and SkillDock rc.3 has not been published as a public test package. The
+latest published test package remains `0.1.0-rc.2`. Here `2.8.0` is the PCHW Skill and
 Portable version and `0.1.0-rc.3` is the SkillDock source-candidate version.
 Automated tests and targeted human review pass, but broad real-device coverage,
 clean-Windows install/uninstall, and the remaining human scenarios are still in
@@ -75,7 +75,7 @@ The interactive project pages are currently available in Chinese:
 
 ## Four download packages
 
-[Download the last public test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2),
+[Download the latest test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2),
 then choose exactly one package. Do not place multiple copies of the same Skill
 in one host's scan directory.
 Most users should start with the PCHW Skill package without the panel. Choose

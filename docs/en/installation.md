@@ -12,7 +12,7 @@
 
 The current PCHW `2.8.0` build is a test build and the SkillDock source candidate
 is `0.1.0-rc.3`; neither has a stable release. SkillDock rc.3 has not been
-published, and the last public test package remains `0.1.0-rc.2`. Clean-Windows
+published, and the latest published test package remains `0.1.0-rc.2`. Clean-Windows
 installation, uninstallation, and complete user signoff remain pending.
 
 ## Choose one distribution
@@ -29,7 +29,7 @@ no installation at all, use PCHW Portable.
 | SkillDock Runtime-only | A compatible PCHW Skill is installed and only the application and Node are missing | SkillDock Runtime, Node.js 24.22.1 | Current Codex conversation only |
 | SkillDock panel bundle (for Codex) | Codex Desktop is installed and you specifically want the graphical panel | PCHW Skill, SkillDock Runtime, installer | Current Codex conversation only |
 
-[Download the last public GitHub test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2):
+[Download the latest test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2):
 
 ```text
 PCHW-Skill-2.8.0-rc.2.zip

@@ -9,7 +9,7 @@
 
 当前版本为 **2.8.0 测试版**；源码候选同时集成 SkillDock `0.1.0-rc.3`，并保留
 独立 PCHW Portable 2.8.0。目前没有正式版，SkillDock rc.3 也尚未发布为公开测试包；
-最后公开测试包仍是 `0.1.0-rc.2`。其中 `2.8.0` 是 PCHW Skill 与 Portable 版本，
+最新公开发布的测试包仍是 `0.1.0-rc.2`。其中 `2.8.0` 是 PCHW Skill 与 Portable 版本，
 `0.1.0-rc.3` 是 SkillDock 源码候选的应用版本。完整自动测试和定向人工审阅已通过；
 真实设备覆盖、干净 Windows 安装/卸载和其余交互场景签署仍在继续。项目不会把
 测试版包装成稳定版。
@@ -62,7 +62,7 @@
 
 ## 四种下载包
 
-[下载最后公开测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2)，
+[下载最新测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2)，
 按使用场景只选一个包；不要把同一个 Skill 的多个副本放进同一个宿主扫描目录。
 普通用户默认选择不含面板的纯 PCHW Skill；只有明确需要网页操作面板时，再选择
 SkillDock 面板包（需已安装 Codex）。没有 Agent，或希望完全不安装时，选择独立
