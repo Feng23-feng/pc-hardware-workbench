@@ -83,11 +83,13 @@ PCHW 的聊天、采集和 CSV 分析，但不提供这个面板。
 
 1. “导出最近回退备份”生成包含受保护 Runtime 回退、共享 Node 引擎和逐文件
    SHA-256 清单的 ZIP。引擎缺失、哈希不匹配或路径越界时拒绝导出。
-2. 如需清空当前 Task 与证据，先生成绑定当前 State、Session 和事件计数的导出。
+2. 普通（非 source-hosted）Task 如需清空当前 Task 与证据，先生成绑定当前 State、
+   Session 和事件计数的导出。
 3. 点击下载后勾选确认，再选择“清空 Task 与证据”并完成二次确认。
 4. 过期、损坏或导出后数据发生变化的文件不会解锁清理。
 
-清理会删除 Task、附件、图表/证据、事件和 Agent 协议记录，但保留 Agent
+source-hosted Task 的协作状态由另一来源持有，面板暂不允许清空。普通 Task 清理
+会删除 Task、附件、图表/证据、事件和 Agent 协议记录，但保留 Agent
 Session、权限凭证、Runtime、共享引擎、安装日志和回退备份。导出位于
 `%LOCALAPPDATA%\SkillDock\storage-exports`，下载有效期 24 小时；默认卸载保留，
 显式 `-PurgeUserData` 才删除。

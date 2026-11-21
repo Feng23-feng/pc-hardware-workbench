@@ -9,8 +9,9 @@
 
 当前版本为 **2.8.0 测试版**；最新公开测试包集成 SkillDock `0.1.0-rc.3`，并保留
 独立 PCHW Portable 2.8.0。目前没有正式版。其中 `2.8.0` 是 PCHW Skill 与 Portable
-版本，`0.1.0-rc.3` 是 SkillDock 应用版本；PCHW Skill 与 Portable 源码未变化，
-因此继续提供各自的 2.8.0-rc.2 资产。完整自动测试和定向人工审阅已通过；
+版本，`0.1.0-rc.3` 是 SkillDock 应用版本。独立的 `2.8.0-rc.2` Skill 与 Portable
+资产属于既有测试资产，本次没有重新构建；它们不能据此视为与 rc.3 整合包中的
+PCHW Skill 树逐字节相同。完整自动测试和定向人工审阅已通过；
 真实设备覆盖、干净 Windows 安装/卸载和其余交互场景签署仍在继续。项目不会把
 测试版包装成稳定版。
 
@@ -86,7 +87,7 @@ SHA256SUMS.txt
 ```
 
 Release 标签 `v0.1.0-rc.3` 按 SkillDock 应用命名。PCHW Skill 与 Portable 使用独立
-版本线，本次源码未变化，所以 `2.8.0-rc.2` 文件是有意复用，不是放错或旧包。
+版本线；`2.8.0-rc.2` 文件是有意复用，但不是 rc.3 整合包 Skill 树的逐字节副本。
 
 这是公开测试版，clean Windows 安装/卸载和最终签收仍为 PENDING。不要混装多个
 Skill 或旧 Runtime。
@@ -104,8 +105,9 @@ SkillDock 不是独立 Agent，也不替代 Codex：推理和对话仍在 Codex 
 本地可视化与交互。面板仅支持 Codex，DSH 和其他 Agent 使用无面板的通用 Skill。
 
 rc.3 增加本地存储面板：可导出受保护的 Runtime 回退备份（含共享 Node
-引擎和逐文件 SHA-256 清单）；Task 与证据必须先下载当前导出，才能二次确认清空。
-清理会保留 Agent Session、权限凭证、Runtime、共享引擎和回退备份。
+引擎和逐文件 SHA-256 清单）；普通（非 source-hosted）Task 与证据必须先下载
+当前导出，才能二次确认清空。source-hosted Task 暂不允许在面板中清空。清理会
+保留 Agent Session、权限凭证、Runtime、共享引擎和回退备份。
 
 如果只需要聊天、硬件采集和 CSV 分析，选择无面板的 PCHW Skill 即可，不必安装
 SkillDock；完全不需要 Agent 时，才选择独立便携包。SkillDock 对硬件始终只读，
@@ -163,13 +165,18 @@ DSH 默认位置：
 ### SkillDock Runtime-only
 
 此包只供已经安装兼容 PCHW Skill、但缺少 SkillDock 应用与 Node 的高级用户使用。
+这里的“兼容”要求 Skill id 为 `pc-hardware-workbench`、版本为 `2.8.0`，且
+`workbench.manifest.json` 为 1.0、状态为 active、UI state schema 为 1.2、
+事件 schema 为 1.0，并声明 `telemetry.csv.analyze` 能力。
 解压后运行：
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File ".\Install SkillDock Runtime.ps1"
 ```
 
-安装后仍从 Codex 当前对话触发面板，不需要手动启动 `SkillDock.exe`。
+安装后仍从 Codex 当前对话触发面板，不需要手动启动 `SkillDock.exe`。本版只
+验证了 Runtime-only 包清单与 Runtime 安装；尚未单独认证所有 Skill-only 与
+Runtime-only 的跨包组合。
 
 ## 打开 SkillDock 操作面板
 

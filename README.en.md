@@ -11,9 +11,11 @@ user.
 
 The latest public test package combines **PCHW Skill 2.8.0 with SkillDock
 0.1.0-rc.3** and keeps standalone PCHW Portable 2.8.0. There is no stable release
-yet. Here `2.8.0` is the PCHW Skill and Portable version and `0.1.0-rc.3` is the
-SkillDock application version. The PCHW Skill and Portable source trees did not
-change, so their matching RC assets remain `2.8.0-rc.2`.
+yet. Here `2.8.0` is the PCHW Skill and Portable version and `0.1.0-rc.3` is
+the SkillDock application version. The standalone `2.8.0-rc.2` Skill and
+Portable assets are reused from an earlier test build and were not rebuilt for
+rc.3; they must not be treated as byte-identical to the PCHW Skill tree inside
+the rc.3 integrated package.
 Automated tests and targeted human review pass, but broad real-device coverage,
 clean-Windows install/uninstall, and the remaining human scenarios are still in
 progress. The project does not claim this test build is stable or fully
@@ -101,9 +103,9 @@ SHA256SUMS.txt
 ```
 
 The release tag `v0.1.0-rc.3` follows the SkillDock application version. PCHW
-Skill and Portable use independent version lines; their source did not change,
-so the intentional reuse of `2.8.0-rc.2` assets is not a mislabeled or stale
-package.
+Skill and Portable use independent version lines. The intentional reuse of
+`2.8.0-rc.2` assets is not a mislabeled package, but those assets are not a
+byte-for-byte copy of the rc.3 integrated-package Skill tree.
 
 This is a public test build. Clean-Windows installation, uninstallation, and
 final signoff remain PENDING. Do not mix multiple Skills or old Runtime
@@ -130,11 +132,13 @@ without SkillDock. Use the standalone Portable build only when you do not want a
 Agent at all. SkillDock is read-only with respect to hardware and never changes
 hardware settings automatically.
 
-rc.3 adds a local storage panel. It exports the protected
-Runtime rollback backup with its shared Node engine and a per-file SHA-256
-manifest. A Task/evidence export must be downloaded before cleanup is unlocked;
-stale, expired, or tampered exports fail closed. Cleanup preserves the Agent
-Session, capabilities, Runtime, shared engine, and rollback backup.
+rc.3 adds a local storage panel. It exports the protected Runtime rollback
+backup with its shared Node engine and a per-file SHA-256 manifest. For an
+ordinary, non-source-hosted Task, a Task/evidence export must be downloaded
+before cleanup is unlocked; stale, expired, or tampered exports fail closed.
+Source-hosted Tasks remain blocked because another source owns their
+collaboration state. Cleanup preserves the Agent Session, capabilities,
+Runtime, shared engine, and rollback backup.
 
 <a id="pchw-portable"></a>
 
@@ -199,14 +203,19 @@ See [Installation and upgrade](docs/en/installation.md#pchw-skill-only) for deta
 ### SkillDock Runtime-only
 
 Use this package only when a compatible PCHW Skill is already installed and the
-SkillDock application plus Node.js are missing. Extract it and run:
+SkillDock application plus Node.js are missing. Compatibility means Skill id
+`pc-hardware-workbench`, version `2.8.0`, Workbench Manifest 1.0 in active
+status, UI state schema 1.2, event schema 1.0, and the
+`telemetry.csv.analyze` capability. Extract it and run:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File ".\Install SkillDock Runtime.ps1"
 ```
 
 After installation, open the panel from the current Codex conversation. Do not
-launch `SkillDock.exe` manually for the normal user path.
+launch `SkillDock.exe` manually for the normal user path. This release verifies
+the Runtime-only package inventory and Runtime installation; every Skill-only
+plus Runtime-only cross-package combination is not yet separately certified.
 
 The portable tools perform only user-approved local read-only collection and
 generate charts or reports when needed.
@@ -247,11 +256,13 @@ continue in chat; losing the panel must not break the conversation.
 
 Use **Local storage** in the panel header to export the protected Runtime
 rollback backup, including its shared Node engine and per-file SHA-256 manifest.
-Task and evidence cleanup requires a downloaded, state-bound export and a second
-confirmation; stale, expired, or tampered exports fail closed. Cleanup preserves
-the current Agent Session, capabilities, Runtime, shared engine, installer logs,
-and rollback backup. Export links expire after 24 hours, and expired files are
-pruned on Runtime startup or storage-panel refresh.
+Task and evidence cleanup for ordinary, non-source-hosted Tasks requires a
+downloaded, state-bound export and a second confirmation; stale, expired, or
+tampered exports fail closed. Source-hosted Tasks remain blocked because another
+source owns their collaboration state. Cleanup preserves the current Agent
+Session, capabilities, Runtime, shared engine, installer logs, and rollback
+backup. Export links expire after 24 hours, and expired files are pruned on
+Runtime startup or storage-panel refresh.
 
 The panel performs only user-approved read-only analysis and Task artifact
 writes. It never changes BIOS, firmware, drivers, clocks, voltages, power

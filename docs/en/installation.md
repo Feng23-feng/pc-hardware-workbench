@@ -11,10 +11,11 @@
   This project does not install or start it.
 
 The current PCHW `2.8.0` build is a test build and the latest public package
-includes SkillDock `0.1.0-rc.3`; neither has a stable release. The PCHW Skill and
-Portable source trees did not change, so their matching assets remain
-`2.8.0-rc.2`. Clean-Windows installation, uninstallation, and complete user
-signoff remain pending.
+includes SkillDock `0.1.0-rc.3`; neither has a stable release. The standalone
+`2.8.0-rc.2` Skill and Portable assets are reused from an earlier test build and
+were not rebuilt for rc.3; they are not a byte-for-byte copy of the PCHW Skill
+tree inside the rc.3 integrated package. Clean-Windows installation,
+uninstallation, and complete user signoff remain pending.
 
 ## Choose one distribution
 
@@ -41,10 +42,11 @@ SHA256SUMS.txt
 ```
 
 The release tag `v0.1.0-rc.3` follows the SkillDock application version. PCHW
-Skill and Portable use independent version lines; their source did not change,
-so the reuse of `2.8.0-rc.2` assets is intentional.
+Skill and Portable use independent version lines. Reusing the `2.8.0-rc.2`
+assets is intentional, but those assets are not a byte-for-byte copy of the
+rc.3 integrated-package Skill tree.
 
-The SkillDock assets are `0.1.0-rc.3`; the unchanged PCHW Skill and Portable
+The SkillDock assets are `0.1.0-rc.3`; the existing PCHW Skill and Portable
 assets remain `2.8.0-rc.2`. Clean-Windows installation, uninstallation, and final
 signoff remain PENDING. Do not mix old and current Skill, Runtime, or package
 files.
@@ -141,12 +143,14 @@ this machine:
 - **Export latest rollback backup** creates a ZIP containing the protected
   Runtime rollback, its exact shared Node engine, and a per-file SHA-256
   manifest. Missing, malformed, or mismatched engine references fail closed.
-- A Task/evidence export bound to the current state, Session, and event count
-  must be downloaded before cleanup unlocks.
+- For an ordinary, non-source-hosted Task, a Task/evidence export bound to the
+  current state, Session, and event count must be downloaded before cleanup
+  unlocks.
 - A second confirmation follows. Expired, tampered, or stale exports cannot
   delete changed Task data.
 - Cleanup preserves the Agent Session, capabilities, Runtime, shared engine,
-  installer logs, and rollback backup.
+  installer logs, and rollback backup. A source-hosted Task remains blocked
+  while another source owns its collaboration state.
 
 Exports live under `%LOCALAPPDATA%\SkillDock\storage-exports`. Download links are
 valid for 24 hours; expired files are pruned when the Runtime starts or the
@@ -187,7 +191,13 @@ When `DSH_HOME` is set:
 %DSH_HOME%\skills\pc-hardware-workbench
 ```
 
-Invoke:
+In Codex, invoke:
+
+```text
+$pc-hardware-workbench
+```
+
+After DSH restarts and discovers the Skill, invoke:
 
 ```text
 /pc-hardware-workbench
@@ -200,7 +210,9 @@ See the [DSH adapter](../../adapters/dsh/README.md) for details.
 ## SkillDock Runtime-only
 
 Use this only when a compatible PCHW Skill is already installed and the
-SkillDock application plus Node.js are missing:
+SkillDock application plus Node.js are missing. Compatibility means Skill id
+`pc-hardware-workbench`, version `2.8.0`, active Workbench Manifest 1.0, UI
+state schema 1.2, event schema 1.0, and the `telemetry.csv.analyze` capability:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File ".\Install SkillDock Runtime.ps1"

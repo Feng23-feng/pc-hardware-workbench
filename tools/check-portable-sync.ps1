@@ -15,6 +15,10 @@ if ($Fix -and ($env:CI -match '^(?i:true|1)$' -or $env:GITHUB_ACTIONS -match '^(
 if ([string]::IsNullOrWhiteSpace($RepositoryRoot)) {
     $RepositoryRoot = Split-Path -Parent $PSScriptRoot
 }
+$RepositoryRoot = [IO.Path]::GetFullPath($RepositoryRoot).TrimEnd("\")
+if (-not (Test-Path -LiteralPath $RepositoryRoot -PathType Container)) {
+    throw "Repository root not found: $RepositoryRoot"
+}
 $skillScripts = Join-Path $RepositoryRoot "skill\pc-hardware-workbench\scripts"
 $portableScripts = Join-Path $RepositoryRoot "portable\scripts"
 $skillAssets = Join-Path $RepositoryRoot "skill\pc-hardware-workbench\assets"

@@ -10,8 +10,9 @@
 - 可选监控需要用户已经启动 LibreHardwareMonitor；本项目不会安装或启动它。
 
 当前 PCHW `2.8.0` 是测试版，最新公开测试包集成 SkillDock `0.1.0-rc.3`，目前
-没有正式版。PCHW Skill 与 Portable 源码未变化，因此继续提供各自的
-`2.8.0-rc.2` 资产。干净 Windows 安装、卸载和完整用户签收继续作为发布门禁。
+没有正式版。独立的 `2.8.0-rc.2` Skill 与 Portable 资产属于既有测试资产，本次
+没有重新构建，不能据此视为与 rc.3 整合包中的 PCHW Skill 树逐字节相同。干净
+Windows 安装、卸载和完整用户签收继续作为发布门禁。
 
 ## 先选一种包
 
@@ -39,9 +40,9 @@ SHA256SUMS.txt
 ```
 
 Release 标签 `v0.1.0-rc.3` 按 SkillDock 应用命名。PCHW Skill 与 Portable 使用独立
-版本线，本次源码未变化，所以 `2.8.0-rc.2` 文件是有意复用，不是放错或旧包。
+版本线；`2.8.0-rc.2` 文件是有意复用，但不是 rc.3 整合包 Skill 树的逐字节副本。
 
-SkillDock 资产为 `0.1.0-rc.3`；PCHW Skill 与 Portable 资产继续使用未变化的
+SkillDock 资产为 `0.1.0-rc.3`；PCHW Skill 与 Portable 资产继续使用既有的
 `2.8.0-rc.2`。clean Windows 安装、卸载和最终签收仍是 PENDING。不要把旧版本
 ZIP、Skill 目录和 Runtime 混在一起。
 
@@ -127,10 +128,11 @@ Runtime 程序备份在成功安装后轮转为最近一个可回退版本；更
 
 - “导出最近回退备份”会生成含受保护 Runtime 回退、共享 Node 引擎和逐文件
   SHA-256 清单的 ZIP；损坏或逃逸引擎目录的引用会 fail closed。
-- Task/证据必须先导出一份与当前 State、Session 和事件计数绑定的 ZIP，并点击
-  下载后，清理按钮才会解锁。
+- 普通（非 source-hosted）Task 的 Task/证据必须先导出一份与当前 State、Session
+  和事件计数绑定的 ZIP，并点击下载后，清理按钮才会解锁。
 - 清理前还会二次确认。过期、哈希不符或导出后数据发生变化的文件不会删除 Task。
 - 清理会保留 Agent Session、权限凭证、Runtime、共享引擎、安装日志和回退备份。
+  source-hosted Task 的协作状态由另一来源持有，面板暂不允许清空。
 
 导出文件位于 `%LOCALAPPDATA%\SkillDock\storage-exports`。下载有效期 24 小时；
 过期文件在 Runtime 启动或刷新存储面板时清理。默认卸载保留导出，显式
@@ -169,7 +171,13 @@ DSH 默认 Skill 目录：
 %DSH_HOME%\skills\pc-hardware-workbench
 ```
 
-调用方式：
+Codex 中调用：
+
+```text
+$pc-hardware-workbench
+```
+
+DSH 重启并识别 Skill 后调用：
 
 ```text
 /pc-hardware-workbench
@@ -180,7 +188,10 @@ SkillDock 面板。DSH 适配细节见 [DSH adapter](../adapters/dsh/README.md)�
 
 ## SkillDock Runtime-only
 
-仅在已经安装兼容 PCHW Skill、但缺少 SkillDock 应用和 Node 时使用。解压后运行：
+仅在已经安装兼容 PCHW Skill、但缺少 SkillDock 应用和 Node 时使用。兼容条件为
+Skill id `pc-hardware-workbench`、版本 `2.8.0`、Workbench Manifest 1.0 且状态
+active、UI state schema 1.2、事件 schema 1.0，并声明
+`telemetry.csv.analyze`。解压后运行：
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File ".\Install SkillDock Runtime.ps1"

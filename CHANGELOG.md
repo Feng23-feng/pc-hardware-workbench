@@ -2,7 +2,8 @@
 
 ## 2.8.0 — 2026-11-17（2026-11-18 文档与分发更新）
 
-- 2026-11-21 SkillDock `0.1.0-rc.3` 源码候选新增本地存储面板：可导出受保护 Runtime 回退备份及共享 Node 引擎，Task/证据必须先下载与当前 State 绑定的导出才能确认清理；清理支持崩溃恢复和重试幂等；公开测试包仍为 `0.1.0-rc.2`；
+- 2026-11-21 SkillDock `0.1.0-rc.3` 源码候选新增本地存储面板：可导出受保护 Runtime 回退备份及共享 Node 引擎，普通（非 source-hosted）Task/证据必须先下载与当前 State 绑定的导出才能确认清理；source-hosted Task 暂不允许在面板中清空；清理支持崩溃恢复和重试幂等；公开测试包为 `0.1.0-rc.3`；
+- 2026-11-21 安装文档分别写明 Codex 的 `$pc-hardware-workbench` 和 DSH 的 `/pc-hardware-workbench` 调用方式；Runtime-only 兼容条件收敛为 Skill/Manifest/schema/capability 身份；修复 `check-portable-sync.ps1 -RepositoryRoot .` 因相对路径截断导致的假失败；
 - 2026-11-20 重新发布 `rc.2` 测试资产：SkillDock Runtime 成功升级后仅保留最近一个程序回退点，Task 与迁移数据备份不参与轮转；
 - SkillDock 运行时路径助手支持内容寻址共享 Node 引擎；Runtime 与回退备份通过 `engine-location.json` 引用同一 `node.exe`，启动时校验版本路径与 SHA-256；
 - `rc.2` 用户包新增内嵌 RC 与两轮安装 Retention 门禁，并修复 Skill 未变化时缺少 `backup_path` 导致升级失败的问题；
