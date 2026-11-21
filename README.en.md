@@ -10,12 +10,12 @@ decisions into one workflow while leaving every persistent hardware change to th
 user.
 
 The latest public test package combines **PCHW Skill 2.8.0 with SkillDock
-0.1.0-rc.3** and keeps standalone PCHW Portable 2.8.0. There is no stable release
-yet. Here `2.8.0` is the PCHW Skill and Portable version and `0.1.0-rc.3` is
+0.1.0-rc.4** and keeps standalone PCHW Portable 2.8.0. There is no stable release
+yet. Here `2.8.0` is the PCHW Skill and Portable version and `0.1.0-rc.4` is
 the SkillDock application version. The standalone `2.8.0-rc.2` Skill and
 Portable assets are reused from an earlier test build and were not rebuilt for
-rc.3; they must not be treated as byte-identical to the PCHW Skill tree inside
-the rc.3 integrated package.
+rc.4; they must not be treated as byte-identical to the PCHW Skill tree inside
+the rc.4 integrated package.
 Automated tests and targeted human review pass, but broad real-device coverage,
 clean-Windows install/uninstall, and the remaining human scenarios are still in
 progress. The project does not claim this test build is stable or fully
@@ -77,7 +77,7 @@ The interactive project pages are currently available in Chinese:
 
 ## Four download packages
 
-[Download the latest test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.3),
+[Download the latest test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.4),
 then choose exactly one package. Do not place multiple copies of the same Skill
 in one host's scan directory.
 Most users should start with the PCHW Skill package without the panel. Choose
@@ -97,15 +97,15 @@ Current public GitHub test-build files:
 ```text
 PCHW-Skill-2.8.0-rc.2.zip
 pc-hardware-portable-v2.8.0-rc.2.zip
-SkillDock-Runtime-0.1.0-rc.3-win-x64.zip
-SkillDock-PCHW-0.1.0-rc.3-win-x64-user.zip
+SkillDock-Runtime-0.1.0-rc.4-win-x64.zip
+SkillDock-PCHW-0.1.0-rc.4-win-x64-user.zip
 SHA256SUMS.txt
 ```
 
-The release tag `v0.1.0-rc.3` follows the SkillDock application version. PCHW
+The release tag `v0.1.0-rc.4` follows the SkillDock application version. PCHW
 Skill and Portable use independent version lines. The intentional reuse of
 `2.8.0-rc.2` assets is not a mislabeled package, but those assets are not a
-byte-for-byte copy of the rc.3 integrated-package Skill tree.
+byte-for-byte copy of the rc.4 integrated-package Skill tree.
 
 This is a public test build. Clean-Windows installation, uninstallation, and
 final signoff remain PENDING. Do not mix multiple Skills or old Runtime
@@ -132,7 +132,7 @@ without SkillDock. Use the standalone Portable build only when you do not want a
 Agent at all. SkillDock is read-only with respect to hardware and never changes
 hardware settings automatically.
 
-rc.3 adds a local storage panel. It exports the protected Runtime rollback
+rc.4 inherits the rc.3 local storage panel. It exports the protected Runtime rollback
 backup with its shared Node engine and a per-file SHA-256 manifest. For an
 ordinary, non-source-hosted Task, a Task/evidence export must be downloaded
 before cleanup is unlocked; stale, expired, or tampered exports fail closed.
