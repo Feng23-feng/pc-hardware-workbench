@@ -6,7 +6,7 @@ DSH are adapters, not product concepts.
 
 Version lines are independent:
 
-- SkillDock application: `0.1.0-rc.2` (public test build; no stable release)
+- SkillDock application: `0.1.0-rc.3` (test-build candidate; no stable release)
 - SkillSurface contract: `1.0`
 - SkillRuntime contract: `1.0`
 - AgentDriver contract: `1.0`
@@ -20,12 +20,12 @@ application; see [SKILL-TRIGGERED-UX.md](SKILL-TRIGGERED-UX.md).
 
 ## Windows release candidate
 
-The current candidate is SkillDock `0.1.0-rc.2` with PC Hardware Workbench
+The current candidate is SkillDock `0.1.0-rc.3` with PC Hardware Workbench
 `2.8.0`. The R7 user-experience evidence was produced from the `2.7.4` source
 tree. The integrated Windows candidate is:
 
 ```text
-dist/SkillDock-PCHW-0.1.0-rc.2-win-x64.zip
+dist/SkillDock-PCHW-0.1.0-rc.3-win-x64.zip
 ```
 
 Build and verify it without changing the formal entry:
@@ -39,11 +39,12 @@ The RC remains default-off. Default traffic, the formal default entry,
 background write, coordinator recovery, automatic hardware changes, and formal
 stable release stay closed. Clean-Windows install/uninstall acceptance and
 explicit user signoff are still required. The same verified RC is also used to
-derive the user-installable package and the Runtime-only package. The test
-assets are published at
+derive the user-installable package and the Runtime-only package. The current
+source candidate has not yet been published; the last public test build remains
+at
 <https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2>.
 See
-[`release/0.1.0-rc.2`](release/0.1.0-rc.2).
+[`release/0.1.0-rc.3`](release/0.1.0-rc.3).
 
 Host scope is intentionally narrow: this version promises the
 `pchw-source-hosted` SkillDock panel only under Codex. DSH and other hosts may
@@ -51,7 +52,7 @@ install `pc-hardware-workbench` and use its chat, collection, and CSV-analysis
 capabilities, but must not be told that the SkillDock panel is available there.
 `launch-panel.ps1` requires `CODEX_THREAD_ID` and fails with
 `thread_binding_missing` when that identity is absent. See
-[`SUPPORT-MATRIX.md`](release/0.1.0-rc.2/SUPPORT-MATRIX.md).
+[`SUPPORT-MATRIX.md`](release/0.1.0-rc.3/SUPPORT-MATRIX.md).
 
 ## Run
 

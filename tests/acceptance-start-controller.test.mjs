@@ -16,7 +16,7 @@ const repoRoot = resolve(import.meta.dirname, "..");
 const controllerRoot = join(
   repoRoot,
   "release",
-  "0.1.0-rc.2",
+  "0.1.0-rc.3",
   "acceptance-bundle",
 );
 const controllerSource = join(controllerRoot, "Start-Acceptance.ps1");

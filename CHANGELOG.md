@@ -1,6 +1,6 @@
 # Changelog
 
-## SkillDock 0.1.0-rc.2 / PCHW 2.8.0 - 2026-11-20
+## SkillDock 0.1.0-rc.3 / PCHW 2.8.0 - 2026-11-21
 
 - Deduplicate bundled Node engines under `LocalRoot\engines`; installed Runtime
   releases and retained backups now reference one content-addressed

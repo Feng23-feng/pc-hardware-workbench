@@ -21,7 +21,7 @@ pnpm verify:runtime-only
 ```
 
 The candidate is written as
-`dist/SkillDock-PCHW-0.1.0-rc.2-win-x64.zip`. The RC builder refuses to replace
+`dist/SkillDock-PCHW-0.1.0-rc.3-win-x64.zip`. The RC builder refuses to replace
 an existing candidate, bundles PCHW `2.8.0`, records the exact Git worktree
 state, and emits package and archive hashes. The older
 `build-dsh-package.ps1` remains the isolated internal-preview fixture used by

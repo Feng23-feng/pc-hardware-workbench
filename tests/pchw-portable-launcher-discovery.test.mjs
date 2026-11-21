@@ -14,7 +14,7 @@ const repoRoot = resolve(import.meta.dirname, "..");
 const packageRoot = resolve(
   process.argv[2] ??
     process.env.SKILLDOCK_RC_PACKAGE ??
-    join(repoRoot, "dist", "SkillDock-PCHW-0.1.0-rc.2-win-x64"),
+    join(repoRoot, "dist", "SkillDock-PCHW-0.1.0-rc.3-win-x64"),
 );
 const executable = join(packageRoot, "SkillDock.exe");
 const manifestPath = join(
