@@ -24,6 +24,18 @@ $releaseConfig = Get-Content -Raw -LiteralPath (
     Join-Path $repositoryRoot "release\$releaseVersion\release.json"
 ) | ConvertFrom-Json
 $userShellRoot = Join-Path $PSScriptRoot "user-shell"
+$uninstallSkillScript = Join-Path $PSScriptRoot "uninstall-pchw-skill.ps1"
+$uninstallRuntimeScript = Join-Path $PSScriptRoot "uninstall-runtime.ps1"
+$skillTreeIdentityScript = Join-Path $PSScriptRoot "skill-tree-identity.ps1"
+$runtimePathsScript = Join-Path $PSScriptRoot "runtime-paths.ps1"
+$pchwRepositoryRoot = Join-Path `
+    (Split-Path -Parent $repositoryRoot) `
+    "pc-hardware-workbench"
+$skillDockLicense = Join-Path $repositoryRoot "LICENSE"
+$pchwLicense = Join-Path $pchwRepositoryRoot "LICENSE"
+$nodeLicense = Join-Path `
+    $repositoryRoot `
+    "release\$releaseVersion\licenses\Node-LICENSE.txt"
 $distRoot = [IO.Path]::GetFullPath(
     (Join-Path $repositoryRoot "dist")
 ).TrimEnd("\")
@@ -70,6 +82,16 @@ if (
     )
 ) {
     throw "BuildReportPath must stay inside $distRoot"
+}
+$requiredLicensePaths = @(
+    $skillDockLicense,
+    $pchwLicense,
+    $nodeLicense
+)
+foreach ($path in $requiredLicensePaths) {
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+        throw "Required license file is missing: $path"
+    }
 }
 foreach ($path in @(
     $OutputDirectory,
@@ -185,7 +207,13 @@ foreach ($required in @(
     (Join-Path $userShellRoot "README.txt"),
     (Join-Path $userShellRoot "README.en.txt"),
     (Join-Path $userShellRoot "Install.cmd"),
-    (Join-Path $userShellRoot "Install-User.ps1")
+    (Join-Path $userShellRoot "Install-User.ps1"),
+    (Join-Path $userShellRoot "Uninstall.cmd"),
+    (Join-Path $userShellRoot "Uninstall-User.ps1"),
+    $uninstallSkillScript,
+    $uninstallRuntimeScript,
+    $skillTreeIdentityScript,
+    $runtimePathsScript
 )) {
     if (-not (Test-Path -LiteralPath $required -PathType Leaf)) {
         throw "User package build input is missing: $required"
@@ -236,7 +264,12 @@ $payloadRoot = Join-Path $packageRoot "payload"
 
 try {
     New-Item -ItemType Directory -Path $payloadRoot -Force | Out-Null
-    foreach ($name in @("README.txt", "README.en.txt", "Install.cmd")) {
+    foreach ($name in @(
+        "README.txt",
+        "README.en.txt",
+        "Install.cmd",
+        "Uninstall.cmd"
+    )) {
         Copy-Item `
             -LiteralPath (Join-Path $userShellRoot $name) `
             -Destination (Join-Path $packageRoot $name)
@@ -249,6 +282,47 @@ try {
     Write-Utf8BomText `
         -Path $userInstallerTarget `
         -Text $userInstallerText.Replace("`r`n", "`n")
+    $userUninstallerTarget = Join-Path $payloadRoot "Uninstall-User.ps1"
+    $userUninstallerText = Get-Content `
+        -Raw `
+        -LiteralPath (Join-Path $userShellRoot "Uninstall-User.ps1") `
+        -Encoding UTF8
+    Write-Utf8BomText `
+        -Path $userUninstallerTarget `
+        -Text $userUninstallerText.Replace("`r`n", "`n")
+    foreach ($helper in @(
+        [pscustomobject]@{
+            Source = $uninstallSkillScript
+            Name = "Uninstall PCHW Skill.ps1"
+        },
+        [pscustomobject]@{
+            Source = $uninstallRuntimeScript
+            Name = "Uninstall SkillDock.ps1"
+        },
+        [pscustomobject]@{
+            Source = $skillTreeIdentityScript
+            Name = "skill-tree-identity.ps1"
+        },
+        [pscustomobject]@{
+            Source = $runtimePathsScript
+            Name = "runtime-paths.ps1"
+        }
+    )) {
+        Copy-Item `
+            -LiteralPath $helper.Source `
+            -Destination (Join-Path $payloadRoot $helper.Name)
+    }
+    $outerLicenseRoot = Join-Path $packageRoot "licenses"
+    New-Item -ItemType Directory -Path $outerLicenseRoot -Force | Out-Null
+    Copy-Item `
+        -LiteralPath $skillDockLicense `
+        -Destination (Join-Path $outerLicenseRoot "SkillDock-LICENSE.txt")
+    Copy-Item `
+        -LiteralPath $pchwLicense `
+        -Destination (Join-Path $outerLicenseRoot "PCHW-LICENSE.txt")
+    Copy-Item `
+        -LiteralPath $nodeLicense `
+        -Destination (Join-Path $outerLicenseRoot "Node-LICENSE.txt")
     Copy-Item `
         -LiteralPath $resolvedRcArchive `
         -Destination (Join-Path $payloadRoot (
@@ -292,8 +366,11 @@ try {
             "README.txt",
             "README.en.txt",
             "Install.cmd",
+            "Uninstall.cmd",
+            "licenses",
             "payload"
         )
+        uninstall_entry = "Uninstall.cmd"
         rc_archive = [ordered]@{
             file = [IO.Path]::GetFileName($resolvedRcArchive)
             bytes = $archiveBytes
@@ -308,6 +385,9 @@ try {
             automatic_mode_detection = $true
             automatic_existing_skill_backup = $true
             automatic_skill_restore_on_later_failure = $true
+            unified_skill_and_runtime_uninstall = $true
+            default_uninstall_preserves_user_data = $true
+            explicit_uninstall_purge = $true
             writes_outside_user_profile = $false
         }
         boundaries = [ordered]@{
@@ -369,9 +449,12 @@ try {
             "README.txt",
             "README.en.txt",
             "Install.cmd",
+            "Uninstall.cmd",
+            "licenses",
             "payload"
         )
         primary_entry = "Install.cmd"
+        uninstall_entry = "Uninstall.cmd"
     }
     Write-NormalizedJson -Path $BuildReportPath -Value $buildResult
     $buildResult | ConvertTo-Json -Depth 5

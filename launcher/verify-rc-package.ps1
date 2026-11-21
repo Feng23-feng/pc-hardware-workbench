@@ -288,6 +288,23 @@ try {
     ) {
         throw "Support matrix does not state the Codex-only panel boundary."
     }
+    $componentMatrixPath = Join-Path `
+        $packageRoot `
+        "docs\COMPONENT-MATRIX.md"
+    if (-not (Test-Path -LiteralPath $componentMatrixPath -PathType Leaf)) {
+        throw "Packaged component and evidence matrix is missing."
+    }
+    $componentMatrix = Get-Content `
+        -Raw `
+        -LiteralPath $componentMatrixPath `
+        -Encoding UTF8
+    if (
+        $componentMatrix -notmatch "2\.8\.0" -or
+        $componentMatrix -notmatch "24\.22\.1" -or
+        $componentMatrix -notmatch "Runtime-only"
+    ) {
+        throw "Component matrix is missing version or Runtime-only details."
+    }
 
     $applicationPackage = Get-Content -Raw -LiteralPath (
         Join-Path $packageRoot "app\package.json"

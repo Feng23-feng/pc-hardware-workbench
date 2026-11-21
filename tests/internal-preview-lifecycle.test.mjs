@@ -78,6 +78,32 @@ let installedToCleanRoot = false;
 const pathInventories = {};
 const processInventories = {};
 
+function killProcessTree(child) {
+  if (
+    !child ||
+    child.exitCode !== null ||
+    child.signalCode !== null
+  ) {
+    return Promise.resolve();
+  }
+  if (process.platform === "win32" && child.pid) {
+    return new Promise((resolvePromise) => {
+      const killer = spawn(
+        "taskkill.exe",
+        ["/PID", String(child.pid), "/T", "/F"],
+        {
+          windowsHide: true,
+          stdio: "ignore",
+        },
+      );
+      killer.once("error", resolvePromise);
+      killer.once("exit", resolvePromise);
+    });
+  }
+  child.kill("SIGKILL");
+  return Promise.resolve();
+}
+
 function runProcess(command, args, {
   env = process.env,
   timeoutMs = 120_000,
@@ -91,6 +117,13 @@ function runProcess(command, args, {
     });
     let stdout = "";
     let stderr = "";
+    let settled = false;
+    const finish = (callback, value) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      callback(value);
+    };
     child.stdout.on("data", (chunk) => {
       stdout += chunk.toString();
     });
@@ -98,18 +131,20 @@ function runProcess(command, args, {
       stderr += chunk.toString();
     });
     const timer = setTimeout(() => {
-      child.kill();
-      rejectPromise(new Error(
-        `Process timed out: ${command} ${args.join(" ")}\n${stderr}`,
-      ));
+      void killProcessTree(child).finally(() => {
+        finish(
+          rejectPromise,
+          new Error(
+            `Process timed out: ${command} ${args.join(" ")}\n${stderr}`,
+          ),
+        );
+      });
     }, timeoutMs);
     child.once("error", (error) => {
-      clearTimeout(timer);
-      rejectPromise(error);
+      finish(rejectPromise, error);
     });
     child.once("exit", (code) => {
-      clearTimeout(timer);
-      resolvePromise({ code, stdout, stderr });
+      finish(resolvePromise, { code, stdout, stderr });
     });
   });
 }

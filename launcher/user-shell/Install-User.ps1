@@ -218,6 +218,67 @@ function ConvertFrom-LastJsonLine {
     return $null
 }
 
+function Install-UninstallEntry {
+    param(
+        [Parameter(Mandatory = $true)][string]$PayloadRoot,
+        [Parameter(Mandatory = $true)][string]$RcPackageRoot,
+        [Parameter(Mandatory = $true)][string]$LocalRoot
+    )
+
+    $sourceScript = Join-Path $PayloadRoot "Uninstall-User.ps1"
+    if (-not (Test-Path -LiteralPath $sourceScript -PathType Leaf)) {
+        throw "Uninstall-User.ps1 is missing from the installation payload."
+    }
+    $uninstallRoot = Join-Path $LocalRoot "uninstall"
+    New-Item -ItemType Directory -Path $uninstallRoot -Force | Out-Null
+    $helperCopies = @(
+        [pscustomobject]@{
+            Source = $sourceScript
+            Name = "Uninstall-User.ps1"
+        },
+        [pscustomobject]@{
+            Source = Join-Path $RcPackageRoot "Uninstall PCHW Skill.ps1"
+            Name = "Uninstall PCHW Skill.ps1"
+        },
+        [pscustomobject]@{
+            Source = Join-Path $RcPackageRoot "skill-tree-identity.ps1"
+            Name = "skill-tree-identity.ps1"
+        },
+        [pscustomobject]@{
+            Source = Join-Path $RcPackageRoot "Uninstall SkillDock.ps1"
+            Name = "Uninstall SkillDock.ps1"
+        },
+        [pscustomobject]@{
+            Source = Join-Path $RcPackageRoot "runtime-paths.ps1"
+            Name = "runtime-paths.ps1"
+        }
+    )
+    foreach ($helper in $helperCopies) {
+        if (-not (Test-Path -LiteralPath $helper.Source -PathType Leaf)) {
+            throw "Uninstall helper is missing from the RC package: $($helper.Name)"
+        }
+        Copy-Item `
+            -LiteralPath $helper.Source `
+            -Destination (Join-Path $uninstallRoot $helper.Name) `
+            -Force
+    }
+    $commandPath = Join-Path $LocalRoot "Uninstall SkillDock.cmd"
+    $commandText = @"
+@echo off
+setlocal
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0uninstall\Uninstall-User.ps1" %*
+set "EXIT_CODE=%ERRORLEVEL%"
+if not "%EXIT_CODE%"=="0" pause
+exit /b %EXIT_CODE%
+"@
+    [IO.File]::WriteAllText(
+        $commandPath,
+        ($commandText.Replace("`r`n", "`n") + "`n"),
+        [Text.Encoding]::ASCII
+    )
+    return $commandPath
+}
+
 function Get-ExistingInstallState {
     $target = Join-Path $SkillsRoot "pc-hardware-workbench"
     $targetExists = Test-Path -LiteralPath $target
@@ -501,6 +562,10 @@ try {
     ) {
         throw "The installed shared Node engine digest does not match its reference."
     }
+    $uninstallCommandPath = Install-UninstallEntry `
+        -PayloadRoot $payloadRoot `
+        -RcPackageRoot $rcPackageRoot `
+        -LocalRoot $LocalRoot
 
     $skillBackupPath = ""
     $skillBackupProperty = $skillInstallResult.PSObject.Properties[
@@ -525,6 +590,7 @@ try {
         runtime_path = [string]$pointer.runtime_path
         node_engine = $nodeEngine
         runtime_install_result = $runtimeResult
+        uninstall_command = $uninstallCommandPath
         log_path = $logPath
     }
     $resultJson = $result | ConvertTo-Json -Depth 10
@@ -537,6 +603,7 @@ try {
     Write-Host "安装完成 / Installation completed." -ForegroundColor Green
     Write-Host "请回到当前 Codex 对话提出硬件问题并打开电脑硬件工作台。"
     Write-Host "Continue in the current Codex conversation."
+    Write-Host "卸载入口 / Uninstall: $uninstallCommandPath"
     Write-Host "安装日志 / Log: $logPath"
 }
 catch {

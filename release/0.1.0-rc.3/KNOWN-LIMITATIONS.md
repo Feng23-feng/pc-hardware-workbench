@@ -35,6 +35,8 @@ This is a release candidate, not a production release.
 - The release does not promise a universal multi-provider workspace.
 - Background autonomous return and multi-Task source-hosted operation are not
   supported.
+- Task/evidence cleanup is not available for a source-hosted Task while another
+  source owns its collaboration state; the panel blocks that operation.
 - Coordinator recovery remains closed.
 
 ## Permissions

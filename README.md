@@ -6,13 +6,16 @@ DSH are adapters, not product concepts.
 
 Version lines are independent:
 
-- SkillDock application: `0.1.0-rc.3` (public test build; no stable release)
+- SkillDock application: `0.1.0-rc.4` (source candidate; rc.3 is the latest
+  public test build; no stable release)
 - SkillSurface contract: `1.0`
 - SkillRuntime contract: `1.0`
 - AgentDriver contract: `1.0`
 - installed domain Skills: tracked by their own versions
 
 See [VERSIONING.md](VERSIONING.md) and [NAMING.md](NAMING.md).
+The canonical version, asset, host, and evidence matrix is
+[COMPONENT-MATRIX.md](COMPONENT-MATRIX.md).
 The long-term Agent compatibility route is described in
 [AGENT-BRIDGE.md](AGENT-BRIDGE.md); its protocol remains a draft.
 The primary user journey is Skill-triggered, not a manually launched desktop
@@ -20,12 +23,12 @@ application; see [SKILL-TRIGGERED-UX.md](SKILL-TRIGGERED-UX.md).
 
 ## Windows release candidate
 
-The current candidate is SkillDock `0.1.0-rc.3` with PC Hardware Workbench
+The current source candidate is SkillDock `0.1.0-rc.4` with PC Hardware Workbench
 `2.8.0`. The R7 user-experience evidence was produced from the `2.7.4` source
 tree. The integrated Windows candidate is:
 
 ```text
-dist/SkillDock-PCHW-0.1.0-rc.3-win-x64.zip
+dist/SkillDock-PCHW-0.1.0-rc.4-win-x64.zip
 ```
 
 Build and verify it without changing the formal entry:
@@ -40,10 +43,10 @@ background write, coordinator recovery, automatic hardware changes, and formal
 stable release stay closed. Clean-Windows install/uninstall acceptance and
 explicit user signoff are still required. The same verified RC is also used to
 derive the user-installable package and the Runtime-only package. The latest
-public test build is
+public test build remains
 <https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.3>.
-See
-[`release/0.1.0-rc.3`](release/0.1.0-rc.3).
+See [`release/0.1.0-rc.3`](release/0.1.0-rc.3). The unreleased source candidate
+is documented in [`release/0.1.0-rc.4`](release/0.1.0-rc.4).
 
 Host scope is intentionally narrow: this version promises the
 `pchw-source-hosted` SkillDock panel only under Codex. DSH and other hosts may
@@ -51,7 +54,7 @@ install `pc-hardware-workbench` and use its chat, collection, and CSV-analysis
 capabilities, but must not be told that the SkillDock panel is available there.
 `launch-panel.ps1` requires `CODEX_THREAD_ID` and fails with
 `thread_binding_missing` when that identity is absent. See
-[`SUPPORT-MATRIX.md`](release/0.1.0-rc.3/SUPPORT-MATRIX.md).
+[`SUPPORT-MATRIX.md`](release/0.1.0-rc.4/SUPPORT-MATRIX.md).
 
 ## Run
 
@@ -166,6 +169,19 @@ node .\agent-bridge-host.mjs --driver codex --port 4400
 ```
 
 ## Test
+
+Use the frozen runtime for release-equivalent checks:
+
+```powershell
+pnpm verify:frozen
+```
+
+The wrapper requires Node `24.22.1` with SQLite `3.53.4`, prepends that runtime
+to `PATH`, and then runs `pnpm check` plus the full test suite. It searches the
+current built package and `dist/archive`; set `SKILLDOCK_FROZEN_NODE` or pass
+`-NodePath` when the frozen runtime lives elsewhere.
+
+Individual smoke checks can still be run directly during development:
 
 ```powershell
 node .\smoke-test.mjs
@@ -600,7 +616,9 @@ Installer logs have a separate confirmed cleanup action. It removes only
 `LocalRoot\install-logs` and does not touch Runtime, Task, attachment, artifact,
 or rollback data.
 
-Task and evidence cleanup lives in a separate danger zone. SkillDock first
+Task and evidence cleanup for ordinary, non-source-hosted Tasks lives in a
+separate danger zone. A source-hosted Task is blocked because its source Session
+still owns the collaboration state. SkillDock first
 creates a state-bound export of `state.json`, events, Agent protocol logs,
 shared evidence, Task snapshots, attachments, and artifacts. The cleanup action
 unlocks only after the export link is opened and the user confirms the download.

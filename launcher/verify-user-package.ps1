@@ -51,6 +51,24 @@ function Write-NormalizedJson {
     )
 }
 
+function ConvertFrom-LastJsonLine {
+    param([Parameter(Mandatory = $true)][string]$Text)
+
+    foreach ($line in @($Text -split "\r?\n")) {
+        $trimmed = $line.Trim()
+        if (-not $trimmed.StartsWith("{")) {
+            continue
+        }
+        try {
+            return $trimmed | ConvertFrom-Json
+        }
+        catch {
+            continue
+        }
+    }
+    return $null
+}
+
 function Invoke-UserPackageRetentionGate {
     param(
         [Parameter(Mandatory = $true)][string]$PayloadRoot,
@@ -248,6 +266,121 @@ function Invoke-UserPackageRetentionGate {
     ) {
         throw "Runtime retention gate did not forward the retention policy."
     }
+
+    $dataBackupMarker = Join-Path `
+        $dataBackupRoot `
+        "retention-gate-data-backup\marker.txt"
+    New-Item `
+        -ItemType Directory `
+        -Path (Split-Path -Parent $dataBackupMarker) `
+        -Force | Out-Null
+    Set-Content `
+        -LiteralPath $dataBackupMarker `
+        -Value "keep-until-explicit-purge"
+    $installedUninstaller = Join-Path `
+        $localRoot `
+        "uninstall\Uninstall-User.ps1"
+    if (-not (Test-Path -LiteralPath $installedUninstaller -PathType Leaf)) {
+        throw "Installed unified uninstall entry is missing."
+    }
+    $uninstallArguments = @(
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        $installedUninstaller,
+        "-NonInteractive",
+        "-SkillsRoot",
+        $skillsRoot,
+        "-LocalRoot",
+        $localRoot,
+        "-BackupRoot",
+        $backupRoot,
+        "-DataBackupRoot",
+        $dataBackupRoot
+    )
+    $defaultUninstallOutput = @(& powershell.exe @uninstallArguments 2>&1)
+    if ($LASTEXITCODE -ne 0) {
+        throw (
+            "Unified default uninstall failed: " +
+            (($defaultUninstallOutput | Out-String).Trim())
+        )
+    }
+    $defaultUninstall = ConvertFrom-LastJsonLine -Text (
+        $defaultUninstallOutput | Out-String
+    )
+    if (
+        $null -eq $defaultUninstall -or
+        -not [bool]$defaultUninstall.ok -or
+        [string]$defaultUninstall.status -ne "passed"
+    ) {
+        throw "Unified default uninstall did not return a passing result."
+    }
+    if (
+        (Test-Path -LiteralPath (Join-Path $skillsRoot "pc-hardware-workbench")) -or
+        -not (Test-Path -LiteralPath (Join-Path $skillsRoot ".skilldock-backups")) -or
+        (Test-Path -LiteralPath (Join-Path $localRoot "runtime-location.json")) -or
+        @(Get-ChildItem -LiteralPath $localRoot -Directory -Force |
+            Where-Object { $_.Name -cmatch '^Runtime(?:-|$)' }).Count -ne 0 -or
+        -not (Test-Path -LiteralPath (
+            Join-Path $localRoot "runtime-pchw\retention-gate-keep.txt"
+        ) -PathType Leaf) -or
+        -not (Test-Path -LiteralPath $retainedBackups[0].FullName) -or
+        -not (Test-Path -LiteralPath $dataBackupMarker -PathType Leaf) -or
+        -not (Test-Path -LiteralPath $installedUninstaller -PathType Leaf)
+    ) {
+        throw (
+            "Unified default uninstall did not preserve the expected " +
+            "rollback and user data."
+        )
+    }
+
+    $purgeArguments = @(
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        $installedUninstaller,
+        "-NonInteractive",
+        "-SkillsRoot",
+        $skillsRoot,
+        "-LocalRoot",
+        $localRoot,
+        "-BackupRoot",
+        $backupRoot,
+        "-DataBackupRoot",
+        $dataBackupRoot,
+        "-PurgeUserData",
+        "-PurgeBackups"
+    )
+    $purgeOutput = @(& powershell.exe @purgeArguments 2>&1)
+    if ($LASTEXITCODE -ne 0) {
+        throw (
+            "Unified purge uninstall failed: " +
+            (($purgeOutput | Out-String).Trim())
+        )
+    }
+    $purgeUninstall = ConvertFrom-LastJsonLine -Text (
+        $purgeOutput | Out-String
+    )
+    if (
+        $null -eq $purgeUninstall -or
+        -not [bool]$purgeUninstall.ok -or
+        [string]$purgeUninstall.status -ne "passed" -or
+        -not [bool]$purgeUninstall.removed_data_backup_root
+    ) {
+        throw "Unified purge uninstall did not return a passing result."
+    }
+    if (
+        (Test-Path -LiteralPath $localRoot) -or
+        (Test-Path -LiteralPath $backupRoot) -or
+        (Test-Path -LiteralPath $dataBackupRoot) -or
+        (Test-Path -LiteralPath (Join-Path $skillsRoot "pc-hardware-workbench")) -or
+        (Test-Path -LiteralPath (Join-Path $skillsRoot ".skilldock-backups"))
+    ) {
+        throw "Unified purge uninstall left recognized SkillDock residue."
+    }
+
     return [pscustomobject][ordered]@{
         status = "passed"
         embedded_rc_installer = "current"
@@ -260,6 +393,11 @@ function Invoke-UserPackageRetentionGate {
         runtime_node_embedded = $false
         backup_node_embedded = $false
         task_data_preserved = $true
+        unified_uninstall = [ordered]@{
+            default_preserved_task_and_backups = $true
+            purge_removed_data_backups = $true
+            purge_residue_free = $true
+        }
     }
 }
 
@@ -331,6 +469,8 @@ try {
     $expectedRootNames = @(
         "payload",
         "Install.cmd",
+        "Uninstall.cmd",
+        "licenses",
         "README.en.txt",
         "README.txt"
     )
@@ -339,11 +479,12 @@ try {
             -ReferenceObject $expectedRootNames `
             -DifferenceObject $rootNames `
             -CaseSensitive).Count -ne 0 -or
-        $rootItems.Count -ne 4
+        $rootItems.Count -ne 6
     ) {
         throw (
             "User package root must contain exactly README.txt, " +
-            "README.en.txt, Install.cmd, and payload."
+            "README.en.txt, Install.cmd, Uninstall.cmd, licenses, " +
+            "and payload."
         )
     }
     $payloadRoot = Join-Path $packageRoot "payload"
@@ -361,6 +502,42 @@ try {
             "Start-Acceptance|Start-Upgrade|99-|00-|01-|SkillDock\.exe"
     ) {
         throw "Install.cmd is not the sole ordinary-user installation entry."
+    }
+    $uninstallCommand = Get-Content `
+        -Raw `
+        -LiteralPath (Join-Path $packageRoot "Uninstall.cmd")
+    if (
+        $uninstallCommand -notmatch
+            [regex]::Escape('payload\Uninstall-User.ps1') -or
+        $uninstallCommand -match "Start-Acceptance|Start-Upgrade|99-|00-|01-"
+    ) {
+        throw "Uninstall.cmd is not the expected unified uninstall entry."
+    }
+
+    $licenseRoot = Join-Path $packageRoot "licenses"
+    $licenseNames = @(
+        "SkillDock-LICENSE.txt",
+        "PCHW-LICENSE.txt",
+        "Node-LICENSE.txt"
+    )
+    $actualLicenseNames = @(
+        Get-ChildItem -LiteralPath $licenseRoot -File -Force |
+            ForEach-Object Name |
+            Sort-Object
+    )
+    if (
+        @(Compare-Object `
+            -ReferenceObject @($licenseNames | Sort-Object) `
+            -DifferenceObject $actualLicenseNames `
+            -CaseSensitive).Count -ne 0
+    ) {
+        throw "User package license files are missing or unexpected."
+    }
+    foreach ($licenseName in $licenseNames) {
+        $licensePath = Join-Path $licenseRoot $licenseName
+        if ((Get-Item -LiteralPath $licensePath).Length -le 0) {
+            throw "User package license file is empty: $licenseName"
+        }
     }
 
     $chineseReadme = Get-Content `
@@ -386,7 +563,14 @@ try {
         }
     }
     if (
+        $chineseReadme -match "DSH 独立包" -or
+        $englishReadme -match "DSH-only package"
+    ) {
+        throw "User README claims a DSH-only package that is not a release asset."
+    }
+    if (
         $chineseReadme -notmatch "双击 Install\.cmd" -or
+        $chineseReadme -notmatch "Uninstall\.cmd" -or
         $chineseReadme -notmatch "(?s)自动.*安全升级" -or
         $chineseReadme -notmatch "仅本次允许" -or
         $chineseReadme -notmatch "手动打开面板" -or
@@ -396,6 +580,7 @@ try {
     }
     if (
         $englishReadme -notmatch "Double-click Install\.cmd" -or
+        $englishReadme -notmatch "Uninstall\.cmd" -or
         $englishReadme -notmatch "(?s)safe\s+upgrade\s+automatically" -or
         $englishReadme -notmatch "Allow this time only" -or
         $englishReadme -notmatch "panel manually" -or
@@ -412,9 +597,17 @@ try {
         [string]$packageInfo.package_kind -ne
             "integrated-user-installation" -or
         [string]$packageInfo.primary_entry -ne "Install.cmd" -or
+        [string]$packageInfo.uninstall_entry -ne "Uninstall.cmd" -or
+        @(Compare-Object `
+            -ReferenceObject $expectedRootNames `
+            -DifferenceObject @($packageInfo.root_entries | Sort-Object) `
+            -CaseSensitive).Count -ne 0 -or
         -not [bool]$packageInfo.behavior.automatic_mode_detection -or
         -not [bool]$packageInfo.behavior.automatic_existing_skill_backup -or
-        -not [bool]$packageInfo.behavior.automatic_skill_restore_on_later_failure
+        -not [bool]$packageInfo.behavior.automatic_skill_restore_on_later_failure -or
+        -not [bool]$packageInfo.behavior.unified_skill_and_runtime_uninstall -or
+        -not [bool]$packageInfo.behavior.default_uninstall_preserves_user_data -or
+        -not [bool]$packageInfo.behavior.explicit_uninstall_purge
     ) {
         throw "User package behavior metadata is inconsistent."
     }
@@ -472,6 +665,11 @@ try {
     $expectedPayloadFiles = @(
         "BUNDLE-MANIFEST.sha256",
         "Install-User.ps1",
+        "Uninstall-User.ps1",
+        "Uninstall PCHW Skill.ps1",
+        "Uninstall SkillDock.ps1",
+        "skill-tree-identity.ps1",
+        "runtime-paths.ps1",
         "PACKAGE-INFO.json",
         $rcFile,
         "$rcFile.sha256",

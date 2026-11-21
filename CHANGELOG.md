@@ -1,5 +1,31 @@
 # Changelog
 
+## SkillDock 0.1.0-rc.4 / PCHW 2.8.0 - 2026-11-21
+
+- Add one unified user-package `Uninstall.cmd` for the PCHW Skill and
+  SkillDock Runtime. The default path preserves Task data, evidence, exports,
+  shared Node engines, and rollback backups; the explicit full-cleanup path
+  removes the data-backup roots as well.
+- Ship the SkillDock, PCHW, and Node license texts in the integrated user
+  package and verify the exact license inventory.
+- Make the integrated package verifier exercise a default uninstall followed by
+  an explicit purge, including Skill backup, Runtime backup, shared-engine, and
+  data-backup cleanup.
+- Record `Uninstall.cmd`, the license directory, and unified-uninstall behavior
+  in package metadata instead of the older four-entry root description.
+- Correct rc.3 provenance to the packaged PCHW commit and Skill tree, and keep
+  the reused `2.8.0-rc.2` standalone assets explicitly separate from the
+  integrated-package Skill tree.
+- Add `COMPONENT-MATRIX.md` as the canonical component, asset, host, version,
+  and evidence matrix, and include it in the verified RC documentation.
+- Remove the nonexistent DSH-only package claim from the integrated user README,
+  define Runtime-only compatibility by manifest identity and capabilities, and
+  replace the stale fixed Runtime-only entry count with manifest authority.
+- Clarify the supported invocations as `$pc-hardware-workbench` in Codex and
+  `/pc-hardware-workbench` in DSH.
+- Add `pnpm verify:frozen`, which locates Node `24.22.1` with SQLite `3.53.4`,
+  validates that runtime, and runs checks and tests with the exact engine.
+
 ## SkillDock 0.1.0-rc.3 / PCHW 2.8.0 - 2026-11-21
 
 - Deduplicate bundled Node engines under `LocalRoot\engines`; installed Runtime
@@ -19,11 +45,12 @@
 - Add authenticated ZIP export for the protected Runtime rollback backup,
   including the shared Node engine it references and a per-file SHA-256
   manifest. Exports expire after 24 hours.
-- Add a confirmed Task/evidence danger zone that requires a downloaded,
+- Add a confirmed ordinary-Task/evidence danger zone that requires a downloaded,
   SHA-256-verified, state-bound export before cleanup. Stale or expired exports
   fail closed, interrupted quarantine operations recover safely, and
   capability tokens, Runtime backups, installer logs, and the Agent Session are
-  preserved.
+  preserved. Source-hosted Tasks remain blocked because another source owns
+  their collaboration state.
 - Make completed Task cleanup replay-safe, recover the narrow crash window
   between state commit and quarantine marker creation, and prune expired export
   ZIPs at Runtime startup and storage refresh.

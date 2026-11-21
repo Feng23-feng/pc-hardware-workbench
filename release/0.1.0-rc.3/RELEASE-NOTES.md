@@ -19,7 +19,9 @@ Status: **public test build; not a stable release**
 - The protected Runtime rollback backup can be exported as a verified ZIP with
   its exact shared Node engine and per-file hashes. Exports expire after 24
   hours.
-- Task and evidence cleanup now requires a downloaded, state-bound export.
+- Task and evidence cleanup for ordinary, non-source-hosted Tasks now requires
+  a downloaded, state-bound export. Source-hosted Tasks remain blocked because
+  another source owns their collaboration state.
   Stale/expired exports fail closed, quarantine recovery protects interrupted
   cleanup, and capability tokens, Runtime backups, installer logs, and the
   Agent Session are preserved.
@@ -39,8 +41,9 @@ Status: **public test build; not a stable release**
   Task data survives.
 - The user package records the embedded RC's real top-level directory and no
   longer fails when an unchanged Skill omits `backup_path`.
-- A reproducible Runtime-only builder derives a 40-entry package from the same
-  verified integrated RC.
+- A reproducible Runtime-only builder derives the package from the same
+  verified integrated RC; its exact inventory is defined by the package
+  manifests, not a hard-coded file count.
 - Explicit `-PurgeUserData` uninstall now removes `launch-failure.json`,
   installer logs, and interrupted runtime-data migration directories; known
   SkillDock state no longer leaves the LocalRoot directory behind.
@@ -144,8 +147,8 @@ with 134 files. The distributable `2.8.0` archive applies the semantic version
 bump, excludes the Skill's `tests/` directory, and records the resulting
 installation subset hash separately in `RC-MANIFEST.json`. The 2.8.0 source now
 contains 135 files at tree SHA-256
-`57971b4e500be4a0b47ce60ca523eff2cd3905ea7483226975ee290fa31387b4`
-from PCHW commit `0d7b4d9e8fe7873caabd697d1d86e909c86d0839`; the 2.7.4 R7
+`1cf35a8f7941bd270d92250b594d9c93638a9b3d08ebf4923057265424c5bb8b`
+from PCHW commit `417b41a6f96382f25ccbe354e784cee1378e0e99`; the 2.7.4 R7
 provenance above remains 134 files.
 
 The RC package also removes non-product mock/DSH adapters, developer entry
@@ -208,11 +211,14 @@ recovery.
 For reference only: parameters related to hardware controls must put safety
 first, and all hardware changes remain manual user actions outside this release.
 
-## Release conditions still open
+## Release status
+
+Tag `v0.1.0-rc.3` and its public Pre-release assets are published. The tag and
+uploaded assets are immutable; subsequent package or behavior changes belong to
+a new release candidate.
+
+The following gates remain open only for a future stable release:
 
 1. Install, use, restart, and uninstall from a clean Windows profile or VM.
 2. Verify no leftover Runtime process, installed Skill, pointer, or test
    fixture remains after acceptance cleanup.
-3. Review the final ZIP inventory and hashes.
-4. Obtain explicit user approval before any commit, tag, push, upload, or
-   public release.

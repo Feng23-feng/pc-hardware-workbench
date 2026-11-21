@@ -799,6 +799,14 @@ foreach ($scriptDirectory in @(
 
 $PackageDocs = Join-Path $OutputDirectory "docs"
 New-Item -ItemType Directory -Path $PackageDocs -Force | Out-Null
+$ComponentMatrix = Join-Path $RepositoryRoot "COMPONENT-MATRIX.md"
+if (-not (Test-Path -LiteralPath $ComponentMatrix -PathType Leaf)) {
+    throw "COMPONENT-MATRIX.md is missing from the release source."
+}
+Copy-Item `
+    -LiteralPath $ComponentMatrix `
+    -Destination (Join-Path $PackageDocs "COMPONENT-MATRIX.md") `
+    -Force
 $PackageReleaseDocs = Join-Path $PackageDocs "release"
 New-Item -ItemType Directory -Path $PackageReleaseDocs -Force | Out-Null
 Copy-Item `
@@ -810,6 +818,29 @@ $InnerAcceptanceHarness = Join-Path $PackageReleaseDocs "acceptance-bundle"
 if (Test-Path -LiteralPath $InnerAcceptanceHarness) {
     Remove-Item -LiteralPath $InnerAcceptanceHarness -Recurse -Force
 }
+
+$PackageLicenses = Join-Path $OutputDirectory "licenses"
+New-Item -ItemType Directory -Path $PackageLicenses -Force | Out-Null
+$SkillDockLicense = Join-Path $RepositoryRoot "LICENSE"
+$PchwLicense = Join-Path $PchwRepositoryRoot "LICENSE"
+if (-not (Test-Path -LiteralPath $SkillDockLicense -PathType Leaf)) {
+    throw "SkillDock LICENSE is missing from the RC source."
+}
+if (-not (Test-Path -LiteralPath $PchwLicense -PathType Leaf)) {
+    throw "PCHW LICENSE is missing from the RC source."
+}
+Copy-Item `
+    -LiteralPath $SkillDockLicense `
+    -Destination (Join-Path $PackageLicenses "SkillDock-LICENSE.txt") `
+    -Force
+Copy-Item `
+    -LiteralPath $PchwLicense `
+    -Destination (Join-Path $PackageLicenses "PCHW-LICENSE.txt") `
+    -Force
+Copy-Item `
+    -LiteralPath $NodeLicense `
+    -Destination (Join-Path $PackageLicenses "Node-LICENSE.txt") `
+    -Force
 
 $Readme = @"
 SkillDock + PC Hardware Workbench $ReleaseVersion
@@ -848,7 +879,8 @@ PACKAGE-MANIFEST.json.
 
 Read docs/release/INSTALL.md, KNOWN-LIMITATIONS.md, and
 CLEAN-WINDOWS-ACCEPTANCE.md before installing. The exact host matrix is
-docs/release/SUPPORT-MATRIX.md.
+docs/release/SUPPORT-MATRIX.md. The canonical version, asset, and evidence
+matrix is docs/COMPONENT-MATRIX.md.
 
 No administrator rights are required. Hardware configuration changes are
 manual-only and outside this archive.

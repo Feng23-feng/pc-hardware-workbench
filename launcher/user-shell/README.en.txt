@@ -2,8 +2,9 @@ SkillDock panel bundle (for Codex) + PC Hardware Workbench
 User Guide
 
 This bundle is for users who already have Codex Desktop. It installs both the
-PC Hardware Workbench Skill and the local SkillDock Runtime. The portable tools
-and DSH-only package are distributed separately.
+PC Hardware Workbench Skill and the local SkillDock Runtime. The standalone
+PCHW Skill package and portable tools are separate Release downloads; they are
+not included in this bundle.
 
 Supported environment
 =====================
@@ -107,10 +108,16 @@ Safety
 Uninstall
 =========
 
-Open the installed SkillDock program directory and run its SkillDock uninstall
-script. The default uninstall removes the program and shortcuts while keeping
-Task data and backups. Remove Task data only when the uninstall flow explicitly
-offers that cleanup.
+The package root provides `Uninstall.cmd` as the single uninstall entry. It
+removes the PC Hardware Workbench Skill, the SkillDock Runtime, and shortcuts in
+one flow; the shared Node engine and rollback backups follow the selected data
+retention policy.
+
+The default uninstall keeps Task data, attachments, evidence, exports, the
+shared Node engine, and backups so you can reinstall or continue
+troubleshooting later. To remove everything, choose the full-cleanup option in
+the uninstall prompt. Full cleanup is irreversible, so preserve any evidence
+you need first.
 
 Limitations
 ===========

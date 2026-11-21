@@ -31,9 +31,10 @@ the fallback window.
 
 ## Existing-install upgrade
 
-The root `Start-Acceptance.cmd` is the strict clean-profile path and fails when
-a PCHW Skill already exists. Existing Codex users should run
-`payload\Start-Upgrade.cmd` from the internal acceptance bundle.
+The user package's root `Install.cmd` detects whether this is a clean install or
+an upgrade. Existing Codex users should run that same entry; they do not need to
+choose clean or upgrade mode manually and should not use internal acceptance
+scripts.
 
 - Preflight records existing paths but permits the upgrade mode.
 - The old Skill is moved to `.codex\skills\.skilldock-backups`.
@@ -49,6 +50,9 @@ a PCHW Skill already exists. Existing Codex users should run
 - The top-bar storage panel separates Runtime, engine, Task, attachment,
   artifact, log, and unmanaged usage. Confirmed cleanup is limited to obsolete
   recognized Runtime backups and preserves the latest rollback point.
+- Task and evidence cleanup is limited to ordinary, non-source-hosted Tasks.
+  A source-hosted Task remains blocked while another source owns its
+  collaboration state.
 - Installer logs have their own confirmed cleanup action and no other storage
   category is included.
 - Conflicting runtime data roots fail closed instead of being merged silently.
