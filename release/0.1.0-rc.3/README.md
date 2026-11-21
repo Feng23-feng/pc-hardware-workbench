@@ -1,6 +1,6 @@
 # SkillDock / PCHW 0.1.0-rc.3
 
-Status: **test-build candidate; not yet published or stable**.
+Status: **public test build; not a stable release**.
 
 This candidate combines SkillDock application `0.1.0-rc.3` with the packaged
 PC Hardware Workbench Skill `2.8.0`. It is not a production release and does

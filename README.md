@@ -6,7 +6,7 @@ DSH are adapters, not product concepts.
 
 Version lines are independent:
 
-- SkillDock application: `0.1.0-rc.3` (test-build candidate; no stable release)
+- SkillDock application: `0.1.0-rc.3` (public test build; no stable release)
 - SkillSurface contract: `1.0`
 - SkillRuntime contract: `1.0`
 - AgentDriver contract: `1.0`
@@ -39,10 +39,9 @@ The RC remains default-off. Default traffic, the formal default entry,
 background write, coordinator recovery, automatic hardware changes, and formal
 stable release stay closed. Clean-Windows install/uninstall acceptance and
 explicit user signoff are still required. The same verified RC is also used to
-derive the user-installable package and the Runtime-only package. The current
-source candidate has not yet been published; the latest published test build
-remains at
-<https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2>.
+derive the user-installable package and the Runtime-only package. The latest
+public test build is
+<https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.3>.
 See
 [`release/0.1.0-rc.3`](release/0.1.0-rc.3).
 

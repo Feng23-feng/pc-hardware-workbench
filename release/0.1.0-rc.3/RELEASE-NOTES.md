@@ -2,7 +2,7 @@
 
 Date: 2026-11-21 (+08:00)
 
-Status: **test-build candidate; not yet published or stable**
+Status: **public test build; not a stable release**
 
 ## 2026-11-21 rc.3
 
