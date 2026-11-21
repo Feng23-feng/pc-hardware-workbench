@@ -38,6 +38,9 @@ SkillDock-PCHW-0.1.0-rc.3-win-x64-user.zip
 SHA256SUMS.txt
 ```
 
+Release 标签 `v0.1.0-rc.3` 按 SkillDock 应用命名。PCHW Skill 与 Portable 使用独立
+版本线，本次源码未变化，所以 `2.8.0-rc.2` 文件是有意复用，不是放错或旧包。
+
 SkillDock 资产为 `0.1.0-rc.3`；PCHW Skill 与 Portable 资产继续使用未变化的
 `2.8.0-rc.2`。clean Windows 安装、卸载和最终签收仍是 PENDING。不要把旧版本
 ZIP、Skill 目录和 Runtime 混在一起。

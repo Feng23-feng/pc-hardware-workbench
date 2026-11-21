@@ -40,6 +40,10 @@ SkillDock-PCHW-0.1.0-rc.3-win-x64-user.zip
 SHA256SUMS.txt
 ```
 
+The release tag `v0.1.0-rc.3` follows the SkillDock application version. PCHW
+Skill and Portable use independent version lines; their source did not change,
+so the reuse of `2.8.0-rc.2` assets is intentional.
+
 The SkillDock assets are `0.1.0-rc.3`; the unchanged PCHW Skill and Portable
 assets remain `2.8.0-rc.2`. Clean-Windows installation, uninstallation, and final
 signoff remain PENDING. Do not mix old and current Skill, Runtime, or package
