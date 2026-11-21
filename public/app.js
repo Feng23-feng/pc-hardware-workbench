@@ -56,6 +56,13 @@ let storageConfirmPending = false;
 let storageCleanupPending = false;
 let storageInstallConfirmPending = false;
 let storageInstallCleanupPending = false;
+let storageBackupExportPending = false;
+let storageTaskExportPending = false;
+let storageTaskExportDownloaded = false;
+let storageTaskExportAcknowledged = false;
+let storageTaskCleanupConfirmPending = false;
+let storageTaskCleanupPending = false;
+let storageTaskCleared = false;
 let storageRequestSequence = 0;
 
 function el(tag, attributes = {}, children = []) {
@@ -2026,6 +2033,7 @@ const storageCategories = [
   ["runtime_state", "运行状态与日志"],
   ["install_logs", "安装日志"],
   ["launcher_state", "启动器状态"],
+  ["storage_exports", "手动导出文件"],
   ["other_local", "其他本地文件"],
 ];
 
@@ -2036,6 +2044,9 @@ function storageCategoryDetail(key, value) {
       `${value.directory_count ?? 0} 个目录` +
       (unmanaged > 0 ? `，其中 ${unmanaged} 个未管理项会保留` : "")
     );
+  }
+  if (key === "storage_exports") {
+    return `${value.exports?.length ?? 0} 个导出文件`;
   }
   if ((value.file_count ?? 0) > 0) {
     return `${new Intl.NumberFormat("zh-CN").format(value.file_count)} 个文件`;
@@ -2066,10 +2077,38 @@ function renderStorageMessage() {
   });
 }
 
+function latestStorageExport(snapshot, kind) {
+  return (
+    (snapshot.categories?.storage_exports?.exports ?? []).find(
+      (record) =>
+        record.kind === kind &&
+        (!record.expires_at || Date.parse(record.expires_at) > Date.now()),
+    ) ?? null
+  );
+}
+
+function storageExportLink(record, label, { onActivated = null } = {}) {
+  if (!record) {
+    return null;
+  }
+  return el("a", {
+    class: "storage-export-link",
+    href: record.download_path,
+    download: record.export_id,
+    text: `${label} · ${formatFileSize(record.bytes ?? 0)}`,
+    onclick: onActivated
+      ? () => {
+          onActivated(record);
+        }
+      : null,
+  });
+}
+
 function renderStorageCleanup(snapshot) {
   const cleanup = snapshot.cleanup ?? {};
   const cleanableCount = cleanup.cleanable_backup_count ?? 0;
   const protectedName = cleanup.protected_backup_name ?? "";
+  const backupExport = latestStorageExport(snapshot, "runtime-backup");
   if (!cleanup.available) {
     return el("section", { class: "storage-cleanup" }, [
       el("h3", { text: "Runtime 回退备份" }),
@@ -2078,6 +2117,20 @@ function renderStorageCleanup(snapshot) {
           ? "没有可清理的旧备份。当前运行版本和最近一个回退点会保留。"
           : "当前没有可清理的 Runtime 回退备份。",
       }),
+      storageExportLink(backupExport, "下载最近回退备份"),
+      protectedName
+        ? el("div", { class: "storage-actions" }, [
+            el("button", {
+              class: "secondary",
+              type: "button",
+              disabled: storageBackupExportPending,
+              text: storageBackupExportPending
+                ? "正在生成导出…"
+                : "导出最近回退备份",
+              onclick: exportRuntimeBackupStorage,
+            }),
+          ])
+        : null,
     ]);
   }
 
@@ -2145,6 +2198,18 @@ function renderStorageCleanup(snapshot) {
           renderStorage();
           document.querySelector(".storage-confirm .secondary")?.focus();
         },
+      }),
+    ]),
+    storageExportLink(backupExport, "下载最近回退备份"),
+    el("div", { class: "storage-actions" }, [
+      el("button", {
+        class: "secondary",
+        type: "button",
+        disabled: storageBackupExportPending,
+        text: storageBackupExportPending
+          ? "正在生成导出…"
+          : "导出最近回退备份",
+        onclick: exportRuntimeBackupStorage,
       }),
     ]),
   ]);
@@ -2221,6 +2286,189 @@ function renderInstallLogCleanup(snapshot) {
         },
       }),
     ]),
+  ]);
+}
+
+function renderTaskDangerZone(snapshot) {
+  const taskExport = latestStorageExport(snapshot, "task-data");
+  const hasTask = Boolean(state?.task);
+  const sourceHostedTask = Boolean(state?.task?.shared_task);
+  const turnRunning = state?.phase === "running";
+  if (storageTaskCleared) {
+    return el("section", {
+      class: "storage-danger-zone is-cleared",
+      "aria-label": "Task 与证据",
+    }, [
+      el("h3", { text: "Task 与证据" }),
+      el("p", {
+        text:
+          "当前 Task、附件、图表/证据、事件和 Agent 协议记录已清空。" +
+          "刚生成的导出文件仍可下载。",
+      }),
+      storageExportLink(taskExport, "下载清理前的 Task 导出"),
+    ]);
+  }
+
+  if (storageTaskCleanupConfirmPending && taskExport) {
+    return el("section", {
+      class: "storage-confirm storage-task-confirm",
+      role: "alert",
+    }, [
+      el("h3", { text: "确认清空 Task 与证据" }),
+      el("p", {
+        text:
+          "将清空当前 Task、附件、图表/证据、事件和 Agent 协议记录。" +
+          "权限凭证、Runtime、共享引擎和回退备份会保留，" +
+          "当前 Agent Thread 不会改变。",
+      }),
+      el("div", { class: "storage-actions" }, [
+        el("button", {
+          class: "secondary",
+          type: "button",
+          disabled: storageTaskCleanupPending,
+          text: "取消",
+          onclick: () => {
+            storageTaskCleanupConfirmPending = false;
+            renderStorage();
+            document.querySelector(
+              ".storage-task-danger .danger-outline",
+            )?.focus();
+          },
+        }),
+        el("button", {
+          class: "danger-action",
+          type: "button",
+          disabled: storageTaskCleanupPending,
+          text: storageTaskCleanupPending
+            ? "正在清空…"
+            : "确认清空 Task",
+          onclick: cleanupTaskDataStorage,
+        }),
+      ]),
+    ]);
+  }
+
+  const acknowledgement = el("input", {
+    id: "storage-task-export-ack",
+    type: "checkbox",
+    checked: storageTaskExportAcknowledged,
+    disabled: !taskExport || !storageTaskExportDownloaded,
+    onchange: (event) => {
+      storageTaskExportAcknowledged = event.currentTarget.checked;
+      const dangerButton = document.querySelector(
+        ".storage-task-danger .danger-outline",
+      );
+      if (dangerButton) {
+        dangerButton.disabled =
+          !storageTaskExportDownloaded ||
+          !storageTaskExportAcknowledged ||
+          turnRunning ||
+          sourceHostedTask;
+      }
+    },
+  });
+  return el("section", {
+    class: "storage-danger-zone storage-task-danger",
+    "aria-label": "Task 与证据危险区",
+  }, [
+    el("h3", { text: "Task 与证据" }),
+    el("p", {
+      text:
+        "导出包含 Task、附件、图表/证据、事件和 Agent 协议记录，" +
+        "不包含 capability、cookie 或 handoff secret。导出文件保留 24 小时。",
+    }),
+    !hasTask
+      ? el("p", {
+          class: "storage-empty",
+          text:
+            "当前没有活动 Task；清理仍会删除已归档的 Task、附件、证据和事件记录。",
+        })
+      : null,
+    sourceHostedTask
+      ? el("p", {
+          class: "storage-warning",
+          text:
+            "当前是 source-hosted Task，另一个来源仍拥有协作状态；" +
+            "为避免破坏续接，此 Task 不允许在面板中清空。",
+        })
+      : null,
+    turnRunning
+      ? el("p", {
+          class: "storage-warning",
+          text: "Agent 回合结束后才能生成导出或清空 Task。",
+        })
+      : null,
+    taskExport
+      ? storageExportLink(taskExport, "下载当前 Task 导出", {
+          onActivated: () => {
+            storageTaskExportDownloaded = true;
+            const checkbox = document.querySelector(
+              "#storage-task-export-ack",
+            );
+            if (checkbox) {
+              checkbox.disabled = false;
+            }
+            const downloadState = document.querySelector(
+              "#storage-task-export-download-state",
+            );
+            if (downloadState) {
+              downloadState.textContent =
+                "我已下载并确认可以打开该导出，允许继续清空当前 Task。";
+            }
+          },
+        })
+      : null,
+    el("div", { class: "storage-actions" }, [
+      el("button", {
+        class: "secondary",
+        type: "button",
+        disabled:
+          turnRunning ||
+          storageTaskExportPending ||
+          storageTaskCleanupPending,
+        text: storageTaskExportPending
+          ? "正在生成导出…"
+          : taskExport
+            ? "重新生成 Task 导出"
+            : "生成 Task 数据导出",
+        onclick: exportTaskDataStorage,
+      }),
+    ]),
+    taskExport
+      ? el("label", { class: "storage-acknowledgement" }, [
+          acknowledgement,
+          el("span", {
+            id: "storage-task-export-download-state",
+            text: storageTaskExportDownloaded
+              ? "我已下载并确认可以打开该导出，允许继续清空当前 Task。"
+              : "请先点击上方导出链接完成下载，再勾选确认。",
+          }),
+        ])
+      : null,
+    taskExport
+      ? el("div", { class: "storage-actions" }, [
+          el("button", {
+            class: "danger-outline",
+            type: "button",
+            disabled:
+              !storageTaskExportDownloaded ||
+              !storageTaskExportAcknowledged ||
+              turnRunning ||
+              sourceHostedTask ||
+              storageTaskCleanupPending,
+            text: "清空 Task 与证据",
+            onclick: () => {
+              storageTaskCleanupConfirmPending = true;
+              storageNotice = "";
+              storageError = "";
+              renderStorage();
+              document.querySelector(
+                ".storage-task-confirm .secondary",
+              )?.focus();
+            },
+          }),
+        ])
+      : null,
   ]);
 }
 
@@ -2304,10 +2552,12 @@ function renderStorage() {
       el("h3", { text: "占用分类" }),
       el("ul", { class: "storage-list" }, rows),
     ]),
+    renderTaskDangerZone(storageSnapshot),
     el("p", {
       class: "storage-footnote",
       text:
-        "只统计本机文件，不会上传。Task、附件和证据不会由这里的清理操作删除。",
+        "只统计本机文件，不会上传。备份和日志清理不会删除 Task；" +
+        "Task 数据只能通过下方危险区先导出再清理。",
     }),
   ].filter(Boolean));
 }
@@ -2398,6 +2648,107 @@ async function cleanupInstallLogStorage() {
   document.querySelector(".storage-message")?.focus();
 }
 
+async function exportRuntimeBackupStorage() {
+  storageBackupExportPending = true;
+  storageNotice = "";
+  storageError = "";
+  renderStorage();
+  const result = await requestJson(
+    "/api/storage/export-runtime-backup",
+    {
+      method: "POST",
+      forceRuntimeBinding: true,
+      body: "{}",
+    },
+  );
+  storageBackupExportPending = false;
+  if (result.ok) {
+    storageSnapshot = result.data.storage ?? storageSnapshot;
+    storageNotice =
+      `回退备份导出已生成（${formatFileSize(result.data.bytes ?? 0)}）。` +
+      "请使用下方链接下载。";
+  } else {
+    storageError = result.data?.error ?? "回退备份导出失败。";
+  }
+  renderStorage();
+  document.querySelector(".storage-message")?.focus();
+}
+
+async function exportTaskDataStorage() {
+  storageTaskExportPending = true;
+  storageTaskExportDownloaded = false;
+  storageTaskExportAcknowledged = false;
+  storageTaskCleanupConfirmPending = false;
+  storageTaskCleared = false;
+  storageNotice = "";
+  storageError = "";
+  renderStorage();
+  const result = await requestJson("/api/storage/export-task-data", {
+    method: "POST",
+    forceRuntimeBinding: true,
+    body: "{}",
+  });
+  storageTaskExportPending = false;
+  if (result.ok) {
+    storageSnapshot = result.data.storage ?? storageSnapshot;
+    storageNotice =
+      `Task 数据导出已生成（${formatFileSize(result.data.bytes ?? 0)}）。` +
+      "下载并确认后再解锁清理。";
+  } else {
+    storageError = result.data?.error ?? "Task 数据导出失败。";
+  }
+  renderStorage();
+  document.querySelector(".storage-message")?.focus();
+}
+
+async function cleanupTaskDataStorage() {
+  const taskExport = latestStorageExport(storageSnapshot, "task-data");
+  if (!taskExport) {
+    storageError = "请先生成并保存 Task 数据导出。";
+    renderStorage();
+    return;
+  }
+  storageTaskCleanupPending = true;
+  storageNotice = "";
+  storageError = "";
+  renderStorage();
+  const result = await requestJson("/api/storage/cleanup-task-data", {
+    method: "POST",
+    forceRuntimeBinding: true,
+    body: JSON.stringify({
+      confirm: "cleanup-task-data",
+      export_id: taskExport.export_id,
+      export_sha256: taskExport.sha256,
+    }),
+  });
+  storageTaskCleanupPending = false;
+  storageTaskCleanupConfirmPending = false;
+  if (result.ok) {
+    state = result.data.state;
+    storageSnapshot = result.data.storage ?? storageSnapshot;
+    storageTaskExportDownloaded = false;
+    storageTaskExportAcknowledged = false;
+    storageTaskCleared = true;
+    storageNotice = result.data.quarantine_cleanup_pending
+      ? "Task 与证据已清空；旧数据仍在隔离目录，刷新或重启后会继续清理。"
+      : "Task 与证据已清空，导出文件仍可下载。";
+    render();
+  } else {
+    if (
+      result.data?.code === "task_export_stale" ||
+      result.data?.code === "task_export_expired"
+    ) {
+      storageTaskExportDownloaded = false;
+      storageTaskExportAcknowledged = false;
+      storageError = "Task 数据在导出后已变化，请重新生成并下载导出。";
+    } else {
+      storageError = result.data?.error ?? "Task 数据清空失败。";
+    }
+  }
+  renderStorage();
+  document.querySelector(".storage-message")?.focus();
+}
+
 async function openStorageDialog() {
   if (!storageDialog?.open) {
     if (typeof storageDialog?.showModal === "function") {
@@ -2408,6 +2759,10 @@ async function openStorageDialog() {
   }
   storageConfirmPending = false;
   storageInstallConfirmPending = false;
+  storageTaskExportDownloaded = false;
+  storageTaskExportAcknowledged = false;
+  storageTaskCleanupConfirmPending = false;
+  storageTaskCleared = false;
   storageNotice = "";
   storageError = "";
   await loadStorage();
@@ -3434,6 +3789,13 @@ storageDialog?.addEventListener("close", () => {
   storageCleanupPending = false;
   storageInstallConfirmPending = false;
   storageInstallCleanupPending = false;
+  storageTaskExportDownloaded = false;
+  storageTaskExportAcknowledged = false;
+  storageTaskCleanupConfirmPending = false;
+  storageTaskCleanupPending = false;
+  storageTaskCleared = false;
+  storageBackupExportPending = false;
+  storageTaskExportPending = false;
   storageNotice = "";
   storageError = "";
 });

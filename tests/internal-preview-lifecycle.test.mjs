@@ -132,6 +132,7 @@ function pathInventory() {
     backup_root_exists: existsSync(backupRoot),
     runtime_program_exists: existsSync(targetRuntime),
     engine_root_exists: existsSync(join(localRoot, "engines")),
+    storage_exports_exists: existsSync(join(localRoot, "storage-exports")),
     launcher_pointer_exists: existsSync(
       join(localRoot, "runtime-location.json"),
     ),
@@ -746,6 +747,17 @@ try {
     "Retained by default uninstall; removed only by explicit purge.\n",
     { encoding: "utf8", mode: 0o600 },
   );
+  const storageExportMarkerPath = join(
+    localRoot,
+    "storage-exports",
+    "export.marker",
+  );
+  await mkdir(dirname(storageExportMarkerPath), { recursive: true });
+  await writeFile(
+    storageExportMarkerPath,
+    "Retained by default uninstall; removed only by explicit purge.\n",
+    { encoding: "utf8", mode: 0o600 },
+  );
 
   processInventories.before_default_uninstall =
     await listProcessesUnderRoot(tempRoot);
@@ -790,7 +802,8 @@ try {
     existsSync(join(localRoot, "launch-result.json")) &&
     existsSync(launchFailureMarkerPath) &&
     existsSync(installLogsMarkerPath) &&
-    existsSync(migrationArtifactPath)
+    existsSync(migrationArtifactPath) &&
+    existsSync(storageExportMarkerPath)
   );
   const defaultUninstallPreservedBackups = existsSync(backupMarkerPath);
   assert.equal(
@@ -807,6 +820,10 @@ try {
   );
   assert.equal(
     pathInventories.after_default_uninstall.engine_root_exists,
+    true,
+  );
+  assert.equal(
+    pathInventories.after_default_uninstall.storage_exports_exists,
     true,
   );
   assert.equal(
@@ -861,6 +878,10 @@ try {
     pathInventories.after_purge_uninstall.engine_root_exists,
     false,
   );
+  assert.equal(
+    pathInventories.after_purge_uninstall.storage_exports_exists,
+    false,
+  );
   assert.deepEqual(processInventories.after_purge_uninstall, []);
   activeUrl = null;
 
@@ -878,6 +899,10 @@ try {
   assert.equal(pathInventories.after_fixture_cleanup.local_root_exists, false);
   assert.equal(pathInventories.after_fixture_cleanup.backup_root_exists, false);
   assert.equal(pathInventories.after_fixture_cleanup.engine_root_exists, false);
+  assert.equal(
+    pathInventories.after_fixture_cleanup.storage_exports_exists,
+    false,
+  );
   assert.deepEqual(processInventories.after_fixture_cleanup, []);
 
   const residueCandidates = [

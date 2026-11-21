@@ -200,6 +200,8 @@ skill-surface/
   runtime/artifacts/       task-scoped verified SVGs plus server-side index
   runtime/shared-evidence.json  shared device snapshot and evidence hashes
   runtime/tasks/           archived full task/answer snapshots
+  runtime/.task-data-cleanup-* temporary quarantine used by explicit cleanup
+  storage-exports/         expiring verified Runtime and Task ZIP exports
   sessions/                local experiment evidence (gitignored)
 ```
 

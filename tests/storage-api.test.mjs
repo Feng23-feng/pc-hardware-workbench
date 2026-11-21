@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   mkdir,
   mkdtemp,
@@ -53,7 +54,12 @@ async function writeSizedFile(path, bytes, fill) {
   await writeFile(path, Buffer.alloc(bytes, fill));
 }
 
-async function writeEngineReference(runtimeDirectory, engineId, nodePath) {
+async function writeEngineReference(
+  runtimeDirectory,
+  engineId,
+  nodePath,
+  nodeSha256,
+) {
   await mkdir(runtimeDirectory, { recursive: true });
   await writeFile(
     join(runtimeDirectory, "engine-location.json"),
@@ -61,7 +67,7 @@ async function writeEngineReference(runtimeDirectory, engineId, nodePath) {
       schema_version: "1.0",
       engine_id: engineId,
       node_path: nodePath,
-      node_sha256: "a".repeat(64),
+      node_sha256: nodeSha256,
     })}\n`,
     "utf8",
   );
@@ -84,16 +90,21 @@ await Promise.all([
   writeSizedFile(join(unmanagedBackup, "keep.bin"), 4096, "k"),
   writeSizedFile(join(installLogsRoot, "install.log"), 128, "l"),
 ]);
+const engineDigest = createHash("sha256")
+  .update(await readFile(join(activeEngine, "node.exe")))
+  .digest("hex");
 await Promise.all([
   writeEngineReference(
     runtimeProgram,
     "node-24.22.1-0123456789abcdef",
     join(activeEngine, "node.exe"),
+    engineDigest,
   ),
   writeEngineReference(
     protectedBackup,
     "node-24.22.1-0123456789abcdef",
     join(activeEngine, "node.exe"),
+    engineDigest,
   ),
 ]);
 await writeFile(
@@ -178,6 +189,37 @@ try {
     "Runtime-previous-backup-20261120-120000",
   );
 
+  const runtimeExport = await request(
+    "/api/storage/export-runtime-backup",
+    { method: "POST", body: "{}" },
+  );
+  assert.equal(runtimeExport.response.status, 201);
+  assert.equal(runtimeExport.data.kind, "runtime-backup");
+  assert.match(runtimeExport.data.export_id, /^runtime-backup-/u);
+  const runtimeDownload = await fetch(
+    `${base}${runtimeExport.data.download_path}`,
+    { headers: { Cookie: cookie } },
+  );
+  assert.equal(runtimeDownload.status, 200);
+  assert.equal(runtimeDownload.headers.get("content-type"), "application/zip");
+  const runtimeBytes = Buffer.from(await runtimeDownload.arrayBuffer());
+  assert.equal(runtimeBytes.subarray(0, 2).toString(), "PK");
+
+  const staleTaskExport = await request("/api/storage/export-task-data", {
+    method: "POST",
+    body: "{}",
+  });
+  assert.equal(staleTaskExport.response.status, 201);
+  assert.equal(staleTaskExport.data.kind, "task-data");
+  assert.match(staleTaskExport.data.export_id, /^task-data-/u);
+  const taskDownload = await fetch(
+    `${base}${staleTaskExport.data.download_path}`,
+    { headers: { Cookie: cookie } },
+  );
+  assert.equal(taskDownload.status, 200);
+  const taskBytes = Buffer.from(await taskDownload.arrayBuffer());
+  assert.equal(taskBytes.subarray(0, 2).toString(), "PK");
+
   result = await request("/api/storage/cleanup-runtime-backups", {
     method: "POST",
     body: JSON.stringify({ confirm: "wrong" }),
@@ -225,6 +267,67 @@ try {
   );
   assert.match(finalEvents, /"type":"storage\.install_log_cleanup"/u);
   assert.equal(finalEvents.includes(installLogsRoot), false);
+
+  result = await request("/api/storage/cleanup-task-data", {
+    method: "POST",
+    body: JSON.stringify({
+      confirm: "cleanup-task-data",
+      export_id: staleTaskExport.data.export_id,
+      export_sha256: staleTaskExport.data.sha256,
+    }),
+  });
+  assert.equal(result.response.status, 409);
+  assert.equal(result.data.code, "task_export_stale");
+  assert.equal((await stat(join(runtimeDir, "tasks"))).isDirectory(), true);
+
+  const taskExport = await request("/api/storage/export-task-data", {
+    method: "POST",
+    body: "{}",
+  });
+  assert.equal(taskExport.response.status, 201);
+  const freshTaskDownload = await fetch(
+    `${base}${taskExport.data.download_path}`,
+    { headers: { Cookie: cookie } },
+  );
+  assert.equal(freshTaskDownload.status, 200);
+
+  result = await request("/api/storage/cleanup-task-data", {
+    method: "POST",
+    body: JSON.stringify({
+      confirm: "wrong",
+      export_id: taskExport.data.export_id,
+      export_sha256: taskExport.data.sha256,
+    }),
+  });
+  assert.equal(result.response.status, 400);
+  assert.equal(result.data.code, "confirmation_required");
+
+  result = await request("/api/storage/cleanup-task-data", {
+    method: "POST",
+    body: JSON.stringify({
+      confirm: "cleanup-task-data",
+      export_id: taskExport.data.export_id,
+      export_sha256: taskExport.data.sha256,
+    }),
+  });
+  assert.equal(result.response.status, 200);
+  assert.equal(result.data.cleanup_completed, true);
+  assert.equal(result.data.audit_recorded, true);
+  assert.equal(result.data.state.task, null);
+  assert.equal(
+    (await stat(join(runtimeDir, "tasks"))).isDirectory(),
+    true,
+  );
+  assert.equal(
+    (await stat(join(runtimeDir, "capability-token"))).isFile(),
+    true,
+  );
+  const taskCleanupEvents = await readFile(
+    join(runtimeDir, "events.jsonl"),
+    "utf8",
+  );
+  assert.match(taskCleanupEvents, /"type":"storage\.task_data_cleanup"/u);
+  assert.equal(taskCleanupEvents.includes("capability-token"), false);
 
   console.log("Storage API read and confirmed cleanup: PASS");
 } finally {

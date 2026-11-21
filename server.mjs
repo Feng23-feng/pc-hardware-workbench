@@ -1,5 +1,6 @@
 import { createServer } from "node:http";
 import {
+  createReadStream,
   existsSync,
   mkdirSync,
   readFileSync,
@@ -71,6 +72,14 @@ import {
   cleanupInstallLogs,
   getStorageSnapshot,
 } from "./lib/storage-maintenance.mjs";
+import {
+  beginTaskDataCleanup,
+  createRuntimeBackupExport,
+  createTaskDataExport,
+  recoverTaskDataCleanupQuarantines,
+  resolveStorageExportDownload,
+  verifyTaskDataExport,
+} from "./lib/storage-exports.mjs";
 
 const root = resolve(import.meta.dirname);
 const host = "127.0.0.1";
@@ -147,6 +156,17 @@ if (
 const sourceExternalDriver = agentDriverName === "source-external";
 const resetRequested = process.argv.includes("--reset-state");
 mkdirSync(runtimeDir, { recursive: true });
+const startupCleanupRecovery = await recoverTaskDataCleanupQuarantines({
+  localRoot: storageLocalRoot,
+  runtimeDir,
+  localAppData: process.env.LOCALAPPDATA,
+});
+if (startupCleanupRecovery.failures.length > 0) {
+  process.stderr.write(
+    `Task cleanup recovery left ${startupCleanupRecovery.pending} ` +
+      `pending item(s): ${startupCleanupRecovery.failures.join(" | ")}\n`,
+  );
+}
 const attachmentRoot = resolve(runtimeDir, "attachments");
 const taskArchiveDir = resolve(runtimeDir, "tasks");
 const artifactRoot = resolve(runtimeDir, "artifacts");
@@ -367,6 +387,16 @@ let agentDriver = createAgentDriverInstance();
 
 let shuttingDown = false;
 let submitInFlight = false;
+let taskDataOperationInFlight = false;
+
+function rejectTaskDataOperation(response) {
+  if (!taskDataOperationInFlight) return false;
+  writeJson(response, 409, {
+    error: "Task data export or cleanup is in progress.",
+    code: "task_data_operation_in_progress",
+  });
+  return true;
+}
 
 function setSessionReference(reference) {
   state.session_ref = reference ?? null;
@@ -650,6 +680,17 @@ function publicState() {
       discovery: state.skill_discovery,
     },
     agent_error: state.agent_error ?? null,
+  };
+}
+
+function taskDataExportMetadata() {
+  return {
+    task_id: String(state.task?.task_id ?? ""),
+    session_ref: String(state.session_ref ?? state.thread_id ?? ""),
+    event_count: Number(state.event_count ?? 0),
+    state_sha256: createHash("sha256")
+      .update(JSON.stringify(state))
+      .digest("hex"),
   };
 }
 
@@ -1677,6 +1718,7 @@ async function submitSourceHosted(request, response) {
 }
 
 async function submit(request, response) {
+  if (rejectTaskDataOperation(response)) return;
   if (sourceHostedTaskActive()) {
     if (sourceHostedNonMockEnabled) {
       await submitSourceHosted(request, response);
@@ -1870,6 +1912,9 @@ async function submit(request, response) {
 }
 
 async function startNewTask({ newThread }) {
+  if (taskDataOperationInFlight) {
+    throw new Error("Task data export or cleanup is in progress.");
+  }
   if (submitInFlight) {
     throw new Error("agent 回合进行中，暂时不能新建任务");
   }
@@ -2065,6 +2110,7 @@ async function recoverSourceHostedTask(request, response) {
 }
 
 async function uploadAttachment(request, response) {
+  if (rejectTaskDataOperation(response)) return;
   if (rejectNonSubmittableSourceHostedPhase(response)) return;
   const form = await parseMultipart(request);
   const file = form.get("file");
@@ -2172,6 +2218,7 @@ async function uploadAttachment(request, response) {
 // P9_SKILL_ACTION_ROUTES
 
 async function decidePermission(request, response) {
+  if (rejectTaskDataOperation(response)) return;
   if (!state.task) {
     writeJson(response, 409, { error: "当前没有可授权的任务" });
     return;
@@ -2194,6 +2241,7 @@ async function decidePermission(request, response) {
 }
 
 async function revokePermission(request, response) {
+  if (rejectTaskDataOperation(response)) return;
   if (!state.task) {
     writeJson(response, 409, { error: "当前没有可撤销权限的任务" });
     return;
@@ -2221,6 +2269,7 @@ async function invokeSkillAction(
   response,
   bodyOverride = null,
 ) {
+  if (rejectTaskDataOperation(response)) return;
   if (submitInFlight) {
     writeJson(response, 409, { error: "agent 正在进行上一回合" });
     return;
@@ -2963,6 +3012,11 @@ async function route(request, response) {
 
   if (request.method === "GET" && url.pathname === "/api/storage") {
     try {
+      await recoverTaskDataCleanupQuarantines({
+        localRoot: storageLocalRoot,
+        runtimeDir,
+        localAppData: process.env.LOCALAPPDATA,
+      });
       writeJson(
         response,
         200,
@@ -2977,6 +3031,222 @@ async function route(request, response) {
         error: "storage inventory failed",
         code: "storage_inventory_failed",
       });
+    }
+    return;
+  }
+
+  const storageExportMatch = url.pathname.match(
+    /^\/api\/storage\/exports\/([^/]+)$/u,
+  );
+  if (request.method === "GET" && storageExportMatch) {
+    try {
+      const exportId = decodeURIComponent(storageExportMatch[1]);
+      const exportFile = await resolveStorageExportDownload(
+        {
+          localRoot: storageLocalRoot,
+          runtimeDir,
+          localAppData: process.env.LOCALAPPDATA,
+        },
+        exportId,
+      );
+      const fileStat = statSync(exportFile.path);
+      response.writeHead(200, {
+        "Content-Type": "application/zip",
+        "Content-Length": fileStat.size,
+        "Content-Disposition":
+          `attachment; filename*=UTF-8''${encodeURIComponent(exportFile.name)}`,
+        "Cache-Control": "no-store",
+        "X-Content-Type-Options": "nosniff",
+      });
+      const stream = createReadStream(exportFile.path);
+      stream.once("error", () => response.destroy());
+      stream.pipe(response);
+    } catch (error) {
+      const code = String(error?.code ?? "storage_export_missing");
+      writeJson(response, code === "storage_export_expired" ? 410 : 404, {
+        error:
+          code === "storage_export_expired"
+            ? "storage export expired"
+            : "storage export not found",
+        code,
+      });
+    }
+    return;
+  }
+
+  if (
+    request.method === "POST" &&
+    url.pathname === "/api/storage/export-runtime-backup"
+  ) {
+    try {
+      const result = await createRuntimeBackupExport({
+        localRoot: storageLocalRoot,
+        runtimeDir,
+        localAppData: process.env.LOCALAPPDATA,
+      });
+      const storage = await getStorageSnapshot({
+        localRoot: storageLocalRoot,
+        runtimeDir,
+        localAppData: process.env.LOCALAPPDATA,
+      }).catch(() => null);
+      writeJson(response, 201, { ...result, storage });
+    } catch (error) {
+      writeJson(response, 409, {
+        error: error?.message ?? "Runtime backup export failed",
+        code: error?.code ?? "storage_export_failed",
+      });
+    }
+    return;
+  }
+
+  if (
+    request.method === "POST" &&
+    url.pathname === "/api/storage/export-task-data"
+  ) {
+    if (taskDataOperationInFlight) {
+      writeJson(response, 409, {
+        error: "Another Task data operation is already running.",
+        code: "task_data_operation_in_progress",
+      });
+      return;
+    }
+    if (submitInFlight || state.phase === "running") {
+      writeJson(response, 409, {
+        error: "Wait for the current Agent turn before exporting.",
+        code: "agent_turn_running",
+      });
+      return;
+    }
+    taskDataOperationInFlight = true;
+    try {
+      const result = await createTaskDataExport(
+        {
+          localRoot: storageLocalRoot,
+          runtimeDir,
+          localAppData: process.env.LOCALAPPDATA,
+        },
+        taskDataExportMetadata(),
+      );
+      const storage = await getStorageSnapshot({
+        localRoot: storageLocalRoot,
+        runtimeDir,
+        localAppData: process.env.LOCALAPPDATA,
+      }).catch(() => null);
+      writeJson(response, 201, { ...result, storage });
+    } catch (error) {
+      writeJson(response, 500, {
+        error: "Task export failed",
+        code: error?.code ?? "task_export_failed",
+      });
+    } finally {
+      taskDataOperationInFlight = false;
+    }
+    return;
+  }
+
+  if (
+    request.method === "POST" &&
+    url.pathname === "/api/storage/cleanup-task-data"
+  ) {
+    const body = await readJson(request, { maxBytes: 4_096 });
+    if (body.confirm !== "cleanup-task-data") {
+      writeJson(response, 400, {
+        error: "Task data cleanup requires confirmation.",
+        code: "confirmation_required",
+      });
+      return;
+    }
+    if (taskDataOperationInFlight) {
+      writeJson(response, 409, {
+        error: "Another Task data operation is already running.",
+        code: "task_data_operation_in_progress",
+      });
+      return;
+    }
+    if (submitInFlight || state.phase === "running") {
+      writeJson(response, 409, {
+        error: "Wait for the current Agent turn before cleaning Task data.",
+        code: "agent_turn_running",
+      });
+      return;
+    }
+    if (sourceHostedTaskActive()) {
+      writeJson(response, 409, {
+        error:
+          "Source-hosted Tasks cannot be cleaned while another source owns them.",
+        code: "source_hosted_task_cleanup_blocked",
+      });
+      return;
+    }
+    taskDataOperationInFlight = true;
+    let quarantine;
+    let resetCommitted = false;
+    try {
+      const verified = await verifyTaskDataExport(
+        {
+          localRoot: storageLocalRoot,
+          runtimeDir,
+          localAppData: process.env.LOCALAPPDATA,
+        },
+        body,
+        taskDataExportMetadata(),
+      );
+      quarantine = await beginTaskDataCleanup({
+        localRoot: storageLocalRoot,
+        runtimeDir,
+        localAppData: process.env.LOCALAPPDATA,
+      });
+      const resetResult = store.resetForUserDataCleanup({
+        exportId: verified.record.export_id,
+        exportSha256: verified.record.sha256,
+        threadReference: state.session_ref,
+        threadName: state.session_name,
+      });
+      resetCommitted = true;
+      let quarantineCleanupPending = false;
+      try {
+        await quarantine.commit();
+      } catch {
+        const recovery = await recoverTaskDataCleanupQuarantines({
+          localRoot: storageLocalRoot,
+          runtimeDir,
+          localAppData: process.env.LOCALAPPDATA,
+        });
+        quarantineCleanupPending = recovery.pending > 0;
+      }
+      writeJson(response, 200, {
+        ok: true,
+        cleanup_completed: true,
+        quarantine_cleanup_pending: quarantineCleanupPending,
+        export_id: verified.record.export_id,
+        export_sha256: verified.record.sha256,
+        audit_recorded: resetResult.auditRecorded,
+        state: publicState(),
+        storage: await getStorageSnapshot({
+          localRoot: storageLocalRoot,
+          runtimeDir,
+          localAppData: process.env.LOCALAPPDATA,
+        }).catch(() => null),
+      });
+    } catch (error) {
+      if (quarantine && !resetCommitted) {
+        await quarantine.rollback().catch(() => {});
+      }
+      const code = String(error?.code ?? "task_data_cleanup_failed");
+      const clientError =
+        code === "task_export_stale"
+          ? "Task data changed after the export was generated. Generate a new export."
+          : code === "task_export_expired"
+            ? "Task export has expired. Generate a new export."
+            : code === "task_export_invalid"
+              ? "Task export is invalid. Generate and download a new export."
+              : "Task data cleanup failed";
+      writeJson(response, code.startsWith("task_export_") ? 409 : 500, {
+        error: clientError,
+        code,
+      });
+    } finally {
+      taskDataOperationInFlight = false;
     }
     return;
   }

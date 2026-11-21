@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import {
   mkdir,
   mkdtemp,
@@ -61,7 +62,12 @@ async function writeSizedFile(path, bytes, fill) {
   await writeFile(path, Buffer.alloc(bytes, fill));
 }
 
-async function writeEngineReference(runtimeDirectory, engineId, nodePath) {
+async function writeEngineReference(
+  runtimeDirectory,
+  engineId,
+  nodePath,
+  nodeSha256,
+) {
   await mkdir(runtimeDirectory, { recursive: true });
   await writeFile(
     join(runtimeDirectory, "engine-location.json"),
@@ -69,7 +75,7 @@ async function writeEngineReference(runtimeDirectory, engineId, nodePath) {
       schema_version: "1.0",
       engine_id: engineId,
       node_path: nodePath,
-      node_sha256: "a".repeat(64),
+      node_sha256: nodeSha256,
     })}\n`,
     "utf8",
   );
@@ -95,16 +101,21 @@ await Promise.all([
   writeSizedFile(join(obsoleteBackup, "app.bin"), 2048, "o"),
   writeSizedFile(join(installLogsRoot, "install.log"), 512, "l"),
 ]);
+const engineDigest = createHash("sha256")
+  .update(await readFile(join(activeEngine, "node.exe")))
+  .digest("hex");
 await Promise.all([
   writeEngineReference(
     runtimeProgram,
     "node-24.22.1-0123456789abcdef",
     join(activeEngine, "node.exe"),
+    engineDigest,
   ),
   writeEngineReference(
     protectedBackup,
     "node-24.22.1-0123456789abcdef",
     join(activeEngine, "node.exe"),
+    engineDigest,
   ),
 ]);
 await writeFile(
@@ -262,7 +273,7 @@ try {
   );
   assert.equal(desktop.dialogOpen, true);
   assert.match(desktop.total, /\d/u);
-  assert.equal(desktop.rowCount, 10);
+  assert.equal(desktop.rowCount, 11);
   assert.equal(desktop.cleanupButton, true);
   assert.equal(desktop.horizontalOverflow, false);
   assert.equal(desktop.dialogOverflow, false);
@@ -285,6 +296,19 @@ try {
       Buffer.from(screenshot.data, "base64"),
     );
   }
+
+  await evaluate(
+    browser.cdp,
+    `[...document.querySelectorAll("#storage-dialog button")]
+      .find((button) => button.textContent.includes("导出最近回退备份")).click()`,
+  );
+  await waitFor(
+    browser.cdp,
+    `document.querySelector(".storage-export-link")?.textContent?.includes(
+      "下载最近回退备份"
+    )`,
+    "runtime backup export link did not render",
+  );
 
   await evaluate(
     browser.cdp,
@@ -369,6 +393,126 @@ try {
     "install log cleanup result did not render",
   );
   await assert.rejects(() => stat(installLogsRoot), { code: "ENOENT" });
+
+  await evaluate(
+    browser.cdp,
+    `[...document.querySelectorAll("#storage-dialog button")]
+      .find((button) => button.textContent.includes("生成 Task 数据导出")).click()`,
+  );
+  await waitFor(
+    browser.cdp,
+    `[...document.querySelectorAll(".storage-export-link")]
+      .some((link) => link.textContent.includes("下载当前 Task 导出"))`,
+    "Task export link did not render",
+  );
+  await evaluate(
+    browser.cdp,
+    `document.querySelector(".storage-task-danger")
+      ?.scrollIntoView({ block: "start" })`,
+  );
+  await new Promise((resolvePromise) => setTimeout(resolvePromise, 150));
+  if (evidenceDir) {
+    const screenshot = await browser.cdp.send("Page.captureScreenshot", {
+      format: "png",
+      captureBeyondViewport: false,
+    });
+    await writeFile(
+      join(evidenceDir, "storage-task-export.png"),
+      Buffer.from(screenshot.data, "base64"),
+    );
+  }
+  const acknowledgementInitiallyDisabled = await evaluate(
+    browser.cdp,
+    `document.querySelector("#storage-task-export-ack").disabled`,
+  );
+  assert.equal(acknowledgementInitiallyDisabled, true);
+  await evaluate(
+    browser.cdp,
+    `(() => {
+      const link = [...document.querySelectorAll(".storage-export-link")]
+        .find((item) => item.textContent.includes("下载当前 Task 导出"));
+      link.addEventListener("click", (event) => event.preventDefault(), {
+        once: true,
+      });
+      link.click();
+    })()`,
+  );
+  await waitFor(
+    browser.cdp,
+    `!document.querySelector("#storage-task-export-ack").disabled`,
+    "Task export acknowledgement did not unlock after download",
+  );
+  await evaluate(
+    browser.cdp,
+    `document.querySelector("#storage-task-export-ack").click()`,
+  );
+  await waitFor(
+    browser.cdp,
+    `!document.querySelector(".storage-task-danger .danger-outline").disabled`,
+    "Task cleanup did not unlock after export acknowledgement",
+  );
+  await evaluate(
+    browser.cdp,
+    `document.querySelector(".storage-task-danger .danger-outline").click()`,
+  );
+  await waitFor(
+    browser.cdp,
+    `document.querySelector(".storage-task-confirm h3")?.textContent ===
+      "确认清空 Task 与证据"`,
+    "Task cleanup confirmation did not render",
+  );
+  await evaluate(
+    browser.cdp,
+    `document.querySelector(".storage-task-confirm")
+      ?.scrollIntoView({ block: "start" })`,
+  );
+  await new Promise((resolvePromise) => setTimeout(resolvePromise, 150));
+  if (evidenceDir) {
+    const screenshot = await browser.cdp.send("Page.captureScreenshot", {
+      format: "png",
+      captureBeyondViewport: false,
+    });
+    await writeFile(
+      join(evidenceDir, "storage-task-confirm.png"),
+      Buffer.from(screenshot.data, "base64"),
+    );
+  }
+  await evaluate(
+    browser.cdp,
+    `[...document.querySelectorAll(".storage-task-confirm button")]
+      .find((button) => button.textContent === "确认清空 Task").click()`,
+  );
+  await waitFor(
+    browser.cdp,
+    `document.querySelector(".storage-danger-zone")?.classList.contains(
+      "is-cleared"
+    )`,
+    "Task cleanup result did not render",
+  );
+  await evaluate(
+    browser.cdp,
+    `document.querySelector(".storage-danger-zone.is-cleared")
+      ?.scrollIntoView({ block: "start" })`,
+  );
+  await new Promise((resolvePromise) => setTimeout(resolvePromise, 150));
+  if (evidenceDir) {
+    const screenshot = await browser.cdp.send("Page.captureScreenshot", {
+      format: "png",
+      captureBeyondViewport: false,
+    });
+    await writeFile(
+      join(evidenceDir, "storage-task-cleared.png"),
+      Buffer.from(screenshot.data, "base64"),
+    );
+  }
+  assert.equal(
+    (await stat(join(runtimeDir, "tasks"))).isDirectory(),
+    true,
+  );
+  assert.equal(
+    (await stat(join(runtimeDir, "capability-token"))).isFile(),
+    true,
+  );
 
   await browser.cdp.send("Emulation.setDeviceMetricsOverride", {
     width: 390,

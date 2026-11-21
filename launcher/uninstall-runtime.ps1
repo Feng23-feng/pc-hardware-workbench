@@ -245,6 +245,10 @@ if ($PurgeUserData) {
     if (Test-Path -LiteralPath $installLogs) {
         Remove-Item -LiteralPath $installLogs -Recurse -Force
     }
+    $storageExports = Join-Path $LocalRoot "storage-exports"
+    if (Test-Path -LiteralPath $storageExports) {
+        Remove-Item -LiteralPath $storageExports -Recurse -Force
+    }
     if (Test-Path -LiteralPath $LocalRoot -PathType Container) {
         foreach ($migrationDirectory in @(
             Get-ChildItem -LiteralPath $LocalRoot -Directory -Force |

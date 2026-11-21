@@ -703,6 +703,22 @@ $RuntimePathHelpers = @(
         $OutputDirectory `
         "skills\pc-hardware-workbench\scripts\skilldock\runtime-paths.ps1")
 )
+$StorageExportHelper = Join-Path `
+    $OutputDirectory `
+    "app\lib\export-storage-archive.ps1"
+if (-not (Test-Path -LiteralPath $StorageExportHelper -PathType Leaf)) {
+    throw "Storage export helper is missing from the RC."
+}
+$storageHelperTokens = $null
+$storageHelperErrors = $null
+[void][System.Management.Automation.Language.Parser]::ParseFile(
+    $StorageExportHelper,
+    [ref]$storageHelperTokens,
+    [ref]$storageHelperErrors
+)
+if ($storageHelperErrors.Count -gt 0) {
+    throw "Storage export helper has a syntax error."
+}
 foreach ($helperPath in $RuntimePathHelpers) {
     if (-not (Test-Path -LiteralPath $helperPath -PathType Leaf)) {
         throw "Runtime path helper is missing from the RC: $helperPath"
@@ -843,6 +859,7 @@ $ReleaseChecks = @(
     (Join-Path $ReleaseAppRoot "server.mjs"),
     (Join-Path $ReleaseAppRoot "public\app.js"),
     (Join-Path $ReleaseAppRoot "lib\agent-permissions.mjs"),
+    (Join-Path $ReleaseAppRoot "lib\storage-exports.mjs"),
     (Join-Path $ReleaseAppRoot "lib\storage-maintenance.mjs"),
     (Join-Path $ReleaseAppRoot "lib\agents\index.mjs"),
     (Join-Path $ReleaseAppRoot "lib\agents\source-external-agent-driver.mjs")

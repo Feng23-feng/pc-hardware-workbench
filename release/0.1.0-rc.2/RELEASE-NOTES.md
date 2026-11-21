@@ -16,6 +16,13 @@ Status: **public test build; not a stable release**
   for obsolete recognized Runtime backups. The active Runtime, recorded
   rollback backup, Task data, attachments, evidence, and unmanaged directories
   are preserved.
+- The protected Runtime rollback backup can be exported as a verified ZIP with
+  its exact shared Node engine and per-file hashes. Exports expire after 24
+  hours.
+- Task and evidence cleanup now requires a downloaded, state-bound export.
+  Stale/expired exports fail closed, quarantine recovery protects interrupted
+  cleanup, and capability tokens, Runtime backups, installer logs, and the
+  Agent Session are preserved.
 - Installer logs have a separate confirmed cleanup action limited to
   `LocalRoot\install-logs`.
 - Runtime program backups now rotate after a successful install. The previous

@@ -16,6 +16,14 @@
 - Add a separate confirmed cleanup for installer logs. It removes only
   `LocalRoot\install-logs` and never touches Runtime, Task, attachment,
   artifact, or rollback data.
+- Add authenticated ZIP export for the protected Runtime rollback backup,
+  including the shared Node engine it references and a per-file SHA-256
+  manifest. Exports expire after 24 hours.
+- Add a confirmed Task/evidence danger zone that requires a downloaded,
+  SHA-256-verified, state-bound export before cleanup. Stale or expired exports
+  fail closed, interrupted quarantine operations recover safely, and
+  capability tokens, Runtime backups, installer logs, and the Agent Session are
+  preserved.
 - Rotate Runtime program backups after a successful install, retaining one
   previous rollback copy by default while preserving the previous pointer target
   and leaving Task and migration-data backups untouched.
