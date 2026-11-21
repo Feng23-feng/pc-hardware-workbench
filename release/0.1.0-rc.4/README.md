@@ -1,8 +1,8 @@
 # SkillDock / PCHW 0.1.0-rc.4
 
-Status: **local release candidate; not uploaded; not a stable release**.
+Status: **public test build; not a stable release**.
 
-This local candidate combines SkillDock application `0.1.0-rc.4` with the packaged
+This public test build combines SkillDock application `0.1.0-rc.4` with the packaged
 PC Hardware Workbench Skill `2.8.0`. It is not a production release and does
 not switch the formal default entry or enable default traffic.
 
@@ -47,13 +47,13 @@ version, asset, host, and evidence matrix.
 | Edge isolation matrix | PENDING |
 | Source and installed PCHW identity | PASS |
 | Static/full regression at R7 | PASS |
-| RC package build and hash verification | Produced by this release-prep batch |
+| RC package build and hash verification | PASS |
 | Integrated user package two-install retention gate | PASS |
 | Runtime-only package inventory and retention gate | PASS |
 | Clean Windows profile/VM install and uninstall | PENDING |
 | User release signoff | PENDING |
-| Source state | LOCAL UNCOMMITTED CANDIDATE |
-| Tag / upload / formal stable publish | NOT PERFORMED / NO STABLE RELEASE |
+| Source state | PUBLIC PRE-RELEASE / IMMUTABLE TAG |
+| Tag / upload / formal stable publish | PUBLIC PRE-RELEASE / NO STABLE RELEASE |
 
 Read [RELEASE-NOTES.md](RELEASE-NOTES.md),
 [KNOWN-LIMITATIONS.md](KNOWN-LIMITATIONS.md),

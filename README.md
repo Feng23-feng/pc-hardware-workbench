@@ -6,8 +6,7 @@ DSH are adapters, not product concepts.
 
 Version lines are independent:
 
-- SkillDock application: `0.1.0-rc.4` (source candidate; rc.3 is the latest
-  public test build; no stable release)
+- SkillDock application: `0.1.0-rc.4` (public test build; no stable release)
 - SkillSurface contract: `1.0`
 - SkillRuntime contract: `1.0`
 - AgentDriver contract: `1.0`
@@ -23,7 +22,7 @@ application; see [SKILL-TRIGGERED-UX.md](SKILL-TRIGGERED-UX.md).
 
 ## Windows release candidate
 
-The current source candidate is SkillDock `0.1.0-rc.4` with PC Hardware Workbench
+The current public test candidate is SkillDock `0.1.0-rc.4` with PC Hardware Workbench
 `2.8.0`. The R7 user-experience evidence was produced from the `2.7.4` source
 tree. The integrated Windows candidate is:
 
@@ -43,10 +42,9 @@ background write, coordinator recovery, automatic hardware changes, and formal
 stable release stay closed. Clean-Windows install/uninstall acceptance and
 explicit user signoff are still required. The same verified RC is also used to
 derive the user-installable package and the Runtime-only package. The latest
-public test build remains
-<https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.3>.
-See [`release/0.1.0-rc.3`](release/0.1.0-rc.3). The unreleased source candidate
-is documented in [`release/0.1.0-rc.4`](release/0.1.0-rc.4).
+test build is
+<https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.4>.
+See [`release/0.1.0-rc.4`](release/0.1.0-rc.4).
 
 Host scope is intentionally narrow: this version promises the
 `pchw-source-hosted` SkillDock panel only under Codex. DSH and other hosts may

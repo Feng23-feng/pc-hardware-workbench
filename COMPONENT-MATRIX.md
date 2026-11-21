@@ -10,17 +10,17 @@ not rewrite an older public tag.
 
 | Surface | Local source candidate | Latest public asset | Contains | Promised scope | Evidence state |
 | --- | --- | --- | --- | --- | --- |
-| SkillDock Runtime | `0.1.0-rc.4` | `0.1.0-rc.3` | Runtime, embedded Node, browser surface | Codex current conversation only | R7 real-user-path evidence is from an earlier Runtime; rc.4 has automated and package gates only |
+| SkillDock Runtime | `0.1.0-rc.4` | `0.1.0-rc.4` | Runtime, embedded Node, browser surface | Codex current conversation only | R7 real-user-path evidence is from an earlier Runtime; rc.4 has automated and package gates only |
 | PCHW Skill | `2.8.0` source; `2.8.0-rc.2` standalone asset reused | `2.8.0-rc.2` | Skill instructions, references, scripts | Codex supported; DSH and other hosts are structural-install candidates only; no panel promise outside Codex | Core automated suite and Skill validation; no DSH/other-host end-to-end certification |
 | PCHW Portable | `2.8.0` source; `2.8.0-rc.2` asset reused | `2.8.0-rc.2` | Standalone menu and local tools | Windows without an Agent | Existing portable validation; not rebuilt for rc.4 |
-| Runtime-only package | `0.1.0-rc.4` | `0.1.0-rc.3` | Runtime, embedded Node, runtime installer | An installed compatible PCHW Skill; Codex panel only | Package inventory and runtime verification; Skill-only plus Runtime-only end-to-end combo remains an open test |
-| Integrated user package | `0.1.0-rc.4` | `0.1.0-rc.3` | PCHW Skill, SkillDock Runtime, installer, uninstaller, licenses | Windows 11 x64, Codex Desktop, Microsoft Edge; current conversation only | Automated clean/upgrade/install/uninstall/purge gates; Clean Windows and final user signoff pending |
+| Runtime-only package | `0.1.0-rc.4` | `0.1.0-rc.4` | Runtime, embedded Node, runtime installer | An installed compatible PCHW Skill; Codex panel only | Package inventory and runtime verification; Skill-only plus Runtime-only end-to-end combo remains an open test |
+| Integrated user package | `0.1.0-rc.4` | `0.1.0-rc.4` | PCHW Skill, SkillDock Runtime, installer, uninstaller, licenses | Windows 11 x64, Codex Desktop, Microsoft Edge; current conversation only | Automated clean/upgrade/install/uninstall/purge gates; Clean Windows and final user signoff pending |
 
 ## Version identities
 
 ```text
 SkillDock source candidate:       0.1.0-rc.4
-Latest public SkillDock release:  0.1.0-rc.3
+Latest public SkillDock release:  0.1.0-rc.4
 PCHW Skill content version:       2.8.0
 Standalone PCHW asset label:      2.8.0-rc.2 (reused, not rebuilt)
 PCHW source tree:                 1cf35a8f7941bd270d92250b594d9c93638a9b3d08ebf4923057265424c5bb8b
@@ -77,5 +77,5 @@ the source-hosted test profile.
 - `reused`: an existing immutable asset, not a claim that it was rebuilt from
   the current source tree.
 
-The public rc.3 tag and assets remain immutable. The rc.4 candidate is local
-until a separate release is explicitly authorized.
+The rc.4 tag and assets are the current public test release. rc.3 remains
+immutable historical evidence.
