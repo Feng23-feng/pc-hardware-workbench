@@ -40,8 +40,8 @@ background write, coordinator recovery, automatic hardware changes, and formal
 stable release stay closed. Clean-Windows install/uninstall acceptance and
 explicit user signoff are still required. The same verified RC is also used to
 derive the user-installable package and the Runtime-only package. The current
-source candidate has not yet been published; the last public test build remains
-at
+source candidate has not yet been published; the latest published test build
+remains at
 <https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.2>.
 See
 [`release/0.1.0-rc.3`](release/0.1.0-rc.3).
