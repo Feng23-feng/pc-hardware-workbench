@@ -10,11 +10,11 @@ not rewrite an older public tag.
 
 | Surface | Local source candidate | Latest public asset | Contains | Promised scope | Evidence state |
 | --- | --- | --- | --- | --- | --- |
-| SkillDock Runtime | `0.1.0-rc.5` | `0.1.0-rc.4` | Runtime, embedded Node, browser surface | Codex current conversation only | rc.5 contract negotiation, static checks, and targeted compatibility tests pass; package and real-Edge gates pending |
-| PCHW Skill | `2.9.0` source; `2.8.0-rc.2` standalone asset remains latest public | `2.8.0-rc.2` | Skill instructions, references, scripts | Codex supported; DSH and other hosts are structural-install candidates only; no panel promise outside Codex | Skill validator, Workbench runtime, surface contract, and installation tests pass; rebuilt public assets pending |
-| PCHW Portable | `2.9.0` source; public asset remains `2.8.0-rc.2` | `2.8.0-rc.2` | Standalone menu and local tools | Windows without an Agent | Must be rebuilt for the 2.9.0 surface-contract release |
-| Runtime-only package | `0.1.0-rc.5` | `0.1.0-rc.4` | Runtime, embedded Node, runtime installer | An installed compatible PCHW Skill; Codex panel only | rc.5 build and Skill-only plus Runtime-only combo verification pending |
-| Integrated user package | `0.1.0-rc.5` | `0.1.0-rc.4` | PCHW Skill, SkillDock Runtime, installer, uninstaller, licenses | Windows 11 x64, Codex Desktop, Microsoft Edge; current conversation only | Build, package, compatibility matrix, Clean Windows, and final user signoff pending |
+| SkillDock Runtime | `0.1.0-rc.5` | `0.1.0-rc.4` | Runtime, embedded Node, browser surface | Codex current conversation only | Frozen-runtime tests, package verification, and visible Edge regression pass; Clean Windows and release signoff pending |
+| PCHW Skill | `2.9.0` source; `2.8.0-rc.2` standalone asset remains latest public | `2.8.0-rc.2` | Skill instructions, references, scripts | Codex supported; DSH and other hosts are structural-install candidates only; no panel promise outside Codex | Skill validator, full tests, surface contract, and rebuilt local 2.9.0 test assets pass; public publication pending |
+| PCHW Portable | `2.9.0` source; public asset remains `2.8.0-rc.2` | `2.8.0-rc.2` | Standalone menu and local tools | Windows without an Agent | Local 2.9.0 test asset rebuilt and validated; public publication pending |
+| Runtime-only package | `0.1.0-rc.5` | `0.1.0-rc.4` | Runtime, embedded Node, runtime installer | An installed compatible PCHW Skill; Codex panel only | Build and verifier pass; separate Skill-only plus Runtime-only combination remains unaccepted |
+| Integrated user package | `0.1.0-rc.5` | `0.1.0-rc.4` | PCHW Skill, SkillDock Runtime, installer, uninstaller, licenses | Windows 11 x64, Codex Desktop, Microsoft Edge; current conversation only | Build, package, compatibility matrix, frozen tests, and visible Edge PASS; Clean Windows and final user signoff pending |
 
 ## Version identities
 
