@@ -9,9 +9,9 @@
 - 其他操作系统只提供手动排障指导，不自动读取硬件；
 - 可选监控需要用户已经启动 LibreHardwareMonitor；本项目不会安装或启动它。
 
-当前 PCHW `2.8.0` 是测试版，最新公开测试包集成 SkillDock `0.1.0-rc.4`，目前
-没有正式版。独立的 `2.8.0-rc.2` Skill 与 Portable 资产属于既有测试资产，本次
-没有重新构建，不能据此视为与 rc.4 整合包中的 PCHW Skill 树逐字节相同。干净
+当前 PCHW 源码与测试版本为 `2.9.0`。本版新增确定性本地证据 CLI，并提供纯
+PCHW Skill、PCHW Portable 和 DeepSeek Harness 包。SkillDock 面板测试线仍为
+`0.1.0-rc.4 + PCHW 2.8.0`，尚未与 2.9.0 Skill 合并。目前没有正式版；干净
 Windows 安装、卸载和完整用户签收继续作为发布门禁。
 
 ## 先选一种包
@@ -24,27 +24,24 @@ PCHW Portable。
 
 | 包 | 适用场景 | 包含 | 操作面板 |
 | --- | --- | --- | --- |
-| PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板） | 普通用户默认选择；Codex 单独使用，或已有 DSH / 其他兼容 Agent 宿主 | 仅 PCHW Skill 发布子集 | 无 |
+| PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板） | 普通用户默认选择；Codex 单独使用，或已有 DSH / 其他兼容 Agent 宿主 | PCHW Skill 2.9.0 发布子集 | 无 |
 | PCHW Portable（独立 Windows，无需 Agent） | 没有 Codex / DSH，或不希望安装 Skill 与 Runtime | 独立菜单、采集、CSV 与证据工具 | 无 |
-| SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺应用与 Node | SkillDock Runtime、Node.js 24.22.1 | 仅 Codex 当前对话 |
-| SkillDock 面板包（用于 Codex） | 已安装 Codex Desktop，并明确需要图形操作面板 | PCHW Skill、SkillDock Runtime、安装入口 | 仅 Codex |
+| DeepSeek Harness 适配包 | 使用 DSH，并且需要 PCHW Skill 与适配文件 | 2.9.0 Skill、DSH 适配文件 | 不提供 |
+| SkillDock Runtime-only | 已安装兼容 2.8.0 PCHW Skill，只缺应用与 Node | SkillDock Runtime、Node.js 24.22.1 | 仅 Codex 当前对话 |
+| SkillDock 面板包（用于 Codex） | 已安装 Codex Desktop，并明确需要旧 2.8.0 面板测试线 | PCHW 2.8.0 Skill、SkillDock Runtime、安装入口 | 仅 Codex |
 
-[下载最新测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.4)：
+[下载 PCHW 2.9.0-test.1](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.0-test.1)：
 
 ```text
-PCHW-Skill-2.8.0-rc.2.zip
-pc-hardware-portable-v2.8.0-rc.2.zip
-SkillDock-Runtime-0.1.0-rc.4-win-x64.zip
-SkillDock-PCHW-0.1.0-rc.4-win-x64-user.zip
-SHA256SUMS.txt
+pc-hardware-workbench-v2.9.0-test.1-installer.zip
+pc-hardware-workbench-v2.9.0-test.1-manual.zip
+pc-hardware-portable-v2.9.0-test.1.zip
+pc-hardware-workbench-deepseek-harness-v2.9.0-test.1.zip
 ```
 
-Release 标签 `v0.1.0-rc.4` 按 SkillDock 应用命名。PCHW Skill 与 Portable 使用独立
-版本线；`2.8.0-rc.2` 文件是有意复用，但不是 rc.4 整合包 Skill 树的逐字节副本。
-
-SkillDock 资产为 `0.1.0-rc.4`；PCHW Skill 与 Portable 资产继续使用既有的
-`2.8.0-rc.2`。clean Windows 安装、卸载和最终签收仍是 PENDING。不要把旧版本
-ZIP、Skill 目录和 Runtime 混在一起。
+SkillDock 面板文件继续由 `v0.1.0-rc.4` 单独提供，其中的 PCHW Skill 仍是
+2.8.0。clean Windows 安装、卸载和最终签收仍是 PENDING。不要把旧版本 ZIP、
+2.8.0 Skill 目录与 2.9.0 Skill 目录混在一起。
 
 <a id="pchw-portable"></a>
 
@@ -264,7 +261,8 @@ Test-Path $pointer
 
 ## 已知限制
 
-- `2.8.0` 目前只有测试版，没有正式版；干净 Windows 签收仍待完成。
+- `2.9.0` 目前只有 PCHW Skill/Portable 测试版，没有正式版；干净 Windows 签收仍待完成。
+- SkillDock 面板包继续使用 PCHW `2.8.0` 与 SkillDock `0.1.0-rc.4`。
 - SkillDock 面板只支持 Codex 当前用户对话。
 - Panel 不可用、权限被拒绝或工作区冲突时必须回到对话，不能暴露开发入口。
 - 实时采集取决于 Windows 权限和宿主沙箱，不能把权限拒绝误报为缺件。

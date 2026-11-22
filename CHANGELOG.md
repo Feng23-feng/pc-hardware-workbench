@@ -1,5 +1,19 @@
 # 电脑硬件工作台版本记录
 
+## 2.9.0 — 2026-11-22
+
+- 新增确定性本地证据 CLI `scripts/pcwb.ps1`，统一提供只读 `inventory`、`analyze telemetry`、`analyze presentmon`、`evidence package`、`verify claim` 和 `doctor` 入口；
+- 新增固定 `SchemaVersion 1.0` JSON envelope，统一 `ok / partial / needs-input / blocked / failed` 状态、退出码、输入哈希、artifact 哈希、警告、错误、限制和下一步；
+- 新增 `scripts/pcwb-evidence.ps1`、`scripts/pcwb-child-runner.ps1` 和 `schemas/pcwb-result.schema.json`；子脚本经 UTF-8 边界调用，JSON artifact 使用无 BOM 原子写入；
+- CLI 继续使用现有本地路径安全、只读采集和分析脚本，不提供设置写入、自动提权、BIOS/固件/频率/电压/功耗/风扇修改或后台 collector；
+- 使用真实 HWiNFO CSV 验证 663 列、重复列名、附加元数据、时间窗口、输入/artifact 哈希和三段独立分析；
+- 新增 PCWB CLI 自动回归，覆盖不同工作目录、带空格路径、UTF-8、无 BOM、权限阻断、非法 UNC、PresentMon、证据包和禁止写入路由；
+- Skill 入口增加结构化本地证据路由，并把完整命令和错误处理契约下沉到 `references/integration/pcwb-cli.md`；
+- 更新版本一致性、Doctor 必需文件、交互契约、Orrery 和网站运行时检查；
+- 本版不包含原生 3DMark `.3dmark-result` 导入；只承诺通用遥测分析，3DMark 结果关联未列入 2.9.0；
+- PCHW Skill、Portable 和 DeepSeek Harness 包使用 `2.9.0-test.1`；SkillDock 面板包仍保持独立的 `0.1.0-rc.4 + PCHW 2.8.0` 测试线，未与 2.9.0 混装；
+- `2.9.0` 仍为测试版，clean Windows 安装/卸载与完整用户签收继续 PENDING。
+
 ## 2.8.0 — 2026-11-17（2026-11-18 文档与分发更新）
 
 - 2026-11-21 SkillDock `0.1.0-rc.4` 源码候选新增本地存储面板：可导出受保护 Runtime 回退备份及共享 Node 引擎，普通（非 source-hosted）Task/证据必须先下载与当前 State 绑定的导出才能确认清理；source-hosted Task 暂不允许在面板中清空；清理支持崩溃恢复和重试幂等；公开测试包为 `0.1.0-rc.4`；

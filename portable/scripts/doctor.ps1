@@ -133,6 +133,10 @@ if ($null -ne $resolvedRoot) {
         "scripts/render-gantt-chart.ps1",
         "scripts/run-evidence-pipeline.ps1",
         "scripts/analyze-presentmon.ps1",
+        "scripts/pcwb.ps1",
+        "scripts/pcwb-evidence.ps1",
+        "scripts/pcwb-child-runner.ps1",
+        "schemas/pcwb-result.schema.json",
         "scripts/skilldock/launch-panel.ps1",
         "scripts/skilldock/sync-panel.ps1",
         "scripts/skilldock/wait-panel.ps1",
@@ -153,6 +157,7 @@ if ($null -ne $resolvedRoot) {
         "references/integration/telemetry-normalization.md",
         "references/integration/claim-verification.md",
         "references/integration/presentmon-frame-time.md",
+        "references/integration/pcwb-cli.md",
         "references/integration/dynamic-rag.md",
         "references/integration/lhm-adapter.md",
         "references/integration/visual-evidence.md"

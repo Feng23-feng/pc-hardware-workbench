@@ -190,6 +190,8 @@ This is a test candidate. Independent human acceptance is incomplete.
 
 Included capabilities
 
+- deterministic local evidence CLI with a fixed JSON envelope, structured status
+  and exit codes, SHA-256-linked artifacts, and read-only command routing;
 - evidence-gated troubleshooting with deterministic GPU starting candidates;
 - user-claim verification that distinguishes measured, user-confirmed, historical,
   estimated, conflicting, and unverifiable values;
@@ -241,7 +243,7 @@ $buildInfo = [pscustomobject]@{
     SkillFiles = $skillFiles.Count
     PortableFiles = $portableFiles.Count
     HardwareWrite = "none"
-    HumanAcceptance = "PENDING"
+    HumanAcceptance = $HumanAcceptanceStatus
     BroadDistributionApproved = $false
 }
 $buildJson = $buildInfo | ConvertTo-Json -Depth 8
@@ -257,7 +259,7 @@ $dshBuildInfo = [pscustomobject]@{
     AdapterFiles = $adapterFiles.Count
     SkillFiles = $dshSkillFiles.Count
     HardwareWrite = "none"
-    HumanAcceptance = "PENDING"
+    HumanAcceptance = $HumanAcceptanceStatus
     BroadDistributionApproved = $false
 }
 $dshBuildJson = $dshBuildInfo | ConvertTo-Json -Depth 8
@@ -299,6 +301,8 @@ Artifact
 - Git commit: $gitCommit
 
 Included
+- deterministic local evidence CLI (`pcwb.ps1`) with fixed JSON, status/exit
+  mapping, UTF-8 child-process isolation, and hash-linked artifacts;
 - evidence-gated troubleshooting with deterministic GPU starting candidates;
 - user-claim verification that distinguishes measured, user-confirmed, historical,
   estimated, conflicting, and unverifiable values;
@@ -476,7 +480,7 @@ Skill: $version
 Git commit: $gitCommit
 HardwareWrite: none
 Live LHM: explicit consent only
-Human acceptance: PENDING
+Human acceptance: $HumanAcceptanceStatus
 Approved for broad distribution: NO
 "@
 $portableCurrent = @"
@@ -489,7 +493,7 @@ Product banner: $version
 Git commit: $gitCommit
 HardwareWrite: none
 Live collection: explicit opt-in only
-Human acceptance: PENDING
+Human acceptance: $HumanAcceptanceStatus
 Approved for broad distribution: NO
 "@
 $dshCurrent = @"
@@ -501,7 +505,7 @@ $releaseName\$dshZipName
 Skill: $version
 Git commit: $gitCommit
 HardwareWrite: none
-Human acceptance: PENDING
+Human acceptance: $HumanAcceptanceStatus
 Approved for broad distribution: NO
 "@
 [IO.File]::WriteAllText((Join-Path (Join-Path $OutputRoot "pc-hardware-workbench") "CURRENT.txt"), $skillCurrent, $utf8NoBom)

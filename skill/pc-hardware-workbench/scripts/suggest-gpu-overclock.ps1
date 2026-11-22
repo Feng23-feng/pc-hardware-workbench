@@ -607,7 +607,7 @@ if ($ReportFreshness -ne "Fresh") {
 
 $result = [ordered]@{
     ScriptVersion = "2.0.3"
-    SuiteVersion = "2.8.0"
+    SuiteVersion = "2.9.0"
     NoHardwareChange = $true
     HardwareWrite = "none"
     SafetyNoticeRequired = $true

@@ -9,13 +9,11 @@ system inventory, troubleshooting, telemetry analysis, guided tuning, and upgrad
 decisions into one workflow while leaving every persistent hardware change to the
 user.
 
-The latest public test package combines **PCHW Skill 2.8.0 with SkillDock
-0.1.0-rc.4** and keeps standalone PCHW Portable 2.8.0. There is no stable release
-yet. Here `2.8.0` is the PCHW Skill and Portable version and `0.1.0-rc.4` is
-the SkillDock application version. The standalone `2.8.0-rc.2` Skill and
-Portable assets are reused from an earlier test build and were not rebuilt for
-rc.4; they must not be treated as byte-identical to the PCHW Skill tree inside
-the rc.4 integrated package.
+The current PCHW source and test version is **2.9.0-test.1**. It adds the
+deterministic local evidence CLI and ships PCHW Skill, Portable, and DeepSeek
+Harness packages. The PCHW `2.8.0` SkillDock panel line remains separate as
+SkillDock `0.1.0-rc.4` and has not been combined with the 2.9.0 Skill. There is
+no stable release yet.
 Automated tests and targeted human review pass, but broad real-device coverage,
 clean-Windows install/uninstall, and the remaining human scenarios are still in
 progress. The project does not claim this test build is stable or fully
@@ -50,6 +48,9 @@ The interactive project pages are currently available in Chinese:
 - **Analyzes real telemetry.** Read CSV files, HWiNFO exports, and structured sensor
   snapshots while preserving sample interval, missing values, source, and time range,
   and render an SVG overview when a usable series exists.
+- **Provides deterministic local evidence.** `pcwb.ps1` returns a fixed JSON envelope,
+  structured status/exit codes, and SHA-256-linked inputs and artifacts for read-only
+  inventory, telemetry, PresentMon, evidence-package, claim, and Doctor routes.
 - **Visualizes timed plans.** Render a Gantt view for multi-phase tuning, warm-up,
   validation, reboot, and soak schedules; skip it for one-step or untimed guidance.
   `done` means execution ended without a verdict; `pass/fail` remain outcome labels.
@@ -75,9 +76,10 @@ The interactive project pages are currently available in Chinese:
 - **Remains read-only.** It does not modify BIOS, clocks, voltage, power limits, fans,
   memory timings, or firmware automatically.
 
-## Four download packages
+## Download packages and version lines
 
-[Download the latest test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.4),
+[Download PCHW 2.9.0-test.1](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.0-test.1)
+or [download the SkillDock panel test line](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.4),
 then choose exactly one package. Do not place multiple copies of the same Skill
 in one host's scan directory.
 Most users should start with the PCHW Skill package without the panel. Choose
@@ -87,25 +89,23 @@ no installation at all, use the standalone Portable tool.
 
 | Package | Choose it when | Includes | SkillDock panel |
 | --- | --- | --- | --- |
-| PCHW Skill (Codex / DSH / other Agents; no panel) | Default choice; use Codex alone or with DSH / another compatible Agent host | PCHW Skill 2.8.0 release subset only | No |
+| PCHW Skill (Codex / DSH / other Agents; no panel) | Default choice; use Codex alone or with DSH / another compatible Agent host | PCHW Skill 2.9.0 release subset only | No |
 | PCHW Portable (standalone Windows; no Agent) | You do not use Codex / DSH, or want no Skill or Runtime installation | Standalone menu, collection, CSV, and evidence tools | No |
-| SkillDock Runtime-only | A compatible PCHW Skill is installed and only the Runtime and Node are missing | SkillDock Runtime + Node.js 24.22.1 | Current Codex conversation only |
-| SkillDock panel bundle (for Codex) | Codex Desktop is installed and you specifically want the graphical panel | PCHW Skill, SkillDock Runtime, installer | Current Codex conversation only |
+| DeepSeek Harness adapter | You use DSH and want PCHW Skill plus its adapter files | 2.9.0 Skill and DSH adapter files | Not provided |
+| SkillDock Runtime-only | A compatible 2.8.0 PCHW Skill is installed and only the Runtime and Node are missing | SkillDock Runtime + Node.js 24.22.1 | Current Codex conversation only |
+| SkillDock panel bundle (for Codex) | Codex Desktop is installed and you specifically want the older 2.8.0 panel test line | PCHW 2.8.0 Skill, SkillDock Runtime, installer | Current Codex conversation only |
 
-Current public GitHub test-build files:
+The 2.9.0-test.1 release files are:
 
 ```text
-PCHW-Skill-2.8.0-rc.2.zip
-pc-hardware-portable-v2.8.0-rc.2.zip
-SkillDock-Runtime-0.1.0-rc.4-win-x64.zip
-SkillDock-PCHW-0.1.0-rc.4-win-x64-user.zip
-SHA256SUMS.txt
+pc-hardware-workbench-v2.9.0-test.1-installer.zip
+pc-hardware-workbench-v2.9.0-test.1-manual.zip
+pc-hardware-portable-v2.9.0-test.1.zip
+pc-hardware-workbench-deepseek-harness-v2.9.0-test.1.zip
 ```
 
-The release tag `v0.1.0-rc.4` follows the SkillDock application version. PCHW
-Skill and Portable use independent version lines. The intentional reuse of
-`2.8.0-rc.2` assets is not a mislabeled package, but those assets are not a
-byte-for-byte copy of the rc.4 integrated-package Skill tree.
+The SkillDock panel files remain in the separate `v0.1.0-rc.4` release. Do not
+mix the PCHW 2.8.0 Skill from that bundle with the 2.9.0 Skill.
 
 This is a public test build. Clean-Windows installation, uninstallation, and
 final signoff remain PENDING. Do not mix multiple Skills or old Runtime
@@ -144,8 +144,8 @@ Runtime, shared engine, and rollback backup.
 
 ### PCHW Portable (standalone Windows; no Agent)
 
-1. Download `pc-hardware-portable-v2.8.0-rc.2.zip` and verify it with
-   `SHA256SUMS.txt` or the GitHub asset digest.
+1. Download `pc-hardware-portable-v2.9.0-test.1.zip` and verify it with the
+   release checksum or the GitHub asset digest.
 2. Extract the complete directory. No installation, administrator rights, API key,
    or network connection is required.
 3. Double-click `开始使用.cmd` to open the menu.
@@ -327,7 +327,8 @@ Read [Privacy and safety boundaries](docs/en/privacy-and-safety.md) for the full
 
 ## Known limitations
 
-- `2.8.0` remains a test build and has not been formally released;
+- `2.9.0` remains a PCHW Skill/Portable test build and has no stable release;
+- the SkillDock panel bundle remains on PCHW `2.8.0` and SkillDock `0.1.0-rc.4`;
 - clean-Windows install/uninstall, real-device coverage, and complete user signoff
   are still in progress;
 - the SkillDock panel is promised only for the current Codex conversation;
@@ -371,7 +372,7 @@ Chinese. The contributing and security policies are available in English.
 
 Use [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
 and [CHANGELOG.md](CHANGELOG.md) as the source of version status. The current
-build is a `2.8.0` test build, and no stable release has been published. GitHub
+build is a `2.9.0` test build, and no stable release has been published. GitHub
 main may be ahead of the downloadable test build.
 
 Source code is available under the [MIT License](LICENSE).

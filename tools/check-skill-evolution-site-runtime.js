@@ -13,6 +13,7 @@ const frozenOrrery = JSON.parse(fs.readFileSync(
   "utf8"
 ));
 const expectedFileCount = Number(frozenOrrery.fileCount);
+const expectedSkillVersion = String(frozenOrrery.version);
 const browserCandidates = [
   process.env.EDGE_PATH,
   "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
@@ -429,9 +430,8 @@ async function testHomeViewport(siteUrl, name, width, height) {
       advancedEntryHref: document.querySelector(".dse-advanced-entry a")?.getAttribute("href") || "",
       primaryPaths: [...document.querySelectorAll(".dse-explore-primary a")].map(link => link.getAttribute("href")),
       heroVersion: document.getElementById("dse-hero-version")?.textContent.trim() || "",
-      visibleVersionCount: (
-        document.getElementById("dse-root")?.innerText.match(/2\.8\.0/g) || []
-      ).length,
+      visibleVersionCount:
+        (document.getElementById("dse-root")?.innerText.split(${JSON.stringify(expectedSkillVersion)}).length - 1) || 0,
       technicalClosed: !document.querySelector(".dse-home-technical")?.open,
       technicalSummary: document.querySelector(".dse-home-technical > summary")?.innerText.trim() || "",
       technicalExpanded: document.getElementById("dse-home-technical-summary")?.getAttribute("aria-expanded") || "",
@@ -473,7 +473,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
     );
     check(!initial.aboutPresent, `${prefix}removed philosophy section still exists.`);
     check(
-      initial.heroVersion === "2.8.0" &&
+      initial.heroVersion === expectedSkillVersion &&
       initial.visibleVersionCount === 1,
       `${prefix}homepage should expose the current version exactly once (${JSON.stringify({
         heroVersion: initial.heroVersion,
@@ -783,7 +783,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
     })()`, 2500);
     const opened = await evaluate(connection, `(() => ({
       open: Boolean(document.querySelector(".dse-home-technical")?.open),
-      version: document.querySelector(".dse-home-technical")?.innerText.includes("2.8.0") || false,
+      version: document.querySelector(".dse-home-technical")?.innerText.includes(${JSON.stringify(expectedSkillVersion)}) || false,
       versionCodeSize: Number.parseFloat(getComputedStyle(document.querySelector(".dse-version-code")).fontSize),
       versionButtons: document.querySelectorAll(".dse-version").length,
       summaryExpanded: document.getElementById("dse-home-technical-summary")?.getAttribute("aria-expanded") || "",
@@ -794,7 +794,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       opened.open &&
       opened.version &&
       opened.versionCodeSize >= 16 &&
-      opened.versionButtons === 115 &&
+      opened.versionButtons === 116 &&
       opened.summaryExpanded === "true" &&
       opened.actionText.includes("收起技术资料"),
       `${prefix}technical archive does not open correctly (${JSON.stringify(opened)}).`
@@ -852,7 +852,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       !publicMap.prototypeTrack &&
       !publicMap.convergence &&
       publicMap.coreCodes.includes("WB-09") &&
-      publicMap.integrationTitle.includes("2.8.0 测试版") &&
+      publicMap.integrationTitle.includes(`${expectedSkillVersion} 测试版`) &&
       publicMap.archiveSeries.some(label => label.includes("GPU 自动候选整合史 / 3.x")),
       `${prefix}public map still exposes the retired prototype as a parallel product (${JSON.stringify(publicMap)}).`
     );
@@ -1223,7 +1223,7 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
         backdropScene: document.documentElement.dataset.crtSceneIntent || "",
         compareStepPresent: Boolean(document.querySelector('[data-tune-step-link="compare"]')),
         comparePanelVisible: (document.getElementById("dse-tune-compare-panel")?.getBoundingClientRect().height || 0) > 0,
-        visibleVersionNumber: document.getElementById("dse-root")?.innerText.includes("2.8.0") || false
+        visibleVersionNumber: document.getElementById("dse-root")?.innerText.includes(${JSON.stringify(expectedSkillVersion)}) || false
       };
     })()`);
     check(initial.title.includes("高级模式"), `${prefix}browser title is not user-facing.`);
@@ -1231,7 +1231,7 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
     check(
       initial.status.includes("当前测试版") &&
       initial.status.includes("只读演示") &&
-      !initial.status.includes("2.8.0"),
+      !initial.status.includes(expectedSkillVersion),
       `${prefix}advanced page does not use the public test-release label.`
     );
     check(

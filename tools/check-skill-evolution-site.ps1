@@ -20,6 +20,7 @@ $crtJsPath = Join-Path $siteRoot "crt-backdrop.js"
 $orreryPreviewPath = Join-Path $siteRoot "assets\orrery-preview.png"
 $orreryPath = Join-Path $siteRoot "orrery\index.html"
 $frozenPath = Join-Path $siteRoot "orrery\FROZEN.json"
+$skillSourcePath = Join-Path $RepositoryRoot "skill\pc-hardware-workbench\SKILL.md"
 
 foreach ($path in @(
     $pagesIndexPath,
@@ -31,7 +32,8 @@ foreach ($path in @(
     $crtJsPath,
     $orreryPreviewPath,
     $orreryPath,
-    $frozenPath
+    $frozenPath,
+    $skillSourcePath
 )) {
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
         $errors.Add("Missing site file: $path") | Out-Null
@@ -39,6 +41,15 @@ foreach ($path in @(
 }
 
 if ($errors.Count -eq 0) {
+    $skillSource = Get-Content -Raw -LiteralPath $skillSourcePath -Encoding UTF8
+    $skillVersionMatch = [regex]::Match($skillSource, '(?m)^\s*version:\s*"([^"]+)"\s*$')
+    if (-not $skillVersionMatch.Success) {
+        $errors.Add("Skill source version is missing.") | Out-Null
+        $expectedVersion = "unknown"
+    }
+    else {
+        $expectedVersion = $skillVersionMatch.Groups[1].Value
+    }
     $pagesIndex = Get-Content -Raw -LiteralPath $pagesIndexPath -Encoding UTF8
     if (
         $pagesIndex -notmatch
@@ -350,11 +361,12 @@ if ($errors.Count -eq 0) {
     else {
         $segment = $homeTemplate.Substring($start, $end - $start)
         $versionCount = [regex]::Matches($segment, '(?m)^\s*\["\d+\.\d+\.\d+(?:-r\d+)?",').Count
-        if ($versionCount -ne 115) {
-            $errors.Add("Home source version count is $versionCount, expected 115.") | Out-Null
+        if ($versionCount -ne 116) {
+            $errors.Add("Home source version count is $versionCount, expected 116.") | Out-Null
         }
-        if ($segment -notmatch '\["2\.8\.0"[^\r\n]*CURRENT CANDIDATE') {
-            $errors.Add("Home source current 2.8.0 archive record is missing.") | Out-Null
+        $currentVersionPattern = '\["' + [regex]::Escape($expectedVersion) + '"[^\r\n]*CURRENT CANDIDATE'
+        if ($segment -notmatch $currentVersionPattern) {
+            $errors.Add("Home source current $expectedVersion archive record is missing.") | Out-Null
         }
         if ($segment -notmatch '\["2\.7\.4"[^\r\n]*PREVIOUS LOCAL') {
             $errors.Add("Home source previous 2.7.4 archive record is missing.") | Out-Null
@@ -451,7 +463,7 @@ if ($errors.Count -eq 0) {
     finally {
         $sha256.Dispose()
     }
-    if ($frozen.version -ne "2.8.0" -or $frozen.status -ne "frozen") {
+    if ($frozen.version -ne $expectedVersion -or $frozen.status -ne "frozen") {
         $errors.Add("Orrery FROZEN.json version/status is unexpected.") | Out-Null
     }
     if ([int]$frozen.bytes -ne $orreryBytes.Length -or $frozen.sha256 -ne $orreryHash) {

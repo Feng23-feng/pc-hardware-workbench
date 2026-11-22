@@ -10,11 +10,10 @@
 - Optional monitoring requires an already-running LibreHardwareMonitor instance.
   This project does not install or start it.
 
-The current PCHW `2.8.0` build is a test build and the latest public package
-includes SkillDock `0.1.0-rc.4`; neither has a stable release. The standalone
-`2.8.0-rc.2` Skill and Portable assets are reused from an earlier test build and
-were not rebuilt for rc.4; they are not a byte-for-byte copy of the PCHW Skill
-tree inside the rc.4 integrated package. Clean-Windows installation,
+The current PCHW source and test version is `2.9.0`. It adds the deterministic
+local evidence CLI and ships pure PCHW Skill, Portable, and DeepSeek Harness
+packages. The SkillDock panel test line remains `0.1.0-rc.4 + PCHW 2.8.0` and
+has not been combined with the 2.9.0 Skill. Clean-Windows installation,
 uninstallation, and complete user signoff remain pending.
 
 ## Choose one distribution
@@ -26,30 +25,24 @@ no installation at all, use PCHW Portable.
 
 | Package | Use it when | Includes | Panel |
 | --- | --- | --- | --- |
-| PCHW Skill (Codex / DSH / other Agents; no panel) | Default choice; use Codex alone or with DSH / another compatible Agent host | PCHW Skill release subset only | No |
+| PCHW Skill (Codex / DSH / other Agents; no panel) | Default choice; use Codex alone or with DSH / another compatible Agent host | PCHW Skill 2.9.0 release subset | No |
 | PCHW Portable (standalone Windows; no Agent) | You do not use Codex / DSH, or want no Skill or Runtime installation | Standalone menu, collection, CSV, and evidence tools | No |
-| SkillDock Runtime-only | A compatible PCHW Skill is installed and only the application and Node are missing | SkillDock Runtime, Node.js 24.22.1 | Current Codex conversation only |
-| SkillDock panel bundle (for Codex) | Codex Desktop is installed and you specifically want the graphical panel | PCHW Skill, SkillDock Runtime, installer | Current Codex conversation only |
+| DeepSeek Harness adapter | You use DSH and want the PCHW Skill plus adapter files | 2.9.0 Skill and DSH adapter files | Not provided |
+| SkillDock Runtime-only | A compatible 2.8.0 PCHW Skill is installed and only the application and Node are missing | SkillDock Runtime, Node.js 24.22.1 | Current Codex conversation only |
+| SkillDock panel bundle (for Codex) | Codex Desktop is installed and you specifically want the older 2.8.0 panel test line | PCHW 2.8.0 Skill, SkillDock Runtime, installer | Current Codex conversation only |
 
-[Download the latest test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.4):
+[Download PCHW 2.9.0-test.1](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.0-test.1):
 
 ```text
-PCHW-Skill-2.8.0-rc.2.zip
-pc-hardware-portable-v2.8.0-rc.2.zip
-SkillDock-Runtime-0.1.0-rc.4-win-x64.zip
-SkillDock-PCHW-0.1.0-rc.4-win-x64-user.zip
-SHA256SUMS.txt
+pc-hardware-workbench-v2.9.0-test.1-installer.zip
+pc-hardware-workbench-v2.9.0-test.1-manual.zip
+pc-hardware-portable-v2.9.0-test.1.zip
+pc-hardware-workbench-deepseek-harness-v2.9.0-test.1.zip
 ```
 
-The release tag `v0.1.0-rc.4` follows the SkillDock application version. PCHW
-Skill and Portable use independent version lines. Reusing the `2.8.0-rc.2`
-assets is intentional, but those assets are not a byte-for-byte copy of the
-rc.4 integrated-package Skill tree.
-
-The SkillDock assets are `0.1.0-rc.4`; the existing PCHW Skill and Portable
-assets remain `2.8.0-rc.2`. Clean-Windows installation, uninstallation, and final
-signoff remain PENDING. Do not mix old and current Skill, Runtime, or package
-files.
+The SkillDock panel remains in the separate `v0.1.0-rc.4` release with PCHW
+2.8.0. Clean-Windows installation, uninstallation, and final signoff remain
+PENDING. Do not mix the 2.8.0 panel Skill with the 2.9.0 Skill.
 
 <a id="pchw-portable"></a>
 
@@ -284,7 +277,8 @@ Close DSH and remove:
 
 ## Known limitations
 
-- `2.8.0` currently has no stable release; clean-Windows signoff remains pending.
+- `2.9.0` currently has no stable PCHW Skill/Portable release; clean-Windows signoff remains pending.
+- the SkillDock panel bundle remains on PCHW `2.8.0` and SkillDock `0.1.0-rc.4`.
 - The SkillDock panel is supported only in the current Codex user conversation.
 - If the panel is unavailable, permission is denied, or another workspace is active,
   continue in chat without exposing a developer entry.

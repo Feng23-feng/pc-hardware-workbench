@@ -7,13 +7,12 @@
 排查、遥测分析、手动调校和升级判断收敛到一套工作流，同时把每一次硬件变更留给
 用户亲手完成。
 
-当前版本为 **2.8.0 测试版**；最新公开测试包集成 SkillDock `0.1.0-rc.4`，并保留
-独立 PCHW Portable 2.8.0。目前没有正式版。其中 `2.8.0` 是 PCHW Skill 与 Portable
-版本，`0.1.0-rc.4` 是 SkillDock 应用版本。独立的 `2.8.0-rc.2` Skill 与 Portable
-资产属于既有测试资产，本次没有重新构建；它们不能据此视为与 rc.4 整合包中的
-PCHW Skill 树逐字节相同。完整自动测试和定向人工审阅已通过；
-真实设备覆盖、干净 Windows 安装/卸载和其余交互场景签署仍在继续。项目不会把
-测试版包装成稳定版。
+当前版本为 **2.9.0 测试版**（发布标签 `2.9.0-test.1`）。本版新增确定性本地证据 CLI，
+并提供纯 PCHW Skill、PCHW Portable 和 DeepSeek Harness 包。PCHW `2.8.0` 的
+SkillDock 面板测试线仍独立保留为 `0.1.0-rc.4`，尚未与 2.9.0 Skill 合并发布。
+目前没有正式版。完整自动测试和本轮真实 CSV 功能验收已通过；真实设备覆盖、
+干净 Windows 安装/卸载和其余交互场景签署仍在继续。项目不会把测试版包装成
+稳定版。
 
 ![文件星球预览](docs/skill-evolution/assets/orrery-preview.png)
 
@@ -42,6 +41,9 @@ PCHW Skill 树逐字节相同。完整自动测试和定向人工审阅已通过
   用超频或换件掩盖尚未解释的问题。
 - **分析真实遥测。** 读取 CSV、HWiNFO 导出和结构化传感器快照，保留采样间隔、
   缺失值、来源和时间窗口；有可用指标时生成 SVG 图表。
+- **确定性本地证据 CLI。** 通过统一的 `pcwb.ps1` 返回固定 JSON envelope、
+  结构化状态/退出码、输入与 artifact 哈希；只读封装盘点、遥测、PresentMon、
+  证据包、声明核验和 Doctor，不提供硬件写入或自动提权。
 - **展示时间计划。** 多阶段调校、预热、复查、重启和回归时间线可生成甘特图；
   单步建议或时长不明时不会硬画。`done` 表示执行结束但未判定，`pass/fail` 仍表示测试结论。
 - **核验用户声明。** 区分当前实测、用户刚确认、历史记录、估算和冲突，避免把旧值
@@ -61,9 +63,10 @@ PCHW Skill 树逐字节相同。完整自动测试和定向人工审阅已通过
   的本机 LibreHardwareMonitor、视觉截图说明和跨轮硬件案卷。
 - **始终只读。** 不自动修改 BIOS、频率、电压、功耗、风扇、内存时序或固件。
 
-## 四种下载包
+## 下载包与版本线
 
-[下载最新测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.4)，
+[下载 PCHW 2.9.0-test.1](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.0-test.1)
+或[下载 SkillDock 面板测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.4)，
 按使用场景只选一个包；不要把同一个 Skill 的多个副本放进同一个宿主扫描目录。
 普通用户默认选择不含面板的纯 PCHW Skill；只有明确需要网页操作面板时，再选择
 SkillDock 面板包（需已安装 Codex）。没有 Agent，或希望完全不安装时，选择独立
@@ -71,23 +74,24 @@ SkillDock 面板包（需已安装 Codex）。没有 Agent，或希望完全不�
 
 | 包 | 适合谁 | 包含 | SkillDock 面板 |
 | --- | --- | --- | --- |
-| PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板） | 普通用户默认选择；Codex 单独使用，或已有 DSH / 其他兼容 Agent 宿主 | 仅 PCHW Skill 2.8.0 发布子集 | 无 |
+| PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板） | 普通用户默认选择；Codex 单独使用，或已有 DSH / 其他兼容 Agent 宿主 | PCHW Skill 2.9.0 发布子集 | 无 |
 | PCHW Portable（独立 Windows，无需 Agent） | 没有 Codex / DSH，或不希望安装 Skill 与 Runtime | 独立菜单、采集、CSV 与证据工具 | 无 |
-| SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺 SkillDock 应用与 Node | SkillDock Runtime + Node.js 24.22.1 | 仅 Codex 当前对话 |
-| SkillDock 面板包（用于 Codex） | 已安装 Codex Desktop，并明确需要图形操作面板 | PCHW Skill、SkillDock Runtime、安装入口 | 仅 Codex 当前对话 |
+| DeepSeek Harness 适配包 | 使用 DSH，并且需要与 PCHW Skill 一起安装 | 2.9.0 Skill 与 DSH 适配文件 | 不提供 |
+| SkillDock Runtime-only | 已安装兼容 2.8.0 Skill，只缺 SkillDock 应用与 Node | SkillDock Runtime + Node.js 24.22.1 | 仅 Codex 当前对话 |
+| SkillDock 面板包（用于 Codex） | 已安装 Codex Desktop，并明确需要旧 2.8.0 面板测试线 | PCHW 2.8.0 Skill、SkillDock Runtime、安装入口 | 仅 Codex 当前对话 |
 
-当前公开 GitHub 测试版文件：
+2.9.0-test.1 文件：
 
 ```text
-PCHW-Skill-2.8.0-rc.2.zip
-pc-hardware-portable-v2.8.0-rc.2.zip
-SkillDock-Runtime-0.1.0-rc.4-win-x64.zip
-SkillDock-PCHW-0.1.0-rc.4-win-x64-user.zip
-SHA256SUMS.txt
+pc-hardware-workbench-v2.9.0-test.1-installer.zip
+pc-hardware-workbench-v2.9.0-test.1-manual.zip
+pc-hardware-portable-v2.9.0-test.1.zip
+pc-hardware-workbench-deepseek-harness-v2.9.0-test.1.zip
 ```
 
-Release 标签 `v0.1.0-rc.4` 按 SkillDock 应用命名。PCHW Skill 与 Portable 使用独立
-版本线；`2.8.0-rc.2` 文件是有意复用，但不是 rc.4 整合包 Skill 树的逐字节副本。
+SkillDock 面板文件仍由 `v0.1.0-rc.4` Release 单独提供。不要把
+`SkillDock-PCHW-0.1.0-rc.4-win-x64-user.zip` 中的 2.8.0 Skill 与本版 2.9.0
+Skill 混装；需要图形面板的用户继续使用 rc.4 测试线。
 
 这是公开测试版，clean Windows 安装/卸载和最终签收仍为 PENDING。不要混装多个
 Skill 或旧 Runtime。
@@ -117,7 +121,7 @@ SkillDock；完全不需要 Agent 时，才选择独立便携包。SkillDock 对
 
 ### PCHW Portable 便携工具（无需 Agent）
 
-1. 下载 `pc-hardware-portable-v2.8.0-rc.2.zip`，并按 `SHA256SUMS.txt` 或
+1. 下载 `pc-hardware-portable-v2.9.0-test.1.zip`，并按 Release 的校验文件或
    GitHub asset digest 校验。
 2. 解压完整目录，不需要安装、管理员权限、API key 或网络连接。
 3. 双击 `开始使用.cmd` 进入菜单。
@@ -265,7 +269,8 @@ Skill 会根据问题进入配置、排障、遥测、调参或升级路线。�
 
 ## 已知限制
 
-- `2.8.0` 是当前测试版，目前没有正式版；
+- `2.9.0` 是当前 PCHW Skill/Portable 测试版，目前没有正式版；
+- SkillDock 面板包仍使用 PCHW `2.8.0` 与 SkillDock `0.1.0-rc.4`，未升级到 2.9.0；
 - 干净 Windows 安装/卸载、真实设备覆盖和完整用户签收仍在进行；
 - SkillDock 面板只承诺 Codex 当前用户对话；
 - Ask-for-approval 模式可能要求使用“手动打开面板”链接或 `.url`；
@@ -304,7 +309,7 @@ Skill 会根据问题进入配置、排障、遥测、调参或升级路线。�
 ## 版本与许可
 
 版本状态以 [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
-和 [CHANGELOG.md](CHANGELOG.md) 为准。当前工作台版本为 `2.8.0` 测试版，尚未正式
+和 [CHANGELOG.md](CHANGELOG.md) 为准。当前工作台源码版本为 `2.9.0` 测试版，尚未正式
 发布；GitHub main 可能领先于最近一个公开 Release。
 
 源码使用 [MIT License](LICENSE)。

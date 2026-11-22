@@ -1,4 +1,4 @@
-﻿电脑硬件便携工具包 2.8.0
+﻿电脑硬件便携工具包 2.9.0
 
 适用场景
 
@@ -581,5 +581,8 @@ scripts 文件夹中的以下文件必须一起保留：
 - render-gantt-chart.ps1
 - analyze-presentmon.ps1
 - verify-hardware-claim.ps1
+- pcwb.ps1
+- pcwb-evidence.ps1
+- pcwb-child-runner.ps1
 
 如果 Windows 提示 PowerShell 脚本受限，不需要修改系统全局策略；本包的“开始使用.cmd”只对当前启动进程使用 ExecutionPolicy Bypass。
