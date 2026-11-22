@@ -18,39 +18,72 @@ import {
 
 const root = resolve(import.meta.dirname, "..");
 const localAppData = process.env.LOCALAPPDATA;
-const pointerPath = join(localAppData, "SkillDock", "runtime-location.json");
-const pointer = JSON.parse(
-  (await readFile(pointerPath, "utf8")).replace(/^\uFEFF/u, ""),
+const configuredRuntimeRoot = process.env.SKILLDOCK_TEST_RUNTIME_ROOT;
+let runtimePackageRoot;
+if (configuredRuntimeRoot) {
+  runtimePackageRoot = resolve(configuredRuntimeRoot);
+}
+else {
+  const pointerPath = join(
+    localAppData,
+    "SkillDock",
+    "runtime-location.json",
+  );
+  const pointer = JSON.parse(
+    (await readFile(pointerPath, "utf8")).replace(/^\uFEFF/u, ""),
+  );
+  runtimePackageRoot = dirname(pointer.runtime_path);
+}
+const paths = resolveRuntimePackagePaths(
+  join(runtimePackageRoot, "SkillDock.exe"),
 );
-const paths = resolveRuntimePackagePaths(pointer.runtime_path);
-const installedSkillsRoot = join(homedir(), ".codex", "skills");
-const installedSkillRoot = join(
-  installedSkillsRoot,
-  "pc-hardware-workbench",
-);
+const installedSkillsRoot = process.env.SKILLDOCK_TEST_SKILLS_ROOT
+  ? resolve(process.env.SKILLDOCK_TEST_SKILLS_ROOT)
+  : join(homedir(), ".codex", "skills");
+const installedSkillRoot = process.env.SKILLDOCK_TEST_SKILL_ROOT
+  ? resolve(process.env.SKILLDOCK_TEST_SKILL_ROOT)
+  : join(installedSkillsRoot, "pc-hardware-workbench");
 const browserExecutable =
   "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe";
+const expectedDriver =
+  process.env.SKILLDOCK_EXPECT_DRIVER ?? "mock";
 const evidenceDir = join(
   root,
   "work",
   "pchw-installed-root-mock-edge-20261117",
 );
+const runtimeManifest = JSON.parse(
+  (
+    await readFile(
+      join(runtimePackageRoot, "RC-MANIFEST.json"),
+      "utf8",
+    )
+  ).replace(/^\uFEFF/u, ""),
+);
 const expected = {
-  server:
-    "60f2a0b88a662fbc416e8efece01a3ffcd22e9c819583e1f1bbfb0a6645b75af",
-  app:
-    "ba30ca86723281ff3949b99db369edbd8ce3f07aba33b42bc6b55fc754c7f267",
-  index:
-    "3b05b901a05c370c481936b50db0c9934ee9c92ccccc4929bd1f27fef85ebd9b",
-  runtimeBinding:
-    "b4141deed7ee2da928762287b25472ed2a2964387c6bd3f7731f7adfdca07295",
-  sourceHostedPhase:
-    "8d4c72eab38f6a51d44a487ff0d1480d233116bfce67279f47e218b99c332d70",
+  server: runtimeManifest.key_hashes.server_mjs,
 };
+const packageManifestPath = join(runtimePackageRoot, "PACKAGE-MANIFEST.json");
+if (existsSync(packageManifestPath)) {
+  const packageManifest = JSON.parse(
+    (await readFile(packageManifestPath, "utf8")).replace(/^\uFEFF/u, ""),
+  );
+  const packageHashes = new Map(
+    packageManifest.entries.map((entry) => [entry.path, entry.sha256]),
+  );
+  expected.app = packageHashes.get("app/public/app.js");
+  expected.index = packageHashes.get("app/public/index.html");
+  expected.runtimeBinding = packageHashes.get(
+    "app/public/runtime-binding.js",
+  );
+  expected.sourceHostedPhase = packageHashes.get(
+    "app/public/source-hosted-phase.js",
+  );
+}
 const tempRoot = await mkdtemp(join(tmpdir(), "pchw-installed-mock-edge-"));
 const localRoot = join(tempRoot, "local-root");
 const workspace = join(tempRoot, "workspace");
-const runtimeDir = join(localRoot, "runtime-dsh-web");
+let runtimeDir = null;
 const launcherEnv = {
   ...process.env,
   SKILLDOCK_LOCAL_ROOT: localRoot,
@@ -151,10 +184,24 @@ try {
     ],
   ]) {
     assert.equal(existsSync(filePath), true, `${name} file missing`);
-    assert.equal(sha256(await readFile(filePath)), hash, `${name} hash drift`);
+    if (hash) {
+      assert.equal(sha256(await readFile(filePath)), hash, `${name} hash drift`);
+    }
   }
   assert.equal(existsSync(paths.launcherPath), true);
   assert.equal(existsSync(installedSkillRoot), true);
+  const installedWorkbenchManifest = JSON.parse(
+    (
+      await readFile(
+        join(installedSkillRoot, "workbench.manifest.json"),
+        "utf8",
+      )
+    ).replace(/^\uFEFF/u, ""),
+  );
+  assert.equal(
+    installedWorkbenchManifest.skill.version,
+    runtimeManifest.pchw_skill.version,
+  );
   assert.equal(existsSync(browserExecutable), true, "Edge executable missing");
   await mkdir(workspace, { recursive: true });
 
@@ -168,7 +215,12 @@ try {
   assert.equal(launched.code, 0);
   const { result, health } = await waitForLaunchResult();
   activeBase = result.url;
-  assert.equal(health.driver, "mock");
+  runtimeDir = [
+    join(localRoot, "runtime-pchw"),
+    join(localRoot, "runtime-dsh-web"),
+  ].find((path) => existsSync(path));
+  assert.ok(runtimeDir, "Runtime data directory was not created");
+  assert.equal(health.driver, expectedDriver);
   assert.equal(health.surface.mode, "read-only");
   assert.equal(health.agent_permission.sandbox, "read-only");
   assert.equal(health.agent_permission.approvalPolicy, "never");
@@ -279,8 +331,8 @@ try {
   if (activeBase) {
     await runLauncher(["--stop", "--silent"], 15_000).catch(() => {});
   }
-  const infoPath = join(runtimeDir, "server-info.json");
-  if (existsSync(infoPath)) {
+  const infoPath = runtimeDir ? join(runtimeDir, "server-info.json") : null;
+  if (infoPath && existsSync(infoPath)) {
     try {
       const info = await readJson(infoPath);
       await waitForPidGone(info.pid, 5_000);

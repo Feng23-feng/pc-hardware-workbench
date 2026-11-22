@@ -23,12 +23,19 @@ const manifestPath = join(
   "pc-hardware-workbench",
   "workbench.manifest.json",
 );
+const releaseManifestPath = join(packageRoot, "RC-MANIFEST.json");
 
-for (const required of [executable, manifestPath]) {
+for (const required of [executable, manifestPath, releaseManifestPath]) {
   if (!existsSync(required)) {
     throw new Error(`Portable launcher test input is missing: ${required}`);
   }
 }
+const releaseManifest = JSON.parse(
+  (await readFile(releaseManifestPath, "utf8")).replace(/^\uFEFF/u, ""),
+);
+const expectedSkillVersion = releaseManifest.pchw_skill.version;
+const expectedContractVersion =
+  releaseManifest.pchw_surface_contract?.version ?? null;
 
 const tempRoot = await mkdtemp(
   join(tmpdir(), "skilldock-portable-skill-roots-"),
@@ -134,7 +141,7 @@ async function readActiveState(localRoot) {
 
 function assertActivePchw(state) {
   assert.equal(state.skill.skill_id, "pc-hardware-workbench");
-  assert.equal(state.skill.skill_version, "2.8.0");
+  assert.equal(state.skill.skill_version, expectedSkillVersion);
   assert.equal(
     state.skill.surface_compatibility.compatible,
     true,
@@ -145,7 +152,11 @@ function assertActivePchw(state) {
   );
   assert.equal(
     state.skill.surface_compatibility.mode,
-    "legacy_exact",
+    expectedContractVersion ? "contract" : "legacy_exact",
+  );
+  assert.equal(
+    state.skill.surface_compatibility.contract_version,
+    expectedContractVersion,
   );
   assert.equal(state.skill.status, "active");
   assert.ok(state.skill.discovery.candidate_count >= 1);

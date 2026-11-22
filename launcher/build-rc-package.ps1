@@ -354,8 +354,41 @@ $StagingArchive = Join-Path `
 $NodeSource = if ($env:SKILLDOCK_NODE_DIR) {
     $env:SKILLDOCK_NODE_DIR
 }
+elseif ($env:SKILLDOCK_FROZEN_NODE) {
+    Split-Path -Parent (Resolve-Path -LiteralPath $env:SKILLDOCK_FROZEN_NODE).Path
+}
 else {
     Split-Path -Parent (Get-Command node -ErrorAction Stop).Source
+}
+$NodeSource = (Resolve-Path -LiteralPath $NodeSource).Path
+$NodeExecutable = Join-Path $NodeSource "node.exe"
+if (-not (Test-Path -LiteralPath $NodeExecutable -PathType Leaf)) {
+    throw "The selected Node source does not contain node.exe: $NodeSource"
+}
+$NodeProbeVersion = ((
+    & $NodeExecutable --version
+).Trim() -replace '^v', '')
+$NodeProbeSqlite = (
+    & $NodeExecutable -p "process.versions.sqlite"
+).Trim()
+$ProductionProfile = Get-Content `
+    -Raw `
+    -LiteralPath (Join-Path `
+        $RepositoryRoot `
+        "contracts\source-hosted-shared-task\v1\persistence\production-profile.json") |
+    ConvertFrom-Json
+if ($NodeProbeVersion -ne [string]$ReleaseConfig.bundled_node_version) {
+    throw (
+        "The selected Node version $NodeProbeVersion does not match " +
+        "$($ReleaseConfig.bundled_node_version). Set SKILLDOCK_FROZEN_NODE " +
+        "or SKILLDOCK_NODE_DIR to the frozen engine."
+    )
+}
+if ($NodeProbeSqlite -ne [string]$ProductionProfile.runtime.sqlite_verified) {
+    throw (
+        "The selected Node ships SQLite $NodeProbeSqlite instead of " +
+        "$($ProductionProfile.runtime.sqlite_verified)."
+    )
 }
 $NodeLicenseCandidates = @(
     $env:SKILLDOCK_NODE_LICENSE,

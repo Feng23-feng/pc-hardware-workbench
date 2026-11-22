@@ -20,6 +20,7 @@ const packageRoot = resolve(
     process.env.SKILLDOCK_RC_PACKAGE ??
     join(root, "dist", "SkillDock-PCHW-0.1.0-rc.4-win-x64"),
 );
+const releaseManifestPath = join(packageRoot, "RC-MANIFEST.json");
 const csvSource = resolve(
   process.env.PCHW_VISIBLE_EDGE_CSV ??
     join(root, "work", "PCHW-FRESHNESS-GATE-R7-20261117.csv"),
@@ -34,6 +35,7 @@ const edgeExecutable =
 
 for (const required of [
   join(packageRoot, "SkillDock.exe"),
+  releaseManifestPath,
   join(
     packageRoot,
     "skills",
@@ -58,6 +60,10 @@ for (const required of [
     throw new Error(`Visible Edge regression input is missing: ${required}`);
   }
 }
+const releaseManifest = JSON.parse(
+  (await readFile(releaseManifestPath, "utf8")).replace(/^\uFEFF/u, ""),
+);
+const expectedSkillVersion = releaseManifest.pchw_skill.version;
 
 const tempRoot = await mkdtemp(
   join(tmpdir(), "skilldock-visible-edge-auto-refresh-"),
@@ -364,7 +370,7 @@ try {
   assert.equal(initialStateResponse.ok, true);
   const initialState = await initialStateResponse.json();
   assert.equal(initialState.skill.skill_id, "pc-hardware-workbench");
-  assert.equal(initialState.skill.skill_version, "2.8.0");
+  assert.equal(initialState.skill.skill_version, expectedSkillVersion);
   assert.equal(
     initialState.skill.surface_compatibility.compatible,
     true,

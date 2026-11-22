@@ -17,11 +17,16 @@ const packageRoot = resolve(
     join(repoRoot, "dist", "SkillDock-PCHW-0.1.0-rc.4-win-x64"),
 );
 const installer = join(packageRoot, "Install PCHW Skill.ps1");
-for (const required of [installer]) {
+const releaseManifestPath = join(packageRoot, "RC-MANIFEST.json");
+for (const required of [installer, releaseManifestPath]) {
   if (!existsSync(required)) {
     throw new Error(`Packaged upgrade test input is missing: ${required}`);
   }
 }
+const releaseManifest = JSON.parse(
+  (await readFile(releaseManifestPath, "utf8")).replace(/^\uFEFF/u, ""),
+);
+const expectedSkillVersion = releaseManifest.pchw_skill.version;
 
 const tempRoot = await mkdtemp(
   join(tmpdir(), "skilldock-packaged-upgrade-"),
@@ -83,7 +88,10 @@ try {
     join(oldTarget, "SKILL.md"),
     "utf8",
   );
-  assert.match(installedSkill, /version:\s*"2\.8\.0"/u);
+  assert.match(
+    installedSkill,
+    new RegExp(`version:\\s*"${expectedSkillVersion.replaceAll(".", "\\.")}"`, "u"),
+  );
 
   const idempotent = await runInstaller();
   assert.equal(
