@@ -407,6 +407,7 @@ if (-not $NodeLicense) {
 $TemporaryNodeBundle = $null
 $PreviousNodeDirectory = $env:SKILLDOCK_NODE_DIR
 try {
+    $env:SKILLDOCK_NODE_DIR = $NodeSource
     if (-not (Test-Path -LiteralPath (Join-Path $NodeSource "LICENSE"))) {
         $TemporaryNodeBundle = Join-Path `
             ([IO.Path]::GetTempPath()) `
