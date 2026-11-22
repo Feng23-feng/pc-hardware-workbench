@@ -8,21 +8,21 @@ not rewrite an older public tag.
 
 ## Products
 
-| Surface | Local source candidate | Latest public asset | Contains | Promised scope | Evidence state |
+| Surface | Current test build | Latest public asset | Contains | Promised scope | Evidence state |
 | --- | --- | --- | --- | --- | --- |
-| SkillDock Runtime | `0.1.0-rc.5` | `0.1.0-rc.4` | Runtime, embedded Node, browser surface | Codex current conversation only | Frozen-runtime tests, package verification, and visible Edge regression pass; Clean Windows and release signoff pending |
-| PCHW Skill | `2.9.0` source; `2.8.0-rc.2` standalone asset remains latest public | `2.8.0-rc.2` | Skill instructions, references, scripts | Codex supported; DSH and other hosts are structural-install candidates only; no panel promise outside Codex | Skill validator, full tests, surface contract, and rebuilt local 2.9.0 test assets pass; public publication pending |
-| PCHW Portable | `2.9.0` source; public asset remains `2.8.0-rc.2` | `2.8.0-rc.2` | Standalone menu and local tools | Windows without an Agent | Local 2.9.0 test asset rebuilt and validated; public publication pending |
-| Runtime-only package | `0.1.0-rc.5` | `0.1.0-rc.4` | Runtime, embedded Node, runtime installer | An installed compatible PCHW Skill; Codex panel only | Build and verifier pass; separate Skill-only plus Runtime-only combination remains unaccepted |
-| Integrated user package | `0.1.0-rc.5` | `0.1.0-rc.4` | PCHW Skill, SkillDock Runtime, installer, uninstaller, licenses | Windows 11 x64, Codex Desktop, Microsoft Edge; current conversation only | Build, package, compatibility matrix, frozen tests, and visible Edge PASS; Clean Windows and final user signoff pending |
+| SkillDock Runtime | `0.1.0-rc.5` | `0.1.0-rc.5` | Runtime, embedded Node, browser surface | Codex current conversation only | Frozen-runtime tests, package verification, and visible Edge regression pass; Clean Windows and stable-release signoff pending |
+| PCHW Skill | `2.9.0` | `2.9.0-test.1` | Skill instructions, references, scripts | Codex supported; DSH and other hosts are structural-install candidates only; no panel promise outside Codex | Skill validator, full tests, surface contract, and public 2.9.0 test assets pass |
+| PCHW Portable | `2.9.0` | `2.9.0-test.1` | Standalone menu and local tools | Windows without an Agent | Public 2.9.0 test asset rebuilt and validated |
+| Runtime-only package | `0.1.0-rc.5` | `0.1.0-rc.5` | Runtime, embedded Node, runtime installer | An installed compatible PCHW Skill; Codex panel only | Build and verifier pass; separate Skill-only plus Runtime-only combination remains unaccepted |
+| Integrated user package | `0.1.0-rc.5` | `0.1.0-rc.5` | PCHW Skill, SkillDock Runtime, installer, uninstaller, licenses | Windows 11 x64, Codex Desktop, Microsoft Edge; current conversation only | Build, package, compatibility matrix, frozen tests, and visible Edge PASS; Clean Windows and stable user signoff pending |
 
 ## Version identities
 
 ```text
-SkillDock source candidate:       0.1.0-rc.5
-Latest public SkillDock release:  0.1.0-rc.4
+SkillDock current test build:      0.1.0-rc.5
+Latest public SkillDock release:   0.1.0-rc.5
 PCHW Skill content version:       2.9.0
-Latest public PCHW asset:         2.8.0-rc.2
+Latest public PCHW asset:         2.9.0-test.1
 PCHW source tree:                 a60e079471f4f0cdc91de866bf2755220b002f7575001082060ee0714fe5d45b
 PCHW source tree files:           141
 PCHW packaged install subset:     recorded by the verified rc.5 RC-MANIFEST.json
@@ -34,10 +34,10 @@ Supported contract range:         >=1.0.0 <2.0.0
 PCHW legacy bridge:               exact 2.8.0 only
 ```
 
-The standalone `PCHW-Skill-2.8.0-rc.2.zip` and
-`pc-hardware-portable-v2.8.0-rc.2.zip` remain the latest public PCHW assets
-until rebuilt 2.9.0 assets are verified and published. They must not be
-described as byte-identical to the Skill tree inside rc.5.
+The public `PCHW-Skill-2.9.0-test.1-*.zip` and
+`pc-hardware-portable-v2.9.0-test.1.zip` assets were rebuilt for this test
+release. They must not be described as byte-identical to the Skill subset
+inside the integrated rc.5 package.
 
 ## Runtime-only compatibility
 
@@ -85,6 +85,6 @@ the source-hosted test profile.
 - `reused`: an existing immutable asset, not a claim that it was rebuilt from
   the current source tree.
 
-The rc.4 tag and assets remain the current public test release. rc.5 is a local
-release candidate until its package gates, Clean Windows acceptance, and user
-signoff are complete.
+rc.5 is the current public test release. The rc.4 tag and assets remain the
+previous PCHW 2.8.0 panel test build. Clean Windows acceptance and stable-release
+signoff for rc.5 remain PENDING.

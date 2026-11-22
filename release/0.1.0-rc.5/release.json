@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "release_id": "0.1.0-rc.5",
-  "release_state": "release-candidate-not-released",
+  "release_state": "public-test-build",
   "product": "SkillDock + PC Hardware Workbench",
   "application_version": "0.1.0-rc.5",
   "pchw_skill_version": "2.9.0",

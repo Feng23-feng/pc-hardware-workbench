@@ -2,7 +2,7 @@
 
 Date: 2026-11-22 (+08:00)
 
-Status: **local release candidate; not released**
+Status: **public test build; not a stable release**
 
 ## 2026-11-22 rc.5
 
@@ -27,8 +27,9 @@ Status: **local release candidate; not released**
   `3.0.0`, contract `1.1.0`, rejected contract major `2`, malformed versions,
   missing contracts, missing capabilities, inactive Skills, and mismatched
   Skill ids.
-- The public rc.4 tag and assets are unchanged. rc.5 remains local until package
-  verification, Clean Windows acceptance, and explicit user signoff complete.
+- The rc.4 tag and assets remain available as the previous PCHW 2.8.0 panel
+  test build. rc.5 is published as a public test build with Clean Windows and
+  final user signoff still explicitly marked PENDING.
 
 ## 2026-11-21 rc.4
 
@@ -272,5 +273,5 @@ first, and all hardware changes remain manual user actions outside this release.
 2. Verify no leftover Runtime process, installed Skill, pointer, or test
    fixture remains after acceptance cleanup.
 3. Review the final ZIP inventory and hashes.
-4. Obtain explicit user approval before any commit, tag, push, upload, or
-   public release.
+4. Record final user approval for this public-test publication and the still
+   open stable-release gates.

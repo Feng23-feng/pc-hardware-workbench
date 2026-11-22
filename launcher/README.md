@@ -10,7 +10,7 @@ free loopback port, starts `app/server.mjs` with the bundled Node runtime, waits
 for health, validates the selected PCHW surface contract, and opens the
 browser.
 
-Build the Windows release candidate with:
+Build the Windows public test package with:
 
 ```powershell
 pnpm build:win-rc
@@ -21,7 +21,7 @@ pnpm build:runtime-only
 pnpm verify:runtime-only
 ```
 
-The candidate is written as
+The test package is written as
 `dist/SkillDock-PCHW-0.1.0-rc.5-win-x64.zip`. The RC builder refuses to replace
 an existing candidate, bundles PCHW `2.9.0` with the
 `pchw-source-hosted` `1.0.0` contract, records the exact Git worktree state,

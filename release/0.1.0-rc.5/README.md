@@ -1,11 +1,12 @@
 # SkillDock / PCHW 0.1.0-rc.5
 
-Status: **local release candidate; not released**.
+Status: **public test build; not a stable release**.
 
-This candidate combines SkillDock application `0.1.0-rc.5` with the packaged
-PC Hardware Workbench Skill `2.9.0`. It is not a production release, has not
-replaced the public `0.1.0-rc.4` test build, and does not switch the formal
-default entry or enable default traffic.
+This test build combines SkillDock application `0.1.0-rc.5` with the packaged
+PC Hardware Workbench Skill `2.9.0`. It is not a production release, supersedes
+`0.1.0-rc.4` as the current public test build, and does not switch the formal
+default entry or enable default traffic. The rc.4 release remains available as
+the previous PCHW 2.8.0 panel test build.
 
 The only user path is conversation-triggered: the user asks a hardware question
 in the current Codex conversation, consents to the graphical workspace, and the
@@ -34,7 +35,7 @@ The current compatibility policy is:
 - If no active compatible manifest is loaded, SkillDock fails closed instead
   of falling back to the compatibility chat fixture.
 
-## Candidate package
+## Public test package
 
 ```text
 dist/SkillDock-PCHW-0.1.0-rc.5-win-x64.zip
@@ -45,8 +46,8 @@ dist/SkillDock-Runtime-0.1.0-rc.5-win-x64.zip
 
 The adjacent `.sha256` sidecar and verification JSON are authoritative for the
 exact archive bytes and digest. The builder rejects replacement of an existing
-candidate. Historical packages belong under `dist/archive/` and must not be
-treated as the current candidate.
+test package. Historical packages belong under `dist/archive/` and must not be
+treated as the current test build.
 
 The verified package also contains `docs/COMPONENT-MATRIX.md` as the canonical
 version, asset, host, and evidence matrix.
@@ -67,11 +68,12 @@ version, asset, host, and evidence matrix.
 | Runtime-only package inventory and retention gate | PASS |
 | Clean Windows profile/VM install and uninstall | PENDING |
 | User release signoff | PENDING |
-| Source state | LOCAL RC PREPARATION |
-| Tag / upload / formal stable publish | NOT PERFORMED |
+| Source state | PUBLIC TEST BUILD |
+| Tag / pre-release upload | PUBLICATION IN PROGRESS |
+| Formal stable publish | NOT PERFORMED |
 
 Read [RELEASE-NOTES.md](RELEASE-NOTES.md),
 [KNOWN-LIMITATIONS.md](KNOWN-LIMITATIONS.md),
 [INSTALL.md](INSTALL.md), and
-[CLEAN-WINDOWS-ACCEPTANCE.md](CLEAN-WINDOWS-ACCEPTANCE.md) before using the
-candidate.
+[CLEAN-WINDOWS-ACCEPTANCE.md](CLEAN-WINDOWS-ACCEPTANCE.md) before using this
+test build.
