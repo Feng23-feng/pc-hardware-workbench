@@ -220,13 +220,15 @@ try {
         @(
             "release-candidate-not-released",
             "local-candidate-clean-ui-pending",
-            "release-candidate-prerelease"
+            "release-candidate-prerelease",
+            "public-test-build"
         )
     }
     else {
         @(
             "release-candidate-not-released",
-            "release-candidate-prerelease"
+            "release-candidate-prerelease",
+            "public-test-build"
         )
     }
     if ([string]$manifest.release_state -notin $allowedReleaseStates) {
