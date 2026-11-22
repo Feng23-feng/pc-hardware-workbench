@@ -20,6 +20,24 @@ phrase, retrieve the incremental panel state and continue the Task. When a
 complex Task would clearly benefit but the user did not ask, ask once:
 “这个任务要不要打开操作面板继续？”
 
+## Compatibility negotiation
+
+Resolve `surface_contracts["pchw-source-hosted"]` from the selected installed
+Skill. Require the exact Skill ID, a product version at or above
+`min_skill_version`, a compatible `contract_version`, and every declared
+`required_capabilities` entry.
+
+The product version is a minimum gate, not the panel compatibility identity.
+Within the supported contract-major range, routine Skill updates may keep using
+the installed panel without rebuilding or changing an exact version string.
+When the surface protocol changes incompatibly, increment the contract major
+version so the old host fails closed and asks for a compatible panel.
+
+Legacy exception: an installed `2.8.0` Skill that predates `surface_contracts`
+may use the exact-version compatibility bridge. Any later Skill without a valid
+contract must fail closed. Do not accept a different compatible Skill merely
+because another installed candidate passed discovery.
+
 Do not reconstruct the Runtime launch by reading `runtime-location.json`,
 starting `SkillDock.exe` directly, or creating an equivalent PowerShell command.
 Resolve `scripts/skilldock/launch-panel.ps1` from this installed Skill root and

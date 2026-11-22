@@ -79,12 +79,17 @@ try {
     Assert-ContainsAll $runtimeDoc @(
         "workbench.manifest.json", "runtime.mjs",
         "Skill ID and version", 'schema version `1.0`',
+        "surface_contracts", "pchw-source-hosted", "contract_version",
+        "min_skill_version", "required_capabilities",
         "must remain inside it", "read-only-supervised",
         "telemetry.csv.analyze", "does not contain Agent transport",
         "host-supplied runtime directory", 'installed `scripts/`',
         "scripts/skilldock/launch-panel.ps1"
     ) "Installed runtime documentation"
     Assert-ContainsAll $skilldock @(
+        "surface_contracts", "pchw-source-hosted", "contract_version",
+        "min_skill_version", "required_capabilities",
+        "legacy", "2.8.0",
         "current Agent workspace", "starts or reuses one loopback runtime",
         "User-facing intent", "channel_id", "cursor", "JSON file",
         "explicit launch phrase",

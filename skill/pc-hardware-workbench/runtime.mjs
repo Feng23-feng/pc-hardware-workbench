@@ -230,12 +230,27 @@ class PcHardwareWorkbenchRuntime {
     this.SkillRuntimeBase = options.SkillRuntime;
     this.manifest = options.manifest;
     this.projectRoot = options.projectRoot;
+    const surfaceContracts = Object.fromEntries(
+      Object.entries(options.manifest.surface_contracts ?? {}).map(
+        ([id, contract]) => [
+          id,
+          Object.freeze({
+            contract_version: contract.contract_version,
+            min_skill_version: contract.min_skill_version,
+            required_capabilities: Object.freeze([
+              ...contract.required_capabilities,
+            ]),
+          }),
+        ],
+      ),
+    );
     this.identity = Object.freeze({
       api_version: "1.0",
       skill_id: options.manifest.skill.id,
       skill_version: options.manifest.skill.version,
       manifest_hash: options.manifest.resolved?.manifest_hash ?? null,
       runtime_id: options.manifest.runtime.id,
+      surface_contracts: Object.freeze(surfaceContracts),
     });
     this.active = false;
     this.SkillRuntimeError = options.SkillRuntimeError;

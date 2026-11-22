@@ -196,6 +196,21 @@ validateAgainstSchema(manifest, manifestSchema);
 assert.equal(manifest.schema_version, "1.0");
 assert.equal(manifest.skill.id, "pc-hardware-workbench");
 assert.equal(manifest.skill.version, skillVersion);
+const sourceHostedContract =
+  manifest.surface_contracts["pchw-source-hosted"];
+assert.ok(sourceHostedContract, "pchw-source-hosted contract is missing");
+assert.match(
+  sourceHostedContract.contract_version,
+  /^\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?$/,
+);
+assert.match(
+  sourceHostedContract.min_skill_version,
+  /^\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?$/,
+);
+assert.ok(
+  sourceHostedContract.required_capabilities.includes("telemetry.csv.analyze"),
+  "source-hosted contract must require the telemetry capability",
+);
 assert.equal(manifest.permissions.default_profile.profile, "read-only-supervised");
 assert.equal(manifest.permissions.default_profile.network, "disabled");
 assert.equal(manifest.permissions.default_profile.general_command, "unavailable");
@@ -257,6 +272,10 @@ try {
   });
 
   assert.equal(runtime.identity.skill_id, manifest.skill.id);
+  assert.deepEqual(
+    runtime.identity.surface_contracts["pchw-source-hosted"],
+    sourceHostedContract,
+  );
   assert.equal(
     runtime.broker.analyzerPath,
     join(skillRoot, "scripts", "analyze-telemetry.ps1"),

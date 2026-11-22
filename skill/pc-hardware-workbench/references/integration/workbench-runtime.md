@@ -30,8 +30,15 @@ returns a Task URL. It must never write runtime state into the installed Skill.
 The manifest uses schema version `1.0`. Its Skill root, runtime entry, manifest
 schema, UI-state schema, and event schema are relative to the Skill root and
 must remain inside it. The public descriptor may expose the Skill ID, version,
-capability IDs, block types, and schema versions, but not private filesystem
-paths or provider credentials.
+surface-contract versions, capability IDs, block types, and schema versions, but
+not private filesystem paths or provider credentials.
+
+`surface_contracts` separates product-version compatibility from host transport.
+The `pchw-source-hosted` contract declares `contract_version`,
+`min_skill_version`, and `required_capabilities`. Hosts must negotiate the
+contract instead of requiring one exact Skill version. A product update that
+does not change this contract must remain usable with an already compatible
+surface host.
 
 If a host cannot validate the manifest, import the runtime, or satisfy its
 declared adapter capabilities, it must report a discovery/runtime limitation and
