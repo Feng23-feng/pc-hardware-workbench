@@ -7,10 +7,9 @@
 - 已安装兼容 PCHW Skill，只缺 SkillDock 应用与 Node：使用 Runtime-only；
 - 使用 Codex Desktop 并希望从当前对话打开操作面板：使用集成包。
 
-2.9.0 目前只有 PCHW Skill/Portable 测试版，没有正式版。公开 SkillDock 面板包
-仍是 2.8.0 + `0.1.0-rc.4`；`0.1.0-rc.5` 已适配 2.9.0 surface contract，但尚未
-发布或完成 Clean Windows 签收。不要把公开 rc.4、rc.5 候选与不同版本 Skill
-混装。
+2.9.0 目前只有 PCHW Skill/Portable 测试版，没有正式版。当前公开 SkillDock
+测试包是 `0.1.0-rc.5 + PCHW 2.9.0`；上一版 `0.1.0-rc.4 + PCHW 2.8.0` 继续
+保留。rc.5 的 Clean Windows 签收仍为 PENDING。不要把不同版本 Skill 混装。
 
 ## Codex 中看不到 Skill
 

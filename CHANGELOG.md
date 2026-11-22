@@ -13,7 +13,7 @@
 - 本版不包含原生 3DMark `.3dmark-result` 导入；只承诺通用遥测分析，3DMark 结果关联未列入 2.9.0；
 - 新增 `pchw-source-hosted` `1.0.0` surface contract，声明最低 Skill 版本 `2.8.0` 和 `telemetry.csv.analyze` 能力；2.8.0 之后的产品版本必须声明契约，SkillDock rc.5 候选据此协商兼容性；
 - SkillDock 不再把 `2.8.0` 写死为唯一版本：精确 2.8.0 保留 legacy 桥，契约 `1.x` 可按最低版本和能力向前兼容，contract major `2` 或缺少能力时失败关闭；
-- PCHW Skill、Portable 和 DeepSeek Harness 包使用 `2.9.0-test.1`；SkillDock `0.1.0-rc.4` 仍是公开测试线，`0.1.0-rc.5` 与 PCHW 2.9.0 是尚未发布的本地候选；
+- PCHW Skill、Portable 和 DeepSeek Harness 包使用 `2.9.0-test.1`；`0.1.0-rc.5 + PCHW 2.9.0` 作为同一公开测试 Release 发布，`0.1.0-rc.4` 保留为上一版 PCHW 2.8.0 面板测试线；
 - `2.9.0` 仍为测试版，clean Windows 安装/卸载与完整用户签收继续 PENDING。
 
 ## 2.8.0 — 2026-11-17（2026-11-18 文档与分发更新）

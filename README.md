@@ -7,12 +7,12 @@
 排查、遥测分析、手动调校和升级判断收敛到一套工作流，同时把每一次硬件变更留给
 用户亲手完成。
 
-当前版本为 **2.9.0 测试版**（发布标签 `2.9.0-test.1`）。本版新增确定性本地证据 CLI，
+当前版本为 **2.9.0 测试版**（PCHW 资产标签 `2.9.0-test.1`）。本版新增确定性本地证据 CLI，
 并提供纯 PCHW Skill、PCHW Portable 和 DeepSeek Harness 包。2.9.0 还声明
 `pchw-source-hosted` `1.0.0` 面板契约，使后续 Skill 更新可按最低版本、
 契约 SemVer 和能力协商，而不必每次写死一个 Skill 版本。SkillDock `0.1.0-rc.5`
-已作为本地候选适配该契约，但尚未发布；当前公开面板包仍是 `0.1.0-rc.4`，
-只接受 PCHW `2.8.0`。目前没有正式版。完整自动测试和本轮真实 CSV 功能验收
+已作为公开测试版适配该契约；上一个 `0.1.0-rc.4` 面板包继续供 PCHW `2.8.0`
+用户使用。目前没有正式版。完整自动测试和本轮真实 CSV 功能验收
 已通过；真实设备覆盖、干净 Windows 安装/卸载和其余交互场景签署仍在继续。
 项目不会把测试版包装成稳定版。
 
@@ -67,8 +67,7 @@
 
 ## 下载包与版本线
 
-[下载 PCHW 2.9.0-test.1](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.0-test.1)
-或[下载 SkillDock 面板测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.4)，
+[下载当前 PCHW 2.9.0 + SkillDock rc.5 测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.5)，
 按使用场景只选一个包；不要把同一个 Skill 的多个副本放进同一个宿主扫描目录。
 普通用户默认选择不含面板的纯 PCHW Skill；只有明确需要网页操作面板时，再选择
 SkillDock 面板包（需已安装 Codex）。没有 Agent，或希望完全不安装时，选择独立
@@ -80,22 +79,23 @@ SkillDock 面板包（需已安装 Codex）。没有 Agent，或希望完全不�
 | PCHW Portable（独立 Windows，无需 Agent） | 没有 Codex / DSH，或不希望安装 Skill 与 Runtime | 独立菜单、采集、CSV 与证据工具 | 无 |
 | DeepSeek Harness 适配包 | 使用 DSH，并且需要与 PCHW Skill 一起安装 | 2.9.0 Skill 与 DSH 适配文件 | 不提供 |
 | SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺 SkillDock 应用与 Node | SkillDock Runtime + Node.js 24.22.1 | 仅 Codex 当前对话 |
-| SkillDock 面板包（公开测试版 rc.4） | 已安装 Codex Desktop，并明确需要 PCHW 2.8.0 面板测试线 | PCHW 2.8.0 Skill、SkillDock Runtime、安装入口 | 仅 Codex 当前对话 |
-| SkillDock 面板候选（本地 rc.5，尚未发布） | 需要与 PCHW 2.9.0 surface contract 配合的验收用户 | PCHW 2.9.0 Skill、SkillDock rc.5 候选、安装入口 | 仅 Codex 当前对话 |
+| SkillDock 面板包（公开测试版 rc.5） | 已安装 Codex Desktop，并使用 PCHW 2.9.0 surface contract | PCHW 2.9.0 Skill、SkillDock rc.5 Runtime、安装入口 | 仅 Codex 当前对话 |
 
 2.9.0-test.1 文件：
 
 ```text
-pc-hardware-workbench-v2.9.0-test.1-installer.zip
-pc-hardware-workbench-v2.9.0-test.1-manual.zip
+PCHW-Skill-2.9.0-test.1-installer.zip
+PCHW-Skill-2.9.0-test.1-manual.zip
 pc-hardware-portable-v2.9.0-test.1.zip
 pc-hardware-workbench-deepseek-harness-v2.9.0-test.1.zip
+SkillDock-PCHW-0.1.0-rc.5-win-x64-user.zip
+SkillDock-Runtime-0.1.0-rc.5-win-x64.zip
+SkillDock-PCHW-0.1.0-rc.5-win-x64.zip
+SHA256SUMS.txt
 ```
 
-SkillDock 面板文件仍由 `v0.1.0-rc.4` Release 单独提供。不要把
-`SkillDock-PCHW-0.1.0-rc.4-win-x64-user.zip` 中的 2.8.0 Skill 与本版 2.9.0
-Skill 混装。`0.1.0-rc.5` 与 PCHW 2.9.0 的本地候选只在兼容测试和 Clean Windows
-签收完成后才会进入公开 Release。
+本轮 SkillDock 面板文件位于 `v0.1.0-rc.5`。`v0.1.0-rc.4` 保留为上一版
+PCHW 2.8.0 面板测试包。不要在同一个宿主中混装 2.8.0 与 2.9.0 Skill。
 
 这是公开测试版，clean Windows 安装/卸载和最终签收仍为 PENDING。不要混装多个
 Skill 或旧 Runtime。
@@ -176,7 +176,7 @@ DSH 默认位置：
 rc.5 对精确 PCHW `2.8.0` 走 legacy 桥；2.8.0 之后的版本必须声明
 `surface_contracts["pchw-source-hosted"]`，契约版本在
 `>=1.0.0 <2.0.0` 内，满足 `min_skill_version`，并声明
-`telemetry.csv.analyze` 等必需能力。公开 rc.4 仍只接受 PCHW 2.8.0。解压对应
+`telemetry.csv.analyze` 等必需能力。上一版 rc.4 Runtime 只接受 PCHW 2.8.0。解压对应
 Runtime 后运行：
 
 ```powershell
@@ -275,8 +275,9 @@ Skill 会根据问题进入配置、排障、遥测、调参或升级路线。�
 ## 已知限制
 
 - `2.9.0` 是当前 PCHW Skill/Portable 测试版，目前没有正式版；
-- 公开 SkillDock 面板包仍使用 PCHW `2.8.0` 与 SkillDock `0.1.0-rc.4`；
-- SkillDock `0.1.0-rc.5` 已适配 PCHW 2.9.0 surface contract，但尚未发布或完成 Clean Windows 签收；
+- 当前公开 SkillDock 测试包为 `0.1.0-rc.5 + PCHW 2.9.0`；
+- 上一版 `0.1.0-rc.4` 继续作为 PCHW 2.8.0 面板测试包；
+- rc.5 最终 ZIP 的 Clean Windows 安装/卸载与人工签收仍为 PENDING；
 - 干净 Windows 安装/卸载、真实设备覆盖和完整用户签收仍在进行；
 - SkillDock 面板只承诺 Codex 当前用户对话；
 - Ask-for-approval 模式可能要求使用“手动打开面板”链接或 `.url`；

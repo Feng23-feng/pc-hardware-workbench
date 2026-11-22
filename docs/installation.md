@@ -11,9 +11,9 @@
 
 当前 PCHW 源码与测试版本为 `2.9.0`。本版新增确定性本地证据 CLI，并提供纯
 PCHW Skill、PCHW Portable 和 DeepSeek Harness 包。2.9.0 声明
-`pchw-source-hosted` `1.0.0` 契约，SkillDock `0.1.0-rc.5` 本地候选可按最低
-Skill 版本、契约 SemVer 和能力协商。公开面板测试线仍为
-`0.1.0-rc.4 + PCHW 2.8.0`，rc.5 尚未发布。目前没有正式版；干净 Windows
+`pchw-source-hosted` `1.0.0` 契约，SkillDock `0.1.0-rc.5` 测试包可按最低
+Skill 版本、契约 SemVer 和能力协商。上一版面板包仍为
+`0.1.0-rc.4 + PCHW 2.8.0`。目前没有正式版；干净 Windows
 安装、卸载和完整用户签收继续作为发布门禁。
 
 ## 先选一种包
@@ -30,22 +30,24 @@ PCHW Portable。
 | PCHW Portable（独立 Windows，无需 Agent） | 没有 Codex / DSH，或不希望安装 Skill 与 Runtime | 独立菜单、采集、CSV 与证据工具 | 无 |
 | DeepSeek Harness 适配包 | 使用 DSH，并且需要 PCHW Skill 与适配文件 | 2.9.0 Skill、DSH 适配文件 | 不提供 |
 | SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺应用与 Node | SkillDock Runtime、Node.js 24.22.1 | 仅 Codex 当前对话 |
-| SkillDock 面板包（公开 rc.4） | 已安装 Codex Desktop，并明确需要 PCHW 2.8.0 面板测试线 | PCHW 2.8.0 Skill、SkillDock Runtime、安装入口 | 仅 Codex |
-| SkillDock 面板候选（本地 rc.5，尚未发布） | 需要验收 PCHW 2.9.0 surface contract | PCHW 2.9.0 Skill、SkillDock rc.5 候选、安装入口 | 仅 Codex |
+| SkillDock 面板包（公开 rc.5） | 已安装 Codex Desktop，并使用 PCHW 2.9.0 surface contract | PCHW 2.9.0 Skill、SkillDock Runtime、安装入口 | 仅 Codex |
 
-[下载 PCHW 2.9.0-test.1](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.0-test.1)：
+[下载当前测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.5)：
 
 ```text
-pc-hardware-workbench-v2.9.0-test.1-installer.zip
-pc-hardware-workbench-v2.9.0-test.1-manual.zip
+PCHW-Skill-2.9.0-test.1-installer.zip
+PCHW-Skill-2.9.0-test.1-manual.zip
 pc-hardware-portable-v2.9.0-test.1.zip
 pc-hardware-workbench-deepseek-harness-v2.9.0-test.1.zip
+SkillDock-PCHW-0.1.0-rc.5-win-x64-user.zip
+SkillDock-Runtime-0.1.0-rc.5-win-x64.zip
+SkillDock-PCHW-0.1.0-rc.5-win-x64.zip
+SHA256SUMS.txt
 ```
 
-SkillDock 面板文件继续由 `v0.1.0-rc.4` 单独提供，其中的 PCHW Skill 仍是
-2.8.0。`0.1.0-rc.5` 与 PCHW 2.9.0 的本地候选尚未发布；clean Windows 安装、
-卸载和最终签收仍是 PENDING。不要把公开 rc.4 的 2.8.0 Skill 与 2.9.0 Skill
-混在一起。
+SkillDock 面板文件现在由 `v0.1.0-rc.5` 提供。`v0.1.0-rc.4` 保留为上一版
+PCHW 2.8.0 面板测试包。rc.5 的 clean Windows 安装、卸载和最终签收仍是
+PENDING。不要把 2.8.0 与 2.9.0 Skill 目录混在一起。
 
 <a id="pchw-portable"></a>
 
@@ -193,7 +195,7 @@ SkillDock 面板。DSH 适配细节见 [DSH adapter](../adapters/dsh/README.md)�
 PCHW `2.8.0` 走 legacy 桥；2.8.0 之后的版本必须声明
 `surface_contracts["pchw-source-hosted"]`，契约版本在
 `>=1.0.0 <2.0.0` 内，满足 `min_skill_version`，并声明
-`telemetry.csv.analyze` 等必需能力。公开 rc.4 仍只接受 PCHW 2.8.0。解压对应
+`telemetry.csv.analyze` 等必需能力。上一版 rc.4 仍只接受 PCHW 2.8.0。解压对应
 Runtime 后运行：
 
 ```powershell
@@ -268,8 +270,9 @@ Test-Path $pointer
 ## 已知限制
 
 - `2.9.0` 目前只有 PCHW Skill/Portable 测试版，没有正式版；干净 Windows 签收仍待完成。
-- 公开 SkillDock 面板包继续使用 PCHW `2.8.0` 与 SkillDock `0.1.0-rc.4`。
-- SkillDock `0.1.0-rc.5` 已适配 PCHW 2.9.0 surface contract，但尚未发布或完成 Clean Windows 签收。
+- 当前公开 SkillDock 测试包为 `0.1.0-rc.5 + PCHW 2.9.0`。
+- 上一版 `0.1.0-rc.4` 继续作为 PCHW 2.8.0 面板测试包。
+- rc.5 最终 ZIP 的 Clean Windows 安装/卸载与人工签收仍为 PENDING。
 - SkillDock 面板只支持 Codex 当前用户对话。
 - Panel 不可用、权限被拒绝或工作区冲突时必须回到对话，不能暴露开发入口。
 - 实时采集取决于 Windows 权限和宿主沙箱，不能把权限拒绝误报为缺件。
