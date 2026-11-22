@@ -132,6 +132,14 @@ $testCases = @(
         )
     },
     @{
+        Name = "PCWB CLI"
+        Script = Join-Path $resolvedRoot "tests/run-pcwb-cli-tests.ps1"
+        Arguments = @(
+            "-CliPath", (Join-Path $resolvedRoot "scripts/pcwb.ps1"),
+            "-SkillRoot", $resolvedRoot
+        )
+    },
+    @{
         Name = "Interaction contract (static)"
         Script = Join-Path $resolvedRoot "tests/run-interaction-contract-tests.ps1"
         Arguments = @("-SkillRoot", $resolvedRoot)

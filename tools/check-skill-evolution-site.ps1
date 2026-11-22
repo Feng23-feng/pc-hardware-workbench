@@ -393,6 +393,9 @@ if ($errors.Count -eq 0) {
         }
     }
 
+    $frozen = Get-Content -Raw -LiteralPath $frozenPath -Encoding UTF8 | ConvertFrom-Json
+    $expectedFileCount = [int]$frozen.fileCount
+    $fileCountLabel = "$expectedFileCount " + [regex]::Unescape('\u4E2A\u6587\u4EF6')
     $orreryHtml = Get-Content -Raw -LiteralPath $orreryPath -Encoding UTF8
     if ($orreryHtml -notmatch '@view-transition' -or $orreryHtml -notmatch 'orrery-view-in') {
         $errors.Add("Orrery is missing the shared cross-document page transition.") | Out-Null
@@ -408,8 +411,8 @@ if ($errors.Count -eq 0) {
     if ($orreryHtml -notmatch '\u5F53\u524D\u6587\u4EF6\u661F\u7CFB|\u5F53\u524D\u5FEB\u7167') {
         $errors.Add("Orrery does not identify its current snapshot.") | Out-Null
     }
-    if ($orreryHtml -notmatch '135 \u4E2A\u6587\u4EF6') {
-        $errors.Add("Orrery does not expose the current 135-file snapshot.") | Out-Null
+    if ($orreryHtml -notmatch [regex]::Escape($fileCountLabel)) {
+        $errors.Add("Orrery does not expose the current $expectedFileCount-file snapshot.") | Out-Null
     }
     if ($orreryHtml -match 'archive/1\.5\.2/') {
         $errors.Add("Orrery still exposes the local-only 1.5.2 archive.") | Out-Null
@@ -427,10 +430,7 @@ if ($errors.Count -eq 0) {
         $errors.Add("Orrery has no favicon declaration.") | Out-Null
     }
 
-    $frozen = Get-Content -Raw -LiteralPath $frozenPath -Encoding UTF8 | ConvertFrom-Json
-    $expectedFileCount = [int]$frozen.fileCount
     $frozenVersionPattern = [regex]::Escape([string]$frozen.version)
-    $fileCountLabel = "$expectedFileCount " + [regex]::Unescape('\u4E2A\u6587\u4EF6')
     $archiveFileCountLabel = [regex]::Unescape('\u6587\u4EF6\u661F\u7403') + " $fileCountLabel"
     if ($homeTemplate -notmatch [regex]::Escape($fileCountLabel)) {
         $errors.Add("Home source file-planet entry does not match FROZEN file count $expectedFileCount.") | Out-Null
@@ -451,8 +451,8 @@ if ($errors.Count -eq 0) {
     finally {
         $sha256.Dispose()
     }
-    if ($frozen.version -ne "2.8.0" -or $frozen.status -ne "frozen" -or [int]$frozen.fileCount -ne 135) {
-        $errors.Add("Orrery FROZEN.json version/status/file count is unexpected.") | Out-Null
+    if ($frozen.version -ne "2.8.0" -or $frozen.status -ne "frozen") {
+        $errors.Add("Orrery FROZEN.json version/status is unexpected.") | Out-Null
     }
     if ([int]$frozen.bytes -ne $orreryBytes.Length -or $frozen.sha256 -ne $orreryHash) {
         $errors.Add("Orrery FROZEN.json metadata is stale.") | Out-Null
@@ -467,4 +467,4 @@ if ($errors.Count -gt 0) {
     exit 1
 }
 
-Write-Host "Skill evolution site check: PASS (two canonical templates, single visible path, technical archives folded, 135-file orrery, JavaScript syntax)" -ForegroundColor Green
+Write-Host "Skill evolution site check: PASS (two canonical templates, single visible path, technical archives folded, $expectedFileCount-file orrery, JavaScript syntax)" -ForegroundColor Green

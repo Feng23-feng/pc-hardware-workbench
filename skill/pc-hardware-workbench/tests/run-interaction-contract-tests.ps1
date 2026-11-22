@@ -285,9 +285,18 @@ Assert-Contains $skill 'collector is Windows-only' "Automatic collector scope is
 Assert-Contains $skill 'tuning-modes\.md' "Quick/deep tuning route is missing."
 Assert-Contains $skill 'fixed-workloads\.md' "Fixed workload route is missing."
 Assert-Contains $skill 'telemetry-analysis\.md' "Telemetry analysis route is missing."
+Assert-Contains $skill 'Structured local evidence' "The structured local evidence route is missing."
+Assert-Contains $skill 'scripts/pcwb\.ps1' "The deterministic local CLI is not routed from the entrypoint."
+Assert-Contains $skill 'pcwb-cli\.md' "The local CLI contract reference is not linked."
 Assert-Contains $skill 'installation-coexistence\.md' "Installation coexistence route is missing."
 
 foreach ($relative in @(
+    "scripts/pcwb.ps1",
+    "scripts/pcwb-evidence.ps1",
+    "scripts/pcwb-child-runner.ps1",
+    "schemas/pcwb-result.schema.json",
+    "references/integration/pcwb-cli.md",
+    "tests/run-pcwb-cli-tests.ps1",
     "references/integration/collector-workflow.md",
     "references/integration/cooling-evidence.md",
     "references/integration/beginner-guide.md",

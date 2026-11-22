@@ -8,6 +8,11 @@ const { spawn } = require("node:child_process");
 const repositoryRoot = path.resolve(__dirname, "..");
 const outputRoot = path.join(repositoryRoot, "work");
 const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), "pcwb-site-runtime-"));
+const frozenOrrery = JSON.parse(fs.readFileSync(
+  path.join(repositoryRoot, "docs", "skill-evolution", "orrery", "FROZEN.json"),
+  "utf8"
+));
+const expectedFileCount = Number(frozenOrrery.fileCount);
 const browserCandidates = [
   process.env.EDGE_PATH,
   "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
@@ -527,7 +532,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       };
     })()`);
     check(
-      filePlanetCard.title.includes("135 个文件") &&
+      filePlanetCard.title.includes(`${expectedFileCount} 个文件`) &&
       filePlanetCard.cta.includes("进入文件星球") &&
       filePlanetCard.previewWidth >= 280 &&
       filePlanetCard.previewHeight >= (name === "desktop" ? 300 : 160) &&

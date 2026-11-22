@@ -2,6 +2,11 @@
 
 Use the embedded Windows collector only when the user wants a current hardware inventory and the machine is accessible enough to run a local read-only query.
 
+For Agent automation, prefer `scripts/pcwb.ps1 inventory`; it wraps this
+collector and returns the fixed result contract in
+[pcwb-cli.md](pcwb-cli.md). Use the direct collector below when diagnosing the
+collector itself or when a child-only option is required.
+
 ## Explain before asking
 
 - **Standard mode:** keeps exact computer, board/laptop, BIOS, memory-part, storage-model, monitor-ID, and volume-label details. Use it for the user's own machine or trusted troubleshooting; it gives the most precise compatibility, driver, warranty, and upgrade analysis.

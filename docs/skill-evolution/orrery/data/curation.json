@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "snapshot": {
-    "frozenAt": "2026-11-17",
-    "changes": "Current snapshot adds the Codex current-conversation SkillDock entry, one-time local analysis, fresh source-result claim, verified SVG answer cards, same-Task restart, and a Codex-only panel support boundary."
+    "frozenAt": "2026-11-22",
+    "changes": "Current snapshot adds the deterministic PCWB local evidence facade, fixed JSON result schema, UTF-8 child-process boundary, hash-linked artifacts, structured status and exit codes, and read-only inventory, telemetry, PresentMon, evidence-package, claim, and doctor routes."
   },
   "sectors": {
     "core": {
@@ -195,6 +195,11 @@
       "role": "面板事件 schema",
       "summary": "限制 SkillDock 可向领域运行时传递的草稿、提交、证据和权限事件。"
     },
+    "schemas/pcwb-result.schema.json": {
+      "cluster": "core/invocation",
+      "role": "PCWB 结果 schema",
+      "summary": "固定本地证据 CLI 的命令、状态、输入、证据、哈希、错误、限制和下一步结构。"
+    },
     "schemas/ui-state.schema.json": {
       "cluster": "core/invocation",
       "role": "面板状态 schema",
@@ -260,6 +265,11 @@
       "cluster": "integration/flow",
       "role": "采集工作流",
       "summary": "说明标准与脱敏模式、同意、命令、退出码和采集后如何回到原任务。"
+    },
+    "references/integration/pcwb-cli.md": {
+      "cluster": "integration/evidence",
+      "role": "本地证据 CLI 契约",
+      "summary": "规定只读命令、固定 JSON envelope、状态与退出码、artifact 保留、隐私和 Agent 读取规则。"
     },
     "references/integration/cross-mode-handoffs.md": {
       "cluster": "integration/flow",
@@ -601,6 +611,21 @@
       "role": "PresentMon 帧时间分析",
       "summary": "只读解析 PresentMon CSV，输出 FPS、长尾帧时间、1%/0.1% low、尖峰和来源哈希。"
     },
+    "scripts/pcwb.ps1": {
+      "cluster": "scripts/evidence",
+      "role": "PCWB 本地证据入口",
+      "summary": "把只读盘点、遥测、PresentMon、证据包、声明核验和 Doctor 收敛为单一固定 JSON 结果。"
+    },
+    "scripts/pcwb-evidence.ps1": {
+      "cluster": "scripts/evidence",
+      "role": "PCWB envelope 与 artifact 内核",
+      "summary": "提供固定 envelope、路径安全、SHA-256、无 BOM 原子写入、运行目录和子进程错误映射。"
+    },
+    "scripts/pcwb-child-runner.ps1": {
+      "cluster": "scripts/evidence",
+      "role": "PCWB UTF-8 子进程边界",
+      "summary": "用编码后的参数白名单调用现有只读子脚本，并统一 UTF-8 输出，不开放写入或提权路由。"
+    },
     "scripts/verify-hardware-claim.ps1": {
       "cluster": "scripts/evidence",
       "role": "声明与证据比较",
@@ -756,6 +781,11 @@
       "cluster": "tests/telemetry",
       "role": "PresentMon 帧时间回归",
       "summary": "验证合成 PresentMon CSV 的慢帧、低帧、尖峰、输出格式和防覆盖边界。"
+    },
+    "tests/run-pcwb-cli-tests.ps1": {
+      "cluster": "tests/harness",
+      "role": "PCWB CLI 回归",
+      "summary": "验证固定 envelope、UTF-8 传输、输入与 artifact 哈希、状态退出码、权限阻断、隐私和禁止写入路由。"
     },
     "tests/run-telemetry-audit-tests.ps1": {
       "cluster": "tests/telemetry",

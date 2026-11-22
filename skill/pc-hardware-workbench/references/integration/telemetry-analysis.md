@@ -2,6 +2,11 @@
 
 Use the read-only analyzer to summarize an existing HWiNFO CSV, PresentMon CSV, or compatible text CSV. It does not launch monitoring software, install drivers, request elevation, initiate network access, or change hardware settings. UNC paths, mapped network drives, and Windows offline/cloud-placeholder files are rejected so the analyzer does not initiate remote reads or cloud hydration.
 
+For routine Agent use, prefer `scripts/pcwb.ps1 analyze telemetry` (or
+`analyze presentmon`); it returns the fixed result contract in
+[pcwb-cli.md](pcwb-cli.md). The direct commands below remain the low-level
+compatibility interface.
+
 For a running local LHM source read [lhm-adapter.md](lhm-adapter.md); for a
 frame-time CSV read [presentmon-frame-time.md](presentmon-frame-time.md) and use
 `scripts/analyze-presentmon.ps1`.

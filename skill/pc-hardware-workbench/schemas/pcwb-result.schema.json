@@ -1,0 +1,209 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "pcwb-result.schema.json",
+  "title": "PC Hardware Workbench local CLI result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "SchemaVersion",
+    "Tool",
+    "ToolVersion",
+    "Command",
+    "Status",
+    "GeneratedAt",
+    "DurationMilliseconds",
+    "ExitCode",
+    "Inputs",
+    "Evidence",
+    "Findings",
+    "Uncertainties",
+    "NextActions",
+    "Artifacts",
+    "Warnings",
+    "Errors",
+    "Limits"
+  ],
+  "properties": {
+    "SchemaVersion": {
+      "const": "1.0"
+    },
+    "Tool": {
+      "const": "pcwb"
+    },
+    "ToolVersion": {
+      "type": "string"
+    },
+    "Command": {
+      "type": "string"
+    },
+    "Status": {
+      "enum": [
+        "ok",
+        "partial",
+        "needs-input",
+        "blocked",
+        "failed"
+      ]
+    },
+    "GeneratedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "DurationMilliseconds": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "ExitCode": {
+      "type": "integer",
+      "enum": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "Inputs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/input"
+      }
+    },
+    "Evidence": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "Findings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/message"
+      }
+    },
+    "Uncertainties": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/message"
+      }
+    },
+    "NextActions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/message"
+      }
+    },
+    "Artifacts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/artifact"
+      }
+    },
+    "Warnings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/message"
+      }
+    },
+    "Errors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/message"
+      }
+    },
+    "Limits": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/message"
+      }
+    }
+  },
+  "definitions": {
+    "message": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "Code",
+        "Message"
+      ],
+      "properties": {
+        "Code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "Message": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "Role",
+        "Path",
+        "Sha256",
+        "Bytes"
+      ],
+      "properties": {
+        "Role": {
+          "type": "string",
+          "minLength": 1
+        },
+        "Path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "Sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "Bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "Role",
+        "Name",
+        "Path",
+        "Sha256",
+        "Bytes",
+        "MediaType"
+      ],
+      "properties": {
+        "Role": {
+          "type": "string",
+          "minLength": 1
+        },
+        "Name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "Path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "Sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "Bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "MediaType": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}
