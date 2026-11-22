@@ -135,9 +135,25 @@ async function readActiveState(localRoot) {
 function assertActivePchw(state) {
   assert.equal(state.skill.skill_id, "pc-hardware-workbench");
   assert.equal(state.skill.skill_version, "2.8.0");
+  assert.equal(
+    state.skill.surface_compatibility.compatible,
+    true,
+  );
+  assert.equal(
+    state.skill.surface_compatibility.contract_id,
+    "pchw-source-hosted",
+  );
+  assert.equal(
+    state.skill.surface_compatibility.mode,
+    "legacy_exact",
+  );
   assert.equal(state.skill.status, "active");
   assert.ok(state.skill.discovery.candidate_count >= 1);
   assert.ok(state.skill.discovery.compatible_count >= 1);
+  assert.equal(
+    state.skill.discovery.candidates[0].surface_compatibility.compatible,
+    true,
+  );
   assert.ok(
     state.skill.capabilities.some(
       (capability) => capability.id === "telemetry.csv.analyze",

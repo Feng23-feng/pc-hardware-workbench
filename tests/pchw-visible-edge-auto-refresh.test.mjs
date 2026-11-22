@@ -365,6 +365,14 @@ try {
   const initialState = await initialStateResponse.json();
   assert.equal(initialState.skill.skill_id, "pc-hardware-workbench");
   assert.equal(initialState.skill.skill_version, "2.8.0");
+  assert.equal(
+    initialState.skill.surface_compatibility.compatible,
+    true,
+  );
+  assert.equal(
+    initialState.skill.surface_compatibility.contract_id,
+    "pchw-source-hosted",
+  );
   assert.equal(initialState.skill.status, "active");
   assert.ok(initialState.skill.discovery.candidate_count >= 1);
   assert.ok(initialState.skill.discovery.compatible_count >= 1);

@@ -1,5 +1,26 @@
 # Changelog
 
+## SkillDock 0.1.0-rc.5 / PCHW 2.9.0 - 2026-11-22
+
+- Replace the launcher's exact PCHW `2.8.0` version check with a fail-closed
+  surface compatibility decision based on Skill identity, minimum product
+  version, `pchw-source-hosted` contract SemVer, and required capabilities.
+- Preserve exact PCHW `2.8.0` compatibility as a legacy bridge without a
+  contract. PCHW versions after `2.8.0` must declare the surface contract.
+- Support compatible `pchw-source-hosted` `1.x` contracts while rejecting
+  contract major `2`, invalid SemVer, missing capabilities, inactive Skills,
+  and manifests that do not match the selected product.
+- Expose the selected compatibility decision and every discovery candidate's
+  result in `/api/state`; the Windows launcher validates the actual loaded
+  Skill instead of trusting a version constant.
+- Add PCHW `2.9.0` with a `pchw-source-hosted` `1.0.0` contract, minimum Skill
+  version `2.8.0`, and the `telemetry.csv.analyze` capability requirement.
+- Add compatibility tests for legacy `2.8.0`, later product versions, contract
+  `1.1`, rejected contract major `2`, missing contracts, missing capabilities,
+  inactive Skills, and invalid versions.
+- Prepare rc.5 integrated, user, and Runtime-only packages without changing the
+  public rc.4 release or enabling default traffic.
+
 ## SkillDock 0.1.0-rc.4 / PCHW 2.8.0 - 2026-11-21
 
 - Add one unified user-package `Uninstall.cmd` for the PCHW Skill and

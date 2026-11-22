@@ -317,6 +317,7 @@ state.active_skill = {
       ? "fallback"
       : "active",
   selection_reason: skillDiscovery.selectionReason,
+  surface_compatibility: skillDiscovery.selectedCompatibility,
   error: skillRuntimeFailure ?? skillDiscovery.error ?? null,
   selected_at: new Date().toISOString(),
 };
@@ -330,6 +331,7 @@ state.skill_discovery = {
     runtime_id: candidate.runtime_id,
     status: candidate.status,
     error: candidate.error,
+    surface_compatibility: candidate.surface_compatibility,
   })),
 };
 if (!state.task) {

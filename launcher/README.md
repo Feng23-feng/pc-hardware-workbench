@@ -5,9 +5,10 @@ an installed Skill to start or reuse the runtime automatically; users should not
 need to launch this EXE manually. See
 [../SKILL-TRIGGERED-UX.md](../SKILL-TRIGGERED-UX.md).
 
-The first Windows test package wraps the existing local Node application. The
-launcher selects a free loopback port, starts `app/server.mjs` with the bundled
-Node runtime, waits for health, and opens the default browser.
+The Windows package wraps the local Node application. The launcher selects a
+free loopback port, starts `app/server.mjs` with the bundled Node runtime, waits
+for health, validates the selected PCHW surface contract, and opens the
+browser.
 
 Build the Windows release candidate with:
 
@@ -21,9 +22,12 @@ pnpm verify:runtime-only
 ```
 
 The candidate is written as
-`dist/SkillDock-PCHW-0.1.0-rc.4-win-x64.zip`. The RC builder refuses to replace
-an existing candidate, bundles PCHW `2.8.0`, records the exact Git worktree
-state, and emits package and archive hashes. The older
+`dist/SkillDock-PCHW-0.1.0-rc.5-win-x64.zip`. The RC builder refuses to replace
+an existing candidate, bundles PCHW `2.9.0` with the
+`pchw-source-hosted` `1.0.0` contract, records the exact Git worktree state,
+and emits package and archive hashes. PCHW `2.8.0` remains accepted only through
+the exact legacy bridge; later installed versions must declare a compatible
+contract. The older
 `build-dsh-package.ps1` remains the isolated internal-preview fixture used by
 the package usability tests.
 

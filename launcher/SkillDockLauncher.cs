@@ -15,7 +15,7 @@ internal static class SkillDockLauncher
 {
     private const string ProductName = "SkillDock";
     private const string ExpectedSkillId = "pc-hardware-workbench";
-    private const string ExpectedSkillVersion = "2.8.0";
+    private const string ExpectedSurfaceContract = "pchw-source-hosted";
     private static string failureCode = "launcher_start_failed";
     private static string DriverName
     {
@@ -663,6 +663,52 @@ internal static class SkillDockLauncher
             string status = Convert.ToString(skill.ContainsKey("status")
                 ? skill["status"]
                 : null);
+            Dictionary<string, object> surfaceCompatibility = null;
+            if (skill.ContainsKey("surface_compatibility"))
+            {
+                surfaceCompatibility =
+                    skill["surface_compatibility"] as Dictionary<string, object>;
+            }
+            bool surfaceCompatible = false;
+            string surfaceCode = "(missing)";
+            string surfaceContractId = null;
+            string surfaceContractVersion = null;
+            string surfaceSkillVersion = null;
+            string surfaceMode = null;
+            if (surfaceCompatibility != null)
+            {
+                if (surfaceCompatibility.ContainsKey("compatible"))
+                {
+                    surfaceCompatible = Convert.ToBoolean(
+                        surfaceCompatibility["compatible"]
+                    );
+                }
+                surfaceCode = Convert.ToString(
+                    surfaceCompatibility.ContainsKey("code")
+                        ? surfaceCompatibility["code"]
+                        : null
+                );
+                surfaceContractId = Convert.ToString(
+                    surfaceCompatibility.ContainsKey("contract_id")
+                        ? surfaceCompatibility["contract_id"]
+                        : null
+                );
+                surfaceContractVersion = Convert.ToString(
+                    surfaceCompatibility.ContainsKey("contract_version")
+                        ? surfaceCompatibility["contract_version"]
+                        : null
+                );
+                surfaceSkillVersion = Convert.ToString(
+                    surfaceCompatibility.ContainsKey("skill_version")
+                        ? surfaceCompatibility["skill_version"]
+                        : null
+                );
+                surfaceMode = Convert.ToString(
+                    surfaceCompatibility.ContainsKey("mode")
+                        ? surfaceCompatibility["mode"]
+                        : null
+                );
+            }
             int candidateCount = 0;
             int compatibleCount = 0;
             Dictionary<string, object> discovery = null;
@@ -715,9 +761,15 @@ internal static class SkillDockLauncher
             }
             if (
                 !String.Equals(skillId, ExpectedSkillId, StringComparison.Ordinal) ||
+                !surfaceCompatible ||
                 !String.Equals(
+                    surfaceContractId,
+                    ExpectedSurfaceContract,
+                    StringComparison.Ordinal
+                ) ||
+                !String.Equals(
+                    surfaceSkillVersion,
                     skillVersion,
-                    ExpectedSkillVersion,
                     StringComparison.Ordinal
                 ) ||
                 !String.Equals(status, "active", StringComparison.Ordinal) ||
@@ -734,6 +786,11 @@ internal static class SkillDockLauncher
                     candidateCount + ", compatible_count=" +
                     compatibleCount + ", telemetry.csv.analyze=" +
                     (hasAnalyzeCapability ? "present" : "missing") +
+                    ", surface_contract=" + (surfaceContractId ?? "(none)") +
+                    ", surface_contract_version=" +
+                    (surfaceContractVersion ?? "(none)") +
+                    ", surface_mode=" + (surfaceMode ?? "(none)") +
+                    ", surface_compatibility=" + (surfaceCode ?? "(none)") +
                     ". Refusing compatibility-fixture fallback."
                 );
             }

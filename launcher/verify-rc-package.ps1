@@ -299,7 +299,7 @@ try {
         -LiteralPath $componentMatrixPath `
         -Encoding UTF8
     if (
-        $componentMatrix -notmatch "2\.8\.0" -or
+        $componentMatrix -notmatch "2\.9\.0" -or
         $componentMatrix -notmatch "24\.22\.1" -or
         $componentMatrix -notmatch "Runtime-only"
     ) {
@@ -354,6 +354,34 @@ try {
             [string]$manifest.pchw_skill.version
     ) {
         throw "Packaged PCHW version metadata is inconsistent."
+    }
+    $packagedContractProperty =
+        $packagedWorkbenchManifest.surface_contracts.PSObject.Properties[
+            [string]$manifest.pchw_surface_contract.id
+        ]
+    $packagedContract = if ($null -eq $packagedContractProperty) {
+        $null
+    }
+    else {
+        $packagedContractProperty.Value
+    }
+    if (
+        $null -eq $packagedContract -or
+        [string]$manifest.pchw_surface_contract.id -ne
+            "pchw-source-hosted" -or
+        [string]$manifest.pchw_surface_contract.version -ne
+            [string]$packagedContract.contract_version -or
+        [string]$manifest.pchw_surface_contract.min_skill_version -ne
+            [string]$packagedContract.min_skill_version -or
+        [string]$manifest.pchw_surface_contract.legacy_exact_skill_version -ne
+            "2.8.0" -or
+        [int]$manifest.pchw_surface_contract.supported_contract_major -ne 1 -or
+        @($manifest.pchw_surface_contract.required_capabilities) -notcontains
+            "telemetry.csv.analyze" -or
+        @($packagedContract.required_capabilities) -notcontains
+            "telemetry.csv.analyze"
+    ) {
+        throw "Packaged PCHW surface contract is inconsistent."
     }
 
     $nodeExecutable = Join-Path $packageRoot "node\node.exe"

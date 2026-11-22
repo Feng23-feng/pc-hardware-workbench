@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "release_id": "0.1.0-rc.5",
+  "release_state": "release-candidate-not-released",
+  "product": "SkillDock + PC Hardware Workbench",
+  "application_version": "0.1.0-rc.5",
+  "pchw_skill_version": "2.9.0",
+  "pchw_r7_source_version": "2.7.4",
+  "pchw_skill_tree_sha256": "a60e079471f4f0cdc91de866bf2755220b002f7575001082060ee0714fe5d45b",
+  "pchw_skill_tree_file_count": 141,
+  "pchw_r7_source_tree_sha256": "f6eab543414ef6b208706b4367b7adb152db3bd5c5288390a0f30a5189a95eb1",
+  "pchw_r7_source_tree_file_count": 134,
+  "pchw_surface_contract_id": "pchw-source-hosted",
+  "pchw_surface_contract_version": "1.0.0",
+  "pchw_surface_min_skill_version": "2.8.0",
+  "pchw_legacy_exact_skill_version": "2.8.0",
+  "pchw_supported_contract_major": 1,
+  "platform": "windows-x64",
+  "bundled_node_version": "24.22.1",
+  "package_basename": "SkillDock-PCHW-0.1.0-rc.5-win-x64",
+  "private": true,
+  "clean_windows_acceptance": "pending",
+  "user_release_signoff": false,
+  "pchw_package_excludes": [
+    "tests"
+  ],
+  "dsh_component_in_package": false,
+  "fake_data_entry_in_package": false,
+  "development_routes_in_package": false,
+  "skilldock_panel_host": "codex",
+  "pchw_skill_core_hosts": [
+    "codex",
+    "dsh",
+    "other-agent-hosts"
+  ],
+  "panel_requires_codex_thread_id": true,
+  "default_traffic": "off",
+  "formal_default_entry": "closed",
+  "background_write": "closed",
+  "coordinator_recovery": "closed",
+  "automatic_hardware_changes": "forbidden"
+}

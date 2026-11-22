@@ -51,6 +51,16 @@ if (-not [bool]$ReleaseConfig.private) {
 if ([string]$ReleaseConfig.clean_windows_acceptance -ne "pending") {
     throw "This preparation builder expects clean-Windows acceptance to be pending."
 }
+if (
+    [string]$ReleaseConfig.pchw_surface_contract_id -ne
+        "pchw-source-hosted" -or
+    [string]$ReleaseConfig.pchw_surface_contract_version -ne "1.0.0" -or
+    [string]$ReleaseConfig.pchw_surface_min_skill_version -ne "2.8.0" -or
+    [string]$ReleaseConfig.pchw_legacy_exact_skill_version -ne "2.8.0" -or
+    [int]$ReleaseConfig.pchw_supported_contract_major -ne 1
+) {
+    throw "PCHW surface contract release configuration is invalid."
+}
 
 $distFull = [IO.Path]::GetFullPath($DistRoot).TrimEnd("\")
 New-Item -ItemType Directory -Path $distFull -Force | Out-Null
@@ -219,6 +229,35 @@ if (
         "version:\s*`"$([regex]::Escape([string]$ReleaseConfig.pchw_skill_version))`""
 ) {
     throw "PCHW source Skill version does not match the release configuration."
+}
+$SourceWorkbenchManifestPath = Join-Path $resolvedSkill "workbench.manifest.json"
+$SourceWorkbenchManifest = Read-Utf8Text -Path $SourceWorkbenchManifestPath |
+    ConvertFrom-Json
+$SourceSurfaceContractProperty =
+    $SourceWorkbenchManifest.surface_contracts.PSObject.Properties[
+        [string]$ReleaseConfig.pchw_surface_contract_id
+    ]
+$SourceSurfaceContract = if ($null -eq $SourceSurfaceContractProperty) {
+    $null
+}
+else {
+    $SourceSurfaceContractProperty.Value
+}
+if (
+    [string]$SourceWorkbenchManifest.schema_version -ne "1.0" -or
+    [string]$SourceWorkbenchManifest.skill.id -ne
+        "pc-hardware-workbench" -or
+    [string]$SourceWorkbenchManifest.skill.version -ne
+        [string]$ReleaseConfig.pchw_skill_version -or
+    $null -eq $SourceSurfaceContract -or
+    [string]$SourceSurfaceContract.contract_version -ne
+        [string]$ReleaseConfig.pchw_surface_contract_version -or
+    [string]$SourceSurfaceContract.min_skill_version -ne
+        [string]$ReleaseConfig.pchw_surface_min_skill_version -or
+    @($SourceSurfaceContract.required_capabilities) -notcontains
+        "telemetry.csv.analyze"
+) {
+    throw "PCHW source does not declare the configured surface contract."
 }
 $skillIdentity = Get-SkillTreeIdentity -Root $resolvedSkill
 if (
@@ -1066,6 +1105,16 @@ $SourceState = [ordered]@{
     pchw_repository_dirty_scope = $relativePchwSkill.Replace("\", "/")
     pchw_repository_global_dirty_entry_count = $PchwGlobalDirtyEntries
     pchw_repository_global_status_sha256 = $PchwGlobalStatusSha256
+    pchw_surface_contract_id =
+        [string]$ReleaseConfig.pchw_surface_contract_id
+    pchw_surface_contract_version =
+        [string]$ReleaseConfig.pchw_surface_contract_version
+    pchw_surface_min_skill_version =
+        [string]$ReleaseConfig.pchw_surface_min_skill_version
+    pchw_legacy_exact_skill_version =
+        [string]$ReleaseConfig.pchw_legacy_exact_skill_version
+    pchw_supported_contract_major =
+        [int]$ReleaseConfig.pchw_supported_contract_major
     packaged_pchw_tree_sha256 = $PackagedSkillIdentity.tree_sha256
     packaged_pchw_tree_file_count = $PackagedSkillIdentity.tree_file_count
     builder_sha256 = Get-FileSha256 -Path $PSCommandPath
@@ -1119,6 +1168,19 @@ $RcManifest = [ordered]@{
         tree_sha256 = $PackagedSkillIdentity.tree_sha256
         tree_file_count = $PackagedSkillIdentity.tree_file_count
         excluded_paths = @("tests")
+    }
+    pchw_surface_contract = [ordered]@{
+        id = [string]$ReleaseConfig.pchw_surface_contract_id
+        version = [string]$ReleaseConfig.pchw_surface_contract_version
+        min_skill_version =
+            [string]$ReleaseConfig.pchw_surface_min_skill_version
+        legacy_exact_skill_version =
+            [string]$ReleaseConfig.pchw_legacy_exact_skill_version
+        supported_contract_major =
+            [int]$ReleaseConfig.pchw_supported_contract_major
+        required_capabilities = @(
+            $SourceSurfaceContract.required_capabilities
+        )
     }
     gates = [ordered]@{
         r7_current_user_thread_final_effect = "passed"
