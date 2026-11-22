@@ -11,9 +11,13 @@ user.
 
 The current PCHW source and test version is **2.9.0-test.1**. It adds the
 deterministic local evidence CLI and ships PCHW Skill, Portable, and DeepSeek
-Harness packages. The PCHW `2.8.0` SkillDock panel line remains separate as
-SkillDock `0.1.0-rc.4` and has not been combined with the 2.9.0 Skill. There is
-no stable release yet.
+Harness packages. PCHW 2.9.0 also declares the
+`pchw-source-hosted` `1.0.0` surface contract so later Skill releases can
+negotiate a minimum product version, contract SemVer, and required
+capabilities instead of hard-coding one Skill version. SkillDock
+`0.1.0-rc.5` is a local candidate for that contract but is not released; the
+public panel package remains `0.1.0-rc.4`, which accepts PCHW `2.8.0` only.
+There is no stable release yet.
 Automated tests and targeted human review pass, but broad real-device coverage,
 clean-Windows install/uninstall, and the remaining human scenarios are still in
 progress. The project does not claim this test build is stable or fully
@@ -92,8 +96,9 @@ no installation at all, use the standalone Portable tool.
 | PCHW Skill (Codex / DSH / other Agents; no panel) | Default choice; use Codex alone or with DSH / another compatible Agent host | PCHW Skill 2.9.0 release subset only | No |
 | PCHW Portable (standalone Windows; no Agent) | You do not use Codex / DSH, or want no Skill or Runtime installation | Standalone menu, collection, CSV, and evidence tools | No |
 | DeepSeek Harness adapter | You use DSH and want PCHW Skill plus its adapter files | 2.9.0 Skill and DSH adapter files | Not provided |
-| SkillDock Runtime-only | A compatible 2.8.0 PCHW Skill is installed and only the Runtime and Node are missing | SkillDock Runtime + Node.js 24.22.1 | Current Codex conversation only |
-| SkillDock panel bundle (for Codex) | Codex Desktop is installed and you specifically want the older 2.8.0 panel test line | PCHW 2.8.0 Skill, SkillDock Runtime, installer | Current Codex conversation only |
+| SkillDock Runtime-only | A compatible PCHW Skill is installed and only the Runtime and Node are missing | SkillDock Runtime + Node.js 24.22.1 | Current Codex conversation only |
+| SkillDock panel bundle (public rc.4 test line) | Codex Desktop is installed and you specifically want the PCHW 2.8.0 panel test line | PCHW 2.8.0 Skill, SkillDock Runtime, installer | Current Codex conversation only |
+| SkillDock panel candidate (local rc.5; not released) | Acceptance users need the PCHW 2.9.0 surface contract | PCHW 2.9.0 Skill, SkillDock rc.5 candidate, installer | Current Codex conversation only |
 
 The 2.9.0-test.1 release files are:
 
@@ -105,7 +110,9 @@ pc-hardware-workbench-deepseek-harness-v2.9.0-test.1.zip
 ```
 
 The SkillDock panel files remain in the separate `v0.1.0-rc.4` release. Do not
-mix the PCHW 2.8.0 Skill from that bundle with the 2.9.0 Skill.
+mix the PCHW 2.8.0 Skill from that bundle with the 2.9.0 Skill. The local
+`0.1.0-rc.5` candidate with PCHW 2.9.0 is not public until compatibility tests
+and Clean-Windows acceptance complete.
 
 This is a public test build. Clean-Windows installation, uninstallation, and
 final signoff remain PENDING. Do not mix multiple Skills or old Runtime
@@ -203,10 +210,13 @@ See [Installation and upgrade](docs/en/installation.md#pchw-skill-only) for deta
 ### SkillDock Runtime-only
 
 Use this package only when a compatible PCHW Skill is already installed and the
-SkillDock application plus Node.js are missing. Compatibility means Skill id
-`pc-hardware-workbench`, version `2.8.0`, Workbench Manifest 1.0 in active
-status, UI state schema 1.2, event schema 1.0, and the
-`telemetry.csv.analyze` capability. Extract it and run:
+SkillDock application plus Node.js are missing. rc.5 preserves exact PCHW
+`2.8.0` as a legacy bridge. A later PCHW must declare
+`surface_contracts["pchw-source-hosted"]` in the supported
+`>=1.0.0 <2.0.0` range, satisfy `min_skill_version`, and include every required
+capability such as `telemetry.csv.analyze`. The public rc.4 Runtime does not
+have this negotiation path and remains limited to PCHW 2.8.0. Extract the
+applicable Runtime and run:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File ".\Install SkillDock Runtime.ps1"
@@ -328,7 +338,8 @@ Read [Privacy and safety boundaries](docs/en/privacy-and-safety.md) for the full
 ## Known limitations
 
 - `2.9.0` remains a PCHW Skill/Portable test build and has no stable release;
-- the SkillDock panel bundle remains on PCHW `2.8.0` and SkillDock `0.1.0-rc.4`;
+- the public SkillDock panel bundle remains on PCHW `2.8.0` and SkillDock `0.1.0-rc.4`;
+- SkillDock `0.1.0-rc.5` supports the PCHW 2.9.0 surface contract but is not yet released or Clean-Windows accepted;
 - clean-Windows install/uninstall, real-device coverage, and complete user signoff
   are still in progress;
 - the SkillDock panel is promised only for the current Codex conversation;

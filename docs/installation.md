@@ -10,9 +10,11 @@
 - 可选监控需要用户已经启动 LibreHardwareMonitor；本项目不会安装或启动它。
 
 当前 PCHW 源码与测试版本为 `2.9.0`。本版新增确定性本地证据 CLI，并提供纯
-PCHW Skill、PCHW Portable 和 DeepSeek Harness 包。SkillDock 面板测试线仍为
-`0.1.0-rc.4 + PCHW 2.8.0`，尚未与 2.9.0 Skill 合并。目前没有正式版；干净
-Windows 安装、卸载和完整用户签收继续作为发布门禁。
+PCHW Skill、PCHW Portable 和 DeepSeek Harness 包。2.9.0 声明
+`pchw-source-hosted` `1.0.0` 契约，SkillDock `0.1.0-rc.5` 本地候选可按最低
+Skill 版本、契约 SemVer 和能力协商。公开面板测试线仍为
+`0.1.0-rc.4 + PCHW 2.8.0`，rc.5 尚未发布。目前没有正式版；干净 Windows
+安装、卸载和完整用户签收继续作为发布门禁。
 
 ## 先选一种包
 
@@ -27,8 +29,9 @@ PCHW Portable。
 | PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板） | 普通用户默认选择；Codex 单独使用，或已有 DSH / 其他兼容 Agent 宿主 | PCHW Skill 2.9.0 发布子集 | 无 |
 | PCHW Portable（独立 Windows，无需 Agent） | 没有 Codex / DSH，或不希望安装 Skill 与 Runtime | 独立菜单、采集、CSV 与证据工具 | 无 |
 | DeepSeek Harness 适配包 | 使用 DSH，并且需要 PCHW Skill 与适配文件 | 2.9.0 Skill、DSH 适配文件 | 不提供 |
-| SkillDock Runtime-only | 已安装兼容 2.8.0 PCHW Skill，只缺应用与 Node | SkillDock Runtime、Node.js 24.22.1 | 仅 Codex 当前对话 |
-| SkillDock 面板包（用于 Codex） | 已安装 Codex Desktop，并明确需要旧 2.8.0 面板测试线 | PCHW 2.8.0 Skill、SkillDock Runtime、安装入口 | 仅 Codex |
+| SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺应用与 Node | SkillDock Runtime、Node.js 24.22.1 | 仅 Codex 当前对话 |
+| SkillDock 面板包（公开 rc.4） | 已安装 Codex Desktop，并明确需要 PCHW 2.8.0 面板测试线 | PCHW 2.8.0 Skill、SkillDock Runtime、安装入口 | 仅 Codex |
+| SkillDock 面板候选（本地 rc.5，尚未发布） | 需要验收 PCHW 2.9.0 surface contract | PCHW 2.9.0 Skill、SkillDock rc.5 候选、安装入口 | 仅 Codex |
 
 [下载 PCHW 2.9.0-test.1](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.0-test.1)：
 
@@ -40,8 +43,9 @@ pc-hardware-workbench-deepseek-harness-v2.9.0-test.1.zip
 ```
 
 SkillDock 面板文件继续由 `v0.1.0-rc.4` 单独提供，其中的 PCHW Skill 仍是
-2.8.0。clean Windows 安装、卸载和最终签收仍是 PENDING。不要把旧版本 ZIP、
-2.8.0 Skill 目录与 2.9.0 Skill 目录混在一起。
+2.8.0。`0.1.0-rc.5` 与 PCHW 2.9.0 的本地候选尚未发布；clean Windows 安装、
+卸载和最终签收仍是 PENDING。不要把公开 rc.4 的 2.8.0 Skill 与 2.9.0 Skill
+混在一起。
 
 <a id="pchw-portable"></a>
 
@@ -185,10 +189,12 @@ SkillDock 面板。DSH 适配细节见 [DSH adapter](../adapters/dsh/README.md)�
 
 ## SkillDock Runtime-only
 
-仅在已经安装兼容 PCHW Skill、但缺少 SkillDock 应用和 Node 时使用。兼容条件为
-Skill id `pc-hardware-workbench`、版本 `2.8.0`、Workbench Manifest 1.0 且状态
-active、UI state schema 1.2、事件 schema 1.0，并声明
-`telemetry.csv.analyze`。解压后运行：
+仅在已经安装兼容 PCHW Skill、但缺少 SkillDock 应用和 Node 时使用。rc.5 对精确
+PCHW `2.8.0` 走 legacy 桥；2.8.0 之后的版本必须声明
+`surface_contracts["pchw-source-hosted"]`，契约版本在
+`>=1.0.0 <2.0.0` 内，满足 `min_skill_version`，并声明
+`telemetry.csv.analyze` 等必需能力。公开 rc.4 仍只接受 PCHW 2.8.0。解压对应
+Runtime 后运行：
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File ".\Install SkillDock Runtime.ps1"
@@ -262,7 +268,8 @@ Test-Path $pointer
 ## 已知限制
 
 - `2.9.0` 目前只有 PCHW Skill/Portable 测试版，没有正式版；干净 Windows 签收仍待完成。
-- SkillDock 面板包继续使用 PCHW `2.8.0` 与 SkillDock `0.1.0-rc.4`。
+- 公开 SkillDock 面板包继续使用 PCHW `2.8.0` 与 SkillDock `0.1.0-rc.4`。
+- SkillDock `0.1.0-rc.5` 已适配 PCHW 2.9.0 surface contract，但尚未发布或完成 Clean Windows 签收。
 - SkillDock 面板只支持 Codex 当前用户对话。
 - Panel 不可用、权限被拒绝或工作区冲突时必须回到对话，不能暴露开发入口。
 - 实时采集取决于 Windows 权限和宿主沙箱，不能把权限拒绝误报为缺件。

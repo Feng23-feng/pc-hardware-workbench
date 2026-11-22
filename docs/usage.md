@@ -10,8 +10,9 @@
 - **PCHW Portable（独立 Windows，无需 Agent）。** 适合没有 Codex / DSH，或不
   希望安装 Skill 与 Runtime 的用户。
 - **DeepSeek Harness 适配包。** 适合使用 DSH，并需要 Skill 与适配文件一起安装的用户。
-- **SkillDock 面板包（用于 Codex）。** 适合已安装 Codex、并明确需要旧 2.8.0 面板测试线的用户。
-- **SkillDock Runtime-only。** 适合已经安装兼容 2.8.0 PCHW Skill，只缺应用和 Node。
+- **SkillDock 面板包（公开 rc.4）。** 适合已安装 Codex、并明确需要 PCHW 2.8.0 面板测试线的用户。
+- **SkillDock 面板候选（本地 rc.5）。** 适配 PCHW 2.9.0 surface contract，但尚未发布或完成 Clean Windows 签收。
+- **SkillDock Runtime-only。** 适合已经安装兼容 PCHW Skill，只缺应用和 Node。
 
 按实际使用的宿主选择包；同一个宿主的 Skill 扫描目录只保留一个活动版本。
 
