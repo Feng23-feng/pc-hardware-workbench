@@ -90,7 +90,6 @@ pc-hardware-portable-v2.9.0-test.1.zip
 pc-hardware-workbench-deepseek-harness-v2.9.0-test.1.zip
 SkillDock-PCHW-0.1.0-rc.5-win-x64-user.zip
 SkillDock-Runtime-0.1.0-rc.5-win-x64.zip
-SkillDock-PCHW-0.1.0-rc.5-win-x64.zip
 SHA256SUMS.txt
 ```
 
