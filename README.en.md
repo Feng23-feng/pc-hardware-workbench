@@ -27,7 +27,7 @@ validated.
 
 The interactive project pages are currently available in Chinese:
 [Project overview](https://feng23-feng.github.io/pc-hardware-workbench/skill-evolution/) ·
-[Interactive lab](https://feng23-feng.github.io/pc-hardware-workbench/skill-evolution/interactive/) ·
+[Scenario Walkthrough](https://feng23-feng.github.io/pc-hardware-workbench/skill-evolution/interactive/) ·
 [File orrery](https://feng23-feng.github.io/pc-hardware-workbench/skill-evolution/orrery/)
 
 ## Contents

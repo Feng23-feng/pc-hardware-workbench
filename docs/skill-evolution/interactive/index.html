@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <meta name="description" content="PC Hardware Workbench 2.9.0 advanced tools: terminology, tuning, triage, baseline identity and evidence.">
+  <meta name="description" content="PC Hardware Workbench 2.9.0 scenario walkthrough: terminology, tuning, triage, baseline identity and evidence.">
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="../crt-backdrop.css">
 
-  <title>&#39640;&#32423;&#27169;&#24335; &#183; pc-hardware-workbench</title>
+  <title>&#24773;&#26223;&#28436;&#31034; &#183; pc-hardware-workbench</title>
 </head>
 <body>
 <main id="dse-root" class="dse">
@@ -9783,12 +9783,12 @@
 
   <nav class="dse-global-nav" aria-label="全局导航">
     <a href="../" id="dse-return-home">← 返回首页</a>
-    <span aria-current="page">高级模式</span>
+    <span aria-current="page">情景演示</span>
   </nav>
 
   <div class="dse-shell">
     <header class="dse-advanced-page-head">
-      <h1>高级模式</h1>
+      <h1>情景演示</h1>
       <span>集中处理术语、调参、排障和证据；只做演示，不读取或修改电脑。</span>
       <small>当前测试版 · 暂无正式版 · 只读演示</small>
     </header>
@@ -9801,14 +9801,14 @@
       </div>
       <div class="dse-context-bridge-actions">
         <a href="../#dse-home-flow">返回修改问题</a>
-        <button type="button" id="dse-context-dismiss">在高级模式重新选择</button>
+        <button type="button" id="dse-context-dismiss">在情景演示重新选择</button>
       </div>
     </section>
 
     <details class="dse-interactive-technical" id="dse-interactive-technical" open>
       <summary id="dse-interactive-technical-summary"
         aria-controls="dse-interactive-technical-content" aria-expanded="true">
-        <span data-interactive-technical-action>高级模式</span>
+        <span data-interactive-technical-action>情景演示</span>
         <small>当前测试版 · 案卷续接、调参、排障与证据</small>
         <i data-interactive-technical-indicator aria-hidden="true">展开</i>
       </summary>
@@ -9922,7 +9922,7 @@
         <button type="button" class="dse-filter" data-filter="core" aria-pressed="true">主工作台</button>
         <button type="button" class="dse-filter" data-filter="prototype" aria-pressed="false">自动超频原型</button>
         <button type="button" class="dse-filter" data-filter="triage" aria-pressed="false">Triage 排障</button>
-        <a class="dse-filter dse-lab-link" href="./" title="刷新高级模式">高级模式 ↗</a>
+        <a class="dse-filter dse-lab-link" href="./" title="刷新情景演示">情景演示 ↗</a>
         <button type="button" class="dse-filter" data-filter="merge" aria-pressed="false">整合进度</button>
       </div>
       <div class="dse-legend">
@@ -10021,7 +10021,7 @@
     <details class="dse-advanced-shell" id="dse-advanced-shell" open>
       <summary id="dse-advanced-summary"
         aria-controls="dse-advanced-content" aria-expanded="false">
-        <span>高级模式</span>
+        <span>情景演示</span>
         <strong>完整术语、调校门禁、排障与证据实验</strong>
         <small data-advanced-indicator>当前</small>
       </summary>
@@ -10041,19 +10041,19 @@
     <section class="dse-demo" id="dse-demo" aria-labelledby="dse-demo-title">
       <header class="dse-demo-head">
         <div class="dse-demo-heading">
-          <p class="dse-demo-kicker">高级模式工具</p>
+          <p class="dse-demo-kicker">情景演示工具</p>
           <h2 id="dse-demo-title">选择一项工具</h2>
         </div>
         <div class="dse-demo-lead">
           <p class="dse-demo-summary">选一个最接近你的情况，看看先要弄清楚什么，再决定要不要改设置。这里只做演示，不会读取或修改你的电脑。</p>
           <div class="dse-demo-meta">
-            <button class="dse-demo-back" id="dse-close-advanced" type="button">↑ 收起高级模式</button>
+            <button class="dse-demo-back" id="dse-close-advanced" type="button">↑ 收起情景演示</button>
             <span class="dse-demo-badge">在线演示 · 不会修改你的电脑</span>
           </div>
         </div>
       </header>
 
-      <div class="dse-demo-modes" role="group" aria-label="高级模式主题">
+      <div class="dse-demo-modes" role="group" aria-label="情景演示主题">
         <div class="dse-demo-mode-group task">
           <span class="dse-demo-mode-label">处理问题</span>
           <button type="button" class="dse-filter" data-demo-mode="skilldock" aria-pressed="false">SkillDock 操作</button>
@@ -10901,7 +10901,7 @@
         document.getElementById("dse-guided-open-advanced")?.setAttribute("aria-expanded", String(open));
         const action = interactiveTechnicalSummary?.querySelector("[data-interactive-technical-action]");
         const indicator = interactiveTechnicalSummary?.querySelector("[data-interactive-technical-indicator]");
-        if (action) action.textContent = open ? "收起高级模式" : "打开高级模式";
+        if (action) action.textContent = open ? "收起情景演示" : "打开情景演示";
         if (indicator) indicator.textContent = open ? "收起" : "展开";
       }
 
@@ -15001,7 +15001,7 @@
           },
           {
             now: "查看结论和缺失项，也可以返回调整证据。",
-            effect: "可以把这轮结果作为提示复制到 Codex，或进入对应高级模式继续。"
+            effect: "可以把这轮结果作为提示复制到 Codex，或进入对应情景演示继续。"
           }
         ];
         const evidenceSelections = Object.fromEntries(
@@ -15085,7 +15085,7 @@
               : "证据项已齐；仍需在真实设备和固定负载下复核。";
             recommendation.textContent = `推荐下一步：${scenario.finalAction}`;
             if (openAdvancedButton) {
-              openAdvancedButton.textContent = "打开高级模式";
+              openAdvancedButton.textContent = "打开情景演示";
             }
           }
           if (flash) flashResultCard();

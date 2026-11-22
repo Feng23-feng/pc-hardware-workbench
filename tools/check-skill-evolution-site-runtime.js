@@ -1226,8 +1226,8 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
         visibleVersionNumber: document.getElementById("dse-root")?.innerText.includes(${JSON.stringify(expectedSkillVersion)}) || false
       };
     })()`);
-    check(initial.title.includes("高级模式"), `${prefix}browser title is not user-facing.`);
-    check(initial.h1 === "高级模式", `${prefix}advanced-mode headline is not named consistently.`);
+    check(initial.title.includes("情景演示"), `${prefix}browser title is not user-facing.`);
+    check(initial.h1 === "情景演示", `${prefix}scenario-walkthrough headline is not named consistently.`);
     check(
       initial.status.includes("当前测试版") &&
       initial.status.includes("只读演示") &&

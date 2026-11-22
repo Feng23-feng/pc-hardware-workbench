@@ -8676,16 +8676,16 @@
           <div class="dse-home-flow-actions">
             <button type="button" class="primary" id="dse-home-copy-next">复制下一步给 Codex</button>
             <button type="button" id="dse-home-restart">重新选择</button>
-            <a id="dse-home-open-advanced" href="interactive/">需要更多工具？进入高级模式</a>
+            <a id="dse-home-open-advanced" href="interactive/">需要更多工具？进入情景演示</a>
           </div>
         </section>
       </div>
     </section>
 
-    <nav class="dse-advanced-entry" aria-label="高级模式入口">
+    <nav class="dse-advanced-entry" aria-label="情景演示入口">
       <a href="interactive/">
         <span>需要术语、调参、排障和案卷续接？</span>
-        <strong>进入高级模式</strong>
+        <strong>进入情景演示</strong>
         <span aria-hidden="true">→</span>
       </a>
     </nav>
@@ -8880,7 +8880,7 @@
       <div class="dse-filters" aria-label="演变轨道切换">
         <button type="button" class="dse-filter" data-filter="core" aria-pressed="true">主工作台</button>
         <button type="button" class="dse-filter" data-filter="triage" aria-pressed="false">Triage 排障</button>
-        <a class="dse-filter dse-lab-link" href="interactive/" title="打开高级模式">高级模式 ↗</a>
+        <a class="dse-filter dse-lab-link" href="interactive/" title="打开情景演示">情景演示 ↗</a>
         <a class="dse-filter dse-lab-link" href="orrery/" title="查看文件星球">查看文件星球</a>
       </div>
       <div class="dse-legend">
@@ -8950,7 +8950,7 @@
     <section class="dse-demo" id="dse-demo" aria-labelledby="dse-demo-title" hidden>
       <header class="dse-demo-head">
         <div class="dse-demo-heading">
-          <p class="dse-demo-kicker">高级模式工具</p>
+          <p class="dse-demo-kicker">情景演示工具</p>
           <h2 id="dse-demo-title">选择一项工具</h2>
         </div>
         <div class="dse-demo-lead">
@@ -8962,7 +8962,7 @@
         </div>
       </header>
 
-      <div class="dse-demo-modes" role="group" aria-label="高级模式主题">
+      <div class="dse-demo-modes" role="group" aria-label="情景演示主题">
         <button type="button" class="dse-filter" data-demo-mode="terms" aria-pressed="false">看懂名词</button>
         <button type="button" class="dse-filter" data-demo-mode="tune" aria-pressed="true">安全调参</button>
         <button type="button" class="dse-filter" data-demo-mode="triage" aria-pressed="false">排查故障</button>
@@ -9383,7 +9383,7 @@
         : "index";
       const isInteractiveView = siteView === "interactive";
       if (isInteractiveView) {
-        root.querySelector(".dse-kicker").textContent = "高级模式";
+        root.querySelector(".dse-kicker").textContent = "情景演示";
         root.querySelector("h1").textContent = "先看看这套流程怎么判断";
         root.querySelector(".dse-subtitle").textContent = "选一个最像你的情况，看看需要先确认什么。这里只做演示，不会读取或修改你的电脑。";
       }

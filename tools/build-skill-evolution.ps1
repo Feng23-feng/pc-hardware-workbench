@@ -96,8 +96,8 @@ Write-SitePage `
 Write-SitePage `
     -Path (Join-Path $interactiveRoot "index.html") `
     -SiteView "interactive" `
-    -Title "&#39640;&#32423;&#27169;&#24335; &#183; pc-hardware-workbench" `
-    -Description "PC Hardware Workbench ${skillVersion} advanced tools: terminology, tuning, triage, baseline identity and evidence." `
+    -Title "&#24773;&#26223;&#28436;&#31034; &#183; pc-hardware-workbench" `
+    -Description "PC Hardware Workbench ${skillVersion} scenario walkthrough: terminology, tuning, triage, baseline identity and evidence." `
     -Source $InteractiveSource `
     -AssetPrefix ".."
 

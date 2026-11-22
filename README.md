@@ -19,7 +19,7 @@
 ![文件星球预览](docs/skill-evolution/assets/orrery-preview.png)
 
 [项目说明](https://feng23-feng.github.io/pc-hardware-workbench/skill-evolution/) ·
-[交互实验室](https://feng23-feng.github.io/pc-hardware-workbench/skill-evolution/interactive/) ·
+[情景演示](https://feng23-feng.github.io/pc-hardware-workbench/skill-evolution/interactive/) ·
 [文件星球](https://feng23-feng.github.io/pc-hardware-workbench/skill-evolution/orrery/)
 
 ## 目录
