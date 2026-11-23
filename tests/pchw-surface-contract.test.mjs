@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import {
   evaluatePchwSurfaceCompatibility,
+  PCHW_SURFACE_COMPATIBILITY_PROFILE,
 } from "../lib/pchw-surface-contract.mjs";
 
 const CAPABILITY = "telemetry.csv.analyze";
@@ -15,11 +16,17 @@ function manifest({
   minSkillVersion = "2.8.0",
   requiredCapabilities = [CAPABILITY],
   capabilities = [{ id: CAPABILITY }],
+  uiStateSchemaVersion = "1.2",
+  eventSchemaVersion = "1.0",
   includeContract = true,
 } = {}) {
   const value = {
     skill: { id, version },
     status,
+    ui: {
+      state_schema_version: uiStateSchemaVersion,
+      event_schema_version: eventSchemaVersion,
+    },
     domain: { capabilities },
   };
   if (includeContract) {
@@ -57,11 +64,74 @@ assertCompatible("legacy_exact")(
   ),
 );
 
+assert.deepEqual(PCHW_SURFACE_COMPATIBILITY_PROFILE.ui_state_schema_versions, [
+  "1.2",
+]);
+assert.deepEqual(PCHW_SURFACE_COMPATIBILITY_PROFILE.event_schema_versions, [
+  "1.0",
+]);
+assert.equal(Object.isFrozen(PCHW_SURFACE_COMPATIBILITY_PROFILE), true);
+assert.equal(
+  Object.isFrozen(PCHW_SURFACE_COMPATIBILITY_PROFILE.ui_state_schema_versions),
+  true,
+);
+assert.equal(
+  Object.isFrozen(PCHW_SURFACE_COMPATIBILITY_PROFILE.event_schema_versions),
+  true,
+);
+
 for (const version of ["2.9.0", "2.10.0", "3.0.0"]) {
   assertCompatible("contract")(
     evaluatePchwSurfaceCompatibility(manifest({ version })),
   );
 }
+
+for (const uiStateSchemaVersion of ["1.1", "1.3", "2.0", ""]) {
+  const result = evaluatePchwSurfaceCompatibility(
+    manifest({
+      version: "3.0.0",
+      uiStateSchemaVersion,
+    }),
+  );
+  assert.equal(result.compatible, false, uiStateSchemaVersion);
+  assert.equal(result.code, "ui_state_schema_unsupported");
+}
+
+for (const eventSchemaVersion of ["0.9", "1.1", "2.0", ""]) {
+  const result = evaluatePchwSurfaceCompatibility(
+    manifest({
+      version: "3.0.0",
+      eventSchemaVersion,
+    }),
+  );
+  assert.equal(result.compatible, false, eventSchemaVersion);
+  assert.equal(result.code, "event_schema_unsupported");
+}
+
+const missingUi = manifest({ version: "3.0.0" });
+delete missingUi.ui;
+assertIncompatible("ui_state_schema_unsupported")(
+  evaluatePchwSurfaceCompatibility(missingUi),
+);
+
+const missingEventSchema = manifest({ version: "3.0.0" });
+delete missingEventSchema.ui.event_schema_version;
+assertIncompatible("event_schema_unsupported")(
+  evaluatePchwSurfaceCompatibility(missingEventSchema),
+);
+
+const shippedManifest = JSON.parse(
+  readFileSync(
+    resolve("skills", "pc-hardware-workbench", "workbench.manifest.json"),
+    "utf8",
+  ),
+);
+assertCompatible("contract")(
+  evaluatePchwSurfaceCompatibility({
+    ...shippedManifest,
+    status: "active",
+  }),
+);
 
 assertCompatible("contract")(
   evaluatePchwSurfaceCompatibility(

@@ -32,6 +32,21 @@ Validation rejects:
 - manifests, Skill roots, or schema paths outside the allowed root;
 - files over the manifest size limit.
 
+For the `pc-hardware-workbench` Skill, SkillDock does not infer panel
+compatibility from the Skill's product version alone. Before selecting the
+Skill runtime, it also requires:
+
+- the declared `pchw-source-hosted` contract to be within the Runtime's
+  supported contract range;
+- `ui.state_schema_version` and `ui.event_schema_version` to be in the
+  Runtime's explicit supported sets;
+- every capability required by that contract to exist in the manifest.
+
+PCHW `2.8.0` without a surface contract is the only exact-version legacy
+bridge. A later PCHW `2.x` or `3.x` release is accepted only through a matching
+contract and schema declaration. A mismatch leaves chat/Task fallback available
+but does not load the PCHW panel runtime.
+
 ## Contract
 
 Schema:

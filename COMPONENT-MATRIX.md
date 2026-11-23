@@ -32,6 +32,8 @@ Bundled SQLite:                   3.53.4
 PCHW surface contract:            pchw-source-hosted 1.0.0
 Supported contract range:         >=1.0.0 <2.0.0
 PCHW legacy bridge:               exact 2.8.0 only
+Runtime UI state schema support: exact 1.2
+Runtime event schema support:    exact 1.0
 ```
 
 The public `PCHW-Skill-2.9.0-test.1-*.zip` and
@@ -47,14 +49,20 @@ one of these compatibility paths:
 | Installed PCHW | Required identity | Result |
 | --- | --- | --- |
 | `2.8.0` | `pc-hardware-workbench`, active Workbench Manifest 1.0 | Accepted through exact legacy compatibility |
-| Later `2.x` or `3.x` with contract | `pchw-source-hosted` `>=1.0.0 <2.0.0`, satisfying `min_skill_version` and capabilities | Accepted when the selected manifest is active |
+| Later `2.x` or `3.x` with contract | `pchw-source-hosted` `>=1.0.0 <2.0.0`, UI state schema exactly `1.2`, event schema exactly `1.0`, satisfying `min_skill_version` and capabilities | Accepted when the selected manifest is active |
 | Later version without contract | None | Rejected with `surface_contract_missing` |
 | Contract major `2+` | None | Rejected with `surface_contract_unsupported` |
 | Missing required capability | None | Rejected with `surface_contract_capability_missing` |
+| Unsupported UI state schema | None | Rejected with `ui_state_schema_unsupported` |
+| Unsupported event schema | None | Rejected with `event_schema_unsupported` |
 
-The current release requires UI state schema `1.2`, event schema `1.0`, and the
-`telemetry.csv.analyze` capability. PCHW must be the active manifest actually
-loaded by the Runtime; another installed version cannot act as a fallback.
+The current release machine-checks the exact UI state schema `1.2`, event schema
+`1.0`, the contract range, minimum Skill version, and required capabilities.
+A PCHW product major such as `3.0` is accepted only when it still declares a
+compatible contract and these exact supported schemas. Conversely, a `2.x`
+release that moves to UI/event schema `1.3` is rejected until a Runtime
+explicitly supports it. PCHW must be the active manifest actually loaded by the
+Runtime; another installed version cannot act as a fallback.
 
 The package inventory is defined by `PACKAGE-MANIFEST.json`,
 `MANIFEST.sha256`, and the adjacent verification receipt. Do not use a
