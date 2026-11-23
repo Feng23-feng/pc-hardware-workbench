@@ -9,7 +9,10 @@ system inventory, troubleshooting, telemetry analysis, guided tuning, and upgrad
 decisions into one workflow while leaving every persistent hardware change to the
 user.
 
-The current PCHW test version is **2.9.1-test.1**. This release tightens the memory-profile
+The current PCHW source test version is **2.9.2-test.1**; the public download
+remains `2.9.1-test.1`. This source line fixes HWiNFO exports whose trailing
+empty header cell and small number of unlabeled tail values caused the entire CSV
+to be rejected. The memory-profile
 identity gates for the GPU, raw tool, and display-tool versions and narrows the
 memory-chart presentation. It retains the deterministic local evidence CLI and
 the PCHW Skill, Portable, and DeepSeek Harness packages added in 2.9.0. PCHW
@@ -164,7 +167,7 @@ Runtime, shared engine, and rollback backup.
 
 The portable build covers inventory, troubleshooting, telemetry CSV, PresentMon,
 evidence packages, and guided manual tuning, but it does not provide the SkillDock
-panel. Its shared telemetry analyzer `1.2.4` recognizes `Timestamp`, `DateTime`,
+panel. Its shared telemetry analyzer `1.2.5` recognizes `Timestamp`, `DateTime`,
 `Date/Time`, and their Chinese equivalents, and reports the sampled span. Every
 hardware change remains manual.
 
@@ -342,7 +345,8 @@ Read [Privacy and safety boundaries](docs/en/privacy-and-safety.md) for the full
 
 ## Known limitations
 
-- `2.9.1` is the current PCHW Skill/Portable test release and has no stable release;
+- `2.9.2` is the current source PCHW Skill/Portable test line and has no stable release;
+- the current public PCHW test release remains `2.9.1-test.1`;
 - the current public SkillDock test bundle remains `0.1.0-rc.5` with PCHW `2.9.0`;
 - the previous `0.1.0-rc.4` bundle remains the PCHW `2.8.0` panel build;
 - Clean-Windows acceptance for the rc.5 final ZIP bytes is still pending;
@@ -389,7 +393,7 @@ Chinese. The contributing and security policies are available in English.
 
 Use [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
 and [CHANGELOG.md](CHANGELOG.md) as the source of version status. The current
-build is a `2.9.1` test build, and no stable release has been published. GitHub
+build is a `2.9.2` test build, and no stable release has been published. GitHub
 main may be ahead of the downloadable test build.
 
 Source code is available under the [MIT License](LICENSE).

@@ -361,8 +361,8 @@ if ($errors.Count -eq 0) {
     else {
         $segment = $homeTemplate.Substring($start, $end - $start)
         $versionCount = [regex]::Matches($segment, '(?m)^\s*\["\d+\.\d+\.\d+(?:-r\d+)?",').Count
-        if ($versionCount -ne 117) {
-            $errors.Add("Home source version count is $versionCount, expected 117.") | Out-Null
+        if ($versionCount -ne 118) {
+            $errors.Add("Home source version count is $versionCount, expected 118.") | Out-Null
         }
         $currentVersionPattern = '\["' + [regex]::Escape($expectedVersion) + '"[^\r\n]*CURRENT CANDIDATE'
         if ($segment -notmatch $currentVersionPattern) {

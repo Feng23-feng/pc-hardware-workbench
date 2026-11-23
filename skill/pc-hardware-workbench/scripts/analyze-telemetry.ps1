@@ -378,6 +378,41 @@ function Get-CsvFields {
     }
 }
 
+function Get-EffectiveHeaderCount {
+    param([string[]]$CandidateNames)
+    $count = $CandidateNames.Count
+    while (
+        $count -gt 1 -and
+        [string]::IsNullOrWhiteSpace([string]$CandidateNames[$count - 1])
+    ) {
+        $count--
+    }
+    return $count
+}
+
+function Test-IgnorableTrailingFields {
+    param(
+        [string[]]$Fields,
+        [int]$StartIndex
+    )
+    if ($StartIndex -lt 0 -or $StartIndex -ge $Fields.Count) {
+        return $true
+    }
+    $extraCount = $Fields.Count - $StartIndex
+    if ($extraCount -gt 8) {
+        return $false
+    }
+    for ($index = $StartIndex; $index -lt $Fields.Count; $index++) {
+        if (
+            -not [string]::IsNullOrWhiteSpace([string]$Fields[$index]) -and
+            $null -eq (ConvertTo-Number -Value $Fields[$index])
+        ) {
+            return $false
+        }
+    }
+    return $true
+}
+
 function ConvertTo-CsvLine {
     param([object[]]$Fields)
 
@@ -403,6 +438,7 @@ function Test-HeaderCandidateHasData {
         }
     }
 
+    $effectiveHeaderCount = Get-EffectiveHeaderCount -CandidateNames $CandidateNames
     $lookaheadEnd = [Math]::Min($Lines.Count - 1, $HeaderIndex + 50)
     for ($lineIndex = $HeaderIndex + 1; $lineIndex -le $lookaheadEnd; $lineIndex++) {
         if ([string]::IsNullOrWhiteSpace($Lines[$lineIndex])) {
@@ -410,11 +446,16 @@ function Test-HeaderCandidateHasData {
         }
 
         $fields = @(Get-CsvFields -Line $Lines[$lineIndex])
-        if ($fields.Count -ne $CandidateNames.Count) {
+        if (
+            $fields.Count -lt $effectiveHeaderCount -or
+            -not (Test-IgnorableTrailingFields `
+                -Fields $fields `
+                -StartIndex $effectiveHeaderCount)
+        ) {
             continue
         }
 
-        for ($fieldIndex = 0; $fieldIndex -lt $fields.Count; $fieldIndex++) {
+        for ($fieldIndex = 0; $fieldIndex -lt $effectiveHeaderCount; $fieldIndex++) {
             if ($timeColumns.ContainsKey($fieldIndex)) {
                 continue
             }
@@ -969,6 +1010,19 @@ if ($headerLineIndex -lt 0 -or $rawHeaderNames.Count -lt 2) {
     throw "Could not identify a telemetry header row with recognizable numeric sensor columns.$encodingHint"
 }
 
+$trimmedEmptyHeaderTail = 0
+while (
+    $rawHeaderNames.Count -gt 2 -and
+    [string]::IsNullOrWhiteSpace([string]$rawHeaderNames[$rawHeaderNames.Count - 1])
+) {
+    $rawHeaderNames = @($rawHeaderNames[0..($rawHeaderNames.Count - 2)])
+    $trimmedEmptyHeaderTail++
+}
+if ($trimmedEmptyHeaderTail -gt 0) {
+    $warnings.Add(
+        "$trimmedEmptyHeaderTail trailing empty header field(s) were ignored because the labeled columns still aligned with telemetry data.")
+}
+
 $seenHeaders = @{}
 $normalizedHeaders = New-Object System.Collections.Generic.List[string]
 for ($index = 0; $index -lt $rawHeaderNames.Count; $index++) {
@@ -999,6 +1053,8 @@ $dataLines = New-Object System.Collections.Generic.List[string]
 $stoppedAtFooter = $false
 $invalidDataRows = 0
 $trimmedTrailingEmptyRows = 0
+$maxIgnoredTrailingFields = 0
+$ignoredTrailingFieldValues = $false
 $firstInvalidDataLine = $null
 if ($headerLineIndex + 1 -lt $lines.Count) {
     for ($index = $headerLineIndex + 1; $index -lt $lines.Count; $index++) {
@@ -1026,11 +1082,25 @@ if ($headerLineIndex + 1 -lt $lines.Count) {
             break
         }
 
-        if (
-            $fields.Count -eq $headerNames.Count + 1 -and
-            [string]::IsNullOrWhiteSpace($fields[$fields.Count - 1])
-        ) {
-            $fields = @($fields[0..($fields.Count - 2)])
+        if ($fields.Count -gt $headerNames.Count) {
+            $ignoredCount = $fields.Count - $headerNames.Count
+            if (-not (Test-IgnorableTrailingFields `
+                -Fields $fields `
+                -StartIndex $headerNames.Count)) {
+                $invalidDataRows++
+                if ($null -eq $firstInvalidDataLine) {
+                    $firstInvalidDataLine = $index + 1
+                }
+                continue
+            }
+            for ($ignoredIndex = $headerNames.Count; $ignoredIndex -lt $fields.Count; $ignoredIndex++) {
+                if (-not [string]::IsNullOrWhiteSpace([string]$fields[$ignoredIndex])) {
+                    $ignoredTrailingFieldValues = $true
+                    break
+                }
+            }
+            $maxIgnoredTrailingFields = [Math]::Max($maxIgnoredTrailingFields, $ignoredCount)
+            $fields = @($fields[0..($headerNames.Count - 1)])
             $line = ConvertTo-CsvLine -Fields $fields
             $trimmedTrailingEmptyRows++
         }
@@ -1058,8 +1128,14 @@ if ($invalidDataRows -gt 0) {
         "$invalidDataRows data row(s) were skipped because their field count did not match the header; first bad row was line $firstInvalidDataLine.")
 }
 if ($trimmedTrailingEmptyRows -gt 0) {
-    $warnings.Add(
-        "$trimmedTrailingEmptyRows data row(s) contained one surplus trailing empty field; it was ignored because all header-aligned fields were present.")
+    if ($ignoredTrailingFieldValues) {
+        $warnings.Add(
+            "$trimmedTrailingEmptyRows data row(s) contained up to $maxIgnoredTrailingFields surplus trailing field(s) without non-empty headers; they were ignored because all header-aligned fields were present and the surplus values were numeric or empty.")
+    }
+    else {
+        $warnings.Add(
+            "$trimmedTrailingEmptyRows data row(s) contained one surplus trailing empty field; it was ignored because all header-aligned fields were present.")
+    }
 }
 if ($readResult.InvalidUtf8) {
     if ($stoppedAtFooter) {
@@ -1696,11 +1772,13 @@ if ($samplingSummary.Consistency -eq "variable") {
 }
 
 $result = [pscustomobject]@{
-    AnalyzerVersion = "1.2.4"
+    AnalyzerVersion = "1.2.5"
     FileName = if ($HideFileName) { "[hidden]" } else { [System.IO.Path]::GetFileName($resolvedPath) }
     HeaderLine = $headerLineIndex + 1
     InvalidRows = $invalidDataRows
     TrimmedTrailingEmptyRows = $trimmedTrailingEmptyRows
+    IgnoredTrailingHeaderFields = $trimmedEmptyHeaderTail
+    MaxIgnoredTrailingFields = $maxIgnoredTrailingFields
     TotalRows = $rows.Count
     AnalyzedRows = $selectedRows.Count
     RequestedWindow = $requestedWindowLabel

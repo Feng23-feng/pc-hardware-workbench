@@ -209,7 +209,7 @@ $skill = Get-Content -LiteralPath $skillPath -Raw -Encoding UTF8
 $referenceOnlyNotice = [regex]::Unescape('\u53C2\u6570\u4EC5\u4F9B\u53C2\u8003\uFF0C\u8BF7\u4EE5\u5B89\u5168\u4E3A\u7B2C\u4E00\u8981\u52A1\u3002')
 $englishReferenceOnlyNotice = "For reference only - put safety first."
 
-Assert-Contains $skill '(?m)^  version: "2\.9\.1"\r?$' "metadata.version should be 2.9.1."
+Assert-Contains $skill '(?m)^  version: "2\.9\.2"\r?$' "metadata.version should be 2.9.2."
 Assert-Contains $skill 'r23 collector' "The Skill maintenance summary collector revision disagrees with the collector code."
 Assert-Contains $skill 'while power-path\s+evidence is incomplete' "The Advice intensity route does not include incomplete power-path evidence."
 Assert-Contains $skill 'hidden or\s+manufacturer-limited power' "The Advice intensity summary is narrower than the hidden or manufacturer-limited scope."
@@ -711,8 +711,9 @@ Assert-Contains $ganttRendererSource 'complete/completed/finished are aliases fo
 $analyzer = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "scripts/analyze-telemetry.ps1") `
     -Label "scripts/analyze-telemetry.ps1"
-Assert-Contains $analyzer 'AnalyzerVersion = "1\.2\.4"' "Analyzer behavior changed without an AnalyzerVersion bump."
+Assert-Contains $analyzer 'AnalyzerVersion = "1\.2\.5"' "Analyzer behavior changed without an AnalyzerVersion bump."
 Assert-Contains $analyzer 'surplus trailing empty field' "HWiNFO rows with one surplus trailing empty field are not recovered explicitly."
+Assert-Contains $analyzer 'surplus trailing field\(s\) without non-empty headers' "HWiNFO rows with unlabeled trailing numeric fields are not recovered explicitly."
 Assert-Contains $analyzer 'MaxInputMegabytes' "Telemetry analyzer has no large-file safety limit."
 Assert-Contains $analyzer 'ChartData' "Telemetry analyzer does not expose validated chart data."
 Assert-Contains $analyzer 'ConvertTo-MarkdownCell \$result\.FileName' "Telemetry filename is not passed through Markdown sanitization."

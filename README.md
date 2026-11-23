@@ -7,8 +7,10 @@
 排查、遥测分析、手动调校和升级判断收敛到一套工作流，同时把每一次硬件变更留给
 用户亲手完成。
 
-当前版本为 **2.9.1 测试版**（PCHW 资产标签 `2.9.1-test.1`）。本版收紧显存
-profile 的 GPU、原始工具和显示工具版本门禁，并收敛显存图表规则；
+当前版本为 **2.9.2 测试版**（源码标签 `2.9.2-test.1`）。公开下载仍为
+`2.9.1-test.1`；本版修复 HWiNFO 尾部空表头和少量未命名字段导致整份 CSV
+无法识别的问题。此前 2.9.1 收紧的显存 profile GPU、原始工具和显示工具版本门禁，
+以及显存图表规则继续保留；
 此前 2.9.0 新增的确定性本地证据 CLI、纯 PCHW Skill、PCHW Portable 和
 DeepSeek Harness 包继续保留。2.9.0 还声明
 `pchw-source-hosted` `1.0.0` 面板契约，使后续 Skill 更新可按最低版本、
@@ -135,7 +137,7 @@ SkillDock；完全不需要 Agent 时，才选择独立便携包。SkillDock 对
 3. 双击 `开始使用.cmd` 进入菜单。
 
 便携版提供配置读取、排障、遥测 CSV、PresentMon、证据包和手动调校指导，但不
-提供 SkillDock 面板。它共享的遥测分析器 `1.2.4` 支持 `Timestamp`、`DateTime`、
+提供 SkillDock 面板。它共享的遥测分析器 `1.2.5` 支持 `Timestamp`、`DateTime`、
 `Date/Time`、`时间戳` 和 `日期时间` 列，并输出实际采样跨度。所有硬件变更仍由
 用户手动完成。
 
@@ -278,8 +280,8 @@ Skill 会根据问题进入配置、排障、遥测、调参或升级路线。�
 
 ## 已知限制
 
-- `2.9.1` 是当前源码 PCHW Skill/Portable 测试线，目前没有正式版；
-- 当前 PCHW 独立测试包为 `2.9.1-test.1`；公开 SkillDock 测试包仍为
+- `2.9.2` 是当前源码 PCHW Skill/Portable 测试线，目前没有正式版；
+- 当前公开 PCHW 独立测试包仍为 `2.9.1-test.1`；SkillDock 测试包仍为
   `0.1.0-rc.5 + PCHW 2.9.0`；
 - 上一版 `0.1.0-rc.4` 继续作为 PCHW 2.8.0 面板测试包；
 - rc.5 最终 ZIP 的 Clean Windows 安装/卸载与人工签收仍为 PENDING；
@@ -321,7 +323,7 @@ Skill 会根据问题进入配置、排障、遥测、调参或升级路线。�
 ## 版本与许可
 
 版本状态以 [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
-和 [CHANGELOG.md](CHANGELOG.md) 为准。当前工作台版本为 `2.9.1` 测试版，尚未正式
+和 [CHANGELOG.md](CHANGELOG.md) 为准。当前工作台源码版本为 `2.9.2` 测试版，尚未正式
 发布；GitHub main 可能领先于最近一个公开 Release。
 
 源码使用 [MIT License](LICENSE)。

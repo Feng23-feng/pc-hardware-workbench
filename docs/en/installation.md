@@ -10,7 +10,9 @@
 - Optional monitoring requires an already-running LibreHardwareMonitor instance.
   This project does not install or start it.
 
-The current PCHW test version is `2.9.1-test.1`. This release tightens the memory-profile identity
+The current PCHW source test line is `2.9.2-test.1`; the public download remains
+`2.9.1-test.1`. This source line fixes HWiNFO exports with a trailing empty
+header cell and a small number of unlabeled tail values. The 2.9.1 memory-profile identity
 gates for the GPU, raw tool, and display-tool versions. It retains the
 deterministic local evidence CLI and pure PCHW Skill, Portable, and DeepSeek
 Harness packages added in 2.9.0. PCHW 2.9.0 declares the
@@ -63,7 +65,7 @@ open the menu.
 The portable build provides read-only inventory, troubleshooting, HWiNFO and
 PresentMon CSV analysis, evidence packages, telemetry charts, and guided manual
 tuning. It does not provide an Agent conversation or the SkillDock panel. The
-shared telemetry analyzer `1.2.4` recognizes `Timestamp`, `DateTime`, `Date/Time`,
+shared telemetry analyzer `1.2.5` recognizes `Timestamp`, `DateTime`, `Date/Time`,
 and their Chinese equivalents, and reports the sampled span.
 
 The portable build runs locally, does not initiate network access, and never
@@ -288,7 +290,7 @@ Close DSH and remove:
 
 ## Known limitations
 
-- `2.9.1` is the current PCHW Skill/Portable test release and has no stable release; clean-Windows signoff remains pending.
+- `2.9.2` is the current source PCHW Skill/Portable test line; the public PCHW test release remains `2.9.1-test.1`; clean-Windows signoff remains pending.
 - the current public SkillDock test bundle is `0.1.0-rc.5` with PCHW `2.9.0`;
 - the previous `0.1.0-rc.4` bundle remains the PCHW `2.8.0` panel build;
 - Clean-Windows acceptance for the rc.5 final ZIP bytes remains PENDING.

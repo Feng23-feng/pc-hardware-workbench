@@ -9,8 +9,9 @@
 - 其他操作系统只提供手动排障指导，不自动读取硬件；
 - 可选监控需要用户已经启动 LibreHardwareMonitor；本项目不会安装或启动它。
 
-当前 PCHW 测试版本为 `2.9.1-test.1`。本版收紧显存 profile 的 GPU、原始工具和
-显示工具版本门禁；此前
+当前 PCHW 源码测试线为 `2.9.2-test.1`，公开下载仍为 `2.9.1-test.1`。本版修复
+HWiNFO 尾部空表头和少量未命名字段导致整份 CSV 被拒绝的问题；此前 2.9.1
+收紧的显存 profile GPU、原始工具和显示工具版本门禁继续保留；更早
 2.9.0 新增的确定性本地证据 CLI、纯 PCHW Skill、PCHW Portable 和
 DeepSeek Harness 包继续保留。2.9.0 声明
 `pchw-source-hosted` `1.0.0` 契约。SkillDock `0.1.0-rc.5` 仍是独立的公开
@@ -57,7 +58,7 @@ SkillDock 面板文件没有随 2.9.1 独立包重打，仍由 `v0.1.0-rc.5` 提
 目录，双击 `开始使用.cmd` 即可进入菜单。
 
 便携版提供只读配置采集、排障、HWiNFO / PresentMon CSV、证据包、遥测图表和手动
-调校指导，但不提供 SkillDock 面板或 Agent 对话能力。共享遥测分析器 `1.2.4`
+调校指导，但不提供 SkillDock 面板或 Agent 对话能力。共享遥测分析器 `1.2.5`
 支持 `Timestamp`、`DateTime`、`Date/Time`、`时间戳` 和 `日期时间` 列，并输出
 实际采样跨度。
 
@@ -269,7 +270,8 @@ Test-Path $pointer
 
 ## 已知限制
 
-- `2.9.1` 是当前 PCHW Skill/Portable 测试版，没有正式版；干净 Windows 签收仍待完成。
+- `2.9.2` 是当前源码 PCHW Skill/Portable 测试线；公开 PCHW 测试包仍为
+  `2.9.1-test.1`，没有正式版；干净 Windows 签收仍待完成。
 - 当前公开 SkillDock 测试包为 `0.1.0-rc.5 + PCHW 2.9.0`。
 - 上一版 `0.1.0-rc.4` 继续作为 PCHW 2.8.0 面板测试包。
 - rc.5 最终 ZIP 的 Clean Windows 安装/卸载与人工签收仍为 PENDING。

@@ -466,6 +466,34 @@ try {
         @($surplusTrailingJson.Warnings | Where-Object { $_ -match "surplus trailing empty field" }).Count -eq 1
     ) "Trailing-empty recovery was not reported."
 
+    $unlabeledTrailingPath = Join-Path $tempRoot "unlabeled-trailing-values.csv"
+    [IO.File]::WriteAllText($unlabeledTrailingPath, @'
+"Date","Time","GPU Temperature [C]","GPU Power [W]","Error Total []",""
+"2026-10-26","00:00:00","70","300","0","0.000","0.000",
+"2026-10-26","00:00:01","71","310","0","0.000","0.000",
+"2026-10-26","00:00:02","72","320","0","0.000","0.000",
+'@, $utf8)
+    $unlabeledTrailingJson = & $resolvedAnalyzer -Path $unlabeledTrailingPath -Format Json |
+        ConvertFrom-Json
+    Assert-True (
+        $unlabeledTrailingJson.TotalRows -eq 3
+    ) "Rows with unlabeled numeric trailing fields were not recovered."
+    Assert-True (
+        $unlabeledTrailingJson.InvalidRows -eq 0
+    ) "Recovered unlabeled trailing fields were still counted as invalid."
+    Assert-True (
+        $unlabeledTrailingJson.IgnoredTrailingHeaderFields -eq 1
+    ) "The ignored empty header tail was not counted."
+    Assert-True (
+        $unlabeledTrailingJson.MaxIgnoredTrailingFields -eq 3
+    ) "The maximum ignored trailing field count is wrong."
+    Assert-True (
+        @(
+            $unlabeledTrailingJson.Warnings |
+                Where-Object { $_ -match "surplus trailing field\(s\) without non-empty headers" }
+        ).Count -eq 1
+    ) "Unlabeled numeric trailing-field recovery was not reported."
+
     $markdownPipePath = Join-Path $tempRoot "markdown-pipe.csv"
     [IO.File]::WriteAllText($markdownPipePath, @'
 "GPU Temperature [C] | FORGED","GPU Power [W]"
