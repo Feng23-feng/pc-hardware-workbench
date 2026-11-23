@@ -8728,7 +8728,7 @@
         </div>
         <div>
           <dt>SkillDock Runtime-only</dt>
-          <dd>精确 PCHW 2.8.0 走 legacy 桥；后续版本必须为 active Manifest 1.0，并满足 pchw-source-hosted &gt;=1.0.0 &lt;2.0.0、最低 Skill 2.8.0、UI 1.2、事件 1.0 与 telemetry.csv.analyze 能力。只补 SkillDock 应用和 Node.js。</dd>
+          <dd>兼容 PCHW 2.8.0，以及后续遵循同一 pchw-source-hosted 接入契约的版本，最低支持 2.8.0。启动面板前会自动校验契约、UI/事件和必需能力；不匹配时安全拒绝。只补 SkillDock 应用和 Node.js。</dd>
         </div>
         <div>
           <dt>SkillDock 面板包</dt>
