@@ -68,6 +68,159 @@ function Round-Metric {
     return [Math]::Round($Value, 2, [MidpointRounding]::AwayFromZero)
 }
 
+function ConvertTo-StableJsonText {
+    param([Parameter(Mandatory = $true)][string]$Json)
+
+    $builder = New-Object System.Text.StringBuilder($Json.Length)
+    $inString = $false
+    $escaped = $false
+    $index = 0
+    while ($index -lt $Json.Length) {
+        $character = $Json[$index]
+        if ($inString) {
+            [void]$builder.Append($character)
+            if ($escaped) {
+                $escaped = $false
+            }
+            elseif ($character -eq '\') {
+                $escaped = $true
+            }
+            elseif ($character -eq '"') {
+                $inString = $false
+            }
+            $index++
+            continue
+        }
+        if ($character -eq '"') {
+            $inString = $true
+            [void]$builder.Append($character)
+            $index++
+            continue
+        }
+        if ($character -eq '-' -or [char]::IsDigit($character)) {
+            $numberStart = $index
+            $index++
+            while (
+                $index -lt $Json.Length -and
+                ($Json[$index] -in @('0','1','2','3','4','5','6','7','8','9','.','e','E','+','-'))
+            ) {
+                $index++
+            }
+            $numberText = $Json.Substring($numberStart, $index - $numberStart)
+            if ($numberText -match '^(-?(?:0|[1-9][0-9]*))\.0+$') {
+                [void]$builder.Append($matches[1])
+            }
+            else {
+                [void]$builder.Append($numberText)
+            }
+            continue
+        }
+        [void]$builder.Append($character)
+        $index++
+    }
+    return $builder.ToString()
+}
+
+function Compare-OrdinalString {
+    param(
+        [AllowNull()][string]$Left,
+        [AllowNull()][string]$Right
+    )
+    return [StringComparer]::Ordinal.Compare($Left, $Right)
+}
+
+function Sort-OrdinalStrings {
+    param([string[]]$Values)
+
+    $sorted = New-Object System.Collections.Generic.List[string]
+    foreach ($value in $Values) {
+        $insertAt = $sorted.Count
+        for ($index = 0; $index -lt $sorted.Count; $index++) {
+            if ((Compare-OrdinalString $value $sorted[$index]) -lt 0) {
+                $insertAt = $index
+                break
+            }
+        }
+        $sorted.Insert($insertAt, $value)
+    }
+    return [string[]]$sorted.ToArray()
+}
+
+function Compare-OrreryRecord {
+    param(
+        [Parameter(Mandatory = $true)][object]$Left,
+        [Parameter(Mandatory = $true)][object]$Right
+    )
+
+    $leftRing = [int]$curation.sectors.PSObject.Properties[$Left.sector].Value.ring
+    $rightRing = [int]$curation.sectors.PSObject.Properties[$Right.sector].Value.ring
+    $comparison = $leftRing.CompareTo($rightRing)
+    if ($comparison -ne 0) { return $comparison }
+
+    $comparison = Compare-OrdinalString ([string]$Left.sector) ([string]$Right.sector)
+    if ($comparison -ne 0) { return $comparison }
+
+    $comparison = Compare-OrdinalString ([string]$Left.cluster) ([string]$Right.cluster)
+    if ($comparison -ne 0) { return $comparison }
+
+    return Compare-OrdinalString ([string]$Left.path) ([string]$Right.path)
+}
+
+function Sort-OrreryRecords {
+    param([object[]]$Records)
+
+    $sorted = New-Object System.Collections.Generic.List[object]
+    foreach ($record in $Records) {
+        $insertAt = $sorted.Count
+        for ($index = 0; $index -lt $sorted.Count; $index++) {
+            if ((Compare-OrreryRecord $record $sorted[$index]) -lt 0) {
+                $insertAt = $index
+                break
+            }
+        }
+        $sorted.Insert($insertAt, $record)
+    }
+    return [object[]]$sorted.ToArray()
+}
+
+function Sort-SectorsByRingAndId {
+    param([object[]]$Sectors)
+
+    $sorted = New-Object System.Collections.Generic.List[object]
+    foreach ($sector in $Sectors) {
+        $insertAt = $sorted.Count
+        for ($index = 0; $index -lt $sorted.Count; $index++) {
+            $comparison = ([int]$sector.ring).CompareTo([int]$sorted[$index].ring)
+            if ($comparison -eq 0) {
+                $comparison = Compare-OrdinalString ([string]$sector.id) ([string]$sorted[$index].id)
+            }
+            if ($comparison -lt 0) {
+                $insertAt = $index
+                break
+            }
+        }
+        $sorted.Insert($insertAt, $sector)
+    }
+    return [object[]]$sorted.ToArray()
+}
+
+function Sort-GroupsByOrdinalName {
+    param([object[]]$Groups)
+
+    $sorted = New-Object System.Collections.Generic.List[object]
+    foreach ($group in $Groups) {
+        $insertAt = $sorted.Count
+        for ($index = 0; $index -lt $sorted.Count; $index++) {
+            if ((Compare-OrdinalString ([string]$group.Name) ([string]$sorted[$index].Name)) -lt 0) {
+                $insertAt = $index
+                break
+            }
+        }
+        $sorted.Insert($insertAt, $group)
+    }
+    return [object[]]$sorted.ToArray()
+}
+
 function Get-SectorId {
     param([string]$RelativePath)
 
@@ -273,7 +426,7 @@ foreach ($record in $fileRecords) {
 
 foreach ($record in $fileRecords) {
     $candidates = New-Object System.Collections.Generic.List[string]
-    foreach ($path in $outbound[$record.path]) {
+    foreach ($path in (Sort-OrdinalStrings -Values $outbound[$record.path])) {
         if (-not $candidates.Contains($path)) { $candidates.Add($path) }
     }
     $curated = $curation.files.PSObject.Properties[$record.path].Value
@@ -282,7 +435,7 @@ foreach ($record in $fileRecords) {
             if (-not $candidates.Contains([string]$path)) { $candidates.Add([string]$path) }
         }
     }
-    foreach ($path in ($inbound[$record.path] | Sort-Object -Culture "en-US" -CaseSensitive)) {
+    foreach ($path in (Sort-OrdinalStrings -Values $inbound[$record.path])) {
         if (-not $candidates.Contains($path)) { $candidates.Add($path) }
     }
     $related = @(
@@ -293,13 +446,7 @@ foreach ($record in $fileRecords) {
     $record.related = $related
 }
 
-$sortedRecords = @(
-    $fileRecords |
-        Sort-Object @{ Expression = { [int]$curation.sectors.PSObject.Properties[$_.sector].Value.ring } },
-                      @{ Expression = { [string]$_.sector } },
-                      @{ Expression = { [string]$_.cluster } },
-                      @{ Expression = { [string]$_.path } } -Culture "en-US" -CaseSensitive
-)
+$sortedRecords = @(Sort-OrreryRecords -Records $fileRecords.ToArray())
 $weights = @($sortedRecords | ForEach-Object { [double]$_.weight })
 $weightMin = ($weights | Measure-Object -Minimum).Minimum
 $weightMax = ($weights | Measure-Object -Maximum).Maximum
@@ -339,13 +486,13 @@ foreach ($sectorProperty in $curation.sectors.PSObject.Properties) {
         weight = Round-Metric $sectorWeight
     }) | Out-Null
 }
-$sortedSectors = @($sectorRecords | Sort-Object ring, name -Culture "en-US" -CaseSensitive)
+$sortedSectors = @(Sort-SectorsByRingAndId -Sectors $sectorRecords.ToArray())
 $sectorWeights = @($sortedSectors | Where-Object { $_.id -ne "core" } | ForEach-Object { [double]$_.weight })
 $sectorWeightMin = ($sectorWeights | Measure-Object -Minimum).Minimum
 $sectorWeightMax = ($sectorWeights | Measure-Object -Maximum).Maximum
 
 $categoryCounts = [ordered]@{}
-foreach ($group in @($sortedRecords | Group-Object category | Sort-Object Name -Culture "en-US" -CaseSensitive)) {
+foreach ($group in @(Sort-GroupsByOrdinalName -Groups @($sortedRecords | Group-Object category))) {
     $categoryCounts[$group.Name] = $group.Count
 }
 $sectorCounts = [ordered]@{}
@@ -385,7 +532,9 @@ $manifest = [pscustomobject][ordered]@{
     files = $sortedRecords
 }
 
-$manifestJson = $manifest | ConvertTo-Json -Depth 20 -Compress
+$manifestJson = ConvertTo-StableJsonText (
+    $manifest | ConvertTo-Json -Depth 20 -Compress
+)
 $manifestJson = $manifestJson.Replace("`r`n", "`n") + "`n"
 
 $orbitSpeedMultiplier = 1.0
@@ -439,8 +588,12 @@ foreach ($record in $sortedRecords) {
     }) | Out-Null
 }
 
-$groupsJson = $groupsObject | ConvertTo-Json -Depth 20 -Compress
-$filesJson = ConvertTo-Json -InputObject @($fileObjectList.ToArray()) -Depth 20 -Compress
+$groupsJson = ConvertTo-StableJsonText (
+    $groupsObject | ConvertTo-Json -Depth 20 -Compress
+)
+$filesJson = ConvertTo-StableJsonText (
+    ConvertTo-Json -InputObject @($fileObjectList.ToArray()) -Depth 20 -Compress
+)
 $groupsJson = $groupsJson.Replace("`r`n", "`n")
 $filesJson = $filesJson.Replace("`r`n", "`n")
 
@@ -709,7 +862,9 @@ $frozenObject = [pscustomobject][ordered]@{
     sha256 = $pageSha256
     bytes = $pageBytes.Length
 }
-$frozenJson = $frozenObject | ConvertTo-Json -Depth 10 -Compress
+$frozenJson = ConvertTo-StableJsonText (
+    $frozenObject | ConvertTo-Json -Depth 10 -Compress
+)
 $frozenJson = $frozenJson.Replace("`r`n", "`n") + "`n"
 
 if ($Check) {
