@@ -19,7 +19,12 @@ Choose the pure PCHW Skill for chat, collection, and CSV analysis. The two use
 independent release lines, and incompatible panel versions fail closed. Both
 are test builds; clean-Windows signoff remains pending.
 
-![File orrery preview](docs/skill-evolution/assets/orrery-preview.png)
+<p align="center">
+  <a href="https://feng23-feng.github.io/pc-hardware-workbench/skill-evolution/orrery/">
+    <img src="docs/skill-evolution/assets/orrery-preview.png"
+         alt="File orrery preview" width="720">
+  </a>
+</p>
 
 The interactive project pages are currently available in Chinese:
 [Project overview](https://feng23-feng.github.io/pc-hardware-workbench/skill-evolution/) ·

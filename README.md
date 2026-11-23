@@ -15,7 +15,12 @@
 和 CSV 分析时，安装纯 PCHW Skill。两者使用独立版本线；不兼容的面板版本会安全
 拒绝加载。当前均为测试版，干净 Windows 签收仍在进行。
 
-![文件星球预览](docs/skill-evolution/assets/orrery-preview.png)
+<p align="center">
+  <a href="https://feng23-feng.github.io/pc-hardware-workbench/skill-evolution/orrery/">
+    <img src="docs/skill-evolution/assets/orrery-preview.png"
+         alt="文件星球预览" width="720">
+  </a>
+</p>
 
 [项目说明](https://feng23-feng.github.io/pc-hardware-workbench/skill-evolution/) ·
 [情景演示](https://feng23-feng.github.io/pc-hardware-workbench/skill-evolution/interactive/) ·
