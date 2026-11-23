@@ -161,6 +161,7 @@ def git_rows(repository: Path) -> tuple[list[dict], str, str, str, bool]:
             ["git", "-C", str(repository), *args],
             text=True,
             encoding="utf-8",
+            stderr=subprocess.DEVNULL,
         ).strip()
 
     raw_tags = git(
