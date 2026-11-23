@@ -79,7 +79,11 @@ def release_entry(channel: str, version: str, path: Path) -> dict:
     zips = release_zips(path) if path.is_dir() else [path]
     package_files = None
     if info:
-        package_files = info.get("SkillFiles", info.get("PortableFiles"))
+        package_files = (
+            info.get("PortableFiles")
+            if channel == "Portable"
+            else info.get("SkillFiles")
+        )
     return {
         "channel": channel,
         "version": version,
