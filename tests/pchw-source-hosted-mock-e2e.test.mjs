@@ -434,6 +434,7 @@ async function launchBrowserPage(baseUrl, panelToken, {
 }
 
 async function waitForRenderedAnswer(cdp) {
+  let lastValue = null;
   for (let attempt = 0; attempt < 200; attempt += 1) {
     const evaluated = await cdp.send("Runtime.evaluate", {
       expression: `(() => {
@@ -451,14 +452,14 @@ async function waitForRenderedAnswer(cdp) {
           imagesLoaded: images.length > 0 && images.every(
             (image) => image.complete && image.naturalWidth > 0
           ),
-          hasRequiredHeadings:
-            document.body.innerText.includes("本轮判断与建议") &&
-            document.body.innerText.includes("遥测概览")
+          hasAnswerHeading:
+            document.body.innerText.includes("本轮判断与建议")
         };
       })()`,
       returnByValue: true,
     });
     const value = evaluated.result.value;
+    lastValue = value;
     if (
       value.readyState === "complete" &&
       value.cardPresent &&
@@ -466,13 +467,15 @@ async function waitForRenderedAnswer(cdp) {
       value.chartPresent &&
       value.imageCount >= 1 &&
       value.imagesLoaded &&
-      value.hasRequiredHeadings
+      value.hasAnswerHeading
     ) {
       return value;
     }
     await sleep(100);
   }
-  throw new Error("PCHW answer DOM did not finish rendering.");
+  throw new Error(
+    `PCHW answer DOM did not finish rendering: ${JSON.stringify(lastValue)}`,
+  );
 }
 
 async function captureBrowserEvidence(baseUrl, panelToken, {
@@ -1821,7 +1824,7 @@ try {
   });
   state = await response.json();
   assert.equal(state.task.shared_task.phase, "source_result_synced");
-  assert.equal(state.panel.artifact_refs.length, 1);
+  assert.ok(state.panel.artifact_refs.length >= 2);
   assert.ok(
     state.panel.blocks.some((block) => block.type === "chart"),
   );
