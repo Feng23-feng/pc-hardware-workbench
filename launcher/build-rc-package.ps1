@@ -57,7 +57,9 @@ if (
     [string]$ReleaseConfig.pchw_surface_contract_version -ne "1.0.0" -or
     [string]$ReleaseConfig.pchw_surface_min_skill_version -ne "2.8.0" -or
     [string]$ReleaseConfig.pchw_legacy_exact_skill_version -ne "2.8.0" -or
-    [int]$ReleaseConfig.pchw_supported_contract_major -ne 1
+    [int]$ReleaseConfig.pchw_supported_contract_major -ne 1 -or
+    [string]$ReleaseConfig.pchw_ui_state_schema_version -ne "1.2" -or
+    [string]$ReleaseConfig.pchw_event_schema_version -ne "1.0"
 ) {
     throw "PCHW surface contract release configuration is invalid."
 }
@@ -249,6 +251,10 @@ if (
         "pc-hardware-workbench" -or
     [string]$SourceWorkbenchManifest.skill.version -ne
         [string]$ReleaseConfig.pchw_skill_version -or
+    [string]$SourceWorkbenchManifest.ui.state_schema_version -ne
+        [string]$ReleaseConfig.pchw_ui_state_schema_version -or
+    [string]$SourceWorkbenchManifest.ui.event_schema_version -ne
+        [string]$ReleaseConfig.pchw_event_schema_version -or
     $null -eq $SourceSurfaceContract -or
     [string]$SourceSurfaceContract.contract_version -ne
         [string]$ReleaseConfig.pchw_surface_contract_version -or
@@ -1149,6 +1155,10 @@ $SourceState = [ordered]@{
         [string]$ReleaseConfig.pchw_legacy_exact_skill_version
     pchw_supported_contract_major =
         [int]$ReleaseConfig.pchw_supported_contract_major
+    pchw_ui_state_schema_version =
+        [string]$ReleaseConfig.pchw_ui_state_schema_version
+    pchw_event_schema_version =
+        [string]$ReleaseConfig.pchw_event_schema_version
     packaged_pchw_tree_sha256 = $PackagedSkillIdentity.tree_sha256
     packaged_pchw_tree_file_count = $PackagedSkillIdentity.tree_file_count
     builder_sha256 = Get-FileSha256 -Path $PSCommandPath
@@ -1212,6 +1222,10 @@ $RcManifest = [ordered]@{
             [string]$ReleaseConfig.pchw_legacy_exact_skill_version
         supported_contract_major =
             [int]$ReleaseConfig.pchw_supported_contract_major
+        ui_state_schema_version =
+            [string]$ReleaseConfig.pchw_ui_state_schema_version
+        event_schema_version =
+            [string]$ReleaseConfig.pchw_event_schema_version
         required_capabilities = @(
             $SourceSurfaceContract.required_capabilities
         )

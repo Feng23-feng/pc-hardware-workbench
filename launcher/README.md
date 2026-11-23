@@ -22,12 +22,13 @@ pnpm verify:runtime-only
 ```
 
 The test package is written as
-`dist/SkillDock-PCHW-0.1.0-rc.5-win-x64.zip`. The RC builder refuses to replace
-an existing candidate, bundles PCHW `2.9.0` with the
-`pchw-source-hosted` `1.0.0` contract, records the exact Git worktree state,
-and emits package and archive hashes. PCHW `2.8.0` remains accepted only through
-the exact legacy bridge; later installed versions must declare a compatible
-contract. The older
+`dist/SkillDock-PCHW-0.1.0-rc.6-win-x64.zip`. The RC builder refuses to replace
+an existing candidate, bundles PCHW `2.9.2` with the
+`pchw-source-hosted` `1.0.0` contract, UI state schema `1.2`, event schema
+`1.0`, records the exact Git worktree state, and emits package and archive
+hashes. PCHW `2.8.0` remains accepted only through the exact legacy bridge;
+later installed versions must declare the full compatible contract and schema
+identity. The older
 `build-dsh-package.ps1` remains the isolated internal-preview fixture used by
 the package usability tests.
 

@@ -1,5 +1,30 @@
 # Changelog
 
+## SkillDock 0.1.0-rc.6 / PCHW 2.9.2 - 2026-11-23
+
+- Require machine-checked panel compatibility for the
+  `pchw-source-hosted` contract range, UI state schema `1.2`, event schema
+  `1.0`, minimum Skill version, and all required capabilities.
+- Keep exact PCHW `2.8.0` as the only no-contract legacy bridge. Accept future
+  product versions only when their active manifest still declares the
+  supported panel contract and schemas.
+- Reject missing or unsupported UI/event schemas with
+  `ui_state_schema_unsupported` and `event_schema_unsupported` before loading
+  the PCHW panel runtime.
+- Package PCHW `2.9.2`, including deterministic evidence-only chart packs and
+  multiple artifact references, instead of the older `2.9.0` single-artifact
+  runtime.
+- Extend the RC manifest and verifier so both the release configuration and the
+  packaged Workbench Manifest must agree on UI schema `1.2`, event schema
+  `1.0`, contract `1.0.0`, minimum Skill version `2.8.0`, and
+  `telemetry.csv.analyze`.
+- Add coverage for future PCHW product versions, malformed or missing schema
+  declarations, contract major `2`, missing capabilities, inactive Skills, and
+  the shipped manifest.
+- Prepare immutable rc.6 integrated, user, and Runtime-only test packages
+  without modifying rc.5 or enabling default traffic, formal entry, recovery,
+  automatic hardware changes, or a stable-release claim.
+
 ## SkillDock 0.1.0-rc.5 / PCHW 2.9.0 - 2026-11-22
 
 - Replace the launcher's exact PCHW `2.8.0` version check with a fail-closed

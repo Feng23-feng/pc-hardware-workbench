@@ -22,12 +22,12 @@ application; see [SKILL-TRIGGERED-UX.md](SKILL-TRIGGERED-UX.md).
 
 ## Windows release candidate
 
-The current public test candidate is SkillDock `0.1.0-rc.4` with PC Hardware Workbench
-`2.8.0`. The R7 user-experience evidence was produced from the `2.7.4` source
-tree. The integrated Windows candidate is:
+The current Windows test candidate is SkillDock `0.1.0-rc.6` with PC Hardware
+Workbench `2.9.2`. The R7 user-experience evidence remains provenance from the
+`2.7.4` source tree. The integrated Windows candidate is:
 
 ```text
-dist/SkillDock-PCHW-0.1.0-rc.4-win-x64.zip
+dist/SkillDock-PCHW-0.1.0-rc.6-win-x64.zip
 ```
 
 Build and verify it without changing the formal entry:
@@ -42,9 +42,9 @@ background write, coordinator recovery, automatic hardware changes, and formal
 stable release stay closed. Clean-Windows install/uninstall acceptance and
 explicit user signoff are still required. The same verified RC is also used to
 derive the user-installable package and the Runtime-only package. The latest
-test build is
-<https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.4>.
-See [`release/0.1.0-rc.4`](release/0.1.0-rc.4).
+published SkillDock test build remains
+<https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.5>
+until rc.6 is uploaded. See [`release/0.1.0-rc.6`](release/0.1.0-rc.6).
 
 Host scope is intentionally narrow: this version promises the
 `pchw-source-hosted` SkillDock panel only under Codex. DSH and other hosts may
@@ -52,7 +52,7 @@ install `pc-hardware-workbench` and use its chat, collection, and CSV-analysis
 capabilities, but must not be told that the SkillDock panel is available there.
 `launch-panel.ps1` requires `CODEX_THREAD_ID` and fails with
 `thread_binding_missing` when that identity is absent. See
-[`SUPPORT-MATRIX.md`](release/0.1.0-rc.4/SUPPORT-MATRIX.md).
+[`SUPPORT-MATRIX.md`](release/0.1.0-rc.6/SUPPORT-MATRIX.md).
 
 ## Run
 

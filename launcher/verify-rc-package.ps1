@@ -378,6 +378,14 @@ try {
         [string]$manifest.pchw_surface_contract.legacy_exact_skill_version -ne
             "2.8.0" -or
         [int]$manifest.pchw_surface_contract.supported_contract_major -ne 1 -or
+        [string]$manifest.pchw_surface_contract.ui_state_schema_version -ne
+            [string]$packagedWorkbenchManifest.ui.state_schema_version -or
+        [string]$manifest.pchw_surface_contract.ui_state_schema_version -ne
+            "1.2" -or
+        [string]$manifest.pchw_surface_contract.event_schema_version -ne
+            [string]$packagedWorkbenchManifest.ui.event_schema_version -or
+        [string]$manifest.pchw_surface_contract.event_schema_version -ne
+            "1.0" -or
         @($manifest.pchw_surface_contract.required_capabilities) -notcontains
             "telemetry.csv.analyze" -or
         @($packagedContract.required_capabilities) -notcontains
