@@ -10,15 +10,14 @@
 - Optional monitoring requires an already-running LibreHardwareMonitor instance.
   This project does not install or start it.
 
-The current PCHW source test line is `2.9.2-test.1`; the public download remains
-`2.9.1-test.1`. This source line fixes HWiNFO exports with a trailing empty
+The current PCHW test version is `2.9.2-test.1`. This release fixes HWiNFO exports with a trailing empty
 header cell and a small number of unlabeled tail values. The 2.9.1 memory-profile identity
 gates for the GPU, raw tool, and display-tool versions. It retains the
 deterministic local evidence CLI and pure PCHW Skill, Portable, and DeepSeek
 Harness packages added in 2.9.0. PCHW 2.9.0 declares the
 `pchw-source-hosted` `1.0.0` contract;
 SkillDock `0.1.0-rc.5` remains an independent public panel test build currently
-paired with PCHW `2.9.0`; the PCHW 2.9.1 release does not repackage the panel.
+paired with PCHW `2.9.0`; the PCHW 2.9.2 release does not repackage the panel.
 The previous panel package remains
 `0.1.0-rc.4 + PCHW 2.8.0`. Clean-Windows installation, uninstallation, and
 complete user signoff remain pending.
@@ -32,23 +31,23 @@ no installation at all, use PCHW Portable.
 
 | Package | Use it when | Includes | Panel |
 | --- | --- | --- | --- |
-| PCHW Skill (Codex / DSH / other Agents; no panel) | Default choice; use Codex alone or with DSH / another compatible Agent host | PCHW Skill 2.9.1 release subset | No |
+| PCHW Skill (Codex / DSH / other Agents; no panel) | Default choice; use Codex alone or with DSH / another compatible Agent host | PCHW Skill 2.9.2 release subset | No |
 | PCHW Portable (standalone Windows; no Agent) | You do not use Codex / DSH, or want no Skill or Runtime installation | Standalone menu, collection, CSV, and evidence tools | No |
-| DeepSeek Harness adapter | You use DSH and want the PCHW Skill plus adapter files | 2.9.1 Skill and DSH adapter files | Not provided |
+| DeepSeek Harness adapter | You use DSH and want the PCHW Skill plus adapter files | 2.9.2 Skill and DSH adapter files | Not provided |
 | SkillDock Runtime-only | A compatible PCHW Skill is installed and only the application and Node are missing | SkillDock Runtime, Node.js 24.22.1 | Current Codex conversation only |
 | SkillDock panel bundle (public rc.5) | Codex Desktop is installed and you use the PCHW 2.9.0 surface contract | PCHW 2.9.0 Skill, SkillDock Runtime, installer | Current Codex conversation only |
 
-[Download the current PCHW 2.9.1 test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.1-test.1):
+[Download the current PCHW 2.9.2 test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.2-test.1):
 
 ```text
-pc-hardware-workbench-v2.9.1-test.1-installer.zip
-pc-hardware-workbench-v2.9.1-test.1-manual.zip
-pc-hardware-portable-v2.9.1-test.1.zip
-pc-hardware-workbench-deepseek-harness-v2.9.1-test.1.zip
+pc-hardware-workbench-v2.9.2-test.1-installer.zip
+pc-hardware-workbench-v2.9.2-test.1-manual.zip
+pc-hardware-portable-v2.9.2-test.1.zip
+pc-hardware-workbench-deepseek-harness-v2.9.2-test.1.zip
 One SHA256SUMS file per channel
 ```
 
-The SkillDock panel was not repackaged for the standalone PCHW 2.9.1 release.
+The SkillDock panel was not repackaged for the standalone PCHW 2.9.2 release.
 It remains in `v0.1.0-rc.5` with PCHW `2.9.0`. The previous panel build remains
 `v0.1.0-rc.4` for PCHW 2.8.0. Clean-Windows
 installation, uninstallation, and final signoff for the rc.5 bytes remain
@@ -290,7 +289,7 @@ Close DSH and remove:
 
 ## Known limitations
 
-- `2.9.2` is the current source PCHW Skill/Portable test line; the public PCHW test release remains `2.9.1-test.1`; clean-Windows signoff remains pending.
+- `2.9.2` is the current PCHW Skill/Portable test release; clean-Windows signoff remains pending.
 - the current public SkillDock test bundle is `0.1.0-rc.5` with PCHW `2.9.0`;
 - the previous `0.1.0-rc.4` bundle remains the PCHW `2.8.0` panel build;
 - Clean-Windows acceptance for the rc.5 final ZIP bytes remains PENDING.

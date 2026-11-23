@@ -9,8 +9,7 @@ system inventory, troubleshooting, telemetry analysis, guided tuning, and upgrad
 decisions into one workflow while leaving every persistent hardware change to the
 user.
 
-The current PCHW source test version is **2.9.2-test.1**; the public download
-remains `2.9.1-test.1`. This source line fixes HWiNFO exports whose trailing
+The current PCHW test version is **2.9.2-test.1**. This release fixes HWiNFO exports whose trailing
 empty header cell and small number of unlabeled tail values caused the entire CSV
 to be rejected. The memory-profile
 identity gates for the GPU, raw tool, and display-tool versions and narrows the
@@ -21,7 +20,7 @@ the PCHW Skill, Portable, and DeepSeek Harness packages added in 2.9.0. PCHW
 negotiate a minimum product version, contract SemVer, and required
 capabilities instead of hard-coding one Skill version. SkillDock
 `0.1.0-rc.5` remains an independent public panel test build currently paired with
-PCHW `2.9.0`; the PCHW 2.9.1 release does not repackage SkillDock. The previous
+PCHW `2.9.0`; the PCHW 2.9.2 release does not repackage SkillDock. The previous
 `0.1.0-rc.4` package remains available for PCHW `2.8.0`. There is no stable release yet.
 Automated tests and targeted human review pass, but broad real-device coverage,
 clean-Windows install/uninstall, and the remaining human scenarios are still in
@@ -91,7 +90,7 @@ The interactive project pages are currently available in Chinese:
 
 ## Download packages and version lines
 
-[Download the current PCHW 2.9.1 test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.1-test.1),
+[Download the current PCHW 2.9.2 test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.2-test.1),
 then choose exactly one package. Do not place multiple copies of the same Skill
 in one host's scan directory.
 Most users should start with the PCHW Skill package without the panel. Choose
@@ -101,23 +100,23 @@ no installation at all, use the standalone Portable tool.
 
 | Package | Choose it when | Includes | SkillDock panel |
 | --- | --- | --- | --- |
-| PCHW Skill (Codex / DSH / other Agents; no panel) | Default choice; use Codex alone or with DSH / another compatible Agent host | PCHW Skill 2.9.1 release subset only | No |
+| PCHW Skill (Codex / DSH / other Agents; no panel) | Default choice; use Codex alone or with DSH / another compatible Agent host | PCHW Skill 2.9.2 release subset only | No |
 | PCHW Portable (standalone Windows; no Agent) | You do not use Codex / DSH, or want no Skill or Runtime installation | Standalone menu, collection, CSV, and evidence tools | No |
-| DeepSeek Harness adapter | You use DSH and want PCHW Skill plus its adapter files | 2.9.1 Skill and DSH adapter files | Not provided |
+| DeepSeek Harness adapter | You use DSH and want PCHW Skill plus its adapter files | 2.9.2 Skill and DSH adapter files | Not provided |
 | SkillDock Runtime-only | A compatible PCHW Skill is installed and only the Runtime and Node are missing | SkillDock Runtime + Node.js 24.22.1 | Current Codex conversation only |
 | SkillDock panel bundle (public rc.5 test build) | Codex Desktop is installed and you want the PCHW 2.9.0 surface contract | PCHW 2.9.0 Skill, SkillDock rc.5 Runtime, installer | Current Codex conversation only |
 
-The standalone PCHW 2.9.1-test.1 files are:
+The standalone PCHW 2.9.2-test.1 files are:
 
 ```text
-pc-hardware-workbench-v2.9.1-test.1-installer.zip
-pc-hardware-workbench-v2.9.1-test.1-manual.zip
-pc-hardware-portable-v2.9.1-test.1.zip
-pc-hardware-workbench-deepseek-harness-v2.9.1-test.1.zip
+pc-hardware-workbench-v2.9.2-test.1-installer.zip
+pc-hardware-workbench-v2.9.2-test.1-manual.zip
+pc-hardware-portable-v2.9.2-test.1.zip
+pc-hardware-workbench-deepseek-harness-v2.9.2-test.1.zip
 One SHA256SUMS file per channel
 ```
 
-The SkillDock panel files were not repackaged for the standalone PCHW 2.9.1
+The SkillDock panel files were not repackaged for the standalone PCHW 2.9.2
 release. They remain in `v0.1.0-rc.5` with PCHW `2.9.0`. The `v0.1.0-rc.4`
 release remains the previous PCHW 2.8.0 panel build. Do not mix multiple PCHW
 Skill directories in one host.
@@ -345,8 +344,7 @@ Read [Privacy and safety boundaries](docs/en/privacy-and-safety.md) for the full
 
 ## Known limitations
 
-- `2.9.2` is the current source PCHW Skill/Portable test line and has no stable release;
-- the current public PCHW test release remains `2.9.1-test.1`;
+- `2.9.2` is the current PCHW Skill/Portable test release and has no stable release;
 - the current public SkillDock test bundle remains `0.1.0-rc.5` with PCHW `2.9.0`;
 - the previous `0.1.0-rc.4` bundle remains the PCHW `2.8.0` panel build;
 - Clean-Windows acceptance for the rc.5 final ZIP bytes is still pending;
