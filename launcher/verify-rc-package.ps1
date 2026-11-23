@@ -301,7 +301,11 @@ try {
         -LiteralPath $componentMatrixPath `
         -Encoding UTF8
     if (
-        $componentMatrix -notmatch "2\.9\.0" -or
+        $componentMatrix -notmatch [regex]::Escape(
+            [string]$manifest.pchw_skill.version
+        ) -or
+        $componentMatrix -notmatch "UI state schema support: exact 1\.2" -or
+        $componentMatrix -notmatch "event schema support:\s+exact 1\.0" -or
         $componentMatrix -notmatch "24\.22\.1" -or
         $componentMatrix -notmatch "Runtime-only"
     ) {

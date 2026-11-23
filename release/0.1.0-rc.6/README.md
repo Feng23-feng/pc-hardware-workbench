@@ -71,7 +71,7 @@ version, asset, host, and evidence matrix.
 | Clean Windows profile/VM install and uninstall | PENDING |
 | User release signoff | PENDING |
 | Source state | PUBLIC TEST BUILD |
-| Tag / pre-release upload | PUBLICATION IN PROGRESS |
+| Tag / pre-release upload | PUBLISHED BY THE RC.6 RELEASE TAG |
 | Formal stable publish | NOT PERFORMED |
 
 Read [RELEASE-NOTES.md](RELEASE-NOTES.md),

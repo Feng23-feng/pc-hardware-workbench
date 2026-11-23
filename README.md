@@ -42,9 +42,9 @@ background write, coordinator recovery, automatic hardware changes, and formal
 stable release stay closed. Clean-Windows install/uninstall acceptance and
 explicit user signoff are still required. The same verified RC is also used to
 derive the user-installable package and the Runtime-only package. The latest
-published SkillDock test build remains
-<https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.5>
-until rc.6 is uploaded. See [`release/0.1.0-rc.6`](release/0.1.0-rc.6).
+published SkillDock test build is
+<https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.6>.
+See [`release/0.1.0-rc.6`](release/0.1.0-rc.6).
 
 Host scope is intentionally narrow: this version promises the
 `pchw-source-hosted` SkillDock panel only under Codex. DSH and other hosts may
