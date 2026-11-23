@@ -23,6 +23,12 @@ $skillScripts = Join-Path $RepositoryRoot "skill\pc-hardware-workbench\scripts"
 $portableScripts = Join-Path $RepositoryRoot "portable\scripts"
 $skillAssets = Join-Path $RepositoryRoot "skill\pc-hardware-workbench\assets"
 $portableAssets = Join-Path $RepositoryRoot "portable\assets"
+$skillMemoryProfile = Join-Path `
+    $RepositoryRoot `
+    "skill\pc-hardware-workbench\references\tuning\memory-clock-profiles.json"
+$portableMemoryProfile = Join-Path `
+    $RepositoryRoot `
+    "portable\docs\memory-clock-profiles.json"
 
 if (-not (Test-Path -LiteralPath $skillScripts -PathType Container)) {
     throw "Skill scripts directory not found: $skillScripts"
@@ -139,6 +145,45 @@ if ((Test-Path -LiteralPath $skillAssets -PathType Container) -or (Test-Path -Li
             else {
                 $failures.Add("Asset hash mismatch: $relativePath") | Out-Null
             }
+        }
+    }
+}
+
+if (
+    -not (Test-Path -LiteralPath $skillMemoryProfile -PathType Leaf) -or
+    -not (Test-Path -LiteralPath $portableMemoryProfile -PathType Leaf)
+) {
+    if ($Fix -and (Test-Path -LiteralPath $skillMemoryProfile -PathType Leaf)) {
+        [IO.Directory]::CreateDirectory(
+            (Split-Path -Parent $portableMemoryProfile)
+        ) | Out-Null
+        Copy-Item `
+            -LiteralPath $skillMemoryProfile `
+            -Destination $portableMemoryProfile `
+            -Force
+        $fixed.Add("docs/memory-clock-profiles.json") | Out-Null
+    }
+    else {
+        $failures.Add("Memory clock profile missing from Skill or portable") | Out-Null
+    }
+}
+else {
+    $skillProfileHash = (
+        Get-FileHash -Algorithm SHA256 -LiteralPath $skillMemoryProfile
+    ).Hash
+    $portableProfileHash = (
+        Get-FileHash -Algorithm SHA256 -LiteralPath $portableMemoryProfile
+    ).Hash
+    if ($skillProfileHash -ne $portableProfileHash) {
+        if ($Fix) {
+            Copy-Item `
+                -LiteralPath $skillMemoryProfile `
+                -Destination $portableMemoryProfile `
+                -Force
+            $fixed.Add("docs/memory-clock-profiles.json") | Out-Null
+        }
+        else {
+            $failures.Add("Memory clock profile hash mismatch") | Out-Null
         }
     }
 }

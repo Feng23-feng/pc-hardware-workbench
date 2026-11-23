@@ -1,7 +1,22 @@
 # 电脑硬件工作台版本记录
 
+## 2.9.1 — 2026-11-23
+
+- 显存 profile 改为精确身份门禁：GPU 只接受规范型号或受控别名，不再使用子串匹配；HWiNFO64 原始字段与 MSI Afterburner 显示口径必须同时匹配 profile 中记录的工具身份和版本；
+- `provisional` profile 默认拒绝，只有显式传入 `-AllowProvisional` 才能生成派生图，且 SVG 会保留 `data-profile-status="provisional"` 标记；`deprecated`、未知状态、缺字段或错误来源继续失败关闭；
+- 显存深度图始终保留原始字段、工具身份、profile 状态和派生口径，小飞机等效值不会覆盖 HWiNFO 原始值；
+- GPU 调优总览继续把显存频率紧跟核心/有效频率；平直显存曲线改用独立次级强调色和稀疏节点，并修复零高度曲线被 object-bounding SVG 滤镜裁掉的问题；
+- Telemetry 参考在显存口径、等效频率和带宽解释前路由到 VRAM 规则；图表交付参考补入精确工具身份、provisional opt-in、次级强调和平直曲线滤镜约束；
+- 新增错误 GPU 子串、错误原始工具、错误显示工具、缺字段、provisional 默认拒绝及显式允许等回归；
+- 本条修复发生在已发布的 PCHW `2.9.0-test.1` 之后，因此使用 `2.9.1-test.1` 测试线；Clean Windows 与完整人工签收继续 PENDING。
+
 ## 2.9.0 — 2026-11-22
 
+- 新增分层的遥测图表交付：纯曲线证据包与调优结论分离，`FirstPass` / `GpuTuning` / `CpuTuning` 由同一 pack renderer 编排；用户版默认不再倾倒全部传感器；
+- V/F 图采用共享时间轴双泳道，极值只以点标记、数值和时间放在绘图区外，通用面板统计文字从右边框内缩，避免遮挡曲线或裁掉末尾单位；
+- 新增通用调优结论 SVG renderer，接收有来源的 JSON 摘要并输出可复现的一页结论；临时设备专用结论脚本不进入 Skill；
+- 新增受控显存口径 profile 与显存证据 renderer：保留 HWiNFO 原始字段，按确切的 GPU/工具映射派生小飞机等效时钟、每引脚传输率和理论带宽；默认 GPU 调优包仍将显存频率紧跟在核心频率之后，不强制拆成后置独立图；
+- SkillDock telemetry broker 改为最多承载 6 个经本地索引和 SVG 安全检查的 artifact，图表包与单图 legacy 字段并行保留，面板、下载和 Task 记录使用同一 pack；
 - 新增确定性本地证据 CLI `scripts/pcwb.ps1`，统一提供只读 `inventory`、`analyze telemetry`、`analyze presentmon`、`evidence package`、`verify claim` 和 `doctor` 入口；
 - 新增固定 `SchemaVersion 1.0` JSON envelope，统一 `ok / partial / needs-input / blocked / failed` 状态、退出码、输入哈希、artifact 哈希、警告、错误、限制和下一步；
 - 新增 `scripts/pcwb-evidence.ps1`、`scripts/pcwb-child-runner.ps1` 和 `schemas/pcwb-result.schema.json`；子脚本经 UTF-8 边界调用，JSON artifact 使用无 BOM 原子写入；

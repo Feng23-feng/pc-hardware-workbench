@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0",
+  "profiles": [
+    {
+      "id": "nvidia-rtx-5070-ti-laptop-gddr7-hwinfo-afterburner-v1",
+      "status": "verified-local",
+      "gpu": {
+        "vendor": "NVIDIA",
+        "model": "GeForce RTX 5070 Ti Laptop GPU",
+        "aliases": [
+          "NVIDIA GeForce RTX 5070 Ti Laptop GPU",
+          "RTX 5070 Ti Laptop GPU",
+          "RTX 5070 Ti Laptop"
+        ],
+        "form_factor": "laptop",
+        "memory_type": "GDDR7"
+      },
+      "raw_field": {
+        "metric": "GPU memory clock (MHz)",
+        "source_column_pattern": "^显存频率 \\(实测\\) \\[MHz\\]$|^显存频率 \\[MHz\\]$",
+        "clock_basis": "unknown"
+      },
+      "raw_tool": {
+        "name": "HWiNFO64",
+        "version": "8.54-6090",
+        "accepted_identities": [
+          "HWiNFO64 8.54-6090",
+          "HWiNFO 8.54-6090"
+        ]
+      },
+      "display_tool": {
+        "name": "MSI Afterburner",
+        "version": "4.6.6.16757",
+        "label": "GPU memory clock",
+        "accepted_identities": [
+          "MSI Afterburner 4.6.6.16757"
+        ]
+      },
+      "display_multiplier": 8,
+      "data_rate_multiplier": 16,
+      "bus_width_bits": 192,
+      "official_data_rate_gbps": 28,
+      "official_bandwidth_gbps": 672,
+      "clock_basis": "vendor-scaled-derived",
+      "sources": {
+        "hardware": [
+          "https://www.nvidia.com/en-us/geforce/laptops/50-series/",
+          "https://images.nvidia.com/aem-dam/Solutions/geforce/blackwell/nvidia-rtx-blackwell-gpu-architecture.pdf"
+        ],
+        "tool_mapping": [
+          "Local same-device cross-tool observation using HWiNFO64 8.54-6090 and MSI Afterburner 4.6.6.16757: HWiNFO memory field 1750.1 MHz corresponded to Afterburner 14001 MHz; +1000 MHz Afterburner offset raised the HWiNFO field to 1875.1 MHz and the expected Afterburner display to 15000.8 MHz.",
+          "The mapping is scoped to the exact GPU, raw field, tools, driver and observed memory state; it is not a universal GDDR7 conversion."
+        ],
+        "verified_at": "2026-11-23"
+      },
+      "constraints": {
+        "exact_gpu_required": true,
+        "exact_raw_field_required": true,
+        "exact_tool_required": true,
+        "cross_generation_allowed": false
+      }
+    }
+  ]
+}

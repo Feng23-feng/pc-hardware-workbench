@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
     [string]$AnalyzerPath,
@@ -29,6 +29,7 @@ $resolvedGanttRenderer = (
     )
 ).Path
 $powershell = (Get-Command powershell.exe -ErrorAction Stop).Source
+$previousErrorPreference = $ErrorActionPreference
 $tempRoot = Join-Path ([IO.Path]::GetTempPath()) "pcwb-chart-$([guid]::NewGuid().ToString('N'))"
 
 try {
@@ -91,11 +92,162 @@ try {
     Assert-True ($svg.Contains("GPU power (W)")) "Power panel is missing."
     Assert-True ($svg.Contains(">FPS<")) "FPS panel is missing."
     Assert-True ($svg.Contains("<polyline")) "Rendered chart contains no line series."
+    Assert-True (
+        $svg.Contains('data-panel-stat="summary" x="1110"') -and
+        $svg.Contains('data-panel-stat="samples" x="1110"')
+    ) "Panel statistics are not inset from the right edge."
     Assert-True (-not ($svg -match "NaN|Infinity")) "Rendered SVG contains a non-finite value."
     Assert-True (-not ($svg -match ">\-\d+(?:\.\d+)?</text>")) "A non-negative telemetry series received a negative axis label."
 
+    $clockVoltagePath = Join-Path $tempRoot "clock-voltage.csv"
+    [IO.File]::WriteAllText($clockVoltagePath, @'
+"Date","Time","GPU Effective Clock [MHz]","GPU Core Clock [MHz]","GPU Core Voltage [V]","GPU Temperature [C]","GPU Power [W]"
+"2026-11-03","12:00:00","2400","2420","0.820","55","120"
+"2026-11-03","12:00:01","2470","2480","0.835","58","130"
+"2026-11-03","12:00:02","2500","2510","0.845","61","140"
+"2026-11-03","12:00:03","2510","2520","0.845","63","145"
+"2026-11-03","12:00:04","1500","1510","0.650","40","10"
+'@, $utf8)
+    $clockVoltageSvgPath = Join-Path $tempRoot "clock-voltage.svg"
+    $renderedClockVoltagePath = (
+        & $resolvedRenderer `
+            -Path $clockVoltagePath `
+            -OutputPath $clockVoltageSvgPath `
+            -ClockVoltageTimeline |
+            Select-Object -Last 1
+    )
+    $clockVoltageSvg = Get-Content -Raw -LiteralPath $clockVoltageSvgPath -Encoding UTF8
+    Assert-True (
+        $renderedClockVoltagePath -eq $clockVoltageSvgPath
+    ) "Clock/voltage timeline renderer did not report the created SVG path."
+    Assert-True (
+        $clockVoltageSvg.Contains('data-chart-mode="clock-voltage-time"')
+    ) "Clock/voltage timeline mode marker is missing."
+    Assert-True (
+        $clockVoltageSvg.Contains("GPU effective clock (MHz)")
+    ) "Clock/voltage timeline did not prefer the effective clock series."
+    Assert-True (
+        -not $clockVoltageSvg.Contains(">GPU core clock (MHz)<")
+    ) "Clock/voltage timeline should not also plot the fallback core clock when effective clock exists."
+    Assert-True (
+        $clockVoltageSvg.Contains("GPU core voltage (V)")
+    ) "Clock/voltage timeline is missing the GPU core voltage series."
+    Assert-True (
+        $clockVoltageSvg.Contains("x-axis: time (seconds)")
+    ) "Clock/voltage timeline did not use time as its x-axis."
+    Assert-True (
+        $clockVoltageSvg.Contains("Frequency (MHz)") -and
+        $clockVoltageSvg.Contains("Core voltage (V)")
+    ) "Clock/voltage timeline is missing one of its aligned y-axis labels."
+    Assert-True (
+        $clockVoltageSvg.Contains(
+            "cannot reconstruct the configured voltage-point table"
+        )
+    ) "Clock/voltage timeline overstates what runtime telemetry can reconstruct."
+    Assert-True (
+        ([regex]::Matches($clockVoltageSvg, "<polyline")).Count -eq 2
+    ) "Clock/voltage timeline did not render one frequency line and one voltage line."
+    Assert-True (
+        $clockVoltageSvg.Contains('data-series="gpu-clock"') -and
+        $clockVoltageSvg.Contains('data-plot-lane="clock"')
+    ) "Clock/voltage timeline is missing the frequency lane."
+    Assert-True (
+        $clockVoltageSvg.Contains('data-series="gpu-voltage"') -and
+        $clockVoltageSvg.Contains('data-plot-lane="voltage"')
+    ) "Clock/voltage timeline is missing the separate voltage lane."
+    foreach ($extremeKey in @(
+        "gpu-clock-max",
+        "gpu-clock-min",
+        "gpu-voltage-max",
+        "gpu-voltage-min"
+    )) {
+        Assert-True (
+            $clockVoltageSvg.Contains(('data-extreme="{0}"' -f $extremeKey))
+        ) "Clock/voltage timeline is missing numeric extreme '$extremeKey'."
+    }
+    Assert-True (
+        $clockVoltageSvg.Contains('data-extreme-label="gpu-clock-readout"') -and
+        $clockVoltageSvg.Contains('data-extreme-label="gpu-voltage-readout"')
+    ) "Clock/voltage timeline is missing its extrema readout outside the plot."
+    Assert-True (
+        $clockVoltageSvg.Contains("有效段最高 2510.0 MHz") -and
+        $clockVoltageSvg.Contains("有效段最低 2400.0 MHz") -and
+        $clockVoltageSvg.Contains("有效段最高 0.845 V") -and
+        $clockVoltageSvg.Contains("有效段最低 0.820 V")
+    ) "Clock/voltage extreme labels do not contain the expected values and units."
+    Assert-True (
+        -not ($clockVoltageSvg -match "NaN|Infinity")
+    ) "Clock/voltage timeline contains a non-finite value."
+
+    $coreClockPath = Join-Path $tempRoot "core-clock.csv"
+    [IO.File]::WriteAllText($coreClockPath, @'
+"Date","Time","GPU Core Clock [MHz]","GPU Core Voltage [V]"
+"2026-11-03","12:00:00","2420","0.820"
+"2026-11-03","12:00:01","2480","0.835"
+'@, $utf8)
+    $coreClockSvgPath = Join-Path $tempRoot "core-clock.svg"
+    & $resolvedRenderer `
+        -Path $coreClockPath `
+        -OutputPath $coreClockSvgPath `
+        -ClockVoltageTimeline | Out-Null
+    $coreClockSvg = Get-Content -Raw -LiteralPath $coreClockSvgPath
+    Assert-True (
+        $coreClockSvg.Contains("GPU core clock (MHz)")
+    ) "Clock/voltage timeline did not fall back to the core clock series."
+
+    $missingVoltagePath = Join-Path $tempRoot "missing-voltage.csv"
+    [IO.File]::WriteAllText($missingVoltagePath, @'
+"Date","Time","GPU Effective Clock [MHz]"
+"2026-11-03","12:00:00","2400"
+"2026-11-03","12:00:01","2470"
+'@, $utf8)
+    $missingVoltageSvgPath = Join-Path $tempRoot "missing-voltage.svg"
+    try {
+        $ErrorActionPreference = "Continue"
+        $missingVoltageMessage = (
+            & $powershell -NoProfile -ExecutionPolicy Bypass -File $resolvedRenderer `
+                -Path $missingVoltagePath `
+                -OutputPath $missingVoltageSvgPath `
+                -ClockVoltageTimeline 2>&1 | Out-String
+        )
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorPreference
+    }
+    $missingVoltageExitCode = $LASTEXITCODE
+    Assert-True (
+        $missingVoltageExitCode -eq 2 -and
+        $missingVoltageMessage -match "requires both" -and
+        -not (Test-Path -LiteralPath $missingVoltageSvgPath)
+    ) "Clock/voltage timeline did not fail closed when voltage was unavailable."
+
+    $clockVoltageRowPath = Join-Path $tempRoot "clock-voltage-rows.csv"
+    [IO.File]::WriteAllText($clockVoltageRowPath, @'
+"GPU Effective Clock [MHz]","GPU Core Voltage [V]"
+"2400","0.820"
+"2470","0.835"
+'@, $utf8)
+    $clockVoltageRowSvgPath = Join-Path $tempRoot "clock-voltage-rows.svg"
+    try {
+        $ErrorActionPreference = "Continue"
+        $clockVoltageRowMessage = (
+            & $powershell -NoProfile -ExecutionPolicy Bypass -File $resolvedRenderer `
+                -Path $clockVoltageRowPath `
+                -OutputPath $clockVoltageRowSvgPath `
+                -ClockVoltageTimeline 2>&1 | Out-String
+        )
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorPreference
+    }
+    $clockVoltageRowExitCode = $LASTEXITCODE
+    Assert-True (
+        $clockVoltageRowExitCode -eq 2 -and
+        $clockVoltageRowMessage -match "timestamped telemetry" -and
+        -not (Test-Path -LiteralPath $clockVoltageRowSvgPath)
+    ) "Clock/voltage timeline accepted row-index data as a time axis."
+
     $existingHash = (Get-FileHash -LiteralPath $svgPath -Algorithm SHA256).Hash
-    $previousErrorPreference = $ErrorActionPreference
     try {
         $ErrorActionPreference = "Continue"
         $existingMessage = (
@@ -206,6 +358,33 @@ try {
     & $resolvedRenderer -Path $explicitPath -OutputPath $explicitSvgPath -MaxSeries 3 -IncludeColumn "VRM" | Out-Null
     $explicitSvg = Get-Content -Raw -LiteralPath $explicitSvgPath
     Assert-True ($explicitSvg.Contains("VRM Hotspot [C]")) "Explicit IncludeColumn series was pushed out by default series."
+
+    $completePath = Join-Path $tempRoot "complete-overview.csv"
+    [IO.File]::WriteAllText($completePath, @'
+"FPS","Frame Time Presented (avg) [ms]","GPU Effective Clock [MHz]","GPU Core Clock [MHz]","GPU Core Voltage [V]","GPU Memory Clock [MHz]","GPU Power [W]","GPU Temperature [C]","GPU Hot Spot [C]","CPU Package [C]","CPU Package Power [W]"
+"75","13.3","2500","2510","0.845","1875","145","62","70","66","48"
+"76","13.1","2510","2520","0.845","1875","150","63","71","67","50"
+'@, $utf8)
+    $completeSvgPath = Join-Path $tempRoot "complete-overview.svg"
+    & $resolvedRenderer -Path $completePath -OutputPath $completeSvgPath -MaxSeries 11 | Out-Null
+    $completeSvg = Get-Content -Raw -LiteralPath $completeSvgPath
+    foreach ($metricHeading in @(
+        ">FPS<",
+        "Frame time (ms)",
+        "GPU effective clock (MHz)",
+        "GPU core clock (MHz)",
+        "GPU core voltage (V)",
+        "GPU memory clock (MHz)",
+        "GPU power (W)",
+        "GPU temperature (C)",
+        "GPU hotspot (C)",
+        "CPU package temperature (C)",
+        "CPU package power (W)"
+    )) {
+        Assert-True (
+            $completeSvg.Contains($metricHeading)
+        ) "Complete overview omitted metric panel '$metricHeading'."
+    }
 
     $warningPath = Join-Path $tempRoot "warning.csv"
     [IO.File]::WriteAllText($warningPath, @'

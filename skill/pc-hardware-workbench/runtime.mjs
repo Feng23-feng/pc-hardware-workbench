@@ -422,7 +422,10 @@ class PcHardwareWorkbenchRuntime {
     packet,
     localResult,
   }) {
-    if (!localResult?.analysis || !localResult?.artifact) {
+    if (
+      !localResult?.analysis ||
+      (!localResult?.artifact && !localResult?.artifacts?.length)
+    ) {
       throw new this.SkillRuntimeError(
         "source_result_missing_verified_tool",
         "Source-hosted PCHW result requires a verified local analysis.",
@@ -697,12 +700,14 @@ class PcHardwareWorkbenchRuntime {
       warmup_seconds: input.warmup_seconds ?? null,
       duration_seconds: input.duration_seconds ?? null,
     };
+    const chartPreset = input.chart_preset ?? "FirstPass";
     let cached;
     try {
       cached = this.broker.findCached({
         taskId: task.task_id,
         attachment,
         window,
+        preset: chartPreset,
       });
       this.broker.validateAttachment(attachment);
     } catch (error) {
@@ -733,10 +738,14 @@ class PcHardwareWorkbenchRuntime {
       host.save();
       return { statusCode: 200 };
     }
+    const cachedArtifactIds = new Set(
+      (cached?.artifacts ?? (cached?.artifact ? [cached.artifact] : []))
+        .map((artifact) => artifact.id),
+    );
     if (
       cached &&
       host.getPanel()?.artifact_refs?.some(
-        (artifact) => artifact.id === cached.artifact.id,
+        (artifact) => cachedArtifactIds.has(artifact.id),
       )
     ) {
       task.permission_request = null;
@@ -786,6 +795,7 @@ class PcHardwareWorkbenchRuntime {
         taskId: task.task_id,
         attachment,
         window,
+        preset: chartPreset,
       });
     } catch (error) {
       const normalized =
@@ -838,9 +848,11 @@ class PcHardwareWorkbenchRuntime {
         cache_hit: result.cache_hit,
         attachment: result.attachment,
         analysis: result.analysis,
+        chart_preset: result.chart_preset ?? chartPreset,
         artifact: result.artifact,
+        artifacts: result.artifacts ?? [result.artifact],
         instruction:
-          "Treat local analyzer metrics, sampled_span_seconds, window, warnings, and artifact metadata as authoritative. State the telemetry span exactly; never reinterpret device age or driver age as sample duration.",
+          "Treat local analyzer metrics, sampled_span_seconds, window, warnings, and artifact metadata as authoritative. Preserve the artifact array as one evidence-only chart pack; keep any conclusion separate. State the telemetry span exactly; never reinterpret device age or driver age as sample duration.",
       },
     };
     host.appendEvent({ type: "ui.panel_tool_result", packet });
@@ -849,8 +861,10 @@ class PcHardwareWorkbenchRuntime {
       typeof host.isSourceHosted === "function" &&
       host.isSourceHosted()
     ) {
-      if (!task.artifacts.some((artifact) => artifact.id === result.artifact.id)) {
-        task.artifacts.push(result.artifact);
+      for (const artifact of result.artifacts ?? [result.artifact]) {
+        if (!task.artifacts.some((existing) => existing.id === artifact.id)) {
+          task.artifacts.push(artifact);
+        }
       }
       task.actions ??= [];
       task.actions.push({
@@ -859,8 +873,12 @@ class PcHardwareWorkbenchRuntime {
         attachment_id: attachment.id,
         source_sha256: attachment.sha256,
         window: packet.tool_result.analysis.requested_window,
+        chart_preset: result.chart_preset ?? chartPreset,
         cache_hit: result.cache_hit,
         artifact_id: result.artifact.id,
+        artifact_ids: (result.artifacts ?? [result.artifact]).map(
+          (artifact) => artifact.id,
+        ),
         permission_scope: permissionScope,
         permission_grant_id: permissionGrantId,
         local_completed_at: new Date().toISOString(),
@@ -873,13 +891,17 @@ class PcHardwareWorkbenchRuntime {
         "tool",
         `本地分析完成 ${attachment.original_name}：` +
           `${packet.tool_result.analysis.analyzed_rows} 行；` +
-          "图表已生成，等待来源 Agent 返回结论。",
+          "证据图表包已生成，等待来源 Agent 返回结论。",
       );
       host.appendEvent({
         type: "action.local_completed",
         action_id: actionId,
         attachment_id: attachment.id,
+        chart_preset: result.chart_preset ?? chartPreset,
         artifact_id: result.artifact.id,
+        artifact_ids: (result.artifacts ?? [result.artifact]).map(
+          (artifact) => artifact.id,
+        ),
         cache_hit: result.cache_hit,
         task_id: task.task_id,
         session_ref: host.getSessionReference(),
@@ -892,6 +914,9 @@ class PcHardwareWorkbenchRuntime {
         body: {
           source_hosted_pending: true,
           artifact_ref: result.artifact.id,
+          artifact_refs: (result.artifacts ?? [result.artifact]).map(
+            (artifact) => artifact.id,
+          ),
         },
       };
     }
@@ -906,8 +931,10 @@ class PcHardwareWorkbenchRuntime {
       host.setPhase(panel.status === "needs_input" ? "needs_input" : panel.status);
       host.setLastTurn(agentResult.turnId);
       host.updateTaskFromPanel(panel);
-      if (!task.artifacts.some((artifact) => artifact.id === result.artifact.id)) {
-        task.artifacts.push(result.artifact);
+      for (const artifact of result.artifacts ?? [result.artifact]) {
+        if (!task.artifacts.some((existing) => existing.id === artifact.id)) {
+          task.artifacts.push(artifact);
+        }
       }
       task.actions ??= [];
       task.actions.push({
@@ -918,8 +945,12 @@ class PcHardwareWorkbenchRuntime {
         window: result.artifact.source_evidence_ids.length > 0
           ? packet.tool_result.analysis.requested_window
           : null,
+        chart_preset: result.chart_preset ?? chartPreset,
         cache_hit: result.cache_hit,
         artifact_id: result.artifact.id,
+        artifact_ids: (result.artifacts ?? [result.artifact]).map(
+          (artifact) => artifact.id,
+        ),
         permission_scope: permissionScope,
         permission_grant_id: permissionGrantId,
         completed_at: new Date().toISOString(),
@@ -937,7 +968,11 @@ class PcHardwareWorkbenchRuntime {
         type: "action.completed",
         action_id: actionId,
         attachment_id: attachment.id,
+        chart_preset: result.chart_preset ?? chartPreset,
         artifact_id: result.artifact.id,
+        artifact_ids: (result.artifacts ?? [result.artifact]).map(
+          (artifact) => artifact.id,
+        ),
         cache_hit: result.cache_hit,
         task_id: task.task_id,
         session_ref: host.getSessionReference(),

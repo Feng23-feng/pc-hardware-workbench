@@ -9,9 +9,13 @@ system inventory, troubleshooting, telemetry analysis, guided tuning, and upgrad
 decisions into one workflow while leaving every persistent hardware change to the
 user.
 
-The current PCHW source and test version is **2.9.0-test.1**. It adds the
-deterministic local evidence CLI and ships PCHW Skill, Portable, and DeepSeek
-Harness packages. PCHW 2.9.0 also declares the
+The current PCHW source and test version is **2.9.1-test.1**. The public
+download remains `2.9.0-test.1 + SkillDock 0.1.0-rc.5`, and GitHub main may be
+ahead of the latest public release. This source line tightens the memory-profile
+identity gates for the GPU, raw tool, and display-tool versions and narrows the
+memory-chart presentation. It retains the deterministic local evidence CLI and
+the PCHW Skill, Portable, and DeepSeek Harness packages added in 2.9.0. PCHW
+2.9.0 also declares the
 `pchw-source-hosted` `1.0.0` surface contract so later Skill releases can
 negotiate a minimum product version, contract SemVer, and required
 capabilities instead of hard-coding one Skill version. SkillDock
@@ -52,6 +56,10 @@ The interactive project pages are currently available in Chinese:
 - **Analyzes real telemetry.** Read CSV files, HWiNFO exports, and structured sensor
   snapshots while preserving sample interval, missing values, source, and time range,
   and render an SVG overview when a usable series exists.
+- **Keeps memory-clock bases traceable.** The default overview preserves the raw
+  HWiNFO value. An explicit deep view derives the Afterburner-equivalent value only
+  when the GPU, raw tool, display tool, and versions all match a controlled profile.
+  Provisional profiles fail closed by default.
 - **Provides deterministic local evidence.** `pcwb.ps1` returns a fixed JSON envelope,
   structured status/exit codes, and SHA-256-linked inputs and artifacts for read-only
   inventory, telemetry, PresentMon, evidence-package, claim, and Doctor routes.
@@ -337,7 +345,7 @@ Read [Privacy and safety boundaries](docs/en/privacy-and-safety.md) for the full
 
 ## Known limitations
 
-- `2.9.0` remains a PCHW Skill/Portable test build and has no stable release;
+- `2.9.1` is the current source PCHW Skill/Portable test line and has no stable release;
 - the current public SkillDock test bundle is `0.1.0-rc.5` with PCHW `2.9.0`;
 - the previous `0.1.0-rc.4` bundle remains the PCHW `2.8.0` panel build;
 - Clean-Windows acceptance for the rc.5 final ZIP bytes is still pending;
@@ -384,7 +392,7 @@ Chinese. The contributing and security policies are available in English.
 
 Use [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
 and [CHANGELOG.md](CHANGELOG.md) as the source of version status. The current
-build is a `2.9.0` test build, and no stable release has been published. GitHub
+build is a `2.9.1` test build, and no stable release has been published. GitHub
 main may be ahead of the downloadable test build.
 
 Source code is available under the [MIT License](LICENSE).

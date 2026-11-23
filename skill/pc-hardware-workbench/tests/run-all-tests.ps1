@@ -76,6 +76,28 @@ $testCases = @(
         )
     },
     @{
+        Name = "Telemetry pack"
+        Script = Join-Path $resolvedRoot "tests/run-telemetry-pack-tests.ps1"
+        Arguments = @(
+            "-PackRendererPath", (Join-Path $resolvedRoot "scripts/render-telemetry-pack.ps1")
+        )
+    },
+    @{
+        Name = "Memory basis"
+        Script = Join-Path $resolvedRoot "tests/run-memory-basis-tests.ps1"
+        Arguments = @(
+            "-RendererPath", (Join-Path $resolvedRoot "scripts/render-memory-basis.ps1"),
+            "-ProfilePath", (Join-Path $resolvedRoot "references/tuning/memory-clock-profiles.json")
+        )
+    },
+    @{
+        Name = "Tuning conclusion"
+        Script = Join-Path $resolvedRoot "tests/run-tuning-conclusion-tests.ps1"
+        Arguments = @(
+            "-RendererPath", (Join-Path $resolvedRoot "scripts/render-tuning-conclusion.ps1")
+        )
+    },
+    @{
         Name = "Evidence pipeline"
         Script = Join-Path $resolvedRoot "tests/run-evidence-pipeline-tests.ps1"
         Arguments = @("-PipelinePath", (Join-Path $resolvedRoot "scripts/run-evidence-pipeline.ps1"))

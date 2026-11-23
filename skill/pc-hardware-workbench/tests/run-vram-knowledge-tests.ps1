@@ -30,6 +30,11 @@ $playbook = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/t
 $intake = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/tuning/intake.md") -Encoding UTF8
 $analyzer = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "scripts/analyze-telemetry.ps1") -Encoding UTF8
 $lhm = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "scripts/lhm/lhm-functions.ps1") -Encoding UTF8
+$profiles = Get-Content -Raw -LiteralPath (Join-Path $resolvedRoot "references/tuning/memory-clock-profiles.json") -Encoding UTF8 |
+    ConvertFrom-Json
+$verifiedProfile = @($profiles.profiles | Where-Object {
+    $_.id -eq "nvidia-rtx-5070-ti-laptop-gddr7-hwinfo-afterburner-v1"
+}) | Select-Object -First 1
 
 Assert-Contains $skill 'component-playbooks\.md' "SKILL.md does not route component details."
 Assert-Contains $componentPlaybooks 'vram-and-memory-bus\.md' "Component routing does not cover VRAM mechanism questions."
@@ -48,6 +53,21 @@ Assert-Contains $mechanism 'GDDR7 uses PAM3' "GDDR7 signalling boundary is missi
 Assert-Contains $mechanism '14001 MHz' "The high LHM memory-clock example is missing."
 Assert-Contains $mechanism 'does not\s+establish 14\.001 GHz physical DRAM clock or 14\.001 Gb/s per pin' "The 14001 MHz basis warning is incomplete."
 Assert-Contains $mechanism 'Infinity\s+Cache bandwidth is a separate cache metric' "AMD cache and DRAM bandwidth are conflated."
+Assert-Contains $mechanism 'HWiNFO64 `8\.54-6090`' "The reviewed raw-tool version is missing from the VRAM reference."
+Assert-Contains $mechanism 'MSI\s+Afterburner `4\.6\.6\.16757`' "The reviewed display-tool version is missing from the VRAM reference."
+Assert-Contains $mechanism 'never substring matching' "The VRAM reference does not reject substring GPU matching."
+Assert-True ($null -ne $verifiedProfile) "The verified RTX 5070 Ti memory profile is missing."
+Assert-True (
+    $verifiedProfile.raw_tool.name -eq "HWiNFO64" -and
+    $verifiedProfile.raw_tool.version -eq "8.54-6090"
+) "The memory profile raw-tool identity is incomplete."
+Assert-True (
+    $verifiedProfile.display_tool.name -eq "MSI Afterburner" -and
+    $verifiedProfile.display_tool.version -eq "4.6.6.16757"
+) "The memory profile display-tool identity is incomplete."
+Assert-True (
+    @($verifiedProfile.gpu.aliases) -contains "NVIDIA GeForce RTX 5070 Ti Laptop GPU"
+) "The memory profile lacks the canonical inventory GPU alias."
 
 Assert-Contains $playbook 'one next action or one smallest missing question' "The user-facing memory response contract is missing."
 Assert-Contains $playbook 'Do not dump every gate field' "The playbook permits questionnaire dumps."

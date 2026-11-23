@@ -3,7 +3,7 @@
   "skill": {
     "id": "pc-hardware-workbench",
     "name": "PC Hardware Workbench",
-    "version": "2.9.0",
+    "version": "2.9.1",
     "root": "."
   },
   "runtime": {

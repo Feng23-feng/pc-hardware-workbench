@@ -5,6 +5,7 @@ import {
   mkdirSync,
   readFileSync,
   renameSync,
+  rmSync,
   statSync,
   unlinkSync,
   writeFileSync,
@@ -20,8 +21,9 @@ import {
 const MAX_CSV_BYTES = 8 * 1024 * 1024;
 const MAX_SCRIPT_OUTPUT_BYTES = 4 * 1024 * 1024;
 const MAX_ARTIFACT_BYTES = 5 * 1024 * 1024;
+const MAX_CHART_ARTIFACTS = 6;
 const MAX_WINDOW_SECONDS = 24 * 60 * 60;
-const ANALYZER_CACHE_VERSION = "1.2.4";
+const ANALYZER_CACHE_VERSION = "1.3.0-pack1";
 const METRIC_HINTS =
   /temp|temperature|power|watt|clock|effective|mhz|fps|frame|voltage|fan|usage|load|温度|功耗|频率|帧率|瓦/u;
 
@@ -70,6 +72,18 @@ function normalizeWindow(input = {}) {
     );
   }
   return { warmup, duration };
+}
+
+function normalizeChartPreset(value) {
+  const preset = String(value ?? "FirstPass");
+  if (!["FirstPass", "GpuTuning", "CpuTuning"].includes(preset)) {
+    throw new TelemetryBrokerError(
+      "invalid_chart_preset",
+      "图表包 Preset 必须是 FirstPass、GpuTuning 或 CpuTuning",
+      { statusCode: 400 },
+    );
+  }
+  return preset;
 }
 
 function windowSignature(window) {
@@ -276,6 +290,11 @@ function publicArtifact(record) {
   };
 }
 
+function normalizeArtifacts(value) {
+  const values = Array.isArray(value) ? value : [value];
+  return values.filter(Boolean).slice(0, MAX_CHART_ARTIFACTS);
+}
+
 export function analysisSummary(analysis, buffer) {
   return {
     analyzer_version: analysis.AnalyzerVersion ?? "unknown",
@@ -312,9 +331,10 @@ export function analysisSummary(analysis, buffer) {
   };
 }
 
-export function verifiedBlocks(analysis, artifact) {
+export function verifiedBlocks(analysis, artifactOrArtifacts) {
+  const artifacts = normalizeArtifacts(artifactOrArtifacts);
   const metrics = (analysis.metrics ?? []).slice(0, 6);
-  if (metrics.length === 0) {
+  if (metrics.length === 0 || artifacts.length === 0) {
     return [];
   }
   const sampling = analysis.sampling ?? {};
@@ -328,8 +348,7 @@ export function verifiedBlocks(analysis, artifact) {
     Number.isFinite(analysis.sampled_span_seconds)
       ? `采样跨度 ${formatNumber(analysis.sampled_span_seconds)} 秒。`
       : "";
-  return [
-    {
+  const metricBlock = {
       id: "telemetry-metrics",
       type: "metrics",
       title: "关键指标",
@@ -345,8 +364,8 @@ export function verifiedBlocks(analysis, artifact) {
         unit: metric.unit,
         source_column: metric.source_column,
       })),
-    },
-    {
+    };
+  const tableBlock = {
       id: "telemetry-table",
       type: "table",
       title: "遥测摘要",
@@ -362,69 +381,92 @@ export function verifiedBlocks(analysis, artifact) {
         formatNumber(metric.max),
         metric.unit,
       ]),
-    },
-    ...(categoricalColumns.length > 0
-      ? [
-          {
-            id: "telemetry-categories",
-            type: "table",
-            title: "状态列分布",
-            columns: ["列名", "取值", "样本数"],
-            rows: categoricalColumns.flatMap((column) =>
-              column.values.map((item) => [
-                column.column,
-                item.value,
-                String(item.count),
-              ]),
-            ).slice(0, 20),
-          },
-        ]
-      : []),
-    {
-      id: "telemetry-chart",
+    };
+  const categoryBlocks = categoricalColumns.length > 0
+    ? [
+        {
+          id: "telemetry-categories",
+          type: "table",
+          title: "状态列分布",
+          columns: ["列名", "取值", "样本数"],
+          rows: categoricalColumns.flatMap((column) =>
+            column.values.map((item) => [
+              column.column,
+              item.value,
+              String(item.count),
+            ]),
+          ).slice(0, 20),
+        },
+      ]
+    : [];
+  const chartBlocks = artifacts.map((artifact, index) => ({
+      id: `telemetry-chart-${index + 1}`,
       type: "chart",
-      title: "遥测概览",
+      title: artifact.title || (artifacts.length === 1 ? "遥测概览" : `遥测图 ${index + 1}`),
       artifact_ref: artifact.id,
-      alt: `遥测概览，${analysis.analyzed_rows} 行，包含 ${metrics
+      alt: `${artifact.title || "遥测图"}，${analysis.analyzed_rows} 行，包含 ${metrics
         .map((metric) => metric.metric)
         .join("、")}。`,
-    },
-    {
+    }));
+  const windowBlock = {
       id: "telemetry-window",
       type: "callout",
       title: "数据窗口",
       text: `窗口：${analysis.window}。${spanText}已分析 ${analysis.analyzed_rows} 行；${samplingText}`,
       tone: "info",
       collapsed: false,
-    },
-    {
-      id: "telemetry-download",
+    };
+  const warningBlocks = warnings.length
+    ? [
+        {
+          id: "telemetry-warnings",
+          type: "callout",
+          title: `Workbench 警告 · ${warnings.length} 项`,
+          text: warnings.map((warning) => `• ${warning}`).join("\n"),
+          tone: "warning",
+          collapsed: true,
+        },
+      ]
+    : [];
+  const maximumDownloads = Math.min(
+    artifacts.length,
+    Math.max(
+      0,
+      12 - chartBlocks.length - 1 - warningBlocks.length,
+    ),
+  );
+  const downloadBlocks = artifacts
+    .slice(0, maximumDownloads)
+    .map((artifact, index) => ({
+      id: `telemetry-download-${index + 1}`,
       type: "artifact-download",
-      title: "图表文件",
+      title: artifact.title || `图表文件 ${index + 1}`,
       artifact_ref: artifact.id,
       label: "下载 SVG",
-    },
-    ...(warnings.length
-      ? [
-          {
-            id: "telemetry-warnings",
-            type: "callout",
-            title: `Workbench 警告 · ${warnings.length} 项`,
-            text: warnings.map((warning) => `• ${warning}`).join("\n"),
-            tone: "warning",
-            collapsed: true,
-          },
-        ]
-      : []),
+    }));
+  const remaining = 12 -
+    chartBlocks.length -
+    downloadBlocks.length -
+    1 -
+    warningBlocks.length;
+  const summaryBlocks = [metricBlock, tableBlock, ...categoryBlocks]
+    .slice(0, Math.max(0, remaining));
+  return [
+    ...summaryBlocks,
+    ...chartBlocks,
+    windowBlock,
+    ...downloadBlocks,
+    ...warningBlocks,
   ];
 }
 
-function normalizePanelWindow(panel, analysis, artifact) {
+function normalizePanelWindow(panel, analysis, artifactOrArtifacts) {
+  const artifacts = normalizeArtifacts(artifactOrArtifacts);
   return {
     ...panel,
     schema_version: "1.2",
-    artifact_refs: [publicArtifact(artifact)],
-    blocks: verifiedBlocks(analysis, artifact),
+    artifact_refs: artifacts.map(publicArtifact),
+    blocks: verifiedBlocks(analysis, artifacts),
   };
 }
 
@@ -441,6 +483,10 @@ export class TelemetryBroker {
     this.scriptsDir = resolve(scriptsDir);
     this.analyzerPath = resolve(this.scriptsDir, "analyze-telemetry.ps1");
     this.rendererPath = resolve(this.scriptsDir, "render-telemetry-chart.ps1");
+    this.packScriptPath = resolve(
+      this.scriptsDir,
+      "render-telemetry-pack.ps1",
+    );
     this.indexPath = resolve(this.artifactRoot, "index.json");
     this.timeoutMs = timeoutMs;
     this.spawnImpl = spawnImpl;
@@ -465,6 +511,47 @@ export class TelemetryBroker {
       mode: 0o600,
     });
     renameSync(temporary, this.indexPath);
+  }
+
+  getCachedArtifactPack(index, { cacheKey, taskId = null }) {
+    const candidates = index.artifacts
+      .filter(
+        (item) =>
+          item.cache_key === cacheKey &&
+          (taskId === null || item.task_id === taskId) &&
+          existsSync(item.absolute_path) &&
+          sha256(readFileSync(item.absolute_path)) === item.sha256,
+      )
+      .sort((left, right) =>
+        String(left.created_at).localeCompare(String(right.created_at)),
+      );
+    if (candidates.length === 0) {
+      return [];
+    }
+    const packs = new Map();
+    for (const candidate of candidates) {
+      const packId = candidate.pack_id ?? candidate.id;
+      if (!packs.has(packId)) {
+        packs.set(packId, []);
+      }
+      packs.get(packId).push(candidate);
+    }
+    for (const pack of packs.values()) {
+      pack.sort(
+        (left, right) =>
+          (left.pack_index ?? 0) - (right.pack_index ?? 0),
+      );
+      const expectedSize = Number(pack[0].pack_size ?? 1);
+      if (
+        Number.isInteger(expectedSize) &&
+        expectedSize >= 1 &&
+        expectedSize <= MAX_CHART_ARTIFACTS &&
+        pack.length === expectedSize
+      ) {
+        return pack;
+      }
+    }
+    return [];
   }
 
   validateAttachment(attachment) {
@@ -508,6 +595,149 @@ export class TelemetryBroker {
       );
     }
     return { filePath, buffer, actualHash };
+  }
+
+  async buildChartPack({
+    taskDirectory,
+    filePath,
+    buffer,
+    parsed,
+    window,
+    actualHash,
+    preset,
+  }) {
+    const packDirectory = resolve(
+      taskDirectory,
+      `pack-${randomUUID()}`,
+    );
+    if (!isInside(taskDirectory, packDirectory)) {
+      throw new TelemetryBrokerError(
+        "unsafe_artifact_path",
+        "图表包路径越界",
+      );
+    }
+    mkdirSync(packDirectory, { recursive: true });
+    const manifestPath = resolve(packDirectory, "telemetry-pack-manifest.json");
+    const warnings = [];
+    const skipped = [];
+
+    if (existsSync(this.packScriptPath)) {
+      const packArgs = [
+        "-Path",
+        filePath,
+        "-OutputDirectory",
+        packDirectory,
+        "-Preset",
+        preset,
+        "-ManifestPath",
+        manifestPath,
+      ];
+      if (window.warmup !== null) {
+        packArgs.push("-WarmupSeconds", String(window.warmup));
+      }
+      if (window.duration !== null) {
+        packArgs.push("-DurationSeconds", String(window.duration));
+      }
+      try {
+        await this.runPowerShell(this.packScriptPath, packArgs);
+        const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+        const manifestSourceHash =
+          manifest.SourceSha256 ?? manifest.source_sha256 ?? "";
+        if (
+          manifestSourceHash &&
+          String(manifestSourceHash).toLowerCase() !== actualHash.toLowerCase()
+        ) {
+          throw new Error("图表包源文件哈希不匹配");
+        }
+        const charts =
+          manifest.Charts ?? manifest.charts;
+        if (!Array.isArray(charts)) {
+          throw new Error("图表包 manifest 缺少 Charts");
+        }
+        const selected = [];
+        for (const chart of charts.slice(0, MAX_CHART_ARTIFACTS)) {
+          const relativePath =
+            chart.RelativePath ??
+            chart.relative_path ??
+            chart.FileName ??
+            chart.file;
+          if (!relativePath) continue;
+          const chartPath = resolve(packDirectory, String(relativePath));
+          if (!isInside(packDirectory, chartPath) || !existsSync(chartPath)) {
+            throw new Error(`图表包路径无效：${relativePath}`);
+          }
+          const safe = assertSafeSvg(readFileSync(chartPath));
+          selected.push({
+            sourcePath: chartPath,
+            title: String(
+              chart.Title ?? chart.title ?? `遥测图 ${selected.length + 1}`,
+            ).slice(0, 120),
+            safe,
+          });
+        }
+        if (selected.length === 0) {
+          throw new Error("图表包没有可用图表");
+        }
+        for (const value of [
+          ...(Array.isArray(manifest.Warnings) ? manifest.Warnings : []),
+          ...(Array.isArray(manifest.warnings) ? manifest.warnings : []),
+        ]) {
+          const text = String(value).trim();
+          if (text) warnings.push(text);
+        }
+        for (const value of [
+          ...(Array.isArray(manifest.Skipped) ? manifest.Skipped : []),
+          ...(Array.isArray(manifest.skipped) ? manifest.skipped : []),
+        ]) {
+          const text =
+            typeof value === "string"
+              ? value
+              : value?.Reason ?? value?.reason ?? value?.Id ?? value?.id;
+          if (text) skipped.push(String(text));
+        }
+        return {
+          packDirectory,
+          charts: selected,
+          warnings,
+          skipped,
+        };
+      } catch (error) {
+        warnings.push(`图表包降级为单图：${error.message}`);
+      }
+    }
+
+    const fallbackId = `draft-${randomUUID()}`;
+    const fallbackPath = resolve(packDirectory, `${fallbackId}.svg`);
+    const chartArgs = ["-Path", filePath, "-OutputPath", fallbackPath];
+    if (window.warmup !== null) {
+      chartArgs.push("-WarmupSeconds", String(window.warmup));
+    }
+    if (window.duration !== null) {
+      chartArgs.push("-DurationSeconds", String(window.duration));
+    }
+    const genericMetrics = parsed.Metrics.every(
+      (metric) => !metric.Unit || metric.Unit === "",
+    );
+    const includeColumn = genericMetrics
+      ? genericIncludePattern(parseHeaderNames(buffer), [])
+      : null;
+    if (includeColumn) {
+      chartArgs.push("-IncludeColumn", includeColumn);
+    }
+    await this.runPowerShell(this.rendererPath, chartArgs);
+    const safe = assertSafeSvg(readFileSync(fallbackPath));
+    return {
+      packDirectory,
+      charts: [
+        {
+          sourcePath: fallbackPath,
+          title: "Telemetry overview",
+          safe,
+        },
+      ],
+      warnings,
+      skipped,
+    };
   }
 
   async runPowerShell(scriptPath, args) {
@@ -589,23 +819,26 @@ export class TelemetryBroker {
     });
   }
 
-  findCached({ taskId, attachment, window: windowInput = {} }) {
+  findCached({
+    taskId,
+    attachment,
+    window: windowInput = {},
+    preset: presetInput = "FirstPass",
+  }) {
     if (!/^[A-Za-z0-9_-]{8,120}$/u.test(String(taskId))) {
       throw new TelemetryBrokerError("invalid_task", "任务 ID 无效", {
         statusCode: 400,
       });
     }
     const window = normalizeWindow(windowInput);
+    const preset = normalizeChartPreset(presetInput);
     const { actualHash } = this.validateAttachment(attachment);
-    const cacheKey = `${ANALYZER_CACHE_VERSION}:${actualHash}:${windowSignature(window)}`;
-    const record = this.loadIndex().artifacts.find(
-      (item) =>
-        item.cache_key === cacheKey &&
-        item.task_id === taskId &&
-        existsSync(item.absolute_path) &&
-        sha256(readFileSync(item.absolute_path)) === item.sha256,
-    );
-    return record
+    const cacheKey = `${ANALYZER_CACHE_VERSION}:${preset}:${actualHash}:${windowSignature(window)}`;
+    const records = this.getCachedArtifactPack(this.loadIndex(), {
+      cacheKey,
+      taskId,
+    });
+    return records.length > 0
       ? {
           ok: true,
           cache_hit: true,
@@ -614,15 +847,27 @@ export class TelemetryBroker {
             original_name: attachment.original_name,
             sha256: actualHash,
           },
-          artifact: publicArtifact(record),
-          analysis: record.analysis,
-          blocks: verifiedBlocks(record.analysis, record),
+          artifact: publicArtifact(records[0]),
+          artifacts: records.map(publicArtifact),
+          analysis: records[0].analysis,
+          chart_preset: preset,
+          blocks: verifiedBlocks(records[0].analysis, records),
         }
       : null;
   }
 
-  async analyze({ taskId, attachment, window: windowInput = {} }) {
-    const cached = this.findCached({ taskId, attachment, window: windowInput });
+  async analyze({
+    taskId,
+    attachment,
+    window: windowInput = {},
+    preset: presetInput = "FirstPass",
+  }) {
+    const cached = this.findCached({
+      taskId,
+      attachment,
+      window: windowInput,
+      preset: presetInput,
+    });
     if (cached) {
       return cached;
     }
@@ -632,15 +877,11 @@ export class TelemetryBroker {
       });
     }
     const window = normalizeWindow(windowInput);
+    const preset = normalizeChartPreset(presetInput);
     const { filePath, buffer, actualHash } = this.validateAttachment(attachment);
-    const cacheKey = `${ANALYZER_CACHE_VERSION}:${actualHash}:${windowSignature(window)}`;
+    const cacheKey = `${ANALYZER_CACHE_VERSION}:${preset}:${actualHash}:${windowSignature(window)}`;
     const index = this.loadIndex();
-    const reusesArtifact = index.artifacts.find(
-      (record) =>
-        record.cache_key === cacheKey &&
-        existsSync(record.absolute_path) &&
-        sha256(readFileSync(record.absolute_path)) === record.sha256,
-    );
+    const reusesArtifacts = this.getCachedArtifactPack(index, { cacheKey });
     const taskDirectory = resolve(this.artifactRoot, taskId);
     if (!isInside(this.artifactRoot, taskDirectory)) {
       throw new TelemetryBrokerError("invalid_task", "任务目录越界", {
@@ -650,11 +891,9 @@ export class TelemetryBroker {
     mkdirSync(taskDirectory, { recursive: true });
 
     let analysis;
-    let renderedBuffer;
-    let generatedPath = null;
-    if (reusesArtifact) {
-      analysis = reusesArtifact.analysis;
-      renderedBuffer = readFileSync(reusesArtifact.absolute_path);
+    let chartPack = null;
+    if (reusesArtifacts.length > 0) {
+      analysis = reusesArtifacts[0].analysis;
     } else {
       const baseArgs = ["-Path", filePath, "-Format", "Json"];
       if (window.warmup !== null) {
@@ -707,88 +946,87 @@ export class TelemetryBroker {
         );
       }
       analysis = analysisSummary(parsed, buffer);
-      const draftArtifactId = `artifact-${randomUUID()}`;
-      const outputPath = resolve(taskDirectory, `${draftArtifactId}.svg`);
-      generatedPath = outputPath;
-      if (!isInside(this.artifactRoot, outputPath)) {
-        throw new TelemetryBrokerError("unsafe_artifact_path", "图表路径越界");
-      }
-      const chartArgs = ["-Path", filePath, "-OutputPath", outputPath];
-      if (window.warmup !== null) {
-        chartArgs.push("-WarmupSeconds", String(window.warmup));
-      }
-      if (window.duration !== null) {
-        chartArgs.push("-DurationSeconds", String(window.duration));
-      }
-      const genericMetrics = parsed.Metrics.every(
-        (metric) => !metric.Unit || metric.Unit === "",
-      );
-      const includeColumn = genericMetrics
-        ? genericIncludePattern(parseHeaderNames(buffer), [])
-        : null;
-      if (includeColumn) {
-        chartArgs.push("-IncludeColumn", includeColumn);
-      }
       try {
-        await this.runPowerShell(this.rendererPath, chartArgs);
-        renderedBuffer = readFileSync(outputPath);
-        assertSafeSvg(renderedBuffer);
-      } catch (error) {
-        if (existsSync(outputPath)) {
-          try {
-            unlinkSync(outputPath);
-          } catch {
-            // The rejected file remains outside the artifact index.
+        chartPack = await this.buildChartPack({
+          taskDirectory,
+          filePath,
+          buffer,
+          parsed,
+          window,
+          actualHash,
+          preset,
+        });
+        for (const warning of chartPack.warnings) {
+          if (!analysis.warnings.includes(warning)) {
+            analysis.warnings.push(warning);
           }
         }
+        for (const skippedItem of chartPack.skipped) {
+          const warning = `图表包跳过：${skippedItem}`;
+          if (!analysis.warnings.includes(warning)) {
+            analysis.warnings.push(warning);
+          }
+        }
+      } catch (error) {
         throw error;
       }
     }
 
-    const artifactId = `artifact-${randomUUID()}`;
-    const relativePath = `${taskId}/${artifactId}.svg`.replaceAll("\\", "/");
-    const outputPath = resolve(taskDirectory, `${artifactId}.svg`);
-    if (reusesArtifact) {
-      copyFileSync(reusesArtifact.absolute_path, outputPath);
-    } else {
-      assertSafeSvg(renderedBuffer);
-      writeFileSync(outputPath, renderedBuffer, { mode: 0o600 });
-      if (generatedPath && generatedPath !== outputPath && existsSync(generatedPath)) {
-        unlinkSync(generatedPath);
-      }
+    const artifactInputs =
+      reusesArtifacts.length > 0
+        ? reusesArtifacts.map((record) => ({
+            sourcePath: record.absolute_path,
+            title: record.title,
+            safe: assertSafeSvg(readFileSync(record.absolute_path)),
+          }))
+        : chartPack.charts;
+    const packId = `pack-${randomUUID()}`;
+    const artifacts = artifactInputs.map((item, packIndex) => {
+      const artifactId = `artifact-${randomUUID()}`;
+      const relativePath = `${taskId}/${artifactId}.svg`.replaceAll("\\", "/");
+      const outputPath = resolve(taskDirectory, `${artifactId}.svg`);
+      copyFileSync(item.sourcePath, outputPath);
+      const finalBuffer = readFileSync(outputPath);
+      assertSafeSvg(finalBuffer);
+      return {
+        id: artifactId,
+        kind: "chart",
+        mime: "image/svg+xml",
+        title: item.title,
+        relative_path: relativePath,
+        sha256: sha256(finalBuffer),
+        source_evidence_ids: [attachment.id],
+        created_at: new Date().toISOString(),
+        safeToEmbed: true,
+        size: finalBuffer.length,
+        cache_key: cacheKey,
+        task_id: taskId,
+        source_attachment_id: attachment.id,
+        absolute_path: outputPath,
+        analysis,
+        pack_id: packId,
+        pack_size: artifactInputs.length,
+        pack_index: packIndex,
+      };
+    });
+    if (chartPack?.packDirectory) {
+      rmSync(chartPack.packDirectory, { recursive: true, force: true });
     }
-    const finalBuffer = readFileSync(outputPath);
-    assertSafeSvg(finalBuffer);
-    const artifact = {
-      id: artifactId,
-      kind: "chart",
-      mime: "image/svg+xml",
-      title: "Telemetry overview",
-      relative_path: relativePath,
-      sha256: sha256(finalBuffer),
-      source_evidence_ids: [attachment.id],
-      created_at: new Date().toISOString(),
-      safeToEmbed: true,
-      size: finalBuffer.length,
-      cache_key: cacheKey,
-      task_id: taskId,
-      source_attachment_id: attachment.id,
-      absolute_path: outputPath,
-      analysis,
-    };
-    index.artifacts.push(artifact);
+    index.artifacts.push(...artifacts);
     this.saveIndex(index);
     return {
       ok: true,
-      cache_hit: Boolean(reusesArtifact),
+      cache_hit: reusesArtifacts.length > 0,
       attachment: {
         id: attachment.id,
         original_name: attachment.original_name,
         sha256: actualHash,
       },
-      artifact: publicArtifact(artifact),
+      artifact: publicArtifact(artifacts[0]),
+      artifacts: artifacts.map(publicArtifact),
       analysis,
-      blocks: verifiedBlocks(analysis, artifact),
+      chart_preset: preset,
+      blocks: verifiedBlocks(analysis, artifacts),
     };
   }
 
@@ -806,9 +1044,25 @@ export class TelemetryBroker {
   }
 
   applyVerifiedResult(panel, result) {
-    return normalizePanelWindow(panel, result.analysis, {
-      ...result.artifact,
-      absolute_path: this.getArtifact(result.artifact.id)?.absolute_path,
+    const requestedArtifacts = normalizeArtifacts(
+      result.artifacts ?? result.artifact,
+    );
+    const artifacts = requestedArtifacts.map((artifact) => {
+      const verified = this.getArtifact(artifact.id);
+      return {
+        ...artifact,
+        absolute_path: verified?.absolute_path,
+      };
     });
+    if (
+      artifacts.length === 0 ||
+      artifacts.some((artifact) => !artifact.absolute_path)
+    ) {
+      throw new TelemetryBrokerError(
+        "unverified_artifact",
+        "面板结果包含未通过本地索引验证的图表引用",
+      );
+    }
+    return normalizePanelWindow(panel, result.analysis, artifacts);
   }
 }

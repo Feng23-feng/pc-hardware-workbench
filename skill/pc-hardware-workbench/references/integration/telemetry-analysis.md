@@ -49,14 +49,53 @@ Generate a dependency-free SVG overview:
 powershell -NoProfile -ExecutionPolicy Bypass -File "<suite-folder>\scripts\render-telemetry-chart.ps1" -Path "<telemetry.csv>" -OutputPath "<new-chart.svg>" -WarmupSeconds 60 -DurationSeconds 300
 ```
 
-The renderer uses the analyzer's validated chart data, selects up to three useful series by default, preserves missing-value transitions even after downsampling, and does not overwrite an existing output file. Use `-MaxSeries` to change the number from 1 to 8, `-MaxPoints` to control downsampling, and `-IncludeColumn` for an explicit custom numeric series. Explicitly requested columns are selected before the default metric priority. SVG is the first no-dependency format; it can be displayed directly or converted later if needed.
+The renderer uses the analyzer's validated chart data, selects up to three useful series by default, preserves missing-value transitions even after downsampling, and does not overwrite an existing output file. Use `-MaxSeries` to change the number from 1 to 32, `-MaxPoints` to control downsampling, and `-IncludeColumn` for an explicit custom numeric series. Explicitly requested columns are selected before the default metric priority. SVG is the first no-dependency format; it can be displayed directly or converted later if needed.
+
+When a memory-clock value needs interpretation, an Afterburner-equivalent
+display, per-pin transfer rate, or theoretical bandwidth, read
+[vram-and-memory-bus.md](../tuning/vram-and-memory-bus.md) before assigning a
+clock basis. The ordered overview keeps the source-observed memory field
+immediately after the GPU core/effective clock. Do not silently relabel that raw
+value as an Afterburner-equivalent clock; use only an exact matching profile in
+the explicit deep-memory view.
+
+Choose evidence-only versus conclusion deliverables, presets, filenames, and
+pack metadata from [chart-delivery.md](chart-delivery.md). Do not dump every
+recognized metric into the default user view.
+
+Use `scripts/render-telemetry-pack.ps1 -Preset FirstPass|GpuTuning|CpuTuning`
+to create the selected evidence-only figures and pack manifest in one command.
+
+For a GPU tuning conclusion that has timestamped effective/core clock and core
+voltage data, generate one combined timeline:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File "<suite-folder>\scripts\render-telemetry-chart.ps1" -Path "<telemetry.csv>" -OutputPath "<new-clock-voltage.svg>" -ClockVoltageTimeline -WarmupSeconds 60 -DurationSeconds 300
+```
+
+This mode uses one shared time axis with GPU effective frequency in the upper
+lane and GPU core voltage in a separate aligned lane. Keep the lanes separate
+when both traces follow the same workload shape; overlaying them makes the
+signals indistinguishable. It prefers effective clock and falls back to core
+clock when effective clock is absent. It requires timestamped data and both
+measurements; otherwise it fails instead of inventing a time axis or a voltage
+trace. The result is the observed runtime operating path, not the full saved
+voltage/frequency point table. Use the point-table state separately when
+claiming what curve was configured.
+Mark the active-segment maximum and minimum observed value in each lane with its
+value, unit, and timestamp. Prefer the analyzer's GPU-power series to separate
+active load from idle; these are recorded extrema for the selected window, not
+targets or proof that a transient operating point is desirable. Put only compact
+point markers inside the plot and keep the numeric readout outside the data
+area so labels never cover the traces.
 
 When the user supplies a compatible CSV without requesting a specific output,
-produce the analysis summary and, if at least one validated series exists,
-render one SVG overview and report its local path. Do not create an empty or
-misleading chart when the analyzer finds no usable series. If the current host
-renders local media, embed the chart once with an absolute path instead of only
-printing the path.
+produce the analysis summary and the smallest useful evidence pack from
+[chart-delivery.md](chart-delivery.md). If the pack renderer is unavailable,
+fall back to one overview SVG rather than inventing a conclusion. Do not create
+an empty or misleading chart when the analyzer finds no usable series. If the
+current host renders local media, embed each selected chart once with an
+absolute path instead of only printing the paths.
 
 For a structured JSON snapshot, source provenance, mixed-source warnings, or a
 shared normalized document across CSV and future sensor adapters, read

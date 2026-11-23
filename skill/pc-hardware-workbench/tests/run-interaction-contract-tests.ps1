@@ -209,7 +209,7 @@ $skill = Get-Content -LiteralPath $skillPath -Raw -Encoding UTF8
 $referenceOnlyNotice = [regex]::Unescape('\u53C2\u6570\u4EC5\u4F9B\u53C2\u8003\uFF0C\u8BF7\u4EE5\u5B89\u5168\u4E3A\u7B2C\u4E00\u8981\u52A1\u3002')
 $englishReferenceOnlyNotice = "For reference only - put safety first."
 
-Assert-Contains $skill '(?m)^  version: "2\.9\.0"\r?$' "metadata.version should be 2.9.0."
+Assert-Contains $skill '(?m)^  version: "2\.9\.1"\r?$' "metadata.version should be 2.9.1."
 Assert-Contains $skill 'r23 collector' "The Skill maintenance summary collector revision disagrees with the collector code."
 Assert-Contains $skill 'while power-path\s+evidence is incomplete' "The Advice intensity route does not include incomplete power-path evidence."
 Assert-Contains $skill 'hidden or\s+manufacturer-limited power' "The Advice intensity summary is narrower than the hidden or manufacturer-limited scope."
@@ -331,7 +331,13 @@ foreach ($relative in @(
     "tests/manual-acceptance-template.md",
     "scripts/analyze-telemetry.ps1",
     "scripts/render-telemetry-chart.ps1",
+    "scripts/render-telemetry-pack.ps1",
+    "scripts/render-memory-basis.ps1",
+    "scripts/render-tuning-conclusion.ps1",
     "scripts/render-gantt-chart.ps1",
+    "references/integration/chart-delivery.md",
+    "references/tuning/memory-clock-profiles.json",
+    "schemas/memory-clock-profiles.schema.json",
     "scripts/analyze-presentmon.ps1",
     "scripts/verify-hardware-claim.ps1",
     "tests/run-claim-verification-tests.ps1",
@@ -673,12 +679,25 @@ Assert-Contains $telemetry 'name DWG FastView, LanSweeper, OPEN, and Try Now as 
 Assert-Contains $telemetry 'warn that a raw HWiNFO CSV may carry appended device metadata' "A first-capture monitoring route must warn about raw CSV metadata."
 Assert-Contains $telemetry 'render-telemetry-chart\.ps1' "Telemetry guidance does not route to the chart renderer."
 Assert-Contains $telemetry 'chart is an evidence view, not a new measurement source' "Telemetry guidance treats a chart as independent evidence."
-Assert-Contains $telemetry 'supplies a compatible CSV[\s\S]*render one SVG overview' "CSV analysis does not default to a visual overview."
+Assert-Contains $telemetry 'supplies a compatible CSV[\s\S]*smallest useful evidence pack' "CSV analysis does not default to an evidence chart pack."
+Assert-Contains $telemetry 'render-telemetry-pack\.ps1' "Telemetry guidance does not route to the chart pack renderer."
 Assert-Contains $telemetry 'render-gantt-chart\.ps1' "Timed plans do not route to the Gantt renderer."
 Assert-Contains $telemetry 'chart is a plan, not measured evidence' "Gantt guidance overstates a planned timeline as measured evidence."
 Assert-Contains $telemetry 'done` means execution ended without\s+encoding a pass/fail verdict' "Gantt done status is not separated from pass/fail outcomes."
 Assert-Contains $telemetry 'complete`, `completed`, and `finished` are accepted only as aliases for `done' "Gantt done aliases are not documented as non-pass states."
 Assert-Contains $telemetry 'telemetry-normalization\.md' "Telemetry guidance does not route structured sources to normalization."
+Assert-Contains $telemetry 'vram-and-memory-bus\.md' "Telemetry guidance does not route memory-clock interpretation to the VRAM reference."
+Assert-Contains $telemetry 'Do not silently relabel that raw\s+value as an Afterburner-equivalent clock' "Telemetry guidance can silently mix raw and tool-equivalent memory clocks."
+
+$chartDelivery = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/integration/chart-delivery.md") `
+    -Label "references/integration/chart-delivery.md"
+Assert-Contains $chartDelivery 'RawToolIdentity' "Deep-memory chart guidance omits exact raw-tool identity."
+Assert-Contains $chartDelivery 'DisplayToolIdentity' "Deep-memory chart guidance omits exact display-tool identity."
+Assert-Contains $chartDelivery '-AllowProvisional' "Deep-memory chart guidance has no explicit provisional override."
+Assert-Contains $chartDelivery 'slightly heavier but\s+secondary stroke' "Memory-clock emphasis can outrank the primary telemetry signals."
+Assert-Contains $chartDelivery 'filterUnits="userSpaceOnUse"' "Chart guidance does not protect flat series from zero-height filter clipping."
+
 $ganttRendererSource = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "scripts/render-gantt-chart.ps1") `
     -Label "scripts/render-gantt-chart.ps1"
@@ -710,6 +729,33 @@ Assert-Contains $chartRenderer 'Only SVG output is supported' "Chart renderer ou
 Assert-Contains $chartRenderer 'does not prove hardware stability' "Chart renderer omits the evidence limitation."
 Assert-Contains $chartRenderer 'NormalizedJson' "Chart renderer cannot consume normalized telemetry JSON."
 Assert-Contains $chartRenderer 'missing required section' "Chart renderer does not reject incomplete normalized documents."
+$packRenderer = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "scripts/render-telemetry-pack.ps1") `
+    -Label "scripts/render-telemetry-pack.ps1"
+Assert-Contains $packRenderer 'ValidateSet\("FirstPass", "GpuTuning", "CpuTuning"\)' "Chart pack presets are missing."
+Assert-Contains $packRenderer 'OutputDirectory must be empty' "Chart pack renderer can overwrite an existing pack."
+Assert-Contains $packRenderer 'ClockVoltageTimeline = \$true' "Chart pack cannot invoke the V/F timeline."
+$memoryRenderer = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "scripts/render-memory-basis.ps1") `
+    -Label "scripts/render-memory-basis.ps1"
+Assert-Contains $memoryRenderer 'Resolve-LocalOutputFilePath' "Memory renderer does not use the safe output-path helper."
+Assert-Contains $memoryRenderer 'ProfileId' "Memory renderer has no controlled profile input."
+Assert-Contains $memoryRenderer 'clock_basis' "Memory renderer does not preserve clock-basis metadata."
+Assert-Contains $memoryRenderer 'RawToolIdentity' "Memory renderer does not require a raw-tool identity."
+Assert-Contains $memoryRenderer 'DisplayToolIdentity' "Memory renderer does not require a display-tool identity."
+Assert-Contains $memoryRenderer 'AllowProvisional' "Memory renderer has no explicit provisional-profile override."
+Assert-Contains $memoryRenderer 'Test-ProfileIdentityMatch' "Memory renderer does not use exact profile identity matching."
+$memoryProfileSchema = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "schemas/memory-clock-profiles.schema.json") `
+    -Label "schemas/memory-clock-profiles.schema.json"
+Assert-Contains $memoryProfileSchema '"raw_tool"' "Memory profile schema does not bind the raw tool identity."
+Assert-Contains $memoryProfileSchema '"accepted_identities"' "Memory profile schema does not bind accepted tool identities."
+Assert-Contains $memoryProfileSchema '"aliases"' "Memory profile schema does not bind controlled GPU aliases."
+$conclusionRenderer = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "scripts/render-tuning-conclusion.ps1") `
+    -Label "scripts/render-tuning-conclusion.ps1"
+Assert-Contains $conclusionRenderer 'SchemaVersion must be' "Conclusion renderer does not validate its input schema."
+Assert-Contains $conclusionRenderer 'Resolve-LocalOutputFilePath' "Conclusion renderer does not use the safe output-path helper."
 $normalizer = Read-RequiredFile `
     -Path (Join-Path $resolvedRoot "scripts/normalize-telemetry.ps1") `
     -Label "scripts/normalize-telemetry.ps1"

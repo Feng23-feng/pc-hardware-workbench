@@ -24,6 +24,7 @@ import {
   createCapabilityGrant,
   createPermissionRequest,
 } from "../capability-grants.mjs";
+import { verifiedBlocks } from "../telemetry-broker.mjs";
 
 const skillRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const readJson = (path) => JSON.parse(readFileSync(path, "utf8"));
@@ -156,7 +157,7 @@ class TestSkillRuntime {
   buildTaskContext({ task }) {
     return {
       skill_id: "pc-hardware-workbench",
-      skill_version: "2.9.0",
+      skill_version: "2.9.1",
       runtime_id: "pc-hardware-workbench",
       domain_context: task?.domain_state ?? {},
       domain_refs: task?.domain_refs ?? [],
@@ -244,9 +245,79 @@ assert.ok(
   ),
 );
 
+const chartPackAnalysis = {
+  analyzed_rows: 120,
+  window: "0-120 s",
+  sampled_span_seconds: 120,
+  sampling: {
+    Consistency: "stable",
+    IntervalSecondsMedian: 1,
+  },
+  warnings: [],
+  categorical_columns: [],
+  metrics: [
+    {
+      metric: "GPU power (W)",
+      source_column: "GPU Power [W]",
+      unit: "W",
+      samples: 120,
+      min: 10,
+      mean: 100,
+      max: 150,
+    },
+  ],
+};
+const chartPackArtifacts = Array.from({ length: 4 }, (_, index) => ({
+  id: `artifact-pack-${index + 1}`,
+  title: `Evidence chart ${index + 1}`,
+}));
+const chartPackBlocks = verifiedBlocks(
+  chartPackAnalysis,
+  chartPackArtifacts,
+);
+assert.equal(
+  chartPackBlocks.filter((block) => block.type === "chart").length,
+  4,
+  "multi-artifact pack must produce one chart block per artifact",
+);
+assert.equal(
+  chartPackBlocks.filter((block) => block.type === "artifact-download").length,
+  4,
+  "multi-artifact pack must expose each verified artifact",
+);
+assert.ok(
+  chartPackBlocks.length <= 12,
+  "multi-artifact blocks must remain within the UI schema limit",
+);
+const warningPackBlocks = verifiedBlocks(
+  {
+    ...chartPackAnalysis,
+    warnings: ["one", "two", "three", "four"],
+  },
+  Array.from({ length: 5 }, (_, index) => ({
+    id: `artifact-warning-pack-${index + 1}`,
+    title: `Evidence chart ${index + 1}`,
+  })),
+);
+assert.equal(
+  warningPackBlocks.filter((block) => block.type === "chart").length,
+  5,
+);
+assert.equal(
+  warningPackBlocks.filter((block) => block.type === "artifact-download").length,
+  5,
+);
+assert.ok(
+  warningPackBlocks.length <= 12,
+  "warning-heavy five-chart packs must fit the UI schema",
+);
+
 for (const scriptName of [
   "analyze-telemetry.ps1",
   "render-telemetry-chart.ps1",
+  "render-telemetry-pack.ps1",
+  "render-memory-basis.ps1",
+  "render-tuning-conclusion.ps1",
 ]) {
   assertPathContained(join("scripts", scriptName), scriptName);
 }
@@ -283,6 +354,10 @@ try {
   assert.equal(
     runtime.broker.rendererPath,
     join(skillRoot, "scripts", "render-telemetry-chart.ps1"),
+  );
+  assert.equal(
+    runtime.broker.packScriptPath,
+    join(skillRoot, "scripts", "render-telemetry-pack.ps1"),
   );
   assert.ok(isInside(tempRoot, runtime.evidence.filePath));
   assert.ok(isInside(tempRoot, runtime.broker.artifactRoot));

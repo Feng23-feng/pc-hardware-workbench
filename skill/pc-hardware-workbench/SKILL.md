@@ -2,7 +2,7 @@
 name: pc-hardware-workbench
 description: Integrate Windows-focused read-only hardware inventory, telemetry charting, evidence-gated troubleshooting, guided overclocking with deterministic GPU starting candidates, and upgrade-purchase decisions through one routed workflow. Other systems receive manual guidance only. Keep tuning-only requests free of unsolicited purchase advice; never modify hardware automatically or bypass permissions or anti-cheat.
 metadata:
-  version: "2.9.0"
+  version: "2.9.1"
   short-description: "One routed entry for hardware inventory, telemetry visuals, triage, deterministic GPU candidates, and purchase decisions"
 ---
 
@@ -108,6 +108,8 @@ confirm source and workload. Analysis is read-only and does not require the
 tuning entry gate; it never implies diagnosis, stability, or permission. From
 that reference, load only the matching chart, LHM, PresentMon, visual-evidence,
 or evidence-package route.
+Read [chart-delivery.md](references/integration/chart-delivery.md) before
+choosing evidence-only versus conclusion charts. Keep runtime V/F lanes separate.
 
 ### Tune
 

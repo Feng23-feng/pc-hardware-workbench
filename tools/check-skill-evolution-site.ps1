@@ -361,8 +361,8 @@ if ($errors.Count -eq 0) {
     else {
         $segment = $homeTemplate.Substring($start, $end - $start)
         $versionCount = [regex]::Matches($segment, '(?m)^\s*\["\d+\.\d+\.\d+(?:-r\d+)?",').Count
-        if ($versionCount -ne 116) {
-            $errors.Add("Home source version count is $versionCount, expected 116.") | Out-Null
+        if ($versionCount -ne 117) {
+            $errors.Add("Home source version count is $versionCount, expected 117.") | Out-Null
         }
         $currentVersionPattern = '\["' + [regex]::Escape($expectedVersion) + '"[^\r\n]*CURRENT CANDIDATE'
         if ($segment -notmatch $currentVersionPattern) {
@@ -463,7 +463,13 @@ if ($errors.Count -eq 0) {
     finally {
         $sha256.Dispose()
     }
-    if ($frozen.version -ne $expectedVersion -or $frozen.status -ne "frozen") {
+    $declaredFrozenFallback = $homeTemplate -match [regex]::Escape(
+        "文件星球保留 $($frozen.version)/$expectedFileCount 文件冻结快照"
+    )
+    if (
+        $frozen.status -ne "frozen" -or
+        ($frozen.version -ne $expectedVersion -and -not $declaredFrozenFallback)
+    ) {
         $errors.Add("Orrery FROZEN.json version/status is unexpected.") | Out-Null
     }
     if ([int]$frozen.bytes -ne $orreryBytes.Length -or $frozen.sha256 -ne $orreryHash) {

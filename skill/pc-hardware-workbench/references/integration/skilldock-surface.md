@@ -137,6 +137,10 @@ runtime profile internally.
 For a CSV/chart Task, stay in the same conversation Agent turn and wait for the
 panel-side local analysis instead of asking the user to send “同步面板”:
 
+The local action may provide `chart_preset` as `FirstPass`, `GpuTuning`, or
+`CpuTuning`. Omit it for the evidence-only first-pass pack. A preset changes the
+selected chart families; it never authorizes a conclusion or hardware change.
+
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass `
   -File scripts/skilldock/wait-panel.ps1 `
@@ -244,7 +248,7 @@ adding a second card.
 Use a surface when at least one of these is true:
 
 - several evidence items or comparisons need a table;
-- a verified CSV chart or artifact download is central;
+- a verified CSV chart pack or artifact download is central;
 - an experiment needs a multi-field card, pass/abort status, or recovery view;
 - the user needs repeated structured choices that would be cumbersome in chat;
 - the Task already has a Resume Packet and must continue in another view.
@@ -354,7 +358,9 @@ sync and continue with the current next action. Do not end with a JSON code
 block or resume the whole task from scratch.
 
 When `source_tool_result` is present, treat its local analysis, warnings, window,
-and public artifact metadata as verified local evidence. Produce one PCHW panel
+and public artifact metadata as verified local evidence. A chart pack may expose
+up to six safe SVG artifacts; keep their order, titles, and references exactly
+as verified. Produce one PCHW panel
 JSON object using the active UI schema, write it to a private temp file, then
 write the result back to the surface:
 
@@ -370,6 +376,8 @@ powershell -NoProfile -ExecutionPolicy Bypass `
 ```
 
 Do not call `submit-panel-result.ps1` with forged chart artifact references.
-The SkillDock server merges the verified local chart with the Agent conclusion.
+The SkillDock server merges the verified local chart set with the Agent
+conclusion. Keep evidence-only charts free of a verdict, and keep the conclusion
+separate from the raw curve pack.
 After success, tell the user the panel result is ready; do not expose the JSON or
 runtime credentials.

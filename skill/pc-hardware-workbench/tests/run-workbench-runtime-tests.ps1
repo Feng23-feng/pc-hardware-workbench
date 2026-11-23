@@ -7,6 +7,7 @@ param(
 $ErrorActionPreference = "Stop"
 $resolvedRoot = (Resolve-Path -LiteralPath $SkillRoot).Path
 $testPath = Join-Path $resolvedRoot "tests/run-workbench-runtime-tests.mjs"
+$brokerTestPath = Join-Path $resolvedRoot "tests/run-telemetry-broker-tests.mjs"
 $node = Get-Command "node.exe" -ErrorAction SilentlyContinue
 if ($null -eq $node) {
     $node = Get-Command "node" -ErrorAction SilentlyContinue
@@ -17,4 +18,8 @@ if ($null -eq $node) {
 }
 
 & $node.Source $testPath
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+& $node.Source $brokerTestPath
 exit $LASTEXITCODE

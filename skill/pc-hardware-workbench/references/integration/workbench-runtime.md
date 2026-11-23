@@ -53,7 +53,7 @@ runtime is active.
 - result validation and domain guidance;
 - capability-grant checks for one local telemetry action;
 - shared device/evidence state;
-- read-only telemetry analysis and safe chart artifact generation.
+- read-only telemetry analysis and safe evidence-only chart-pack generation.
 
 The runtime does not contain Agent transport, app-server, provider, cookie,
 OAuth, queue, handoff-token, or browser-session logic. The host owns those
@@ -74,16 +74,20 @@ capability is `telemetry.csv.analyze`, scoped to:
 
 - one submitted local CSV attachment and its SHA-256;
 - one Task;
-- fixed read-only analyzer/renderer scripts;
-- a chart write under that Task's artifact directory.
+- fixed read-only analyzer, chart, and chart-pack scripts;
+- chart-pack writes under that Task's artifact directory.
 
 The grant cannot authorize arbitrary commands, network access, system writes, or
 hardware controls. Switching surfaces or loading the runtime never broadens it.
 
 Generated SVG charts are checked for safe embedded content, written under the
 Task artifact root, indexed with the source evidence ID and hash, and cached by
-attachment hash plus analysis window. A cache hit must still verify the stored
-artifact hash.
+attachment hash plus analysis window. One analysis returns an ordered pack of up
+to six verified artifacts; every cached file must still match its stored hash.
+The first artifact remains available as a legacy singular reference, but new
+UI/event consumers use the `artifacts` array and corresponding `artifact_refs`.
+`chart_preset` is limited to the fixed `FirstPass`, `GpuTuning`, or `CpuTuning`
+choices and remains inside the same read-only CSV capability.
 
 ## Change check
 

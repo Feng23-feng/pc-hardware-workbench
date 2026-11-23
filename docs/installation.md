@@ -9,8 +9,11 @@
 - 其他操作系统只提供手动排障指导，不自动读取硬件；
 - 可选监控需要用户已经启动 LibreHardwareMonitor；本项目不会安装或启动它。
 
-当前 PCHW 源码与测试版本为 `2.9.0`。本版新增确定性本地证据 CLI，并提供纯
-PCHW Skill、PCHW Portable 和 DeepSeek Harness 包。2.9.0 声明
+当前 PCHW 源码与测试版本为 `2.9.1`。公开下载仍为
+`2.9.0-test.1 + SkillDock 0.1.0-rc.5`，GitHub main 领先于最近一个公开
+Release。本版收紧显存 profile 的 GPU、原始工具和显示工具版本门禁；此前
+2.9.0 新增的确定性本地证据 CLI、纯 PCHW Skill、PCHW Portable 和
+DeepSeek Harness 包继续保留。2.9.0 声明
 `pchw-source-hosted` `1.0.0` 契约，SkillDock `0.1.0-rc.5` 测试包可按最低
 Skill 版本、契约 SemVer 和能力协商。上一版面板包仍为
 `0.1.0-rc.4 + PCHW 2.8.0`。目前没有正式版；干净 Windows
@@ -268,7 +271,7 @@ Test-Path $pointer
 
 ## 已知限制
 
-- `2.9.0` 目前只有 PCHW Skill/Portable 测试版，没有正式版；干净 Windows 签收仍待完成。
+- `2.9.1` 是当前源码 PCHW Skill/Portable 测试线，没有正式版；干净 Windows 签收仍待完成。
 - 当前公开 SkillDock 测试包为 `0.1.0-rc.5 + PCHW 2.9.0`。
 - 上一版 `0.1.0-rc.4` 继续作为 PCHW 2.8.0 面板测试包。
 - rc.5 最终 ZIP 的 Clean Windows 安装/卸载与人工签收仍为 PENDING。

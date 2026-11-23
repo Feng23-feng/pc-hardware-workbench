@@ -54,6 +54,14 @@ dynamic-boost GPUs. Use the observed range, dominant samples, effective clock,
 performance, and limit reason instead of pretending there must be one fixed
 operating point.
 
+When that evidence is a timestamped CSV exposing both GPU effective/core clock
+and core voltage, include the combined clock-and-voltage timeline from
+[telemetry-analysis.md](../integration/telemetry-analysis.md). It must use time
+on the x-axis, with frequency and voltage in separate aligned lanes. Keep the
+lanes separate when the traces follow the same workload shape. Read it as the
+observed runtime path; it does not reconstruct every saved point on the tuning
+tool's voltage/frequency curve.
+
 If core voltage is not exposed, do not invent a voltage-point procedure.
 Continue monitoring or use a supported offset-only route. Read
 [gpu-clock-behavior.md](gpu-clock-behavior.md) before deciding whether the

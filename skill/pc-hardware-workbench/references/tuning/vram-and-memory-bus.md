@@ -4,7 +4,7 @@ Use this reference whenever a task mentions GPU memory clock, VRAM frequency,
 memory bandwidth, memory overclocking, GDDR/HBM type, or conflicting clock
 values from monitoring tools.
 
-Last source review: 2026-11-09.
+Last source review: 2026-11-23.
 
 ## Separate the quantities
 
@@ -62,6 +62,40 @@ Do not apply one MHz-to-data-rate multiplier across GDDR generations.
 
 Cross-generation comparisons must use source-backed per-pin data rate and bus
 width, not raw monitor MHz.
+
+## Tool-scaled crosswalk profiles
+
+Store raw-to-display conversion as a reviewed profile, never as a GDDR
+generation-only constant. A profile must bind:
+
+- exact GPU identity and form factor;
+- memory type and bus width;
+- exact raw metric and source-column pattern;
+- monitoring tool and displayed field;
+- display multiplier and data-rate multiplier;
+- clock basis and verification status;
+- official hardware sources and local same-device tool evidence.
+
+The first verified laptop GDDR7 profile is
+[memory-clock-profiles.json](memory-clock-profiles.json). Its scope is exactly
+`RTX 5070 Ti Laptop GPU` + HWiNFO64 `8.54-6090` field `显存频率 [MHz]` + MSI
+Afterburner `4.6.6.16757` memory clock. In that observed profile:
+
+```text
+Afterburner-equivalent MHz = HWiNFO raw MHz x 8
+per-pin Gb/s              = HWiNFO raw MHz x 16 / 1000
+```
+
+This is a local tool crosswalk, not a universal GDDR7 multiplier. A different
+GPU, monitoring field, tool version with changed semantics, or GDDR generation
+cannot inherit it automatically. If no matching profile exists, show the raw
+field and mark the clock basis unknown.
+
+The renderer requires exact GPU, raw-tool, and display-tool identities from the
+profile. GPU model matching uses only the profile's canonical model or reviewed
+aliases, never substring matching. A `provisional` profile is rejected unless
+the caller explicitly passes `-AllowProvisional`, and the resulting chart is
+marked `provisional`.
 
 ## Common GPU examples
 

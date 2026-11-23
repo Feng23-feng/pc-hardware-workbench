@@ -10,9 +10,13 @@
 - Optional monitoring requires an already-running LibreHardwareMonitor instance.
   This project does not install or start it.
 
-The current PCHW source and test version is `2.9.0`. It adds the deterministic
-local evidence CLI and ships pure PCHW Skill, Portable, and DeepSeek Harness
-packages. PCHW 2.9.0 declares the `pchw-source-hosted` `1.0.0` contract;
+The current PCHW source and test version is `2.9.1`. The public download remains
+`2.9.0-test.1 + SkillDock 0.1.0-rc.5`, and GitHub main may be ahead of the
+latest public release. This source line tightens the memory-profile identity
+gates for the GPU, raw tool, and display-tool versions. It retains the
+deterministic local evidence CLI and pure PCHW Skill, Portable, and DeepSeek
+Harness packages added in 2.9.0. PCHW 2.9.0 declares the
+`pchw-source-hosted` `1.0.0` contract;
 SkillDock `0.1.0-rc.5` is a public test build that negotiates minimum Skill
 version, contract SemVer, and capabilities. The previous panel package remains
 `0.1.0-rc.4 + PCHW 2.8.0`. Clean-Windows installation, uninstallation, and
@@ -286,7 +290,7 @@ Close DSH and remove:
 
 ## Known limitations
 
-- `2.9.0` currently has no stable PCHW Skill/Portable release; clean-Windows signoff remains pending.
+- `2.9.1` is the current source PCHW Skill/Portable test line and has no stable release; clean-Windows signoff remains pending.
 - the current public SkillDock test bundle is `0.1.0-rc.5` with PCHW `2.9.0`;
 - the previous `0.1.0-rc.4` bundle remains the PCHW `2.8.0` panel build;
 - Clean-Windows acceptance for the rc.5 final ZIP bytes remains PENDING.

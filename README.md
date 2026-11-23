@@ -7,8 +7,11 @@
 排查、遥测分析、手动调校和升级判断收敛到一套工作流，同时把每一次硬件变更留给
 用户亲手完成。
 
-当前版本为 **2.9.0 测试版**（PCHW 资产标签 `2.9.0-test.1`）。本版新增确定性本地证据 CLI，
-并提供纯 PCHW Skill、PCHW Portable 和 DeepSeek Harness 包。2.9.0 还声明
+当前版本为 **2.9.1 测试版**（源码标签 `2.9.1-test.1`）。公开下载仍为
+`2.9.0-test.1 + SkillDock 0.1.0-rc.5`，GitHub main 领先于最近一个公开 Release。
+本版收紧显存 profile 的 GPU、原始工具和显示工具版本门禁，并收敛显存图表规则；
+此前 2.9.0 新增的确定性本地证据 CLI、纯 PCHW Skill、PCHW Portable 和
+DeepSeek Harness 包继续保留。2.9.0 还声明
 `pchw-source-hosted` `1.0.0` 面板契约，使后续 Skill 更新可按最低版本、
 契约 SemVer 和能力协商，而不必每次写死一个 Skill 版本。SkillDock `0.1.0-rc.5`
 已作为公开测试版适配该契约；上一个 `0.1.0-rc.4` 面板包继续供 PCHW `2.8.0`
@@ -43,6 +46,9 @@
   用超频或换件掩盖尚未解释的问题。
 - **分析真实遥测。** 读取 CSV、HWiNFO 导出和结构化传感器快照，保留采样间隔、
   缺失值、来源和时间窗口；有可用指标时生成 SVG 图表。
+- **显存口径可追溯。** 默认总览保留 HWiNFO 原始显存值；只有 GPU、原始工具、
+  显示工具和版本全部匹配受控 profile 时，显式深度图才派生 Afterburner 等效值，
+  `provisional` profile 默认拒绝。
 - **确定性本地证据 CLI。** 通过统一的 `pcwb.ps1` 返回固定 JSON envelope、
   结构化状态/退出码、输入与 artifact 哈希；只读封装盘点、遥测、PresentMon、
   证据包、声明核验和 Doctor，不提供硬件写入或自动提权。
@@ -273,7 +279,7 @@ Skill 会根据问题进入配置、排障、遥测、调参或升级路线。�
 
 ## 已知限制
 
-- `2.9.0` 是当前 PCHW Skill/Portable 测试版，目前没有正式版；
+- `2.9.1` 是当前源码 PCHW Skill/Portable 测试线，目前没有正式版；
 - 当前公开 SkillDock 测试包为 `0.1.0-rc.5 + PCHW 2.9.0`；
 - 上一版 `0.1.0-rc.4` 继续作为 PCHW 2.8.0 面板测试包；
 - rc.5 最终 ZIP 的 Clean Windows 安装/卸载与人工签收仍为 PENDING；
@@ -315,7 +321,7 @@ Skill 会根据问题进入配置、排障、遥测、调参或升级路线。�
 ## 版本与许可
 
 版本状态以 [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
-和 [CHANGELOG.md](CHANGELOG.md) 为准。当前工作台源码版本为 `2.9.0` 测试版，尚未正式
+和 [CHANGELOG.md](CHANGELOG.md) 为准。当前工作台源码版本为 `2.9.1` 测试版，尚未正式
 发布；GitHub main 可能领先于最近一个公开 Release。
 
 源码使用 [MIT License](LICENSE)。
