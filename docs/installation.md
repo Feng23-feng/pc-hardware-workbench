@@ -9,13 +9,13 @@
 - 其他操作系统只提供手动排障指导，不自动读取硬件；
 - 可选监控需要用户已经启动 LibreHardwareMonitor；本项目不会安装或启动它。
 
-当前 PCHW 源码与测试版本为 `2.9.1`。公开下载仍为
-`2.9.0-test.1 + SkillDock 0.1.0-rc.5`，GitHub main 领先于最近一个公开
-Release。本版收紧显存 profile 的 GPU、原始工具和显示工具版本门禁；此前
+当前 PCHW 测试版本为 `2.9.1-test.1`。本版收紧显存 profile 的 GPU、原始工具和
+显示工具版本门禁；此前
 2.9.0 新增的确定性本地证据 CLI、纯 PCHW Skill、PCHW Portable 和
 DeepSeek Harness 包继续保留。2.9.0 声明
-`pchw-source-hosted` `1.0.0` 契约，SkillDock `0.1.0-rc.5` 测试包可按最低
-Skill 版本、契约 SemVer 和能力协商。上一版面板包仍为
+`pchw-source-hosted` `1.0.0` 契约。SkillDock `0.1.0-rc.5` 仍是独立的公开
+面板测试包，当前随 PCHW `2.9.0` 提供；本次 PCHW 2.9.1 独立包不重打面板。
+上一版面板包仍为
 `0.1.0-rc.4 + PCHW 2.8.0`。目前没有正式版；干净 Windows
 安装、卸载和完整用户签收继续作为发布门禁。
 
@@ -29,27 +29,25 @@ PCHW Portable。
 
 | 包 | 适用场景 | 包含 | 操作面板 |
 | --- | --- | --- | --- |
-| PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板） | 普通用户默认选择；Codex 单独使用，或已有 DSH / 其他兼容 Agent 宿主 | PCHW Skill 2.9.0 发布子集 | 无 |
+| PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板） | 普通用户默认选择；Codex 单独使用，或已有 DSH / 其他兼容 Agent 宿主 | PCHW Skill 2.9.1 发布子集 | 无 |
 | PCHW Portable（独立 Windows，无需 Agent） | 没有 Codex / DSH，或不希望安装 Skill 与 Runtime | 独立菜单、采集、CSV 与证据工具 | 无 |
-| DeepSeek Harness 适配包 | 使用 DSH，并且需要 PCHW Skill 与适配文件 | 2.9.0 Skill、DSH 适配文件 | 不提供 |
+| DeepSeek Harness 适配包 | 使用 DSH，并且需要 PCHW Skill 与适配文件 | 2.9.1 Skill、DSH 适配文件 | 不提供 |
 | SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺应用与 Node | SkillDock Runtime、Node.js 24.22.1 | 仅 Codex 当前对话 |
 | SkillDock 面板包（公开 rc.5） | 已安装 Codex Desktop，并使用 PCHW 2.9.0 surface contract | PCHW 2.9.0 Skill、SkillDock Runtime、安装入口 | 仅 Codex |
 
-[下载当前测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.5)：
+[下载当前 PCHW 2.9.1 测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.1-test.1)：
 
 ```text
-PCHW-Skill-2.9.0-test.1-installer.zip
-PCHW-Skill-2.9.0-test.1-manual.zip
-pc-hardware-portable-v2.9.0-test.1.zip
-pc-hardware-workbench-deepseek-harness-v2.9.0-test.1.zip
-SkillDock-PCHW-0.1.0-rc.5-win-x64-user.zip
-SkillDock-Runtime-0.1.0-rc.5-win-x64.zip
-SHA256SUMS.txt
+pc-hardware-workbench-v2.9.1-test.1-installer.zip
+pc-hardware-workbench-v2.9.1-test.1-manual.zip
+pc-hardware-portable-v2.9.1-test.1.zip
+pc-hardware-workbench-deepseek-harness-v2.9.1-test.1.zip
+三个渠道各自的 SHA256SUMS 文件
 ```
 
-SkillDock 面板文件现在由 `v0.1.0-rc.5` 提供。`v0.1.0-rc.4` 保留为上一版
-PCHW 2.8.0 面板测试包。rc.5 的 clean Windows 安装、卸载和最终签收仍是
-PENDING。不要把 2.8.0 与 2.9.0 Skill 目录混在一起。
+SkillDock 面板文件没有随 2.9.1 独立包重打，仍由 `v0.1.0-rc.5` 提供。
+`v0.1.0-rc.4` 保留为上一版 PCHW 2.8.0 面板测试包。rc.5 的 clean Windows
+安装、卸载和最终签收仍是 PENDING。不要把多个 PCHW Skill 目录混在一起。
 
 <a id="pchw-portable"></a>
 
@@ -271,7 +269,7 @@ Test-Path $pointer
 
 ## 已知限制
 
-- `2.9.1` 是当前源码 PCHW Skill/Portable 测试线，没有正式版；干净 Windows 签收仍待完成。
+- `2.9.1` 是当前 PCHW Skill/Portable 测试版，没有正式版；干净 Windows 签收仍待完成。
 - 当前公开 SkillDock 测试包为 `0.1.0-rc.5 + PCHW 2.9.0`。
 - 上一版 `0.1.0-rc.4` 继续作为 PCHW 2.8.0 面板测试包。
 - rc.5 最终 ZIP 的 Clean Windows 安装/卸载与人工签收仍为 PENDING。
