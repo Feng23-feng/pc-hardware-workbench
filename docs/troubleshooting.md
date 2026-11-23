@@ -8,8 +8,10 @@
 - 使用 Codex Desktop 并希望从当前对话打开操作面板：使用集成包。
 
 2.9.2 是当前 PCHW Skill/Portable 测试版。当前公开 SkillDock
-测试包是 `0.1.0-rc.5 + PCHW 2.9.0`；上一版 `0.1.0-rc.4 + PCHW 2.8.0` 继续
-保留。rc.5 的 Clean Windows 签收仍为 PENDING。不要把不同版本 Skill 混装。
+测试包是 `0.1.0-rc.6 + PCHW 2.9.2`，并机器校验 UI `1.2`、事件 `1.0`
+与 required capabilities；`0.1.0-rc.5 + PCHW 2.9.0` 和
+`0.1.0-rc.4 + PCHW 2.8.0` 作为历史测试线保留。rc.6 的 Clean Windows 签收仍为
+PENDING。不要把不同版本 Skill 混装。
 
 ## Codex 中看不到 Skill
 

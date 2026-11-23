@@ -16,11 +16,12 @@ gates for the GPU, raw tool, and display-tool versions. It retains the
 deterministic local evidence CLI and pure PCHW Skill, Portable, and DeepSeek
 Harness packages added in 2.9.0. PCHW 2.9.0 declares the
 `pchw-source-hosted` `1.0.0` contract;
-SkillDock `0.1.0-rc.5` remains an independent public panel test build currently
-paired with PCHW `2.9.0`; the PCHW 2.9.2 release does not repackage the panel.
-The previous panel package remains
-`0.1.0-rc.4 + PCHW 2.8.0`. Clean-Windows installation, uninstallation, and
-complete user signoff remain pending.
+SkillDock remains an independent panel test line; the current test build is
+`0.1.0-rc.6 + PCHW 2.9.2` and machine-checks UI schema `1.2`, event schema
+`1.0`, and required capabilities. `0.1.0-rc.5 + PCHW 2.9.0` remains the
+previous contract-only test build, and `0.1.0-rc.4 + PCHW 2.8.0` remains the
+earlier panel build. Clean-Windows installation, uninstallation, and complete
+user signoff remain pending.
 
 ## Choose one distribution
 
@@ -35,7 +36,7 @@ no installation at all, use PCHW Portable.
 | PCHW Portable (standalone Windows; no Agent) | You do not use Codex / DSH, or want no Skill or Runtime installation | Standalone menu, collection, CSV, and evidence tools | No |
 | DeepSeek Harness adapter | You use DSH and want the PCHW Skill plus adapter files | 2.9.2 Skill and DSH adapter files | Not provided |
 | SkillDock Runtime-only | A compatible PCHW Skill is installed and only the application and Node are missing | SkillDock Runtime, Node.js 24.22.1 | Current Codex conversation only |
-| SkillDock panel bundle (public rc.5) | Codex Desktop is installed and you use the PCHW 2.9.0 surface contract | PCHW 2.9.0 Skill, SkillDock Runtime, installer | Current Codex conversation only |
+| SkillDock panel bundle (public rc.6) | Codex Desktop is installed and you use the PCHW 2.9.2 surface contract | PCHW 2.9.2 Skill, SkillDock Runtime, installer | Current Codex conversation only |
 
 [Download the current PCHW 2.9.2 test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.2-test.1):
 
@@ -47,11 +48,11 @@ pc-hardware-workbench-deepseek-harness-v2.9.2-test.1.zip
 One SHA256SUMS file per channel
 ```
 
-The SkillDock panel was not repackaged for the standalone PCHW 2.9.2 release.
-It remains in `v0.1.0-rc.5` with PCHW `2.9.0`. The previous panel build remains
-`v0.1.0-rc.4` for PCHW 2.8.0. Clean-Windows
-installation, uninstallation, and final signoff for the rc.5 bytes remain
-PENDING. Do not mix multiple PCHW Skill directories.
+The current SkillDock panel test build is `v0.1.0-rc.6` with PCHW `2.9.2`.
+`v0.1.0-rc.5` remains the previous PCHW 2.9.0 contract-only panel build, and
+`v0.1.0-rc.4` remains the PCHW 2.8.0 panel build. Clean-Windows installation,
+uninstallation, and final signoff for the rc.6 bytes remain PENDING. Do not mix
+multiple PCHW Skill directories.
 
 <a id="pchw-portable"></a>
 
@@ -77,7 +78,7 @@ Codex Desktop must already be installed.
 
 ### Install
 
-1. Download `SkillDock-PCHW-0.1.0-rc.4-win-x64-user.zip`.
+1. Download `SkillDock-PCHW-0.1.0-rc.6-win-x64-user.zip`.
 2. Verify it with `SHA256SUMS.txt` or the GitHub asset digest.
 3. Extract the full directory.
 4. Double-click `Install.cmd`.
@@ -212,12 +213,13 @@ See the [DSH adapter](../../adapters/dsh/README.md) for details.
 ## SkillDock Runtime-only
 
 Use this only when a compatible PCHW Skill is already installed and the
-SkillDock application plus Node.js are missing. rc.5 preserves exact PCHW
+SkillDock application plus Node.js are missing. rc.6 preserves exact PCHW
 `2.8.0` as a legacy bridge. A later PCHW must declare
 `surface_contracts["pchw-source-hosted"]` in the supported
 `>=1.0.0 <2.0.0` range, satisfy `min_skill_version`, and provide every required
-capability such as `telemetry.csv.analyze`. The previous rc.4 remains limited to
-PCHW 2.8.0:
+capability such as `telemetry.csv.analyze`. It must also use UI state schema
+`1.2` and event schema `1.0`; a mismatch fails closed before the panel runtime
+loads:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File ".\Install SkillDock Runtime.ps1"
@@ -290,9 +292,9 @@ Close DSH and remove:
 ## Known limitations
 
 - `2.9.2` is the current PCHW Skill/Portable test release; clean-Windows signoff remains pending.
-- the current public SkillDock test bundle is `0.1.0-rc.5` with PCHW `2.9.0`;
+- the current public SkillDock test bundle is `0.1.0-rc.6` with PCHW `2.9.2`;
 - the previous `0.1.0-rc.4` bundle remains the PCHW `2.8.0` panel build;
-- Clean-Windows acceptance for the rc.5 final ZIP bytes remains PENDING.
+- Clean-Windows acceptance for the rc.6 final ZIP bytes remains PENDING.
 - The SkillDock panel is supported only in the current Codex user conversation.
 - If the panel is unavailable, permission is denied, or another workspace is active,
   continue in chat without exposing a developer entry.
