@@ -9,26 +9,15 @@ system inventory, troubleshooting, telemetry analysis, guided tuning, and upgrad
 decisions into one workflow while leaving every persistent hardware change to the
 user.
 
-The current PCHW test version is **2.9.2-test.1**. This release fixes HWiNFO exports whose trailing
-empty header cell and small number of unlabeled tail values caused the entire CSV
-to be rejected. The memory-profile
-identity gates for the GPU, raw tool, and display-tool versions and narrows the
-memory-chart presentation. It retains the deterministic local evidence CLI and
-the PCHW Skill, Portable, and DeepSeek Harness packages added in 2.9.0. PCHW
-2.9.0 also declares the
-`pchw-source-hosted` `1.0.0` surface contract so later Skill releases can
-negotiate a minimum product version, contract SemVer, and required
-capabilities instead of hard-coding one Skill version. SkillDock remains an
-independent panel test line; the current panel test build is
-`0.1.0-rc.6 + PCHW 2.9.2` and checks the `pchw-source-hosted` contract,
-UI schema `1.2`, event schema `1.0`, and required capabilities before loading
-the panel runtime. `0.1.0-rc.5 + PCHW 2.9.0` remains the previous
-contract-only test build, and `0.1.0-rc.4` remains available for PCHW `2.8.0`.
-There is no stable release yet.
-Automated tests and targeted human review pass, but broad real-device coverage,
-clean-Windows install/uninstall, and the remaining human scenarios are still in
-progress. The project does not claim this test build is stable or fully
-validated.
+The current PCHW test version is **2.9.2-test.1**.
+
+This release fixes HWiNFO exports with a trailing empty header cell and a small
+number of unlabeled tail values.
+
+Choose `SkillDock 0.1.0-rc.6 + PCHW 2.9.2` when you need the graphical panel.
+Choose the pure PCHW Skill for chat, collection, and CSV analysis. The two use
+independent release lines, and incompatible panel versions fail closed. Both
+are test builds; clean-Windows signoff remains pending.
 
 ![File orrery preview](docs/skill-evolution/assets/orrery-preview.png)
 
