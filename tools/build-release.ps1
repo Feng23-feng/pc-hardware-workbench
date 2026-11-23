@@ -192,6 +192,12 @@ Included capabilities
 
 - deterministic local evidence CLI with a fixed JSON envelope, structured status
   and exit codes, SHA-256-linked artifacts, and read-only command routing;
+- deterministic evidence-only chart packs for FirstPass, GPU tuning, and CPU
+  tuning, plus a separate conclusion renderer;
+- ordered GPU overviews with memory clock immediately after the core/effective
+  clock and flat-series-safe emphasis;
+- strict memory-clock crosswalk profiles bound to exact GPU aliases, raw-tool
+  and display-tool versions, with provisional profiles failing closed by default;
 - evidence-gated troubleshooting with deterministic GPU starting candidates;
 - user-claim verification that distinguishes measured, user-confirmed, historical,
   estimated, conflicting, and unverifiable values;
@@ -303,6 +309,10 @@ Artifact
 Included
 - deterministic local evidence CLI (`pcwb.ps1`) with fixed JSON, status/exit
   mapping, UTF-8 child-process isolation, and hash-linked artifacts;
+- evidence-only FirstPass / GpuTuning / CpuTuning chart packs and a separate
+  tuning-conclusion renderer;
+- ordered memory-clock overviews and exact-device/tool VRAM crosswalk profiles
+  with provisional fail-closed handling;
 - evidence-gated troubleshooting with deterministic GPU starting candidates;
 - user-claim verification that distinguishes measured, user-confirmed, historical,
   estimated, conflicting, and unverifiable values;
@@ -361,6 +371,7 @@ Artifact
 
 Included
 - AGENTS.md and DEEPSEEK.md adapter entries;
+- deterministic evidence-only chart packs and strict VRAM profile gates;
 - complete Skill tree with claim verification, PresentMon frame-time analysis,
   CSV/Gantt SVG views, deterministic GPU candidates, telemetry, cases, RAG, LHM,
   visual evidence, and Doctor;
