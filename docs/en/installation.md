@@ -293,7 +293,8 @@ Close DSH and remove:
 
 - `2.9.2` is the current PCHW Skill/Portable test release; clean-Windows signoff remains pending.
 - the current public SkillDock test bundle is `0.1.0-rc.6` with PCHW `2.9.2`;
-- the previous `0.1.0-rc.4` bundle remains the PCHW `2.8.0` panel build;
+- the previous `0.1.0-rc.5 + PCHW 2.9.0` bundle remains the contract-only panel build;
+- the earlier `0.1.0-rc.4 + PCHW 2.8.0` bundle remains a historical panel build;
 - Clean-Windows acceptance for the rc.6 final ZIP bytes remains PENDING.
 - The SkillDock panel is supported only in the current Codex user conversation.
 - If the panel is unavailable, permission is denied, or another workspace is active,

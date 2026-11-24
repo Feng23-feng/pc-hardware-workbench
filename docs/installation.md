@@ -273,7 +273,8 @@ Test-Path $pointer
 
 - `2.9.2` 是当前 PCHW Skill/Portable 测试版，没有正式版；干净 Windows 签收仍待完成。
 - 当前公开 SkillDock 测试包为 `0.1.0-rc.6 + PCHW 2.9.2`。
-- 上一版 `0.1.0-rc.4` 继续作为 PCHW 2.8.0 面板测试包。
+- 上一版 `0.1.0-rc.5 + PCHW 2.9.0` 继续作为 contract-only 面板测试包。
+- 更早的 `0.1.0-rc.4 + PCHW 2.8.0` 保留为历史面板测试包。
 - rc.6 最终 ZIP 的 Clean Windows 安装/卸载与人工签收仍为 PENDING。
 - SkillDock 面板只支持 Codex 当前用户对话。
 - Panel 不可用、权限被拒绝或工作区冲突时必须回到对话，不能暴露开发入口。

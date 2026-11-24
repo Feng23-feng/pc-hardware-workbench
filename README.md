@@ -283,7 +283,8 @@ Skill 会根据问题进入配置、排障、遥测、调参或升级路线。�
 - `2.9.2` 是当前 PCHW Skill/Portable 测试版，目前没有正式版；
 - 当前公开 SkillDock 测试包为
   `0.1.0-rc.6 + PCHW 2.9.2`；
-- 上一版 `0.1.0-rc.4` 继续作为 PCHW 2.8.0 面板测试包；
+- 上一版 `0.1.0-rc.5 + PCHW 2.9.0` 继续作为 contract-only 面板测试包；
+- 更早的 `0.1.0-rc.4 + PCHW 2.8.0` 保留为历史面板测试包；
 - rc.6 最终 ZIP 的 Clean Windows 安装/卸载与人工签收仍为 PENDING；
 - 干净 Windows 安装/卸载、真实设备覆盖和完整用户签收仍在进行；
 - SkillDock 面板只承诺 Codex 当前用户对话；
