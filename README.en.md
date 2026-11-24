@@ -155,7 +155,7 @@ Runtime, shared engine, and rollback backup.
 
 ### PCHW Portable (standalone Windows; no Agent)
 
-1. Download `pc-hardware-portable-v2.9.0-test.1.zip` and verify it with the
+1. Download `pc-hardware-portable-v2.9.2-test.1.zip` and verify it with the
    release checksum or the GitHub asset digest.
 2. Extract the complete directory. No installation, administrator rights, API key,
    or network connection is required.

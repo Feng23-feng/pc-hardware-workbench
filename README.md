@@ -131,7 +131,7 @@ SkillDock；完全不需要 Agent 时，才选择独立便携包。SkillDock 对
 
 ### PCHW Portable 便携工具（无需 Agent）
 
-1. 下载 `pc-hardware-portable-v2.9.0-test.1.zip`，并按 Release 的校验文件或
+1. 下载 `pc-hardware-portable-v2.9.2-test.1.zip`，并按 Release 的校验文件或
    GitHub asset digest 校验。
 2. 解压完整目录，不需要安装、管理员权限、API key 或网络连接。
 3. 双击 `开始使用.cmd` 进入菜单。
