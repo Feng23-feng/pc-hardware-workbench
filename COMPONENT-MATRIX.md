@@ -1,6 +1,6 @@
 # Component and evidence matrix
 
-Snapshot: 2026-11-23 (+08:00)
+Snapshot: 2026-11-25 (+08:00)
 
 This is the canonical version-and-support matrix for the SkillDock / PC
 Hardware Workbench delivery. Release assets are immutable; a newer matrix does
@@ -10,23 +10,23 @@ not rewrite an older public tag.
 
 | Surface | Current test build | Latest public asset | Contains | Promised scope | Evidence state |
 | --- | --- | --- | --- | --- | --- |
-| SkillDock Runtime | `0.1.0-rc.6` | `0.1.0-rc.6` | Runtime, embedded Node, browser surface | Codex current conversation only | Frozen-runtime, package verification, and visible Edge regression pass; Clean Windows and stable-release signoff pending |
-| PCHW Skill | `2.9.2` | `2.9.2-test.1` | Skill instructions, references, scripts | Codex supported; DSH and other hosts are structural-install candidates only; no panel promise outside Codex | Skill validator, full tests, machine-checked surface contract, and public 2.9.2 test assets pass |
-| PCHW Portable | `2.9.2` | `2.9.2-test.1` | Standalone menu and local tools | Windows without an Agent | Public 2.9.2 test asset validated |
-| Runtime-only package | `0.1.0-rc.6` | `0.1.0-rc.6` | Runtime, embedded Node, runtime installer | An installed compatible PCHW Skill; Codex panel only | Build and verifier pass; separate Skill-only plus Runtime-only combination remains unaccepted |
-| Integrated user package | `0.1.0-rc.6` | `0.1.0-rc.6` | PCHW Skill, SkillDock Runtime, installer, uninstaller, licenses | Windows 11 x64, Codex Desktop, Microsoft Edge; current conversation only | Build, package verification, and visible Edge PASS; Clean Windows and stable user signoff pending |
+| SkillDock Runtime | `0.1.0-rc.7` | `0.1.0-rc.7` | Runtime, embedded Node, browser surface | Codex current conversation only | Frozen-runtime, package verification, and visible Edge regression pass; Clean Windows and stable-release signoff pending |
+| PCHW Skill | `2.9.3` | `2.9.3-test.1` | Skill instructions, references, scripts | Codex supported; DSH and other hosts are structural-install candidates only; no panel promise outside Codex | Skill validator, full tests, machine-checked surface contract, and public 2.9.3 test assets pass |
+| PCHW Portable | `2.9.3` | `2.9.3-test.1` | Standalone menu and local tools | Windows without an Agent | Public 2.9.3 test asset validated |
+| Runtime-only package | `0.1.0-rc.7` | `0.1.0-rc.7` | Runtime, embedded Node, runtime installer | An installed compatible PCHW Skill; Codex panel only | Build and verifier pass; separate Skill-only plus Runtime-only combination remains unaccepted |
+| Integrated user package | `0.1.0-rc.7` | `0.1.0-rc.7` | PCHW Skill, SkillDock Runtime, installer, uninstaller, licenses | Windows 11 x64, Codex Desktop, Microsoft Edge; current conversation only | Build, package verification, and visible Edge PASS; Clean Windows and stable user signoff pending |
 
 ## Version identities
 
 ```text
-SkillDock current test build:      0.1.0-rc.6
-Latest public SkillDock release:   0.1.0-rc.6
-PCHW Skill content version:       2.9.2
-Latest public PCHW asset:         2.9.2-test.1
-PCHW source tree:                 78b51ee7b1af7b70b77e484b92b4f77ef8efe756fa8e4e0f9149dafe6e686c86
+SkillDock current test build:      0.1.0-rc.7
+Latest public SkillDock release:   0.1.0-rc.7
+PCHW Skill content version:       2.9.3
+Latest public PCHW asset:         2.9.3-test.1
+PCHW source tree:                 64be805e2e7620b948b282eba6f235cc2451bcb929b23fd06fe5b6e69b7f83d4
 PCHW source tree files:           151
-PCHW packaged install subset:     recorded by the verified rc.6 RC-MANIFEST.json
-PCHW source commit:               0874d36731bf7802a5c03743489ae1cedf61ef9b
+PCHW packaged install subset:     recorded by the verified rc.7 RC-MANIFEST.json
+PCHW source commit:               6d4aba54cfe4bd2e80f178b04cd2074c0eb9c030
 Bundled Node:                     24.22.1
 Bundled SQLite:                   3.53.4
 PCHW surface contract:            pchw-source-hosted 1.0.0
@@ -36,10 +36,10 @@ Runtime UI state schema support: exact 1.2
 Runtime event schema support:    exact 1.0
 ```
 
-The public `PCHW-Skill-2.9.2-test.1-*.zip` and
-`pc-hardware-portable-v2.9.2-test.1.zip` assets were rebuilt for this test
+The public `PCHW-Skill-2.9.3-test.1-*.zip` and
+`pc-hardware-portable-v2.9.3-test.1.zip` assets were rebuilt for this test
 release. They must not be described as byte-identical to the Skill subset
-inside the integrated rc.6 package.
+inside the integrated rc.7 package.
 
 ## Runtime-only compatibility
 
@@ -72,7 +72,7 @@ hard-coded file count as the compatibility contract.
 
 The current product package uses the embedded frozen Node runtime. A separate
 local-Node edition and automatic local-Node detection are deferred; they are not
-part of rc.6.
+part of rc.7.
 
 Developers and CI must run release-equivalent checks through:
 
@@ -93,7 +93,7 @@ the source-hosted test profile.
 - `reused`: an existing immutable asset, not a claim that it was rebuilt from
   the current source tree.
 
-rc.6 is the latest public SkillDock test release. rc.5 remains the previous
+rc.7 is the latest public SkillDock test release. rc.5 remains the previous
 PCHW 2.9.0 contract-only panel test build, and rc.4 remains the earlier PCHW
 2.8.0 panel test build. Clean Windows acceptance and stable-release signoff for
-rc.6 remain PENDING.
+rc.7 remain PENDING.

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## SkillDock 0.1.0-rc.7 / PCHW 2.9.3 - 2026-11-25
 
 - Apply the Graphite Copper × Cobalt Archive palette to SkillDock using separate
   roles for warm canvas, copper operations, steel-blue data, amber pending
@@ -19,8 +19,10 @@
   status label.
 - Load verified evidence SVG images eagerly so the extra unresolved-item
   summary cannot push later charts outside the browser's lazy-load window.
-- Align the current README, versioning policy, and architecture status with the
-  published rc.6 / PCHW 2.9.2 test line.
+- Label the application subtitle as “PCHW Skill 操作界面” so the local panel is
+  not confused with a general-purpose web application.
+- Align the current README, versioning policy, component matrix, architecture
+  status, release documents, and package metadata with rc.7 / PCHW 2.9.3.
 
 ## SkillDock 0.1.0-rc.6 / PCHW 2.9.2 - 2026-11-23
 

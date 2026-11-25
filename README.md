@@ -6,7 +6,7 @@ DSH are adapters, not product concepts.
 
 Version lines are independent:
 
-- SkillDock application: `0.1.0-rc.6` (public test build; no stable release)
+- SkillDock application: `0.1.0-rc.7` (public test build; no stable release)
 - SkillSurface contract: `1.0`
 - SkillRuntime contract: `1.0`
 - AgentDriver contract: `1.0`
@@ -22,12 +22,12 @@ application; see [SKILL-TRIGGERED-UX.md](SKILL-TRIGGERED-UX.md).
 
 ## Windows release candidate
 
-The current Windows test candidate is SkillDock `0.1.0-rc.6` with PC Hardware
-Workbench `2.9.2`. The R7 user-experience evidence remains provenance from the
+The current Windows test candidate is SkillDock `0.1.0-rc.7` with PC Hardware
+Workbench `2.9.3`. The R7 user-experience evidence remains provenance from the
 `2.7.4` source tree. The integrated Windows candidate is:
 
 ```text
-dist/SkillDock-PCHW-0.1.0-rc.6-win-x64.zip
+dist/SkillDock-PCHW-0.1.0-rc.7-win-x64.zip
 ```
 
 Build and verify it without changing the formal entry:
@@ -43,8 +43,8 @@ stable release stay closed. Clean-Windows install/uninstall acceptance and
 explicit user signoff are still required. The same verified RC is also used to
 derive the user-installable package and the Runtime-only package. The latest
 published SkillDock test build is
-<https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.6>.
-See [`release/0.1.0-rc.6`](release/0.1.0-rc.6).
+<https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v0.1.0-rc.7>.
+See [`release/0.1.0-rc.7`](release/0.1.0-rc.7).
 
 Host scope is intentionally narrow: this version promises the
 `pchw-source-hosted` SkillDock panel only under Codex. DSH and other hosts may
@@ -52,7 +52,7 @@ install `pc-hardware-workbench` and use its chat, collection, and CSV-analysis
 capabilities, but must not be told that the SkillDock panel is available there.
 `launch-panel.ps1` requires `CODEX_THREAD_ID` and fails with
 `thread_binding_missing` when that identity is absent. See
-[`SUPPORT-MATRIX.md`](release/0.1.0-rc.6/SUPPORT-MATRIX.md).
+[`SUPPORT-MATRIX.md`](release/0.1.0-rc.7/SUPPORT-MATRIX.md).
 
 ## Run
 
