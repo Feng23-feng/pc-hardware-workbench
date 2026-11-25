@@ -357,6 +357,23 @@ If no new messages were returned, say the conversation and panel are already in
 sync and continue with the current next action. Do not end with a JSON code
 block or resume the whole task from scratch.
 
+## Current unresolved item
+
+The Skill owns the semantic subject; SkillDock only presents it.
+
+- When composing a panel result, put the single current unresolved item in
+  `uncertainty[0]` as a short, localized subject label.
+- Derive the subject from the strongest unresolved decision-changing
+  uncertainty in the current analysis, conflict, or next verification goal.
+- Do not hard-code `热限制待确认`, carry a resolved item forward, or use a
+  placeholder for layout.
+- If evidence resolves that subject, replace it with the next unresolved subject
+  or omit the pending chip. A chip must not claim uncertainty that the Skill no
+  longer has.
+- The first item is the status label; later `uncertainty` entries carry the
+  detail. SkillDock may style the first item but must not infer a new subject
+  from metric names.
+
 When `source_tool_result` is present, treat its local analysis, warnings, window,
 and public artifact metadata as verified local evidence. A chart pack may expose
 up to six safe SVG artifacts; keep their order, titles, and references exactly

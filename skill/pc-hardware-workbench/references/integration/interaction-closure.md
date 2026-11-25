@@ -21,6 +21,25 @@ Project only what the current decision needs:
 - explicit detail request: expand evidence, alternatives, and uncertainty
   without repeating the same conclusion as a status, summary, and next step.
 
+### Current unresolved item
+
+Expose at most one **current unresolved item** in a user-facing status
+projection. Its subject must come from the strongest decision-changing
+uncertainty that remains unresolved in the current evidence, not from a fixed
+topic or a previous turn.
+
+- When the subject is not established, use a compact localized form such as
+  `<subject>待确认` or `<subject> pending confirmation`; example subjects are
+  `热限制`, `功耗限制`, `采样窗口`, or `驱动证据`.
+- Do not hard-code `热限制待确认`, reuse a resolved item, or use a decorative
+  placeholder.
+- When new evidence confirms or removes the subject, replace it with the next
+  unresolved decision-changing subject. If none remains, omit the pending
+  status instead of keeping “待确认” for visual consistency.
+- In panel JSON, place the compact label at `uncertainty[0]`; later uncertainty
+  entries may explain the evidence gap. The host may render that first item as
+  a status chip; it must not choose a different subject from metric names.
+
 Omit empty fields and internal labels unless the user asks for a record. Put a
 proposition in one place: the action should state what to do, not restate the
 whole diagnosis. A safety stop may lead with `unsafe` or `stop`, but no other

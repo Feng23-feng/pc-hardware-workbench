@@ -201,6 +201,11 @@ try {
         "two concise paragraphs", "at most two or three", "Omit empty fields",
         "proposition in one place"
     ) "Result-envelope projection"
+    Assert-ContainsAll $skilldock @(
+        "Skill owns the semantic subject", "current unresolved item",
+        "uncertainty[0]", "Do not hard-code",
+        "omit the pending chip", "must not infer a new subject"
+    ) "SkillDock current-unresolved-item projection"
 
     $resumeProjection = Get-MarkdownSection $closure "Resume projection"
     Assert-ContainsAll $resumeProjection @(

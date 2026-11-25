@@ -1011,6 +1011,10 @@ Assert-Contains $interactionClosure 'independent reuse' "The teaching objective 
 Assert-Contains $interactionClosure 'resume the original flow' "Interaction closure reference has no resumed-flow rule."
 Assert-Contains $interactionClosure 'one short natural-language sentence' "Multi-step progress guidance is missing its natural-language form."
 Assert-Contains $interactionClosure 'single-turn response must not show a bracketed workflow-state template' "Single-turn interaction closure still permits a workflow shell."
+Assert-Contains $interactionClosure 'current unresolved item' "Interaction closure has no current unresolved-item projection."
+Assert-Contains $interactionClosure 'uncertainty\[0\]' "Interaction closure does not anchor the status subject in uncertainty[0]."
+Assert-Contains $interactionClosure 'Do not hard-code' "Interaction closure permits a fixed pending-status subject."
+Assert-Contains $interactionClosure 'omit the pending\s+status' "Interaction closure cannot remove a pending status once evidence resolves it."
 
 $crossMode = Get-Content -LiteralPath (Join-Path $resolvedRoot "references/integration/cross-mode-handoffs.md") -Raw -Encoding UTF8
 Assert-Contains $crossMode '\| Telemetry \|' "Cross-mode matrix has no Telemetry row."

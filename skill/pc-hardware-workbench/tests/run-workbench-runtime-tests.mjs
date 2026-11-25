@@ -347,6 +347,11 @@ try {
     runtime.identity.surface_contracts["pchw-source-hosted"],
     sourceHostedContract,
   );
+  assert.match(
+    runtime.promptInstructions().join("\n"),
+    /uncertainty\[0\].*current unresolved item.*never hard-code/isu,
+    "runtime prompt must derive the current unresolved status from evidence",
+  );
   assert.equal(
     runtime.broker.analyzerPath,
     join(skillRoot, "scripts", "analyze-telemetry.ps1"),
