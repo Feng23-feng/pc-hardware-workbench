@@ -157,7 +157,7 @@ class TestSkillRuntime {
   buildTaskContext({ task }) {
     return {
       skill_id: "pc-hardware-workbench",
-      skill_version: "2.9.2",
+      skill_version: "2.9.3",
       runtime_id: "pc-hardware-workbench",
       domain_context: task?.domain_state ?? {},
       domain_refs: task?.domain_refs ?? [],

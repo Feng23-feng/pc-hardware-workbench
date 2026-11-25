@@ -1,6 +1,6 @@
 # 使用方式
 
-当前 PCHW 测试版为 `2.9.2-test.1`，目前没有正式版。本文只描述当前测试包中
+当前 PCHW 测试版为 `2.9.3-test.1`，目前没有正式版。本文只描述当前测试包中
 实际存在的用户路径。
 
 ## 五类使用入口
@@ -18,7 +18,7 @@
 
 ## 在 PCHW Portable 中使用
 
-校验并解压 `pc-hardware-portable-v2.9.2-test.1.zip` 后，双击 `开始使用.cmd`，再按
+校验并解压 `pc-hardware-portable-v2.9.3-test.1.zip` 后，双击 `开始使用.cmd`，再按
 菜单选择配置读取、排障、遥测分析、PresentMon 或手动调校。它不依赖 Agent、
 API、网络、安装程序或管理员权限，也不提供 SkillDock 面板。
 

@@ -1,8 +1,12 @@
 # 电脑硬件工作台版本记录
 
-## Unreleased
+## 2.9.3 — 2026-11-25
 
-- PCHW panel results now treat `uncertainty[0]` as the current unresolved status subject; SkillDock should render that subject instead of hard-coding “热限制待确认”.
+- PCHW panel results now treat `uncertainty[0]` as the current unresolved status subject; SkillDock renders that subject instead of hard-coding “热限制待确认”;
+- 证据解决后必须替换或移除首个未决项，不能继续显示已经失效的固定状态；
+- interaction、Runtime 和 surface contract 测试覆盖首项提取、后续列表去重及状态替换语义；
+- 独立 PCHW Skill、Portable 和 DeepSeek Harness 资产使用 `2.9.3-test.1`；集成面板测试包为 `SkillDock 0.1.0-rc.7 + PCHW 2.9.3`；
+- Clean Windows 安装/卸载、完整人工签收和正式稳定发布继续 PENDING。
 
 ## 2.9.2 — 2026-11-23
 

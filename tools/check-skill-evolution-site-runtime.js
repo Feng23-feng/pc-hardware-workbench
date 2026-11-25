@@ -794,7 +794,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       opened.open &&
       opened.version &&
       opened.versionCodeSize >= 16 &&
-      opened.versionButtons === 118 &&
+      opened.versionButtons === 119 &&
       opened.summaryExpanded === "true" &&
       opened.actionText.includes("收起技术资料"),
       `${prefix}technical archive does not open correctly (${JSON.stringify(opened)}).`

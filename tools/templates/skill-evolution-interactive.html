@@ -9968,7 +9968,7 @@
         <div class="dse-floating-body" id="dse-milestone-body">
           <div class="dse-detail-head">
             <h3 id="dse-detail-title">整合状态</h3>
-            <span class="dse-detail-status" id="dse-detail-status">已整合到 2.9.2 测试版</span>
+            <span class="dse-detail-status" id="dse-detail-status">已整合到 2.9.3 测试版</span>
           </div>
           <div class="dse-detail-grid">
             <div class="dse-detail-cell">
@@ -11494,7 +11494,8 @@
             ["2.8.0", "Codex SkillDock 与本地存储管理", "2026-11-22", "PREVIOUS LOCAL", ["用户在当前 Codex 对话中提出硬件问题并同意后，Skill 启动本地 SkillDock 面板并带入当前 Task 与支持的附件。", "一次性本地分析授权产生真实 SVG、具体判断、证据与不确定性；结果自动回写，关闭并重启后可在同 Task 恢复。", "Ask-for-approval 下自动交接失败时提供“手动打开面板”的短期链接或本地 .url；DSH 与其他宿主不提供该面板。", "独立 PCHW Portable 2.8.0 同步提供，无需 Agent 或安装。", "SkillDock 操作细节下沉到按需引用，入口压缩到 10,502 B，并固定 12 场景高风险行为护栏。", "rc.2 公开测试包通过内嵌 RC 与两轮安装 Retention 门禁；Runtime 成功升级后仅保留最近一个程序回退点，Task 数据和迁移数据备份不参与轮转。", "rc.4 继承 rc.3 测试版的受保护 Runtime 回退备份导出、普通（非 source-hosted）Task/证据先导出再清理、共享 Node 引擎哈希和清理重试幂等。"], "R7 真实 Edge、一次性权限、fresh claim、单次写回和同 Task 重启 PASS；本地存储导出/清理、逐文件哈希、隔离恢复和清理重试幂等 PASS；12 场景行为护栏、入口预算、Runtime 备份保留、用户包两轮安装和四个测试版资产 PASS；clean-Windows 人工签收仍 PENDING。", "2.8.0 历史 SkillDock 测试线 / SkillDock 0.1.0-rc.4 公开测试版；PCHW Skill 与 Portable 沿用既有的 2.8.0-rc.2 资产，但不是 rc.4 整合包 Skill 树的逐字节副本；PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板）、PCHW Portable、SkillDock Runtime-only、SkillDock 面板包分开提供；文件星球 141 个文件；115 个版本记录。"],
             ["2.9.0", "确定性本地证据 CLI", "2026-11-22", "PREVIOUS LOCAL", ["新增 pcwb.ps1 统一只读入口，覆盖 inventory、telemetry、PresentMon、evidence package、claim verification 与 Doctor。", "固定 JSON envelope、状态和退出码，并记录输入与 artifact 的 SHA-256；diagnostic 与原始子进程输出不混入 stdout。", "新增 UTF-8 子进程边界、无 BOM 原子写入、路径安全、权限阻断和禁止写入路由。", "真实 HWiNFO CSV 已验证 663 列、重复列名、附加元数据、时间窗口、三段独立分析与包同步。"], "完整 Skill 回归、PCWB CLI tests、Skill validator、Orrery、站点静态检查和 Edge/Chromium desktop/mobile runtime PASS；SkillDock rc.4 与 2.9.0 分线，未混装。", "PCHW Skill/Portable/DeepSeek Harness 使用 2.9.0-test.1；当前无正式版，clean-Windows 与完整人工签收仍 PENDING；文件星球 141 个文件；116 个版本记录。"],
             ["2.9.1", "显存 profile 严格门禁", "2026-11-23", "PREVIOUS LOCAL", ["GPU 型号只接受规范型号或受控别名，不再使用子串匹配。", "HWiNFO64 原始字段与 MSI Afterburner 显示口径必须同时匹配 profile 中记录的工具身份和版本。", "provisional profile 默认拒绝；显式允许时仍在 SVG 中标为 provisional。", "显存总览保持核心频率后置顺序，平直曲线使用次级强调并修复零高度滤镜裁切。"], "Memory basis 反例、显存知识、Telemetry 路由、完整 Skill 回归与真实 155W CSV 深度图验证通过；PCHW 2.9.1 测试包已生成，clean-Windows 与完整人工签收继续 PENDING。", "PCHW 独立测试包 2.9.1-test.1；SkillDock rc.5 继续作为独立的 PCHW 2.9.0 面板测试线；文件星球 151 个文件；117 个版本记录。"],
-            ["2.9.2", "HWiNFO 尾部字段兼容修复", "2026-11-23", "CURRENT CANDIDATE", ["分析器 1.2.5 兼容尾部空表头和少量未命名数值字段，只在所有命名列对齐时忽略。", "最多忽略 8 个尾部空值或数值，非空文本、缺列和中间错位继续失败关闭。", "新增尾部字段反例，并使用 294 行真实 HWiNFO CSV 生成四张 FirstPass 证据图。"], "Telemetry audit、chart、pack、全量 Skill 与真实 586.223 秒 CSV 验证通过；PCHW 2.9.2 测试包已生成，clean-Windows 与完整人工签收继续 PENDING。", "PCHW 独立测试包 2.9.2-test.1；SkillDock 0.1.0-rc.6 作为独立面板测试包绑定 PCHW 2.9.2、UI 1.2 与事件 1.0；文件星球 151 个文件；118 个版本记录。"]
+            ["2.9.2", "HWiNFO 尾部字段兼容修复", "2026-11-23", "PREVIOUS LOCAL", ["分析器 1.2.5 兼容尾部空表头和少量未命名数值字段，只在所有命名列对齐时忽略。", "最多忽略 8 个尾部空值或数值，非空文本、缺列和中间错位继续失败关闭。", "新增尾部字段反例，并使用 294 行真实 HWiNFO CSV 生成四张 FirstPass 证据图。"], "Telemetry audit、chart、pack、全量 Skill 与真实 586.223 秒 CSV 验证通过；PCHW 2.9.2 测试包已生成，clean-Windows 与完整人工签收继续 PENDING。", "PCHW 独立测试包 2.9.2-test.1；SkillDock 0.1.0-rc.6 作为独立面板测试包绑定 PCHW 2.9.2、UI 1.2 与事件 1.0；文件星球 151 个文件；118 个版本记录。"],
+            ["2.9.3", "当前未决项契约", "2026-11-25", "CURRENT CANDIDATE", ["结果卡将 uncertainty[0] 定义为唯一当前未决项。", "证据解决后必须替换或移除旧状态，SkillDock 不再从指标名自行猜测。", "interaction、Runtime 与 surface contract 增加首项提取、列表去重和替换语义回归。"], "Skill validator、PCHW 全量非实时测试和 SkillDock 冻结回归通过；PCHW 2.9.3-test.1 与 SkillDock 0.1.0-rc.7 测试资产已生成，clean-Windows 与完整人工签收继续 PENDING。", "PCHW 独立测试包 2.9.3-test.1；SkillDock 0.1.0-rc.7 绑定 PCHW 2.9.3、UI 1.2 与事件 1.0；文件星球 151 个文件；119 个版本记录。"]
           ]
         },
         {
@@ -13158,7 +13159,7 @@
         },
         {
           id: "merge", track: "merge", code: "MERGE-01", title: "已选择性整合",
-          summary: "2.9.2 测试版 · HWiNFO 尾部兼容",
+          summary: "2.9.3 测试版 · 当前未决项",
           status: "done", state: "已整合",
           goal: "GPU 自动候选已经成为正式工作台安全调参路线中的手动应用模块，而不是第二个顶层 Skill。",
           action: "已完成候选路由、阻断字段清理、证据门禁和回归测试；真实设备覆盖与人工体验验收继续推进。",
@@ -13291,7 +13292,7 @@
 
       function userFacingReleaseState(state) {
         return {
-          "CURRENT CANDIDATE": "2.9.2 测试版",
+          "CURRENT CANDIDATE": "2.9.3 测试版",
           "PREVIOUS LOCAL": "历史测试版",
           RELEASED: "已发布"
         }[state] || state;

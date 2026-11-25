@@ -7,11 +7,13 @@
 排查、遥测分析、手动调校和升级判断收敛到一套工作流，同时把每一次硬件变更留给
 用户亲手完成。
 
-当前版本为 **2.9.2 测试版**（PCHW 资产标签 `2.9.2-test.1`）。
+当前版本为 **2.9.3 测试版**（PCHW 资产标签 `2.9.3-test.1`）。
 
-本版修复 HWiNFO 尾部空表头和少量未命名字段导致整份 CSV 无法识别的问题。
+本版把结果卡中的 `uncertainty[0]` 定义为唯一“当前未决项”，并同步更新
+interaction、Runtime 与 surface contract。证据解决后必须替换或移除旧状态，
+不能继续显示已经失效的固定标签。
 
-需要图形面板时，选择 `SkillDock 0.1.0-rc.6 + PCHW 2.9.2`；只需要聊天、采集
+需要图形面板时，选择 `SkillDock 0.1.0-rc.7 + PCHW 2.9.3`；只需要聊天、采集
 和 CSV 分析时，安装纯 PCHW Skill。两者使用独立版本线；不兼容的面板版本会安全
 拒绝加载。当前均为测试版，干净 Windows 签收仍在进行。
 
@@ -74,7 +76,7 @@
 
 ## 下载包与版本线
 
-[下载当前 PCHW 2.9.2 测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.2-test.1)，
+[下载当前 PCHW 2.9.3 测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.3-test.1)，
 按使用场景只选一个包；不要把同一个 Skill 的多个副本放进同一个宿主扫描目录。
 普通用户默认选择不含面板的纯 PCHW Skill；只有明确需要网页操作面板时，再选择
 SkillDock 面板包（需已安装 Codex）。没有 Agent，或希望完全不安装时，选择独立
@@ -82,23 +84,23 @@ SkillDock 面板包（需已安装 Codex）。没有 Agent，或希望完全不�
 
 | 包 | 适合谁 | 包含 | SkillDock 面板 |
 | --- | --- | --- | --- |
-| PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板） | 普通用户默认选择；Codex 单独使用，或已有 DSH / 其他兼容 Agent 宿主 | PCHW Skill 2.9.2 发布子集 | 无 |
+| PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板） | 普通用户默认选择；Codex 单独使用，或已有 DSH / 其他兼容 Agent 宿主 | PCHW Skill 2.9.3 发布子集 | 无 |
 | PCHW Portable（独立 Windows，无需 Agent） | 没有 Codex / DSH，或不希望安装 Skill 与 Runtime | 独立菜单、采集、CSV 与证据工具 | 无 |
-| DeepSeek Harness 适配包 | 使用 DSH，并且需要与 PCHW Skill 一起安装 | 2.9.2 Skill 与 DSH 适配文件 | 不提供 |
+| DeepSeek Harness 适配包 | 使用 DSH，并且需要与 PCHW Skill 一起安装 | 2.9.3 Skill 与 DSH 适配文件 | 不提供 |
 | SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺 SkillDock 应用与 Node | SkillDock Runtime + Node.js 24.22.1 | 仅 Codex 当前对话 |
-| SkillDock 面板包（公开测试版 rc.6） | 已安装 Codex Desktop，并使用 PCHW 2.9.2 surface contract | PCHW 2.9.2 Skill、SkillDock rc.6 Runtime、安装入口 | 仅 Codex 当前对话 |
+| SkillDock 面板包（公开测试版 rc.7） | 已安装 Codex Desktop，并使用 PCHW 2.9.3 surface contract | PCHW 2.9.3 Skill、SkillDock rc.7 Runtime、安装入口 | 仅 Codex 当前对话 |
 
-2.9.2-test.1 的独立 PCHW 文件：
+2.9.3-test.1 的独立 PCHW 文件：
 
 ```text
-pc-hardware-workbench-v2.9.2-test.1-installer.zip
-pc-hardware-workbench-v2.9.2-test.1-manual.zip
-pc-hardware-portable-v2.9.2-test.1.zip
-pc-hardware-workbench-deepseek-harness-v2.9.2-test.1.zip
+pc-hardware-workbench-v2.9.3-test.1-installer.zip
+pc-hardware-workbench-v2.9.3-test.1-manual.zip
+pc-hardware-portable-v2.9.3-test.1.zip
+pc-hardware-workbench-deepseek-harness-v2.9.3-test.1.zip
 三个渠道各自的 SHA256SUMS 文件
 ```
 
-最新 SkillDock 面板测试包位于 `v0.1.0-rc.6`，内含 PCHW 2.9.2 和 rc.6
+最新 SkillDock 面板测试包位于 `v0.1.0-rc.7`，内含 PCHW 2.9.3 和 rc.7
 Runtime。`v0.1.0-rc.5` 保留为上一版 PCHW 2.9.0 contract-only 面板测试包，
 `v0.1.0-rc.4` 保留为 PCHW 2.8.0 面板测试包。不要在同一个宿主中混装多个
 PCHW Skill。
@@ -131,7 +133,7 @@ SkillDock；完全不需要 Agent 时，才选择独立便携包。SkillDock 对
 
 ### PCHW Portable 便携工具（无需 Agent）
 
-1. 下载 `pc-hardware-portable-v2.9.2-test.1.zip`，并按 Release 的校验文件或
+1. 下载 `pc-hardware-portable-v2.9.3-test.1.zip`，并按 Release 的校验文件或
    GitHub asset digest 校验。
 2. 解压完整目录，不需要安装、管理员权限、API key 或网络连接。
 3. 双击 `开始使用.cmd` 进入菜单。
@@ -179,7 +181,7 @@ DSH 默认位置：
 ### SkillDock Runtime-only
 
 此包只供已经安装兼容 PCHW Skill、但缺少 SkillDock 应用与 Node 的高级用户使用。
-rc.6 对精确 PCHW `2.8.0` 走 legacy 桥；2.8.0 之后的版本必须声明
+rc.7 对精确 PCHW `2.8.0` 走 legacy 桥；2.8.0 之后的版本必须声明
 `surface_contracts["pchw-source-hosted"]`，契约版本在
 `>=1.0.0 <2.0.0` 内，满足 `min_skill_version`，UI state schema 为 `1.2`，
 事件 schema 为 `1.0`，并声明 `telemetry.csv.analyze` 等必需能力。任一身份
@@ -280,12 +282,12 @@ Skill 会根据问题进入配置、排障、遥测、调参或升级路线。�
 
 ## 已知限制
 
-- `2.9.2` 是当前 PCHW Skill/Portable 测试版，目前没有正式版；
+- `2.9.3` 是当前 PCHW Skill/Portable 测试版，目前没有正式版；
 - 当前公开 SkillDock 测试包为
-  `0.1.0-rc.6 + PCHW 2.9.2`；
+  `0.1.0-rc.7 + PCHW 2.9.3`；
 - 上一版 `0.1.0-rc.5 + PCHW 2.9.0` 继续作为 contract-only 面板测试包；
 - 更早的 `0.1.0-rc.4 + PCHW 2.8.0` 保留为历史面板测试包；
-- rc.6 最终 ZIP 的 Clean Windows 安装/卸载与人工签收仍为 PENDING；
+- rc.7 最终 ZIP 的 Clean Windows 安装/卸载与人工签收仍为 PENDING；
 - 干净 Windows 安装/卸载、真实设备覆盖和完整用户签收仍在进行；
 - SkillDock 面板只承诺 Codex 当前用户对话；
 - Ask-for-approval 模式可能要求使用“手动打开面板”链接或 `.url`；
@@ -324,7 +326,7 @@ Skill 会根据问题进入配置、排障、遥测、调参或升级路线。�
 ## 版本与许可
 
 版本状态以 [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
-和 [CHANGELOG.md](CHANGELOG.md) 为准。当前工作台版本为 `2.9.2` 测试版，尚未正式
+和 [CHANGELOG.md](CHANGELOG.md) 为准。当前工作台版本为 `2.9.3` 测试版，尚未正式
 发布；GitHub main 可能领先于最近一个公开 Release。
 
 源码使用 [MIT License](LICENSE)。

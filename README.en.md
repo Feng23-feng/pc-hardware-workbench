@@ -9,12 +9,14 @@ system inventory, troubleshooting, telemetry analysis, guided tuning, and upgrad
 decisions into one workflow while leaving every persistent hardware change to the
 user.
 
-The current PCHW test version is **2.9.2-test.1**.
+The current PCHW test version is **2.9.3-test.1**.
 
-This release fixes HWiNFO exports with a trailing empty header cell and a small
-number of unlabeled tail values.
+This release defines `uncertainty[0]` as the single current unresolved subject
+for panel result cards and synchronizes the interaction, Runtime, and surface
+contracts. Resolved evidence must replace or remove the old subject instead of
+leaving a stale fixed label.
 
-Choose `SkillDock 0.1.0-rc.6 + PCHW 2.9.2` when you need the graphical panel.
+Choose `SkillDock 0.1.0-rc.7 + PCHW 2.9.3` when you need the graphical panel.
 Choose the pure PCHW Skill for chat, collection, and CSV analysis. The two use
 independent release lines, and incompatible panel versions fail closed. Both
 are test builds; clean-Windows signoff remains pending.
@@ -87,7 +89,7 @@ The interactive project pages are currently available in Chinese:
 
 ## Download packages and version lines
 
-[Download the current PCHW 2.9.2 test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.2-test.1),
+[Download the current PCHW 2.9.3 test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.3-test.1),
 then choose exactly one package. Do not place multiple copies of the same Skill
 in one host's scan directory.
 Most users should start with the PCHW Skill package without the panel. Choose
@@ -97,23 +99,23 @@ no installation at all, use the standalone Portable tool.
 
 | Package | Choose it when | Includes | SkillDock panel |
 | --- | --- | --- | --- |
-| PCHW Skill (Codex / DSH / other Agents; no panel) | Default choice; use Codex alone or with DSH / another compatible Agent host | PCHW Skill 2.9.2 release subset only | No |
+| PCHW Skill (Codex / DSH / other Agents; no panel) | Default choice; use Codex alone or with DSH / another compatible Agent host | PCHW Skill 2.9.3 release subset only | No |
 | PCHW Portable (standalone Windows; no Agent) | You do not use Codex / DSH, or want no Skill or Runtime installation | Standalone menu, collection, CSV, and evidence tools | No |
-| DeepSeek Harness adapter | You use DSH and want PCHW Skill plus its adapter files | 2.9.2 Skill and DSH adapter files | Not provided |
+| DeepSeek Harness adapter | You use DSH and want PCHW Skill plus its adapter files | 2.9.3 Skill and DSH adapter files | Not provided |
 | SkillDock Runtime-only | A compatible PCHW Skill is installed and only the Runtime and Node are missing | SkillDock Runtime + Node.js 24.22.1 | Current Codex conversation only |
-| SkillDock panel bundle (public rc.6 test build) | Codex Desktop is installed and you want the PCHW 2.9.2 surface contract | PCHW 2.9.2 Skill, SkillDock rc.6 Runtime, installer | Current Codex conversation only |
+| SkillDock panel bundle (public rc.7 test build) | Codex Desktop is installed and you want the PCHW 2.9.3 surface contract | PCHW 2.9.3 Skill, SkillDock rc.7 Runtime, installer | Current Codex conversation only |
 
-The standalone PCHW 2.9.2-test.1 files are:
+The standalone PCHW 2.9.3-test.1 files are:
 
 ```text
-pc-hardware-workbench-v2.9.2-test.1-installer.zip
-pc-hardware-workbench-v2.9.2-test.1-manual.zip
-pc-hardware-portable-v2.9.2-test.1.zip
-pc-hardware-workbench-deepseek-harness-v2.9.2-test.1.zip
+pc-hardware-workbench-v2.9.3-test.1-installer.zip
+pc-hardware-workbench-v2.9.3-test.1-manual.zip
+pc-hardware-portable-v2.9.3-test.1.zip
+pc-hardware-workbench-deepseek-harness-v2.9.3-test.1.zip
 One SHA256SUMS file per channel
 ```
 
-The current SkillDock panel test build is `v0.1.0-rc.6` with PCHW `2.9.2`.
+The current SkillDock panel test build is `v0.1.0-rc.7` with PCHW `2.9.3`.
 `v0.1.0-rc.5` remains the previous PCHW 2.9.0 contract-only panel test build,
 and `v0.1.0-rc.4` remains the PCHW 2.8.0 panel build. Do not mix multiple PCHW
 Skill directories in one host.
@@ -155,7 +157,7 @@ Runtime, shared engine, and rollback backup.
 
 ### PCHW Portable (standalone Windows; no Agent)
 
-1. Download `pc-hardware-portable-v2.9.2-test.1.zip` and verify it with the
+1. Download `pc-hardware-portable-v2.9.3-test.1.zip` and verify it with the
    release checksum or the GitHub asset digest.
 2. Extract the complete directory. No installation, administrator rights, API key,
    or network connection is required.
@@ -214,7 +216,7 @@ See [Installation and upgrade](docs/en/installation.md#pchw-skill-only) for deta
 ### SkillDock Runtime-only
 
 Use this package only when a compatible PCHW Skill is already installed and the
-SkillDock application plus Node.js are missing. rc.6 preserves exact PCHW
+SkillDock application plus Node.js are missing. rc.7 preserves exact PCHW
 `2.8.0` as a legacy bridge. A later PCHW must declare
 `surface_contracts["pchw-source-hosted"]` in the supported
 `>=1.0.0 <2.0.0` range, satisfy `min_skill_version`, and include every required
@@ -341,11 +343,11 @@ Read [Privacy and safety boundaries](docs/en/privacy-and-safety.md) for the full
 
 ## Known limitations
 
-- `2.9.2` is the current PCHW Skill/Portable test release and has no stable release;
-- the current public SkillDock test bundle is `0.1.0-rc.6` with PCHW `2.9.2`;
+- `2.9.3` is the current PCHW Skill/Portable test release and has no stable release;
+- the current public SkillDock test bundle is `0.1.0-rc.7` with PCHW `2.9.3`;
 - the previous `0.1.0-rc.5 + PCHW 2.9.0` bundle remains the contract-only panel build;
 - the earlier `0.1.0-rc.4 + PCHW 2.8.0` bundle remains a historical panel build;
-- Clean-Windows acceptance for the rc.6 final ZIP bytes is still pending;
+- Clean-Windows acceptance for the rc.7 final ZIP bytes is still pending;
 - clean-Windows install/uninstall, real-device coverage, and complete user signoff
   are still in progress;
 - the SkillDock panel is promised only for the current Codex conversation;
@@ -389,7 +391,7 @@ Chinese. The contributing and security policies are available in English.
 
 Use [GitHub Releases](https://github.com/Feng23-feng/pc-hardware-workbench/releases)
 and [CHANGELOG.md](CHANGELOG.md) as the source of version status. The current
-build is a `2.9.2` test build, and no stable release has been published. GitHub
+build is a `2.9.3` test build, and no stable release has been published. GitHub
 main may be ahead of the downloadable test build.
 
 Source code is available under the [MIT License](LICENSE).

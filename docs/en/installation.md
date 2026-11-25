@@ -10,14 +10,14 @@
 - Optional monitoring requires an already-running LibreHardwareMonitor instance.
   This project does not install or start it.
 
-The current PCHW test version is `2.9.2-test.1`. This release fixes HWiNFO exports with a trailing empty
-header cell and a small number of unlabeled tail values. The 2.9.1 memory-profile identity
-gates for the GPU, raw tool, and display-tool versions. It retains the
-deterministic local evidence CLI and pure PCHW Skill, Portable, and DeepSeek
-Harness packages added in 2.9.0. PCHW 2.9.0 declares the
-`pchw-source-hosted` `1.0.0` contract;
-SkillDock remains an independent panel test line; the current test build is
-`0.1.0-rc.6 + PCHW 2.9.2` and machine-checks UI schema `1.2`, event schema
+The current PCHW test version is `2.9.3-test.1`. This release defines
+`uncertainty[0]` as the single current unresolved subject in panel result cards
+and synchronizes the interaction, Runtime, and surface contracts. Resolved
+evidence must replace or remove the old subject instead of leaving a stale
+fixed label. The 2.9.1 memory-profile identity gates and the 2.9.0 deterministic
+local evidence CLI and Skill, Portable, and DeepSeek Harness packages remain in
+place. SkillDock remains an independent panel test line; the current test build
+is `0.1.0-rc.7 + PCHW 2.9.3` and machine-checks UI schema `1.2`, event schema
 `1.0`, and required capabilities. `0.1.0-rc.5 + PCHW 2.9.0` remains the
 previous contract-only test build, and `0.1.0-rc.4 + PCHW 2.8.0` remains the
 earlier panel build. Clean-Windows installation, uninstallation, and complete
@@ -32,26 +32,26 @@ no installation at all, use PCHW Portable.
 
 | Package | Use it when | Includes | Panel |
 | --- | --- | --- | --- |
-| PCHW Skill (Codex / DSH / other Agents; no panel) | Default choice; use Codex alone or with DSH / another compatible Agent host | PCHW Skill 2.9.2 release subset | No |
+| PCHW Skill (Codex / DSH / other Agents; no panel) | Default choice; use Codex alone or with DSH / another compatible Agent host | PCHW Skill 2.9.3 release subset | No |
 | PCHW Portable (standalone Windows; no Agent) | You do not use Codex / DSH, or want no Skill or Runtime installation | Standalone menu, collection, CSV, and evidence tools | No |
-| DeepSeek Harness adapter | You use DSH and want the PCHW Skill plus adapter files | 2.9.2 Skill and DSH adapter files | Not provided |
+| DeepSeek Harness adapter | You use DSH and want the PCHW Skill plus adapter files | 2.9.3 Skill and DSH adapter files | Not provided |
 | SkillDock Runtime-only | A compatible PCHW Skill is installed and only the application and Node are missing | SkillDock Runtime, Node.js 24.22.1 | Current Codex conversation only |
-| SkillDock panel bundle (public rc.6) | Codex Desktop is installed and you use the PCHW 2.9.2 surface contract | PCHW 2.9.2 Skill, SkillDock Runtime, installer | Current Codex conversation only |
+| SkillDock panel bundle (public rc.7) | Codex Desktop is installed and you use the PCHW 2.9.3 surface contract | PCHW 2.9.3 Skill, SkillDock Runtime, installer | Current Codex conversation only |
 
-[Download the current PCHW 2.9.2 test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.2-test.1):
+[Download the current PCHW 2.9.3 test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.3-test.1):
 
 ```text
-pc-hardware-workbench-v2.9.2-test.1-installer.zip
-pc-hardware-workbench-v2.9.2-test.1-manual.zip
-pc-hardware-portable-v2.9.2-test.1.zip
-pc-hardware-workbench-deepseek-harness-v2.9.2-test.1.zip
+pc-hardware-workbench-v2.9.3-test.1-installer.zip
+pc-hardware-workbench-v2.9.3-test.1-manual.zip
+pc-hardware-portable-v2.9.3-test.1.zip
+pc-hardware-workbench-deepseek-harness-v2.9.3-test.1.zip
 One SHA256SUMS file per channel
 ```
 
-The current SkillDock panel test build is `v0.1.0-rc.6` with PCHW `2.9.2`.
+The current SkillDock panel test build is `v0.1.0-rc.7` with PCHW `2.9.3`.
 `v0.1.0-rc.5` remains the previous PCHW 2.9.0 contract-only panel build, and
 `v0.1.0-rc.4` remains the PCHW 2.8.0 panel build. Clean-Windows installation,
-uninstallation, and final signoff for the rc.6 bytes remain PENDING. Do not mix
+uninstallation, and final signoff for the rc.7 bytes remain PENDING. Do not mix
 multiple PCHW Skill directories.
 
 <a id="pchw-portable"></a>
@@ -78,7 +78,7 @@ Codex Desktop must already be installed.
 
 ### Install
 
-1. Download `SkillDock-PCHW-0.1.0-rc.6-win-x64-user.zip`.
+1. Download `SkillDock-PCHW-0.1.0-rc.7-win-x64-user.zip`.
 2. Verify it with `SHA256SUMS.txt` or the GitHub asset digest.
 3. Extract the full directory.
 4. Double-click `Install.cmd`.
@@ -213,7 +213,7 @@ See the [DSH adapter](../../adapters/dsh/README.md) for details.
 ## SkillDock Runtime-only
 
 Use this only when a compatible PCHW Skill is already installed and the
-SkillDock application plus Node.js are missing. rc.6 preserves exact PCHW
+SkillDock application plus Node.js are missing. rc.7 preserves exact PCHW
 `2.8.0` as a legacy bridge. A later PCHW must declare
 `surface_contracts["pchw-source-hosted"]` in the supported
 `>=1.0.0 <2.0.0` range, satisfy `min_skill_version`, and provide every required
@@ -291,11 +291,11 @@ Close DSH and remove:
 
 ## Known limitations
 
-- `2.9.2` is the current PCHW Skill/Portable test release; clean-Windows signoff remains pending.
-- the current public SkillDock test bundle is `0.1.0-rc.6` with PCHW `2.9.2`;
+- `2.9.3` is the current PCHW Skill/Portable test release; clean-Windows signoff remains pending.
+- the current public SkillDock test bundle is `0.1.0-rc.7` with PCHW `2.9.3`;
 - the previous `0.1.0-rc.5 + PCHW 2.9.0` bundle remains the contract-only panel build;
 - the earlier `0.1.0-rc.4 + PCHW 2.8.0` bundle remains a historical panel build;
-- Clean-Windows acceptance for the rc.6 final ZIP bytes remains PENDING.
+- Clean-Windows acceptance for the rc.7 final ZIP bytes remains PENDING.
 - The SkillDock panel is supported only in the current Codex user conversation.
 - If the panel is unavailable, permission is denied, or another workspace is active,
   continue in chat without exposing a developer entry.
