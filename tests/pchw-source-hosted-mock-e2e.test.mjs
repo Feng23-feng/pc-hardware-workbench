@@ -440,6 +440,7 @@ async function waitForRenderedAnswer(cdp) {
       expression: `(() => {
         const card = document.querySelector("#answer-card");
         const judgement = document.querySelector(".answer-judgement");
+        const unresolved = document.querySelector("#current-unresolved-item");
         const chart = document.querySelector(".analysis-chart");
         const images = [...document.querySelectorAll(".analysis-chart img")];
         return {
@@ -447,6 +448,7 @@ async function waitForRenderedAnswer(cdp) {
           title: document.title,
           cardPresent: Boolean(card),
           judgementText: judgement?.textContent?.trim() ?? "",
+          unresolvedText: unresolved?.textContent?.trim() ?? "",
           chartPresent: Boolean(chart),
           imageCount: images.length,
           imagesLoaded: images.length > 0 && images.every(
@@ -464,6 +466,7 @@ async function waitForRenderedAnswer(cdp) {
       value.readyState === "complete" &&
       value.cardPresent &&
       value.judgementText.length >= 20 &&
+      value.unresolvedText.length > 0 &&
       value.chartPresent &&
       value.imageCount >= 1 &&
       value.imagesLoaded &&
@@ -498,6 +501,11 @@ async function captureBrowserEvidence(baseUrl, panelToken, {
           userAgent: navigator.userAgent,
           judgementText:
             document.querySelector(".answer-judgement")?.textContent?.trim() ?? "",
+          unresolvedText:
+            document.querySelector("#current-unresolved-item")?.textContent?.trim() ?? "",
+          uncertaintyTexts: [
+            ...document.querySelectorAll(".answer-uncertainty li")
+          ].map((item) => item.textContent?.trim() ?? ""),
           chartCaption:
             document.querySelector(".chart-caption")?.textContent?.trim() ?? "",
           chartImageWidth: image?.naturalWidth ?? 0,
@@ -521,10 +529,13 @@ async function captureBrowserEvidence(baseUrl, panelToken, {
     const dom = domEvaluation.result.value;
     assert.equal(dom.title, "SkillDock");
     assert.ok(dom.judgementText.length >= 20);
+    assert.ok(dom.unresolvedText.length > 0);
+    assert.equal(dom.uncertaintyTexts.includes(dom.unresolvedText), false);
     assert.ok(dom.chartImageWidth > 0);
     assert.ok(dom.chartImageHeight > 0);
     assert.ok(dom.answerCardHtml.includes("analysis-chart"));
     assert.ok(dom.answerCardHtml.includes("answer-judgement"));
+    assert.ok(dom.answerCardHtml.includes("current-unresolved-item"));
     assert.ok(rendered.imagesLoaded);
 
     const answerCardRect = await browser.cdp.send("Runtime.evaluate", {
@@ -557,14 +568,151 @@ async function captureBrowserEvidence(baseUrl, panelToken, {
       },
     }, 20_000);
     const screenshotBuffer = Buffer.from(screenshot.data, "base64");
+    await browser.cdp.send("Emulation.setDeviceMetricsOverride", {
+      width: 390,
+      height: 844,
+      deviceScaleFactor: 1,
+      mobile: true,
+    });
+    const mobileLayoutEvaluation = await browser.cdp.send(
+      "Runtime.evaluate",
+      {
+        expression: `(() => {
+          const binding = document.querySelector("#runtime-binding");
+          binding?.querySelector("summary")?.click();
+          window.scrollTo(0, 0);
+          const answer = document.querySelector("#answer-card");
+          const topbar = document.querySelector(".topbar");
+          const handoff = document.querySelector(".handoff-strip-main");
+          const statusSteps = document.querySelector(".status-steps");
+          return {
+            viewportWidth: document.documentElement.clientWidth,
+            documentScrollWidth: document.documentElement.scrollWidth,
+            bodyScrollWidth: document.body.scrollWidth,
+            answerRight:
+              answer?.getBoundingClientRect().right ?? 0,
+            bindingRight:
+              binding?.getBoundingClientRect().right ?? 0,
+            bindingOpen: binding?.open ?? false,
+            topbarDirection:
+              topbar ? getComputedStyle(topbar).flexDirection : "",
+            handoffDirection:
+              handoff ? getComputedStyle(handoff).flexDirection : "",
+            statusStepColumns:
+              statusSteps
+                ? getComputedStyle(statusSteps)
+                    .gridTemplateColumns
+                    .split(" ")
+                    .filter(Boolean)
+                    .length
+                : 0
+          };
+        })()`,
+        returnByValue: true,
+      },
+    );
+    const mobileLayout = mobileLayoutEvaluation.result.value;
+    assert.equal(mobileLayout.viewportWidth, 390);
+    assert.equal(
+      mobileLayout.documentScrollWidth,
+      mobileLayout.viewportWidth,
+    );
+    assert.equal(mobileLayout.bodyScrollWidth, mobileLayout.viewportWidth);
+    assert.ok(mobileLayout.answerRight <= mobileLayout.viewportWidth);
+    assert.ok(mobileLayout.bindingRight <= mobileLayout.viewportWidth);
+    assert.equal(mobileLayout.bindingOpen, true);
+    assert.equal(mobileLayout.topbarDirection, "column");
+    assert.equal(mobileLayout.handoffDirection, "column");
+    assert.equal(mobileLayout.statusStepColumns, 2);
+    await browser.cdp.send("Runtime.evaluate", {
+      expression:
+        `document.querySelector("#runtime-binding > summary")?.click()`,
+      returnByValue: true,
+    });
+    const mobileScreenshot = await browser.cdp.send(
+      "Page.captureScreenshot",
+      {
+        format: "png",
+        fromSurface: true,
+      },
+      20_000,
+    );
+    const mobileScreenshotBuffer = Buffer.from(
+      mobileScreenshot.data,
+      "base64",
+    );
+    await browser.cdp.send("Runtime.evaluate", {
+      expression:
+        `document.querySelector("#answer-card")
+          ?.scrollIntoView({ block: "start" })`,
+      returnByValue: true,
+    });
+    const mobileAnswerScreenshot = await browser.cdp.send(
+      "Page.captureScreenshot",
+      {
+        format: "png",
+        fromSurface: true,
+      },
+      20_000,
+    );
+    const mobileAnswerScreenshotBuffer = Buffer.from(
+      mobileAnswerScreenshot.data,
+      "base64",
+    );
+    await browser.cdp.send("Emulation.setDeviceMetricsOverride", {
+      width: 320,
+      height: 844,
+      deviceScaleFactor: 1,
+      mobile: true,
+    });
+    const narrowLayoutEvaluation = await browser.cdp.send(
+      "Runtime.evaluate",
+      {
+        expression: `(() => ({
+          viewportWidth: document.documentElement.clientWidth,
+          documentScrollWidth: document.documentElement.scrollWidth,
+          bodyScrollWidth: document.body.scrollWidth,
+          topbarDirection:
+            getComputedStyle(document.querySelector(".topbar")).flexDirection,
+          handoffDirection:
+            getComputedStyle(
+              document.querySelector(".handoff-strip-main")
+            ).flexDirection
+        }))()`,
+        returnByValue: true,
+      },
+    );
+    const narrowLayout = narrowLayoutEvaluation.result.value;
+    assert.equal(narrowLayout.viewportWidth, 320);
+    assert.equal(
+      narrowLayout.documentScrollWidth,
+      narrowLayout.viewportWidth,
+    );
+    assert.equal(narrowLayout.bodyScrollWidth, narrowLayout.viewportWidth);
+    assert.equal(narrowLayout.topbarDirection, "column");
+    assert.equal(narrowLayout.handoffDirection, "column");
+    await browser.cdp.send("Emulation.clearDeviceMetricsOverride");
     const answerDomText = `${dom.answerCardHtml}\n`;
     const screenshotName = `pchw-panel-answer-card${suffix}.png`;
+    const mobileScreenshotName = `pchw-panel-mobile-shell${suffix}.png`;
+    const mobileAnswerScreenshotName =
+      `pchw-panel-answer-card-mobile${suffix}.png`;
     const domName = `pchw-panel-answer-card${suffix}.html`;
     const evidenceName = `browser-evidence${suffix}.json`;
     const screenshotPath = join(browserEvidenceDir, screenshotName);
     const domPath = join(browserEvidenceDir, domName);
     await mkdir(browserEvidenceDir, { recursive: true });
     await writeFile(screenshotPath, screenshotBuffer, { mode: 0o600 });
+    await writeFile(
+      join(browserEvidenceDir, mobileScreenshotName),
+      mobileScreenshotBuffer,
+      { mode: 0o600 },
+    );
+    await writeFile(
+      join(browserEvidenceDir, mobileAnswerScreenshotName),
+      mobileAnswerScreenshotBuffer,
+      { mode: 0o600 },
+    );
     await writeFile(domPath, answerDomText, {
       encoding: "utf8",
       mode: 0o600,
@@ -595,12 +743,32 @@ async function captureBrowserEvidence(baseUrl, panelToken, {
         chart_caption: dom.chartCaption,
         body_text_fnv1a32: dom.bodyTextHash,
       },
+      mobile_layout: {
+        viewport_width: mobileLayout.viewportWidth,
+        document_scroll_width: mobileLayout.documentScrollWidth,
+        body_scroll_width: mobileLayout.bodyScrollWidth,
+        horizontal_overflow: false,
+        binding_details_opened: mobileLayout.bindingOpen,
+        narrow_viewport: {
+          width: narrowLayout.viewportWidth,
+          document_scroll_width: narrowLayout.documentScrollWidth,
+          body_scroll_width: narrowLayout.bodyScrollWidth,
+          horizontal_overflow: false,
+        },
+      },
       artifacts: {
         screenshot_path: screenshotName,
         screenshot_bytes: screenshotBuffer.length,
         screenshot_sha256: sha256(screenshotBuffer),
         screenshot_width: Math.round(clip.width),
         screenshot_height: Math.round(clip.height),
+        mobile_screenshot_path: mobileScreenshotName,
+        mobile_screenshot_bytes: mobileScreenshotBuffer.length,
+        mobile_screenshot_sha256: sha256(mobileScreenshotBuffer),
+        mobile_answer_screenshot_path: mobileAnswerScreenshotName,
+        mobile_answer_screenshot_bytes: mobileAnswerScreenshotBuffer.length,
+        mobile_answer_screenshot_sha256:
+          sha256(mobileAnswerScreenshotBuffer),
         answer_dom_path: domName,
         answer_dom_sha256: sha256(answerDomText),
       },
@@ -759,6 +927,48 @@ async function performHumanPanelFlow(
         value.hasInput,
       "prefilled human panel",
     );
+    const bindingDetails = await browser.cdp.send("Runtime.evaluate", {
+      expression: `(() => {
+        const binding = document.querySelector("#runtime-binding");
+        const summary = binding?.querySelector("summary");
+        summary?.click();
+        return {
+          tag: binding?.tagName ?? "",
+          state: binding?.dataset.bindingState ?? "",
+          open: binding?.open ?? false,
+          labels: [...(binding?.querySelectorAll("dt") ?? [])]
+            .map((item) => item.textContent.trim())
+        };
+      })()`,
+      returnByValue: true,
+    });
+    assert.equal(bindingDetails.result.value.tag, "DETAILS");
+    assert.equal(bindingDetails.result.value.state, "bound");
+    assert.equal(bindingDetails.result.value.open, true);
+    assert.deepEqual(bindingDetails.result.value.labels, [
+      "Runtime PID",
+      "端口",
+      "Task",
+      "Launch",
+    ]);
+    const bindingScreenshot = await browser.cdp.send(
+      "Page.captureScreenshot",
+      {
+        format: "png",
+        fromSurface: true,
+      },
+      20_000,
+    );
+    await mkdir(browserEvidenceDir, { recursive: true });
+    await writeFile(
+      join(browserEvidenceDir, "pchw-runtime-binding-details.png"),
+      Buffer.from(bindingScreenshot.data, "base64"),
+      { mode: 0o600 },
+    );
+    await browser.cdp.send("Runtime.evaluate", {
+      expression: `document.querySelector("#runtime-binding > summary")?.click()`,
+      returnByValue: true,
+    });
     const submitted = await browser.cdp.send("Runtime.evaluate", {
       expression: `(() => {
         const input = document.querySelector("#symptom");

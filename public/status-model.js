@@ -45,3 +45,13 @@ export function deriveActivityMode({
   }
   return "waiting";
 }
+
+export function deriveCurrentUnresolvedLabel(uncertainty) {
+  if (!Array.isArray(uncertainty)) {
+    return "";
+  }
+  const first = uncertainty.find(
+    (item) => typeof item === "string" && item.trim(),
+  );
+  return first ? first.trim().replace(/\s+/g, " ") : "";
+}

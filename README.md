@@ -6,7 +6,7 @@ DSH are adapters, not product concepts.
 
 Version lines are independent:
 
-- SkillDock application: `0.1.0-rc.4` (public test build; no stable release)
+- SkillDock application: `0.1.0-rc.6` (public test build; no stable release)
 - SkillSurface contract: `1.0`
 - SkillRuntime contract: `1.0`
 - AgentDriver contract: `1.0`

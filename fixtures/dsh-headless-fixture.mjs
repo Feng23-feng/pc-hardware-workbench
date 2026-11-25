@@ -92,7 +92,10 @@ const panel = finalOnly || repairRequest
           relation: "supports",
         },
       ],
-      uncertainty: ["DSH 没有原生 JSON Schema 约束，结果依赖提示与本地校验。"],
+      uncertainty: [
+        "DSH 上下文续接待确认",
+        "DSH 没有原生 JSON Schema 约束，结果依赖提示与本地校验。",
+      ],
       recommendations: [
         {
           id: "dsh-preserve-session",
@@ -170,6 +173,7 @@ const panel = finalOnly || repairRequest
         },
       ],
       uncertainty: [
+        "卡顿场景与时间待确认",
         "尚不清楚卡顿发生的场景、频率和持续时间。",
         "尚无温度、占用率、帧时间或系统事件证据。",
       ],

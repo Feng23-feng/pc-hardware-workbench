@@ -1,5 +1,8 @@
 import { clearResetDraftStorage } from "/draft-storage.js";
-import { deriveActivityMode } from "/status-model.js";
+import {
+  deriveActivityMode,
+  deriveCurrentUnresolvedLabel,
+} from "/status-model.js";
 import {
   evaluateRuntimeBinding,
   parseRuntimeBindingHint,
@@ -1069,7 +1072,7 @@ function renderAnalysisBlock(block, artifacts) {
       el("img", {
         src: `/api/artifacts/${encodeURIComponent(artifact.id)}/content`,
         alt: block.alt,
-        loading: "lazy",
+        loading: "eager",
         decoding: "async",
       }),
       el("p", {
@@ -1171,6 +1174,10 @@ function renderAnswerCard(panel) {
   if (!result) {
     return null;
   }
+  const currentUnresolved = deriveCurrentUnresolvedLabel(result.uncertainty);
+  const remainingUncertainty = currentUnresolved
+    ? result.uncertainty.slice(1)
+    : result.uncertainty;
   const checklist = [
     `最优先下一步：${result.priorityAction.title}`,
     result.priorityAction.detail,
@@ -1229,6 +1236,27 @@ function renderAnswerCard(panel) {
       "aria-labelledby": "answer-title",
     },
     [
+      currentUnresolved
+        ? el(
+            "div",
+            {
+              class: "answer-unresolved",
+              "aria-label": "当前未决项",
+            },
+            [
+              el("span", {
+                class: "answer-unresolved-label",
+                text: "当前未决项",
+              }),
+              el("span", {
+                class: "answer-unresolved-chip",
+                id: "current-unresolved-item",
+                title: currentUnresolved,
+                text: currentUnresolved,
+              }),
+            ],
+          )
+        : null,
       el("h2", { class: "answer-title", id: "answer-title", text: "本轮判断与建议" }),
       el("p", { class: "answer-judgement", text: result.judgement }),
       renderAnalysisBlocks(mainBlocks, result.artifacts),
@@ -1253,14 +1281,16 @@ function renderAnswerCard(panel) {
             )
           : el("p", { class: "empty-copy", text: "当前还没有可验证证据。" }),
       ]),
-      el("section", { class: "answer-section" }, [
-        el("h3", { class: "answer-section-title", text: "仍需确认" }),
-        el(
-          "ul",
-          { class: "answer-uncertainty" },
-          result.uncertainty.map((item) => el("li", { text: item })),
-        ),
-      ]),
+      remainingUncertainty.length
+        ? el("section", { class: "answer-section" }, [
+            el("h3", { class: "answer-section-title", text: "仍需确认" }),
+            el(
+              "ul",
+              { class: "answer-uncertainty" },
+              remainingUncertainty.map((item) => el("li", { text: item })),
+            ),
+          ])
+        : null,
       el("section", { class: "answer-section" }, [
         el("h3", { class: "answer-section-title", text: "低风险证据采集" }),
         el(
@@ -1740,11 +1770,16 @@ function renderRuntimeBindingBanner() {
         id: "runtime-binding",
         "data-binding-state": "checking",
       },
-      [el("strong", { text: "正在验证 Runtime、PID 和端口" })],
+      [el("strong", { text: "正在确认本地运行环境" })],
     );
   }
+  const runtimeDetail = (label, value) =>
+    el("div", { class: "runtime-binding-detail" }, [
+      el("dt", { text: label }),
+      el("dd", { text: String(value) }),
+    ]);
   return el(
-    "section",
+    "details",
     {
       class: "runtime-binding is-bound",
       id: "runtime-binding",
@@ -1754,12 +1789,29 @@ function renderRuntimeBindingBanner() {
       "data-runtime-launch-id": runtimeBinding.launch_id,
     },
     [
-      el("strong", {
-        text: `Runtime 已硬绑定 · PID ${runtimeBinding.pid} · 端口 ${runtimeBinding.port}`,
-      }),
-      el("p", {
-        text: `Task ${state?.task?.task_id ?? "未加载"} · Launch ${runtimeBinding.launch_id.slice(0, 12)}…`,
-      }),
+      el("summary", { class: "runtime-binding-summary" }, [
+        el("span", {
+          class: "runtime-binding-status-dot",
+          "aria-hidden": "true",
+        }),
+        el("span", { class: "runtime-binding-summary-copy" }, [
+          el("strong", { text: "本地运行环境已连接" }),
+          el("span", {
+            class: "runtime-binding-summary-note",
+            text: "本次 Task 已锁定到当前运行环境",
+          }),
+        ]),
+        el("span", {
+          class: "runtime-binding-details-label",
+          text: "连接详情",
+        }),
+      ]),
+      el("dl", { class: "runtime-binding-detail-grid" }, [
+        runtimeDetail("Runtime PID", runtimeBinding.pid),
+        runtimeDetail("端口", runtimeBinding.port),
+        runtimeDetail("Task", state?.task?.task_id ?? "未加载"),
+        runtimeDetail("Launch", runtimeBinding.launch_id),
+      ]),
     ],
   );
 }

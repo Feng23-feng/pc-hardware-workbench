@@ -1,5 +1,27 @@
 # Changelog
 
+## Unreleased
+
+- Apply the Graphite Copper × Cobalt Archive palette to SkillDock using separate
+  roles for warm canvas, copper operations, steel-blue data, amber pending
+  states, and rust-red errors.
+- Reduce a verified Runtime binding to a quiet disclosure strip with user-facing
+  status text, keeping PID, port, Task, and launch identifiers available on
+  demand instead of presenting them as the page's primary banner.
+- Finish the palette pass with tokenized skeleton and danger states, themed
+  scrollbars, explicit pressed states, and a 390px browser gate that opens the
+  binding details and rejects horizontal overflow.
+- Render the single current unresolved item from `panel.uncertainty[0]` at the
+  top of the result card, and remove that item from the later “仍需确认” list so
+  the same state is not repeated.
+- Require Skills and provider prompts to replace the first uncertainty when
+  evidence resolves it rather than carrying a fixed thermal or placeholder
+  status label.
+- Load verified evidence SVG images eagerly so the extra unresolved-item
+  summary cannot push later charts outside the browser's lazy-load window.
+- Align the current README, versioning policy, and architecture status with the
+  published rc.6 / PCHW 2.9.2 test line.
+
 ## SkillDock 0.1.0-rc.6 / PCHW 2.9.2 - 2026-11-23
 
 - Require machine-checked panel compatibility for the

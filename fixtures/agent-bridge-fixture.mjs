@@ -53,7 +53,10 @@ function fixturePanel(text) {
         relation: "context",
       },
     ],
-    uncertainty: ["Fixture 不代表真实 Agent 的回答质量。"],
+    uncertainty: [
+      "Agent 续接待确认",
+      "Fixture 不代表真实 Agent 的回答质量。",
+    ],
     recommendations: [
       {
         id: "bridge-verify-resume",

@@ -309,6 +309,12 @@ identified options. Schema 1.2 adds typed artifact blocks while continuing to
 reject arbitrary HTML, scripts, event handlers, and executable UI supplied by
 the model.
 
+`uncertainty[0]` is also the single current unresolved item shown in the result
+header when a Skill supplies a status projection. Skills should make it a compact
+subject label, replace it when evidence resolves that subject, and use later
+`uncertainty` entries for supporting detail. The host renders the first item and
+must not infer a different subject from metric names or reuse a resolved label.
+
 Allowed block types are `markdown`, `metrics`, `chart`, `table`, `callout`, and
 `artifact-download`. A chart or download block must reference an artifact in
 `artifact_refs`. The browser renders every string as text, and chart SVG is

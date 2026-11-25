@@ -355,6 +355,7 @@ class PcHardwareWorkbenchRuntime {
       "For a vague slowdown without a safety symptom, first establish workload timing.",
       "When the first timing question is appropriate, include an option labelled exactly '玩游戏时'.",
       "Every turn must include a substantive result card with judgement, supports/conflicts/context evidence, uncertainty, two or three low-risk evidence recommendations, one priorityAction, and copy-only actions.",
+      "Set uncertainty[0] to the single current unresolved item, using a compact subject-based label such as '热限制待确认' only when the current evidence actually supports that subject. Replace or omit a resolved item; never hard-code thermal, power, or a placeholder status.",
       "For single-game brief black screens or stutter, recommendations must cover a fixed-scene retest with precise timestamp, a read-only Event Viewer check for Display TDR, WHEA-Logger and Kernel-Power 41, and HWiNFO logging of GPU temperature, power, effective clock and PerfCap.",
       "When telemetry analysis reports sampled_span_seconds, use that value for telemetry duration. Never substitute device age, driver age, or another task's elapsed time.",
       "Describe those steps as evidence collection, not hardware conclusions.",
