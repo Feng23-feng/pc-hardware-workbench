@@ -368,6 +368,7 @@ try {
         taskId: "task-broker-chart-changing",
         attachment: chartChangingAttachment,
         window: {},
+        preset: "FirstPass",
       }),
     (error) => error.code === "attachment_hash_mismatch",
     "analysis must recheck the attachment after chart-pack rendering",
@@ -383,6 +384,7 @@ try {
     taskId: "task-broker-pack",
     attachment,
     window: {},
+    preset: "FirstPass",
   });
   broker.runPowerShell = originalRunPowerShell;
   assert.equal(
@@ -409,6 +411,14 @@ try {
   );
   assert.equal(first.artifact.kind, "chart");
   assert.equal(first.artifacts.length, 4);
+  assert.equal(
+    first.analysis.analyzer_passes,
+    1,
+    "the regular chart path must report one authoritative analyzer pass",
+  );
+  assert.equal(first.analysis.analyzer_pass_reason, "standard");
+  assert.equal(first.analysis.source_sha256, attachment.sha256);
+  assert.equal(first.analysis.source_bytes, csvBytes.length);
   assert.equal(new Set(first.artifacts.map((item) => item.id)).size, 4);
   assert.equal(
     first.blocks.filter((block) => block.type === "chart").length,
@@ -425,6 +435,169 @@ try {
     assert.match(svg, /<svg(?:\s|>)/u);
     assert.doesNotMatch(svg, /<script\b|\bhref\s*=\s*["']https?:/iu);
   }
+
+  const bindingTaskId = "task-broker-chart-binding";
+  const bindingTaskDirectory = join(artifactRoot, bindingTaskId);
+  mkdirSync(bindingTaskDirectory, { recursive: true });
+  await assert.rejects(
+    () =>
+      broker.buildChartPack({
+        taskDirectory: bindingTaskDirectory,
+        filePath: csvPath,
+        parsed: {
+          Metrics: [
+            {
+              Metric: "Frame rate (FPS)",
+              SourceColumn: "FPS",
+              Unit: "FPS",
+            },
+          ],
+          ChartData: {
+            ChartDataVersion: "1.0",
+            SourceSha256: "0".repeat(64),
+            SourceBytes: csvBytes.length,
+            Window: "time 0s to 2s",
+            Warnings: [],
+            Series: [
+              {
+                Metric: "Frame rate (FPS)",
+                SourceColumn: "FPS",
+                Unit: "FPS",
+                Points: [{ T: 0, V: 60 }],
+              },
+            ],
+          },
+        },
+        window: { warmup: null, duration: null },
+        actualHash: attachment.sha256,
+        actualBytes: csvBytes.length,
+        preset: "FirstPass",
+      }),
+    (error) => error.code === "evidence_binding_mismatch",
+    "chart-pack generation must reject ChartData from another source",
+  );
+
+  const summaryCalls = [];
+  broker.runPowerShell = async (scriptPath, args) => {
+    summaryCalls.push({ scriptPath, args: [...args] });
+    return originalRunPowerShell(scriptPath, args);
+  };
+  const summaryOnly = await broker.analyze({
+    taskId: "task-broker-summary",
+    attachment,
+    window: {},
+    preset: null,
+  });
+  broker.runPowerShell = originalRunPowerShell;
+  const summaryAnalyzerCalls = summaryCalls.filter((call) =>
+    /analyze-telemetry\.ps1$/u.test(call.scriptPath)
+  );
+  assert.equal(summaryAnalyzerCalls.length, 1);
+  assert.equal(
+    summaryAnalyzerCalls[0].args.includes("-IncludeChartData"),
+    false,
+    "summary-only analysis must not request chart generation",
+  );
+  assert.equal(
+    summaryCalls.some((call) => /render-telemetry-pack\.ps1$/u.test(call.scriptPath)),
+    false,
+    "summary-only analysis must not invoke chart-pack generation",
+  );
+  assert.equal(summaryOnly.chart_preset, null);
+  assert.equal(summaryOnly.artifact, null);
+  assert.deepEqual(summaryOnly.artifacts, []);
+  assert.deepEqual(summaryOnly.blocks, []);
+  assert.equal(summaryOnly.analysis.analyzer_passes, 1);
+  assert.equal(summaryOnly.analysis.analyzer_pass_reason, "standard");
+  const summaryPanel = broker.applyVerifiedResult(
+    {
+      schema_version: "1.2",
+      status: "ready",
+      artifact_refs: [],
+    },
+    summaryOnly,
+    { taskId: "task-broker-summary" },
+  );
+  assert.deepEqual(summaryPanel.artifact_refs, []);
+  assert.deepEqual(summaryPanel.blocks, []);
+
+  const fallbackCalls = [];
+  let fallbackPass = 0;
+  const fallbackBroker = new TelemetryBroker({
+    attachmentRoot,
+    artifactRoot,
+    scriptsDir: join(skillRoot, "scripts"),
+    timeoutMs: 60_000,
+  });
+  fallbackBroker.runPowerShell = async (scriptPath, args) => {
+    fallbackCalls.push({ scriptPath, args: [...args] });
+    fallbackPass += 1;
+    const response = {
+      AnalyzerVersion: "test-fallback",
+      SourceSha256: attachment.sha256,
+      SourceBytes: csvBytes.length,
+      HeaderLine: 1,
+      AnalyzedRows: 2,
+      TotalRows: 2,
+      AnalyzedRowStart: 0,
+      AnalyzedRowEnd: 1,
+      Window: "time 0s to 1s",
+      Sampling: {
+        TimeBased: true,
+        IntervalSecondsMedian: 1,
+        Consistency: "stable",
+      },
+      Metrics: [],
+      CandidateColumnPattern: "^(FPS)$",
+      Warnings: [],
+    };
+    if (fallbackPass === 2) {
+      response.Metrics = [
+        {
+          Metric: "Frame rate (FPS)",
+          SourceColumn: "FPS",
+          Unit: "FPS",
+          Samples: 2,
+          Min: 60,
+          Mean: 60.5,
+          Max: 61,
+        },
+      ];
+      response.CandidateColumnPattern = null;
+    }
+    return { stdout: JSON.stringify(response), stderr: "" };
+  };
+  fallbackBroker.buildChartPack = async () => {
+    throw new Error("summary-only fallback must not build a chart pack");
+  };
+  const fallbackSummary = await fallbackBroker.analyze({
+    taskId: "task-broker-fallback",
+    attachment: {
+      ...attachment,
+      id: "attachment-broker-fallback",
+    },
+    window: {},
+    preset: null,
+  });
+  assert.equal(fallbackPass, 2);
+  assert.equal(
+    fallbackCalls.filter((call) => /analyze-telemetry\.ps1$/u.test(call.scriptPath))
+      .length,
+    2,
+    "the special candidate-column fallback must report two analyzer passes",
+  );
+  assert.equal(fallbackSummary.analysis.analyzer_passes, 2);
+  assert.equal(
+    fallbackSummary.analysis.analyzer_pass_reason,
+    "candidate_column_retry",
+  );
+  assert.equal(
+    fallbackSummary.analysis.warnings.some((warning) =>
+      /第二次|候选列|fallback/iu.test(warning)
+    ),
+    true,
+    "the candidate-column fallback must be explicit in analysis warnings",
+  );
 
   assert.equal(
     broker.getArtifact(first.artifact.id, { taskId: "task-other-owner" }),
@@ -450,6 +623,7 @@ try {
     taskId: "task-broker-pack",
     attachment,
     window: {},
+    preset: "FirstPass",
   });
   assert.equal(second.cache_hit, true);
   assert.equal(second.artifacts.length, 4);

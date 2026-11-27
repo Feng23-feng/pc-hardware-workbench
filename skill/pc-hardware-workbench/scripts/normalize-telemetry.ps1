@@ -490,6 +490,30 @@ try {
             if ([string](Get-PropertyValue $precomputed "ChartDataVersion" "") -ne "1.0") {
                 Stop-WithAnalysisError "AnalysisPath ChartDataVersion must be '1.0'."
             }
+            $analysisSourceHash = [string](Get-PropertyValue $analysis "SourceSha256" "")
+            $analysisSourceBytes = Get-PropertyValue $analysis "SourceBytes" $null
+            $chartSourceHash = [string](Get-PropertyValue $precomputed "SourceSha256" "")
+            $chartSourceBytes = Get-PropertyValue $precomputed "SourceBytes" $null
+            if (
+                [string]::IsNullOrWhiteSpace($analysisSourceHash) -or
+                $null -eq $analysisSourceBytes -or
+                [string]::IsNullOrWhiteSpace($chartSourceHash) -or
+                $null -eq $chartSourceBytes
+            ) {
+                Stop-WithAnalysisError "AnalysisPath is missing the analyzer source SHA-256/byte binding."
+            }
+            if (
+                $analysisSourceHash -ine $chartSourceHash -or
+                [int64]$analysisSourceBytes -ne [int64]$chartSourceBytes
+            ) {
+                Stop-WithAnalysisError "AnalysisPath source binding is internally inconsistent."
+            }
+            if (
+                $chartSourceHash -ine $inputHash -or
+                [int64]$chartSourceBytes -ne [int64]$inputInfo.Length
+            ) {
+                Stop-WithAnalysisError "AnalysisPath source SHA-256/byte binding does not match the supplied CSV."
+            }
             $precomputed
         }
         else {

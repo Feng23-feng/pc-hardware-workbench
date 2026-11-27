@@ -45,6 +45,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "<suite-folder>\scripts\anal
 
 Reuse that `ChartData` for normalization or rendering instead of parsing the same
 CSV again.
+The analyzer records the exact source byte count and SHA-256 in both its JSON
+result and `ChartData`. Consumers must reject a reused analysis whose binding
+does not match the CSV they are about to associate with it.
+Broker summaries record `analyzer_passes` and `analyzer_pass_reason`. The normal
+path is one pass; the narrow candidate-column recovery may require a second pass
+and must expose that fallback warning.
 
 Machine-readable chart input:
 
@@ -74,6 +80,9 @@ recognized metric into the default user view.
 
 Use `scripts/render-telemetry-pack.ps1 -Preset FirstPass|GpuTuning|CpuTuning`
 to create the selected evidence-only figures and pack manifest in one command.
+Plain text analysis should stay on the analyzer summary path. Generate a chart
+pack only when a visual trend comparison, artifact reference, or requested
+preset needs it; this is not a separate analysis mode.
 
 For a GPU tuning conclusion that has timestamped effective/core clock and core
 voltage data, generate one combined timeline:

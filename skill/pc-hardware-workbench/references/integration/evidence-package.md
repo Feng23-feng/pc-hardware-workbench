@@ -5,6 +5,11 @@ telemetry CSV files and wants the routine sequence completed without manually
 calling the normalizer, analyzer, chart renderer, and result-card steps.
 Each CSV is parsed once by `analyze-telemetry.ps1`; its `ChartData` is persisted
 in the analysis JSON and passed to normalization instead of reopening the CSV.
+When a chart pack is generated, every renderer consumes one analyzer-owned,
+source-bound ChartData document so the manifest window and rendered points stay
+consistent. A supplied `ChartDataPath` is rejected if its source SHA-256 or byte
+count does not match `-Path`, or if new window parameters attempt to reinterpret
+the already-windowed data.
 
 The first version accepts HWiNFO, PresentMon, and compatible text CSV files. It
 does not turn a screenshot into a time series and does not claim that a short

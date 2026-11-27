@@ -966,6 +966,16 @@ function Read-TelemetryLines {
     if ($offset -lt $bytes.Length) {
         $bytes = @($bytes[0..($offset - 1)])
     }
+    $sha256 = [Security.Cryptography.SHA256]::Create()
+    try {
+        $sourceSha256 = -join (
+            $sha256.ComputeHash([byte[]]$bytes) |
+                ForEach-Object { $_.ToString("x2") }
+        )
+    }
+    finally {
+        $sha256.Dispose()
+    }
 
     $strictUtf8 = New-Object System.Text.UTF8Encoding($false, $true)
     try {
@@ -992,6 +1002,8 @@ function Read-TelemetryLines {
     return [pscustomobject]@{
         Lines = @($text -split "\r?\n")
         InvalidUtf8 = $invalidUtf8
+        SourceSha256 = $sourceSha256
+        SourceBytes = [int64]$bytes.Length
     }
 }
 
@@ -1845,6 +1857,8 @@ if ($samplingSummary.Consistency -eq "variable") {
 
 $result = [pscustomobject]@{
     AnalyzerVersion = "1.2.7"
+    SourceSha256 = $readResult.SourceSha256
+    SourceBytes = [int64]$readResult.SourceBytes
     FileName = if ($HideFileName) { "[hidden]" } else { [System.IO.Path]::GetFileName($resolvedPath) }
     HeaderLine = $headerLineIndex + 1
     InvalidRows = $invalidDataRows
@@ -1928,6 +1942,8 @@ if ($Format -eq "ChartData" -or $IncludeChartData) {
     $chartResult = [pscustomobject]@{
         ChartDataVersion = "1.0"
         AnalyzerVersion = $result.AnalyzerVersion
+        SourceSha256 = $result.SourceSha256
+        SourceBytes = $result.SourceBytes
         FileName = $result.FileName
         HeaderLine = $result.HeaderLine
         TotalRows = $result.TotalRows

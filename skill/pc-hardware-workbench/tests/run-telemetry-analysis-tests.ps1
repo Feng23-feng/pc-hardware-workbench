@@ -124,6 +124,9 @@ bad-row,with-too-few-fields
     Assert-True ($isoTimestampJson.Sampling.Consistency -eq "stable") "ISO timestamp sampling should be stable."
     Assert-True ($isoTimestampJson.SampledSpanSeconds -eq 2) "ISO timestamp input should report a two-second analyzed span."
     Assert-True ($null -eq $isoTimestampJson.PSObject.Properties["ChartData"]) "JSON output should omit ChartData unless requested."
+    $isoTimestampHash = (Get-FileHash -LiteralPath $isoTimestampPath -Algorithm SHA256).Hash.ToLowerInvariant()
+    Assert-True ($isoTimestampJson.SourceSha256 -eq $isoTimestampHash) "Analyzer JSON did not bind the analyzed bytes to the source CSV hash."
+    Assert-True ($isoTimestampJson.SourceBytes -eq (Get-Item -LiteralPath $isoTimestampPath).Length) "Analyzer JSON reported the wrong source byte count."
 
     $jsonWithChartData = & $resolvedAnalyzer `
         -Path $isoTimestampPath `
@@ -135,6 +138,18 @@ bad-row,with-too-few-fields
         ConvertFrom-Json
     Assert-True ($jsonWithChartData.ChartData.ChartDataVersion -eq "1.0") "IncludeChartData should attach ChartData to the JSON result."
     Assert-True (@($jsonWithChartData.ChartData.Series).Count -eq 3) "IncludeChartData should preserve the same selected series."
+    Assert-True ($jsonWithChartData.ChartData.SourceSha256 -eq $isoTimestampHash) "ChartData did not preserve the source CSV SHA-256."
+    Assert-True ($jsonWithChartData.ChartData.SourceBytes -eq (Get-Item -LiteralPath $isoTimestampPath).Length) "ChartData did not preserve the source byte count."
+
+    $directChartData = & $resolvedAnalyzer `
+        -Path $isoTimestampPath `
+        -Format ChartData `
+        -WarmupSeconds 1 `
+        -DurationSeconds 2 `
+        -IncludeColumn '^(gpu_temp_c|gpu_power_w|effective_clock_mhz)$' |
+        ConvertFrom-Json
+    Assert-True ($directChartData.SourceSha256 -eq $isoTimestampHash) "Direct ChartData output did not bind the source CSV hash."
+    Assert-True ($directChartData.SourceBytes -eq (Get-Item -LiteralPath $isoTimestampPath).Length) "Direct ChartData output did not bind the source byte count."
 
     $categoricalJson = & $resolvedAnalyzer -Path $categoricalPath -Format Json | ConvertFrom-Json
     $perfCapSummary = @(

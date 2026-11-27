@@ -142,8 +142,10 @@ For a CSV/chart Task, stay in the same conversation Agent turn and wait for the
 panel-side local analysis instead of asking the user to send “同步面板”:
 
 The local action may provide `chart_preset` as `FirstPass`, `GpuTuning`, or
-`CpuTuning`. Omit it for the evidence-only first-pass pack. A preset changes the
-selected chart families; it never authorizes a conclusion or hardware change.
+`CpuTuning`. Omit it, or pass `null`, for a summary-only analysis with no chart
+artifacts. The interactive chart action explicitly sends `FirstPass`. A preset
+changes selected chart families; it never authorizes a conclusion or hardware
+change.
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass `

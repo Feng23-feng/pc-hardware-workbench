@@ -157,6 +157,41 @@ try {
             (Get-FileHash -LiteralPath $csvPath -Algorithm SHA256).Hash
         ) "Precomputed normalization lost the original CSV hash."
     }
+    $differentCsvPath = Join-Path $tempRoot "different-telemetry.csv"
+    [IO.File]::WriteAllText($differentCsvPath, @'
+"Date","Time","GPU Temperature [C]","GPU Power [W]","FPS"
+"2026-11-03","12:00:00","65","150","80"
+"2026-11-03","12:00:01","66","155","81"
+'@, $utf8)
+    $mismatchedAnalysisOutput = Join-Path $tempRoot "mismatched-analysis-normalized.json"
+    $mismatchedAnalysisResult = Invoke-Process -ScriptPath $resolvedAdapter -Arguments @(
+        "-Path", $differentCsvPath,
+        "-OutputPath", $mismatchedAnalysisOutput,
+        "-AnalysisPath", $analysisPath
+    )
+    Assert-True ($mismatchedAnalysisResult.ExitCode -ne 0) "Normalization accepted AnalysisPath data from a different CSV."
+    Assert-True ($mismatchedAnalysisResult.Stderr -match "source|SHA-256|hash|mismatch") "Cross-file AnalysisPath rejection is unclear."
+    Assert-True (-not (Test-Path -LiteralPath $mismatchedAnalysisOutput -PathType Leaf)) "Cross-file AnalysisPath rejection left a normalized output."
+
+    $legacyAnalysisPath = Join-Path $tempRoot "legacy-analysis.json"
+    $legacyAnalysis = Get-Content -Raw -LiteralPath $analysisPath -Encoding UTF8 | ConvertFrom-Json
+    $legacyAnalysis.PSObject.Properties.Remove("SourceSha256")
+    $legacyAnalysis.PSObject.Properties.Remove("SourceBytes")
+    $legacyAnalysis.ChartData.PSObject.Properties.Remove("SourceSha256")
+    $legacyAnalysis.ChartData.PSObject.Properties.Remove("SourceBytes")
+    [IO.File]::WriteAllText(
+        $legacyAnalysisPath,
+        (($legacyAnalysis | ConvertTo-Json -Depth 12) + "`r`n"),
+        $utf8
+    )
+    $legacyAnalysisOutput = Join-Path $tempRoot "legacy-analysis-normalized.json"
+    $legacyAnalysisResult = Invoke-Process -ScriptPath $resolvedAdapter -Arguments @(
+        "-Path", $csvPath,
+        "-OutputPath", $legacyAnalysisOutput,
+        "-AnalysisPath", $legacyAnalysisPath
+    )
+    Assert-True ($legacyAnalysisResult.ExitCode -ne 0) "Normalization accepted AnalysisPath data without source binding."
+    Assert-True ($legacyAnalysisResult.Stderr -match "source|SHA-256|byte") "Missing AnalysisPath source binding rejection is unclear."
 
     $unattributedOutput = Join-Path $tempRoot "csv-unattributed.json"
     $unattributedResult = Invoke-Process -ScriptPath $resolvedAdapter -Arguments @(

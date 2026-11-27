@@ -18,6 +18,7 @@ function Assert-True {
 }
 
 $resolvedPackRenderer = (Resolve-Path -LiteralPath $PackRendererPath).Path
+$resolvedAnalyzer = Join-Path (Split-Path -Parent $resolvedPackRenderer) "analyze-telemetry.ps1"
 $powershell = (Get-Command powershell.exe -ErrorAction Stop).Source
 $tempRoot = Join-Path ([IO.Path]::GetTempPath()) "pcwb-pack-$([guid]::NewGuid().ToString('N'))"
 
@@ -47,6 +48,10 @@ try {
     Assert-True ($manifest.SchemaVersion -eq "1.0") "Pack manifest schema version is missing."
     Assert-True ($manifest.Preset -eq "FirstPass") "Pack preset is wrong."
     Assert-True ($manifest.Status -eq "complete") "Complete fixture produced a partial pack."
+    Assert-True (
+        [string]$manifest.SourceSha256 -ieq
+        (Get-FileHash -LiteralPath $csvPath -Algorithm SHA256).Hash
+    ) "Pack manifest source hash is wrong."
     Assert-True (@($manifest.Charts).Count -eq 4) "FirstPass should produce four charts."
     $chartIds = @($manifest.Charts | ForEach-Object Id)
     foreach ($requiredId in @(
@@ -87,6 +92,88 @@ try {
     Assert-True (
         ([regex]::Matches($overviewSvg, 'data-series-marker="memory-clock"')).Count -ge 5
     ) "Flat memory clock series lacks visible highlight markers."
+    Assert-True (
+        @(Get-ChildItem -LiteralPath $outputRoot -File -Filter '*chart-data*').Count -eq 0
+    ) "Pack left a temporary ChartData file in its output directory."
+
+    $chartDataPath = Join-Path $tempRoot "windowed-chart-data.json"
+    $chartDataText = (& $resolvedAnalyzer `
+        -Path $csvPath `
+        -Format ChartData `
+        -WarmupSeconds 1 | Out-String).Trim()
+    [IO.File]::WriteAllText($chartDataPath, ($chartDataText + "`r`n"), $utf8)
+
+    $windowedDefaultOutput = Join-Path $tempRoot "windowed-default"
+    $windowedDefaultManifestPath = & $resolvedPackRenderer `
+        -Path $csvPath `
+        -OutputDirectory $windowedDefaultOutput `
+        -Preset FirstPass `
+        -WarmupSeconds 1
+    $windowedDefaultManifest = Get-Content -Raw -LiteralPath $windowedDefaultManifestPath -Encoding UTF8 | ConvertFrom-Json
+
+    $windowedChartDataOutput = Join-Path $tempRoot "windowed-chart-data"
+    $windowedChartDataManifestPath = & $resolvedPackRenderer `
+        -Path $csvPath `
+        -OutputDirectory $windowedChartDataOutput `
+        -Preset FirstPass `
+        -ChartDataPath $chartDataPath
+    $windowedChartDataManifest = Get-Content -Raw -LiteralPath $windowedChartDataManifestPath -Encoding UTF8 | ConvertFrom-Json
+    Assert-True ($windowedDefaultManifest.Window -eq $windowedChartDataManifest.Window) "Pack manifest window changed between CSV and ChartData input paths."
+    foreach ($chart in @($windowedChartDataManifest.Charts)) {
+        $defaultChartPath = Join-Path $windowedDefaultOutput $chart.RelativePath
+        $chartDataChartPath = Join-Path $windowedChartDataOutput $chart.RelativePath
+        Assert-True (
+            (Get-FileHash -LiteralPath $defaultChartPath -Algorithm SHA256).Hash -eq
+            (Get-FileHash -LiteralPath $chartDataChartPath -Algorithm SHA256).Hash
+        ) "Renderer reparsed the CSV instead of using analyzer-owned ChartData: $($chart.RelativePath)"
+    }
+
+    $differentCsvPath = Join-Path $tempRoot "different.csv"
+    [IO.File]::WriteAllText($differentCsvPath, @'
+"Date","Time","FPS","GPU Core Voltage [V]","GPU Effective Clock [MHz]","GPU Power [W]","GPU Temperature [C]"
+"2026-11-04","12:00:00","50","0.700","1800","90","50"
+"2026-11-04","12:00:01","51","0.705","1810","92","51"
+'@, $utf8)
+    $mismatchOutput = Join-Path $tempRoot "mismatched-chart-data"
+    $previousErrorActionPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = "Continue"
+        $mismatchCapture = & $powershell `
+            -NoProfile `
+            -ExecutionPolicy Bypass `
+            -File $resolvedPackRenderer `
+            -Path $differentCsvPath `
+            -OutputDirectory $mismatchOutput `
+            -Preset FirstPass `
+            -ChartDataPath $chartDataPath 2>&1
+        $mismatchExitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
+    Assert-True ($mismatchExitCode -ne 0) "Pack accepted ChartData generated from a different CSV."
+    Assert-True ((($mismatchCapture | ForEach-Object { [string]$_ }) -join " ") -match "source|SHA-256|hash|mismatch") "Cross-file ChartData rejection is unclear."
+
+    $windowConflictOutput = Join-Path $tempRoot "chart-data-with-window"
+    $previousErrorActionPreference = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = "Continue"
+        $windowConflictCapture = & $powershell `
+            -NoProfile `
+            -ExecutionPolicy Bypass `
+            -File $resolvedPackRenderer `
+            -Path $csvPath `
+            -OutputDirectory $windowConflictOutput `
+            -Preset FirstPass `
+            -ChartDataPath $chartDataPath `
+            -WarmupSeconds 1 2>&1
+        $windowConflictExitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorActionPreference
+    }
+    Assert-True ($windowConflictExitCode -ne 0) "Pack accepted ChartDataPath together with a new analysis window."
+    Assert-True ((($windowConflictCapture | ForEach-Object { [string]$_ }) -join " ") -match "window|WarmupSeconds|DurationSeconds") "ChartData/window conflict rejection is unclear."
 
     $gpuOutput = Join-Path $tempRoot "gpu-tuning"
     $gpuManifestPath = & $resolvedPackRenderer `

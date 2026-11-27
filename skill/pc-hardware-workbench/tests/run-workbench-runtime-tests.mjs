@@ -334,13 +334,6 @@ assert.equal(
   "analysis failure mapping must be directly regression-testable",
 );
 
-const existingCriticalRecommendation = {
-  id: "runtime-stop-and-disconnect",
-  title: "停止测试并断开危险电源",
-  detail: "立即停止通电测试，在安全条件下断开电源并检查焦痕、液体或损坏连接器。",
-  risk: "low",
-  evidence_goal: "先消除物理危险，不继续自动复测。",
-};
 const normalRecommendation = {
   id: "runtime-acoustic-check",
   title: "记录风扇噪音",
@@ -475,44 +468,110 @@ assert.equal(
   "historical packet text alone must not force a current safety stop",
 );
 
-const agentBlockedPanel = runtimeModule.enforceSafetyStateContract(
+const mixedHazardPanel = runtimeModule.enforceSafetyStateContract(
+  {
+    ...normalPanel,
+    current_goal: "没有焦味且有火花",
+    recommendations: [normalRecommendation],
+  },
+  {
+    task_context: { objective: "没有焦味且有火花" },
+  },
+);
+assert.equal(
+  mixedHazardPanel.status,
+  "blocked",
+  "negating one hazard must not hide a different current physical hazard",
+);
+
+const ordinaryBlockedPanel = {
+  ...normalPanel,
+  status: "blocked",
+  current_goal: "当前没有权限读取传感器数据",
+  result_title: "需要只读权限后才能继续",
+  recommendations: [normalRecommendation],
+  priorityAction: {
+    title: "允许一次只读分析",
+    detail: "重新授权当前附件后继续检查。",
+  },
+  actions: [
+    {
+      id: "copy-permission-step",
+      label: "复制授权步骤",
+      kind: "copy",
+      content: "在当前 Task 中允许一次只读分析。",
+    },
+  ],
+};
+assert.deepEqual(
+  runtimeModule.enforceSafetyStateContract(ordinaryBlockedPanel, {
+    task_context: { objective: "当前没有权限读取传感器数据" },
+  }),
+  ordinaryBlockedPanel,
+  "ordinary blocked states must not be converted into a physical safety stop",
+);
+
+const ordinaryStopPanel = {
+  ...normalPanel,
+  current_goal: "下载官方驱动",
+  priorityAction: {
+    title: "停止运行后台下载",
+    detail: "结束下载进程后重新选择官方页面。",
+  },
+};
+assert.deepEqual(
+  runtimeModule.enforceSafetyStateContract(ordinaryStopPanel, {
+    task_context: { objective: "下载官方驱动" },
+  }),
+  ordinaryStopPanel,
+  "a non-physical stop action must not trigger the physical safety stop",
+);
+
+const contradictoryHazardPanel = runtimeModule.enforceSafetyStateContract(
   {
     ...normalPanel,
     status: "blocked",
-    current_goal: "游戏掉帧",
+    current_goal: "没有焦味且有火花",
+    result_title: "停止测试",
     recommendations: [normalRecommendation],
     priorityAction: {
-      title: "立即停止使用电脑",
-      detail: "不要再次通电；在安全条件下断开电源并送修。",
+      title: "停止测试",
+      detail: "然后继续通电复测。",
     },
     actions: [
       {
-        id: "copy-next-step",
+        id: "copy-hazard-step",
         label: "复制",
         kind: "copy",
-        content: "继续测试",
+        content: "继续通电复测",
       },
     ],
   },
   {
-    task_context: { objective: "游戏掉帧" },
+    task_context: { objective: "没有焦味且有火花" },
   },
 );
-assert.equal(agentBlockedPanel.status, "blocked");
-assert.equal(agentBlockedPanel.question, null);
+assert.equal(contradictoryHazardPanel.status, "blocked");
 assert.equal(
-  agentBlockedPanel.actions.length,
-  0,
-  "blocked status must suppress routine actions even without hazard keywords",
+  contradictoryHazardPanel.priorityAction.title,
+  "立即停止使用并断开电源",
+  "a confirmed physical hazard must use the canonical stop action",
 );
-assert.equal(
-  agentBlockedPanel.recommendations.some(
-    (item) => item.id === normalRecommendation.id,
-  ),
-  false,
-  "blocked status must suppress routine recommendations",
+assert.doesNotMatch(
+  contradictoryHazardPanel.priorityAction.detail,
+  /然后继续|继续通电复测|重新通电/u,
+  "an Agent-authored stop detail must not bypass the safety contract",
 );
-assert.match(agentBlockedPanel.priorityAction.title, /停止/u);
+assert.deepEqual(
+  contradictoryHazardPanel.recommendations.map((item) => item.id),
+  ["runtime-safety-stop"],
+  "a confirmed physical hazard must replace routine recommendations",
+);
+assert.deepEqual(
+  contradictoryHazardPanel.actions,
+  [],
+  "a confirmed physical hazard must suppress routine copy actions",
+);
 
 for (const [code, titlePattern, copyPattern] of [
   ["analysis_timeout", /超时/u, /缩小分析窗口|时间窗口/u],

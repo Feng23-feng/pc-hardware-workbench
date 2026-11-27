@@ -38,6 +38,8 @@ When a caller already has analyzer JSON with `ChartData`, pass it with
 `-AnalysisPath` instead of calling the analyzer again. The analysis window must
 already be applied; do not combine `AnalysisPath` with window parameters. The
 original CSV path is still used for its SHA-256, filename, and source metadata.
+The analyzer source SHA-256 and byte count must match that CSV and the nested
+`ChartData`; missing or conflicting bindings fail closed.
 
 If source metadata is omitted, normalization continues for compatibility but
 records explicit warnings instead of inventing the tool, version, device, or

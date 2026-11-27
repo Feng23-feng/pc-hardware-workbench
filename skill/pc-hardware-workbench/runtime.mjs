@@ -34,16 +34,21 @@ function completedOneTimeAttachmentAnalysis(task, attachment) {
   );
 }
 
-const SAFETY_STOP_TITLE_PATTERN =
-  /^(?:(?:请|必须|建议|需要|务必|应当?|先)\s*(?:尽快|立即|马上|立刻)?\s*|(?:尽快|立即|马上|立刻)\s*)?(?:停止(?:测试|使用|运行|通电)?|断开|不要(?:再次)?通电|禁止通电|断电|关机|切断电源|送修|stop\b|disconnect\b|power off\b|unplug\b)/iu;
-const PHYSICAL_HAZARD_PATTERN =
-  /烧焦|焦味|焦糊|冒烟|烟味|火花|电弧|打火|漏液|液体[^。]{0,20}(?:通电|电源|设备)|异味[^。]{0,20}(?:插头|电源|设备)|插头[^。]{0,20}过热|连接器[^。]{0,20}(?:损坏|熔化|烧)|电池[^。]{0,20}(?:鼓包|膨胀)|(?:线路|导线)[^。]{0,20}裸露|烧痕|熔痕|burning|smoke|sparks?|arcing|liquid[^.]{0,20}power|swollen battery|damaged connector|exposed wiring|electrical damage/iu;
-const NEGATED_HAZARD_PATTERN =
-  /(?:没有|未见|未|无|不再|已排除|并非|不是)[^。]{0,24}(?:焦味|冒烟|烟味|火花|电弧|漏液|过热|烧焦|烧痕|熔痕)/iu;
-const RESOLVED_HAZARD_PATTERN =
-  /(?:焦味|冒烟|烟味|火花|电弧|漏液|过热|烧焦|烧痕|熔痕)[^。]{0,18}(?:已经?排除|已经?修复|已恢复|不再出现|未再出现|已消失)/iu;
+const PHYSICAL_HAZARD_SOURCE =
+  String.raw`烧焦|焦味|焦糊|冒烟|烟味|火花|电弧|打火|漏液|明显异味|刺鼻异味|液体[^。]{0,20}(?:通电|电源|设备)|异味[^。]{0,20}(?:插头|电源|设备)|插头[^。]{0,20}过热|连接器[^。]{0,20}(?:损坏|熔化|烧)|电池[^。]{0,20}(?:鼓包|膨胀)|(?:线路|导线)[^。]{0,20}裸露|烧痕|熔痕|burning|smoke|sparks?|arcing|liquid[^.]{0,20}power|swollen battery|damaged connector|exposed wiring|electrical damage`;
+const HAZARD_SEGMENT_SEPARATOR =
+  /[，。；;\n]+|但仍|但是|但|不过|然而|却|仍然|依然|仍|并且|同时|且|而/iu;
+const NEGATED_HAZARD_SCOPE_PATTERN =
+  /(?:没有|未见|未发现|未出现|未闻到|无|不存在|不再有|已排除|并非|不是)(?:明显|任何|新的|当前)?[^且但而却]{0,20}\s*$/iu;
+const RESOLVED_HAZARD_SCOPE_PATTERN =
+  /^\s*(?:已经?排除|已经?修复|已恢复|不再出现|未再出现|已消失)/iu;
 const HISTORICAL_MARKER = /此前|之前|以前|上次|历史|昨天|前天|刚才/iu;
 const CURRENT_MARKER = /现在|当前|这次|本次|最近|仍然|依然|还在|持续/iu;
+const PHYSICAL_SAFETY_ACTION = Object.freeze({
+  title: "立即停止使用并断开电源",
+  detail:
+    "停止测试、参数修改和继续通电；仅在安全时关闭设备并断开电源。不要继续通电、复测或拆装，联系合格维修处理燃烧、液体、损坏连接器或其他电气危险。",
+});
 
 function currentTaskContext(panel, packet) {
   return String(
@@ -57,58 +62,40 @@ function currentTaskContext(panel, packet) {
 
 function hasCurrentPhysicalHazard(panel, packet) {
   const currentContext = currentTaskContext(panel, packet);
-  return currentContext
-    .split(/[，。；;\n]+|但仍|但是|但|不过|然而|却|仍然|依然|仍/iu)
+  const clauses = currentContext
+    .split(HAZARD_SEGMENT_SEPARATOR)
     .map((value) => value.trim())
-    .filter(Boolean)
-    .some(
-      (clause) =>
-        PHYSICAL_HAZARD_PATTERN.test(clause) &&
-        !(HISTORICAL_MARKER.test(clause) && !CURRENT_MARKER.test(clause)) &&
-        !NEGATED_HAZARD_PATTERN.test(clause) &&
-        !RESOLVED_HAZARD_PATTERN.test(clause),
-    );
+    .filter(Boolean);
+  for (const clause of clauses) {
+    if (HISTORICAL_MARKER.test(clause) && !CURRENT_MARKER.test(clause)) {
+      continue;
+    }
+    const hazardPattern = new RegExp(PHYSICAL_HAZARD_SOURCE, "giu");
+    for (const match of clause.matchAll(hazardPattern)) {
+      const before = clause.slice(0, match.index);
+      if (NEGATED_HAZARD_SCOPE_PATTERN.test(before)) {
+        continue;
+      }
+      const after = clause.slice(match.index + match[0].length);
+      if (RESOLVED_HAZARD_SCOPE_PATTERN.test(after)) {
+        continue;
+      }
+      return true;
+    }
+  }
+  return false;
 }
 
-function safetyStopAction(panel) {
-  if (
-    SAFETY_STOP_TITLE_PATTERN.test(
-      String(panel.priorityAction?.title ?? "").trim(),
-    )
-  ) {
-    return panel.priorityAction;
-  }
-  const existingStop = (panel.recommendations ?? []).find((item) =>
-    SAFETY_STOP_TITLE_PATTERN.test(String(item.title ?? "").trim()),
-  );
-  if (existingStop) {
-    return {
-      title: existingStop.title,
-      detail: existingStop.detail,
-    };
-  }
-  return {
-    title: "先停止操作并确认安全",
-    detail:
-      "停止测试和参数修改；仅在安全时关闭设备并断开电源。不要继续通电、复测或拆装，先确认是否存在燃烧、液体、损坏连接器或其他电气危险。",
-  };
-}
-
-function enforceBlockedState(panel, { hazard }) {
-  const action = safetyStopAction(panel);
+function enforcePhysicalHazardStop(panel) {
+  const action = PHYSICAL_SAFETY_ACTION;
   return {
     ...panel,
     status: "blocked",
     question: null,
-    result_title: hazard
-      ? "先停止使用并处理物理危险"
-      : panel.result_title ?? "检查已停止",
-    turn_summary: hazard
-      ? "检测到当前物理危险信号，需要先停止使用并确认安全。"
-      : panel.turn_summary,
-    judgement: hazard
-      ? "在继续任何测试、拆装或参数调整前，先停止使用设备；仅在安全条件下断电并联系合格维修。"
-      : panel.judgement,
+    result_title: "先停止使用并处理物理危险",
+    turn_summary: "检测到当前物理危险信号，需要先停止使用并确认安全。",
+    judgement:
+      "在继续任何测试、拆装或参数调整前，先停止使用设备；仅在安全条件下断电并联系合格维修。",
     recommendation: {
       summary: action.title,
       option_id: null,
@@ -132,17 +119,8 @@ export function enforceSafetyStateContract(panel, packet) {
   if (!["1.1", "1.2"].includes(panel.schema_version)) {
     return panel;
   }
-  const hazard = hasCurrentPhysicalHazard(panel, packet);
-  const authoredStop =
-    panel.status === "blocked" ||
-    SAFETY_STOP_TITLE_PATTERN.test(
-      String(panel.priorityAction?.title ?? "").trim(),
-    ) ||
-    (panel.recommendations ?? []).some((item) =>
-      SAFETY_STOP_TITLE_PATTERN.test(String(item.title ?? "").trim()),
-    );
-  return hazard || authoredStop
-    ? enforceBlockedState(panel, { hazard })
+  return hasCurrentPhysicalHazard(panel, packet)
+    ? enforcePhysicalHazardStop(panel)
     : panel;
 }
 
@@ -882,7 +860,7 @@ class PcHardwareWorkbenchRuntime {
       warmup_seconds: input.warmup_seconds ?? null,
       duration_seconds: input.duration_seconds ?? null,
     };
-    const chartPreset = input.chart_preset ?? "FirstPass";
+    const chartPreset = input.chart_preset ?? null;
     let cached;
     try {
       cached = this.broker.findCached({
@@ -1007,6 +985,11 @@ class PcHardwareWorkbenchRuntime {
       host.setSubmitting(false);
       return { statusCode: 200 };
     }
+    const resultArtifacts = Array.isArray(result.artifacts)
+      ? result.artifacts.filter(Boolean)
+      : result.artifact
+        ? [result.artifact]
+        : [];
 
     host.setRunning();
     const activityLabel = `分析数据：${attachment.original_name}`;
@@ -1031,9 +1014,11 @@ class PcHardwareWorkbenchRuntime {
         analysis: result.analysis,
         chart_preset: result.chart_preset ?? chartPreset,
         artifact: result.artifact,
-        artifacts: result.artifacts ?? [result.artifact],
+        artifacts: resultArtifacts,
         instruction:
-          "Treat local analyzer metrics, sampled_span_seconds, window, warnings, and artifact metadata as authoritative. Preserve the artifact array as one evidence-only chart pack; keep any conclusion separate. State the telemetry span exactly; never reinterpret device age or driver age as sample duration.",
+          resultArtifacts.length > 0
+            ? "Treat local analyzer metrics, sampled_span_seconds, window, warnings, and artifact metadata as authoritative. Preserve the artifact array as one evidence-only chart pack; keep any conclusion separate. State the telemetry span exactly; never reinterpret device age or driver age as sample duration."
+            : "Treat the local analyzer summary, sampled_span_seconds, window, warnings, and uncertainty as authoritative. No chart was requested for this analysis; do not invent an artifact. State the telemetry span exactly; never reinterpret device age or driver age as sample duration.",
       },
     };
     host.appendEvent({ type: "ui.panel_tool_result", packet });
@@ -1042,7 +1027,7 @@ class PcHardwareWorkbenchRuntime {
       typeof host.isSourceHosted === "function" &&
       host.isSourceHosted()
     ) {
-      for (const artifact of result.artifacts ?? [result.artifact]) {
+      for (const artifact of resultArtifacts) {
         if (!task.artifacts.some((existing) => existing.id === artifact.id)) {
           task.artifacts.push(artifact);
         }
@@ -1056,10 +1041,8 @@ class PcHardwareWorkbenchRuntime {
         window: packet.tool_result.analysis.requested_window,
         chart_preset: result.chart_preset ?? chartPreset,
         cache_hit: result.cache_hit,
-        artifact_id: result.artifact.id,
-        artifact_ids: (result.artifacts ?? [result.artifact]).map(
-          (artifact) => artifact.id,
-        ),
+        artifact_id: resultArtifacts[0]?.id ?? null,
+        artifact_ids: resultArtifacts.map((artifact) => artifact.id),
         permission_scope: permissionScope,
         permission_grant_id: permissionGrantId,
         local_completed_at: new Date().toISOString(),
@@ -1072,17 +1055,17 @@ class PcHardwareWorkbenchRuntime {
         "tool",
         `本地分析完成 ${attachment.original_name}：` +
           `${packet.tool_result.analysis.analyzed_rows} 行；` +
-          "证据图表包已生成，等待来源 Agent 返回结论。",
+          (resultArtifacts.length > 0
+            ? "证据图表包已生成，等待来源 Agent 返回结论。"
+            : "摘要已生成，等待来源 Agent 返回结论。"),
       );
       host.appendEvent({
         type: "action.local_completed",
         action_id: actionId,
         attachment_id: attachment.id,
         chart_preset: result.chart_preset ?? chartPreset,
-        artifact_id: result.artifact.id,
-        artifact_ids: (result.artifacts ?? [result.artifact]).map(
-          (artifact) => artifact.id,
-        ),
+        artifact_id: resultArtifacts[0]?.id ?? null,
+        artifact_ids: resultArtifacts.map((artifact) => artifact.id),
         cache_hit: result.cache_hit,
         task_id: task.task_id,
         session_ref: host.getSessionReference(),
@@ -1094,10 +1077,8 @@ class PcHardwareWorkbenchRuntime {
         statusCode: 202,
         body: {
           source_hosted_pending: true,
-          artifact_ref: result.artifact.id,
-          artifact_refs: (result.artifacts ?? [result.artifact]).map(
-            (artifact) => artifact.id,
-          ),
+          artifact_ref: resultArtifacts[0]?.id ?? null,
+          artifact_refs: resultArtifacts.map((artifact) => artifact.id),
         },
       };
     }
@@ -1114,7 +1095,7 @@ class PcHardwareWorkbenchRuntime {
       host.setPhase(panel.status === "needs_input" ? "needs_input" : panel.status);
       host.setLastTurn(agentResult.turnId);
       host.updateTaskFromPanel(panel);
-      for (const artifact of result.artifacts ?? [result.artifact]) {
+      for (const artifact of resultArtifacts) {
         if (!task.artifacts.some((existing) => existing.id === artifact.id)) {
           task.artifacts.push(artifact);
         }
@@ -1125,15 +1106,13 @@ class PcHardwareWorkbenchRuntime {
         action_id: actionId,
         attachment_id: attachment.id,
         source_sha256: attachment.sha256,
-        window: result.artifact.source_evidence_ids.length > 0
+        window: (resultArtifacts[0]?.source_evidence_ids?.length ?? 0) > 0
           ? packet.tool_result.analysis.requested_window
           : null,
         chart_preset: result.chart_preset ?? chartPreset,
         cache_hit: result.cache_hit,
-        artifact_id: result.artifact.id,
-        artifact_ids: (result.artifacts ?? [result.artifact]).map(
-          (artifact) => artifact.id,
-        ),
+        artifact_id: resultArtifacts[0]?.id ?? null,
+        artifact_ids: resultArtifacts.map((artifact) => artifact.id),
         permission_scope: permissionScope,
         permission_grant_id: permissionGrantId,
         completed_at: new Date().toISOString(),
@@ -1152,10 +1131,8 @@ class PcHardwareWorkbenchRuntime {
         action_id: actionId,
         attachment_id: attachment.id,
         chart_preset: result.chart_preset ?? chartPreset,
-        artifact_id: result.artifact.id,
-        artifact_ids: (result.artifacts ?? [result.artifact]).map(
-          (artifact) => artifact.id,
-        ),
+        artifact_id: resultArtifacts[0]?.id ?? null,
+        artifact_ids: resultArtifacts.map((artifact) => artifact.id),
         cache_hit: result.cache_hit,
         task_id: task.task_id,
         session_ref: host.getSessionReference(),

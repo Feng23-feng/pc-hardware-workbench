@@ -85,6 +85,8 @@ Every unfinished operational branch must end in one of these states:
 - one specific question needed to continue;
 - an explicit cancellation that states what was not changed or produced;
 - a safety stop with the reason and the smallest safe next step;
+- a non-physical block caused by permission, evidence, or a tuning gate, with
+  the corresponding recovery step rather than electrical-safety wording;
 - a mode handoff that names the remaining work.
 
 Never return from an unfinished subflow with only an unexplained menu reset. If a

@@ -105,14 +105,25 @@ sync, the runtime rechecks Task ownership, controlled real path, byte count,
 SHA-256, and SVG safety. Every cached file must still match its stored hash.
 The first artifact remains available as a legacy singular reference, but new
 UI/event consumers use the `artifacts` array and corresponding `artifact_refs`.
-`chart_preset` is limited to the fixed `FirstPass`, `GpuTuning`, or `CpuTuning`
-choices and remains inside the same read-only CSV capability.
+`chart_preset` is optional. If omitted or explicitly `null`, the action returns
+the analyzer summary without running chart-pack generation. The interactive
+chart-analysis action explicitly requests `FirstPass`. Explicit `FirstPass`,
+`GpuTuning`, or `CpuTuning` values retain the existing chart-pack behavior and
+remain inside the same read-only CSV capability.
 
-Runtime safety enforcement is intentionally narrow. It may force `blocked` and a
-fixed stop action when the current task contains an explicit physical-danger
-signal, or when the Agent already supplied a structured blocked/stop conclusion.
-Blocked results suppress routine recommendations, copy actions, and questions.
-Historical or negated packet text does not trigger a current stop.
+The analysis records `analyzer_passes` and `analyzer_pass_reason`. The normal
+path reports one pass. The narrow `CandidateColumnPattern` recovery may report
+two passes and must add an explicit fallback warning instead of presenting every
+path as single-pass.
+
+Runtime safety enforcement is intentionally narrow. Only a current explicit
+physical-danger signal forces `blocked` and the canonical stop action. An
+ordinary `blocked` state, such as missing permission, insufficient evidence, or
+a tuning gate, remains Agent-authored and is not converted into an electrical
+safety stop. Historical or negated text does not trigger a stop. Negating one
+hazard does not suppress a different hazard in the same sentence. Once a hazard
+is confirmed, conflicting Agent detail text is discarded with the replacement
+action.
 
 General symptom interpretation, display-retest evidence selection, and normal
 recommendations belong to the Agent. Runtime must not infer black-screen or

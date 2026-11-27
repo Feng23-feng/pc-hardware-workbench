@@ -78,7 +78,10 @@ function normalizeWindow(input = {}) {
 }
 
 function normalizeChartPreset(value) {
-  const preset = String(value ?? "FirstPass");
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+  const preset = String(value);
   if (!["FirstPass", "GpuTuning", "CpuTuning"].includes(preset)) {
     throw new TelemetryBrokerError(
       "invalid_chart_preset",
@@ -333,7 +336,30 @@ function normalizeArtifacts(value) {
   return values.filter(Boolean).slice(0, MAX_CHART_ARTIFACTS);
 }
 
-export function analysisSummary(analysis, buffer) {
+function assertChartDataSourceBinding(chartData, { actualHash, actualBytes }) {
+  const boundHash = String(chartData?.SourceSha256 ?? "").toLowerCase();
+  const boundBytes = Number(chartData?.SourceBytes);
+  if (
+    !/^[a-f0-9]{64}$/u.test(boundHash) ||
+    !Number.isInteger(boundBytes) ||
+    boundHash !== String(actualHash).toLowerCase() ||
+    boundBytes !== actualBytes
+  ) {
+    throw new TelemetryBrokerError(
+      "evidence_binding_mismatch",
+      "ChartData 与当前附件 SHA-256 或字节数不一致，已拒绝复用。",
+    );
+  }
+}
+
+export function analysisSummary(
+  analysis,
+  buffer,
+  {
+    analyzerPasses = 1,
+    analyzerPassReason = "standard",
+  } = {},
+) {
   const analyzedRowStart = Number.isInteger(analysis.AnalyzedRowStart)
     ? analysis.AnalyzedRowStart
     : null;
@@ -342,6 +368,14 @@ export function analysisSummary(analysis, buffer) {
     : null;
   return {
     analyzer_version: analysis.AnalyzerVersion ?? "unknown",
+    source_sha256:
+      analysis.SourceSha256 ?? sha256(buffer ?? Buffer.alloc(0)),
+    source_bytes:
+      Number.isInteger(analysis.SourceBytes)
+        ? analysis.SourceBytes
+        : buffer?.length ?? null,
+    analyzer_passes: analyzerPasses,
+    analyzer_pass_reason: analyzerPassReason,
     header_line: analysis.HeaderLine ?? 1,
     analyzed_rows: Number.isInteger(analysis.AnalyzedRows)
       ? analysis.AnalyzedRows
@@ -712,6 +746,7 @@ export class TelemetryBroker {
     parsed,
     window,
     actualHash,
+    actualBytes,
     preset,
   }) {
     const packDirectory = resolve(
@@ -741,6 +776,10 @@ export class TelemetryBroker {
       Array.isArray(parsed.ChartData.Series) &&
       parsed.ChartData.Series.length > 0;
     if (hasChartData) {
+      assertChartDataSourceBinding(parsed.ChartData, {
+        actualHash,
+        actualBytes,
+      });
       writeFileSync(
         chartDataPath,
         `${JSON.stringify(parsed.ChartData, null, 2)}\n`,
@@ -979,7 +1018,7 @@ export class TelemetryBroker {
     taskId,
     attachment,
     window: windowInput = {},
-    preset: presetInput = "FirstPass",
+    preset: presetInput = null,
   }) {
     if (!/^[A-Za-z0-9_-]{8,120}$/u.test(String(taskId))) {
       throw new TelemetryBrokerError("invalid_task", "任务 ID 无效", {
@@ -990,7 +1029,7 @@ export class TelemetryBroker {
     const preset = normalizeChartPreset(presetInput);
     const reference = this.validateAttachmentReference(attachment);
     const cacheKey =
-      `${ANALYZER_CACHE_VERSION}:${preset}:` +
+      `${ANALYZER_CACHE_VERSION}:${preset ?? "summary"}:` +
       `${reference.declaredHash}:${windowSignature(window)}`;
     const records = this.getCachedArtifactPack(this.loadIndex(), {
       cacheKey,
@@ -1019,7 +1058,7 @@ export class TelemetryBroker {
     taskId,
     attachment,
     window: windowInput = {},
-    preset: presetInput = "FirstPass",
+    preset: presetInput = null,
   }) {
     const cached = this.findCached({
       taskId,
@@ -1038,7 +1077,7 @@ export class TelemetryBroker {
     const window = normalizeWindow(windowInput);
     const preset = normalizeChartPreset(presetInput);
     const { filePath, buffer, actualHash } = this.validateAttachment(attachment);
-    const cacheKey = `${ANALYZER_CACHE_VERSION}:${preset}:${actualHash}:${windowSignature(window)}`;
+    const cacheKey = `${ANALYZER_CACHE_VERSION}:${preset ?? "summary"}:${actualHash}:${windowSignature(window)}`;
     const index = this.loadIndex();
     const reusesArtifacts = this.getCachedArtifactPack(index, {
       cacheKey,
@@ -1055,6 +1094,8 @@ export class TelemetryBroker {
 
     let analysis;
     let chartPack = null;
+    let analyzerPasses = 0;
+    let analyzerPassReason = "standard";
     if (reusesArtifacts.length > 0) {
       analysis = reusesArtifacts[0].analysis;
     } else {
@@ -1063,8 +1104,10 @@ export class TelemetryBroker {
         filePath,
         "-Format",
         "Json",
-        "-IncludeChartData",
       ];
+      if (preset !== null) {
+        baseArgs.push("-IncludeChartData");
+      }
       if (window.warmup !== null) {
         baseArgs.push("-WarmupSeconds", String(window.warmup));
       }
@@ -1072,6 +1115,7 @@ export class TelemetryBroker {
         baseArgs.push("-DurationSeconds", String(window.duration));
       }
       const first = await this.runPowerShell(this.analyzerPath, baseArgs);
+      analyzerPasses = 1;
       let parsed;
       try {
         parsed = JSON.parse(first.stdout);
@@ -1084,6 +1128,8 @@ export class TelemetryBroker {
       if (!Array.isArray(parsed.Metrics) || parsed.Metrics.length === 0) {
         const includeColumn = parsed.CandidateColumnPattern;
         if (includeColumn) {
+          analyzerPasses = 2;
+          analyzerPassReason = "candidate_column_retry";
           const fallback = await this.runPowerShell(this.analyzerPath, [
             ...baseArgs,
             "-IncludeColumn",
@@ -1111,30 +1157,48 @@ export class TelemetryBroker {
           },
         );
       }
-      analysis = analysisSummary(parsed, buffer);
+      analysis = analysisSummary(parsed, buffer, {
+        analyzerPasses,
+        analyzerPassReason,
+      });
+      if (
+        analyzerPassReason === "candidate_column_retry" &&
+        !analysis.warnings.some((warning) =>
+          /候选列|第二次|fallback/iu.test(warning)
+        )
+      ) {
+        analysis.warnings.push(
+          "常规指标识别未返回序列，已使用候选列模式进行第二次分析。",
+        );
+      }
       try {
-        chartPack = await this.buildChartPack({
-          taskDirectory,
-          filePath,
-          parsed,
-          window,
-          actualHash,
-          preset,
-        });
-        for (const warning of chartPack.warnings) {
-          if (!analysis.warnings.includes(warning)) {
-            analysis.warnings.push(warning);
+        if (preset === null) {
+          this.validateAttachment(attachment);
+        } else {
+          chartPack = await this.buildChartPack({
+            taskDirectory,
+            filePath,
+            parsed,
+            window,
+            actualHash,
+            actualBytes: buffer.length,
+            preset,
+          });
+          for (const warning of chartPack.warnings) {
+            if (!analysis.warnings.includes(warning)) {
+              analysis.warnings.push(warning);
+            }
           }
-        }
-        for (const skippedItem of chartPack.skipped) {
-          const warning = `图表包跳过：${skippedItem}`;
-          if (!analysis.warnings.includes(warning)) {
-            analysis.warnings.push(warning);
+          for (const skippedItem of chartPack.skipped) {
+            const warning = `图表包跳过：${skippedItem}`;
+            if (!analysis.warnings.includes(warning)) {
+              analysis.warnings.push(warning);
+            }
           }
+          // Analyzer and renderer child processes reopen the path after the
+          // initial hash check. Recheck only after that full pipeline finishes.
+          this.validateAttachment(attachment);
         }
-        // Analyzer and renderer child processes reopen the path after the
-        // initial hash check. Recheck only after that full pipeline finishes.
-        this.validateAttachment(attachment);
       } catch (error) {
         if (chartPack?.packDirectory) {
           rmSync(chartPack.packDirectory, { recursive: true, force: true });
@@ -1150,7 +1214,7 @@ export class TelemetryBroker {
             title: record.title,
             safe: assertSafeSvg(readFileSync(record.absolute_path)),
           }))
-        : chartPack.charts;
+        : chartPack?.charts ?? [];
     const packId = `pack-${randomUUID()}`;
     const artifacts = artifactInputs.map((item, packIndex) => {
       const artifactId = `artifact-${randomUUID()}`;
@@ -1183,8 +1247,10 @@ export class TelemetryBroker {
     if (chartPack?.packDirectory) {
       rmSync(chartPack.packDirectory, { recursive: true, force: true });
     }
-    index.artifacts.push(...artifacts);
-    this.saveIndex(index);
+    if (artifacts.length > 0) {
+      index.artifacts.push(...artifacts);
+      this.saveIndex(index);
+    }
     return {
       ok: true,
       cache_hit: reusesArtifacts.length > 0,
@@ -1193,7 +1259,7 @@ export class TelemetryBroker {
         original_name: attachment.original_name,
         sha256: actualHash,
       },
-      artifact: publicArtifact(artifacts[0]),
+      artifact: artifacts.length > 0 ? publicArtifact(artifacts[0]) : null,
       artifacts: artifacts.map(publicArtifact),
       analysis,
       chart_preset: preset,
@@ -1211,6 +1277,9 @@ export class TelemetryBroker {
     const requestedArtifacts = normalizeArtifacts(
       result.artifacts ?? result.artifact,
     );
+    if (requestedArtifacts.length === 0) {
+      return normalizePanelWindow(panel, result.analysis, []);
+    }
     const artifacts = requestedArtifacts
       .map((artifact) => this.getArtifact(artifact.id, { taskId }))
       .filter(Boolean);
