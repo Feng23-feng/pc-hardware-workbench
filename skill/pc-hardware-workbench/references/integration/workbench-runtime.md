@@ -125,6 +125,15 @@ hazard does not suppress a different hazard in the same sentence. Once a hazard
 is confirmed, conflicting Agent detail text is discarded with the replacement
 action.
 
+Safety detection evaluates the user's current task objective together with the
+Agent-authored current goal. An Agent summary cannot replace or hide physical
+danger retained in the original objective. Analyzer bindings must come from the
+analyzer result itself; the attachment hash is not substituted when analyzer
+source evidence is missing.
+Technical test labels such as `smoke test`, `smoke testing`, and
+`signed handoff smoke` are not physical-smoke evidence. This is a narrow
+ambiguity exclusion, not a broader hazard vocabulary.
+
 General symptom interpretation, display-retest evidence selection, and normal
 recommendations belong to the Agent. Runtime must not infer black-screen or
 stutter recommendations from task text, and it must not rewrite Agent-authored
@@ -133,6 +142,11 @@ advice when no safety contract applies.
 A completed `ready` answer may omit `uncertainty`, `recommendations`,
 `priorityAction`, and `actions`. Evidence gaps, conflicts, and uncertainty remain
 visible whenever they actually exist.
+
+Source-hosted completion follows the actual `chart_preset`: summary-only
+completion requires a source-bound analysis and no artifact; an explicit chart
+preset requires verified chart artifacts. The existing Task, path, hash, and SVG
+checks remain mandatory for chart results.
 
 Artifact lookup accepts `getArtifact(id, { taskId })`. Callers that omit the
 current Task identity for task-owned artifacts fail closed rather than returning

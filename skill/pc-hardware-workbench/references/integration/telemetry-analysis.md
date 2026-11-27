@@ -48,6 +48,10 @@ CSV again.
 The analyzer records the exact source byte count and SHA-256 in both its JSON
 result and `ChartData`. Consumers must reject a reused analysis whose binding
 does not match the CSV they are about to associate with it.
+Broker validation happens before summary normalization; a missing or incorrect
+top-level analyzer binding is rejected and is never replaced with the attachment
+hash. If ChartData is present, its binding must equal the validated top-level
+binding.
 Broker summaries record `analyzer_passes` and `analyzer_pass_reason`. The normal
 path is one pass; the narrow candidate-column recovery may require a second pass
 and must expose that fallback warning.

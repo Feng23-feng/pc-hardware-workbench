@@ -484,6 +484,39 @@ assert.equal(
   "negating one hazard must not hide a different current physical hazard",
 );
 
+const originalObjectiveHazardPanel = runtimeModule.enforceSafetyStateContract(
+  {
+    ...normalPanel,
+    current_goal: "检查游戏掉帧",
+    recommendations: [normalRecommendation],
+  },
+  {
+    task_context: { objective: "电脑冒烟，有火花" },
+  },
+);
+assert.equal(
+  originalObjectiveHazardPanel.status,
+  "blocked",
+  "an Agent summary must not hide a physical hazard in the user's objective",
+);
+
+const smokeTestLabelPanel = runtimeModule.enforceSafetyStateContract(
+  {
+    ...normalPanel,
+    current_goal: "确认卡顿最明显的使用场景",
+  },
+  {
+    task_context: {
+      objective: "P2A signed handoff smoke。确认卡顿最明显的使用场景",
+    },
+  },
+);
+assert.equal(
+  smokeTestLabelPanel.status,
+  "ready",
+  "technical smoke-test labels must not be treated as physical smoke",
+);
+
 const ordinaryBlockedPanel = {
   ...normalPanel,
   status: "blocked",
@@ -577,6 +610,7 @@ for (const [code, titlePattern, copyPattern] of [
   ["analysis_timeout", /超时/u, /缩小分析窗口|时间窗口/u],
   ["analysis_runner_error", /无法启动/u, /PowerShell|分析环境/u],
   ["attachment_hash_mismatch", /完整性|哈希/u, /重新添加|原始文件/u],
+  ["analysis_source_binding_mismatch", /来源|绑定/u, /重新分析|当前附件/u],
   ["no_usable_series", /传感器列/u, /重新导出/u],
 ]) {
   const failure = runtimeModule.analysisFailure(
@@ -681,6 +715,106 @@ try {
   );
   assert.ok(isInside(tempRoot, runtime.evidence.filePath));
   assert.ok(isInside(tempRoot, runtime.broker.artifactRoot));
+
+  const sourceSummaryHash = "d".repeat(64);
+  const sourceSummaryAnalysis = {
+    source_sha256: sourceSummaryHash,
+    source_bytes: 128,
+    analyzer_passes: 1,
+    analyzer_pass_reason: "standard",
+    analyzed_rows: 4,
+    window: "rows 0 to 3",
+  };
+  const sourceSummaryPanel = {
+    ...normalPanel,
+    artifact_refs: [],
+  };
+  const originalApplyVerifiedResult = runtime.broker.applyVerifiedResult;
+  const originalValidatePanelResult = runtime.validatePanelResult;
+  try {
+    runtime.broker.applyVerifiedResult = (panel, result, { taskId }) => {
+      assert.equal(taskId, "task-source-summary");
+      assert.deepEqual(result.artifacts, []);
+      assert.equal(result.chart_preset, null);
+      return { ...panel, artifact_refs: [], blocks: [] };
+    };
+    runtime.validatePanelResult = (panel) => panel;
+    const summaryCompletion = runtime.completeSourceHostedAgentResult({
+      task: { task_id: "task-source-summary" },
+      panel: sourceSummaryPanel,
+      packet: {
+        attachment_id: "attachment-source-summary",
+        tool_result: {
+          chart_preset: null,
+          attachment: { sha256: sourceSummaryHash },
+          analysis: sourceSummaryAnalysis,
+        },
+      },
+      localResult: {
+        chart_preset: null,
+        attachment: { sha256: sourceSummaryHash },
+        analysis: sourceSummaryAnalysis,
+        artifact: null,
+        artifacts: [],
+      },
+    });
+    assert.deepEqual(summaryCompletion.artifact_refs, []);
+    assert.deepEqual(summaryCompletion.blocks, []);
+
+    assert.throws(
+      () =>
+        runtime.completeSourceHostedAgentResult({
+          task: { task_id: "task-source-summary" },
+          panel: sourceSummaryPanel,
+          packet: {
+            tool_result: {
+              chart_preset: "FirstPass",
+              attachment: { sha256: sourceSummaryHash },
+              analysis: sourceSummaryAnalysis,
+            },
+          },
+          localResult: {
+            chart_preset: "FirstPass",
+            attachment: { sha256: sourceSummaryHash },
+            analysis: sourceSummaryAnalysis,
+            artifact: null,
+            artifacts: [],
+          },
+        }),
+      (error) => error.code === "source_result_missing_verified_tool",
+      "explicit chart completion must still require a verified artifact",
+    );
+
+    assert.throws(
+      () =>
+        runtime.completeSourceHostedAgentResult({
+          task: { task_id: "task-source-summary" },
+          panel: sourceSummaryPanel,
+          packet: {
+            tool_result: {
+              chart_preset: null,
+              attachment: { sha256: sourceSummaryHash },
+              analysis: sourceSummaryAnalysis,
+            },
+          },
+          localResult: {
+            chart_preset: null,
+            attachment: { sha256: sourceSummaryHash },
+            analysis: {
+              ...sourceSummaryAnalysis,
+              source_sha256: "e".repeat(64),
+            },
+            artifact: null,
+            artifacts: [],
+          },
+        }),
+      (error) => error.code === "source_result_invalid_analysis",
+      "summary completion must reject an analysis from another source",
+    );
+  } finally {
+    runtime.broker.applyVerifiedResult = originalApplyVerifiedResult;
+    runtime.validatePanelResult = originalValidatePanelResult;
+  }
 
   const preauthTask = runtime.createTaskState({
     taskId: "task-runtime-preauth",

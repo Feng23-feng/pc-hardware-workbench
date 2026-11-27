@@ -250,6 +250,8 @@ try {
     return {
       stdout: JSON.stringify({
         AnalyzerVersion: "test",
+        SourceSha256: changingAttachment.sha256,
+        SourceBytes: Buffer.byteLength(changingCsv),
         HeaderLine: 1,
         AnalyzedRows: 2,
         TotalRows: 2,
@@ -322,6 +324,8 @@ try {
   chartChangingBroker.runPowerShell = async () => ({
     stdout: JSON.stringify({
       AnalyzerVersion: "test",
+      SourceSha256: chartChangingAttachment.sha256,
+      SourceBytes: Buffer.byteLength(chartChangingCsv),
       HeaderLine: 1,
       AnalyzedRows: 2,
       TotalRows: 2,
@@ -520,6 +524,117 @@ try {
   );
   assert.deepEqual(summaryPanel.artifact_refs, []);
   assert.deepEqual(summaryPanel.blocks, []);
+
+  const bindingResponseBase = {
+    AnalyzerVersion: "test-binding",
+    SourceSha256: attachment.sha256,
+    SourceBytes: csvBytes.length,
+    HeaderLine: 1,
+    AnalyzedRows: 2,
+    TotalRows: 2,
+    AnalyzedRowStart: 0,
+    AnalyzedRowEnd: 1,
+    Window: "time 0s to 1s",
+    Sampling: {
+      TimeBased: true,
+      IntervalSecondsMedian: 1,
+      Consistency: "stable",
+    },
+    Metrics: [
+      {
+        Metric: "Frame rate (FPS)",
+        SourceColumn: "FPS",
+        Unit: "FPS",
+        Samples: 2,
+        Min: 60,
+        Mean: 60.5,
+        Max: 61,
+      },
+    ],
+    Warnings: [],
+  };
+  for (const [label, mutate] of [
+    [
+      "wrong hash",
+      (response) => {
+        response.SourceSha256 = "f".repeat(64);
+      },
+    ],
+    [
+      "missing bytes",
+      (response) => {
+        delete response.SourceBytes;
+      },
+    ],
+  ]) {
+    const invalidBindingBroker = new TelemetryBroker({
+      attachmentRoot,
+      artifactRoot,
+      scriptsDir: join(skillRoot, "scripts"),
+      timeoutMs: 60_000,
+    });
+    const response = structuredClone(bindingResponseBase);
+    mutate(response);
+    invalidBindingBroker.runPowerShell = async () => ({
+      stdout: JSON.stringify(response),
+      stderr: "",
+    });
+    await assert.rejects(
+      () =>
+        invalidBindingBroker.analyze({
+          taskId: `task-broker-invalid-binding-${label.replaceAll(" ", "-")}`,
+          attachment: {
+            ...attachment,
+            id: `attachment-invalid-binding-${label.replaceAll(" ", "-")}`,
+          },
+          window: {},
+          preset: null,
+        }),
+      (error) => error.code === "analysis_source_binding_mismatch",
+      `summary-only analysis must reject analyzer binding with ${label}`,
+    );
+  }
+
+  const inconsistentChartBindingBroker = new TelemetryBroker({
+    attachmentRoot,
+    artifactRoot,
+    scriptsDir: join(skillRoot, "scripts"),
+    timeoutMs: 60_000,
+  });
+  const inconsistentChartResponse = structuredClone(bindingResponseBase);
+  inconsistentChartResponse.ChartData = {
+    ChartDataVersion: "1.0",
+    SourceSha256: "e".repeat(64),
+    SourceBytes: csvBytes.length,
+    Window: "time 0s to 1s",
+    Warnings: [],
+    Series: [
+      {
+        Metric: "Frame rate (FPS)",
+        SourceColumn: "FPS",
+        Unit: "FPS",
+        Points: [{ T: 0, V: 60 }],
+      },
+    ],
+  };
+  inconsistentChartBindingBroker.runPowerShell = async () => ({
+    stdout: JSON.stringify(inconsistentChartResponse),
+    stderr: "",
+  });
+  await assert.rejects(
+    () =>
+      inconsistentChartBindingBroker.analyze({
+        taskId: "task-broker-inconsistent-chart-binding",
+        attachment: {
+          ...attachment,
+          id: "attachment-inconsistent-chart-binding",
+        },
+        window: {},
+        preset: "FirstPass",
+      }),
+    (error) => error.code === "analysis_source_binding_mismatch",
+    "top-level and nested ChartData source bindings must agree",
+  );
 
   const fallbackCalls = [];
   let fallbackPass = 0;

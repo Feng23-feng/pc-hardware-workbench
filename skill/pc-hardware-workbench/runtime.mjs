@@ -42,6 +42,8 @@ const NEGATED_HAZARD_SCOPE_PATTERN =
   /(?:没有|未见|未发现|未出现|未闻到|无|不存在|不再有|已排除|并非|不是)(?:明显|任何|新的|当前)?[^且但而却]{0,20}\s*$/iu;
 const RESOLVED_HAZARD_SCOPE_PATTERN =
   /^\s*(?:已经?排除|已经?修复|已恢复|不再出现|未再出现|已消失)/iu;
+const BENIGN_HAZARD_CONTEXT_PATTERN =
+  /\b(?:smoke\s*test(?:ing)?|signed\s+handoff\s+smoke)\b/iu;
 const HISTORICAL_MARKER = /此前|之前|以前|上次|历史|昨天|前天|刚才/iu;
 const CURRENT_MARKER = /现在|当前|这次|本次|最近|仍然|依然|还在|持续/iu;
 const PHYSICAL_SAFETY_ACTION = Object.freeze({
@@ -51,13 +53,15 @@ const PHYSICAL_SAFETY_ACTION = Object.freeze({
 });
 
 function currentTaskContext(panel, packet) {
-  return String(
-    panel.current_goal ??
-      packet?.task_context?.objective ??
-      packet?.task_context?.current_goal ??
-      packet?.current_objective ??
-      "",
-  );
+  const candidates = [
+    packet?.task_context?.objective,
+    packet?.task_context?.current_goal,
+    packet?.current_objective,
+    panel.current_goal,
+  ]
+    .map((value) => String(value ?? "").trim())
+    .filter(Boolean);
+  return [...new Set(candidates)].join("。");
 }
 
 function hasCurrentPhysicalHazard(panel, packet) {
@@ -72,6 +76,13 @@ function hasCurrentPhysicalHazard(panel, packet) {
     }
     const hazardPattern = new RegExp(PHYSICAL_HAZARD_SOURCE, "giu");
     for (const match of clause.matchAll(hazardPattern)) {
+      const localContext = clause.slice(
+        Math.max(0, match.index - 32),
+        match.index + match[0].length + 32,
+      );
+      if (BENIGN_HAZARD_CONTEXT_PATTERN.test(localContext)) {
+        continue;
+      }
       const before = clause.slice(0, match.index);
       if (NEGATED_HAZARD_SCOPE_PATTERN.test(before)) {
         continue;
@@ -181,6 +192,17 @@ function analysisFailureCopy(error) {
       recommendation: {
         title: "重新导入当前文件",
         detail: "重新上传原始 CSV 以生成新的完整性记录，再继续分析。",
+      },
+    },
+    analysis_source_binding_mismatch: {
+      resultTitle: "分析结果来源不一致",
+      summary: "分析器返回的记录没有绑定到当前 CSV 的实际 SHA-256 和字节数。",
+      judgement:
+        "本地分析结果无法证明它来自当前附件，因此没有采用其中的指标或图表。不要用附件哈希补造分析器记录；应针对当前文件重新执行一次本地分析。",
+      recommendation: {
+        title: "重新分析当前附件",
+        detail:
+          "保持当前附件不变，重新执行分析；若再次出现来源不一致，保留错误信息供审查。",
       },
     },
     unsafe_attachment_path: {
@@ -580,13 +602,55 @@ class PcHardwareWorkbenchRuntime {
     packet,
     localResult,
   }) {
-    if (
-      !localResult?.analysis ||
-      (!localResult?.artifact && !localResult?.artifacts?.length)
-    ) {
+    const analysis = localResult?.analysis;
+    if (!analysis || typeof analysis !== "object") {
       throw new this.SkillRuntimeError(
         "source_result_missing_verified_tool",
-        "Source-hosted PCHW result requires a verified local analysis.",
+        "Source-hosted PCHW result requires a verified local analysis summary.",
+      );
+    }
+    const analysisHash = String(analysis.source_sha256 ?? "").toLowerCase();
+    const analysisBytes =
+      typeof analysis.source_bytes === "number"
+        ? analysis.source_bytes
+        : null;
+    const attachmentHash = String(
+      localResult?.attachment?.sha256 ??
+        packet?.tool_result?.attachment?.sha256 ??
+        packet?.attachment?.sha256 ??
+        "",
+    ).toLowerCase();
+    if (
+      !/^[a-f0-9]{64}$/u.test(analysisHash) ||
+      !Number.isSafeInteger(analysisBytes) ||
+      analysisBytes <= 0 ||
+      !/^[a-f0-9]{64}$/u.test(attachmentHash) ||
+      analysisHash !== attachmentHash
+    ) {
+      throw new this.SkillRuntimeError(
+        "source_result_invalid_analysis",
+        "Source-hosted PCHW analysis is not bound to the current attachment.",
+      );
+    }
+    const chartPreset =
+      localResult?.chart_preset ??
+      packet?.tool_result?.chart_preset ??
+      null;
+    const artifacts = Array.isArray(localResult?.artifacts)
+      ? localResult.artifacts.filter(Boolean)
+      : localResult?.artifact
+        ? [localResult.artifact]
+        : [];
+    if (chartPreset === null && artifacts.length > 0) {
+      throw new this.SkillRuntimeError(
+        "source_result_unexpected_artifact",
+        "Summary-only PCHW completion must not contain chart artifacts.",
+      );
+    }
+    if (chartPreset !== null && artifacts.length === 0) {
+      throw new this.SkillRuntimeError(
+        "source_result_missing_verified_tool",
+        "Chart PCHW completion requires at least one verified chart artifact.",
       );
     }
     return this.validatePanelResult(

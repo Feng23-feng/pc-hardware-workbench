@@ -338,7 +338,10 @@ function normalizeArtifacts(value) {
 
 function assertChartDataSourceBinding(chartData, { actualHash, actualBytes }) {
   const boundHash = String(chartData?.SourceSha256 ?? "").toLowerCase();
-  const boundBytes = Number(chartData?.SourceBytes);
+  const boundBytes =
+    typeof chartData?.SourceBytes === "number"
+      ? chartData.SourceBytes
+      : null;
   if (
     !/^[a-f0-9]{64}$/u.test(boundHash) ||
     !Number.isInteger(boundBytes) ||
@@ -349,6 +352,45 @@ function assertChartDataSourceBinding(chartData, { actualHash, actualBytes }) {
       "evidence_binding_mismatch",
       "ChartData 与当前附件 SHA-256 或字节数不一致，已拒绝复用。",
     );
+  }
+}
+
+function assertAnalyzerSourceBinding(analysis, { actualHash, actualBytes }) {
+  const boundHash = String(analysis?.SourceSha256 ?? "").toLowerCase();
+  const boundBytes =
+    typeof analysis?.SourceBytes === "number"
+      ? analysis.SourceBytes
+      : null;
+  if (
+    !/^[a-f0-9]{64}$/u.test(boundHash) ||
+    !Number.isInteger(boundBytes) ||
+    boundHash !== String(actualHash).toLowerCase() ||
+    boundBytes !== actualBytes
+  ) {
+    throw new TelemetryBrokerError(
+      "analysis_source_binding_mismatch",
+      "分析器结果未绑定到当前 CSV 的实际 SHA-256 和字节数，已拒绝使用。",
+    );
+  }
+  if (analysis.ChartData && typeof analysis.ChartData === "object") {
+    const chartHash = String(
+      analysis.ChartData.SourceSha256 ?? "",
+    ).toLowerCase();
+    const chartBytes =
+      typeof analysis.ChartData.SourceBytes === "number"
+        ? analysis.ChartData.SourceBytes
+        : null;
+    if (
+      !/^[a-f0-9]{64}$/u.test(chartHash) ||
+      !Number.isInteger(chartBytes) ||
+      chartHash !== boundHash ||
+      chartBytes !== boundBytes
+    ) {
+      throw new TelemetryBrokerError(
+        "analysis_source_binding_mismatch",
+        "分析器顶层结果与 ChartData 的来源绑定不一致，已拒绝使用。",
+      );
+    }
   }
 }
 
@@ -1145,6 +1187,10 @@ export class TelemetryBroker {
           }
         }
       }
+      assertAnalyzerSourceBinding(parsed, {
+        actualHash,
+        actualBytes: buffer.length,
+      });
       if (!Array.isArray(parsed.Metrics) || parsed.Metrics.length === 0) {
         throw new TelemetryBrokerError(
           "no_usable_series",
