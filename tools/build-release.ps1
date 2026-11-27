@@ -17,6 +17,8 @@ if ([string]::IsNullOrWhiteSpace($RepositoryRoot)) {
 }
 $invariant = [System.Globalization.CultureInfo]::InvariantCulture
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[Console]::OutputEncoding = $utf8NoBom
+$OutputEncoding = $utf8NoBom
 if ([string]::IsNullOrWhiteSpace($OutputRoot)) {
     $OutputRoot = Join-Path (Split-Path -Parent $RepositoryRoot) "releases"
 }
