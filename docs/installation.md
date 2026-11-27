@@ -9,7 +9,9 @@
 - 其他操作系统只提供手动排障指导，不自动读取硬件；
 - 可选监控需要用户已经启动 LibreHardwareMonitor；本项目不会安装或启动它。
 
-当前 PCHW 测试版本为 `2.9.3-test.1`。本版把 `uncertainty[0]` 定义为结果卡中的
+当前 PCHW 公开测试版本为 `2.9.3-test.2`。本版完成 Runtime 安全与证据边界收尾，
+并把当前用户输入、Summary-only 来源绑定和 Source-hosted 完成条件纳入回归；
+结果卡继续把 `uncertainty[0]` 定义为
 唯一“当前未决项”，并同步更新 interaction、Runtime 与 surface contract；
 证据解决后必须替换或移除旧状态，不能继续显示已经失效的固定标签。此前 2.9.1
 收紧的显存 profile GPU、原始工具和显示工具版本门禁，以及 2.9.0 新增的确定性
@@ -18,7 +20,8 @@ SkillDock 保持独立面板测试线，当前测试包为 `0.1.0-rc.7 + PCHW 2.
 并机器校验 UI `1.2`、事件 `1.0` 和所需能力。
 `0.1.0-rc.5 + PCHW 2.9.0` 保留为 contract-only 历史测试包，
 `0.1.0-rc.4 + PCHW 2.8.0` 保留为更早面板测试包。目前没有正式版；干净 Windows
-安装、卸载和完整用户签收继续作为发布门禁。
+安装、卸载和完整用户签收继续以 PENDING 公开，不阻断本轮公开测试版，但不能
+据此宣称正式稳定版。
 
 ## 先选一种包
 
@@ -36,20 +39,21 @@ PCHW Portable。
 | SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺应用与 Node | SkillDock Runtime、Node.js 24.22.1 | 仅 Codex 当前对话 |
 | SkillDock 面板包（公开 rc.7） | 已安装 Codex Desktop，并使用 PCHW 2.9.3 surface contract | PCHW 2.9.3 Skill、SkillDock Runtime、安装入口 | 仅 Codex |
 
-[下载当前 PCHW 2.9.3 测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.3-test.1)：
+[下载当前 PCHW 2.9.3 公开测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.3-test.2)：
 
 ```text
-pc-hardware-workbench-v2.9.3-test.1-installer.zip
-pc-hardware-workbench-v2.9.3-test.1-manual.zip
-pc-hardware-portable-v2.9.3-test.1.zip
-pc-hardware-workbench-deepseek-harness-v2.9.3-test.1.zip
+pc-hardware-workbench-v2.9.3-test.2-installer.zip
+pc-hardware-workbench-v2.9.3-test.2-manual.zip
+pc-hardware-portable-v2.9.3-test.2.zip
+pc-hardware-workbench-deepseek-harness-v2.9.3-test.2.zip
 三个渠道各自的 SHA256SUMS 文件
 ```
 
 最新 SkillDock 面板测试包由 `v0.1.0-rc.7` 提供，内含 PCHW 2.9.3。
 `v0.1.0-rc.5` 保留为上一版 PCHW 2.9.0 contract-only 面板测试包，
 `v0.1.0-rc.4` 保留为 PCHW 2.8.0 面板测试包。rc.7 的 clean Windows
-安装、卸载和最终签收仍是 PENDING。不要把多个 PCHW Skill 目录混在一起。
+安装、卸载和最终签收仍是 PENDING，但不阻断公开测试版。不要把多个 PCHW Skill
+目录混在一起。
 
 <a id="pchw-portable"></a>
 

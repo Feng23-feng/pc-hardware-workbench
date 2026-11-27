@@ -10,7 +10,9 @@
 - Optional monitoring requires an already-running LibreHardwareMonitor instance.
   This project does not install or start it.
 
-The current PCHW test version is `2.9.3-test.1`. This release defines
+The current PCHW public test version is `2.9.3-test.2`. This build completes the
+Runtime safety and evidence-boundary fixes, including current-user safety input,
+Summary-only source binding, and Source-hosted completion conditions. It defines
 `uncertainty[0]` as the single current unresolved subject in panel result cards
 and synchronizes the interaction, Runtime, and surface contracts. Resolved
 evidence must replace or remove the old subject instead of leaving a stale
@@ -21,7 +23,8 @@ is `0.1.0-rc.7 + PCHW 2.9.3` and machine-checks UI schema `1.2`, event schema
 `1.0`, and required capabilities. `0.1.0-rc.5 + PCHW 2.9.0` remains the
 previous contract-only test build, and `0.1.0-rc.4 + PCHW 2.8.0` remains the
 earlier panel build. Clean-Windows installation, uninstallation, and complete
-user signoff remain pending.
+user signoff remain pending and do not block this public pre-release, but they
+must not be reported as stable-release acceptance.
 
 ## Choose one distribution
 
@@ -38,21 +41,21 @@ no installation at all, use PCHW Portable.
 | SkillDock Runtime-only | A compatible PCHW Skill is installed and only the application and Node are missing | SkillDock Runtime, Node.js 24.22.1 | Current Codex conversation only |
 | SkillDock panel bundle (public rc.7) | Codex Desktop is installed and you use the PCHW 2.9.3 surface contract | PCHW 2.9.3 Skill, SkillDock Runtime, installer | Current Codex conversation only |
 
-[Download the current PCHW 2.9.3 test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.3-test.1):
+[Download the current PCHW 2.9.3 public test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.3-test.2):
 
 ```text
-pc-hardware-workbench-v2.9.3-test.1-installer.zip
-pc-hardware-workbench-v2.9.3-test.1-manual.zip
-pc-hardware-portable-v2.9.3-test.1.zip
-pc-hardware-workbench-deepseek-harness-v2.9.3-test.1.zip
+pc-hardware-workbench-v2.9.3-test.2-installer.zip
+pc-hardware-workbench-v2.9.3-test.2-manual.zip
+pc-hardware-portable-v2.9.3-test.2.zip
+pc-hardware-workbench-deepseek-harness-v2.9.3-test.2.zip
 One SHA256SUMS file per channel
 ```
 
 The current SkillDock panel test build is `v0.1.0-rc.7` with PCHW `2.9.3`.
 `v0.1.0-rc.5` remains the previous PCHW 2.9.0 contract-only panel build, and
 `v0.1.0-rc.4` remains the PCHW 2.8.0 panel build. Clean-Windows installation,
-uninstallation, and final signoff for the rc.7 bytes remain PENDING. Do not mix
-multiple PCHW Skill directories.
+uninstallation, and final signoff for the rc.7 bytes remain PENDING and do not
+block the public test build. Do not mix multiple PCHW Skill directories.
 
 <a id="pchw-portable"></a>
 

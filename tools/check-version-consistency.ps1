@@ -40,7 +40,7 @@ if ($errors.Count -eq 0) {
     }
 
     $readmeText = Get-Content -Raw -LiteralPath $readmeFile -Encoding UTF8
-    $readmeVersionPattern = '\u5f53\u524d\u7248\u672c\u4e3a \*\*' + [regex]::Escape($version) + ' \u6d4b\u8bd5\u7248\*\*'
+    $readmeVersionPattern = '\u5f53\u524d\u7248\u672c\u4e3a \*\*' + [regex]::Escape($version) + '[^*]*\*\*'
     if ($readmeText -notmatch $readmeVersionPattern) {
         $errors.Add("README current version does not match $version.") | Out-Null
     }
@@ -61,7 +61,7 @@ if ($errors.Count -eq 0) {
         $errors.Add("Portable start title does not match $version.") | Out-Null
     }
 
-    $siteVersionRecordPattern = '\["' + [regex]::Escape($version) + '"[^\r\n]*CURRENT CANDIDATE'
+    $siteVersionRecordPattern = '\["' + [regex]::Escape($version) + '"[^\r\n]*CURRENT PRE-RELEASE'
     foreach ($path in @($indexFile, $interactiveFile)) {
         $html = Get-Content -Raw -LiteralPath $path -Encoding UTF8
         if ($html -notmatch $siteVersionRecordPattern) {

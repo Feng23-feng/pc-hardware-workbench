@@ -1,5 +1,17 @@
 # 电脑硬件工作台版本记录
 
+## 2.9.3-test.2 — 2026-11-28
+
+- 完成反过度工程化 Phase 1/2：收敛 Runtime 决策职责、允许自然完成、按 section 限制实际采集、CSV 单次权威解析、按需持久化；
+- Runtime 物理安全兜底区分当前物理危险与普通 blocked；混合危险逐项检测；确认危险时使用固定安全停止动作；
+- 当前用户 `packet.text`、`packet.free_text`、当前 `user_message`、原始 objective 和 Agent current goal 共同参与当前安全判断；
+- `smoke test`、`smoke testing`、`signed handoff smoke` 只在对应 smoke 词出现位置排除，不能屏蔽附近独立危险；
+- Summary-only 结果必须绑定 analyzer 实际读取的源 SHA-256 和字节数；normalizer、chart pack 和 Source-hosted 完成接口按实际 `chart_preset` 验证必要证据与产物；
+- 普通文本分析默认 Summary-only，交互式图表显式请求 `FirstPass`；
+- 自动 PowerShell/Node 回归、Skill validator、SkillDock frozen gate 和 source-hosted mock E2E 通过；
+- Clean Windows 安装升级修复卸载、真实 Codex Thread、人工交互、多平台和实际 Edge 验收继续按 SKIP/PENDING 公开；
+- 本版作为公开 Pre-release 测试版发行，不宣称正式稳定版。
+
 ## 2.9.3 — 2026-11-25
 
 - PCHW panel results now treat `uncertainty[0]` as the current unresolved status subject; SkillDock renders that subject instead of hard-coding “热限制待确认”;

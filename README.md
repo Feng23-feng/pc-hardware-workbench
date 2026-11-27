@@ -7,15 +7,17 @@
 排查、遥测分析、手动调校和升级判断收敛到一套工作流，同时把每一次硬件变更留给
 用户亲手完成。
 
-当前版本为 **2.9.3 测试版**（PCHW 资产标签 `2.9.3-test.1`）。
+当前版本为 **2.9.3 公开 Pre-release 测试版**（PCHW 资产标签
+`2.9.3-test.2`）。
 
-本版把结果卡中的 `uncertainty[0]` 定义为唯一“当前未决项”，并同步更新
-interaction、Runtime 与 surface contract。证据解决后必须替换或移除旧状态，
-不能继续显示已经失效的固定标签。
+本版完成 Runtime 职责收敛、自然完成、来源绑定、CSV 单次解析、实际采集
+`-Sections`、按需持久化和物理安全兜底收尾。普通文本分析默认返回摘要；
+只有明确请求图表时才生成 artifact。
 
 需要图形面板时，选择 `SkillDock 0.1.0-rc.7 + PCHW 2.9.3`；只需要聊天、采集
 和 CSV 分析时，安装纯 PCHW Skill。两者使用独立版本线；不兼容的面板版本会安全
-拒绝加载。当前均为测试版，干净 Windows 签收仍在进行。
+拒绝加载。当前均为公开测试版；环境相关 SKIP/PENDING 会在 Release 中保留，
+不复写成 PASS。
 
 <p align="center">
   <a href="https://feng23-feng.github.io/pc-hardware-workbench/skill-evolution/orrery/">
@@ -76,7 +78,7 @@ interaction、Runtime 与 surface contract。证据解决后必须替换或移�
 
 ## 下载包与版本线
 
-[下载当前 PCHW 2.9.3 测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.3-test.1)，
+[下载当前 PCHW 2.9.3 公开测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.3-test.2)，
 按使用场景只选一个包；不要把同一个 Skill 的多个副本放进同一个宿主扫描目录。
 普通用户默认选择不含面板的纯 PCHW Skill；只有明确需要网页操作面板时，再选择
 SkillDock 面板包（需已安装 Codex）。没有 Agent，或希望完全不安装时，选择独立
@@ -90,13 +92,13 @@ SkillDock 面板包（需已安装 Codex）。没有 Agent，或希望完全不�
 | SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺 SkillDock 应用与 Node | SkillDock Runtime + Node.js 24.22.1 | 仅 Codex 当前对话 |
 | SkillDock 面板包（公开测试版 rc.7） | 已安装 Codex Desktop，并使用 PCHW 2.9.3 surface contract | PCHW 2.9.3 Skill、SkillDock rc.7 Runtime、安装入口 | 仅 Codex 当前对话 |
 
-2.9.3-test.1 的独立 PCHW 文件：
+2.9.3-test.2 的独立 PCHW 文件：
 
 ```text
-pc-hardware-workbench-v2.9.3-test.1-installer.zip
-pc-hardware-workbench-v2.9.3-test.1-manual.zip
-pc-hardware-portable-v2.9.3-test.1.zip
-pc-hardware-workbench-deepseek-harness-v2.9.3-test.1.zip
+pc-hardware-workbench-v2.9.3-test.2-installer.zip
+pc-hardware-workbench-v2.9.3-test.2-manual.zip
+pc-hardware-portable-v2.9.3-test.2.zip
+pc-hardware-workbench-deepseek-harness-v2.9.3-test.2.zip
 三个渠道各自的 SHA256SUMS 文件
 ```
 
@@ -105,8 +107,9 @@ Runtime。`v0.1.0-rc.5` 保留为上一版 PCHW 2.9.0 contract-only 面板测试
 `v0.1.0-rc.4` 保留为 PCHW 2.8.0 面板测试包。不要在同一个宿主中混装多个
 PCHW Skill。
 
-这是公开测试版，clean Windows 安装/卸载和最终签收仍为 PENDING。不要混装多个
-Skill 或旧 Runtime。
+这是公开 Pre-release 测试版，可用于真实反馈。Clean Windows 安装升级修复卸载、
+真实 Codex Thread、人工交互和多平台验收仍为 PENDING；Live LHM 在缺少运行环境
+时为 SKIP。不要混装多个 Skill 或旧 Runtime。
 
 <a id="what-is-skilldock"></a>
 
@@ -133,7 +136,7 @@ SkillDock；完全不需要 Agent 时，才选择独立便携包。SkillDock 对
 
 ### PCHW Portable 便携工具（无需 Agent）
 
-1. 下载 `pc-hardware-portable-v2.9.3-test.1.zip`，并按 Release 的校验文件或
+1. 下载 `pc-hardware-portable-v2.9.3-test.2.zip`，并按 Release 的校验文件或
    GitHub asset digest 校验。
 2. 解压完整目录，不需要安装、管理员权限、API key 或网络连接。
 3. 双击 `开始使用.cmd` 进入菜单。

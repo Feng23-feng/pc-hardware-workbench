@@ -364,7 +364,7 @@ if ($errors.Count -eq 0) {
         if ($versionCount -ne 119) {
             $errors.Add("Home source version count is $versionCount, expected 119.") | Out-Null
         }
-        $currentVersionPattern = '\["' + [regex]::Escape($expectedVersion) + '"[^\r\n]*CURRENT CANDIDATE'
+        $currentVersionPattern = '\["' + [regex]::Escape($expectedVersion) + '"[^\r\n]*CURRENT PRE-RELEASE'
         if ($segment -notmatch $currentVersionPattern) {
             $errors.Add("Home source current $expectedVersion archive record is missing.") | Out-Null
         }

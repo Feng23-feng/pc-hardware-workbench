@@ -9,17 +9,18 @@ system inventory, troubleshooting, telemetry analysis, guided tuning, and upgrad
 decisions into one workflow while leaving every persistent hardware change to the
 user.
 
-The current PCHW test version is **2.9.3-test.1**.
+The current PCHW public pre-release is **2.9.3-test.2**.
 
-This release defines `uncertainty[0]` as the single current unresolved subject
-for panel result cards and synchronizes the interaction, Runtime, and surface
-contracts. Resolved evidence must replace or remove the old subject instead of
-leaving a stale fixed label.
+This build completes the Runtime responsibility cleanup, natural completion,
+source-bound evidence, single-pass CSV analysis, actual `-Sections` collection,
+on-demand persistence, and physical-safety boundary fixes. Plain text analysis
+returns a summary by default; chart artifacts are created only when requested.
 
 Choose `SkillDock 0.1.0-rc.7 + PCHW 2.9.3` when you need the graphical panel.
 Choose the pure PCHW Skill for chat, collection, and CSV analysis. The two use
 independent release lines, and incompatible panel versions fail closed. Both
-are test builds; clean-Windows signoff remains pending.
+are public test builds. Environment-specific SKIP/PENDING items remain visible
+in Release notes and are not rewritten as PASS.
 
 <p align="center">
   <a href="https://feng23-feng.github.io/pc-hardware-workbench/skill-evolution/orrery/">
@@ -89,7 +90,7 @@ The interactive project pages are currently available in Chinese:
 
 ## Download packages and version lines
 
-[Download the current PCHW 2.9.3 test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.3-test.1),
+[Download the current PCHW 2.9.3 public pre-release](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.3-test.2),
 then choose exactly one package. Do not place multiple copies of the same Skill
 in one host's scan directory.
 Most users should start with the PCHW Skill package without the panel. Choose
@@ -105,13 +106,13 @@ no installation at all, use the standalone Portable tool.
 | SkillDock Runtime-only | A compatible PCHW Skill is installed and only the Runtime and Node are missing | SkillDock Runtime + Node.js 24.22.1 | Current Codex conversation only |
 | SkillDock panel bundle (public rc.7 test build) | Codex Desktop is installed and you want the PCHW 2.9.3 surface contract | PCHW 2.9.3 Skill, SkillDock rc.7 Runtime, installer | Current Codex conversation only |
 
-The standalone PCHW 2.9.3-test.1 files are:
+The standalone PCHW 2.9.3-test.2 files are:
 
 ```text
-pc-hardware-workbench-v2.9.3-test.1-installer.zip
-pc-hardware-workbench-v2.9.3-test.1-manual.zip
-pc-hardware-portable-v2.9.3-test.1.zip
-pc-hardware-workbench-deepseek-harness-v2.9.3-test.1.zip
+pc-hardware-workbench-v2.9.3-test.2-installer.zip
+pc-hardware-workbench-v2.9.3-test.2-manual.zip
+pc-hardware-portable-v2.9.3-test.2.zip
+pc-hardware-workbench-deepseek-harness-v2.9.3-test.2.zip
 One SHA256SUMS file per channel
 ```
 
@@ -120,9 +121,11 @@ The current SkillDock panel test build is `v0.1.0-rc.7` with PCHW `2.9.3`.
 and `v0.1.0-rc.4` remains the PCHW 2.8.0 panel build. Do not mix multiple PCHW
 Skill directories in one host.
 
-This is a public test build. Clean-Windows installation, uninstallation, and
-final signoff remain PENDING. Do not mix multiple Skills or old Runtime
-directories.
+This is a public pre-release build intended to collect real-world feedback.
+Clean-Windows installation/upgrade/repair/uninstall, real Codex Thread,
+human-interaction, and multi-platform acceptance remain PENDING; Live LHM is
+SKIP when no authorized running process exists. Do not mix multiple Skills or
+old Runtime directories.
 
 <a id="what-is-skilldock"></a>
 
@@ -157,7 +160,7 @@ Runtime, shared engine, and rollback backup.
 
 ### PCHW Portable (standalone Windows; no Agent)
 
-1. Download `pc-hardware-portable-v2.9.3-test.1.zip` and verify it with the
+1. Download `pc-hardware-portable-v2.9.3-test.2.zip` and verify it with the
    release checksum or the GitHub asset digest.
 2. Extract the complete directory. No installation, administrator rights, API key,
    or network connection is required.

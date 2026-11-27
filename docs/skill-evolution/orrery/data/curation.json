@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "snapshot": {
-    "frozenAt": "2026-11-23",
-    "changes": "Current snapshot adds deterministic evidence-only chart packs and conclusion rendering, strict memory-clock profiles bound to exact GPU aliases and raw/display tool versions, provisional fail-closed handling, ordered memory-clock overviews, and flat-series-safe SVG emphasis."
+    "frozenAt": "2026-11-28",
+    "changes": "Current public pre-release snapshot narrows Runtime decision authority, preserves current user safety evidence, separates ordinary blocked states from physical danger, binds analyzer and ChartData reuse to exact source bytes, generates charts only when requested, scopes hardware probes by section, and keeps evidence persistence on demand."
   },
   "sectors": {
     "core": {
@@ -766,6 +766,36 @@
       "cluster": "tests/behavior",
       "role": "语气冻结题",
       "summary": "保存自然语气、安全提示和交互稳定度的三轮人工测试题目。"
+    },
+    "tests/acceptance-report-20261127-pchw-2.9.3-security.md": {
+      "cluster": "tests/behavior",
+      "role": "2.9.3 安全验收",
+      "summary": "记录路径、产物、缺失值、窗口统计、权限和附件完整性修复的自动化结果。"
+    },
+    "tests/acceptance-report-20261128-pchw-phase1-overengineering.md": {
+      "cluster": "tests/behavior",
+      "role": "Phase 1 精简验收",
+      "summary": "记录指令、路由、提问节奏、案卷和 RAG 触发条件的低风险精简结果。"
+    },
+    "tests/acceptance-report-20261128-pchw-phase2-overengineering.md": {
+      "cluster": "tests/behavior",
+      "role": "Phase 2 精简验收",
+      "summary": "记录 Runtime 职责、自然完成、单次 CSV 分析、采集范围和按需持久化结果。"
+    },
+    "tests/acceptance-report-20261128-pchw-review-r4.md": {
+      "cluster": "tests/behavior",
+      "role": "R4 外部复查修复",
+      "summary": "记录混合危险、普通 blocked、规范停止动作、来源绑定和图表窗口一致性修复。"
+    },
+    "tests/acceptance-report-20261128-pchw-review-r5.md": {
+      "cluster": "tests/behavior",
+      "role": "R5 接口复查修复",
+      "summary": "记录当前用户安全上下文、Summary-only 顶层绑定和 Source-hosted 完成条件修复。"
+    },
+    "tests/acceptance-report-20261128-pchw-review-r6.md": {
+      "cluster": "tests/behavior",
+      "role": "R6 安全输入范围",
+      "summary": "记录 packet.text、free_text、当前用户事件和烟测标签局部排除的最终回归。"
     },
     "tests/run-all-tests.ps1": {
       "cluster": "tests/harness",
