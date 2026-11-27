@@ -3,16 +3,24 @@
 当前 PCHW 公开测试版为 `2.9.3-test.2`，目前没有正式版。本文只描述当前测试包中
 实际存在的用户路径。
 
-## 五类使用入口
+## 选择入口
 
-- **PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板）。** 适合不需要面板的
-  Codex 用户，以及已有 DSH 或其他兼容 Agent 宿主；普通用户默认选择这一包。
-- **PCHW Portable（独立 Windows，无需 Agent）。** 适合没有 Codex / DSH，或不
-  希望安装 Skill 与 Runtime 的用户。
-- **DeepSeek Harness 适配包。** 适合使用 DSH，并需要 Skill 与适配文件一起安装的用户。
-- **SkillDock 面板包（公开 rc.5）。** 已适配 PCHW 2.9.0 surface contract；Clean Windows 签收仍为 PENDING。
-- **SkillDock 面板包（上一版 rc.4）。** 继续供 PCHW 2.8.0 面板测试线使用。
-- **SkillDock Runtime-only。** 适合已经安装兼容 PCHW Skill，只缺应用和 Node。
+当前公开版本为 PCHW `2.9.3-test.2` 和 SkillDock `0.1.0-rc.7`。rc.7 用户包内含
+基于 PCHW `2.9.3-test.1` 的发布子集，按契约兼容 `test.2`，但跨包组合仍为
+PENDING。先按主要使用场景选择：
+
+- **PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板）。** 只需要聊天、采集和
+  CSV 分析时使用。
+- **SkillDock 面板包。** 需要 Codex 当前对话中的图形面板、图表和任务恢复时使用；
+  rc.7 使用 PCHW 2.9.3 发布子集、UI `1.2` 与事件 `1.0`，并会备份替换已有
+  PCHW Skill。
+- **PCHW Portable（独立 Windows，无需 Agent）。** 没有 Codex / DSH，或不希望
+  安装 Skill 与 Runtime 时使用。
+
+高级选项包括 DeepSeek Harness 适配包、手动安装包和 SkillDock Runtime-only。
+Runtime-only 只适合已经安装兼容 PCHW Skill、但缺少 SkillDock 应用和 Node 的
+用户。若要保留 PCHW `2.9.3-test.2` 并只补 rc.7 面板 Runtime，使用 Runtime-only；
+该跨包组合尚未完成独立人工签收。
 
 按实际使用的宿主选择包；同一个宿主的 Skill 扫描目录只保留一个活动版本。
 
@@ -102,7 +110,7 @@ Session、权限凭证、Runtime、共享引擎、安装日志和回退备份。
 ## PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板）
 
 这个包只提供 PCHW Skill 的聊天、采集和 CSV 分析能力，不是 SkillDock 面板包，
-集成包。DSH 中调用：
+也不包含 DSH 专用集成文件。DSH 中调用：
 
 ```text
 /pc-hardware-workbench

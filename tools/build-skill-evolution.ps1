@@ -89,7 +89,7 @@ Write-SitePage `
     -Path (Join-Path $OutputRoot "index.html") `
     -SiteView "index" `
     -Title "pc-hardware-workbench &#183; &#30005;&#33041;&#30828;&#20214;&#24037;&#20316;&#21488;" `
-    -Description "PC Hardware Workbench ${skillVersion}: read-only hardware evidence and practical next-step guidance." `
+    -Description "Windows hardware diagnostic and safe-tuning Agent Skill with read-only local evidence, HWiNFO/PresentMon analysis, and manual-only hardware changes." `
     -Source $HomeSource `
     -AssetPrefix "."
 

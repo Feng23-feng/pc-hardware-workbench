@@ -201,8 +201,11 @@ if ($errors.Count -eq 0) {
     if ($indexHtml -match '\u5148\u770B\u61C2 \u518D\u52A8\u624B|\u53EA\u8BFB</strong>|\u6709\u8BC1\u636E</strong>|\u4E0D\u8D8A\u754C</strong>') {
         $errors.Add("Index still contains removed philosophy copy.") | Out-Null
     }
-    if ($indexHtml -notmatch '<a class="dse-hero-action primary" href="#dse-home-flow">') {
-        $errors.Add("Index primary CTA does not lead to the single-path usage section.") | Out-Null
+    if ($indexHtml -notmatch '<a class="dse-hero-action primary" href="#dse-downloads">') {
+        $errors.Add("Index primary CTA does not lead to the current downloads.") | Out-Null
+    }
+    if ($indexHtml -notmatch '<a class="dse-hero-action secondary" href="#dse-home-flow">') {
+        $errors.Add("Index secondary CTA does not lead to the guided usage section.") | Out-Null
     }
     foreach ($marker in @(
         'id="dse-how-title"',
@@ -249,7 +252,7 @@ if ($errors.Count -eq 0) {
         $statusPosition -gt $secondaryPosition -or $secondaryPosition -gt $technicalPosition) {
         $errors.Add("Index status, secondary links and technical archive are not ordered by priority.") | Out-Null
     }
-    if ($indexHtml -notmatch '\u7535\u8111\u8C03\u8BD5' -or
+    if ($indexHtml -notmatch 'Windows \u786C\u4EF6\u8BCA\u65AD' -or
         $indexHtml -notmatch '\u67E5\u770B\u5F53\u524D\u914D\u7F6E' -or
         $indexHtml -notmatch '\u8003\u8651\u5347\u7EA7') {
         $errors.Add("Index does not state the full configuration, troubleshooting, tuning and upgrade scope.") | Out-Null

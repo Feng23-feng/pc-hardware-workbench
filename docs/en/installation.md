@@ -10,21 +10,19 @@
 - Optional monitoring requires an already-running LibreHardwareMonitor instance.
   This project does not install or start it.
 
-The current PCHW public test version is `2.9.3-test.2`. This build completes the
-Runtime safety and evidence-boundary fixes, including current-user safety input,
-Summary-only source binding, and Source-hosted completion conditions. It defines
-`uncertainty[0]` as the single current unresolved subject in panel result cards
-and synchronizes the interaction, Runtime, and surface contracts. Resolved
-evidence must replace or remove the old subject instead of leaving a stale
-fixed label. The 2.9.1 memory-profile identity gates and the 2.9.0 deterministic
-local evidence CLI and Skill, Portable, and DeepSeek Harness packages remain in
-place. SkillDock remains an independent panel test line; the current test build
-is `0.1.0-rc.7 + PCHW 2.9.3` and machine-checks UI schema `1.2`, event schema
-`1.0`, and required capabilities. `0.1.0-rc.5 + PCHW 2.9.0` remains the
-previous contract-only test build, and `0.1.0-rc.4 + PCHW 2.8.0` remains the
-earlier panel build. Clean-Windows installation, uninstallation, and complete
-user signoff remain pending and do not block this public pre-release, but they
-must not be reported as stable-release acceptance.
+The current PCHW public test version is `2.9.3-test.2`. When you need the
+graphical panel, use the independent `SkillDock 0.1.0-rc.7 + PCHW 2.9.3` test
+bundle; it checks UI schema `1.2`, event schema `1.0`, and required capabilities
+before loading. The rc.7 user bundle contains a PCHW release subset based on
+`2.9.3-test.1`, not the newer `2.9.3-test.2`; it is contract-compatible with
+`test.2`, but the cross-package combination remains PENDING. Neither release line
+has a stable version yet.
+
+Clean-Windows install, upgrade, repair, and uninstall, real Codex Thread behavior,
+human interaction, and multi-platform acceptance remain `PENDING`. Live LHM
+remains `SKIP` when no authorized process is already running. These statuses do
+not block the public pre-release, but they must not be reported as stable-release
+acceptance.
 
 ## Choose one distribution
 
@@ -36,10 +34,14 @@ no installation at all, use PCHW Portable.
 | Package | Use it when | Includes | Panel |
 | --- | --- | --- | --- |
 | PCHW Skill (Codex / DSH / other Agents; no panel) | Default choice; use Codex alone or with DSH / another compatible Agent host | PCHW Skill 2.9.3 release subset | No |
+| SkillDock panel bundle (public rc.7) | Codex Desktop is installed and you use the PCHW 2.9.3 surface contract | PCHW 2.9.3 release subset based on `2.9.3-test.1`, SkillDock Runtime, installer | Current Codex conversation only |
 | PCHW Portable (standalone Windows; no Agent) | You do not use Codex / DSH, or want no Skill or Runtime installation | Standalone menu, collection, CSV, and evidence tools | No |
-| DeepSeek Harness adapter | You use DSH and want the PCHW Skill plus adapter files | 2.9.3 Skill and DSH adapter files | Not provided |
-| SkillDock Runtime-only | A compatible PCHW Skill is installed and only the application and Node are missing | SkillDock Runtime, Node.js 24.22.1 | Current Codex conversation only |
-| SkillDock panel bundle (public rc.7) | Codex Desktop is installed and you use the PCHW 2.9.3 surface contract | PCHW 2.9.3 Skill, SkillDock Runtime, installer | Current Codex conversation only |
+
+Direct downloads for the primary paths:
+
+- PCHW Skill: [installer ZIP](https://github.com/Feng23-feng/pc-hardware-workbench/releases/download/v2.9.3-test.2/pc-hardware-workbench-v2.9.3-test.2-installer.zip)
+- SkillDock: [rc.7 user bundle ZIP](https://github.com/Feng23-feng/pc-hardware-workbench/releases/download/v0.1.0-rc.7/SkillDock-PCHW-0.1.0-rc.7-win-x64-user.zip)
+- Portable: [standalone ZIP](https://github.com/Feng23-feng/pc-hardware-workbench/releases/download/v2.9.3-test.2/pc-hardware-portable-v2.9.3-test.2.zip)
 
 [Download the current PCHW 2.9.3 public test build](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.3-test.2):
 
@@ -51,11 +53,20 @@ pc-hardware-workbench-deepseek-harness-v2.9.3-test.2.zip
 One SHA256SUMS file per channel
 ```
 
-The current SkillDock panel test build is `v0.1.0-rc.7` with PCHW `2.9.3`.
-`v0.1.0-rc.5` remains the previous PCHW 2.9.0 contract-only panel build, and
-`v0.1.0-rc.4` remains the PCHW 2.8.0 panel build. Clean-Windows installation,
-uninstallation, and final signoff for the rc.7 bytes remain PENDING and do not
-block the public test build. Do not mix multiple PCHW Skill directories.
+The current SkillDock panel test build is `v0.1.0-rc.7` with a PCHW `2.9.3`
+release subset based on `2.9.3-test.1`. It is contract-compatible with
+`2.9.3-test.2`, but the cross-package combination remains PENDING.
+Clean-Windows installation, uninstallation, and final signoff for the rc.7 bytes
+also remain PENDING and do not block the public test build. Do not mix multiple
+PCHW Skill directories.
+
+### Advanced options
+
+| Advanced package | Use it when | Download |
+| --- | --- | --- |
+| DeepSeek Harness adapter | You use DSH and need the PCHW Skill plus adapter files | [Download DSH ZIP](https://github.com/Feng23-feng/pc-hardware-workbench/releases/download/v2.9.3-test.2/pc-hardware-workbench-deepseek-harness-v2.9.3-test.2.zip) |
+| Manual package | You need to inspect the package or run the installation steps yourself | [Download manual ZIP](https://github.com/Feng23-feng/pc-hardware-workbench/releases/download/v2.9.3-test.2/pc-hardware-workbench-v2.9.3-test.2-manual.zip) |
+| SkillDock Runtime-only | A compatible PCHW Skill is installed and only the application and Node are missing | [Download Runtime-only ZIP](https://github.com/Feng23-feng/pc-hardware-workbench/releases/download/v0.1.0-rc.7/SkillDock-Runtime-0.1.0-rc.7-win-x64.zip) |
 
 <a id="pchw-portable"></a>
 
@@ -92,6 +103,11 @@ The installer automatically chooses the correct path:
 - clean installation when no PCHW Skill exists;
 - backup-based upgrade when an older Skill exists;
 - restore of the old Skill if replacement or later Runtime validation fails.
+
+If PCHW `2.9.3-test.2` is already installed, note that the rc.7 integrated user
+bundle backs it up and replaces it. To keep `test.2`, install the standalone Skill
+and use Runtime-only from Advanced options; that Skill-only plus Runtime-only
+combination remains PENDING.
 
 The user does not choose a clean or upgrade mode. The installer does not run the
 hardware collector, request administrator rights, or start `SkillDock.exe`.
@@ -230,6 +246,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ".\Install SkillDock Runtime
 
 After installation, open the panel from the current Codex conversation. Do not
 launch `SkillDock.exe` manually for the normal user path.
+This release verifies the Runtime-only package inventory and installation; the
+cross-package combination that keeps PCHW `2.9.3-test.2` and adds only the rc.7
+Runtime has not completed independent human signoff.
 
 ## Verify installation
 
@@ -296,9 +315,11 @@ Close DSH and remove:
 
 - `2.9.3` is the current PCHW Skill/Portable test release; clean-Windows signoff remains pending.
 - the current public SkillDock test bundle is `0.1.0-rc.7` with PCHW `2.9.3`;
-- the previous `0.1.0-rc.5 + PCHW 2.9.0` bundle remains the contract-only panel build;
-- the earlier `0.1.0-rc.4 + PCHW 2.8.0` bundle remains a historical panel build;
+- the rc.7 user bundle contains a PCHW release subset based on `2.9.3-test.1`, not `2.9.3-test.2`;
+- the Skill-only `2.9.3-test.2` plus Runtime-only rc.7 combination is contract-compatible but remains PENDING;
 - Clean-Windows acceptance for the rc.7 final ZIP bytes remains PENDING.
+- real Codex Thread behavior, human interaction, and multi-platform acceptance remain PENDING;
+- Live LHM Web/WMI remains SKIP unless an authorized process is already running;
 - The SkillDock panel is supported only in the current Codex user conversation.
 - If the panel is unavailable, permission is denied, or another workspace is active,
   continue in chat without exposing a developer entry.

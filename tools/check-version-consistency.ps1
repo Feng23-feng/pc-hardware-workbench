@@ -21,8 +21,28 @@ $portableGuide = Join-Path (Join-Path $RepositoryRoot "portable") $portableGuide
 $portableStart = Join-Path $RepositoryRoot "portable\start.ps1"
 $indexFile = Join-Path $RepositoryRoot "docs\skill-evolution\index.html"
 $interactiveFile = Join-Path $RepositoryRoot "docs\skill-evolution\interactive\index.html"
+$readmeEnFile = Join-Path $RepositoryRoot "README.en.md"
+$installationFile = Join-Path $RepositoryRoot "docs\installation.md"
+$installationEnFile = Join-Path $RepositoryRoot "docs\en\installation.md"
+$usageFile = Join-Path $RepositoryRoot "docs\usage.md"
+$troubleshootingFile = Join-Path $RepositoryRoot "docs\troubleshooting.md"
+$releaseNotesFile = Join-Path $RepositoryRoot "docs\releases\2.9.3-test.2.md"
 
-foreach ($path in @($skillFile, $readmeFile, $changelogFile, $portableGuide, $portableStart, $indexFile, $interactiveFile)) {
+foreach ($path in @(
+    $skillFile,
+    $readmeFile,
+    $readmeEnFile,
+    $changelogFile,
+    $portableGuide,
+    $portableStart,
+    $indexFile,
+    $interactiveFile,
+    $installationFile,
+    $installationEnFile,
+    $usageFile,
+    $troubleshootingFile,
+    $releaseNotesFile
+)) {
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
         $errors.Add("Missing version source: $path") | Out-Null
     }
@@ -43,6 +63,31 @@ if ($errors.Count -eq 0) {
     $readmeVersionPattern = '\u5f53\u524d\u7248\u672c\u4e3a \*\*' + [regex]::Escape($version) + '[^*]*\*\*'
     if ($readmeText -notmatch $readmeVersionPattern) {
         $errors.Add("README current version does not match $version.") | Out-Null
+    }
+    $readmeEnText = Get-Content -Raw -LiteralPath $readmeEnFile -Encoding UTF8
+    if ($readmeEnText -notmatch [regex]::Escape("**$version-test.2**")) {
+        $errors.Add("English README current pre-release does not match $version-test.2.") | Out-Null
+    }
+    foreach ($path in @(
+        $readmeFile,
+        $readmeEnFile,
+        $installationFile,
+        $installationEnFile,
+        $usageFile,
+        $troubleshootingFile,
+        $releaseNotesFile,
+        $changelogFile
+    )) {
+        $publicText = Get-Content -Raw -LiteralPath $path -Encoding UTF8
+        if ($publicText -notmatch [regex]::Escape("0.1.0-rc.7")) {
+            $errors.Add("Current SkillDock release is missing from $path.") | Out-Null
+        }
+        if ($publicText -notmatch [regex]::Escape("2.9.3-test.1")) {
+            $errors.Add("Bundled PCHW release lineage is missing from $path.") | Out-Null
+        }
+        if ($publicText -match '0\.1\.0-rc\.8') {
+            $errors.Add("Unpublished SkillDock rc.8 is referenced from $path.") | Out-Null
+        }
     }
 
     $changelogText = Get-Content -Raw -LiteralPath $changelogFile -Encoding UTF8

@@ -9,35 +9,35 @@
 - 其他操作系统只提供手动排障指导，不自动读取硬件；
 - 可选监控需要用户已经启动 LibreHardwareMonitor；本项目不会安装或启动它。
 
-当前 PCHW 公开测试版本为 `2.9.3-test.2`。本版完成 Runtime 安全与证据边界收尾，
-并把当前用户输入、Summary-only 来源绑定和 Source-hosted 完成条件纳入回归；
-结果卡继续把 `uncertainty[0]` 定义为
-唯一“当前未决项”，并同步更新 interaction、Runtime 与 surface contract；
-证据解决后必须替换或移除旧状态，不能继续显示已经失效的固定标签。此前 2.9.1
-收紧的显存 profile GPU、原始工具和显示工具版本门禁，以及 2.9.0 新增的确定性
-本地证据 CLI、纯 PCHW Skill、PCHW Portable 和 DeepSeek Harness 包继续保留。
-SkillDock 保持独立面板测试线，当前测试包为 `0.1.0-rc.7 + PCHW 2.9.3`，
-并机器校验 UI `1.2`、事件 `1.0` 和所需能力。
-`0.1.0-rc.5 + PCHW 2.9.0` 保留为 contract-only 历史测试包，
-`0.1.0-rc.4 + PCHW 2.8.0` 保留为更早面板测试包。目前没有正式版；干净 Windows
-安装、卸载和完整用户签收继续以 PENDING 公开，不阻断本轮公开测试版，但不能
-据此宣称正式稳定版。
+当前 PCHW 公开测试版本为 `2.9.3-test.2`。需要图形面板时，使用独立的
+`SkillDock 0.1.0-rc.7 + PCHW 2.9.3` 面板测试包；它会在加载前校验 UI `1.2`、
+事件 `1.0` 和所需能力。rc.7 用户包内嵌的是基于 PCHW `2.9.3-test.1` 的发布子集，
+并不包含最新的 `2.9.3-test.2`；它按契约兼容 `test.2`，但跨包组合仍为 PENDING。
+两者目前都没有正式稳定版。
+
+干净 Windows 安装、升级、修复和卸载，真实 Codex Thread、人工交互与多平台验收
+继续按 `PENDING` 公开；Live LHM 在缺少已运行且明确授权的进程时保持 `SKIP`。
+这些状态不阻断公开 Pre-release，但不能据此宣称正式稳定版。
 
 ## 先选一种包
 
 按使用场景安装对应的包。不要把同一个 PCHW Skill 的多个副本放进同一个宿主的
 Skill 扫描目录。
-普通用户默认选择不含面板的纯 PCHW Skill；只有明确需要网页操作面板时，再选择
-SkillDock 面板包（需已安装 Codex）。没有 Agent，或希望完全不安装时，选择
-PCHW Portable。
+只需要聊天、采集和 CSV 分析时，选择不含面板的纯 PCHW Skill。需要 Codex
+当前对话中的图形面板时，选择 SkillDock 面板包。没有 Agent，或希望完全不安装时，
+选择 PCHW Portable。
 
 | 包 | 适用场景 | 包含 | 操作面板 |
 | --- | --- | --- | --- |
 | PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板） | 普通用户默认选择；Codex 单独使用，或已有 DSH / 其他兼容 Agent 宿主 | PCHW Skill 2.9.3 发布子集 | 无 |
+| SkillDock 面板包（公开 rc.7） | 已安装 Codex Desktop，并使用 PCHW 2.9.3 surface contract | 基于 PCHW 2.9.3-test.1 的发布子集、SkillDock Runtime、安装入口 | 仅 Codex |
 | PCHW Portable（独立 Windows，无需 Agent） | 没有 Codex / DSH，或不希望安装 Skill 与 Runtime | 独立菜单、采集、CSV 与证据工具 | 无 |
-| DeepSeek Harness 适配包 | 使用 DSH，并且需要 PCHW Skill 与适配文件 | 2.9.3 Skill、DSH 适配文件 | 不提供 |
-| SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺应用与 Node | SkillDock Runtime、Node.js 24.22.1 | 仅 Codex 当前对话 |
-| SkillDock 面板包（公开 rc.7） | 已安装 Codex Desktop，并使用 PCHW 2.9.3 surface contract | PCHW 2.9.3 Skill、SkillDock Runtime、安装入口 | 仅 Codex |
+
+主入口直接下载：
+
+- PCHW Skill：[安装包 ZIP](https://github.com/Feng23-feng/pc-hardware-workbench/releases/download/v2.9.3-test.2/pc-hardware-workbench-v2.9.3-test.2-installer.zip)
+- SkillDock：[rc.7 用户包 ZIP](https://github.com/Feng23-feng/pc-hardware-workbench/releases/download/v0.1.0-rc.7/SkillDock-PCHW-0.1.0-rc.7-win-x64-user.zip)
+- Portable：[独立便携包 ZIP](https://github.com/Feng23-feng/pc-hardware-workbench/releases/download/v2.9.3-test.2/pc-hardware-portable-v2.9.3-test.2.zip)
 
 [下载当前 PCHW 2.9.3 公开测试版](https://github.com/Feng23-feng/pc-hardware-workbench/releases/tag/v2.9.3-test.2)：
 
@@ -49,11 +49,18 @@ pc-hardware-workbench-deepseek-harness-v2.9.3-test.2.zip
 三个渠道各自的 SHA256SUMS 文件
 ```
 
-最新 SkillDock 面板测试包由 `v0.1.0-rc.7` 提供，内含 PCHW 2.9.3。
-`v0.1.0-rc.5` 保留为上一版 PCHW 2.9.0 contract-only 面板测试包，
-`v0.1.0-rc.4` 保留为 PCHW 2.8.0 面板测试包。rc.7 的 clean Windows
-安装、卸载和最终签收仍是 PENDING，但不阻断公开测试版。不要把多个 PCHW Skill
-目录混在一起。
+最新 SkillDock 面板测试包由 `v0.1.0-rc.7` 提供，用户包内含基于 PCHW
+`2.9.3-test.1` 的发布子集。它与 `2.9.3-test.2` 按契约兼容，但跨包组合仍为
+PENDING。rc.7 的 Clean Windows 安装、卸载和最终签收也仍是 PENDING，但不阻断
+公开测试版。不要把多个 PCHW Skill 目录混在一起。
+
+### 高级选项
+
+| 高级包 | 使用条件 | 下载 |
+| --- | --- | --- |
+| DeepSeek Harness 适配包 | 使用 DSH，并且需要 PCHW Skill 与适配文件 | [下载 DSH ZIP](https://github.com/Feng23-feng/pc-hardware-workbench/releases/download/v2.9.3-test.2/pc-hardware-workbench-deepseek-harness-v2.9.3-test.2.zip) |
+| 手动安装包 | 需要检查包内容或自行执行安装步骤 | [下载手动安装 ZIP](https://github.com/Feng23-feng/pc-hardware-workbench/releases/download/v2.9.3-test.2/pc-hardware-workbench-v2.9.3-test.2-manual.zip) |
+| SkillDock Runtime-only | 已安装兼容 PCHW Skill，只缺应用与 Node | [下载 Runtime-only ZIP](https://github.com/Feng23-feng/pc-hardware-workbench/releases/download/v0.1.0-rc.7/SkillDock-Runtime-0.1.0-rc.7-win-x64.zip) |
 
 <a id="pchw-portable"></a>
 
@@ -88,6 +95,10 @@ pc-hardware-workbench-deepseek-harness-v2.9.3-test.2.zip
 - 已有旧版时先备份，再执行安全升级；
 - 替换或后续 Runtime 验证失败时恢复旧 Skill；
 - 不需要用户选择 clean 或 upgrade 模式。
+
+已有 PCHW `2.9.3-test.2` 时请先阅读上面的版本说明：运行 rc.7 整合用户包会备份并
+替换现有 Skill。若需要保留 `test.2`，应先安装独立 Skill，再使用高级选项中的
+Runtime-only；该 Skill-only + Runtime-only 组合仍为 PENDING。
 
 安装器只复制 PCHW Skill 和 SkillDock Runtime，不运行硬件采集器，不请求管理员
 权限，不自动启动 `SkillDock.exe`。
@@ -209,6 +220,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ".\Install SkillDock Runtime
 ```
 
 安装完成后仍从 Codex 当前对话触发面板，不需要手动启动 `SkillDock.exe`。
+本版只验证 Runtime-only 包清单和安装；保留 PCHW `2.9.3-test.2` 并只补 rc.7
+Runtime 的跨包组合尚未完成独立人工签收。
 
 ## 验证安装
 
@@ -277,9 +290,11 @@ Test-Path $pointer
 
 - `2.9.3` 是当前 PCHW Skill/Portable 测试版，没有正式版；干净 Windows 签收仍待完成。
 - 当前公开 SkillDock 测试包为 `0.1.0-rc.7 + PCHW 2.9.3`。
-- 上一版 `0.1.0-rc.5 + PCHW 2.9.0` 继续作为 contract-only 面板测试包。
-- 更早的 `0.1.0-rc.4 + PCHW 2.8.0` 保留为历史面板测试包。
+- rc.7 用户包内含基于 PCHW `2.9.3-test.1` 的发布子集，不是 `2.9.3-test.2`。
+- Skill-only `2.9.3-test.2` + Runtime-only rc.7 按契约兼容，但跨包组合仍为 PENDING。
 - rc.7 最终 ZIP 的 Clean Windows 安装/卸载与人工签收仍为 PENDING。
+- 真实 Codex Thread、人工交互和多平台验收仍为 PENDING。
+- Live LHM Web/WMI 在缺少已运行且明确授权的进程时保持 SKIP。
 - SkillDock 面板只支持 Codex 当前用户对话。
 - Panel 不可用、权限被拒绝或工作区冲突时必须回到对话，不能暴露开发入口。
 - 实时采集取决于 Windows 权限和宿主沙箱，不能把权限拒绝误报为缺件。

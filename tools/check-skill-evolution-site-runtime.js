@@ -422,6 +422,8 @@ async function testHomeViewport(siteUrl, name, width, height) {
       safety: document.querySelector(".dse-hero .dse-hero-safety")?.textContent.trim() || "",
       ctaHref: document.querySelector(".dse-hero-action.primary")?.getAttribute("href") || "",
       ctaText: document.querySelector(".dse-hero-action.primary")?.textContent.trim() || "",
+      secondaryCtaHref: document.querySelector(".dse-hero-action.secondary")?.getAttribute("href") || "",
+      secondaryCtaText: document.querySelector(".dse-hero-action.secondary")?.textContent.trim() || "",
       status: document.querySelector(".dse-hero-status")?.innerText.trim() || "",
       heroHeight: Math.round(document.querySelector(".dse-hero")?.getBoundingClientRect().height || 0),
       viewportHeight: Math.round(document.getElementById("dse-root")?.clientHeight || 0),
@@ -445,14 +447,14 @@ async function testHomeViewport(siteUrl, name, width, height) {
     }))()`);
     check(initial.title.includes("电脑硬件工作台"), `${prefix}browser title is not user-facing.`);
     check(
-      initial.h1.includes("电脑调试") && initial.h1.includes("Skill 来帮你"),
+      initial.h1.includes("Windows 硬件诊断") && initial.h1.includes("安全调参 Skill"),
       `${prefix}hero headline does not cover the full decision scope.`
     );
     check(
-      initial.subtitle.includes("配置") &&
-      initial.subtitle.includes("排查问题") &&
-      initial.subtitle.includes("调参或升级"),
-      `${prefix}hero subtitle still narrows the Skill to troubleshooting.`
+      initial.subtitle.includes("HWiNFO") &&
+      initial.subtitle.includes("PresentMon") &&
+      initial.subtitle.includes("不自动修改硬件"),
+      `${prefix}hero subtitle does not explain evidence and the read-only boundary.`
     );
     check(
       initial.safety.includes("测试版") &&
@@ -460,8 +462,13 @@ async function testHomeViewport(siteUrl, name, width, height) {
       initial.safety.includes("不会自动修改硬件"),
       `${prefix}hero action result and safety boundary are not explicit.`
     );
-    check(initial.ctaHref === "#dse-home-flow", `${prefix}primary CTA does not lead to the inline simple flow.`);
-    check(initial.ctaText === "开始自查", `${prefix}hero CTA does not match the simplified entry.`);
+    check(initial.ctaHref === "#dse-downloads", `${prefix}primary CTA does not lead to the current downloads.`);
+    check(initial.ctaText === "下载测试版", `${prefix}hero primary CTA does not match the product entry.`);
+    check(
+      initial.secondaryCtaHref === "#dse-home-flow" &&
+      initial.secondaryCtaText === "先按问题自查",
+      `${prefix}hero secondary CTA does not lead to the guided flow.`
+    );
     check(
       initial.heroHeight >= initial.viewportHeight - 1 &&
       initial.nextSectionTop >= initial.viewportHeight - 1,
@@ -473,11 +480,9 @@ async function testHomeViewport(siteUrl, name, width, height) {
     );
     check(!initial.aboutPresent, `${prefix}removed philosophy section still exists.`);
     check(
-      initial.heroVersion === expectedSkillVersion &&
-      initial.visibleVersionCount === 1,
-      `${prefix}homepage should expose the current version exactly once (${JSON.stringify({
-        heroVersion: initial.heroVersion,
-        visibleVersionCount: initial.visibleVersionCount
+      initial.heroVersion === expectedSkillVersion,
+      `${prefix}hero should expose the current Skill version (${JSON.stringify({
+        heroVersion: initial.heroVersion
       })}).`
     );
     check(
@@ -546,15 +551,33 @@ async function testHomeViewport(siteUrl, name, width, height) {
     const candidateStatus = await evaluate(connection, `(() => {
       const section = document.querySelector("#dse-candidate-title")?.closest(".dse-candidate");
       const explore = document.querySelector(".dse-explore-primary");
-      const rows = section
-        ? [...section.querySelectorAll(".dse-candidate-summary > div")]
+      const primaryLinks = section
+        ? [...section.querySelectorAll(".dse-candidate-primary a")]
         : [];
+      const advancedRows = section
+        ? [...section.querySelectorAll(".dse-candidate-advanced .dse-candidate-summary > div")]
+        : [];
+      const preview = section?.querySelector(".dse-candidate-preview img");
+      const previewBox = section?.querySelector(".dse-candidate-preview")?.getBoundingClientRect();
+      const previewRect = preview?.getBoundingClientRect();
       return {
         state: section?.querySelector(".dse-candidate-state")?.textContent.trim() || "",
         title: section?.querySelector("#dse-candidate-title")?.textContent.trim() || "",
         lead: section?.querySelector(".dse-candidate-lead")?.textContent.trim() || "",
-        rowLabels: rows.map(row => row.querySelector("dt")?.textContent.trim() || ""),
-        rowCopies: rows.map(row => row.querySelector("dd")?.textContent.trim() || ""),
+        primary: primaryLinks.map(link => ({
+          href: link.getAttribute("href") || "",
+          title: link.querySelector("strong")?.textContent.trim() || "",
+          copy: link.querySelector("small")?.textContent.trim() || ""
+        })),
+        previewLoaded: Boolean(preview?.complete && preview?.naturalWidth > 0),
+        previewCurrentSrc: preview?.currentSrc || "",
+        previewBoxWidth: Math.round(previewBox?.width || 0),
+        previewWidth: Math.round(previewRect?.width || 0),
+        previewHeight: Math.round(previewRect?.height || 0),
+        previewObjectFit: preview ? getComputedStyle(preview).objectFit : "",
+        advancedSummary: section?.querySelector(".dse-candidate-advanced > summary")?.textContent.trim() || "",
+        advancedLabels: advancedRows.map(row => row.querySelector("dt")?.textContent.trim() || ""),
+        advancedCopies: advancedRows.map(row => row.querySelector("dd")?.textContent.trim() || ""),
         gapAfterFilePlanet: Math.round(
           (section?.getBoundingClientRect().top || 0) -
           (explore?.getBoundingClientRect().bottom || 0)
@@ -566,18 +589,38 @@ async function testHomeViewport(siteUrl, name, width, height) {
         )
       };
     })()`);
+    const candidatePreviewAspect = candidateStatus.previewHeight > 0
+      ? candidateStatus.previewWidth / candidateStatus.previewHeight
+      : 0;
+    const expectedCandidatePreviewAspect = name === "mobile" ? 0.8 : 1.6;
     check(
       candidateStatus.state === "当前公开测试版" &&
-      candidateStatus.title === "选择适合你的使用方式" &&
-      candidateStatus.lead.includes("按使用场景") &&
-      candidateStatus.rowLabels.join(",") === "PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板）,PCHW Portable,SkillDock Runtime-only,SkillDock 面板包,回退与状态" &&
-      candidateStatus.rowCopies.every(copy => copy.length > 0) &&
+      candidateStatus.title === "选择安装方式" &&
+      candidateStatus.lead.includes("主要使用场景") &&
+      candidateStatus.lead.includes(`${expectedSkillVersion}-test.2`) &&
+      candidateStatus.lead.includes(`${expectedSkillVersion}-test.1`) &&
+      candidateStatus.primary.length === 3 &&
+      candidateStatus.primary[0].href.includes("pc-hardware-workbench-v2.9.3-test.2-installer.zip") &&
+      candidateStatus.primary[1].href.includes("SkillDock-PCHW-0.1.0-rc.7-win-x64-user.zip") &&
+      candidateStatus.primary[2].href.includes("pc-hardware-portable-v2.9.3-test.2.zip") &&
+      candidateStatus.primary.every(link => link.title && link.copy) &&
+      candidateStatus.previewLoaded &&
+      candidateStatus.previewWidth <= candidateStatus.previewBoxWidth + 2 &&
+      candidateStatus.previewHeight > 180 &&
+      Math.abs(candidatePreviewAspect - expectedCandidatePreviewAspect) <= 0.06 &&
+      candidateStatus.previewObjectFit === "cover" &&
+      candidateStatus.advancedSummary.includes("高级安装与兼容选项") &&
+      candidateStatus.advancedLabels.join(",") === "DeepSeek Harness 适配包,SkillDock Runtime-only,手动安装,面板包版本关系,问题反馈,回退与状态" &&
+      candidateStatus.advancedCopies.every(copy => copy.length > 0) &&
       candidateStatus.gapAfterFilePlanet >= (name === "desktop" ? 72 : 44) &&
       candidateStatus.belowFilePlanet,
       `${prefix}candidate status is missing or no longer follows the file planet (${JSON.stringify(candidateStatus)}).`
     );
+    await evaluate(connection, `document.getElementById("dse-downloads")?.scrollIntoView({ block: "start" })`);
+    await sleep(120);
+    await screenshot(connection, `download-options-${name}.png`);
 
-    await clickByPointer(connection, ".dse-hero-action.primary");
+    await clickByPointer(connection, ".dse-hero-action.secondary");
     const howtoVisible = await waitFor(connection, `(() => {
       const target = document.getElementById("dse-how-title");
       const section = document.querySelector(".dse-howto");
@@ -586,7 +629,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
         Number(getComputedStyle(section).opacity) > .99 &&
         document.activeElement?.id === "dse-how-title";
     })()`, 3000);
-    check(howtoVisible, `${prefix}primary CTA left a blank or invisible usage section.`);
+    check(howtoVisible, `${prefix}secondary CTA left a blank or invisible usage section.`);
 
     const homeFlowInitial = await evaluate(connection, `(() => ({
       stepOneVisible: !document.getElementById("dse-home-step-1")?.hidden,

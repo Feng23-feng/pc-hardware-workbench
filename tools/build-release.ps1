@@ -146,7 +146,11 @@ $bundleDocs = @(
     "docs\en\installation.md",
     "docs\en\privacy-and-safety.md",
     "adapters\dsh\README.md",
-    "docs\skill-evolution\assets\orrery-preview.png"
+    "docs\skill-evolution\assets\orrery-preview.png",
+    "docs\skill-evolution\assets\pchw-start-desktop.png",
+    "docs\skill-evolution\assets\pchw-permission-desktop.png",
+    "docs\skill-evolution\assets\pchw-result-desktop.png",
+    "docs\skill-evolution\assets\pchw-result-mobile.png"
 )
 foreach ($relativeDoc in $bundleDocs) {
     $docSource = Join-Path $RepositoryRoot $relativeDoc
@@ -456,7 +460,11 @@ try {
         "docs\en\installation.md",
         "docs\en\privacy-and-safety.md",
         "adapters\dsh\README.md",
-        "docs\skill-evolution\assets\orrery-preview.png"
+        "docs\skill-evolution\assets\orrery-preview.png",
+        "docs\skill-evolution\assets\pchw-start-desktop.png",
+        "docs\skill-evolution\assets\pchw-permission-desktop.png",
+        "docs\skill-evolution\assets\pchw-result-desktop.png",
+        "docs\skill-evolution\assets\pchw-result-mobile.png"
     )) {
         if (-not (Test-Path -LiteralPath (Join-Path $packagedSkillOuter $packagedDoc) -PathType Leaf)) {
             throw "Packaged Codex release is missing $packagedDoc."

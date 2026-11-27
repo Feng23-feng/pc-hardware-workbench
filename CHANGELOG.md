@@ -9,6 +9,8 @@
 - Summary-only 结果必须绑定 analyzer 实际读取的源 SHA-256 和字节数；normalizer、chart pack 和 Source-hosted 完成接口按实际 `chart_preset` 验证必要证据与产物；
 - 普通文本分析默认 Summary-only，交互式图表显式请求 `FirstPass`；
 - 自动 PowerShell/Node 回归、Skill validator、SkillDock frozen gate 和 source-hosted mock E2E 通过；
+- SkillDock 当前公开用户包为 `0.1.0-rc.7`，内含基于 PCHW `2.9.3-test.1` 的发布子集；
+  它与 `2.9.3-test.2` 按契约兼容，但跨包组合仍为 PENDING；
 - Clean Windows 安装升级修复卸载、真实 Codex Thread、人工交互、多平台和实际 Edge 验收继续按 SKIP/PENDING 公开；
 - 本版作为公开 Pre-release 测试版发行，不宣称正式稳定版。
 
@@ -17,7 +19,7 @@
 - PCHW panel results now treat `uncertainty[0]` as the current unresolved status subject; SkillDock renders that subject instead of hard-coding “热限制待确认”;
 - 证据解决后必须替换或移除首个未决项，不能继续显示已经失效的固定状态；
 - interaction、Runtime 和 surface contract 测试覆盖首项提取、后续列表去重及状态替换语义；
-- 独立 PCHW Skill、Portable 和 DeepSeek Harness 资产使用 `2.9.3-test.1`；集成面板测试包为 `SkillDock 0.1.0-rc.7 + PCHW 2.9.3`；
+- 独立 PCHW Skill、Portable 和 DeepSeek Harness 资产使用 `2.9.3-test.1`；集成面板测试包 `SkillDock 0.1.0-rc.7` 内含基于该 PCHW `2.9.3-test.1` 的发布子集；
 - Clean Windows 安装/卸载、完整人工签收和正式稳定发布继续 PENDING。
 
 ## 2.9.2 — 2026-11-23
