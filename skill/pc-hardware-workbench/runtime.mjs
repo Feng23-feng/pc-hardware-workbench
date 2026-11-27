@@ -35,10 +35,50 @@ function completedOneTimeAttachmentAnalysis(task, attachment) {
 }
 
 export function enforceDisplayEvidenceContract(panel, packet) {
+  if (!["1.1", "1.2"].includes(panel.schema_version)) {
+    return panel;
+  }
+  const existingRecommendations = [...(panel.recommendations ?? [])].slice(0, 3);
+  const safetyStopTitlePattern =
+    /^(?:(?:请|必须|建议|需要|务必|应当?|先)\s*(?:尽快|立即|马上|立刻)?\s*|(?:尽快|立即|马上|立刻)\s*)?(?:停止(?:测试|使用|运行|通电)?|断开|不要(?:再次)?通电|禁止通电|断电|关机|切断电源|送修|stop\b|disconnect\b|power off\b|unplug\b)/iu;
+  const safetyRecommendations = existingRecommendations.filter((item) =>
+    safetyStopTitlePattern.test(String(item.title ?? "").trim()),
+  );
   if (
-    !["1.1", "1.2"].includes(panel.schema_version) ||
-    !/黑屏|掉帧|帧数暴降/iu.test(JSON.stringify(packet))
+    panel.status === "blocked" ||
+    safetyRecommendations.length > 0 ||
+    safetyStopTitlePattern.test(String(panel.priorityAction?.title ?? "").trim())
   ) {
+    return panel;
+  }
+  const currentContext = String(
+    panel.current_goal ??
+      packet?.task_context?.objective ??
+      packet?.task_context?.current_goal ??
+      packet?.current_objective ??
+      packet?.current_text ??
+      "",
+  );
+  const displayTerms =
+    /黑屏|掉帧|帧数暴降|画面闪烁|驱动重置|显示异常/iu;
+  const negationBeforeTerm =
+    /(?:没有|未|无|不再|已排除|并非|不是)[^，。；;]{0,18}(?:黑屏|掉帧|帧数暴降|画面闪烁|驱动重置|显示异常)/iu;
+  const resolvedDisplayTerm =
+    /(?:黑屏|掉帧|帧数暴降|画面闪烁|驱动重置|显示异常)[^，。；;]{0,18}(?:已经?排除|已经?修复|不再出现|未再出现|已恢复)/iu;
+  const historicalMarker = /此前|之前|以前|上次|历史|昨天|前天|刚才/iu;
+  const currentMarker = /现在|当前|这次|本次|最近|仍然|依然|还在|持续/iu;
+  const currentClauses = currentContext
+    .split(/[，。；;\n]+|但仍|但是|但|不过|然而|却|仍然|依然|仍/iu)
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const hasCurrentDisplayEvidence = currentClauses.some(
+    (clause) =>
+      displayTerms.test(clause) &&
+      !(historicalMarker.test(clause) && !currentMarker.test(clause)) &&
+      !negationBeforeTerm.test(clause) &&
+      !resolvedDisplayTerm.test(clause),
+  );
+  if (!hasCurrentDisplayEvidence) {
     return panel;
   }
   const required = [
@@ -76,17 +116,152 @@ export function enforceDisplayEvidenceContract(panel, packet) {
       },
     },
   ];
-  const recommendations = required.map((requirement) => {
-    return (
-      panel.recommendations.find((item) =>
-        requirement.test.test(`${item.title} ${item.detail}`),
-      ) ?? requirement.recommendation
+  const recommendations = [];
+  for (const requirement of required) {
+    const matchingRecommendation = existingRecommendations.find((item) =>
+      requirement.test.test(`${item.title} ${item.detail}`),
     );
-  });
+    if (
+      recommendations.some((item) =>
+        requirement.test.test(`${item.title} ${item.detail}`),
+      )
+    ) {
+      continue;
+    }
+    if (
+      matchingRecommendation &&
+      !recommendations.includes(matchingRecommendation)
+    ) {
+      recommendations.push(matchingRecommendation);
+      continue;
+    }
+    if (recommendations.length >= 3) {
+      break;
+    }
+    recommendations.push(requirement.recommendation);
+  }
   return { ...panel, recommendations };
 }
 
-function analysisFailure(previousPanel, error, objective) {
+function analysisFailureCopy(error) {
+  const code = String(error?.code ?? "analysis_failed");
+  const recovery = {
+    no_usable_series: {
+      resultTitle: "未找到可分析的传感器列",
+      summary: "CSV 中没有识别到可用于图表的数值传感器列。",
+      judgement:
+        "本地分析器没有找到可绘制的数值传感器列，因此没有生成图表，也没有猜测数据结构。原文件仍保留在当前检查中。",
+      recommendation: {
+        title: "重新导出明确的传感器列",
+        detail:
+          "保留原始文件，重新导出带明确时间、传感器名称和单位的记录后再分析；不要修改列名冒充已识别指标。",
+      },
+    },
+    analysis_timeout: {
+      resultTitle: "本地分析超时",
+      summary: "分析在限定时间内没有完成，未生成新图表。",
+      judgement:
+        "本地分析进程超时并已停止。未生成图表，现有判断没有被新数据更新。",
+      recommendation: {
+        title: "缩小分析窗口后重试",
+        detail:
+          "关闭占用较高的本地任务，并缩短 CSV 或时间窗口后重新分析；不要通过延长超时绕过重复失败。",
+      },
+    },
+    analysis_runner_error: {
+      resultTitle: "无法启动本地分析",
+      summary: "Windows PowerShell 分析进程没有成功启动。",
+      judgement:
+        "本地分析入口未能启动，因此没有读取结论所需的分析结果。请检查 PowerShell 和执行策略是否可用。",
+      recommendation: {
+        title: "检查本地分析环境",
+        detail:
+          "确认 Windows PowerShell 可运行且 Skill 文件完整，再重新发起分析；不要改用未知脚本代替。",
+      },
+    },
+    attachment_hash_mismatch: {
+      resultTitle: "附件完整性校验失败",
+      summary: "磁盘上的 CSV 与上传记录不一致，已停止分析。",
+      judgement:
+        "附件内容在上传后被修改或替换，哈希与任务记录不匹配。为避免分析错误对象，本地分析没有继续。",
+      recommendation: {
+        title: "重新添加可信的原始文件",
+        detail:
+          "从原始数据源重新导入该 CSV，等待新的哈希记录生成后再分析；不要继续使用被修改的副本。",
+      },
+    },
+    attachment_hash_invalid: {
+      resultTitle: "附件记录不完整",
+      summary: "附件缺少有效的 SHA-256 完整性记录。",
+      judgement:
+        "当前附件记录没有可验证的哈希，不能证明磁盘文件与上传对象一致，因此没有执行分析。",
+      recommendation: {
+        title: "重新导入当前文件",
+        detail: "重新上传原始 CSV 以生成新的完整性记录，再继续分析。",
+      },
+    },
+    unsafe_attachment_path: {
+      resultTitle: "附件路径不安全",
+      summary: "附件路径包含链接、Junction、重解析点或越过受控目录。",
+      judgement:
+        "为保护本地文件边界，分析器拒绝读取该路径。没有执行分析，也没有跟随该链接。",
+      recommendation: {
+        title: "重新导入到受控目录",
+        detail:
+          "从原始文件重新上传附件，不要在附件目录内建立链接或 Junction。",
+      },
+    },
+    unsafe_artifact: {
+      resultTitle: "图表安全校验失败",
+      summary: "生成的图表包含不允许的主动内容或外部引用。",
+      judgement:
+        "图表没有通过本地 SVG 安全校验，因此不会展示、下载或同步。",
+      recommendation: {
+        title: "停止使用该图表",
+        detail:
+          "保留 CSV 并重新运行受信任的本地渲染器；不要手动修改 SVG 绕过校验。",
+      },
+    },
+    unverified_artifact: {
+      resultTitle: "图表引用校验失败",
+      summary: "结果引用的图表不属于当前检查或内容已发生变化。",
+      judgement:
+        "图表的任务归属、路径或 SHA-256 没有通过复核，因此没有把它加入当前结果。",
+      recommendation: {
+        title: "重新生成当前检查图表",
+        detail:
+          "用当前附件重新执行本地分析，不要复用来源不明或来自其他任务的图表。",
+      },
+    },
+  }[code] ?? {
+    resultTitle: "本地分析未完成",
+    summary: "本地分析返回错误，尚未生成新的可信结果。",
+    judgement:
+      "本地分析没有完成，当前判断没有被新分析更新。请根据错误信息恢复后重试。",
+    recommendation: {
+      title: "按错误信息恢复后重试",
+      detail:
+        "保留原始文件，检查本地分析环境和附件完整性，再重新发起同一操作。",
+    },
+  };
+  if (["attachment_not_found", "invalid_attachment_size"].includes(code)) {
+    return {
+      resultTitle: "附件不可用于分析",
+      summary: error?.message || "附件不存在或不符合分析限制。",
+      judgement:
+        "附件的存在性、类型或大小没有通过本地检查，因此没有执行分析。",
+      recommendation: {
+        title: "重新添加有效 CSV",
+        detail:
+          "确认文件仍存在且不超过 8 MB，再重新导入并分析。",
+      },
+    };
+  }
+  return recovery;
+}
+
+export function analysisFailure(previousPanel, error, objective) {
+  const copy = analysisFailureCopy(error);
   const previousEvidence = Array.isArray(previousPanel?.evidence)
     ? previousPanel.evidence.slice(0, 6)
     : [];
@@ -96,36 +271,35 @@ function analysisFailure(previousPanel, error, objective) {
       ? previousPanel.recommendations.slice(0, 3)
       : [
           {
-            id: "capture-supported-data",
-            title: "使用运行时支持的传感器列",
-            detail:
-              "重新导出包含明确时间列和传感器名称的数据；不要通过改列名伪造已识别的测量。",
+            id: `runtime-recover-${String(error?.code ?? "analysis").replace(/[^a-z0-9-]/giu, "-").toLowerCase()}`,
+            title: copy.recommendation.title,
+            detail: copy.recommendation.detail,
             risk: "low",
-            evidence_goal: "让本地分析器能够验证列语义、单位和时间窗口。",
+            evidence_goal: "先恢复导致本轮分析失败的具体条件。",
           },
           {
-            id: "preserve-source-context",
-            title: "保留故障时间与负载上下文",
+            id: "runtime-preserve-failure-context",
+            title: "保留原始文件与错误上下文",
             detail:
-              "记录数据对应的工作负载、采样间隔和故障精确时间，再与系统事件按同一窗口对照。",
+              "不要删除原文件；记录错误码、发生时间和当时的分析窗口，再按对应恢复步骤重试。",
             risk: "low",
-            evidence_goal: "避免把无上下文的数值窗口解释成稳定性结论。",
+            evidence_goal: "避免在失败原因未知时重复分析或误判数据。",
           },
         ];
   const details = (error?.details ?? []).filter(Boolean).slice(0, 4);
   return {
     schema_version: "1.2",
-    turn_summary: "本地 Skill Runtime 未能从这份数据生成可信图表。",
+    result_title: copy.resultTitle,
+    turn_summary: copy.summary,
     current_goal: previousPanel?.current_goal || objective || "检查数据格式",
     status:
       previousPanel?.status === "ready" || previousPanel?.status === "blocked"
         ? previousPanel.status
         : "needs_input",
-    judgement:
-      "本地分析器没有找到可绘制的数值传感器列，因此没有生成图表，也没有让 Agent 猜测数据结构。原文件仍保留在当前 Task 中。",
+    judgement: copy.judgement,
     question: previousPanel?.question ?? null,
     recommendation: previousPanel?.recommendation ?? {
-      summary: "先修正数据来源或窗口，再重新分析；本轮不会自动重试。",
+      summary: "先按错误信息恢复数据或环境，再重新分析；本轮不会自动重试。",
       option_id: null,
     },
     evidence: [
@@ -144,17 +318,15 @@ function analysisFailure(previousPanel, error, objective) {
     ],
     recommendations: previousRecommendations,
     priorityAction: {
-      title: "换用可识别的传感器列",
-      detail:
-        "保留原始文件，重新导出带明确时间、传感器名称和单位的记录后再分析；不要修改列名冒充已识别指标。",
+      title: copy.recommendation.title,
+      detail: copy.recommendation.detail,
     },
     actions: [
       {
         id: "copy-analysis-recovery",
         label: "复制修正要求",
         kind: "copy",
-        content:
-          "保留原始数据；重新导出包含时间、明确传感器名称和单位的记录，并记录工作负载、采样间隔和故障时间。不要修改列名冒充已识别指标。",
+        content: `${copy.resultTitle}：${copy.judgement} 下一步：${copy.recommendation.title}。${copy.recommendation.detail}`,
       },
     ],
     artifact_refs: [],
@@ -162,9 +334,8 @@ function analysisFailure(previousPanel, error, objective) {
       {
         id: "analysis-failure-callout",
         type: "callout",
-        title: "无法生成图表",
-        text:
-          "本地分析返回了确定性失败。没有创建图表，也没有发送模型回合；请修正列语义或采样窗口后再试。",
+        title: copy.resultTitle,
+        text: copy.summary,
         tone: "warning",
         collapsed: false,
       },
@@ -354,7 +525,8 @@ class PcHardwareWorkbenchRuntime {
     return [
       "For a vague slowdown without a safety symptom, first establish workload timing.",
       "When the first timing question is appropriate, include an option labelled exactly '玩游戏时'.",
-      "Every turn must include a substantive result card with judgement, supports/conflicts/context evidence, uncertainty, two or three low-risk evidence recommendations, one priorityAction, and copy-only actions.",
+      "Every turn must include a compact user-facing result_title, a substantive judgement, supports/conflicts/context evidence, uncertainty, two or three low-risk evidence recommendations, one priorityAction, and copy-only actions.",
+      "Set result_title to the check conclusion or main unresolved finding. Set turn_summary to the concrete reason or data limitation, not to loading, reading, or internal processing.",
       "Set uncertainty[0] to the single current unresolved item, using a compact subject-based label such as '热限制待确认' only when the current evidence actually supports that subject. Replace or omit a resolved item; never hard-code thermal, power, or a placeholder status.",
       "For single-game brief black screens or stutter, recommendations must cover a fixed-scene retest with precise timestamp, a read-only Event Viewer check for Display TDR, WHEA-Logger and Kernel-Power 41, and HWiNFO logging of GPU temperature, power, effective clock and PerfCap.",
       "When telemetry analysis reports sampled_span_seconds, use that value for telemetry duration. Never substitute device age, driver age, or another task's elapsed time.",
@@ -433,7 +605,9 @@ class PcHardwareWorkbenchRuntime {
       );
     }
     return this.validatePanelResult(
-      this.broker.applyVerifiedResult(panel, localResult),
+      this.broker.applyVerifiedResult(panel, localResult, {
+        taskId: task.task_id,
+      }),
       { packet },
     );
   }
@@ -710,7 +884,6 @@ class PcHardwareWorkbenchRuntime {
         window,
         preset: chartPreset,
       });
-      this.broker.validateAttachment(attachment);
     } catch (error) {
       const normalized =
         error instanceof TelemetryBrokerError
@@ -925,7 +1098,9 @@ class PcHardwareWorkbenchRuntime {
       const agentResult = await host.runAgent(packet);
       host.setAgentError(null);
       const panel = this.validatePanelResult(
-        this.broker.applyVerifiedResult(agentResult.panel, result),
+        this.broker.applyVerifiedResult(agentResult.panel, result, {
+          taskId: task.task_id,
+        }),
         { packet },
       );
       host.setPanel(panel);
@@ -1004,8 +1179,8 @@ class PcHardwareWorkbenchRuntime {
     }
   }
 
-  getArtifact(id) {
-    return this.broker.getArtifact(id);
+  getArtifact(id, context = {}) {
+    return this.broker.getArtifact(id, context);
   }
 
   buildHandoffContext({ task }) {

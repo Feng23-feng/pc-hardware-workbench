@@ -33,7 +33,6 @@ current Codex Thread: never create, fork, attach, or resume another Thread, and
 fail closed on a binding mismatch. After synchronization, reply
 “已同步面板结果”, then give the current judgement, unresolved item, and one next
 action; never expose raw JSON, credentials, or the panel component tree.
-
 Use a private case for multi-turn, multi-evidence,
 baseline/change/test, or chat-loss-prone work. Create/resume it before large
 evidence; checkpoint material changes, not every turn. Store it outside public
@@ -51,7 +50,6 @@ wiring, or visible electrical damage, stop tests and parameter changes; power
 off and disconnect only when safe; request no further boots, stress tests,
 energized reseating, or telemetry; direct the user to vendor service or
 qualified repair.
-
 Unexplained instability blocks tuning until a stable baseline is restored.
 Before reseating, require shutdown, AC/adapter disconnection, and a confirmed
 de-energized state.

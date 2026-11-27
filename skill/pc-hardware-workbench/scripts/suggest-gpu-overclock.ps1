@@ -606,7 +606,7 @@ if ($ReportFreshness -ne "Fresh") {
 }
 
 $result = [ordered]@{
-    ScriptVersion = "2.0.3"
+    ScriptVersion = "2.0.4"
     SuiteVersion = "2.9.3"
     NoHardwareChange = $true
     HardwareWrite = "none"
@@ -648,6 +648,12 @@ $result = [ordered]@{
     HardwareFingerprint = $effectiveHardwareFingerprint
     ConfigurationFingerprint = $effectiveDeviceFingerprint
     DeviceFingerprint = $effectiveDeviceFingerprint
+    IdentityEvidenceClass = "user-declared-unverified"
+    ConfigurationFingerprintSource = "derived-from-declared-identity-and-controls"
+    BaselineEvidenceClass = if ($BaselineRecorded) { "user-confirmed-not-measured" } else { "missing" }
+    RecoveryEvidenceClass = if ($RecoverySaved) { "user-confirmed-not-measured" } else { "missing" }
+    DeclaredMeasuredBoundary =
+        "Declared identity, baseline, recovery, and control values are inputs to gate checks; they are not promoted to measured evidence."
     ExperimentLineageId = $experimentLineageId
     ExperimentRevisionId = $null
     HistoryPolicy = "preserve-and-mark-stale-for-continuation"

@@ -218,6 +218,14 @@ Always preserve the candidate's evidence fields:
   integrated workflow otherwise reports `session-only` rather than pretending
   to have a persistent experiment store.
 
+Keep declaration provenance separate from measured evidence. The GPU model,
+board identity, baseline, recovery route, control values, and user-confirmed
+state may select gates and fingerprints, but they remain
+`user-declared-unverified` or `user-confirmed-not-measured` until independent
+local evidence exists. A derived configuration fingerprint is an association
+key, not proof that the hardware identity, cooling capacity, or recovery path
+was measured.
+
 Use the user's current report, recent telemetry summary, and saved experiment
 card to fill the gate automatically. Do not turn the fields into a novice
 questionnaire.

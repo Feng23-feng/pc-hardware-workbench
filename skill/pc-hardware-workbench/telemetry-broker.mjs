@@ -1,12 +1,17 @@
 import { spawn } from "node:child_process";
 import {
+  closeSync,
+  constants,
   copyFileSync,
   existsSync,
+  fstatSync,
+  lstatSync,
   mkdirSync,
+  openSync,
   readFileSync,
+  realpathSync,
   renameSync,
   rmSync,
-  statSync,
   unlinkSync,
   writeFileSync,
 } from "node:fs";
@@ -23,7 +28,7 @@ const MAX_SCRIPT_OUTPUT_BYTES = 4 * 1024 * 1024;
 const MAX_ARTIFACT_BYTES = 5 * 1024 * 1024;
 const MAX_CHART_ARTIFACTS = 6;
 const MAX_WINDOW_SECONDS = 24 * 60 * 60;
-const ANALYZER_CACHE_VERSION = "1.3.0-pack1";
+const ANALYZER_CACHE_VERSION = "1.3.2-pack1";
 const METRIC_HINTS =
   /temp|temperature|power|watt|clock|effective|mhz|fps|frame|voltage|fan|usage|load|温度|功耗|频率|帧率|瓦/u;
 
@@ -98,7 +103,79 @@ function isInside(root, filePath) {
   return candidate !== "" && !candidate.startsWith("..") && !isAbsolute(candidate);
 }
 
+function resolveControlledFile(root, filePath) {
+  const resolvedRoot = resolve(root);
+  const resolvedPath = resolve(filePath);
+  if (!isInside(resolvedRoot, resolvedPath) || !existsSync(resolvedPath)) {
+    throw new TelemetryBrokerError(
+      "attachment_not_found",
+      "文件不在受控的本地证据目录中",
+      { statusCode: 404 },
+    );
+  }
+  const realRoot = realpathSync.native(resolvedRoot);
+  const realPath = realpathSync.native(resolvedPath);
+  if (!isInside(realRoot, realPath)) {
+    throw new TelemetryBrokerError(
+      "unsafe_attachment_path",
+      "文件真实路径越过了受控目录边界",
+      { statusCode: 409 },
+    );
+  }
+  const relativePath = relative(resolvedRoot, resolvedPath);
+  let cursor = resolvedRoot;
+  for (const segment of relativePath.split(/[\\/]+/u).filter(Boolean)) {
+    cursor = resolve(cursor, segment);
+    const stat = lstatSync(cursor);
+    if (stat.isSymbolicLink()) {
+      throw new TelemetryBrokerError(
+        "unsafe_attachment_path",
+        "附件路径包含符号链接、Junction 或重解析点",
+        { statusCode: 409 },
+      );
+    }
+  }
+  const finalStat = lstatSync(realPath);
+  if (!finalStat.isFile()) {
+    throw new TelemetryBrokerError(
+      "attachment_not_found",
+      "附件路径不是普通文件",
+      { statusCode: 404 },
+    );
+  }
+  return { filePath: realPath, stat: finalStat };
+}
+
+function readControlledFile(root, filePath) {
+  const reference = resolveControlledFile(root, filePath);
+  const noFollow = process.platform === "win32"
+    ? 0
+    : constants.O_NOFOLLOW ?? 0;
+  const descriptor = openSync(reference.filePath, constants.O_RDONLY | noFollow);
+  try {
+    const openedStat = fstatSync(descriptor);
+    if (!openedStat.isFile()) {
+      throw new TelemetryBrokerError(
+        "attachment_not_found",
+        "文件路径不是普通文件",
+        { statusCode: 404 },
+      );
+    }
+    const buffer = readFileSync(descriptor);
+    return {
+      ...reference,
+      stat: openedStat,
+      buffer,
+    };
+  } finally {
+    closeSync(descriptor);
+  }
+}
+
 function formatNumber(value) {
+  if (value === null || value === undefined || value === "") {
+    return "";
+  }
   const number = Number(value);
   if (!Number.isFinite(number)) {
     return "";
@@ -106,6 +183,19 @@ function formatNumber(value) {
   return Number.isInteger(number)
     ? String(number)
     : number.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+}
+
+function formatDuration(seconds) {
+  if (seconds === null || seconds === undefined || seconds === "") {
+    return "";
+  }
+  const value = Number(seconds);
+  if (!Number.isFinite(value)) {
+    return "";
+  }
+  return value >= 60
+    ? `${formatNumber(value / 60)} 分钟`
+    : `${formatNumber(value)} 秒`;
 }
 
 function metricRange(metric) {
@@ -117,17 +207,28 @@ function metricRange(metric) {
 function metricLabel(metric) {
   const source = String(metric.SourceColumn || metric.Metric || "数值列");
   const aliases = [
-    [/gpu.*temp|temperature/i, "GPU 温度"],
-    [/gpu.*power|power/i, "GPU 功耗"],
-    [/effective.*clock|effective/i, "有效频率"],
+    [/gpu.*temp|temperature/i, "显卡温度"],
+    [/gpu.*power|power/i, "显卡功耗"],
+    [/effective.*clock|effective/i, "显卡有效频率"],
     [/gpu.*clock|core clock/i, "GPU 核心频率"],
-    [/fps|frame rate/i, "帧率"],
+    [/fps|frame rate/i, "游戏帧率"],
     [/frame time/i, "帧时间"],
+    [/gpu.*fan|fan.*rpm|rpm/i, "显卡风扇转速"],
   ];
   const alias = aliases.find(([pattern]) => pattern.test(source))?.[1];
-  return alias && !/^GPU (?:温度|功耗)$|有效频率|核心频率|帧率|帧时间/u.test(metric.Metric || "")
-    ? `${alias} · ${source}`
-    : metric.Metric || source;
+  return alias || metric.Metric || source;
+}
+
+function metricPriority(label) {
+  return (
+    {
+      游戏帧率: 0,
+      显卡温度: 1,
+      显卡有效频率: 2,
+      显卡功耗: 3,
+      显卡风扇转速: 4,
+    }[label] ?? 10
+  );
 }
 
 function metricUnit(metric) {
@@ -162,65 +263,34 @@ function parseHeaderNames(buffer) {
     .slice(0, 256);
 }
 
-function parseCsvLine(line) {
-  const fields = [];
-  let field = "";
-  let quoted = false;
-  for (let index = 0; index < line.length; index += 1) {
-    const character = line[index];
-    if (character === '"') {
-      if (quoted && line[index + 1] === '"') {
-        field += '"';
-        index += 1;
-      } else {
-        quoted = !quoted;
-      }
-    } else if (character === "," && !quoted) {
-      fields.push(field.trim());
-      field = "";
-    } else {
-      field += character;
-    }
-  }
-  fields.push(field.trim());
-  return fields;
-}
-
-function summarizeCategoricalColumns(buffer, headerLine) {
-  const lines = buffer.toString("utf8").replace(/^\uFEFF/u, "").split(/\r?\n/u);
-  const start = Math.max(0, Number(headerLine ?? 1) - 1);
-  const headers = parseCsvLine(lines[start] ?? "");
-  const candidateIndexes = headers
-    .map((header, index) => ({ header, index }))
-    .filter(({ header }) =>
-      /perfcap|performance.?limit|limit.?reason|限制原因|性能限制/iu.test(header),
-    )
-    .slice(0, 3);
-  if (candidateIndexes.length === 0) {
+function normalizeCategoricalColumns(value) {
+  if (!Array.isArray(value)) {
     return [];
   }
-  const counts = new Map(
-    candidateIndexes.map(({ header }) => [header, new Map()]),
-  );
-  for (let index = start + 1; index < lines.length; index += 1) {
-    const line = lines[index];
-    if (!line.trim()) break;
-    const fields = parseCsvLine(line);
-    if (fields.length !== headers.length) continue;
-    for (const { header, index: columnIndex } of candidateIndexes) {
-      const value = String(fields[columnIndex] ?? "").trim().slice(0, 120);
-      if (!value) continue;
-      const columnCounts = counts.get(header);
-      columnCounts.set(value, (columnCounts.get(value) ?? 0) + 1);
-    }
-  }
-  return candidateIndexes
-    .map(({ header }) => {
-      const values = [...counts.get(header).entries()]
-        .map(([value, count]) => ({ value, count }))
-        .sort((left, right) => right.count - left.count)
-        .slice(0, 8);
-      return values.length > 0 ? { column: header, values } : null;
+  return value
+    .slice(0, 3)
+    .map((column) => {
+      if (!column || typeof column.column !== "string") {
+        return null;
+      }
+      const values = Array.isArray(column.values)
+        ? column.values
+            .filter(
+              (item) =>
+                item &&
+                typeof item.value === "string" &&
+                Number.isInteger(item.count) &&
+                item.count > 0,
+            )
+            .slice(0, 8)
+            .map((item) => ({
+              value: item.value.slice(0, 120),
+              count: item.count,
+            }))
+        : [];
+      return values.length > 0
+        ? { column: column.column.slice(0, 120), values }
+        : null;
     })
     .filter(Boolean);
 }
@@ -261,11 +331,13 @@ function assertSafeSvg(buffer) {
     );
   }
   if (
-    /<script\b|<foreignObject\b|<iframe\b|<object\b|<embed\b|\son[a-z]+\s*=/iu.test(
+    /<script\b|<style\b|<link\b|<foreignObject\b|<iframe\b|<object\b|<embed\b|<image\b|\son[a-z]+\s*=/iu.test(
       normalized,
     ) ||
     /\s(?:href|xlink:href)\s*=\s*["'](?!#)/iu.test(normalized) ||
-    /<!ENTITY\b/iu.test(normalized)
+    /\burl\(\s*["']?(?!#)/iu.test(normalized) ||
+    /\b(?:javascript|vbscript|data)\s*:/iu.test(normalized) ||
+    /<!DOCTYPE\b|<!ENTITY\b|<\?xml-stylesheet\b/iu.test(normalized)
   ) {
     throw new TelemetryBrokerError(
       "unsafe_artifact",
@@ -296,11 +368,23 @@ function normalizeArtifacts(value) {
 }
 
 export function analysisSummary(analysis, buffer) {
+  const analyzedRowStart = Number.isInteger(analysis.AnalyzedRowStart)
+    ? analysis.AnalyzedRowStart
+    : null;
+  const analyzedRowEnd = Number.isInteger(analysis.AnalyzedRowEnd)
+    ? analysis.AnalyzedRowEnd
+    : null;
   return {
     analyzer_version: analysis.AnalyzerVersion ?? "unknown",
     header_line: analysis.HeaderLine ?? 1,
-    analyzed_rows: analysis.AnalyzedRows ?? 0,
-    total_rows: analysis.TotalRows ?? 0,
+    analyzed_rows: Number.isInteger(analysis.AnalyzedRows)
+      ? analysis.AnalyzedRows
+      : null,
+    total_rows: Number.isInteger(analysis.TotalRows)
+      ? analysis.TotalRows
+      : null,
+    analyzed_row_start: analyzedRowStart,
+    analyzed_row_end: analyzedRowEnd,
     window: analysis.Window ?? "unknown",
     requested_window: analysis.RequestedWindow ?? null,
     sampled_span_seconds: analysis.SampledSpanSeconds ?? null,
@@ -313,9 +397,8 @@ export function analysisSummary(analysis, buffer) {
     },
     columns: Array.isArray(analysis.Columns) ? analysis.Columns : [],
     warnings: Array.isArray(analysis.Warnings) ? analysis.Warnings : [],
-    categorical_columns: summarizeCategoricalColumns(
-      buffer,
-      analysis.HeaderLine,
+    categorical_columns: normalizeCategoricalColumns(
+      analysis.CategoricalColumns,
     ),
     metrics: (analysis.Metrics ?? []).map((metric) => ({
       metric: metric.Metric,
@@ -338,44 +421,50 @@ export function verifiedBlocks(analysis, artifactOrArtifacts) {
     return [];
   }
   const sampling = analysis.sampling ?? {};
-  const samplingText =
+  const duration = formatDuration(analysis.sampled_span_seconds);
+  const interval = formatNumber(sampling.IntervalSecondsMedian);
+  const analyzedRows = formatNumber(analysis.analyzed_rows);
+  const analyzedRowsLabel = analyzedRows || "未提供";
+  const samplingCaveat =
     sampling.Consistency === "stable"
-      ? `采样间隔中位数 ${formatNumber(sampling.IntervalSecondsMedian)} 秒，稳定性为 stable。`
-      : `采样一致性为 ${sampling.Consistency || "unknown"}；间隔样本可能有限。`;
+      ? "采样间隔均匀只代表记录节奏一致，不代表硬件持续稳定。"
+      : "采样间隔可能不一致，比较趋势时需要谨慎。";
   const warnings = analysis.warnings ?? [];
   const categoricalColumns = analysis.categorical_columns ?? [];
-  const spanText =
-    Number.isFinite(analysis.sampled_span_seconds)
-      ? `采样跨度 ${formatNumber(analysis.sampled_span_seconds)} 秒。`
-      : "";
+  const metricItems = metrics
+    .map((metric) => ({
+      label: metricLabel({
+        Metric: metric.metric,
+        SourceColumn: metric.source_column,
+      }),
+      value: metricRange({
+        Min: metric.min,
+        Max: metric.max,
+      }),
+      unit: metric.unit,
+      source_column: metric.source_column,
+    }))
+    .sort(
+      (left, right) =>
+        metricPriority(left.label) - metricPriority(right.label),
+    );
   const metricBlock = {
       id: "telemetry-metrics",
       type: "metrics",
       title: "关键指标",
-      items: metrics.map((metric) => ({
-        label: metricLabel({
-          Metric: metric.metric,
-          SourceColumn: metric.source_column,
-        }),
-        value: metricRange({
-          Min: metric.min,
-          Max: metric.max,
-        }),
-        unit: metric.unit,
-        source_column: metric.source_column,
-      })),
+      items: metricItems,
     };
   const tableBlock = {
       id: "telemetry-table",
       type: "table",
-      title: "遥测摘要",
+      title: "原始指标摘要",
       columns: ["指标", "采样", "最小", "均值", "最大", "单位"],
       rows: metrics.map((metric) => [
         metricLabel({
           Metric: metric.metric,
           SourceColumn: metric.source_column,
         }),
-        String(metric.samples),
+        formatNumber(metric.samples),
         formatNumber(metric.min),
         formatNumber(metric.mean),
         formatNumber(metric.max),
@@ -402,17 +491,17 @@ export function verifiedBlocks(analysis, artifactOrArtifacts) {
   const chartBlocks = artifacts.map((artifact, index) => ({
       id: `telemetry-chart-${index + 1}`,
       type: "chart",
-      title: artifact.title || (artifacts.length === 1 ? "遥测概览" : `遥测图 ${index + 1}`),
+      title: artifact.title || (artifacts.length === 1 ? "遥测趋势" : `遥测图 ${index + 1}`),
       artifact_ref: artifact.id,
-      alt: `${artifact.title || "遥测图"}，${analysis.analyzed_rows} 行，包含 ${metrics
+      alt: `${artifact.title || "遥测图"}，${analyzedRowsLabel} 行，包含 ${metrics
         .map((metric) => metric.metric)
         .join("、")}。`,
     }));
   const windowBlock = {
       id: "telemetry-window",
       type: "callout",
-      title: "数据窗口",
-      text: `窗口：${analysis.window}。${spanText}已分析 ${analysis.analyzed_rows} 行；${samplingText}`,
+      title: "数据记录概况",
+      text: `记录时长：${duration || "未提供"}　|　记录数量：${analyzedRowsLabel} 条　|　采样间隔中位数：${interval ? formatDuration(interval) : "未提供"}\n${samplingCaveat}`,
       tone: "info",
       collapsed: false,
     };
@@ -421,7 +510,7 @@ export function verifiedBlocks(analysis, artifactOrArtifacts) {
         {
           id: "telemetry-warnings",
           type: "callout",
-          title: `Workbench 警告 · ${warnings.length} 项`,
+          title: `数据质量提示 · ${warnings.length} 项`,
           text: warnings.map((warning) => `• ${warning}`).join("\n"),
           tone: "warning",
           collapsed: true,
@@ -513,15 +602,55 @@ export class TelemetryBroker {
     renameSync(temporary, this.indexPath);
   }
 
-  getCachedArtifactPack(index, { cacheKey, taskId = null }) {
+  verifyArtifactRecord(record, {
+    taskId = null,
+    attachmentId = null,
+    includeContent = false,
+  } = {}) {
+    if (
+      !record ||
+      (taskId !== null && record.task_id !== taskId) ||
+      (attachmentId !== null &&
+        record.source_attachment_id !== attachmentId) ||
+      record.safeToEmbed !== true
+    ) {
+      return null;
+    }
+    try {
+      const { filePath, stat, buffer } = readControlledFile(
+        this.artifactRoot,
+        record.absolute_path,
+      );
+      if (
+        stat.size !== buffer.length ||
+        (Number.isInteger(record.size) && record.size !== buffer.length) ||
+        sha256(buffer) !== record.sha256
+      ) {
+        return null;
+      }
+      if (record.kind === "chart" || record.mime === "image/svg+xml") {
+        assertSafeSvg(buffer);
+      }
+      return {
+        record: { ...record, absolute_path: filePath },
+        buffer: includeContent ? buffer : null,
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  getCachedArtifactPack(index, {
+    cacheKey,
+    taskId = null,
+    attachmentId = null,
+  }) {
     const candidates = index.artifacts
-      .filter(
-        (item) =>
-          item.cache_key === cacheKey &&
-          (taskId === null || item.task_id === taskId) &&
-          existsSync(item.absolute_path) &&
-          sha256(readFileSync(item.absolute_path)) === item.sha256,
+      .filter((item) => item.cache_key === cacheKey)
+      .map((item) =>
+        this.verifyArtifactRecord(item, { taskId, attachmentId })?.record,
       )
+      .filter(Boolean)
       .sort((left, right) =>
         String(left.created_at).localeCompare(String(right.created_at)),
       );
@@ -554,7 +683,7 @@ export class TelemetryBroker {
     return [];
   }
 
-  validateAttachment(attachment) {
+  validateAttachmentReference(attachment) {
     if (!attachment || typeof attachment !== "object") {
       throw new TelemetryBrokerError(
         "attachment_not_found",
@@ -569,23 +698,37 @@ export class TelemetryBroker {
         { statusCode: 415 },
       );
     }
-    const filePath = resolve(String(attachment.local_path ?? ""));
-    if (!isInside(this.attachmentRoot, filePath) || !existsSync(filePath)) {
-      throw new TelemetryBrokerError(
-        "attachment_not_found",
-        "附件文件不在受控的本地证据目录中",
-        { statusCode: 404 },
-      );
-    }
-    const stat = statSync(filePath);
-    if (!stat.isFile() || stat.size === 0 || stat.size > MAX_CSV_BYTES) {
+    const { filePath, stat } = resolveControlledFile(
+      this.attachmentRoot,
+      String(attachment.local_path ?? ""),
+    );
+    if (stat.size === 0 || stat.size > MAX_CSV_BYTES) {
       throw new TelemetryBrokerError(
         "invalid_attachment_size",
         "CSV 为空或超过 8 MB 分析限制",
         { statusCode: 413 },
       );
     }
-    const buffer = readFileSync(filePath);
+    if (!/^[a-f0-9]{64}$/u.test(String(attachment.sha256 ?? ""))) {
+      throw new TelemetryBrokerError(
+        "attachment_hash_invalid",
+        "CSV 上传记录缺少有效的 SHA-256",
+        { statusCode: 409 },
+      );
+    }
+    return {
+      filePath,
+      size: stat.size,
+      declaredHash: String(attachment.sha256),
+    };
+  }
+
+  validateAttachment(attachment) {
+    const reference = this.validateAttachmentReference(attachment);
+    const { filePath, buffer } = readControlledFile(
+      this.attachmentRoot,
+      reference.filePath,
+    );
     const actualHash = sha256(buffer);
     if (actualHash !== attachment.sha256) {
       throw new TelemetryBrokerError(
@@ -803,12 +946,19 @@ export class TelemetryBroker {
           return;
         }
         if (code !== 0) {
+          const diagnostic = stderr.trim() || stdout.trim();
+          const noUsableSeries =
+            /could not identify a telemetry header row|no recognized numeric sensor|no usable numeric/i.test(
+              diagnostic,
+            );
           reject(
             new TelemetryBrokerError(
-              "analysis_failed",
-              "Workbench 未返回可用遥测分析",
+              noUsableSeries ? "no_usable_series" : "analysis_failed",
+              noUsableSeries
+                ? "Workbench 未在这份 CSV 中找到可绘制的数值传感器列"
+                : "Workbench 未返回可用遥测分析",
               {
-                details: [stderr.trim() || stdout.trim()].filter(Boolean),
+                details: [diagnostic].filter(Boolean),
               },
             ),
           );
@@ -832,11 +982,14 @@ export class TelemetryBroker {
     }
     const window = normalizeWindow(windowInput);
     const preset = normalizeChartPreset(presetInput);
-    const { actualHash } = this.validateAttachment(attachment);
-    const cacheKey = `${ANALYZER_CACHE_VERSION}:${preset}:${actualHash}:${windowSignature(window)}`;
+    const reference = this.validateAttachmentReference(attachment);
+    const cacheKey =
+      `${ANALYZER_CACHE_VERSION}:${preset}:` +
+      `${reference.declaredHash}:${windowSignature(window)}`;
     const records = this.getCachedArtifactPack(this.loadIndex(), {
       cacheKey,
       taskId,
+      attachmentId: attachment.id,
     });
     return records.length > 0
       ? {
@@ -845,7 +998,7 @@ export class TelemetryBroker {
           attachment: {
             id: attachment.id,
             original_name: attachment.original_name,
-            sha256: actualHash,
+            sha256: reference.declaredHash,
           },
           artifact: publicArtifact(records[0]),
           artifacts: records.map(publicArtifact),
@@ -881,7 +1034,11 @@ export class TelemetryBroker {
     const { filePath, buffer, actualHash } = this.validateAttachment(attachment);
     const cacheKey = `${ANALYZER_CACHE_VERSION}:${preset}:${actualHash}:${windowSignature(window)}`;
     const index = this.loadIndex();
-    const reusesArtifacts = this.getCachedArtifactPack(index, { cacheKey });
+    const reusesArtifacts = this.getCachedArtifactPack(index, {
+      cacheKey,
+      taskId,
+      attachmentId: attachment.id,
+    });
     const taskDirectory = resolve(this.artifactRoot, taskId);
     if (!isInside(this.artifactRoot, taskDirectory)) {
       throw new TelemetryBrokerError("invalid_task", "任务目录越界", {
@@ -967,7 +1124,13 @@ export class TelemetryBroker {
             analysis.warnings.push(warning);
           }
         }
+        // Analyzer and renderer child processes reopen the path after the
+        // initial hash check. Recheck only after that full pipeline finishes.
+        this.validateAttachment(attachment);
       } catch (error) {
+        if (chartPack?.packDirectory) {
+          rmSync(chartPack.packDirectory, { recursive: true, force: true });
+        }
         throw error;
       }
     }
@@ -1030,33 +1193,22 @@ export class TelemetryBroker {
     };
   }
 
-  getArtifact(id) {
+  getArtifact(id, { taskId = null } = {}) {
     const index = this.loadIndex();
     const artifact = index.artifacts.find((item) => item.id === id);
-    if (
-      !artifact ||
-      !existsSync(artifact.absolute_path) ||
-      !isInside(this.artifactRoot, artifact.absolute_path)
-    ) {
-      return null;
-    }
-    return artifact;
+    return this.verifyArtifactRecord(artifact, { taskId })?.record ?? null;
   }
 
-  applyVerifiedResult(panel, result) {
+  applyVerifiedResult(panel, result, { taskId = null } = {}) {
     const requestedArtifacts = normalizeArtifacts(
       result.artifacts ?? result.artifact,
     );
-    const artifacts = requestedArtifacts.map((artifact) => {
-      const verified = this.getArtifact(artifact.id);
-      return {
-        ...artifact,
-        absolute_path: verified?.absolute_path,
-      };
-    });
+    const artifacts = requestedArtifacts
+      .map((artifact) => this.getArtifact(artifact.id, { taskId }))
+      .filter(Boolean);
     if (
       artifacts.length === 0 ||
-      artifacts.some((artifact) => !artifact.absolute_path)
+      artifacts.length !== requestedArtifacts.length
     ) {
       throw new TelemetryBrokerError(
         "unverified_artifact",

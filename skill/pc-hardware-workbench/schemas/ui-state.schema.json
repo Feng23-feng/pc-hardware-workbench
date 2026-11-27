@@ -30,6 +30,11 @@
       "minLength": 1,
       "maxLength": 240
     },
+    "result_title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
     "current_goal": {
       "type": "string",
       "minLength": 1,

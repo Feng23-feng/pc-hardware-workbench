@@ -80,14 +80,38 @@ capability is `telemetry.csv.analyze`, scoped to:
 The grant cannot authorize arbitrary commands, network access, system writes, or
 hardware controls. Switching surfaces or loading the runtime never broadens it.
 
+Before permission is granted, attachment inspection is limited to metadata and
+real-path containment. It rejects symbolic links, junctions, other reparse
+points, and paths whose resolved target leaves the controlled attachment root;
+the runtime does not read or hash the full CSV until the scoped analysis grant
+is present. A cache lookup may reuse an existing same-Task, same-attachment
+artifact by declared SHA-256, but that cache does not authorize a new file read.
+Changing the attachment ID or declared hash requires a new permission decision.
+A cache hit is historical evidence from the same Task and attachment; it does
+not claim the source file was revalidated just now. For a new analysis, recheck
+the attachment hash after every analyzer/renderer child process finishes and
+before accepting generated charts. Fail closed if the bytes changed during that
+pipeline. This detects a persistent replacement, but not a rapid
+replace-and-restore race; closing that last gap requires an OS-level sandbox or
+a process handle passed to every reader.
+
 Generated SVG charts are checked for safe embedded content, written under the
 Task artifact root, indexed with the source evidence ID and hash, and cached by
 attachment hash plus analysis window. One analysis returns an ordered pack of up
-to six verified artifacts; every cached file must still match its stored hash.
+to six verified artifacts. Before display, download, panel reference, or result
+sync, the runtime rechecks Task ownership, controlled real path, byte count,
+SHA-256, and SVG safety. Every cached file must still match its stored hash.
 The first artifact remains available as a legacy singular reference, but new
 UI/event consumers use the `artifacts` array and corresponding `artifact_refs`.
 `chart_preset` is limited to the fixed `FirstPass`, `GpuTuning`, or `CpuTuning`
 choices and remains inside the same read-only CSV capability.
+
+Artifact lookup accepts `getArtifact(id, { taskId })`. Callers that omit the
+current Task identity for task-owned artifacts fail closed rather than returning
+an unowned chart.
+Surface content routes must send `Cache-Control: private, no-store` so each
+display or download re-runs Task ownership, path, size, hash, and SVG safety
+checks instead of reusing a browser response.
 
 ## Change check
 

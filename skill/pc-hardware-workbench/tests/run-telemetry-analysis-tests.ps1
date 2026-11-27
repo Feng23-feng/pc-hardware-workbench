@@ -39,6 +39,7 @@ try {
     $amdOffsetOnlyPath = Join-Path $tempRoot "hwinfo-amd-offset-only.csv"
     $amdDieAveragePath = Join-Path $tempRoot "hwinfo-amd-die-average.csv"
     $isoTimestampPath = Join-Path $tempRoot "iso-timestamp.csv"
+    $categoricalPath = Join-Path $tempRoot "categorical-window.csv"
     $presentmonPath = Join-Path $tempRoot "presentmon.csv"
     $utf8 = New-Object System.Text.UTF8Encoding($false)
 
@@ -100,6 +101,15 @@ timestamp,gpu_temp_c,gpu_power_w,effective_clock_mhz,perfcap
 2026-11-16T10:00:03+08:00,70,161,2440,Power
 '@, $utf8)
 
+    [IO.File]::WriteAllText($categoricalPath, @'
+timestamp,gpu_temp_c,perfcap
+2026-11-16T10:00:00+08:00,67,Idle
+bad-row,with-too-few-fields
+2026-11-16T10:00:01+08:00,68,Thermal
+2026-11-16T10:00:02+08:00,69,Thermal,999
+2026-11-16T10:00:03+08:00,70,Idle
+'@, $utf8)
+
     $isoTimestampJson = & $resolvedAnalyzer `
         -Path $isoTimestampPath `
         -Format Json `
@@ -113,6 +123,16 @@ timestamp,gpu_temp_c,gpu_power_w,effective_clock_mhz,perfcap
     Assert-True ($isoTimestampJson.Sampling.IntervalSecondsMedian -eq 1) "ISO timestamp input should report a one-second interval."
     Assert-True ($isoTimestampJson.Sampling.Consistency -eq "stable") "ISO timestamp sampling should be stable."
     Assert-True ($isoTimestampJson.SampledSpanSeconds -eq 2) "ISO timestamp input should report a two-second analyzed span."
+
+    $categoricalJson = & $resolvedAnalyzer -Path $categoricalPath -Format Json | ConvertFrom-Json
+    $perfCapSummary = @(
+        $categoricalJson.CategoricalColumns |
+            Where-Object { $_.column -eq "perfcap" }
+    ) | Select-Object -First 1
+    Assert-True ($categoricalJson.InvalidRows -eq 1) "A malformed middle row should be reported as invalid."
+    Assert-True ($categoricalJson.MaxIgnoredTrailingFields -eq 1) "A numeric surplus field should be trimmed explicitly."
+    Assert-True ($perfCapSummary.values[0].value -eq "Idle" -and $perfCapSummary.values[0].count -eq 2) "The first selected-row category should be Idle x2."
+    Assert-True ($perfCapSummary.values[1].value -eq "Thermal" -and $perfCapSummary.values[1].count -eq 2) "The second selected-row category should be Thermal x2."
 
     $hwinfoJson = & $resolvedAnalyzer -Path $hwinfoPath -Format Json -WarmupSeconds 2 -DurationSeconds 2 | ConvertFrom-Json
     Assert-True ($hwinfoJson.HeaderLine -eq 3) "HWiNFO header should be detected on line 3."

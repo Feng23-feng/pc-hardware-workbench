@@ -1,16 +1,22 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import {
+  appendFileSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { TelemetryBroker } from "../telemetry-broker.mjs";
+import {
+  analysisSummary,
+  TelemetryBroker,
+  verifiedBlocks,
+} from "../telemetry-broker.mjs";
 
 const skillRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const tempRoot = mkdtempSync(join(tmpdir(), "pcwb-broker-"));
@@ -42,6 +48,331 @@ try {
     timeoutMs: 60_000,
   });
 
+  const outsideRoot = join(tempRoot, "outside");
+  mkdirSync(outsideRoot, { recursive: true });
+  const outsideCsvPath = join(outsideRoot, "outside.csv");
+  writeFileSync(outsideCsvPath, "Time,FPS\n0,60\n", "utf8");
+  const junctionPath = join(attachmentRoot, "outside-link");
+  symlinkSync(
+    outsideRoot,
+    junctionPath,
+    process.platform === "win32" ? "junction" : "dir",
+  );
+  const outsideBytes = readFileSync(outsideCsvPath);
+  assert.throws(
+    () =>
+      broker.validateAttachment({
+        id: "attachment-outside-junction",
+        original_name: "outside.csv",
+        sha256: createHash("sha256").update(outsideBytes).digest("hex"),
+        local_path: join(junctionPath, "outside.csv"),
+      }),
+    (error) =>
+      ["attachment_not_found", "unsafe_attachment_path"].includes(error.code),
+    "attachment validation must reject links and junctions that escape the root",
+  );
+
+  assert.equal(
+    broker.findCached({
+      taskId: "task-broker-preauth",
+      attachment: {
+        ...attachment,
+        id: "attachment-preauth-hash",
+        sha256: "f".repeat(64),
+      },
+      window: {},
+    }),
+    null,
+    "cache lookup before permission must use metadata without reading and hashing file content",
+  );
+
+  const categoricalCsv = [
+    "Date,Time,FPS,Perf Cap",
+    "2026-11-03,12:00:00,60,Pwr",
+    "2026-11-03,12:00:01,61,Pwr",
+    "2026-11-03,12:00:02,40,Therm",
+    "2026-11-03,12:00:03,30,Idle",
+  ].join("\n");
+  const categoricalSummary = analysisSummary(
+    {
+      HeaderLine: 1,
+      TotalRows: 4,
+      AnalyzedRows: 2,
+      AnalyzedRowStart: 0,
+      AnalyzedRowEnd: 1,
+      CategoricalColumns: [
+        {
+          column: "Perf Cap",
+          values: [{ value: "Pwr", count: 2 }],
+        },
+      ],
+      Window: "time 0s to 1s",
+      Sampling: {
+        TimeBased: true,
+        IntervalSecondsMedian: 1,
+        Consistency: "stable",
+      },
+      Metrics: [
+        {
+          Metric: "Frame rate (FPS)",
+          SourceColumn: "FPS",
+          Unit: "FPS",
+          Samples: 2,
+          Min: 60,
+          Mean: 60.5,
+          Max: 61,
+        },
+      ],
+      Warnings: [],
+    },
+    Buffer.from(categoricalCsv, "utf8"),
+  );
+  assert.deepEqual(
+    categoricalSummary.categorical_columns,
+    [
+      {
+        column: "Perf Cap",
+        values: [{ value: "Pwr", count: 2 }],
+      },
+    ],
+    "categorical statistics must use only the analyzed row window",
+  );
+  const analyzerSelectedCategorical = analysisSummary(
+    {
+      HeaderLine: 1,
+      TotalRows: 4,
+      AnalyzedRows: 1,
+      AnalyzedRowStart: 2,
+      AnalyzedRowEnd: 2,
+      CategoricalColumns: [
+        {
+          column: "Perf Cap",
+          values: [{ value: "Thermal", count: 1 }],
+        },
+      ],
+      Window: "time 2s to 2s",
+      Sampling: {
+        TimeBased: true,
+        IntervalSecondsMedian: 1,
+        Consistency: "stable",
+      },
+      Metrics: [
+        {
+          Metric: "Frame rate (FPS)",
+          SourceColumn: "FPS",
+          Unit: "FPS",
+          Samples: 1,
+          Min: 60,
+          Mean: 60,
+          Max: 60,
+        },
+      ],
+      Warnings: [],
+    },
+    Buffer.from(
+      [
+        "Date,Time,FPS,Perf Cap",
+        "2026-11-03,12:00:00,60,Idle",
+        "2026-11-03,12:00:01,61,Missing timestamp",
+        "2026-11-03,12:00:02,60,Idle",
+      ].join("\n"),
+      "utf8",
+    ),
+  );
+  assert.deepEqual(
+    analyzerSelectedCategorical.categorical_columns,
+    [
+      {
+        column: "Perf Cap",
+        values: [{ value: "Thermal", count: 1 }],
+      },
+    ],
+    "the broker must trust the analyzer's selectedRows categorical summary",
+  );
+
+  const missingValueBlocks = verifiedBlocks(
+    {
+      analyzed_rows: null,
+      sampled_span_seconds: null,
+      sampling: {
+        Consistency: "unknown",
+        IntervalSecondsMedian: null,
+      },
+      warnings: [],
+      categorical_columns: [],
+      metrics: [
+        {
+          metric: "GPU temperature (C)",
+          source_column: "GPU Temperature [C]",
+          unit: "C",
+          samples: null,
+          min: null,
+          mean: null,
+          max: null,
+        },
+      ],
+    },
+    [{ id: "artifact-missing-values", title: "Missing values" }],
+  );
+  const missingWindow = missingValueBlocks.find(
+    (block) => block.id === "telemetry-window",
+  );
+  const missingTable = missingValueBlocks.find(
+    (block) => block.id === "telemetry-table",
+  );
+  assert.doesNotMatch(missingWindow.text, /0 秒|0 分钟|null/u);
+  assert.match(missingWindow.text, /未提供/u);
+  assert.deepEqual(missingTable.rows[0].slice(1, 5), ["", "", "", ""]);
+
+  const changingCsv = "Time,FPS\n0,60\n1,61\n";
+  const changingCsvPath = join(attachmentRoot, "changing.csv");
+  writeFileSync(changingCsvPath, changingCsv, "utf8");
+  const changingAttachment = {
+    id: "attachment-changing-during-analysis",
+    original_name: "changing.csv",
+    sha256: createHash("sha256").update(changingCsv).digest("hex"),
+    local_path: changingCsvPath,
+  };
+  const changingChartPath = join(tempRoot, "changing-chart.svg");
+  writeFileSync(
+    changingChartPath,
+    '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"></svg>',
+    "utf8",
+  );
+  const changingBroker = new TelemetryBroker({
+    attachmentRoot,
+    artifactRoot,
+    scriptsDir: join(skillRoot, "scripts"),
+    timeoutMs: 60_000,
+  });
+  changingBroker.runPowerShell = async () => {
+    writeFileSync(changingCsvPath, "Time,FPS\n0,1\n1,1\n", "utf8");
+    return {
+      stdout: JSON.stringify({
+        AnalyzerVersion: "test",
+        HeaderLine: 1,
+        AnalyzedRows: 2,
+        TotalRows: 2,
+        AnalyzedRowStart: 0,
+        AnalyzedRowEnd: 1,
+        Window: "time 0s to 1s",
+        Sampling: {
+          TimeBased: true,
+          IntervalSecondsMedian: 1,
+          Consistency: "stable",
+        },
+        Metrics: [
+          {
+            Metric: "FPS",
+            SourceColumn: "FPS",
+            Samples: 2,
+            Min: 60,
+            Mean: 60.5,
+            Max: 61,
+            Unit: "FPS",
+          },
+        ],
+        Warnings: [],
+      }),
+      stderr: "",
+    };
+  };
+  changingBroker.buildChartPack = async () => ({
+    charts: [
+      {
+        sourcePath: changingChartPath,
+        title: "Changing source",
+        safe: true,
+      },
+    ],
+    warnings: [],
+    skipped: [],
+  });
+  await assert.rejects(
+    () =>
+      changingBroker.analyze({
+        taskId: "task-broker-changing",
+        attachment: changingAttachment,
+        window: {},
+      }),
+    (error) =>
+      error.code === "attachment_hash_mismatch" &&
+      /哈希|完整性|停止分析/u.test(error.message ?? ""),
+    "analysis must recheck the attachment after the analyzer reopens the path",
+  );
+
+  const chartChangingCsv = "Time,FPS\n0,60\n1,61\n";
+  const chartChangingCsvPath = join(
+    attachmentRoot,
+    "chart-changing.csv",
+  );
+  writeFileSync(chartChangingCsvPath, chartChangingCsv, "utf8");
+  const chartChangingAttachment = {
+    id: "attachment-changing-during-chart-pack",
+    original_name: "chart-changing.csv",
+    sha256: createHash("sha256").update(chartChangingCsv).digest("hex"),
+    local_path: chartChangingCsvPath,
+  };
+  const chartChangingBroker = new TelemetryBroker({
+    attachmentRoot,
+    artifactRoot,
+    scriptsDir: join(skillRoot, "scripts"),
+    timeoutMs: 60_000,
+  });
+  chartChangingBroker.runPowerShell = async () => ({
+    stdout: JSON.stringify({
+      AnalyzerVersion: "test",
+      HeaderLine: 1,
+      AnalyzedRows: 2,
+      TotalRows: 2,
+      AnalyzedRowStart: 0,
+      AnalyzedRowEnd: 1,
+      Window: "time 0s to 1s",
+      Sampling: {
+        TimeBased: true,
+        IntervalSecondsMedian: 1,
+        Consistency: "stable",
+      },
+      Metrics: [
+        {
+          Metric: "FPS",
+          SourceColumn: "FPS",
+          Samples: 2,
+          Min: 60,
+          Mean: 60.5,
+          Max: 61,
+          Unit: "FPS",
+        },
+      ],
+      Warnings: [],
+    }),
+    stderr: "",
+  });
+  chartChangingBroker.buildChartPack = async () => {
+    writeFileSync(chartChangingCsvPath, "Time,FPS\n0,1\n1,1\n", "utf8");
+    return {
+      charts: [
+        {
+          sourcePath: changingChartPath,
+          title: "Changing chart source",
+          safe: true,
+        },
+      ],
+      warnings: [],
+      skipped: [],
+    };
+  };
+  await assert.rejects(
+    () =>
+      chartChangingBroker.analyze({
+        taskId: "task-broker-chart-changing",
+        attachment: chartChangingAttachment,
+        window: {},
+      }),
+    (error) => error.code === "attachment_hash_mismatch",
+    "analysis must recheck the attachment after chart-pack rendering",
+  );
+
   const first = await broker.analyze({
     taskId: "task-broker-pack",
     attachment,
@@ -66,6 +397,26 @@ try {
     assert.doesNotMatch(svg, /<script\b|\bhref\s*=\s*["']https?:/iu);
   }
 
+  assert.equal(
+    broker.getArtifact(first.artifact.id, { taskId: "task-other-owner" }),
+    null,
+    "artifact lookup must reject a task-owner mismatch",
+  );
+  assert.throws(
+    () =>
+      broker.applyVerifiedResult(
+        {},
+        {
+          artifact: first.artifact,
+          artifacts: first.artifacts,
+          analysis: first.analysis,
+        },
+        { taskId: "task-other-owner" },
+      ),
+    (error) => error.code === "unverified_artifact",
+    "panel result binding must reject artifacts from another task",
+  );
+
   const second = await broker.analyze({
     taskId: "task-broker-pack",
     attachment,
@@ -82,6 +433,59 @@ try {
   assert.equal(gpuPreset.cache_hit, false);
   assert.equal(gpuPreset.chart_preset, "GpuTuning");
   assert.equal(gpuPreset.artifacts.length, 5);
+
+  const firstArtifactPath = join(
+    artifactRoot,
+    first.artifact.relative_path.replaceAll("/", "\\"),
+  );
+  appendFileSync(firstArtifactPath, "\n<!--tampered-->\n", "utf8");
+  assert.equal(
+    broker.getArtifact(first.artifact.id, { taskId: "task-broker-pack" }),
+    null,
+    "artifact lookup must revalidate content hash before use",
+  );
+
+  const unsafeArtifactId = "artifact-unsafe-svg-test";
+  const unsafeArtifactPath = join(
+    artifactRoot,
+    "task-broker-pack",
+    `${unsafeArtifactId}.svg`,
+  );
+  const unsafeSvg = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<svg xmlns="http://www.w3.org/2000/svg">',
+    "<style>@import url(https://example.invalid/evil.css);</style>",
+    "</svg>",
+  ].join("\n");
+  writeFileSync(unsafeArtifactPath, unsafeSvg, "utf8");
+  const index = broker.loadIndex();
+  const unsafeBytes = readFileSync(unsafeArtifactPath);
+  index.artifacts.push({
+    id: unsafeArtifactId,
+    kind: "chart",
+    mime: "image/svg+xml",
+    title: "Unsafe SVG",
+    relative_path: `task-broker-pack/${unsafeArtifactId}.svg`,
+    sha256: createHash("sha256").update(unsafeBytes).digest("hex"),
+    source_evidence_ids: [attachment.id],
+    created_at: new Date().toISOString(),
+    safeToEmbed: true,
+    size: unsafeBytes.length,
+    cache_key: "unsafe-test",
+    task_id: "task-broker-pack",
+    source_attachment_id: attachment.id,
+    absolute_path: unsafeArtifactPath,
+    analysis: first.analysis,
+    pack_id: "pack-unsafe",
+    pack_size: 1,
+    pack_index: 0,
+  });
+  broker.saveIndex(index);
+  assert.equal(
+    broker.getArtifact(unsafeArtifactId, { taskId: "task-broker-pack" }),
+    null,
+    "artifact lookup must reject externally loaded SVG content",
+  );
   console.log("Telemetry broker chart-pack regression: PASS");
 } finally {
   rmSync(tempRoot, { recursive: true, force: true });

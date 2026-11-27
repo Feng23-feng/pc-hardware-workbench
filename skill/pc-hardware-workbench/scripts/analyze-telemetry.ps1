@@ -554,6 +554,58 @@ function Get-NumericColumnValues {
     return [double[]]$values.ToArray()
 }
 
+function Get-CategoricalColumnSummaries {
+    param(
+        [object[]]$Rows,
+        [string[]]$Columns
+    )
+
+    $candidateColumns = @(
+        $Columns |
+            Where-Object {
+                $_ -match "perf\s*cap|performance.?limit|limit.?reason|限制原因|性能限制"
+            } |
+            Select-Object -First 3
+    )
+    $summaries = New-Object System.Collections.Generic.List[object]
+    foreach ($column in $candidateColumns) {
+        $counts = [ordered]@{}
+        foreach ($row in $Rows) {
+            $property = $row.PSObject.Properties[$column]
+            if ($null -eq $property) {
+                continue
+            }
+            $value = [string]$property.Value
+            if ([string]::IsNullOrWhiteSpace($value)) {
+                continue
+            }
+            $value = $value.Trim()
+            if ($value.Length -gt 120) {
+                $value = $value.Substring(0, 120)
+            }
+            $counts[$value] = 1 + [int]$counts[$value]
+        }
+        $values = @(
+            $counts.GetEnumerator() |
+                ForEach-Object {
+                    [pscustomobject]@{
+                        value = [string]$_.Key
+                        count = [int]$_.Value
+                    }
+                } |
+                Sort-Object -Property @{ Expression = "count"; Descending = $true }, @{ Expression = "value"; Descending = $false } |
+                Select-Object -First 8
+        )
+        if ($values.Count -gt 0) {
+            $summaries.Add([pscustomobject]@{
+                column = $column
+                values = $values
+            }) | Out-Null
+        }
+    }
+    return @($summaries.ToArray())
+}
+
 function Get-Percentile {
     param(
         [double[]]$SortedValues,
@@ -1772,7 +1824,7 @@ if ($samplingSummary.Consistency -eq "variable") {
 }
 
 $result = [pscustomobject]@{
-    AnalyzerVersion = "1.2.5"
+    AnalyzerVersion = "1.2.7"
     FileName = if ($HideFileName) { "[hidden]" } else { [System.IO.Path]::GetFileName($resolvedPath) }
     HeaderLine = $headerLineIndex + 1
     InvalidRows = $invalidDataRows
@@ -1781,10 +1833,17 @@ $result = [pscustomobject]@{
     MaxIgnoredTrailingFields = $maxIgnoredTrailingFields
     TotalRows = $rows.Count
     AnalyzedRows = $selectedRows.Count
+    AnalyzedRowStart = $startIndex
+    AnalyzedRowEnd = $endIndex
     RequestedWindow = $requestedWindowLabel
     Window = $windowLabel
     SampledSpanSeconds = $sampledSpanSeconds
     Sampling = $samplingSummary
+    CategoricalColumns = @(
+        Get-CategoricalColumnSummaries `
+            -Rows $selectedRows `
+            -Columns $headerNames
+    )
     Columns = $headerNames
     DuplicateHeaderNames = @($duplicateHeaderNames.ToArray())
     Metrics = @($series.ToArray())

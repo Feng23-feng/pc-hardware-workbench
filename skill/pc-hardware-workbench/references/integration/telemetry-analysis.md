@@ -310,6 +310,14 @@ Time-based and row-based window parameters cannot be combined. A partially inval
 
 The requested duration starts at the requested warm-up boundary, not at the first sample that happens to fall after it. JSON output includes `RequestedWindow` and the actual sampled `Window`; a requested duration extending past the available telemetry is rejected.
 
+JSON output also includes `AnalyzedRowStart` and `AnalyzedRowEnd`. Categorical
+statistics such as PerfCap must use only that selected row interval, not the
+whole raw CSV. PowerShell owns this calculation from `$selectedRows` and emits
+`CategoricalColumns`; JavaScript only normalizes and displays it. Missing sample
+counts, durations, intervals, minima, means, and maxima remain missing; they are
+never formatted as real zeroes. A displayed `0` is accepted only when the
+analyzer produced an actual zero.
+
 Implausible-value filters are broad data-sanity checks, not safe hardware limits. They reject impossible frame times, negative clocks or fan speeds, unrealistic temperature ranges, and fan percentages outside 0–100.
 
 Markdown table cells escape pipes, HTML delimiters, and line breaks from source column names. JSON preserves the original column names.

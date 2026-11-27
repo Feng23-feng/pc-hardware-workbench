@@ -325,6 +325,217 @@ for (const scriptName of [
 const runtimeModule = await import(`${pathToFileURL(runtimePath).href}?test`);
 assert.equal(typeof runtimeModule.createRuntime, "function");
 assert.equal(runtimeModule.CAPABILITY, capability.id);
+assert.equal(typeof runtimeModule.enforceDisplayEvidenceContract, "function");
+assert.equal(
+  typeof runtimeModule.analysisFailure,
+  "function",
+  "analysis failure mapping must be directly regression-testable",
+);
+
+const existingCriticalRecommendation = {
+  id: "runtime-stop-and-disconnect",
+  title: "停止测试并断开危险电源",
+  detail: "立即停止通电测试，在安全条件下断开电源并检查焦痕、液体或损坏连接器。",
+  risk: "low",
+  evidence_goal: "先消除物理危险，不继续自动复测。",
+};
+const historicalDisplayPanel = {
+  schema_version: "1.2",
+  current_goal: "检查稳定后的风扇噪音",
+  recommendations: [
+    existingCriticalRecommendation,
+    {
+      id: "runtime-acoustic-check",
+      title: "记录风扇噪音",
+      detail: "保持相同负载记录风扇噪音与转速变化。",
+      risk: "low",
+      evidence_goal: "确认噪音是否与转速同步。",
+    },
+  ],
+};
+assert.deepEqual(
+  runtimeModule.enforceDisplayEvidenceContract(historicalDisplayPanel, {
+    task_context: { objective: "检查稳定后的风扇噪音" },
+    history: [{ summary: "此前曾经黑屏，但已经修复" }],
+  }).recommendations,
+  historicalDisplayPanel.recommendations,
+  "historical black-screen context must not trigger current retest recommendations",
+);
+assert.deepEqual(
+  runtimeModule.enforceDisplayEvidenceContract(
+    {
+      ...historicalDisplayPanel,
+      current_goal: "此前黑屏已经排除，现在只是检查正常风扇噪音",
+    },
+    {
+      task_context: {
+        objective: "此前黑屏已经排除，现在只是检查正常风扇噪音",
+      },
+    },
+  ).recommendations,
+  historicalDisplayPanel.recommendations,
+  "negated black-screen context must not trigger current retest recommendations",
+);
+assert.deepEqual(
+  runtimeModule.enforceDisplayEvidenceContract(
+    {
+      ...historicalDisplayPanel,
+      current_goal: "此前黑屏，现在只是检查正常风扇噪音",
+    },
+    {
+      task_context: {
+        objective: "此前黑屏，现在只是检查正常风扇噪音",
+      },
+    },
+  ).recommendations,
+  historicalDisplayPanel.recommendations,
+  "a historical display clause must not leak into the current retest decision",
+);
+assert.deepEqual(
+  runtimeModule.enforceDisplayEvidenceContract(
+    {
+      ...historicalDisplayPanel,
+      current_goal: "闻到焦味并冒烟，同时出现黑屏",
+    },
+    {
+      task_context: { objective: "闻到焦味并冒烟，同时出现黑屏" },
+    },
+  ).recommendations,
+  historicalDisplayPanel.recommendations,
+  "physical-danger hard stop must not be replaced by automatic retest advice",
+);
+const explicitSafetyStopPanel = {
+  ...historicalDisplayPanel,
+  status: "blocked",
+  current_goal: "游戏掉帧，电脑有明显异味且插头过热",
+  recommendations: [existingCriticalRecommendation],
+  priorityAction: {
+    title: "立即停止使用电脑",
+    detail: "不要再次通电；在安全条件下断开电源并送修。",
+  },
+};
+assert.deepEqual(
+  runtimeModule.enforceDisplayEvidenceContract(
+    explicitSafetyStopPanel,
+    {
+      task_context: {
+        objective: "游戏掉帧，电脑有明显异味且插头过热",
+      },
+    },
+  ).recommendations,
+  explicitSafetyStopPanel.recommendations,
+  "an Agent-authored stop conclusion must block automatic display-retest advice",
+);
+assert.deepEqual(
+  runtimeModule.enforceDisplayEvidenceContract(
+    {
+      ...explicitSafetyStopPanel,
+      status: "needs_input",
+      priorityAction: {
+        title: "务必立即停止使用电脑",
+        detail: "不要再次通电；在安全条件下断开电源并送修。",
+      },
+    },
+    {
+      task_context: {
+        objective: "游戏掉帧，电脑有明显异味且插头过热",
+      },
+    },
+  ).recommendations,
+  explicitSafetyStopPanel.recommendations,
+  "a politely prefixed Agent stop action must still block retest advice",
+);
+const existingTelemetryRecommendation = {
+  id: "runtime-display-context",
+  title: "固定同一场景记录掉帧时间",
+  detail: "记录掉帧发生的准确时间、游戏场景和当时的负载。",
+  risk: "low",
+  evidence_goal: "为显示异常提供当前上下文。",
+};
+assert.deepEqual(
+  runtimeModule.enforceDisplayEvidenceContract(
+    {
+      ...historicalDisplayPanel,
+      current_goal: "",
+    },
+    {
+      text: "历史记录：此前曾经黑屏，但已经完成修复",
+    },
+  ).recommendations,
+  historicalDisplayPanel.recommendations,
+  "historical packet text alone must not trigger current display retests",
+);
+assert.equal(
+  runtimeModule.enforceDisplayEvidenceContract(
+    {
+      ...historicalDisplayPanel,
+      current_goal: "黑屏已经修复但仍掉帧",
+      recommendations: [historicalDisplayPanel.recommendations[1]],
+    },
+    {
+      task_context: { objective: "黑屏已经修复但仍掉帧" },
+    },
+  ).recommendations.length,
+  3,
+  "a resolved symptom must not suppress a still-current symptom in the same sentence",
+);
+assert.equal(
+  runtimeModule.enforceDisplayEvidenceContract(
+    {
+      ...historicalDisplayPanel,
+      current_goal: "黑屏已经修复仍掉帧",
+      recommendations: [historicalDisplayPanel.recommendations[1]],
+    },
+    {
+      task_context: { objective: "黑屏已经修复仍掉帧" },
+    },
+  ).recommendations.length,
+  3,
+  "a bare 'still' contrast must retain the unresolved current symptom",
+);
+const currentDisplayMerged =
+  runtimeModule.enforceDisplayEvidenceContract(
+    {
+      ...historicalDisplayPanel,
+      current_goal: "此前黑屏，现在游戏中再次黑屏并掉帧",
+      recommendations: [existingTelemetryRecommendation],
+    },
+    {
+      task_context: { objective: "此前黑屏，现在游戏中再次黑屏并掉帧" },
+    },
+  );
+assert.equal(
+  currentDisplayMerged.recommendations[0].id,
+  existingTelemetryRecommendation.id,
+);
+assert.equal(currentDisplayMerged.recommendations.length, 3);
+
+for (const [code, titlePattern, copyPattern] of [
+  ["analysis_timeout", /超时/u, /缩小分析窗口|时间窗口/u],
+  ["analysis_runner_error", /无法启动/u, /PowerShell|分析环境/u],
+  ["attachment_hash_mismatch", /完整性|哈希/u, /重新添加|原始文件/u],
+  ["no_usable_series", /传感器列/u, /重新导出/u],
+]) {
+  const failure = runtimeModule.analysisFailure(
+    {
+      current_goal: "分析当前 CSV",
+      status: "needs_input",
+    },
+    Object.assign(new Error(`fixture ${code}`), { code }),
+    "分析当前 CSV",
+  );
+  assert.match(failure.result_title, titlePattern);
+  assert.doesNotMatch(
+    failure.turn_summary,
+    /没有提供足够明确的传感器列/u,
+    `${code} must not be misreported as a sensor-column problem`,
+  );
+  assert.match(
+    `${failure.priorityAction.title} ${failure.priorityAction.detail}`,
+    copyPattern,
+  );
+  assert.equal(failure.recommendations.length, 2);
+}
 
 const tempRoot = mkdtempSync(join(tmpdir(), "pcwb-runtime-"));
 try {
@@ -366,6 +577,80 @@ try {
   );
   assert.ok(isInside(tempRoot, runtime.evidence.filePath));
   assert.ok(isInside(tempRoot, runtime.broker.artifactRoot));
+
+  const preauthTask = runtime.createTaskState({
+    taskId: "task-runtime-preauth",
+  });
+  preauthTask.task_id = "task-runtime-preauth";
+  const preauthAttachment = {
+    id: "attachment-runtime-preauth",
+    original_name: "telemetry.csv",
+    mime_type: "text/csv",
+    size: 20,
+    sha256: "c".repeat(64),
+    local_path: join(tempRoot, "preauth-telemetry.csv"),
+    added_at: new Date().toISOString(),
+  };
+  let preauthReads = 0;
+  const preauthHost = {
+    events: [],
+    panel: null,
+    appendEvent(event) {
+      this.events.push(event);
+    },
+    save() {},
+    setPanel(panel) {
+      this.panel = panel;
+    },
+    getPanel() {
+      return this.panel;
+    },
+    setError() {},
+    pushTimeline() {},
+    archive() {},
+    getSessionReference() {
+      return "session-runtime-preauth";
+    },
+    isSourceHosted() {
+      return false;
+    },
+    buildTaskContext() {
+      return { skill_id: "pc-hardware-workbench" };
+    },
+  };
+  const originalFindCached = runtime.broker.findCached;
+  const originalValidateAttachment = runtime.broker.validateAttachment;
+  const originalRequireCapability = runtime.requireCapability;
+  let preauthOutcome;
+  try {
+    runtime.requireCapability = () => {};
+    runtime.broker.findCached = () => null;
+    runtime.broker.validateAttachment = () => {
+      preauthReads += 1;
+      return { actualHash: preauthAttachment.sha256 };
+    };
+    preauthOutcome = await runtime.runLocalAction({
+      actionId: capability.id,
+      input: {},
+      task: preauthTask,
+      attachment: preauthAttachment,
+      host: preauthHost,
+    });
+  } finally {
+    runtime.requireCapability = originalRequireCapability;
+    runtime.broker.findCached = originalFindCached;
+    runtime.broker.validateAttachment = originalValidateAttachment;
+  }
+  assert.equal(
+    preauthOutcome.statusCode,
+    403,
+    "uncached attachment analysis should request permission",
+  );
+  assert.equal(
+    preauthReads,
+    0,
+    "attachment content must not be read before permission is granted",
+  );
 
   const taskId = "task-runtime-test";
   const task = runtime.createTaskState({ taskId });
