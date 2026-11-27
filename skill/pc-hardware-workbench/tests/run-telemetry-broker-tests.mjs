@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import {
   appendFileSync,
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -393,15 +394,20 @@ try {
     "analysis must reject an attachment that changes or disappears after chart-pack rendering",
   );
 
-  // Keep the long-lived pipeline scenario on a fresh fixture root so earlier
-  // mutation and escape-path cases cannot change its filesystem preconditions.
-  {
-    const attachmentRoot = join(tempRoot, "pipeline-attachments");
-    const artifactRoot = join(tempRoot, "pipeline-artifacts");
+  // Keep the long-lived pipeline scenario in the workspace. GitHub-hosted
+  // Windows runners may expose its system temp directory through a path form
+  // that is valid for writes but not stable for repeated containment checks.
+  const pipelineRoot = mkdtempSync(
+    join(process.cwd(), ".pcwb-broker-pipeline-"),
+  );
+  try {
+    const attachmentRoot = join(pipelineRoot, "attachments");
+    const artifactRoot = join(pipelineRoot, "artifacts");
     mkdirSync(attachmentRoot, { recursive: true });
     mkdirSync(artifactRoot, { recursive: true });
     const csvPath = join(attachmentRoot, "telemetry.csv");
     writeFileSync(csvPath, csv, "utf8");
+    assert.equal(existsSync(csvPath), true, "pipeline fixture must exist");
     const csvBytes = readFileSync(csvPath);
     const attachment = {
       id: "attachment-broker-pack",
@@ -842,6 +848,8 @@ try {
     "artifact lookup must reject externally loaded SVG content",
   );
   console.log("Telemetry broker chart-pack regression: PASS");
+  } finally {
+    rmSync(pipelineRoot, { recursive: true, force: true });
   }
 } finally {
   rmSync(tempRoot, { recursive: true, force: true });
