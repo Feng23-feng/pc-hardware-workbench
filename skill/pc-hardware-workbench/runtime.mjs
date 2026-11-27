@@ -42,8 +42,8 @@ const NEGATED_HAZARD_SCOPE_PATTERN =
   /(?:没有|未见|未发现|未出现|未闻到|无|不存在|不再有|已排除|并非|不是)(?:明显|任何|新的|当前)?[^且但而却]{0,20}\s*$/iu;
 const RESOLVED_HAZARD_SCOPE_PATTERN =
   /^\s*(?:已经?排除|已经?修复|已恢复|不再出现|未再出现|已消失)/iu;
-const BENIGN_HAZARD_CONTEXT_PATTERN =
-  /\b(?:smoke\s*test(?:ing)?|signed\s+handoff\s+smoke)\b/iu;
+const BENIGN_SMOKE_TEST_AFTER_PATTERN = /^\s*test(?:ing)?\b/iu;
+const BENIGN_SMOKE_TEST_BEFORE_PATTERN = /\bsigned\s+handoff\s*$/iu;
 const HISTORICAL_MARKER = /此前|之前|以前|上次|历史|昨天|前天|刚才/iu;
 const CURRENT_MARKER = /现在|当前|这次|本次|最近|仍然|依然|还在|持续/iu;
 const PHYSICAL_SAFETY_ACTION = Object.freeze({
@@ -53,7 +53,15 @@ const PHYSICAL_SAFETY_ACTION = Object.freeze({
 });
 
 function currentTaskContext(panel, packet) {
+  const currentUserMessages = Array.isArray(packet?.events)
+    ? packet.events
+        .filter((event) => event?.type === "user_message")
+        .map((event) => event.text)
+    : [];
   const candidates = [
+    packet?.text,
+    packet?.free_text,
+    ...currentUserMessages,
     packet?.task_context?.objective,
     packet?.task_context?.current_goal,
     packet?.current_objective,
@@ -76,18 +84,18 @@ function hasCurrentPhysicalHazard(panel, packet) {
     }
     const hazardPattern = new RegExp(PHYSICAL_HAZARD_SOURCE, "giu");
     for (const match of clause.matchAll(hazardPattern)) {
-      const localContext = clause.slice(
-        Math.max(0, match.index - 32),
-        match.index + match[0].length + 32,
-      );
-      if (BENIGN_HAZARD_CONTEXT_PATTERN.test(localContext)) {
+      const before = clause.slice(0, match.index);
+      const after = clause.slice(match.index + match[0].length);
+      if (
+        /^smoke$/iu.test(match[0]) &&
+        (BENIGN_SMOKE_TEST_AFTER_PATTERN.test(after) ||
+          BENIGN_SMOKE_TEST_BEFORE_PATTERN.test(before))
+      ) {
         continue;
       }
-      const before = clause.slice(0, match.index);
       if (NEGATED_HAZARD_SCOPE_PATTERN.test(before)) {
         continue;
       }
-      const after = clause.slice(match.index + match[0].length);
       if (RESOLVED_HAZARD_SCOPE_PATTERN.test(after)) {
         continue;
       }

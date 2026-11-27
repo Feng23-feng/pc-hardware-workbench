@@ -125,14 +125,17 @@ hazard does not suppress a different hazard in the same sentence. Once a hazard
 is confirmed, conflicting Agent detail text is discarded with the replacement
 action.
 
-Safety detection evaluates the user's current task objective together with the
-Agent-authored current goal. An Agent summary cannot replace or hide physical
-danger retained in the original objective. Analyzer bindings must come from the
-analyzer result itself; the attachment hash is not substituted when analyzer
-source evidence is missing.
+Safety detection evaluates current user input from `packet.text`,
+`packet.free_text`, current `user_message` events, the original task objective,
+and the Agent-authored current goal. An Agent summary cannot replace or hide
+physical danger retained in any current user input. Analyzer bindings must come
+from the analyzer result itself; the attachment hash is not substituted when
+analyzer source evidence is missing.
 Technical test labels such as `smoke test`, `smoke testing`, and
 `signed handoff smoke` are not physical-smoke evidence. This is a narrow
-ambiguity exclusion, not a broader hazard vocabulary.
+occurrence-level exclusion for that specific smoke token, not a broader hazard
+vocabulary. A separate `sparks from PSU` or other hazard in the same sentence
+remains active.
 
 General symptom interpretation, display-retest evidence selection, and normal
 recommendations belong to the Agent. Runtime must not infer black-screen or

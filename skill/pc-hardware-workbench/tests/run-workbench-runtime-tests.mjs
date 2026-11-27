@@ -517,6 +517,65 @@ assert.equal(
   "technical smoke-test labels must not be treated as physical smoke",
 );
 
+const smokeTestWithIndependentHazardPanel =
+  runtimeModule.enforceSafetyStateContract(
+    {
+      ...normalPanel,
+      current_goal: "检查游戏掉帧",
+    },
+    {
+      text: "smoke test, sparks from PSU",
+      task_context: { objective: "检查游戏掉帧" },
+    },
+  );
+assert.equal(
+  smokeTestWithIndependentHazardPanel.status,
+  "blocked",
+  "a smoke-test label must not suppress a separate physical hazard",
+);
+
+for (const [label, packet] of [
+  [
+    "packet.text",
+    {
+      text: "本轮补充：电脑冒烟，有火花",
+      task_context: { objective: "检查游戏掉帧" },
+    },
+  ],
+  [
+    "packet.free_text",
+    {
+      free_text: "电脑冒烟，有火花",
+      task_context: { objective: "检查游戏掉帧" },
+    },
+  ],
+  [
+    "current user_message event",
+    {
+      task_context: { objective: "检查游戏掉帧" },
+      events: [
+        {
+          type: "user_message",
+          text: "电脑冒烟，有火花",
+        },
+      ],
+    },
+  ],
+]) {
+  const currentUserInputPanel = runtimeModule.enforceSafetyStateContract(
+    {
+      ...normalPanel,
+      current_goal: "检查游戏掉帧",
+    },
+    packet,
+  );
+  assert.equal(
+    currentUserInputPanel.status,
+    "blocked",
+    `${label} must participate in current physical safety detection`,
+  );
+}
+
 const ordinaryBlockedPanel = {
   ...normalPanel,
   status: "blocked",
