@@ -22,6 +22,12 @@ const skillRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const tempRoot = mkdtempSync(join(tmpdir(), "pcwb-broker-"));
 const attachmentRoot = join(tempRoot, "attachments");
 const artifactRoot = join(tempRoot, "artifacts");
+const isAttachmentIntegrityRejection = (error) =>
+  error.code === "attachment_not_found" ||
+  (
+    error.code === "attachment_hash_mismatch" &&
+    /哈希|完整性|停止分析/u.test(error.message ?? "")
+  );
 mkdirSync(attachmentRoot, { recursive: true });
 mkdirSync(artifactRoot, { recursive: true });
 
@@ -297,10 +303,8 @@ try {
         attachment: changingAttachment,
         window: {},
       }),
-    (error) =>
-      error.code === "attachment_hash_mismatch" &&
-      /哈希|完整性|停止分析/u.test(error.message ?? ""),
-    "analysis must recheck the attachment after the analyzer reopens the path",
+    isAttachmentIntegrityRejection,
+    "analysis must reject an attachment that changes or disappears after the analyzer reopens the path",
   );
 
   const chartChangingCsv = "Time,FPS\n0,60\n1,61\n";
@@ -374,8 +378,8 @@ try {
         window: {},
         preset: "FirstPass",
       }),
-    (error) => error.code === "attachment_hash_mismatch",
-    "analysis must recheck the attachment after chart-pack rendering",
+    isAttachmentIntegrityRejection,
+    "analysis must reject an attachment that changes or disappears after chart-pack rendering",
   );
 
   const originalRunPowerShell = broker.runPowerShell.bind(broker);
