@@ -34,6 +34,11 @@ The CSV still passes through the existing analyzer. Existing metric recognition,
 unit conversion, implausible-value filters, missing-value handling, windows, and
 downsampling remain authoritative.
 
+When a caller already has analyzer JSON with `ChartData`, pass it with
+`-AnalysisPath` instead of calling the analyzer again. The analysis window must
+already be applied; do not combine `AnalysisPath` with window parameters. The
+original CSV path is still used for its SHA-256, filename, and source metadata.
+
 If source metadata is omitted, normalization continues for compatibility but
 records explicit warnings instead of inventing the tool, version, device, or
 capture time.

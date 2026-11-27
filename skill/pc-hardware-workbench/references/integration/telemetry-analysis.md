@@ -37,6 +37,15 @@ JSON output:
 powershell -NoProfile -ExecutionPolicy Bypass -File "<suite-folder>\scripts\analyze-telemetry.ps1" -Path "<telemetry.csv>" -Format Json
 ```
 
+Summary plus reusable chart data in one analyzer pass:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File "<suite-folder>\scripts\analyze-telemetry.ps1" -Path "<telemetry.csv>" -Format Json -IncludeChartData
+```
+
+Reuse that `ChartData` for normalization or rendering instead of parsing the same
+CSV again.
+
 Machine-readable chart input:
 
 ```powershell

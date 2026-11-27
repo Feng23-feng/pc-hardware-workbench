@@ -15,7 +15,9 @@ param(
     [ValidateRange(0.0, [double]::MaxValue)]
     [double]$DurationSeconds = 0,
 
-    [string]$ManifestPath = ""
+    [string]$ManifestPath = "",
+
+    [string]$ChartDataPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -90,6 +92,12 @@ function Add-ChartSpec {
 
 try {
     $resolvedInput = Assert-LocalReadFilePath -Path $Path
+    $resolvedChartDataPath = if ([string]::IsNullOrWhiteSpace($ChartDataPath)) {
+        $null
+    }
+    else {
+        Assert-LocalReadFilePath -Path $ChartDataPath
+    }
     $outputRoot = ConvertTo-LocalFilesystemPath -Path $OutputDirectory
     if (Test-PathChainHasReparsePoint -Path $outputRoot) {
         throw "OutputDirectory resolves through a reparse point."
@@ -121,17 +129,40 @@ try {
         throw "ManifestPath must be directly inside OutputDirectory."
     }
 
-    $analyzerParameters = @{
-        Path = $resolvedInput
-        Format = "ChartData"
+    if ($resolvedChartDataPath) {
+        try {
+            $chartData = Get-Content -Raw -LiteralPath $resolvedChartDataPath -Encoding UTF8 |
+                ConvertFrom-Json
+        }
+        catch {
+            throw "ChartData JSON is invalid: $($_.Exception.Message)"
+        }
+        if (
+            [string]$chartData.ChartDataVersion -ne "1.0" -or
+            $null -eq $chartData.PSObject.Properties["Series"] -or
+            $chartData.Series -isnot [System.Array] -or
+            @($chartData.Series).Count -eq 0
+        ) {
+            throw "ChartData must contain ChartDataVersion 1.0 and a non-empty Series array."
+        }
+        $renderInputPath = $resolvedChartDataPath
+        $renderInputFormat = "ChartData"
     }
-    if ($WarmupSeconds -gt 0) {
-        $analyzerParameters.WarmupSeconds = $WarmupSeconds
+    else {
+        $analyzerParameters = @{
+            Path = $resolvedInput
+            Format = "ChartData"
+        }
+        if ($WarmupSeconds -gt 0) {
+            $analyzerParameters.WarmupSeconds = $WarmupSeconds
+        }
+        if ($DurationSeconds -gt 0) {
+            $analyzerParameters.DurationSeconds = $DurationSeconds
+        }
+        $chartData = & $analyzerPath @analyzerParameters | Out-String | ConvertFrom-Json
+        $renderInputPath = $resolvedInput
+        $renderInputFormat = "Csv"
     }
-    if ($DurationSeconds -gt 0) {
-        $analyzerParameters.DurationSeconds = $DurationSeconds
-    }
-    $chartData = & $analyzerPath @analyzerParameters | Out-String | ConvertFrom-Json
     $availableMetrics = @(
         @($chartData.Series) |
             ForEach-Object { [string]$_.Metric } |
@@ -351,15 +382,10 @@ try {
     foreach ($spec in $specs) {
         $chartPath = Join-Path $outputRoot $spec.FileName
         $renderArgs = @{
-            Path = $resolvedInput
+            Path = $renderInputPath
             OutputPath = $chartPath
             Title = $spec.Title
-        }
-        if ($WarmupSeconds -gt 0) {
-            $renderArgs.WarmupSeconds = $WarmupSeconds
-        }
-        if ($DurationSeconds -gt 0) {
-            $renderArgs.DurationSeconds = $DurationSeconds
+            InputFormat = $renderInputFormat
         }
         if ($spec.ClockVoltageTimeline) {
             $renderArgs.ClockVoltageTimeline = $true

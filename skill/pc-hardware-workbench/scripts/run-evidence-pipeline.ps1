@@ -195,6 +195,25 @@ function Get-AnalysisArguments {
     return $arguments
 }
 
+function Get-NormalizerArguments {
+    param(
+        [Parameter(Mandatory = $true)][string]$Path,
+        [Parameter(Mandatory = $true)][string]$OutputPath,
+        [Parameter(Mandatory = $true)][string]$AnalysisPath
+    )
+    $arguments = @(
+        "-Path", $Path,
+        "-OutputPath", $OutputPath,
+        "-AnalysisPath", $AnalysisPath,
+        "-InputFormat", "Csv",
+        "-MaxInputMegabytes", [string]$MaxInputMegabytes
+    )
+    if ($HideFileName) {
+        $arguments += "-HideFileName"
+    }
+    return $arguments
+}
+
 function Get-EvidenceInput {
     param(
         [Parameter(Mandatory = $true)][string]$Path,
@@ -209,14 +228,17 @@ function Get-EvidenceInput {
     try {
         $analysisText = Invoke-PipelineChild `
             -ScriptPath $analyzerPath `
-            -Arguments (Get-AnalysisArguments -Path $Path -ExtraArguments @("-Format", "Json")) `
+            -Arguments (Get-AnalysisArguments -Path $Path -ExtraArguments @("-Format", "Json", "-IncludeChartData")) `
             -Description "$Label analysis"
         $analysis = $analysisText | ConvertFrom-Json
         [IO.File]::WriteAllText($analysisPath, ($analysisText.TrimEnd() + "`n"), $utf8NoBom)
 
         $normalizerText = Invoke-PipelineChild `
             -ScriptPath $normalizerPath `
-            -Arguments (Get-AnalysisArguments -Path $Path -ExtraArguments @("-OutputPath", $normalizedPath, "-InputFormat", "Csv")) `
+            -Arguments (Get-NormalizerArguments `
+                -Path $Path `
+                -OutputPath $normalizedPath `
+                -AnalysisPath $analysisPath) `
             -Description "$Label normalization"
         if (-not (Test-Path -LiteralPath $normalizedPath -PathType Leaf)) {
             throw "$Label normalization did not create $normalizedPath. $normalizerText"

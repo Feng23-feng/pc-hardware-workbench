@@ -123,6 +123,18 @@ bad-row,with-too-few-fields
     Assert-True ($isoTimestampJson.Sampling.IntervalSecondsMedian -eq 1) "ISO timestamp input should report a one-second interval."
     Assert-True ($isoTimestampJson.Sampling.Consistency -eq "stable") "ISO timestamp sampling should be stable."
     Assert-True ($isoTimestampJson.SampledSpanSeconds -eq 2) "ISO timestamp input should report a two-second analyzed span."
+    Assert-True ($null -eq $isoTimestampJson.PSObject.Properties["ChartData"]) "JSON output should omit ChartData unless requested."
+
+    $jsonWithChartData = & $resolvedAnalyzer `
+        -Path $isoTimestampPath `
+        -Format Json `
+        -WarmupSeconds 1 `
+        -DurationSeconds 2 `
+        -IncludeColumn '^(gpu_temp_c|gpu_power_w|effective_clock_mhz)$' `
+        -IncludeChartData |
+        ConvertFrom-Json
+    Assert-True ($jsonWithChartData.ChartData.ChartDataVersion -eq "1.0") "IncludeChartData should attach ChartData to the JSON result."
+    Assert-True (@($jsonWithChartData.ChartData.Series).Count -eq 3) "IncludeChartData should preserve the same selected series."
 
     $categoricalJson = & $resolvedAnalyzer -Path $categoricalPath -Format Json | ConvertFrom-Json
     $perfCapSummary = @(

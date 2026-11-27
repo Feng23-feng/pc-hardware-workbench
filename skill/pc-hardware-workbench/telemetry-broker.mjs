@@ -29,8 +29,6 @@ const MAX_ARTIFACT_BYTES = 5 * 1024 * 1024;
 const MAX_CHART_ARTIFACTS = 6;
 const MAX_WINDOW_SECONDS = 24 * 60 * 60;
 const ANALYZER_CACHE_VERSION = "1.3.2-pack1";
-const METRIC_HINTS =
-  /temp|temperature|power|watt|clock|effective|mhz|fps|frame|voltage|fan|usage|load|温度|功耗|频率|帧率|瓦/u;
 
 export class TelemetryBrokerError extends Error {
   constructor(code, message, { statusCode = 422, details = [] } = {}) {
@@ -248,21 +246,6 @@ function metricUnit(metric) {
   return "";
 }
 
-function parseHeaderNames(buffer) {
-  const text = buffer.toString("utf8").replace(/^\uFEFF/u, "");
-  const firstLine = text.split(/\r?\n/u).find((line) => line.trim()) ?? "";
-  return firstLine
-    .split(",")
-    .map((value) =>
-      value
-        .trim()
-        .replace(/^"+|"+$/gu, "")
-        .replace(/""/gu, '"'),
-    )
-    .filter(Boolean)
-    .slice(0, 256);
-}
-
 function normalizeCategoricalColumns(value) {
   if (!Array.isArray(value)) {
     return [];
@@ -293,23 +276,6 @@ function normalizeCategoricalColumns(value) {
         : null;
     })
     .filter(Boolean);
-}
-
-function genericIncludePattern(headers, existingMetrics = []) {
-  if (existingMetrics.length > 0) {
-    return null;
-  }
-  const selected = headers
-    .filter((header) => METRIC_HINTS.test(header))
-    .filter((header) => !/date|time|timestamp|perfcap|limit|offset|目标|上限/u.test(header))
-    .filter((header) => header.length <= 120)
-    .slice(0, 8);
-  if (selected.length === 0) {
-    return null;
-  }
-  return `^(?:${selected
-    .map((header) => header.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"))
-    .join("|")})$`;
 }
 
 function assertSafeSvg(buffer) {
@@ -743,7 +709,6 @@ export class TelemetryBroker {
   async buildChartPack({
     taskDirectory,
     filePath,
-    buffer,
     parsed,
     window,
     actualHash,
@@ -761,8 +726,27 @@ export class TelemetryBroker {
     }
     mkdirSync(packDirectory, { recursive: true });
     const manifestPath = resolve(packDirectory, "telemetry-pack-manifest.json");
+    // The pack script requires an empty output directory. Keep analyzer-owned
+    // ChartData beside the pack directory and remove the transient file after
+    // rendering so the source CSV is never parsed a second time.
+    const chartDataPath = resolve(
+      taskDirectory,
+      `.${packDirectory.split(/[\\/]/u).at(-1)}-chart-data.json`,
+    );
     const warnings = [];
     const skipped = [];
+    const hasChartData =
+      parsed.ChartData &&
+      typeof parsed.ChartData === "object" &&
+      Array.isArray(parsed.ChartData.Series) &&
+      parsed.ChartData.Series.length > 0;
+    if (hasChartData) {
+      writeFileSync(
+        chartDataPath,
+        `${JSON.stringify(parsed.ChartData, null, 2)}\n`,
+        "utf8",
+      );
+    }
 
     if (existsSync(this.packScriptPath)) {
       const packArgs = [
@@ -775,10 +759,13 @@ export class TelemetryBroker {
         "-ManifestPath",
         manifestPath,
       ];
-      if (window.warmup !== null) {
+      if (hasChartData) {
+        packArgs.push("-ChartDataPath", chartDataPath);
+      }
+      if (!hasChartData && window.warmup !== null) {
         packArgs.push("-WarmupSeconds", String(window.warmup));
       }
-      if (window.duration !== null) {
+      if (!hasChartData && window.duration !== null) {
         packArgs.push("-DurationSeconds", String(window.duration));
       }
       try {
@@ -838,6 +825,9 @@ export class TelemetryBroker {
               : value?.Reason ?? value?.reason ?? value?.Id ?? value?.id;
           if (text) skipped.push(String(text));
         }
+        if (existsSync(chartDataPath)) {
+          unlinkSync(chartDataPath);
+        }
         return {
           packDirectory,
           charts: selected,
@@ -851,24 +841,40 @@ export class TelemetryBroker {
 
     const fallbackId = `draft-${randomUUID()}`;
     const fallbackPath = resolve(packDirectory, `${fallbackId}.svg`);
-    const chartArgs = ["-Path", filePath, "-OutputPath", fallbackPath];
-    if (window.warmup !== null) {
+    const chartArgs = hasChartData
+      ? [
+          "-Path",
+          chartDataPath,
+          "-OutputPath",
+          fallbackPath,
+          "-InputFormat",
+          "ChartData",
+        ]
+      : ["-Path", filePath, "-OutputPath", fallbackPath];
+    if (!hasChartData && window.warmup !== null) {
       chartArgs.push("-WarmupSeconds", String(window.warmup));
     }
-    if (window.duration !== null) {
+    if (!hasChartData && window.duration !== null) {
       chartArgs.push("-DurationSeconds", String(window.duration));
     }
     const genericMetrics = parsed.Metrics.every(
       (metric) => !metric.Unit || metric.Unit === "",
     );
     const includeColumn = genericMetrics
-      ? genericIncludePattern(parseHeaderNames(buffer), [])
+      ? parsed.CandidateColumnPattern
       : null;
     if (includeColumn) {
       chartArgs.push("-IncludeColumn", includeColumn);
     }
-    await this.runPowerShell(this.rendererPath, chartArgs);
-    const safe = assertSafeSvg(readFileSync(fallbackPath));
+    let safe;
+    try {
+      await this.runPowerShell(this.rendererPath, chartArgs);
+      safe = assertSafeSvg(readFileSync(fallbackPath));
+    } finally {
+      if (existsSync(chartDataPath)) {
+        unlinkSync(chartDataPath);
+      }
+    }
     return {
       packDirectory,
       charts: [
@@ -1052,7 +1058,13 @@ export class TelemetryBroker {
     if (reusesArtifacts.length > 0) {
       analysis = reusesArtifacts[0].analysis;
     } else {
-      const baseArgs = ["-Path", filePath, "-Format", "Json"];
+      const baseArgs = [
+        "-Path",
+        filePath,
+        "-Format",
+        "Json",
+        "-IncludeChartData",
+      ];
       if (window.warmup !== null) {
         baseArgs.push("-WarmupSeconds", String(window.warmup));
       }
@@ -1070,10 +1082,7 @@ export class TelemetryBroker {
         );
       }
       if (!Array.isArray(parsed.Metrics) || parsed.Metrics.length === 0) {
-        const includeColumn = genericIncludePattern(
-          parseHeaderNames(buffer),
-          parsed.Metrics,
-        );
+        const includeColumn = parsed.CandidateColumnPattern;
         if (includeColumn) {
           const fallback = await this.runPowerShell(this.analyzerPath, [
             ...baseArgs,
@@ -1107,7 +1116,6 @@ export class TelemetryBroker {
         chartPack = await this.buildChartPack({
           taskDirectory,
           filePath,
-          buffer,
           parsed,
           window,
           actualHash,

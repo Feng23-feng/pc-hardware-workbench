@@ -96,6 +96,10 @@ try {
             Assert-True (Test-Path -LiteralPath (Join-Path $runDirectory $name) -PathType Leaf) "Expected package file is missing: $name"
         }
 
+        $baselineAnalysis = Get-Content -Raw -LiteralPath (Join-Path $runDirectory "baseline.analysis.json") -Encoding UTF8 | ConvertFrom-Json
+        Assert-True ($baselineAnalysis.ChartData.ChartDataVersion -eq "1.0") "Pipeline analysis omitted analyzer-owned ChartData."
+        Assert-True (@($baselineAnalysis.ChartData.Series).Count -ge 1) "Pipeline analysis contained no reusable chart series."
+
         $package = Get-Content -Raw -LiteralPath (Join-Path $runDirectory "evidence-package.json") -Encoding UTF8 | ConvertFrom-Json
         Assert-True ($package.EvidencePackageVersion -eq "1.0") "The evidence package schema version is missing."
         Assert-True ($package.Status -eq "ready-for-review") "The comparable baseline/candidate package should be ready for review."

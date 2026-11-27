@@ -6,6 +6,8 @@ param(
     [ValidateSet("Markdown", "Json", "ChartData")]
     [string]$Format = "Markdown",
 
+    [switch]$IncludeChartData,
+
     [ValidateRange(0.0, [double]::MaxValue)]
     [double]$WarmupSeconds = 0,
 
@@ -604,6 +606,24 @@ function Get-CategoricalColumnSummaries {
         }
     }
     return @($summaries.ToArray())
+}
+
+function Get-CandidateColumnPattern {
+    param([string[]]$Columns)
+
+    $selected = @(
+        $Columns |
+            Where-Object {
+                $_ -match "(?i)temp|temperature|power|watt|clock|effective|mhz|fps|frame|voltage|fan|usage|load|温度|功耗|频率|帧率|瓦" -and
+                $_ -notmatch "(?i)date|time|timestamp|perfcap|limit|offset|目标|上限" -and
+                $_.Length -le 120
+            } |
+            Select-Object -First 8
+    )
+    if ($selected.Count -eq 0) {
+        return $null
+    }
+    return "^(?:" + (($selected | ForEach-Object { [regex]::Escape($_) }) -join "|") + ")$"
 }
 
 function Get-Percentile {
@@ -1845,12 +1865,18 @@ $result = [pscustomobject]@{
             -Columns $headerNames
     )
     Columns = $headerNames
+    CandidateColumnPattern = if ($series.Count -eq 0) {
+        Get-CandidateColumnPattern -Columns $headerNames
+    }
+    else {
+        $null
+    }
     DuplicateHeaderNames = @($duplicateHeaderNames.ToArray())
     Metrics = @($series.ToArray())
     Warnings = @($warnings.ToArray())
 }
 
-if ($Format -eq "ChartData") {
+if ($Format -eq "ChartData" -or $IncludeChartData) {
     $chartSeries = New-Object System.Collections.Generic.List[object]
     foreach ($metric in $series) {
         $points = New-Object System.Collections.Generic.List[object]
@@ -1916,12 +1942,17 @@ if ($Format -eq "ChartData") {
         Series = @($chartSeries.ToArray())
         Warnings = @($result.Warnings)
     }
-    $chartResult | ConvertTo-Json -Depth 10
-    return
+    if ($Format -eq "ChartData") {
+        $chartResult | ConvertTo-Json -Depth 10
+        return
+    }
+    $result | Add-Member `
+        -NotePropertyName "ChartData" `
+        -NotePropertyValue $chartResult
 }
 
 if ($Format -eq "Json") {
-    $result | ConvertTo-Json -Depth 8
+    $result | ConvertTo-Json -Depth 10
     return
 }
 

@@ -12,6 +12,7 @@ $failures = New-Object System.Collections.Generic.List[string]
 $powershell = (Get-Command powershell.exe -ErrorAction Stop).Source
 $resolvedAdapter = (Resolve-Path -LiteralPath $AdapterPath).Path
 $resolvedRenderer = (Resolve-Path -LiteralPath $RendererPath).Path
+$resolvedAnalyzer = Join-Path (Split-Path -Parent $resolvedAdapter) "analyze-telemetry.ps1"
 $tempRoot = Join-Path ([IO.Path]::GetTempPath()) "pcwb-normalize-test-$([guid]::NewGuid().ToString('N'))"
 
 function Assert-True {
@@ -124,6 +125,38 @@ try {
     )
     Assert-True ($csvRender.ExitCode -eq 0) "Renderer rejected normalized CSV output: $($csvRender.Stderr)"
     Assert-True (Test-Path -LiteralPath $csvSvg -PathType Leaf) "Renderer did not create normalized CSV chart."
+
+    $analysisResult = Invoke-Process -ScriptPath $resolvedAnalyzer -Arguments @(
+        "-Path", $csvPath,
+        "-Format", "Json",
+        "-IncludeChartData"
+    )
+    Assert-True ($analysisResult.ExitCode -eq 0) "Precomputed analysis failed: $($analysisResult.Stderr)"
+    $analysisPath = Join-Path $tempRoot "precomputed.analysis.json"
+    $analysis = $analysisResult.Stdout | ConvertFrom-Json
+    $analysis.ChartData.Series[0].Metric = "Preserved precomputed metric"
+    [IO.File]::WriteAllText(
+        $analysisPath,
+        (($analysis | ConvertTo-Json -Depth 12) + "`r`n"),
+        $utf8
+    )
+    $precomputedOutput = Join-Path $tempRoot "precomputed-normalized.json"
+    $precomputedResult = Invoke-Process -ScriptPath $resolvedAdapter -Arguments @(
+        "-Path", $csvPath,
+        "-OutputPath", $precomputedOutput,
+        "-AnalysisPath", $analysisPath
+    )
+    Assert-True ($precomputedResult.ExitCode -eq 0) "Precomputed normalization failed: $($precomputedResult.Stderr)"
+    if (Test-Path -LiteralPath $precomputedOutput -PathType Leaf) {
+        $precomputedNormalized = Get-Content -Raw -LiteralPath $precomputedOutput -Encoding UTF8 | ConvertFrom-Json
+        Assert-True (
+            @($precomputedNormalized.ChartData.Series | Where-Object { $_.Metric -eq "Preserved precomputed metric" }).Count -eq 1
+        ) "Normalization reparsed the CSV instead of using AnalysisPath ChartData."
+        Assert-True (
+            $precomputedNormalized.Source.InputSha256 -eq
+            (Get-FileHash -LiteralPath $csvPath -Algorithm SHA256).Hash
+        ) "Precomputed normalization lost the original CSV hash."
+    }
 
     $unattributedOutput = Join-Path $tempRoot "csv-unattributed.json"
     $unattributedResult = Invoke-Process -ScriptPath $resolvedAdapter -Arguments @(

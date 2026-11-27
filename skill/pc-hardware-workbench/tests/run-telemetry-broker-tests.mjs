@@ -373,11 +373,40 @@ try {
     "analysis must recheck the attachment after chart-pack rendering",
   );
 
+  const originalRunPowerShell = broker.runPowerShell.bind(broker);
+  const chartPipelineCalls = [];
+  broker.runPowerShell = async (scriptPath, args) => {
+    chartPipelineCalls.push({ scriptPath, args: [...args] });
+    return originalRunPowerShell(scriptPath, args);
+  };
   const first = await broker.analyze({
     taskId: "task-broker-pack",
     attachment,
     window: {},
   });
+  broker.runPowerShell = originalRunPowerShell;
+  assert.equal(
+    chartPipelineCalls.filter((call) =>
+      /analyze-telemetry\.ps1$/u.test(call.scriptPath)
+    ).length,
+    1,
+    "chart analysis must invoke the authoritative analyzer exactly once",
+  );
+  const chartPackCall = chartPipelineCalls.find((call) =>
+    /render-telemetry-pack\.ps1$/u.test(call.scriptPath),
+  );
+  assert.ok(chartPackCall, "chart analysis must invoke the chart pack renderer");
+  assert.ok(
+    chartPackCall.args.includes("-ChartDataPath"),
+    "chart pack renderer must consume the analyzer-produced ChartData",
+  );
+  assert.equal(
+    first.analysis.warnings.some((warning) =>
+      warning.startsWith("图表包降级为单图：")
+    ),
+    false,
+    "the chart pack must not downgrade after consuming analyzer ChartData",
+  );
   assert.equal(first.artifact.kind, "chart");
   assert.equal(first.artifacts.length, 4);
   assert.equal(new Set(first.artifacts.map((item) => item.id)).size, 4);

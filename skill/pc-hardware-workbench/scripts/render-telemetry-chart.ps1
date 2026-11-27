@@ -23,7 +23,7 @@ param(
 
     [string[]]$IncludeColumn = @(),
 
-    [ValidateSet("Auto", "Csv", "NormalizedJson")]
+    [ValidateSet("Auto", "Csv", "NormalizedJson", "ChartData")]
     [string]$InputFormat = "Auto",
 
     [switch]$HideFileName,
@@ -755,6 +755,45 @@ if ($resolvedInputFormat -eq "Csv") {
     }
     catch {
         throw "Telemetry analyzer returned invalid chart data: $($_.Exception.Message)"
+    }
+}
+elseif ($resolvedInputFormat -eq "ChartData") {
+    foreach ($name in @(
+        "WarmupSeconds", "DurationSeconds", "WarmupRows", "MaxRows",
+        "Delimiter", "MaxInputMegabytes", "MaxPoints"
+    )) {
+        if ($PSBoundParameters.ContainsKey($name)) {
+            [Console]::Error.WriteLine(
+                "ChartData is already windowed and downsampled; do not combine it with -$name."
+            )
+            exit 2
+        }
+    }
+    try {
+        $chartData = Get-Content -Raw -LiteralPath $resolvedInput -Encoding UTF8 |
+            ConvertFrom-Json
+    }
+    catch {
+        Stop-WithNormalizedInputError "ChartData JSON is invalid: $($_.Exception.Message)"
+    }
+    if ([string]$chartData.ChartDataVersion -ne "1.0") {
+        Stop-WithNormalizedInputError "ChartDataVersion must be '1.0'."
+    }
+    if (
+        $null -eq $chartData.PSObject.Properties["Series"] -or
+        $chartData.Series -isnot [System.Array] -or
+        @($chartData.Series).Count -eq 0
+    ) {
+        Stop-WithNormalizedInputError "ChartData.Series must be a non-empty array."
+    }
+    if (
+        $null -eq $chartData.PSObject.Properties["Warnings"] -or
+        $chartData.Warnings -isnot [System.Array]
+    ) {
+        Stop-WithNormalizedInputError "ChartData.Warnings must be an array."
+    }
+    if ($HideFileName) {
+        $chartData.FileName = "[hidden]"
     }
 }
 else {

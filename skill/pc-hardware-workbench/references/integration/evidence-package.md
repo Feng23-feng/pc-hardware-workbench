@@ -3,6 +3,8 @@
 Use `scripts/run-evidence-pipeline.ps1` when the user has one or two compatible
 telemetry CSV files and wants the routine sequence completed without manually
 calling the normalizer, analyzer, chart renderer, and result-card steps.
+Each CSV is parsed once by `analyze-telemetry.ps1`; its `ChartData` is persisted
+in the analysis JSON and passed to normalization instead of reopening the CSV.
 
 The first version accepts HWiNFO, PresentMon, and compatible text CSV files. It
 does not turn a screenshot into a time series and does not claim that a short

@@ -6,6 +6,8 @@ param(
     [Parameter(Mandatory = $true, Position = 1)]
     [string]$OutputPath,
 
+    [string]$AnalysisPath,
+
     [ValidateSet("Auto", "Csv", "SensorSnapshot")]
     [string]$InputFormat = "Auto",
 
@@ -395,9 +397,24 @@ function Add-UniqueWarnings {
 try {
     $resolvedInput = Assert-LocalReadFilePath -Path $Path
     $resolvedOutput = Resolve-LocalOutputFilePath -Path $OutputPath
+    $resolvedAnalysis = if ([string]::IsNullOrWhiteSpace($AnalysisPath)) {
+        $null
+    }
+    else {
+        Assert-LocalReadFilePath -Path $AnalysisPath
+    }
 }
 catch {
     Stop-WithInputError $_.Exception.Message
+}
+
+if ($resolvedAnalysis -and (
+    $WarmupSeconds -gt 0 -or
+    $DurationSeconds -gt 0 -or
+    $WarmupRows -gt 0 -or
+    $MaxRows -gt 0
+)) {
+    Stop-WithInputError "AnalysisPath already contains windowed ChartData; do not combine it with window parameters."
 }
 
 $inputInfo = Get-Item -LiteralPath $resolvedInput
@@ -414,6 +431,9 @@ $resolvedFormat = if ($InputFormat -eq "Auto") {
 }
 else {
     $InputFormat
+}
+if ($resolvedAnalysis -and $resolvedFormat -ne "Csv") {
+    Stop-WithInputError "AnalysisPath is only supported for CSV input."
 }
 
 $warnings = New-Object System.Collections.Generic.List[string]
@@ -455,18 +475,37 @@ try {
         }
         $sourceSets.Add("$tool|$version|$DeviceId") | Out-Null
 
-        $chartData = Invoke-TelemetryAnalyzer -Parameters @{
-            Path = $resolvedInput
-            Format = "ChartData"
-            WarmupSeconds = $WarmupSeconds
-            DurationSeconds = $DurationSeconds
-            WarmupRows = $WarmupRows
-            MaxRows = $MaxRows
-            Delimiter = $Delimiter
-            IncludeColumn = $IncludeColumn
-            MaxInputMegabytes = $MaxInputMegabytes
-            MaxChartPoints = $MaxChartPoints
-            HideFileName = [bool]$HideFileName
+        $chartData = if ($resolvedAnalysis) {
+            try {
+                $analysis = Get-Content -Raw -LiteralPath $resolvedAnalysis -Encoding UTF8 |
+                    ConvertFrom-Json
+            }
+            catch {
+                Stop-WithAnalysisError "AnalysisPath JSON is invalid: $($_.Exception.Message)"
+            }
+            $precomputed = Get-PropertyValue $analysis "ChartData"
+            if ($null -eq $precomputed) {
+                Stop-WithAnalysisError "AnalysisPath does not contain analyzer ChartData."
+            }
+            if ([string](Get-PropertyValue $precomputed "ChartDataVersion" "") -ne "1.0") {
+                Stop-WithAnalysisError "AnalysisPath ChartDataVersion must be '1.0'."
+            }
+            $precomputed
+        }
+        else {
+            Invoke-TelemetryAnalyzer -Parameters @{
+                Path = $resolvedInput
+                Format = "ChartData"
+                WarmupSeconds = $WarmupSeconds
+                DurationSeconds = $DurationSeconds
+                WarmupRows = $WarmupRows
+                MaxRows = $MaxRows
+                Delimiter = $Delimiter
+                IncludeColumn = $IncludeColumn
+                MaxInputMegabytes = $MaxInputMegabytes
+                MaxChartPoints = $MaxChartPoints
+                HideFileName = [bool]$HideFileName
+            }
         }
     }
     elseif ($resolvedFormat -eq "SensorSnapshot") {
