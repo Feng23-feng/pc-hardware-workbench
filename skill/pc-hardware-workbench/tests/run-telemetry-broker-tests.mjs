@@ -393,9 +393,28 @@ try {
     "analysis must reject an attachment that changes or disappears after chart-pack rendering",
   );
 
-  // The pipeline scenario starts from a known-good fixture even after the
-  // preceding path-escape and mutation tests.
-  writeFileSync(csvPath, csv, "utf8");
+  // Keep the long-lived pipeline scenario on a fresh fixture root so earlier
+  // mutation and escape-path cases cannot change its filesystem preconditions.
+  {
+    const attachmentRoot = join(tempRoot, "pipeline-attachments");
+    const artifactRoot = join(tempRoot, "pipeline-artifacts");
+    mkdirSync(attachmentRoot, { recursive: true });
+    mkdirSync(artifactRoot, { recursive: true });
+    const csvPath = join(attachmentRoot, "telemetry.csv");
+    writeFileSync(csvPath, csv, "utf8");
+    const csvBytes = readFileSync(csvPath);
+    const attachment = {
+      id: "attachment-broker-pack",
+      original_name: "telemetry.csv",
+      sha256: createHash("sha256").update(csvBytes).digest("hex"),
+      local_path: csvPath,
+    };
+    const broker = new TelemetryBroker({
+      attachmentRoot,
+      artifactRoot,
+      scriptsDir: join(skillRoot, "scripts"),
+      timeoutMs: 60_000,
+    });
   const originalRunPowerShell = broker.runPowerShell.bind(broker);
   const chartPipelineCalls = [];
   broker.runPowerShell = async (scriptPath, args) => {
@@ -823,6 +842,7 @@ try {
     "artifact lookup must reject externally loaded SVG content",
   );
   console.log("Telemetry broker chart-pack regression: PASS");
+  }
 } finally {
   rmSync(tempRoot, { recursive: true, force: true });
 }
