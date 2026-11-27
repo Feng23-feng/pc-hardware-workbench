@@ -56,7 +56,8 @@ $valueParameters = @(
     "MaxComparisonMetrics",
     "ClaimPath",
     "EvidencePath",
-    "ValidatorPath"
+    "ValidatorPath",
+    "Sections"
 )
 $repeatParameters = @("IncludeColumn", "FocusMetric")
 $switchParameters = @("RedactIdentifiers", "RequireElevated", "HideFileName")

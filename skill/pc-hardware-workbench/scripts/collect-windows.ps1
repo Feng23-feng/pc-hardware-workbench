@@ -7,6 +7,8 @@ param(
 
     [switch]$RedactIdentifiers,
 
+    [string]$Sections = "",
+
     # The caller must start PowerShell elevated. This switch never triggers UAC
     # or attempts to elevate the current process.
     [switch]$RequireElevated
@@ -35,6 +37,41 @@ $script:CollectionWarnings = New-Object System.Collections.Generic.List[string]
 $script:CollectionWarningCodes = New-Object System.Collections.Generic.List[string]
 $script:BatteryCollectionState = "unavailable"
 $script:BatteryCollectionReason = "not-collected"
+$availableSections = @("System", "CPU", "GPU", "Memory", "Storage", "Display", "Battery")
+$requestedSections = if ([string]::IsNullOrWhiteSpace($Sections)) {
+    @($availableSections)
+}
+else {
+    @(
+        $Sections -split "," |
+            ForEach-Object { $_.Trim() } |
+            Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+    )
+}
+$invalidSections = @(
+    $requestedSections |
+        Where-Object { $_ -notin $availableSections }
+)
+if ($invalidSections.Count -gt 0) {
+    Stop-WithInputError "Unknown collector section: $($invalidSections -join ', '). Choose from: $($availableSections -join ', ')."
+}
+if ($requestedSections.Count -eq 0) {
+    Stop-WithInputError "Collector -Sections must contain at least one section when supplied."
+}
+$selectedSections = @($requestedSections | Select-Object -Unique)
+$selectedSectionSet = New-Object 'System.Collections.Generic.HashSet[string]' (
+    [StringComparer]::OrdinalIgnoreCase
+)
+foreach ($section in $selectedSections) {
+    $selectedSectionSet.Add($section) | Out-Null
+}
+$includeSystem = $selectedSectionSet.Contains("System")
+$includeCpu = $selectedSectionSet.Contains("CPU")
+$includeGpu = $selectedSectionSet.Contains("GPU")
+$includeMemory = $selectedSectionSet.Contains("Memory")
+$includeStorage = $selectedSectionSet.Contains("Storage")
+$includeDisplay = $selectedSectionSet.Contains("Display")
+$includeBattery = $selectedSectionSet.Contains("Battery")
 $isElevated = $false
 try {
     $windowsIdentity = [Security.Principal.WindowsIdentity]::GetCurrent()
@@ -674,76 +711,100 @@ function Convert-EdidText {
     return $text
 }
 
-$computer = Get-CimData -ClassName Win32_ComputerSystem | Select-Object -First 1
-$product = Get-CimData -ClassName Win32_ComputerSystemProduct | Select-Object -First 1
-$bios = Get-CimData -ClassName Win32_BIOS | Select-Object -First 1
-$board = Get-CimData -ClassName Win32_BaseBoard | Select-Object -First 1
-$operatingSystem = Get-CimData -ClassName Win32_OperatingSystem | Select-Object -First 1
-$wmiBattery = Get-CimData -ClassName Win32_Battery | Select-Object -First 1
-$battery = Get-BatteryStatusFallback
+$computer = $null
+$product = $null
+$bios = $null
+$board = $null
+$operatingSystem = $null
+if ($includeSystem) {
+    $computer = Get-CimData -ClassName Win32_ComputerSystem | Select-Object -First 1
+    $product = Get-CimData -ClassName Win32_ComputerSystemProduct | Select-Object -First 1
+    $bios = Get-CimData -ClassName Win32_BIOS | Select-Object -First 1
+    $board = Get-CimData -ClassName Win32_BaseBoard | Select-Object -First 1
+    $operatingSystem = Get-CimData -ClassName Win32_OperatingSystem | Select-Object -First 1
+}
 
-if ($null -eq $battery -and $null -ne $wmiBattery) {
-    $script:BatteryCollectionState = "available"
-    $script:BatteryCollectionReason = "CIM/WMI battery fallback"
-    $battery = [pscustomobject]@{
-        Manufacturer = $null
-        Chemistry = $null
-        DesignCapacityMWh = $null
-        FullChargeCapacityMWh = $null
-        HealthPercent = $null
-        CycleCount = $null
-        CurrentChargePercent = $wmiBattery.EstimatedChargeRemaining
-        PowerState = if ($wmiBattery.BatteryStatus -eq 2) { "Connected to AC power" } else { $null }
-        Source = "CIM/WMI battery fallback"
+$wmiBattery = $null
+$battery = $null
+$batteryCimStatus = $null
+if ($includeBattery) {
+    $wmiBattery = Get-CimData -ClassName Win32_Battery | Select-Object -First 1
+    $battery = Get-BatteryStatusFallback
+
+    if ($null -eq $battery -and $null -ne $wmiBattery) {
+        $script:BatteryCollectionState = "available"
+        $script:BatteryCollectionReason = "CIM/WMI battery fallback"
+        $battery = [pscustomobject]@{
+            Manufacturer = $null
+            Chemistry = $null
+            DesignCapacityMWh = $null
+            FullChargeCapacityMWh = $null
+            HealthPercent = $null
+            CycleCount = $null
+            CurrentChargePercent = $wmiBattery.EstimatedChargeRemaining
+            PowerState = if ($wmiBattery.BatteryStatus -eq 2) { "Connected to AC power" } else { $null }
+            Source = "CIM/WMI battery fallback"
+        }
+    }
+
+    $batteryCimAccessDenied = @(
+        $script:CollectionWarnings |
+            Where-Object {
+                $_ -match '(?i)^Win32_Battery unavailable through CIM:' -and
+                (Test-CollectionWarningIsAccessDenied -Warning $_)
+            }
+    ).Count -gt 0
+    $batteryCimStatus = if ($null -ne $wmiBattery) {
+        "available"
+    }
+    elseif ($batteryCimAccessDenied) {
+        "unavailable-permission"
+    }
+    else {
+        "unavailable"
     }
 }
 
-$batteryCimAccessDenied = @(
-    $script:CollectionWarnings |
-        Where-Object {
-            $_ -match '(?i)^Win32_Battery unavailable through CIM:' -and
-            (Test-CollectionWarningIsAccessDenied -Warning $_)
-        }
-).Count -gt 0
-$batteryCimStatus = if ($null -ne $wmiBattery) {
-    "available"
+$memoryStatusFallback = if ($includeSystem) { Get-MemoryStatusFallback } else { $null }
+
+$registryBios = $null
+if ($includeSystem) {
+    $registryBios = Get-RegistryData -Path "HKLM:\HARDWARE\DESCRIPTION\System\BIOS" -Names @(
+        "SystemManufacturer",
+        "SystemProductName",
+        "BaseBoardManufacturer",
+        "BaseBoardProduct",
+        "BIOSVendor",
+        "BIOSVersion",
+        "BIOSReleaseDate"
+    )
 }
-elseif ($batteryCimAccessDenied) {
-    "unavailable-permission"
+$registryCpu = $null
+$processorTopology = $null
+if ($includeCpu) {
+    $registryCpu = Get-RegistryData -Path "HKLM:\HARDWARE\DESCRIPTION\System\CentralProcessor\0" -Names @(
+        "ProcessorNameString",
+        "~MHz",
+        "Identifier"
+    )
+    $processorTopology = Get-ProcessorTopologyFallback
 }
-else {
-    "unavailable"
+$registryOs = $null
+if ($includeSystem) {
+    $registryOs = Get-RegistryData -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" -Names @(
+        "ProductName",
+        "EditionID",
+        "DisplayVersion",
+        "CurrentBuild",
+        "CurrentBuildNumber",
+        "UBR",
+        "CurrentMajorVersionNumber",
+        "CurrentMinorVersionNumber"
+    )
 }
 
-$memoryStatusFallback = Get-MemoryStatusFallback
-
-$registryBios = Get-RegistryData -Path "HKLM:\HARDWARE\DESCRIPTION\System\BIOS" -Names @(
-    "SystemManufacturer",
-    "SystemProductName",
-    "BaseBoardManufacturer",
-    "BaseBoardProduct",
-    "BIOSVendor",
-    "BIOSVersion",
-    "BIOSReleaseDate"
-)
-$registryCpu = Get-RegistryData -Path "HKLM:\HARDWARE\DESCRIPTION\System\CentralProcessor\0" -Names @(
-    "ProcessorNameString",
-    "~MHz",
-    "Identifier"
-)
-$registryOs = Get-RegistryData -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" -Names @(
-    "ProductName",
-    "EditionID",
-    "DisplayVersion",
-    "CurrentBuild",
-    "CurrentBuildNumber",
-    "UBR",
-    "CurrentMajorVersionNumber",
-    "CurrentMinorVersionNumber"
-)
-
-$processorTopology = Get-ProcessorTopologyFallback
-
+$cpu = @()
+if ($includeCpu) {
 $cpu = @(
     Get-CimData -ClassName Win32_Processor | ForEach-Object {
         [pscustomobject]@{
@@ -798,7 +859,10 @@ if ($cpu.Count -eq 0 -and $null -ne $registryCpu) {
         }
     )
 }
+}
 
+$gpu = @()
+if ($includeGpu) {
 $gpu = @(
     Get-CimData -ClassName Win32_VideoController | ForEach-Object {
         [pscustomobject]@{
@@ -1111,7 +1175,14 @@ if (($gpu.Count -eq 0 -or $hasNvidiaGpu) -and (Get-Command nvidia-smi -ErrorActi
             -Text "nvidia-smi GPU identity lookup failed: $($_.Exception.Message)"
     }
 }
+}
 
+$memory = @()
+$memorySource = $null
+$memorySlotSummary = $null
+$memorySlotsStatus = $null
+$memorySlotsSource = $null
+if ($includeMemory) {
 $memory = @(
     Get-CimData -ClassName Win32_PhysicalMemory | ForEach-Object {
         [pscustomobject]@{
@@ -1188,7 +1259,13 @@ elseif ($memorySlotsStatus -in @("available", "partial")) {
 else {
     $null
 }
+}
 
+$physicalDisks = @()
+$volumes = @()
+$unmappedVolumes = New-Object System.Collections.Generic.List[string]
+$physicalDiskSource = $null
+if ($includeStorage) {
 $physicalDisks = @(
     Get-CimData -ClassName Win32_DiskDrive | ForEach-Object {
         [pscustomobject]@{
@@ -1382,7 +1459,13 @@ if ($unmappedVolumes.Count -gt 0) {
         -Code "volume-mapping-partial" `
         -Text "Volume-to-disk mapping unavailable for: $($unmappedVolumes -join ', ')"
 }
+}
 
+$monitorIdentities = @()
+$activeDisplays = @()
+$monitors = @()
+$monitorSource = $null
+if ($includeDisplay) {
 $monitorIdentities = @(
     Get-CimData -Namespace "root/wmi" -ClassName WmiMonitorID | ForEach-Object {
         [pscustomobject]@{
@@ -1410,7 +1493,15 @@ elseif ($activeDisplays.Count -gt 0) {
 else {
     $null
 }
+}
 
+$osBuildNumber = $null
+$osCaption = $null
+$osDisplayVersion = $null
+$osKernelVersion = $null
+$firmwareMode = $null
+$secureBootStatus = $null
+if ($includeSystem) {
 $osBuildNumber = if ($operatingSystem.BuildNumber) {
     [string]$operatingSystem.BuildNumber
 }
@@ -1492,6 +1583,7 @@ elseif ($firmwareTypeCode -eq 2) {
 else {
     "Unknown"
 }
+}
 
 if ($RedactIdentifiers) {
     $redactedInventory = Get-RedactedInventoryData `
@@ -1509,21 +1601,29 @@ if ($RedactIdentifiers) {
     $battery = $redactedInventory.Battery
 }
 
-$identityManufacturer = if ($RedactIdentifiers) { "[redacted]" } elseif ($computer.Manufacturer) { $computer.Manufacturer } else { $registryBios.SystemManufacturer }
-$identityModel = if ($RedactIdentifiers) { "[redacted]" } elseif ($computer.Model) { $computer.Model } else { $registryBios.SystemProductName }
-$identityFamily = if ($RedactIdentifiers) { "[redacted]" } else { $computer.SystemFamily }
-$identityBoardManufacturer = if ($RedactIdentifiers) { "[redacted]" } elseif ($board.Manufacturer) { $board.Manufacturer } else { $registryBios.BaseBoardManufacturer }
-$identityBoardProduct = if ($RedactIdentifiers) { "[redacted]" } elseif ($board.Product) { $board.Product } else { $registryBios.BaseBoardProduct }
-$identityAssessment = Get-DeviceIdentityAssessment `
-    -Manufacturer $identityManufacturer `
-    -Model $identityModel `
-    -SystemFamily $identityFamily `
-    -MotherboardManufacturer $identityBoardManufacturer `
-    -MotherboardProduct $identityBoardProduct
-if ($identityAssessment.Status -in @("unreadable", "suspicious", "partial", "unknown")) {
-    Add-CollectionWarning `
-        -Code "identity-quality-unconfirmed" `
-        -Text "Device identity quality is $($identityAssessment.Status); do not treat unreadable or unconfirmed model text as a confirmed device identity."
+$identityManufacturer = $null
+$identityModel = $null
+$identityFamily = $null
+$identityBoardManufacturer = $null
+$identityBoardProduct = $null
+$identityAssessment = $null
+if ($includeSystem) {
+    $identityManufacturer = if ($RedactIdentifiers) { "[redacted]" } elseif ($computer.Manufacturer) { $computer.Manufacturer } else { $registryBios.SystemManufacturer }
+    $identityModel = if ($RedactIdentifiers) { "[redacted]" } elseif ($computer.Model) { $computer.Model } else { $registryBios.SystemProductName }
+    $identityFamily = if ($RedactIdentifiers) { "[redacted]" } else { $computer.SystemFamily }
+    $identityBoardManufacturer = if ($RedactIdentifiers) { "[redacted]" } elseif ($board.Manufacturer) { $board.Manufacturer } else { $registryBios.BaseBoardManufacturer }
+    $identityBoardProduct = if ($RedactIdentifiers) { "[redacted]" } elseif ($board.Product) { $board.Product } else { $registryBios.BaseBoardProduct }
+    $identityAssessment = Get-DeviceIdentityAssessment `
+        -Manufacturer $identityManufacturer `
+        -Model $identityModel `
+        -SystemFamily $identityFamily `
+        -MotherboardManufacturer $identityBoardManufacturer `
+        -MotherboardProduct $identityBoardProduct
+    if ($identityAssessment.Status -in @("unreadable", "suspicious", "partial", "unknown")) {
+        Add-CollectionWarning `
+            -Code "identity-quality-unconfirmed" `
+            -Text "Device identity quality is $($identityAssessment.Status); do not treat unreadable or unconfirmed model text as a confirmed device identity."
+    }
 }
 
 $accessDeniedWarningCount = @(
@@ -1565,10 +1665,37 @@ for ($warningIndex = 0; $warningIndex -lt $script:CollectionWarnings.Count; $war
     }
 }
 
-$memoryModulesStatus = if ($memory.Count -gt 0) { "available" } else { "unavailable in current environment" }
-$physicalDisksStatus = if ($physicalDisks.Count -gt 0) { "available" } else { "unavailable in current environment" }
-$volumesStatus = if ($volumes.Count -gt 0) { "available" } else { "unavailable in current environment" }
-$volumeDiskMappingStatus = if ($volumes.Count -eq 0) {
+$memoryModulesStatus = if (-not $includeMemory) {
+    $null
+}
+elseif ($memory.Count -gt 0) {
+    "available"
+}
+else {
+    "unavailable in current environment"
+}
+$physicalDisksStatus = if (-not $includeStorage) {
+    $null
+}
+elseif ($physicalDisks.Count -gt 0) {
+    "available"
+}
+else {
+    "unavailable in current environment"
+}
+$volumesStatus = if (-not $includeStorage) {
+    $null
+}
+elseif ($volumes.Count -gt 0) {
+    "available"
+}
+else {
+    "unavailable in current environment"
+}
+$volumeDiskMappingStatus = if (-not $includeStorage) {
+    $null
+}
+elseif ($volumes.Count -eq 0) {
     "unavailable in current environment"
 }
 elseif ($unmappedVolumes.Count -eq 0) {
@@ -1577,10 +1704,23 @@ elseif ($unmappedVolumes.Count -eq 0) {
 else {
     "partial"
 }
-$batteryStatus = Get-BatteryCollectionStatus `
-    -Battery $battery `
-    -BatteryState $script:BatteryCollectionState
-$monitorsStatus = if ($monitors.Count -gt 0) { "available" } else { "unavailable in current environment" }
+$batteryStatus = if ($includeBattery) {
+    Get-BatteryCollectionStatus `
+        -Battery $battery `
+        -BatteryState $script:BatteryCollectionState
+}
+else {
+    $null
+}
+$monitorsStatus = if (-not $includeDisplay) {
+    $null
+}
+elseif ($monitors.Count -gt 0) {
+    "available"
+}
+else {
+    "unavailable in current environment"
+}
 $memoryModulesSource = if ($memoryModulesStatus -in @("available", "partial") -and [string]::IsNullOrWhiteSpace($memorySource)) {
     "unspecified available source"
 }
@@ -1627,6 +1767,10 @@ $snapshot = [ordered]@{
     else {
         "Read-only local Windows inventory; serial numbers are intentionally omitted"
     }
+    CollectionScope = [pscustomobject]@{
+        FullInventory = [string]::IsNullOrWhiteSpace($Sections)
+        SelectedSections = @($selectedSections)
+    }
     CollectionContext = [pscustomobject]@{
         IsElevated = $isElevated
         RequireElevated = [bool]$RequireElevated
@@ -1646,7 +1790,8 @@ $snapshot = [ordered]@{
         }
     }
     IdentityQuality = $identityAssessment
-    Computer = [pscustomobject]@{
+    Computer = if ($includeSystem) {
+        [pscustomobject]@{
         Manufacturer = $identityManufacturer
         ManufacturerDisplay = ConvertTo-DeviceIdentityDisplay -Value $identityManufacturer
         Model = $identityModel
@@ -1661,37 +1806,56 @@ $snapshot = [ordered]@{
         ProductVendor = if ($RedactIdentifiers) { "[redacted]" } else { $product.Vendor }
         ProductName = if ($RedactIdentifiers) { "[redacted]" } else { $product.Name }
         ProductVersion = if ($RedactIdentifiers) { "[redacted]" } else { $product.Version }
+        }
     }
-    OperatingSystem = [pscustomobject]@{
+    else {
+        $null
+    }
+    OperatingSystem = if ($includeSystem) {
+        [pscustomobject]@{
         Caption = $osCaption
         DisplayVersion = $osDisplayVersion
         Version = $osKernelVersion
         BuildNumber = $osBuildNumber
         UpdateBuildRevision = $registryOs.UBR
         Architecture = if ($operatingSystem.OSArchitecture) { $operatingSystem.OSArchitecture } else { $env:PROCESSOR_ARCHITECTURE }
+        }
     }
-    Firmware = [pscustomobject]@{
+    else {
+        $null
+    }
+    Firmware = if ($includeSystem) {
+        [pscustomobject]@{
         Manufacturer = if ($RedactIdentifiers) { "[redacted]" } elseif ($bios.Manufacturer) { $bios.Manufacturer } else { $registryBios.BIOSVendor }
         Version = if ($RedactIdentifiers) { "[redacted]" } elseif ($bios.SMBIOSBIOSVersion) { $bios.SMBIOSBIOSVersion } else { $registryBios.BIOSVersion }
         ReleaseDate = if ($RedactIdentifiers) { "[redacted]" } elseif ($bios.ReleaseDate) { $bios.ReleaseDate } else { $registryBios.BIOSReleaseDate }
         Mode = $firmwareMode
         SecureBoot = $secureBootStatus
+        }
     }
-    Motherboard = [pscustomobject]@{
+    else {
+        $null
+    }
+    Motherboard = if ($includeSystem) {
+        [pscustomobject]@{
         Manufacturer = $identityBoardManufacturer
         ManufacturerDisplay = ConvertTo-DeviceIdentityDisplay -Value $identityBoardManufacturer
         Product = $identityBoardProduct
         ProductDisplay = ConvertTo-DeviceIdentityDisplay -Value $identityBoardProduct
         Version = if ($RedactIdentifiers) { "[redacted]" } else { $board.Version }
+        }
     }
-    Battery = $battery
-    CPU = $cpu
-    GPU = $gpu
-    MemoryModules = $memory
-    MemorySlotSummary = $memorySlotSummary
-    PhysicalDisks = $physicalDisks
-    Volumes = $volumes
-    Monitors = $monitors
+    else {
+        $null
+    }
+    Battery = if ($includeBattery) { $battery } else { $null }
+    CPU = if ($includeCpu) { $cpu } else { $null }
+    GPU = if ($includeGpu) { $gpu } else { $null }
+    MemoryModules = if ($includeMemory) { $memory } else { $null }
+    MemorySlotSummary = if ($includeMemory) { $memorySlotSummary } else { $null }
+    PhysicalDisks = if ($includeStorage) { $physicalDisks } else { $null }
+    Volumes = if ($includeStorage) { $volumes } else { $null }
+    Monitors = if ($includeDisplay) { $monitors } else { $null }
     CollectionStatus = [pscustomobject]@{
         MemoryModules = $memoryModulesStatus
         MemoryModulesSource = $memoryModulesSource
@@ -1715,8 +1879,8 @@ $snapshot = [ordered]@{
         VolumeDiskMappingSource = if ($volumeDiskMappingStatus -in @("available", "partial")) { "IOCTL_STORAGE_GET_DEVICE_NUMBER" } else { $null }
         Battery = $batteryStatus
         BatterySource = $batterySource
-        BatteryStatusReason = $script:BatteryCollectionReason
-        BatteryCimStatus = $batteryCimStatus
+        BatteryStatusReason = if ($includeBattery) { $script:BatteryCollectionReason } else { $null }
+        BatteryCimStatus = if ($includeBattery) { $batteryCimStatus } else { $null }
         Monitors = $monitorsStatus
         MonitorsSource = $monitorsSource
         MonitorsScope = if (
@@ -1753,6 +1917,8 @@ else {
     $lines.Add("")
     $lines.Add("Read-only local inventory. Serial numbers are intentionally omitted.")
     $lines.Add(
+        "- Collection scope: $(if ($snapshot.CollectionScope.FullInventory) { 'full inventory' } else { $snapshot.CollectionScope.SelectedSections -join ', ' })")
+    $lines.Add(
         "- Collection context: $($snapshot.CollectionContext.ProcessClass) ($($snapshot.CollectionContext.Privilege))")
     if ($snapshot.PrivacyMode -eq "Redacted identifiers") {
         $lines.Add("")
@@ -1760,6 +1926,7 @@ else {
             "Privacy mode: identifying device and component codes are redacted; CPU/GPU model names and capability data remain.")
     }
     $lines.Add("")
+    if ($includeSystem) {
     $lines.Add("## System")
     $lines.Add("")
     $lines.Add("- Identity quality: $($snapshot.IdentityQuality.Status)")
@@ -1810,6 +1977,8 @@ else {
     $motherboardProduct = ConvertTo-DeviceIdentityMarkdown -Value $snapshot.Motherboard.ProductDisplay
     $lines.Add("- Motherboard: $motherboardManufacturer $motherboardProduct")
     $lines.Add("")
+    }
+    if ($includeCpu) {
     $lines.Add("## CPU")
     $lines.Add("")
     if ($snapshot.CPU.Count -eq 0) { $lines.Add("- CPU inventory unavailable in this environment.") }
@@ -1820,6 +1989,8 @@ else {
         $lines.Add("- $(ConvertTo-SafeMarkdownText -Value ($details -join ', '))")
     }
     $lines.Add("")
+    }
+    if ($includeGpu) {
     $lines.Add("## Reported GPUs")
     $lines.Add("")
     if ($snapshot.GPU.Count -eq 0) { $lines.Add("- GPU inventory unavailable in this environment.") }
@@ -1917,6 +2088,8 @@ else {
                 "  - nvidia-smi power limits unavailable: $(ConvertTo-SafeMarkdownText -Value $item.NvidiaPowerLimitQueryReason)")
         }
     }
+    }
+    if ($includeBattery) {
     if ($null -ne $snapshot.Battery) {
         $lines.Add("")
         $lines.Add("## Battery")
@@ -1967,6 +2140,8 @@ else {
         }
         $lines.Add("- $batteryUnavailableText$batteryReasonText$cimBatteryText")
     }
+    }
+    if ($includeMemory) {
     $lines.Add("")
     $lines.Add("## Memory modules")
     $lines.Add("")
@@ -2009,6 +2184,8 @@ else {
         if ($item.Slot) { $details += $item.Slot }
         $lines.Add("- $(ConvertTo-SafeMarkdownText -Value ($details -join ', '))")
     }
+    }
+    if ($includeStorage) {
     $lines.Add("")
     $lines.Add("## Reported physical disks")
     $lines.Add("")
@@ -2057,6 +2234,8 @@ else {
         }
         $lines.Add("- $(ConvertTo-SafeMarkdownText -Value ($details -join ', '))")
     }
+    }
+    if ($includeDisplay) {
     $lines.Add("")
     $lines.Add("## Monitors")
     $lines.Add("")
@@ -2118,6 +2297,7 @@ else {
             }
             $lines.Add("  - Advanced color pipeline: $(ConvertTo-SafeMarkdownText -Value $advancedText)")
         }
+    }
     }
     $lines.Add("")
     $lines.Add("## Not reliably detectable")

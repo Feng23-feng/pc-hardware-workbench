@@ -27,6 +27,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "<skill>\scripts\pcwb.ps1" `
   inventory -PrivacyMode Redacted
 
 powershell -NoProfile -ExecutionPolicy Bypass -File "<skill>\scripts\pcwb.ps1" `
+  inventory -PrivacyMode Redacted -Sections CPU,Memory
+
+powershell -NoProfile -ExecutionPolicy Bypass -File "<skill>\scripts\pcwb.ps1" `
   analyze telemetry -Path "<telemetry.csv>" `
   -WarmupSeconds 60 -DurationSeconds 300
 
@@ -39,6 +42,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "<skill>\scripts\pcwb.ps1" `
 ```
 
 Use `-HideFileName` when a summary must not expose the source filename.
+For `inventory`, `-Sections` accepts a comma-separated subset of `System`,
+`CPU`, `GPU`, `Memory`, `Storage`, `Display`, and `Battery`. Omit it for the
+full-inventory default. The compact evidence records `CollectionScope` and only
+includes fields from the selected sections.
 
 ## Output contract
 

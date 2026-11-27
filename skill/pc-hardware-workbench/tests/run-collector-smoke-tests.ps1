@@ -204,6 +204,59 @@ function Test-CollectorOutputPathGuards {
     }
 }
 
+function Test-CollectorSectionScope {
+    $selectedJsonText = Invoke-Collector -CollectorArguments @(
+        "-Format", "Json",
+        "-Sections", "CPU,Memory",
+        "-RedactIdentifiers"
+    )
+    $selected = $selectedJsonText | ConvertFrom-Json
+    Assert-True ($selected.CollectionScope.FullInventory -eq $false) "A filtered collector run was marked as full inventory."
+    Assert-True (@($selected.CollectionScope.SelectedSections) -join "," -eq "CPU,Memory") "The collector reported the wrong selected sections."
+    Assert-True ($null -ne $selected.PSObject.Properties["CPU"]) "The filtered collector omitted CPU output."
+    Assert-True ($null -ne $selected.PSObject.Properties["MemoryModules"]) "The filtered collector omitted memory output."
+    foreach ($excluded in @("Computer", "OperatingSystem", "Firmware", "Motherboard", "Battery", "GPU", "PhysicalDisks", "Volumes", "Monitors")) {
+        Assert-True ($null -eq $selected.$excluded) "The filtered collector returned excluded section data: $excluded."
+    }
+
+    $selectedMarkdown = Invoke-Collector -CollectorArguments @(
+        "-Format", "Markdown",
+        "-Sections", "CPU",
+        "-RedactIdentifiers"
+    )
+    Assert-True ($selectedMarkdown -match "(?m)^## CPU\r?$") "Filtered Markdown omitted the selected CPU section."
+    foreach ($heading in @("## System", "## Reported GPUs", "## Memory modules", "## Reported physical disks", "## Monitors", "## Battery")) {
+        Assert-True (-not $selectedMarkdown.Contains($heading)) "Filtered Markdown rendered excluded heading: $heading."
+    }
+
+    $probeRoot = Join-Path ([IO.Path]::GetTempPath()) ("pcwb-section-probe-" + [guid]::NewGuid().ToString("N"))
+    $markerPath = Join-Path $probeRoot "nvidia-probe-called.txt"
+    $fakeNvidia = Join-Path $probeRoot "nvidia-smi.cmd"
+    New-Item -ItemType Directory -Path $probeRoot -Force | Out-Null
+    [IO.File]::WriteAllText(
+        $fakeNvidia,
+        "@echo called>>`"%PCWB_SECTION_PROBE_MARKER%`"`r`nexit /b 1`r`n",
+        (New-Object System.Text.UTF8Encoding($false))
+    )
+    $oldPath = $env:PATH
+    $oldMarker = $env:PCWB_SECTION_PROBE_MARKER
+    try {
+        $env:PATH = "$probeRoot;$oldPath"
+        $env:PCWB_SECTION_PROBE_MARKER = $markerPath
+        Invoke-Collector -CollectorArguments @("-Format", "Json", "-Sections", "CPU") | Out-Null
+        Assert-True (-not (Test-Path -LiteralPath $markerPath -PathType Leaf)) "CPU-only collection executed the GPU probe."
+        Invoke-Collector -CollectorArguments @("-Format", "Json", "-Sections", "GPU") | Out-Null
+        Assert-True (Test-Path -LiteralPath $markerPath -PathType Leaf) "GPU probe sentinel was not reachable when GPU collection was selected."
+    }
+    finally {
+        $env:PATH = $oldPath
+        $env:PCWB_SECTION_PROBE_MARKER = $oldMarker
+        if (Test-Path -LiteralPath $probeRoot) {
+            Remove-Item -LiteralPath $probeRoot -Recurse -Force
+        }
+    }
+}
+
 foreach ($relative in @(
     "scripts/collect-windows.ps1",
     "scripts/device-identity.ps1",
@@ -267,6 +320,16 @@ if (-not $AllowLiveCollector) {
 }
 
 try {
+    Test-CollectorSectionScope
+    if ($failures.Count -gt 0) {
+        Write-Host "Collector section-scope behavior: FAIL" -ForegroundColor Red
+        foreach ($failure in $failures) {
+            Write-Host "- $failure" -ForegroundColor Red
+        }
+        exit 1
+    }
+    Write-Host "Collector section-scope behavior: PASS" -ForegroundColor Green
+
     $allowedIdentityStatuses = @("readable", "suspicious", "partial", "unreadable", "unknown", "redacted")
     $runStandard = $PrivacyMode -in @("Standard", "Both")
     $runRedacted = $PrivacyMode -in @("Redacted", "Both")

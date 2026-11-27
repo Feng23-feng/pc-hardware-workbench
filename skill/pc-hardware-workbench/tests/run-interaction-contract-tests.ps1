@@ -264,7 +264,7 @@ Assert-Contains $phase1ClaimVerification '(?is)only\s+when the historical value 
 Assert-Contains $phase1HardwareCase 'multiple turns alone' "Hardware case can be triggered by turn count alone."
 Assert-Contains $phase1DynamicRag 'immediate citation' "Dynamic RAG has no lightweight current-fact path."
 Assert-Contains $phase1SkillDock 'multiple turns alone do not justify' "SkillDock can be suggested merely because a task spans turns."
-Assert-Contains $phase1CollectorWorkflow '(?is)Collect only the fields needed.*does\s+not yet expose section filtering' "Collector guidance claims a full run is minimal or ignores Agent-context privacy."
+Assert-Contains $phase1CollectorWorkflow '(?is)Collect only the fields needed.*-Sections.*omitted sections do not run.*sensitive' "Collector guidance does not enforce scoped probes and Agent-context privacy."
 Assert-NotContains $phase1WorkbenchSurface 'Support `auto`, `chat-first`, and `panel-first`' "An unimplemented surface preference remains in executable guidance."
 
 Assert-Contains $skill '(?m)^  version: "2\.9\.3"\r?$' "metadata.version should be 2.9.3."

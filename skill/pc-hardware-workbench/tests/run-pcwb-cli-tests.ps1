@@ -259,6 +259,31 @@ try {
     ) "Inventory privacy mode was not preserved."
     Assert-ArtifactHashes -Envelope $inventory -Label "inventory"
 
+    $filteredInventoryCapture = Invoke-CapturedCli `
+        -Arguments @(
+            "inventory",
+            "-PrivacyMode", "Redacted",
+            "-Sections", "CPU",
+            "-OutputDirectory", $testRoot
+        ) `
+        -WorkingDirectory $testRoot
+    $filteredInventory = ConvertFrom-Envelope -Capture $filteredInventoryCapture -Label "filtered-inventory"
+    Assert-True ($filteredInventoryCapture.ExitCode -eq 0) "Filtered inventory wrapper should succeed."
+    $filteredEvidence = $filteredInventory.Evidence[0]
+    Assert-True ($filteredEvidence.CollectionScope.FullInventory -eq $false) "Filtered inventory was reported as a full run."
+    Assert-True (@($filteredEvidence.CollectionScope.SelectedSections) -contains "CPU") "Filtered inventory omitted its selected CPU scope."
+    Assert-True ($null -ne $filteredEvidence.PSObject.Properties["CPU"]) "Filtered inventory omitted CPU evidence."
+    foreach ($excludedProperty in @("Computer", "OperatingSystem", "GPU", "MemoryModules", "PhysicalDisks", "Monitors", "Battery")) {
+        Assert-True ($null -eq $filteredEvidence.PSObject.Properties[$excludedProperty]) "Filtered inventory leaked excluded evidence: $excludedProperty."
+    }
+    foreach ($excludedStatus in @("MemoryModules", "PhysicalDisks", "Battery", "Monitors")) {
+        Assert-True ($null -eq $filteredEvidence.CollectionStatus.PSObject.Properties[$excludedStatus]) "Filtered inventory leaked excluded collection status: $excludedStatus."
+    }
+    Assert-True (
+        @($filteredInventory.NextActions | Where-Object { $_.Code -eq "confirm-device-identity" }).Count -eq 0
+    ) "CPU-only inventory incorrectly requested system identity confirmation."
+    Assert-ArtifactHashes -Envelope $filteredInventory -Label "filtered-inventory"
+
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = New-Object Security.Principal.WindowsPrincipal($identity)
     $isElevated = $principal.IsInRole(

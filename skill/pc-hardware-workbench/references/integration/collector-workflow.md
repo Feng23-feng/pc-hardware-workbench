@@ -4,11 +4,13 @@ Use the embedded Windows collector only when the user wants a current hardware i
 
 Collect only the fields needed for the current goal. Reuse an existing snapshot
 for a narrow question; run the broad collector only when the task needs broad
-inventory, compatibility, or a durable full snapshot. The current collector does
-not yet expose section filtering, so do not describe a full run as minimal
-collection. Any collected fields that enter the Agent context, panel state, or
-logs remain sensitive and require minimization and privacy review even though
-the read happens locally.
+inventory, compatibility, or a durable full snapshot. Use `-Sections` when the
+goal is limited to one or more of `System`, `CPU`, `GPU`, `Memory`, `Storage`,
+`Display`, or `Battery`; omitted sections do not run their hardware probes. With
+no `-Sections` value the collector retains the full-inventory default. Any
+collected fields that enter the Agent context, panel state, or logs remain
+sensitive and require minimization and privacy review even though the read
+happens locally.
 
 For Agent automation, prefer `scripts/pcwb.ps1 inventory`; it wraps this
 collector and returns the fixed result contract in
@@ -56,6 +58,15 @@ Standard:
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File "<suite-folder>\scripts\collect-windows.ps1" -Format Markdown
 ```
+
+Narrow read-only collection:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File "<suite-folder>\scripts\collect-windows.ps1" -Format Markdown -Sections System,CPU
+```
+
+The JSON and Markdown outputs include `CollectionScope`, which distinguishes a
+full run from the selected sections.
 
 When `-OutputPath` is supplied, it must be a new local file in an existing local
 directory. UNC paths, mapped network drives, and existing files are rejected;

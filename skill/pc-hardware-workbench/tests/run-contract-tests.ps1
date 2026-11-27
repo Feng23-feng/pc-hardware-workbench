@@ -155,7 +155,7 @@ try {
         if ($null -ne $snapshot) {
             $expectedTopLevel = @(
                 "SchemaVersion", "CollectorVersion", "GeneratedAt", "PrivacyMode",
-                "CollectionMode", "CollectionContext", "IdentityQuality", "Computer",
+                "CollectionMode", "CollectionScope", "CollectionContext", "IdentityQuality", "Computer",
                 "OperatingSystem", "Firmware", "Motherboard", "Battery", "CPU", "GPU",
                 "MemoryModules", "MemorySlotSummary", "PhysicalDisks", "Volumes", "Monitors",
                 "CollectionStatus", "CollectionWarnings", "CollectionWarningCodes",
@@ -164,6 +164,8 @@ try {
             $actualTopLevel = @($snapshot.PSObject.Properties.Name)
             Assert-True (($actualTopLevel -join "|") -eq ($expectedTopLevel -join "|")) "Top-level JSON keys or their order changed."
             Assert-True ($snapshot.SchemaVersion -eq 4) "SchemaVersion must be 4 for this top-level contract."
+            Assert-True ($snapshot.CollectionScope.FullInventory -eq $true) "A no-filter collection must report full inventory scope."
+            Assert-True (@($snapshot.CollectionScope.SelectedSections).Count -eq 7) "A full collection must report all seven sections."
 
             $expectedStatusKeys = @(
                 "MemoryModules", "MemoryModulesSource",

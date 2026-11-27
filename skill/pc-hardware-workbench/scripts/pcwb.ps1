@@ -58,6 +58,8 @@ param(
     [ValidateSet("Redacted", "Standard")]
     [string]$PrivacyMode = "Redacted",
 
+    [string]$Sections = "",
+
     [switch]$RequireElevated,
 
     [string]$SkillRoot,
@@ -349,13 +351,16 @@ function Invoke-PcwbInventory {
     Assert-PcwbNoTarget -CommandName "inventory"
     Assert-PcwbAllowedParameters `
         -Bound $script:InvocationParameters `
-        -Allowed @("PrivacyMode", "RequireElevated") `
+        -Allowed @("PrivacyMode", "Sections", "RequireElevated") `
         -CommandName "inventory"
 
     $collector = Join-Path $PSScriptRoot "collect-windows.ps1"
     $arguments = @("-Format", "Json")
     if ($PrivacyMode -eq "Redacted") {
         $arguments += "-RedactIdentifiers"
+    }
+    if (-not [string]::IsNullOrWhiteSpace($Sections)) {
+        $arguments += @("-Sections", $Sections)
     }
     if ($RequireElevated) {
         $arguments += "-RequireElevated"
@@ -371,7 +376,43 @@ function Invoke-PcwbInventory {
         -Role "inventory-snapshot"
     $snapshot = Read-PcwbJsonText -Text $process.Stdout -Label "Inventory collection"
 
-    $collectionStatus = Get-PcwbValue -Object $snapshot -Name "CollectionStatus"
+    $configuredSections = if ([string]::IsNullOrWhiteSpace($Sections)) {
+        @("System", "CPU", "GPU", "Memory", "Storage", "Display", "Battery")
+    }
+    else {
+        @(
+            $Sections -split "," |
+                ForEach-Object { $_.Trim() } |
+                Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
+                Select-Object -Unique
+        )
+    }
+    $snapshotCollectionStatus = Get-PcwbValue -Object $snapshot -Name "CollectionStatus"
+    $statusPropertiesBySection = @{
+        Memory = @(
+            "MemoryModules", "MemoryModulesSource", "MemorySlots",
+            "MemorySlotsSource", "MemorySlotsScope"
+        )
+        Storage = @(
+            "PhysicalDisks", "PhysicalDisksSource", "PhysicalDisksScope",
+            "Volumes", "VolumesScope", "VolumeDiskMapping",
+            "VolumeDiskMappingSource"
+        )
+        Battery = @("Battery", "BatterySource", "BatteryStatusReason", "BatteryCimStatus")
+        Display = @("Monitors", "MonitorsSource", "MonitorsScope")
+    }
+    $selectedCollectionStatus = [ordered]@{}
+    foreach ($section in $configuredSections) {
+        foreach ($propertyName in @($statusPropertiesBySection[$section])) {
+            if ($null -eq $propertyName) {
+                continue
+            }
+            $selectedCollectionStatus[$propertyName] = Get-PcwbValue `
+                -Object $snapshotCollectionStatus `
+                -Name $propertyName
+        }
+    }
+    $collectionStatus = [pscustomobject]$selectedCollectionStatus
     $statusNeedsPartial = $false
     if ($null -ne $collectionStatus) {
         foreach ($property in $collectionStatus.PSObject.Properties) {
@@ -398,37 +439,58 @@ function Invoke-PcwbInventory {
     }
 
     $identityQuality = Get-PcwbValue -Object $snapshot -Name "IdentityQuality"
-    if ([string](Get-PcwbValue -Object $identityQuality -Name "Status") -notin @("readable", "confirmed")) {
+    $systemSelected = $configuredSections -contains "System"
+    if (
+        $systemSelected -and
+        [string](Get-PcwbValue -Object $identityQuality -Name "Status") -notin @("readable", "confirmed")
+    ) {
         Add-PcwbNextAction `
             -Envelope $script:Envelope `
             -Code "confirm-device-identity" `
             -Message "Confirm the exact device or component identity before using model-specific guidance."
     }
 
-    $script:Envelope.Evidence.Add([ordered]@{
+    $inventoryEvidence = [ordered]@{
         Kind = "hardware-inventory"
         Artifact = $artifact.Name
         SchemaVersion = Get-PcwbValue -Object $snapshot -Name "SchemaVersion"
         CollectorVersion = Get-PcwbValue -Object $snapshot -Name "CollectorVersion"
         CapturedAt = Get-PcwbValue -Object $snapshot -Name "GeneratedAt"
         PrivacyMode = Get-PcwbValue -Object $snapshot -Name "PrivacyMode"
-        IdentityQuality = $identityQuality
+        CollectionScope = Get-PcwbValue -Object $snapshot -Name "CollectionScope"
         CollectionContext = Get-PcwbValue -Object $snapshot -Name "CollectionContext"
-        Computer = Get-PcwbValue -Object $snapshot -Name "Computer"
-        OperatingSystem = Get-PcwbValue -Object $snapshot -Name "OperatingSystem"
-        Firmware = Get-PcwbValue -Object $snapshot -Name "Firmware"
-        Motherboard = Get-PcwbValue -Object $snapshot -Name "Motherboard"
-        Battery = Get-PcwbValue -Object $snapshot -Name "Battery"
-        CPU = Get-PcwbValue -Object $snapshot -Name "CPU"
-        GPU = @(Get-PcwbValue -Object $snapshot -Name "GPU" -Default @())
-        MemoryModules = @(Get-PcwbValue -Object $snapshot -Name "MemoryModules" -Default @())
-        MemorySlotSummary = Get-PcwbValue -Object $snapshot -Name "MemorySlotSummary"
-        PhysicalDisks = @(Get-PcwbValue -Object $snapshot -Name "PhysicalDisks" -Default @())
-        Volumes = @(Get-PcwbValue -Object $snapshot -Name "Volumes" -Default @())
-        Monitors = @(Get-PcwbValue -Object $snapshot -Name "Monitors" -Default @())
         CollectionStatus = $collectionStatus
         WarningCodes = $warningCodes
-    })
+    }
+    $selectedSections = $configuredSections
+    if ($selectedSections -contains "System") {
+        $inventoryEvidence.IdentityQuality = $identityQuality
+        $inventoryEvidence.Computer = Get-PcwbValue -Object $snapshot -Name "Computer"
+        $inventoryEvidence.OperatingSystem = Get-PcwbValue -Object $snapshot -Name "OperatingSystem"
+        $inventoryEvidence.Firmware = Get-PcwbValue -Object $snapshot -Name "Firmware"
+        $inventoryEvidence.Motherboard = Get-PcwbValue -Object $snapshot -Name "Motherboard"
+    }
+    if ($selectedSections -contains "Battery") {
+        $inventoryEvidence.Battery = Get-PcwbValue -Object $snapshot -Name "Battery"
+    }
+    if ($selectedSections -contains "CPU") {
+        $inventoryEvidence.CPU = Get-PcwbValue -Object $snapshot -Name "CPU"
+    }
+    if ($selectedSections -contains "GPU") {
+        $inventoryEvidence.GPU = @(Get-PcwbValue -Object $snapshot -Name "GPU" -Default @())
+    }
+    if ($selectedSections -contains "Memory") {
+        $inventoryEvidence.MemoryModules = @(Get-PcwbValue -Object $snapshot -Name "MemoryModules" -Default @())
+        $inventoryEvidence.MemorySlotSummary = Get-PcwbValue -Object $snapshot -Name "MemorySlotSummary"
+    }
+    if ($selectedSections -contains "Storage") {
+        $inventoryEvidence.PhysicalDisks = @(Get-PcwbValue -Object $snapshot -Name "PhysicalDisks" -Default @())
+        $inventoryEvidence.Volumes = @(Get-PcwbValue -Object $snapshot -Name "Volumes" -Default @())
+    }
+    if ($selectedSections -contains "Display") {
+        $inventoryEvidence.Monitors = @(Get-PcwbValue -Object $snapshot -Name "Monitors" -Default @())
+    }
+    $script:Envelope.Evidence.Add($inventoryEvidence)
     Add-ChildLimits `
         -Limits (Get-PcwbValue -Object $snapshot -Name "NotReliablyDetectable" -Default @()) `
         -CodePrefix "inventory.not-reliably-detectable"
