@@ -54,20 +54,31 @@ try {
     timeoutMs: 60_000,
   });
 
-  const outsideRoot = join(tempRoot, "outside");
+  const escapeRoot = join(tempRoot, "escape-scope");
+  const escapeAttachmentRoot = join(escapeRoot, "attachments");
+  const escapeArtifactRoot = join(escapeRoot, "artifacts");
+  const outsideRoot = join(escapeRoot, "outside");
+  mkdirSync(escapeAttachmentRoot, { recursive: true });
+  mkdirSync(escapeArtifactRoot, { recursive: true });
   mkdirSync(outsideRoot, { recursive: true });
   const outsideCsvPath = join(outsideRoot, "outside.csv");
   writeFileSync(outsideCsvPath, "Time,FPS\n0,60\n", "utf8");
-  const junctionPath = join(attachmentRoot, "outside-link");
+  const junctionPath = join(escapeAttachmentRoot, "outside-link");
   symlinkSync(
     outsideRoot,
     junctionPath,
     process.platform === "win32" ? "junction" : "dir",
   );
   const outsideBytes = readFileSync(outsideCsvPath);
+  const escapeBroker = new TelemetryBroker({
+    attachmentRoot: escapeAttachmentRoot,
+    artifactRoot: escapeArtifactRoot,
+    scriptsDir: join(skillRoot, "scripts"),
+    timeoutMs: 60_000,
+  });
   assert.throws(
     () =>
-      broker.validateAttachment({
+      escapeBroker.validateAttachment({
         id: "attachment-outside-junction",
         original_name: "outside.csv",
         sha256: createHash("sha256").update(outsideBytes).digest("hex"),
@@ -382,6 +393,9 @@ try {
     "analysis must reject an attachment that changes or disappears after chart-pack rendering",
   );
 
+  // The pipeline scenario starts from a known-good fixture even after the
+  // preceding path-escape and mutation tests.
+  writeFileSync(csvPath, csv, "utf8");
   const originalRunPowerShell = broker.runPowerShell.bind(broker);
   const chartPipelineCalls = [];
   broker.runPowerShell = async (scriptPath, args) => {
