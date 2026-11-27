@@ -3,6 +3,10 @@
 Read this reference only when the current host has installed SkillDock Runtime
 and the Task would materially benefit from a graphical surface. Do not launch it
 for a simple concept answer or a one-turn text response.
+Keep chat as the default. Multiple turns alone do not justify SkillDock; suggest
+it only for charts, evidence tables, permission confirmation, experiment cards,
+Task recovery, or other repeated structured interaction. Suggest at most once
+per Task, and do not repeat the suggestion after the user declines.
 
 ## User-facing intent
 

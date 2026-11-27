@@ -7,6 +7,9 @@ software navigation.
 
 ## Trigger
 
+This section is the canonical trigger for the parameter safety notice. Other
+references summarize or link to it; they must not define a broader trigger.
+
 Only when the same paragraph contains a candidate value for one of those
 controls or an explicit instruction to change one of them, include the safety
 notice in the user's current language:

@@ -16,7 +16,9 @@ purchase; never run every mode.
 For a bare invocation, read [entry-language.md](references/integration/entry-language.md)
 and ask for the objective in the current language. For a concrete request, state
 the route directly and localize the response. Expose decisive evidence, any
-one-variable choice, pass/abort criteria, and recovery; end with one next action,
+one-variable choice, pass/abort criteria, and recovery. A completed answer may
+end without a required action when no decision-changing question remains and any
+evidence gap or uncertainty stays visible. Otherwise end with one next action,
 question, cancel, stop, or handoff. Read
 [interaction-closure.md](references/integration/interaction-closure.md) and
 [cross-mode-handoffs.md](references/integration/cross-mode-handoffs.md) only
@@ -27,20 +29,18 @@ when choosing where to continue.
 Read [skilldock-surface.md](references/integration/skilldock-surface.md) only
 when the host has SkillDock Runtime and a chart, evidence table, artifact, or
 repeated structured interaction would materially improve the Task.
-For an explicit open, continue, or sync-panel intent, follow that reference and
-use only the installed helpers; never synthesize a Runtime launch. Use only the
-current Codex Thread: never create, fork, attach, or resume another Thread, and
-fail closed on a binding mismatch. After synchronization, reply
-“已同步面板结果”, then give the current judgement, unresolved item, and one next
-action; never expose raw JSON, credentials, or the panel component tree.
-Use a private case for multi-turn, multi-evidence,
-baseline/change/test, or chat-loss-prone work. Create/resume it before large
-evidence; checkpoint material changes, not every turn. Store it outside public
-artifacts, report its path, and use `Resume` when reopening. See
+Multiple turns alone do not justify SkillDock. For an explicit panel intent, use
+only its installed helpers and the current Codex Thread; fail closed on a binding
+mismatch. After sync, report “已同步面板结果”, then the judgement and one
+remaining action if needed; never expose raw JSON, credentials, or component
+trees.
+Use a private case only when durable continuity matters: cross-session evidence,
+baseline/change/test, large evidence, or chat-loss risk. Multiple turns alone do
+not justify a case. Checkpoint material changes, not every turn; keep the case
+outside public artifacts and use `Resume` when reopening. See
 [hardware-case.md](references/integration/hardware-case.md).
 
-Track identity provenance with [device-identity.md](references/integration/device-identity.md)
-and never auto-decode a suspect identity.
+Track identity provenance with [device-identity.md](references/integration/device-identity.md).
 
 ## Hard-stop precedence
 
@@ -66,19 +66,19 @@ outcomes, one decision per turn, and safe defaults.
 
 ## Plain-language parameter explanations
 
-For any BIOS/UEFI tuning setting, firmware, clock, voltage, power control, fan
-policy, memory timing, or hardware curve, include this notice in the user's
-language and in the same paragraph:
+Before an actionable BIOS/UEFI setting, firmware update, clock, voltage, power
+control, fan policy, memory timing, or hardware curve, use the canonical trigger
+in [explanation-style.md](references/integration/explanation-style.md). When
+triggered, include this notice in the user's language and paragraph:
 
 - Chinese: `参数仅供参考，请以安全为第一要务。`
 - English: `For reference only - put safety first.`
 - Other language: an equivalent warning.
 
-Never mix the Chinese and English notices in one reply. Before explaining, read
-[explanation-style.md](references/integration/explanation-style.md). Never give a
-bare number, offset, timing, profile, or instruction without the notice and an
-appropriately detailed explanation. Use the exact visible BIOS/UEFI label and
-never invent a path.
+Never mix the Chinese and English notices in one reply.
+Never give a bare number, offset, timing, profile, or instruction without the
+notice and an appropriately detailed explanation. Use the exact visible
+BIOS/UEFI label and never invent a path.
 
 ## Route by task
 
@@ -89,8 +89,8 @@ their stated condition applies.
 
 The embedded collector is Windows-only and requires consent. Follow
 [collector-workflow.md](references/integration/collector-workflow.md). Present
-hardware and limits together; inventory is not diagnosis, stability proof, or
-upgrade justification.
+only evidence relevant to the current goal, together with its limits; inventory
+is not diagnosis, stability proof, or upgrade justification.
 
 ### Triage
 
@@ -114,15 +114,17 @@ choosing evidence-only versus conclusion charts. Keep runtime V/F lanes separate
 Read [tuning-modes.md](references/integration/tuning-modes.md) and
 [fixed-workloads.md](references/integration/fixed-workloads.md) first;
 concept-only questions bypass the entry gate.
-Any reply naming a candidate value or hardware control must include the exact
-parameter safety notice above.
+When the canonical trigger applies, include the exact parameter safety notice
+above.
 
 For a personalized setting, complete the mandatory **tuning entry gate**:
 target and exposed control; stock/known-good in-workload baseline; objective;
 credible recovery; fixed workload with pass/abort evidence. A skip request does
 not waive the gate. A missing item is a coaching branch, not a dead end: read
-[intake.md](references/tuning/intake.md), ask one smallest question, and preserve
-answers. After the target and form factor are known, use
+[intake.md](references/tuning/intake.md), ask for the smallest missing decision,
+and preserve
+answers. If several independent facts serve the same gate decision and the user
+can answer them together, collect them in one compact request. After the target and form factor are known, use
 [component-playbooks.md](references/tuning/component-playbooks.md) for only the
 device-specific controls and evidence procedures that affect the decision.
 
@@ -153,16 +155,19 @@ bypass, or concealment.
 
 ## Time-sensitive knowledge
 
-For current vendor facts, read
-[dynamic-rag.md](references/integration/dynamic-rag.md), use minimal identifying
-data, and record sources through `scripts/rag/rag-evidence.ps1`.
+For current vendor facts, read [dynamic-rag.md](references/integration/dynamic-rag.md),
+minimize identifiers, and cite the current official source, date, and scope. Use
+`scripts/rag/rag-evidence.ps1` only for durable, audited, contested, or
+decision-critical evidence.
 
 ## Shared rules
 
 - Prefer current measurements, then logs/screenshots, dated history, and general
   claims; retain source, date, context, and uncertainty.
-- Historical records are not current. "Do not ask" still requires one question:
-  "Just confirmed and unchanged?" Keep it user-reported, never measured. See
+- Historical records are not current. When the value would change a safety,
+  tuning, purchase, or baseline decision, ask once: "Just confirmed and
+  unchanged?" Otherwise label it user-reported and proceed. Never call it
+  measured-current. See
   [claim-verification.md](references/integration/claim-verification.md).
 - Use current permissions only; never self-elevate, install drivers,
   disable protections, or bypass sandbox/anti-cheat.
@@ -176,34 +181,27 @@ data, and record sources through `scripts/rag/rag-evidence.ps1`.
 ## Structured local evidence
 
 For routine local inventory, telemetry, PresentMon, evidence-package, claim, or
-doctor work, prefer `scripts/pcwb.ps1`. Check `Status`, `ExitCode`, `Warnings`,
-`Errors`, and `Limits` before reading `Evidence`; cite artifact paths and hashes
-when a decision depends on a file. Never show the internal JSON envelope or raw
-child output to the user. Read
-[pcwb-cli.md](references/integration/pcwb-cli.md) for commands, statuses, and
-error handling. This facade is read-only and has no set, elevation, or firmware
-route.
+doctor work, prefer `scripts/pcwb.ps1`; read
+[pcwb-cli.md](references/integration/pcwb-cli.md) for statuses, errors, limits,
+and commands. Cite paths and hashes only when a decision depends on a file. Never
+show internal envelopes or raw child output. The facade is read-only and has no
+set, elevation, or firmware route.
 
 Tuning-only requests do not include purchase advice. For mixed requests,
 stabilize and measure first; evaluate purchase only if the target remains unmet.
 
 ## Response shape
 
-Reply in the user's language and lead with the current judgement and one priority
-action. Scale length to the task: a concept answer is one or two paragraphs;
-ordinary troubleshooting is two paragraphs plus an action; complex or
-multi-source evidence adds only decision-changing evidence and at most two or
-three recommendations. Never show the internal result envelope or repeat the same
-conclusion as a status, summary, and next step. For novices, translate terms and
-hide internal fields. Detail requests expand evidence and uncertainty without
-changing safety or asking the user to choose a mode again.
-For timed multi-phase plans, add one Gantt from telemetry-analysis.md; skip
-single steps.
+Reply in the user's language and lead with the judgement. Include one priority
+action only when needed. A concept answer is one or two paragraphs and may end
+when complete; troubleshooting uses two paragraphs plus an action; complex
+evidence adds only decision-changing details and two or three recommendations.
+Hide internal fields and translate terms for novices. Timed multi-phase plans use
+one Gantt from telemetry-analysis.md.
 
 ## Maintenance
 
 Read [skill-doctor.md](references/integration/skill-doctor.md) and run
 `scripts/doctor.ps1`; it repairs nothing. Keep the r23 collector and exclude
-personal histories. For redistribution, read
-[coverage-map.md](references/integration/coverage-map.md) and
-[installation-coexistence.md](references/integration/installation-coexistence.md).
+personal histories. For redistribution, use the project release documentation
+and [installation-coexistence.md](references/integration/installation-coexistence.md).

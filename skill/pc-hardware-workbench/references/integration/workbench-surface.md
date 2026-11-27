@@ -31,9 +31,10 @@ references that remain relevant.
 
 ## Task state and Resume Packet
 
-Maintain a Resume Packet only when a multi-turn or multi-evidence Task needs to
-continue in another view. A simple concept answer or one-off result does not
-create, display, or suggest a Resume Packet.
+Maintain a Resume Packet only when a Task must continue in another view or
+survive an interruption. Multiple turns alone do not require one. A simple
+concept answer or one-off result does not create, display, or suggest a Resume
+Packet.
 
 The abstract packet carries:
 
@@ -47,7 +48,6 @@ The abstract packet carries:
 | Uncertainty | Conflicts and unresolved items | Only the open question that can change the next step |
 | Priority action | One next action | The same one next action |
 | Artifact references | Private store refs and relative artifact paths | Safe relative refs or labels |
-| Surface preference | `auto`, `chat-first`, or `panel-first` | Only when the user needs to choose where to continue |
 
 Machine-side references need not be shown to the user. The visible summary is a
 redacted projection, not a serialization of the packet. It must not expose
@@ -132,17 +132,11 @@ survive without thread attachment; a claim of same-thread attachment cannot.
 
 ## Surface selection
 
-Support `auto`, `chat-first`, and `panel-first` as presentation preferences, not
-permission or safety modes. `auto` may suggest a workbench surface when a chart,
-many evidence items, a long experiment, or repeated comparison would be clearer
-there. Keep chat first for quick concepts, private explanations, and a single
-low-risk action. If a preferred surface is unavailable, continue safely in the
-available one.
-
-The preference may be changed by the user without restarting the Task and must
-never lock the investigation into one surface. Surface selection does not change
-the Task, device, evidence, or permission scope. Do not depend on an experimental
-panel protocol; this reference defines capabilities and state semantics only.
+Default to chat. Use a workbench surface only when a chart, many evidence items,
+a long experiment, repeated comparison, permission confirmation, or Task recovery
+would be materially clearer there. The user may request a different view without
+restarting the Task. Surface selection does not change the Task, device, evidence,
+or permission scope.
 
 ## Permissions and execution
 

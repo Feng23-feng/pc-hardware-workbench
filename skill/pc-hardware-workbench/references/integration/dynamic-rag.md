@@ -8,6 +8,16 @@ motherboard revisions, compatibility lists, recalls, or vendor support scope.
 Stable terminology, safety rules, and generic diagnostic procedure remain in the
 Skill references. Do not search merely to restate them.
 
+## Immediate citation
+
+For a simple current fact, cite the current official source inline with its
+publication or fetch date and applicable model/version scope. A local evidence
+card is optional in that case.
+
+Create a persistent evidence card only when the fact must be reused across turns,
+audited, compared against conflicting sources, or used for a safety,
+compatibility, purchase, or recovery decision.
+
 ## Division of responsibility
 
 - The model or runtime performs an authorized search or page lookup when such a
@@ -47,9 +57,10 @@ The domain registry is
 Registered vendor domains default to tier A. Adding a new vendor domain requires
 a registry change and review rather than accepting it from the page itself.
 
-## Required evidence card
+## Persistent evidence card
 
-Record the source before using it in a conclusion:
+When persistent evidence is required, record the source before using it in a
+durable conclusion:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File "<skill>\scripts\rag\rag-evidence.ps1" -Action Add -CachePath "<local-cache>\rag-evidence.json" -Url "https://www.nvidia.com/<official-page>" -Title "<page title>" -FetchedAt "2026-11-03T12:30:00+08:00" -PublishedAt "2026-10-30T09:00:00+08:00" -AppliesTo "RTX 50 series" -Claim "<what the source establishes>" -EvidenceQuote "<short necessary excerpt>"

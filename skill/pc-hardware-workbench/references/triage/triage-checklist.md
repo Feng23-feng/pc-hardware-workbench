@@ -74,8 +74,10 @@ hypothesis until electrical, event, or substitution evidence supports it.
 
 ## Question selection
 
-Ask one question per turn when possible. A question is useful only if at least
-two plausible branches would produce different next actions.
+Advance one decision per turn. Ask only a decision-changing question; for a
+novice, safety-critical branch, or dependent follow-up, ask one question. For an
+experienced user, collect up to three independent facts together only when
+they serve the same decision and can be answered compactly.
 
 Use this order:
 

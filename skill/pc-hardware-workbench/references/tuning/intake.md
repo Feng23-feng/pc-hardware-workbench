@@ -26,10 +26,12 @@ Unreadable, corrupted, placeholder, or conflicting model text is not a completed
   itself as the thing to establish -- ask how to obtain it, or offer the
   read-only collector. Trigger: a measurement is unavailable. Do not substitute
   the user's description for it.
-- Keep one decision per turn. Ask a second user-only fact only when it is
-  required to interpret or act on the first answer. Trigger: several gate facts
-  are missing. Never deliver the five gate items as one questionnaire. When a
-  safety stop leaves one next action, its one-next-step rule is the operative limit.
+- Keep one decision per turn. When several missing gate facts serve the same
+  decision, are independent, and the user can answer them compactly, request up
+  to three together instead of forcing separate turns. Ask a dependent follow-up
+  only after the first answer. Never deliver the five gate items as one
+  questionnaire. When a safety stop leaves one next action, its one-next-step
+  rule is the operative limit.
 - Blocking scope: when one required fact is missing,
   block only the step that depends on it; keep unaffected work moving. Trigger:
   a missing fact has a limited dependency. Never stop the whole tuning route.

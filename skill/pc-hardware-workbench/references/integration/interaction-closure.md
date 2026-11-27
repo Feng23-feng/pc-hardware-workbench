@@ -13,7 +13,7 @@ Project only what the current decision needs:
 
 - default: the current judgement, one decisive reason or decision-changing
   conflict/uncertainty, and the priority action;
-- concept question: one or two paragraphs;
+- concept question: one or two paragraphs, with no forced action when complete;
 - ordinary troubleshooting: two concise paragraphs plus one action or question;
 - complex, multi-source, or CSV result: judgement, one useful chart or compact
   evidence view, only decision-changing limitations, and at most two or three
@@ -72,17 +72,28 @@ The primary success condition is independent reuse, not producing one answer or 
 
 End with a compact reusable rule, checklist, or next independently executable step. Do not turn teaching into a quiz, assignment, or completion gate. If the user prefers concise operation or has demonstrated understanding, reduce explanation without hiding recovery or abort criteria. A user may decline a learning review and still receive the safety-critical result.
 
-## Required end state
+## Required end state for unfinished workflows
 
-Every user-visible branch must end in one of these states:
+An ordinary chat answer may end as a completed answer with no required action.
+This is valid only when no decision-changing question remains and any evidence
+gap, conflict, or uncertainty remains visible in the answer.
 
+Every unfinished operational branch must end in one of these states:
+
+- a completed answer with no required action, including any unresolved evidence;
 - a completed result plus the next concrete action;
 - one specific question needed to continue;
 - an explicit cancellation that states what was not changed or produced;
 - a safety stop with the reason and the smallest safe next step;
 - a mode handoff that names the remaining work.
 
-Never return from a subflow with only an unexplained menu reset. If a request is cancelled, empty, invalid, or declined, say so and preserve the correct next choice. When a device identity is unreadable or conflicting, follow [device-identity.md](device-identity.md), do not echo unsafe raw characters, and do not treat the value as confirmed.
+Never return from an unfinished subflow with only an unexplained menu reset. If a
+request is cancelled, empty, invalid, or declined, say so and preserve the
+correct next choice. A panel contract that still requires an action may project
+a neutral completion state until that schema is migrated; it must not invent new
+recommendations merely to satisfy the layout. When a device identity is
+unreadable or conflicting, follow [device-identity.md](device-identity.md), do
+not echo unsafe raw characters, and do not treat the value as confirmed.
 
 ## Collection and handoff
 
@@ -120,4 +131,7 @@ If a new conversation starts and prior state is unavailable, say what must be re
 
 ## Response check
 
-Before replying, identify which end state applies. If none applies, add the missing next action or question rather than returning to a generic menu or opening prompt.
+Before replying, identify whether the answer is complete or the workflow is
+unfinished. For a complete answer, natural closure is allowed and uncertainty
+remains visible. For an unfinished workflow, add the missing next action or
+question rather than returning to a generic menu or opening prompt.

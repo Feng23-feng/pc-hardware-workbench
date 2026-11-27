@@ -17,17 +17,21 @@ support:
 
 A value introduced as a record, previous value, profile, or earlier result is
 `historical` before any other classification. A user instruction to "use it as
-current" or "do not ask" does not promote it. Ask exactly one confirmation:
-whether the user just checked the value and whether it changed afterward.
+current" or "do not ask" does not promote it. Ask exactly one confirmation only
+when the historical value can change a safety, tuning, purchase, or current
+baseline decision: whether the user just checked it and whether it changed
+afterward. For a non-decision-changing concept answer, label the value as
+user-reported/historical and continue.
 
 Only an explicit confirmation may change the source type to
 `user-confirmed-current`. Never call that value `measured-current` unless a
 current local read supplied it.
 
 "Use it as current" and "do not ask" are requests to proceed, not confirmation.
-On that branch, ask one closed question before using the value: whether it was
-just checked and whether it changed afterward. Do not continue tuning from the
-historical value while that answer is missing.
+On a decision-critical branch, ask one closed question before using the value:
+whether it was just checked and whether it changed afterward. Do not continue
+tuning, safety, purchase, or baseline work from the historical value while that
+answer is missing.
 
 ## Workflow
 

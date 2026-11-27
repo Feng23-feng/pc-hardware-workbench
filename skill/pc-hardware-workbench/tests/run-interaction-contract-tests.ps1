@@ -31,6 +31,18 @@ function Assert-True {
     }
 }
 
+function Assert-NotContains {
+    param(
+        [string]$Text,
+        [string]$Pattern,
+        [string]$Message
+    )
+
+    if ($Text -match $Pattern) {
+        $failures.Add($Message)
+    }
+}
+
 function Get-Utf8LfByteCount {
     param([Parameter(Mandatory = $true)][string]$Path)
     $text = [IO.File]::ReadAllText(
@@ -209,6 +221,52 @@ $skill = Get-Content -LiteralPath $skillPath -Raw -Encoding UTF8
 $referenceOnlyNotice = [regex]::Unescape('\u53C2\u6570\u4EC5\u4F9B\u53C2\u8003\uFF0C\u8BF7\u4EE5\u5B89\u5168\u4E3A\u7B2C\u4E00\u8981\u52A1\u3002')
 $englishReferenceOnlyNotice = "For reference only - put safety first."
 
+# Phase 1 policy regressions. These test the intended decision boundaries before
+# legacy wording assertions are adjusted.
+$phase1ExplanationStyle = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/integration/explanation-style.md") `
+    -Label "references/integration/explanation-style.md"
+$phase1InteractionClosure = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/integration/interaction-closure.md") `
+    -Label "references/integration/interaction-closure.md"
+$phase1Triage = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/triage/triage-checklist.md") `
+    -Label "references/triage/triage-checklist.md"
+$phase1Intake = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/tuning/intake.md") `
+    -Label "references/tuning/intake.md"
+$phase1ClaimVerification = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/integration/claim-verification.md") `
+    -Label "references/integration/claim-verification.md"
+$phase1CollectorWorkflow = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/integration/collector-workflow.md") `
+    -Label "references/integration/collector-workflow.md"
+$phase1HardwareCase = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/integration/hardware-case.md") `
+    -Label "references/integration/hardware-case.md"
+$phase1DynamicRag = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/integration/dynamic-rag.md") `
+    -Label "references/integration/dynamic-rag.md"
+$phase1SkillDock = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/integration/skilldock-surface.md") `
+    -Label "references/integration/skilldock-surface.md"
+$phase1WorkbenchSurface = Read-RequiredFile `
+    -Path (Join-Path $resolvedRoot "references/integration/workbench-surface.md") `
+    -Label "references/integration/workbench-surface.md"
+
+Assert-Contains $skill '(?is)canonical trigger.*explanation-style\.md' "SKILL.md does not defer the parameter-notice trigger to one canonical reference."
+Assert-Contains $phase1ExplanationStyle 'canonical trigger' "Explanation style does not own the canonical safety-notice trigger."
+Assert-Contains $phase1InteractionClosure 'completed answer with no required action' "Interaction closure has no complete-answer end state."
+Assert-Contains $phase1InteractionClosure 'uncertainty remains visible' "Natural completion can hide unresolved evidence or uncertainty."
+Assert-Contains $phase1Triage '(?is)one decision per turn.*independent facts' "Triage still treats one message field as the universal question unit."
+Assert-Contains $phase1Intake '(?is)serve the same\s+decision.*independent.*up\s+to three' "Tuning intake cannot batch independent facts that serve the same decision."
+Assert-Contains $phase1ClaimVerification '(?is)only\s+when the historical value can change' "Historical confirmation is not scoped to decision-changing cases."
+Assert-Contains $phase1HardwareCase 'multiple turns alone' "Hardware case can be triggered by turn count alone."
+Assert-Contains $phase1DynamicRag 'immediate citation' "Dynamic RAG has no lightweight current-fact path."
+Assert-Contains $phase1SkillDock 'multiple turns alone do not justify' "SkillDock can be suggested merely because a task spans turns."
+Assert-Contains $phase1CollectorWorkflow '(?is)Collect only the fields needed.*does\s+not yet expose section filtering' "Collector guidance claims a full run is minimal or ignores Agent-context privacy."
+Assert-NotContains $phase1WorkbenchSurface 'Support `auto`, `chat-first`, and `panel-first`' "An unimplemented surface preference remains in executable guidance."
+
 Assert-Contains $skill '(?m)^  version: "2\.9\.3"\r?$' "metadata.version should be 2.9.3."
 Assert-Contains $skill 'r23 collector' "The Skill maintenance summary collector revision disagrees with the collector code."
 Assert-Contains $skill 'while power-path\s+evidence is incomplete' "The Advice intensity route does not include incomplete power-path evidence."
@@ -220,13 +278,13 @@ Assert-Contains $skill 'ask for the objective in the current\s+language' "Bare-i
 Assert-Contains $skill 'For a concrete request, state\s+the route directly' "Task-bearing invocation skip rule is missing."
 Assert-Contains $skill 'localize the response' "Reference examples do not have a universal localization rule."
 Assert-Contains $skill 'Historical records are not current' "Historical values can still be relabeled as current measurements."
-Assert-Contains $skill 'Do not ask.*still requires one question' "A do-not-ask instruction can bypass historical-value confirmation."
-Assert-Contains $skill 'Just confirmed and unchanged' "Ambiguous historical values can still be promoted without confirmation."
-Assert-Contains $skill 'Keep it user-reported, never measured' "User-confirmed current values can be mislabeled as measured."
+Assert-Contains $skill '(?is)When the value would change a safety,\s+tuning, purchase, or baseline decision' "Historical-value confirmation is not scoped to decision-changing use."
+Assert-Contains $skill 'Just confirmed and\s+unchanged' "Ambiguous historical values can still be promoted without confirmation."
+Assert-Contains $skill 'Never call it\s+measured-current' "User-confirmed current values can be mislabeled as measured."
 Assert-Contains $skill 'claim-verification\.md' "Claim verification route is missing."
-Assert-Contains $skill 'timed multi-phase plans.*Gantt' "Timed plans do not route to the Gantt view."
+Assert-Contains $skill '(?is)timed multi-phase plans.*Gantt' "Timed plans do not route to the Gantt view."
 Assert-Contains $skill 'Use a private case' "Proactive hardware-case checkpoint rule is missing."
-Assert-Contains $skill 'before large\s+evidence' "Large evidence can be read before a restart point is saved."
+Assert-Contains $skill 'large evidence, or chat-loss risk' "Large evidence can be read before a restart point is saved."
 Assert-Contains $skill 'checkpoint material changes' "The Skill does not define event-driven case updates."
 Assert-Contains $skill 'not every turn' "The case rule can turn into an indiscriminate chat transcript."
 Assert-Contains $skill 'outside public\s+artifacts' "Case storage has no public-release boundary."
@@ -259,12 +317,12 @@ Assert-Contains $skill 'Explain named choices' "Choice explanation rule is missi
 Assert-Contains $skill 'never ask a bare' "Bare named-choice prohibition is missing."
 Assert-Contains $skill 'Plain-language parameter explanations' "Plain-language parameter rule is missing."
 Assert-Contains $skill 'explanation-style\.md' "The detailed explanation-style reference is not linked."
-Assert-Contains $skill 'Never give a\s+bare number, offset, timing, profile, or instruction without the notice and an\s+appropriately detailed explanation' "The bare-value rule lost its safety-notice binding."
+Assert-Contains $skill '(?is)Never give a\s+bare number, offset, timing, profile, or instruction without the\s+notice and an\s+appropriately detailed explanation' "The bare-value rule lost its safety-notice binding."
 Assert-Contains $skill ([regex]::Escape($referenceOnlyNotice)) "The mandatory reference-only safety notice is missing."
 Assert-Contains $skill ([regex]::Escape($englishReferenceOnlyNotice)) "The English safety notice is missing."
 Assert-Contains $skill 'Never mix the Chinese and English notices in one reply' "The language-mixing prohibition is missing."
-Assert-Contains $skill 'BIOS/UEFI tuning setting' "BIOS/UEFI tuning settings are not covered by the parameter safety rule."
-Assert-Contains $skill 'firmware, clock, voltage, power control' "Firmware and tuning controls are not covered by the parameter safety rule."
+Assert-Contains $skill 'BIOS/UEFI setting' "BIOS/UEFI settings are not covered by the parameter safety rule."
+Assert-Contains $skill '(?is)firmware update, clock, voltage, power\s+control' "Firmware and tuning controls are not covered by the parameter safety rule."
 Assert-Contains $skill 'nontechnical symptom' "Beginner routing is missing."
 Assert-Contains $skill 'beginner-guide\.md' "Beginner guide link is missing."
 Assert-True ($skill -notmatch '\[\u8BBE\u5907\uFF1A') "The workflow-state example was reintroduced into the entrypoint."
@@ -579,7 +637,7 @@ $collectorWorkflow = Get-Content -LiteralPath (Join-Path $resolvedRoot "referenc
 Assert-Contains $collectorWorkflow 'Resume the calling flow' "Collector has no calling-flow handoff."
 Assert-Contains $collectorWorkflow 'reuse a current-session snapshot' "Collector workflow does not prefer existing snapshots."
 Assert-Contains $collectorWorkflow 'If several reports are available' "Collector workflow does not handle multiple reports."
-Assert-Contains $collectorWorkflow 'recently changed the CPU, GPU, memory' "Collector workflow does not remind users about recent hardware changes."
+Assert-Contains $collectorWorkflow '(?is)material hardware, firmware, or\s+driver change.*could change the current identity' "Collector workflow does not scope report freshness to a decision-changing change."
 Assert-True ($collectorWorkflow -notmatch 'CPU cooling type, whether the GPU') "Collector workflow still asks both cooling groups unconditionally."
 Assert-Contains $collectorWorkflow 'hardware-detection\.md' "Collector routing removed hardware detection details."
 Assert-Contains $collectorWorkflow 'cooling-evidence\.md' "Collector routing removed conditional cooling evidence."
@@ -621,10 +679,10 @@ Assert-Contains $adviceIntensity 'normal tuning-gate remediation for a non-power
 Assert-Contains $adviceIntensity 'the power-path row wins over the other-fact row' "The power-path precedence rule is missing."
 Assert-True (-not ($adviceIntensity -match 'Raise the ceiling to the maximum|vendor supports 111%')) "A scenario-specific power-limit example was reintroduced."
 Assert-Contains $adviceIntensity 'power-path evidence is incomplete' "Advice intensity omits the unified incomplete power-path terminology."
-Assert-Contains $intake 'its one-next-step rule is the operative limit' "Intake does not make the safety-stop next-step limit explicit."
+Assert-Contains $intake '(?is)its one-next-step\s+rule is the operative limit' "Intake does not make the safety-stop next-step limit explicit."
 Assert-Contains $adviceIntensity 'replaces, rather than adds to, the ordinary one-decision-per-turn budget' "Advice intensity adds the next-step request to the ordinary decision budget."
 Assert-Contains $intake 'Never accept a remembered reading' "Intake lacks the remembered-reading counterexample."
-Assert-Contains $intake 'Never deliver the five gate items as one questionnaire' "Intake lacks the questionnaire counterexample."
+Assert-Contains $intake '(?is)Never deliver the five gate items as one\s+questionnaire' "Intake lacks the questionnaire counterexample."
 Assert-Contains $intake 'Never stop the whole tuning route' "Intake lacks the whole-route blocking counterexample."
 
 $explanationStyle = Read-RequiredFile `

@@ -2,6 +2,14 @@
 
 Use the embedded Windows collector only when the user wants a current hardware inventory and the machine is accessible enough to run a local read-only query.
 
+Collect only the fields needed for the current goal. Reuse an existing snapshot
+for a narrow question; run the broad collector only when the task needs broad
+inventory, compatibility, or a durable full snapshot. The current collector does
+not yet expose section filtering, so do not describe a full run as minimal
+collection. Any collected fields that enter the Agent context, panel state, or
+logs remain sensitive and require minimization and privacy review even though
+the read happens locally.
+
 For Agent automation, prefer `scripts/pcwb.ps1 inventory`; it wraps this
 collector and returns the fixed result contract in
 [pcwb-cli.md](pcwb-cli.md). Use the direct collector below when diagnosing the
@@ -25,7 +33,11 @@ authorizes a configuration change.
 
 Before offering collection, reuse a current-session snapshot, a fresh inventory report already provided by the user, or a recent relevant report whose generation time and scope are known. Do not ask the user to repeat collection merely because the conversation changed subtask. Offer a refresh when hardware, BIOS/driver, memory, storage, or display configuration may have changed.
 
-Before reusing an older local report, explicitly ask whether the user recently changed the CPU, GPU, memory, storage, motherboard or laptop, monitor, or power adapter. If yes, collect a fresh snapshot and label the previous report stale for the current task; do not silently carry old device identity forward.
+Before reusing an older local report, ask about a material hardware, firmware, or
+driver change only when it could change the current identity, compatibility,
+tuning, or purchase decision. If the user recently changed a relevant component,
+collect a fresh snapshot and label the previous report stale. Otherwise reuse it
+with its date and limits visible.
 
 If several reports are available, present the choices with generation time, filename, and a compact platform summary. Default to the most recent only when that is unambiguous; otherwise ask which machine the current task concerns.
 

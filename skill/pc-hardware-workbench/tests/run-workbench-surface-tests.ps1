@@ -62,13 +62,12 @@ try {
         "references/integration/skilldock-surface.md",
         "when the host has SkillDock Runtime",
         "chart, evidence table, artifact, or repeated structured interaction",
-        "explicit open, continue, or sync-panel intent",
-        "use only the installed helpers",
-        "never synthesize a Runtime launch",
-        "Use only the current Codex Thread",
-        "never create, fork, attach, or resume another Thread",
+        "Multiple turns alone do not justify SkillDock",
+        "explicit panel intent",
+        "installed helpers",
+        "current Codex Thread",
         "fail closed on a binding mismatch",
-        "never expose raw JSON, credentials, or the panel component tree"
+        "never expose raw JSON, credentials, or component"
     ) "SKILL.md SkillDock execution boundary"
     Assert-ContainsAll $agentInterface @(
         "launch-panel.ps1"
@@ -100,6 +99,7 @@ try {
         "not native attachment", "SurfaceMode", "ReplaceWorkspace",
         "runtime_state", "approval_decision_supported",
         "Do not reconstruct the Runtime launch",
+        "Do not create, fork, attach, or resume another Thread",
         "without starting or rewriting it",
         "display_summary", "Never paste the raw JSON or component tree",
         "already in sync", "pchw-source-hosted", "submit-panel-result.ps1",
@@ -230,7 +230,7 @@ try {
         "simple concept answer", "does not", "Resume Packet",
         "Task ID and goal", "Objective", "Device-store reference and capture date",
         "Evidence IDs, hashes", "Current judgement", "Uncertainty",
-        "Priority action", "Artifact references", "Surface preference",
+        "Priority action", "Artifact references",
         "Machine-side references need not", "redacted projection",
         "absolute private paths", "capability tokens", "handoff signing material",
         "HMAC/TTL details", "nonces"
@@ -271,9 +271,13 @@ try {
 
     $selection = Get-MarkdownSection $surface "Surface selection"
     Assert-ContainsAll $selection @(
-        "auto", "chat-first", "panel-first",
-        "presentation preferences", "never lock", "experimental", "protocol"
+        "Default to chat", "materially clearer",
+        "without", "restarting the Task",
+        "does not change", "permission scope"
     ) "Surface selection"
+    Assert-True (
+        $selection -notmatch '`auto`|`chat-first`|`panel-first`'
+    ) "Unimplemented surface preferences remain in executable guidance."
 
     $permissions = Get-MarkdownSection $surface "Permissions and execution"
     Assert-ContainsAll $permissions @(

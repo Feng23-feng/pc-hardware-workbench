@@ -1,7 +1,7 @@
 # Hardware case continuity
 
-Use a local hardware case when a task spans multiple turns, combines several
-evidence sources, or must be resumed without relying on chat memory.
+Use a local hardware case when evidence or decisions must survive the current
+chat, not merely because a task spans multiple turns.
 
 The case is private local state. Do not upload it, commit it to a shared Skill,
 or include raw case files in a public report without reviewing and redacting the
@@ -18,8 +18,9 @@ Create a case when at least one of these is true:
 - large evidence is about to be read and its important findings must survive;
 - the user asks to save, export, resume, or audit the investigation.
 
-Do not create a case for a quick concept question or a single-value answer that
-needs no continuity.
+Multiple turns alone are insufficient. Do not create a case for a quick concept
+question, a short clarification exchange, or a single-value answer that needs no
+durable continuity.
 
 Checkpoint at meaningful state changes: new evidence, a baseline, an experiment
 start, an experiment result, recovery, a decision, or a new blocker. Do not copy
