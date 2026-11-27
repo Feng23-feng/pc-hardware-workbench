@@ -89,11 +89,11 @@ Every unfinished operational branch must end in one of these states:
 
 Never return from an unfinished subflow with only an unexplained menu reset. If a
 request is cancelled, empty, invalid, or declined, say so and preserve the
-correct next choice. A panel contract that still requires an action may project
-a neutral completion state until that schema is migrated; it must not invent new
-recommendations merely to satisfy the layout. When a device identity is
-unreadable or conflicting, follow [device-identity.md](device-identity.md), do
-not echo unsafe raw characters, and do not treat the value as confirmed.
+correct next choice. The panel follows the same completion rule: a completed
+answer may omit recommendations and priorityAction and must not invent content
+merely to satisfy the layout. When a device identity is unreadable or
+conflicting, follow [device-identity.md](device-identity.md), do not echo unsafe
+raw characters, and do not treat the value as confirmed.
 
 ## Collection and handoff
 

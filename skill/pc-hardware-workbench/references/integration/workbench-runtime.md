@@ -51,6 +51,8 @@ runtime is active.
 
 - task context and device/evidence references;
 - result validation and domain guidance;
+- structured safety-state enforcement without general symptom classification or
+  automatic display-evidence recommendation generation;
 - capability-grant checks for one local telemetry action;
 - shared device/evidence state;
 - read-only telemetry analysis and safe evidence-only chart-pack generation.
@@ -105,6 +107,21 @@ The first artifact remains available as a legacy singular reference, but new
 UI/event consumers use the `artifacts` array and corresponding `artifact_refs`.
 `chart_preset` is limited to the fixed `FirstPass`, `GpuTuning`, or `CpuTuning`
 choices and remains inside the same read-only CSV capability.
+
+Runtime safety enforcement is intentionally narrow. It may force `blocked` and a
+fixed stop action when the current task contains an explicit physical-danger
+signal, or when the Agent already supplied a structured blocked/stop conclusion.
+Blocked results suppress routine recommendations, copy actions, and questions.
+Historical or negated packet text does not trigger a current stop.
+
+General symptom interpretation, display-retest evidence selection, and normal
+recommendations belong to the Agent. Runtime must not infer black-screen or
+stutter recommendations from task text, and it must not rewrite Agent-authored
+advice when no safety contract applies.
+
+A completed `ready` answer may omit `uncertainty`, `recommendations`,
+`priorityAction`, and `actions`. Evidence gaps, conflicts, and uncertainty remain
+visible whenever they actually exist.
 
 Artifact lookup accepts `getArtifact(id, { taskId })`. Callers that omit the
 current Task identity for task-owned artifacts fail closed rather than returning

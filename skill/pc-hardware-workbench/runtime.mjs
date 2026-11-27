@@ -34,114 +34,119 @@ function completedOneTimeAttachmentAnalysis(task, attachment) {
   );
 }
 
-export function enforceDisplayEvidenceContract(panel, packet) {
-  if (!["1.1", "1.2"].includes(panel.schema_version)) {
-    return panel;
-  }
-  const existingRecommendations = [...(panel.recommendations ?? [])].slice(0, 3);
-  const safetyStopTitlePattern =
-    /^(?:(?:请|必须|建议|需要|务必|应当?|先)\s*(?:尽快|立即|马上|立刻)?\s*|(?:尽快|立即|马上|立刻)\s*)?(?:停止(?:测试|使用|运行|通电)?|断开|不要(?:再次)?通电|禁止通电|断电|关机|切断电源|送修|stop\b|disconnect\b|power off\b|unplug\b)/iu;
-  const safetyRecommendations = existingRecommendations.filter((item) =>
-    safetyStopTitlePattern.test(String(item.title ?? "").trim()),
-  );
-  if (
-    panel.status === "blocked" ||
-    safetyRecommendations.length > 0 ||
-    safetyStopTitlePattern.test(String(panel.priorityAction?.title ?? "").trim())
-  ) {
-    return panel;
-  }
-  const currentContext = String(
+const SAFETY_STOP_TITLE_PATTERN =
+  /^(?:(?:请|必须|建议|需要|务必|应当?|先)\s*(?:尽快|立即|马上|立刻)?\s*|(?:尽快|立即|马上|立刻)\s*)?(?:停止(?:测试|使用|运行|通电)?|断开|不要(?:再次)?通电|禁止通电|断电|关机|切断电源|送修|stop\b|disconnect\b|power off\b|unplug\b)/iu;
+const PHYSICAL_HAZARD_PATTERN =
+  /烧焦|焦味|焦糊|冒烟|烟味|火花|电弧|打火|漏液|液体[^。]{0,20}(?:通电|电源|设备)|异味[^。]{0,20}(?:插头|电源|设备)|插头[^。]{0,20}过热|连接器[^。]{0,20}(?:损坏|熔化|烧)|电池[^。]{0,20}(?:鼓包|膨胀)|(?:线路|导线)[^。]{0,20}裸露|烧痕|熔痕|burning|smoke|sparks?|arcing|liquid[^.]{0,20}power|swollen battery|damaged connector|exposed wiring|electrical damage/iu;
+const NEGATED_HAZARD_PATTERN =
+  /(?:没有|未见|未|无|不再|已排除|并非|不是)[^。]{0,24}(?:焦味|冒烟|烟味|火花|电弧|漏液|过热|烧焦|烧痕|熔痕)/iu;
+const RESOLVED_HAZARD_PATTERN =
+  /(?:焦味|冒烟|烟味|火花|电弧|漏液|过热|烧焦|烧痕|熔痕)[^。]{0,18}(?:已经?排除|已经?修复|已恢复|不再出现|未再出现|已消失)/iu;
+const HISTORICAL_MARKER = /此前|之前|以前|上次|历史|昨天|前天|刚才/iu;
+const CURRENT_MARKER = /现在|当前|这次|本次|最近|仍然|依然|还在|持续/iu;
+
+function currentTaskContext(panel, packet) {
+  return String(
     panel.current_goal ??
       packet?.task_context?.objective ??
       packet?.task_context?.current_goal ??
       packet?.current_objective ??
-      packet?.current_text ??
       "",
   );
-  const displayTerms =
-    /黑屏|掉帧|帧数暴降|画面闪烁|驱动重置|显示异常/iu;
-  const negationBeforeTerm =
-    /(?:没有|未|无|不再|已排除|并非|不是)[^，。；;]{0,18}(?:黑屏|掉帧|帧数暴降|画面闪烁|驱动重置|显示异常)/iu;
-  const resolvedDisplayTerm =
-    /(?:黑屏|掉帧|帧数暴降|画面闪烁|驱动重置|显示异常)[^，。；;]{0,18}(?:已经?排除|已经?修复|不再出现|未再出现|已恢复)/iu;
-  const historicalMarker = /此前|之前|以前|上次|历史|昨天|前天|刚才/iu;
-  const currentMarker = /现在|当前|这次|本次|最近|仍然|依然|还在|持续/iu;
-  const currentClauses = currentContext
+}
+
+function hasCurrentPhysicalHazard(panel, packet) {
+  const currentContext = currentTaskContext(panel, packet);
+  return currentContext
     .split(/[，。；;\n]+|但仍|但是|但|不过|然而|却|仍然|依然|仍/iu)
     .map((value) => value.trim())
-    .filter(Boolean);
-  const hasCurrentDisplayEvidence = currentClauses.some(
-    (clause) =>
-      displayTerms.test(clause) &&
-      !(historicalMarker.test(clause) && !currentMarker.test(clause)) &&
-      !negationBeforeTerm.test(clause) &&
-      !resolvedDisplayTerm.test(clause),
+    .filter(Boolean)
+    .some(
+      (clause) =>
+        PHYSICAL_HAZARD_PATTERN.test(clause) &&
+        !(HISTORICAL_MARKER.test(clause) && !CURRENT_MARKER.test(clause)) &&
+        !NEGATED_HAZARD_PATTERN.test(clause) &&
+        !RESOLVED_HAZARD_PATTERN.test(clause),
+    );
+}
+
+function safetyStopAction(panel) {
+  if (
+    SAFETY_STOP_TITLE_PATTERN.test(
+      String(panel.priorityAction?.title ?? "").trim(),
+    )
+  ) {
+    return panel.priorityAction;
+  }
+  const existingStop = (panel.recommendations ?? []).find((item) =>
+    SAFETY_STOP_TITLE_PATTERN.test(String(item.title ?? "").trim()),
   );
-  if (!hasCurrentDisplayEvidence) {
+  if (existingStop) {
+    return {
+      title: existingStop.title,
+      detail: existingStop.detail,
+    };
+  }
+  return {
+    title: "先停止操作并确认安全",
+    detail:
+      "停止测试和参数修改；仅在安全时关闭设备并断开电源。不要继续通电、复测或拆装，先确认是否存在燃烧、液体、损坏连接器或其他电气危险。",
+  };
+}
+
+function enforceBlockedState(panel, { hazard }) {
+  const action = safetyStopAction(panel);
+  return {
+    ...panel,
+    status: "blocked",
+    question: null,
+    result_title: hazard
+      ? "先停止使用并处理物理危险"
+      : panel.result_title ?? "检查已停止",
+    turn_summary: hazard
+      ? "检测到当前物理危险信号，需要先停止使用并确认安全。"
+      : panel.turn_summary,
+    judgement: hazard
+      ? "在继续任何测试、拆装或参数调整前，先停止使用设备；仅在安全条件下断电并联系合格维修。"
+      : panel.judgement,
+    recommendation: {
+      summary: action.title,
+      option_id: null,
+    },
+    uncertainty: Array.isArray(panel.uncertainty) ? panel.uncertainty : [],
+    recommendations: [
+      {
+        id: "runtime-safety-stop",
+        title: action.title,
+        detail: action.detail,
+        risk: "low",
+        evidence_goal: "先消除物理安全风险，不继续自动复测。",
+      },
+    ],
+    priorityAction: action,
+    actions: [],
+  };
+}
+
+export function enforceSafetyStateContract(panel, packet) {
+  if (!["1.1", "1.2"].includes(panel.schema_version)) {
     return panel;
   }
-  const required = [
-    {
-      test: /固定|同一场景|复现/u,
-      recommendation: {
-        id: "runtime-fixed-scene",
-        title: "固定同一场景复测",
-        detail:
-          "保持游戏、场景、画质和操作路线一致，记录每次黑屏或掉帧的精确本地时间、持续秒数和是否退出游戏。",
-        risk: "low",
-        evidence_goal: "确认是否稳定复现，并建立可与系统日志关联的时间锚点。",
-      },
-    },
-    {
-      test: /事件查看器|Event Viewer|TDR|WHEA|Kernel-Power/iu,
-      recommendation: {
-        id: "runtime-event-check",
-        title: "检查显示与异常事件",
-        detail:
-          "在事件查看器中只读查看黑屏前后的 Display TDR、WHEA-Logger 和 Kernel-Power 41，不要据此单独判定硬件故障。",
-        risk: "low",
-        evidence_goal: "区分显示驱动重置、硬件错误和异常断电。",
-      },
-    },
-    {
-      test: /HWiNFO|PerfCap|有效频率|GPU.*功耗/iu,
-      recommendation: {
-        id: "runtime-hwinfo-gpu",
-        title: "记录一次 GPU 运行证据",
-        detail:
-          "用 HWiNFO Sensors-only 记录同一复现场景中的 GPU 温度、功耗、有效频率和 PerfCap，结束后保存 CSV。",
-        risk: "low",
-        evidence_goal: "判断异常时是否存在降频、功耗限制或温度限制。",
-      },
-    },
-  ];
-  const recommendations = [];
-  for (const requirement of required) {
-    const matchingRecommendation = existingRecommendations.find((item) =>
-      requirement.test.test(`${item.title} ${item.detail}`),
+  const hazard = hasCurrentPhysicalHazard(panel, packet);
+  const authoredStop =
+    panel.status === "blocked" ||
+    SAFETY_STOP_TITLE_PATTERN.test(
+      String(panel.priorityAction?.title ?? "").trim(),
+    ) ||
+    (panel.recommendations ?? []).some((item) =>
+      SAFETY_STOP_TITLE_PATTERN.test(String(item.title ?? "").trim()),
     );
-    if (
-      recommendations.some((item) =>
-        requirement.test.test(`${item.title} ${item.detail}`),
-      )
-    ) {
-      continue;
-    }
-    if (
-      matchingRecommendation &&
-      !recommendations.includes(matchingRecommendation)
-    ) {
-      recommendations.push(matchingRecommendation);
-      continue;
-    }
-    if (recommendations.length >= 3) {
-      break;
-    }
-    recommendations.push(requirement.recommendation);
-  }
-  return { ...panel, recommendations };
+  return hazard || authoredStop
+    ? enforceBlockedState(panel, { hazard })
+    : panel;
 }
+
+export const enforceDisplayEvidenceContract = enforceSafetyStateContract;
 
 function analysisFailureCopy(error) {
   const code = String(error?.code ?? "analysis_failed");
@@ -525,10 +530,12 @@ class PcHardwareWorkbenchRuntime {
     return [
       "For a vague slowdown without a safety symptom, first establish workload timing.",
       "When the first timing question is appropriate, include an option labelled exactly '玩游戏时'.",
-      "Every turn must include a compact user-facing result_title, a substantive judgement, supports/conflicts/context evidence, uncertainty, two or three low-risk evidence recommendations, one priorityAction, and copy-only actions.",
-      "Set result_title to the check conclusion or main unresolved finding. Set turn_summary to the concrete reason or data limitation, not to loading, reading, or internal processing.",
-      "Set uncertainty[0] to the single current unresolved item, using a compact subject-based label such as '热限制待确认' only when the current evidence actually supports that subject. Replace or omit a resolved item; never hard-code thermal, power, or a placeholder status.",
-      "For single-game brief black screens or stutter, recommendations must cover a fixed-scene retest with precise timestamp, a read-only Event Viewer check for Display TDR, WHEA-Logger and Kernel-Power 41, and HWiNFO logging of GPU temperature, power, effective clock and PerfCap.",
+      "Every result must include a compact user-facing result_title and substantive judgement. Include supports/conflicts/context evidence only when it affects the result.",
+      "When the answer is complete and no action, question, permission, experiment, or handoff is required, omit recommendations and priorityAction and use an empty actions array. Keep uncertainty and evidence gaps that still exist.",
+      "For needs_input, blocked, an active experiment, permission confirmation, or handoff, include the necessary question or one priorityAction and only the recommendations that change the next step.",
+      "Set turn_summary to the concrete reason or data limitation, not to loading, reading, or internal processing.",
+      "When uncertainty is present, set uncertainty[0] to the single current unresolved item using a compact subject-based label only when the evidence supports that subject. Never hard-code thermal, power, or a placeholder status.",
+      "For current single-game black screens or stutter, consider a fixed-scene retest with precise timestamp, a read-only Event Viewer check for Display TDR, WHEA-Logger and Kernel-Power 41, and HWiNFO logging of GPU temperature, power, effective clock and PerfCap. The Agent decides which are relevant.",
       "When telemetry analysis reports sampled_span_seconds, use that value for telemetry duration. Never substitute device age, driver age, or another task's elapsed time.",
       "Describe those steps as evidence collection, not hardware conclusions.",
       "Never recommend hardware changes or tuning. Never inject HTML or arbitrary UI behavior.",
@@ -583,7 +590,7 @@ class PcHardwareWorkbenchRuntime {
   }
 
   validatePanelResult(panel, { packet }) {
-    return enforceDisplayEvidenceContract(
+    return enforceSafetyStateContract(
       this.SkillRuntimeBase.prototype.validatePanelResult.call(this, panel),
       packet,
     );

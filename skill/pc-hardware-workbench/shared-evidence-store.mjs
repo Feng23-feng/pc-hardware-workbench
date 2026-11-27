@@ -31,15 +31,15 @@ function emptyStore() {
 export class SharedEvidenceStore {
   constructor(filePath) {
     this.filePath = filePath;
-    mkdirSync(dirname(filePath), { recursive: true });
-    this.data = existsSync(filePath)
+    const persisted = existsSync(filePath);
+    this.data = persisted
       ? JSON.parse(readFileSync(filePath, "utf8"))
       : emptyStore();
-    this.save();
   }
 
   save() {
     this.data.updated_at = new Date().toISOString();
+    mkdirSync(dirname(this.filePath), { recursive: true });
     const tempPath = `${this.filePath}.tmp`;
     writeFileSync(tempPath, `${JSON.stringify(this.data, null, 2)}\n`, {
       encoding: "utf8",

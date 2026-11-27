@@ -24,6 +24,7 @@ import {
   createCapabilityGrant,
   createPermissionRequest,
 } from "../capability-grants.mjs";
+import { SharedEvidenceStore } from "../shared-evidence-store.mjs";
 import { verifiedBlocks } from "../telemetry-broker.mjs";
 
 const skillRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -325,6 +326,7 @@ for (const scriptName of [
 const runtimeModule = await import(`${pathToFileURL(runtimePath).href}?test`);
 assert.equal(typeof runtimeModule.createRuntime, "function");
 assert.equal(runtimeModule.CAPABILITY, capability.id);
+assert.equal(typeof runtimeModule.enforceSafetyStateContract, "function");
 assert.equal(typeof runtimeModule.enforceDisplayEvidenceContract, "function");
 assert.equal(
   typeof runtimeModule.analysisFailure,
@@ -339,176 +341,178 @@ const existingCriticalRecommendation = {
   risk: "low",
   evidence_goal: "先消除物理危险，不继续自动复测。",
 };
-const historicalDisplayPanel = {
+const normalRecommendation = {
+  id: "runtime-acoustic-check",
+  title: "记录风扇噪音",
+  detail: "保持相同负载记录风扇噪音与转速变化。",
+  risk: "low",
+  evidence_goal: "确认噪音是否与转速同步。",
+};
+const normalPanel = {
   schema_version: "1.2",
+  status: "ready",
+  question: null,
   current_goal: "检查稳定后的风扇噪音",
-  recommendations: [
-    existingCriticalRecommendation,
+  judgement: "当前先记录风扇噪音与转速的关系。",
+  evidence: [],
+  uncertainty: [],
+  recommendations: [normalRecommendation],
+  priorityAction: {
+    title: "记录一次噪音与转速",
+    detail: "保持相同负载观察两者是否同步变化。",
+  },
+  actions: [],
+  artifact_refs: [],
+  blocks: [],
+};
+
+const displayPanel = runtimeModule.enforceSafetyStateContract(
+  {
+    ...normalPanel,
+    current_goal: "游戏中黑屏并掉帧",
+    recommendations: [
+      {
+        id: "agent-display-context",
+        title: "记录当前显示异常",
+        detail: "记录黑屏和掉帧发生的时间与场景。",
+        risk: "low",
+        evidence_goal: "建立当前显示证据。",
+      },
+    ],
+  },
+  {
+    task_context: { objective: "游戏中黑屏并掉帧" },
+  },
+);
+assert.deepEqual(
+  displayPanel.recommendations,
+  [
     {
-      id: "runtime-acoustic-check",
-      title: "记录风扇噪音",
-      detail: "保持相同负载记录风扇噪音与转速变化。",
+      id: "agent-display-context",
+      title: "记录当前显示异常",
+      detail: "记录黑屏和掉帧发生的时间与场景。",
       risk: "low",
-      evidence_goal: "确认噪音是否与转速同步。",
+      evidence_goal: "建立当前显示证据。",
     },
   ],
-};
-assert.deepEqual(
-  runtimeModule.enforceDisplayEvidenceContract(historicalDisplayPanel, {
-    task_context: { objective: "检查稳定后的风扇噪音" },
-    history: [{ summary: "此前曾经黑屏，但已经修复" }],
-  }).recommendations,
-  historicalDisplayPanel.recommendations,
-  "historical black-screen context must not trigger current retest recommendations",
+  "Runtime must not infer display evidence recommendations",
 );
-assert.deepEqual(
-  runtimeModule.enforceDisplayEvidenceContract(
-    {
-      ...historicalDisplayPanel,
-      current_goal: "此前黑屏已经排除，现在只是检查正常风扇噪音",
-    },
-    {
-      task_context: {
-        objective: "此前黑屏已经排除，现在只是检查正常风扇噪音",
-      },
-    },
-  ).recommendations,
-  historicalDisplayPanel.recommendations,
-  "negated black-screen context must not trigger current retest recommendations",
+assert.equal(
+  displayPanel.priorityAction.title,
+  normalPanel.priorityAction.title,
+  "Runtime must preserve the Agent-authored priority action",
 );
-assert.deepEqual(
-  runtimeModule.enforceDisplayEvidenceContract(
-    {
-      ...historicalDisplayPanel,
-      current_goal: "此前黑屏，现在只是检查正常风扇噪音",
-    },
-    {
-      task_context: {
-        objective: "此前黑屏，现在只是检查正常风扇噪音",
-      },
-    },
-  ).recommendations,
-  historicalDisplayPanel.recommendations,
-  "a historical display clause must not leak into the current retest decision",
-);
-assert.deepEqual(
-  runtimeModule.enforceDisplayEvidenceContract(
-    {
-      ...historicalDisplayPanel,
-      current_goal: "闻到焦味并冒烟，同时出现黑屏",
-    },
-    {
-      task_context: { objective: "闻到焦味并冒烟，同时出现黑屏" },
-    },
-  ).recommendations,
-  historicalDisplayPanel.recommendations,
-  "physical-danger hard stop must not be replaced by automatic retest advice",
-);
-const explicitSafetyStopPanel = {
-  ...historicalDisplayPanel,
-  status: "blocked",
-  current_goal: "游戏掉帧，电脑有明显异味且插头过热",
-  recommendations: [existingCriticalRecommendation],
-  priorityAction: {
-    title: "立即停止使用电脑",
-    detail: "不要再次通电；在安全条件下断开电源并送修。",
+
+const hazardPanel = runtimeModule.enforceSafetyStateContract(
+  {
+    ...normalPanel,
+    current_goal: "游戏掉帧，电脑有明显异味且插头过热",
+    recommendations: [normalRecommendation],
   },
-};
-assert.deepEqual(
-  runtimeModule.enforceDisplayEvidenceContract(
-    explicitSafetyStopPanel,
-    {
-      task_context: {
-        objective: "游戏掉帧，电脑有明显异味且插头过热",
-      },
-    },
-  ).recommendations,
-  explicitSafetyStopPanel.recommendations,
-  "an Agent-authored stop conclusion must block automatic display-retest advice",
-);
-assert.deepEqual(
-  runtimeModule.enforceDisplayEvidenceContract(
-    {
-      ...explicitSafetyStopPanel,
-      status: "needs_input",
-      priorityAction: {
-        title: "务必立即停止使用电脑",
-        detail: "不要再次通电；在安全条件下断开电源并送修。",
-      },
-    },
-    {
-      task_context: {
-        objective: "游戏掉帧，电脑有明显异味且插头过热",
-      },
-    },
-  ).recommendations,
-  explicitSafetyStopPanel.recommendations,
-  "a politely prefixed Agent stop action must still block retest advice",
-);
-const existingTelemetryRecommendation = {
-  id: "runtime-display-context",
-  title: "固定同一场景记录掉帧时间",
-  detail: "记录掉帧发生的准确时间、游戏场景和当时的负载。",
-  risk: "low",
-  evidence_goal: "为显示异常提供当前上下文。",
-};
-assert.deepEqual(
-  runtimeModule.enforceDisplayEvidenceContract(
-    {
-      ...historicalDisplayPanel,
-      current_goal: "",
-    },
-    {
-      text: "历史记录：此前曾经黑屏，但已经完成修复",
-    },
-  ).recommendations,
-  historicalDisplayPanel.recommendations,
-  "historical packet text alone must not trigger current display retests",
+  {
+    task_context: { objective: "游戏掉帧，电脑有明显异味且插头过热" },
+  },
 );
 assert.equal(
-  runtimeModule.enforceDisplayEvidenceContract(
-    {
-      ...historicalDisplayPanel,
-      current_goal: "黑屏已经修复但仍掉帧",
-      recommendations: [historicalDisplayPanel.recommendations[1]],
-    },
-    {
-      task_context: { objective: "黑屏已经修复但仍掉帧" },
-    },
-  ).recommendations.length,
-  3,
-  "a resolved symptom must not suppress a still-current symptom in the same sentence",
+  hazardPanel.status,
+  "blocked",
+  "an independently detected physical hazard must force blocked status",
+);
+assert.match(
+  hazardPanel.priorityAction.title,
+  /停止|断电|断开/u,
+  "physical hazard must force a stop action",
 );
 assert.equal(
-  runtimeModule.enforceDisplayEvidenceContract(
-    {
-      ...historicalDisplayPanel,
-      current_goal: "黑屏已经修复仍掉帧",
-      recommendations: [historicalDisplayPanel.recommendations[1]],
-    },
-    {
-      task_context: { objective: "黑屏已经修复仍掉帧" },
-    },
-  ).recommendations.length,
-  3,
-  "a bare 'still' contrast must retain the unresolved current symptom",
+  hazardPanel.actions.length,
+  0,
+  "physical hazard must suppress routine copy actions",
 );
-const currentDisplayMerged =
-  runtimeModule.enforceDisplayEvidenceContract(
-    {
-      ...historicalDisplayPanel,
-      current_goal: "此前黑屏，现在游戏中再次黑屏并掉帧",
-      recommendations: [existingTelemetryRecommendation],
-    },
-    {
-      task_context: { objective: "此前黑屏，现在游戏中再次黑屏并掉帧" },
-    },
-  );
 assert.equal(
-  currentDisplayMerged.recommendations[0].id,
-  existingTelemetryRecommendation.id,
+  hazardPanel.recommendations.some(
+    (item) => item.id === normalRecommendation.id,
+  ),
+  false,
+  "physical hazard must not retain routine recommendations",
 );
-assert.equal(currentDisplayMerged.recommendations.length, 3);
+
+const negatedHazardPanel = runtimeModule.enforceSafetyStateContract(
+  {
+    ...normalPanel,
+    current_goal: "没有焦味和冒烟，只是风扇噪音偏大",
+    recommendations: [normalRecommendation],
+  },
+  {
+    task_context: { objective: "没有焦味和冒烟，只是风扇噪音偏大" },
+  },
+);
+assert.deepEqual(
+  negatedHazardPanel,
+  {
+    ...normalPanel,
+    current_goal: "没有焦味和冒烟，只是风扇噪音偏大",
+    recommendations: [normalRecommendation],
+  },
+  "a negated hazard must not trigger the physical safety stop",
+);
+
+const historicalHazardPanel = runtimeModule.enforceSafetyStateContract(
+  {
+    ...normalPanel,
+    current_goal: "此前冒烟已经修复，现在检查风扇噪音",
+    recommendations: [normalRecommendation],
+  },
+  {
+    task_context: {
+      objective: "此前冒烟已经修复，现在检查风扇噪音",
+    },
+    history: [{ summary: "以前闻到焦味" }],
+  },
+);
+assert.equal(
+  historicalHazardPanel.status,
+  "ready",
+  "historical packet text alone must not force a current safety stop",
+);
+
+const agentBlockedPanel = runtimeModule.enforceSafetyStateContract(
+  {
+    ...normalPanel,
+    status: "blocked",
+    current_goal: "游戏掉帧",
+    recommendations: [normalRecommendation],
+    priorityAction: {
+      title: "立即停止使用电脑",
+      detail: "不要再次通电；在安全条件下断开电源并送修。",
+    },
+    actions: [
+      {
+        id: "copy-next-step",
+        label: "复制",
+        kind: "copy",
+        content: "继续测试",
+      },
+    ],
+  },
+  {
+    task_context: { objective: "游戏掉帧" },
+  },
+);
+assert.equal(agentBlockedPanel.status, "blocked");
+assert.equal(agentBlockedPanel.question, null);
+assert.equal(
+  agentBlockedPanel.actions.length,
+  0,
+  "blocked status must suppress routine actions even without hazard keywords",
+);
+assert.equal(
+  agentBlockedPanel.recommendations.some(
+    (item) => item.id === normalRecommendation.id,
+  ),
+  false,
+  "blocked status must suppress routine recommendations",
+);
+assert.match(agentBlockedPanel.priorityAction.title, /停止/u);
 
 for (const [code, titlePattern, copyPattern] of [
   ["analysis_timeout", /超时/u, /缩小分析窗口|时间窗口/u],
@@ -539,6 +543,42 @@ for (const [code, titlePattern, copyPattern] of [
 
 const tempRoot = mkdtempSync(join(tmpdir(), "pcwb-runtime-"));
 try {
+  const lazyStoreRoot = join(tempRoot, "lazy-evidence");
+  const lazyStorePath = join(lazyStoreRoot, "shared-evidence.json");
+  const lazyStore = new SharedEvidenceStore(lazyStorePath);
+  assert.equal(
+    existsSync(lazyStoreRoot),
+    false,
+    "reading an empty evidence store must not create its directory",
+  );
+  assert.equal(lazyStore.deviceContext().device_snapshot_ref, "device-snapshot:not-collected");
+  lazyStore.addEvidence({
+    label: "fixture",
+    detail: "first persisted evidence",
+    source: "runtime-test",
+  });
+  assert.equal(
+    existsSync(lazyStorePath),
+    true,
+    "the first real evidence write must create the store",
+  );
+  const reopenedStore = new SharedEvidenceStore(lazyStorePath);
+  assert.equal(reopenedStore.evidenceIds().length, 1);
+  reopenedStore.addAttachment({
+    id: "attachment-lazy-store",
+    original_name: "fixture.csv",
+    mime_type: "text/csv",
+    size: 4,
+    sha256: "c".repeat(64),
+    local_path: join(tempRoot, "fixture.csv"),
+    added_at: new Date().toISOString(),
+  });
+  assert.equal(
+    new SharedEvidenceStore(lazyStorePath).evidenceIds().length,
+    2,
+    "an existing store must remain readable and appendable",
+  );
+
   const runtime = await runtimeModule.createRuntime({
     SkillRuntime: TestSkillRuntime,
     SkillRuntimeError: TestSkillRuntimeError,
@@ -552,6 +592,11 @@ try {
     attachmentRoot: join(tempRoot, "attachments"),
     artifactRoot: join(tempRoot, "artifacts"),
   });
+  assert.equal(
+    existsSync(join(tempRoot, "shared-evidence.json")),
+    false,
+    "read-only Runtime initialization must not create an evidence store",
+  );
 
   assert.equal(runtime.identity.skill_id, manifest.skill.id);
   assert.deepEqual(
@@ -666,6 +711,11 @@ try {
     added_at: new Date().toISOString(),
   };
   runtime.commitAttachments({ task, attachments: [attachment] });
+  assert.equal(
+    existsSync(join(tempRoot, "shared-evidence.json")),
+    true,
+    "committing a real attachment must persist evidence",
+  );
   assert.ok(task.domain_refs.includes(attachment.id));
   assert.equal(runtime.evidence.deviceContext().collector_runs, 0);
 
