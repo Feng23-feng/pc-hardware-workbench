@@ -6,6 +6,8 @@ param(
     [ValidateSet("Markdown", "Json", "ChartData")]
     [string]$Format = "Markdown",
 
+    [switch]$IncludeChartData,
+
     [ValidateRange(0.0, [double]::MaxValue)]
     [double]$WarmupSeconds = 0,
 
@@ -554,6 +556,76 @@ function Get-NumericColumnValues {
     return [double[]]$values.ToArray()
 }
 
+function Get-CategoricalColumnSummaries {
+    param(
+        [object[]]$Rows,
+        [string[]]$Columns
+    )
+
+    $candidateColumns = @(
+        $Columns |
+            Where-Object {
+                $_ -match "perf\s*cap|performance.?limit|limit.?reason|限制原因|性能限制"
+            } |
+            Select-Object -First 3
+    )
+    $summaries = New-Object System.Collections.Generic.List[object]
+    foreach ($column in $candidateColumns) {
+        $counts = [ordered]@{}
+        foreach ($row in $Rows) {
+            $property = $row.PSObject.Properties[$column]
+            if ($null -eq $property) {
+                continue
+            }
+            $value = [string]$property.Value
+            if ([string]::IsNullOrWhiteSpace($value)) {
+                continue
+            }
+            $value = $value.Trim()
+            if ($value.Length -gt 120) {
+                $value = $value.Substring(0, 120)
+            }
+            $counts[$value] = 1 + [int]$counts[$value]
+        }
+        $values = @(
+            $counts.GetEnumerator() |
+                ForEach-Object {
+                    [pscustomobject]@{
+                        value = [string]$_.Key
+                        count = [int]$_.Value
+                    }
+                } |
+                Sort-Object -Property @{ Expression = "count"; Descending = $true }, @{ Expression = "value"; Descending = $false } |
+                Select-Object -First 8
+        )
+        if ($values.Count -gt 0) {
+            $summaries.Add([pscustomobject]@{
+                column = $column
+                values = $values
+            }) | Out-Null
+        }
+    }
+    return @($summaries.ToArray())
+}
+
+function Get-CandidateColumnPattern {
+    param([string[]]$Columns)
+
+    $selected = @(
+        $Columns |
+            Where-Object {
+                $_ -match "(?i)temp|temperature|power|watt|clock|effective|mhz|fps|frame|voltage|fan|usage|load|温度|功耗|频率|帧率|瓦" -and
+                $_ -notmatch "(?i)date|time|timestamp|perfcap|limit|offset|目标|上限" -and
+                $_.Length -le 120
+            } |
+            Select-Object -First 8
+    )
+    if ($selected.Count -eq 0) {
+        return $null
+    }
+    return "^(?:" + (($selected | ForEach-Object { [regex]::Escape($_) }) -join "|") + ")$"
+}
+
 function Get-Percentile {
     param(
         [double[]]$SortedValues,
@@ -894,6 +966,16 @@ function Read-TelemetryLines {
     if ($offset -lt $bytes.Length) {
         $bytes = @($bytes[0..($offset - 1)])
     }
+    $sha256 = [Security.Cryptography.SHA256]::Create()
+    try {
+        $sourceSha256 = -join (
+            $sha256.ComputeHash([byte[]]$bytes) |
+                ForEach-Object { $_.ToString("x2") }
+        )
+    }
+    finally {
+        $sha256.Dispose()
+    }
 
     $strictUtf8 = New-Object System.Text.UTF8Encoding($false, $true)
     try {
@@ -920,6 +1002,8 @@ function Read-TelemetryLines {
     return [pscustomobject]@{
         Lines = @($text -split "\r?\n")
         InvalidUtf8 = $invalidUtf8
+        SourceSha256 = $sourceSha256
+        SourceBytes = [int64]$bytes.Length
     }
 }
 
@@ -1772,7 +1856,9 @@ if ($samplingSummary.Consistency -eq "variable") {
 }
 
 $result = [pscustomobject]@{
-    AnalyzerVersion = "1.2.5"
+    AnalyzerVersion = "1.2.7"
+    SourceSha256 = $readResult.SourceSha256
+    SourceBytes = [int64]$readResult.SourceBytes
     FileName = if ($HideFileName) { "[hidden]" } else { [System.IO.Path]::GetFileName($resolvedPath) }
     HeaderLine = $headerLineIndex + 1
     InvalidRows = $invalidDataRows
@@ -1781,17 +1867,30 @@ $result = [pscustomobject]@{
     MaxIgnoredTrailingFields = $maxIgnoredTrailingFields
     TotalRows = $rows.Count
     AnalyzedRows = $selectedRows.Count
+    AnalyzedRowStart = $startIndex
+    AnalyzedRowEnd = $endIndex
     RequestedWindow = $requestedWindowLabel
     Window = $windowLabel
     SampledSpanSeconds = $sampledSpanSeconds
     Sampling = $samplingSummary
+    CategoricalColumns = @(
+        Get-CategoricalColumnSummaries `
+            -Rows $selectedRows `
+            -Columns $headerNames
+    )
     Columns = $headerNames
+    CandidateColumnPattern = if ($series.Count -eq 0) {
+        Get-CandidateColumnPattern -Columns $headerNames
+    }
+    else {
+        $null
+    }
     DuplicateHeaderNames = @($duplicateHeaderNames.ToArray())
     Metrics = @($series.ToArray())
     Warnings = @($warnings.ToArray())
 }
 
-if ($Format -eq "ChartData") {
+if ($Format -eq "ChartData" -or $IncludeChartData) {
     $chartSeries = New-Object System.Collections.Generic.List[object]
     foreach ($metric in $series) {
         $points = New-Object System.Collections.Generic.List[object]
@@ -1843,6 +1942,8 @@ if ($Format -eq "ChartData") {
     $chartResult = [pscustomobject]@{
         ChartDataVersion = "1.0"
         AnalyzerVersion = $result.AnalyzerVersion
+        SourceSha256 = $result.SourceSha256
+        SourceBytes = $result.SourceBytes
         FileName = $result.FileName
         HeaderLine = $result.HeaderLine
         TotalRows = $result.TotalRows
@@ -1857,12 +1958,17 @@ if ($Format -eq "ChartData") {
         Series = @($chartSeries.ToArray())
         Warnings = @($result.Warnings)
     }
-    $chartResult | ConvertTo-Json -Depth 10
-    return
+    if ($Format -eq "ChartData") {
+        $chartResult | ConvertTo-Json -Depth 10
+        return
+    }
+    $result | Add-Member `
+        -NotePropertyName "ChartData" `
+        -NotePropertyValue $chartResult
 }
 
 if ($Format -eq "Json") {
-    $result | ConvertTo-Json -Depth 8
+    $result | ConvertTo-Json -Depth 10
     return
 }
 

@@ -1,8 +1,8 @@
 # PC Hardware Workbench Phase 1 Anti-Overengineering Acceptance
 
-Date: 2026-11-28  
-Scope: instruction and documentation simplification only  
-Security baseline: `813b8f0` (`fix: harden telemetry evidence and safety boundaries`)  
+Date: 2026-11-28
+Scope: instruction and documentation simplification only
+Security baseline: `813b8f0` (`fix: harden telemetry evidence and safety boundaries`)
 Release status: Phase 1 complete; Phase 2 and Phase 3 not started
 
 ## Objective

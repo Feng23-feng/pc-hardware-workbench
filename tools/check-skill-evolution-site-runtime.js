@@ -567,7 +567,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       };
     })()`);
     check(
-      candidateStatus.state === "当前测试版" &&
+      candidateStatus.state === "当前公开测试版" &&
       candidateStatus.title === "选择适合你的使用方式" &&
       candidateStatus.lead.includes("按使用场景") &&
       candidateStatus.rowLabels.join(",") === "PCHW Skill（Codex / DSH / 其他 Agent 通用，无面板）,PCHW Portable,SkillDock Runtime-only,SkillDock 面板包,回退与状态" &&
@@ -852,7 +852,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       !publicMap.prototypeTrack &&
       !publicMap.convergence &&
       publicMap.coreCodes.includes("WB-09") &&
-      publicMap.integrationTitle.includes(`${expectedSkillVersion} 测试版`) &&
+      publicMap.integrationTitle.includes(`${expectedSkillVersion} 公开测试版`) &&
       publicMap.archiveSeries.some(label => label.includes("GPU 自动候选整合史 / 3.x")),
       `${prefix}public map still exposes the retired prototype as a parallel product (${JSON.stringify(publicMap)}).`
     );

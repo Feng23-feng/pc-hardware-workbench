@@ -15,7 +15,9 @@ param(
     [ValidateRange(0.0, [double]::MaxValue)]
     [double]$DurationSeconds = 0,
 
-    [string]$ManifestPath = ""
+    [string]$ManifestPath = "",
+
+    [string]$ChartDataPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -42,6 +44,24 @@ function Get-Sha256Hex {
     finally {
         $sha.Dispose()
         $stream.Dispose()
+    }
+}
+
+function Assert-ChartDataSourceBinding {
+    param(
+        [Parameter(Mandatory = $true)][object]$ChartData,
+        [Parameter(Mandatory = $true)][string]$SourcePath
+    )
+
+    $sourceHash = Get-Sha256Hex -FilePath $SourcePath
+    $sourceBytes = [int64](Get-Item -LiteralPath $SourcePath -Force).Length
+    $boundHash = [string]$ChartData.SourceSha256
+    $boundBytes = $ChartData.SourceBytes
+    if ([string]::IsNullOrWhiteSpace($boundHash) -or $null -eq $boundBytes) {
+        throw "ChartData is missing the analyzer source SHA-256/byte binding."
+    }
+    if ($boundHash -ine $sourceHash -or [int64]$boundBytes -ne $sourceBytes) {
+        throw "ChartData source SHA-256/byte binding does not match the supplied CSV."
     }
 }
 
@@ -88,8 +108,18 @@ function Add-ChartSpec {
     }) | Out-Null
 }
 
+$temporaryChartDataPath = $null
 try {
     $resolvedInput = Assert-LocalReadFilePath -Path $Path
+    $resolvedChartDataPath = if ([string]::IsNullOrWhiteSpace($ChartDataPath)) {
+        $null
+    }
+    else {
+        Assert-LocalReadFilePath -Path $ChartDataPath
+    }
+    if ($resolvedChartDataPath -and ($WarmupSeconds -gt 0 -or $DurationSeconds -gt 0)) {
+        throw "ChartDataPath already contains a windowed analysis; do not combine it with WarmupSeconds or DurationSeconds."
+    }
     $outputRoot = ConvertTo-LocalFilesystemPath -Path $OutputDirectory
     if (Test-PathChainHasReparsePoint -Path $outputRoot) {
         throw "OutputDirectory resolves through a reparse point."
@@ -121,17 +151,42 @@ try {
         throw "ManifestPath must be directly inside OutputDirectory."
     }
 
-    $analyzerParameters = @{
-        Path = $resolvedInput
-        Format = "ChartData"
+    if ($resolvedChartDataPath) {
+        try {
+            $chartData = Get-Content -Raw -LiteralPath $resolvedChartDataPath -Encoding UTF8 |
+                ConvertFrom-Json
+        }
+        catch {
+            throw "ChartData JSON is invalid: $($_.Exception.Message)"
+        }
+        if (
+            [string]$chartData.ChartDataVersion -ne "1.0" -or
+            $null -eq $chartData.PSObject.Properties["Series"] -or
+            $chartData.Series -isnot [System.Array] -or
+            @($chartData.Series).Count -eq 0
+        ) {
+            throw "ChartData must contain ChartDataVersion 1.0 and a non-empty Series array."
+        }
+        Assert-ChartDataSourceBinding -ChartData $chartData -SourcePath $resolvedInput
+        $renderInputPath = $resolvedChartDataPath
+        $renderInputFormat = "ChartData"
     }
-    if ($WarmupSeconds -gt 0) {
-        $analyzerParameters.WarmupSeconds = $WarmupSeconds
+    else {
+        $analyzerParameters = @{
+            Path = $resolvedInput
+            Format = "ChartData"
+        }
+        if ($WarmupSeconds -gt 0) {
+            $analyzerParameters.WarmupSeconds = $WarmupSeconds
+        }
+        if ($DurationSeconds -gt 0) {
+            $analyzerParameters.DurationSeconds = $DurationSeconds
+        }
+        $chartData = & $analyzerPath @analyzerParameters | Out-String | ConvertFrom-Json
+        Assert-ChartDataSourceBinding -ChartData $chartData -SourcePath $resolvedInput
+        $renderInputPath = $null
+        $renderInputFormat = "ChartData"
     }
-    if ($DurationSeconds -gt 0) {
-        $analyzerParameters.DurationSeconds = $DurationSeconds
-    }
-    $chartData = & $analyzerPath @analyzerParameters | Out-String | ConvertFrom-Json
     $availableMetrics = @(
         @($chartData.Series) |
             ForEach-Object { [string]$_.Metric } |
@@ -346,65 +401,83 @@ try {
         }
     }
 
+    if ([string]::IsNullOrWhiteSpace([string]$renderInputPath)) {
+        $temporaryChartDataPath = Join-Path $outputRoot (
+            ".telemetry-chart-data." + [guid]::NewGuid().ToString("N") + ".json"
+        )
+        $chartDataJson = $chartData | ConvertTo-Json -Depth 12
+        $renderInputPath = Write-LocalOutputFile `
+            -Path $temporaryChartDataPath `
+            -Content ($chartDataJson + [Environment]::NewLine)
+        $renderInputFormat = "ChartData"
+    }
+
     $charts = New-Object System.Collections.Generic.List[object]
     $createdPaths = New-Object System.Collections.Generic.List[string]
-    foreach ($spec in $specs) {
-        $chartPath = Join-Path $outputRoot $spec.FileName
-        $renderArgs = @{
-            Path = $resolvedInput
-            OutputPath = $chartPath
-            Title = $spec.Title
-        }
-        if ($WarmupSeconds -gt 0) {
-            $renderArgs.WarmupSeconds = $WarmupSeconds
-        }
-        if ($DurationSeconds -gt 0) {
-            $renderArgs.DurationSeconds = $DurationSeconds
-        }
-        if ($spec.ClockVoltageTimeline) {
-            $renderArgs.ClockVoltageTimeline = $true
-        }
-        if (@($spec.IncludeColumn).Count -gt 0) {
-            $renderArgs.IncludeColumn = [string[]]$spec.IncludeColumn
-            $renderArgs.MaxSeries = [Math]::Min(32, @($spec.IncludeColumn).Count)
-        }
-        try {
-            & $rendererPath @renderArgs | Out-Null
-            if (-not (Test-Path -LiteralPath $chartPath -PathType Leaf)) {
-                throw "Renderer did not create the expected chart."
-            }
-            $createdPaths.Add($chartPath) | Out-Null
-            $charts.Add([pscustomobject]@{
-                Id = $spec.Id
+    try {
+        foreach ($spec in $specs) {
+            $chartPath = Join-Path $outputRoot $spec.FileName
+            $renderArgs = @{
+                Path = $renderInputPath
+                OutputPath = $chartPath
                 Title = $spec.Title
-                Kind = "chart"
-                Mime = "image/svg+xml"
-                FileName = $spec.FileName
-                RelativePath = $spec.FileName
-                Sha256 = Get-Sha256Hex -FilePath $chartPath
-            }) | Out-Null
-        }
-        catch {
-            if ($spec.Required) {
-                throw "Required chart '$($spec.Id)' failed: $($_.Exception.Message)"
+                InputFormat = $renderInputFormat
             }
-            $skipped.Add([pscustomobject]@{
-                Id = $spec.Id
-                Reason = (([string]$_.Exception.Message) -replace "\s+", " ").Trim()
-            }) | Out-Null
+            if ($spec.ClockVoltageTimeline) {
+                $renderArgs.ClockVoltageTimeline = $true
+            }
+            if (@($spec.IncludeColumn).Count -gt 0) {
+                $renderArgs.IncludeColumn = [string[]]$spec.IncludeColumn
+                $renderArgs.MaxSeries = [Math]::Min(32, @($spec.IncludeColumn).Count)
+            }
+            try {
+                & $rendererPath @renderArgs | Out-Null
+                if (-not (Test-Path -LiteralPath $chartPath -PathType Leaf)) {
+                    throw "Renderer did not create the expected chart."
+                }
+                $createdPaths.Add($chartPath) | Out-Null
+                $charts.Add([pscustomobject]@{
+                    Id = $spec.Id
+                    Title = $spec.Title
+                    Kind = "chart"
+                    Mime = "image/svg+xml"
+                    FileName = $spec.FileName
+                    RelativePath = $spec.FileName
+                    Sha256 = Get-Sha256Hex -FilePath $chartPath
+                }) | Out-Null
+            }
+            catch {
+                if ($spec.Required) {
+                    throw "Required chart '$($spec.Id)' failed: $($_.Exception.Message)"
+                }
+                $skipped.Add([pscustomobject]@{
+                    Id = $spec.Id
+                    Reason = (([string]$_.Exception.Message) -replace "\s+", " ").Trim()
+                }) | Out-Null
+            }
+        }
+    }
+    finally {
+        if (
+            -not [string]::IsNullOrWhiteSpace([string]$temporaryChartDataPath) -and
+            [IO.File]::Exists($temporaryChartDataPath)
+        ) {
+            [IO.File]::Delete($temporaryChartDataPath)
         }
     }
 
     if ($charts.Count -eq 0) {
         throw "No chart pack figure could be generated."
     }
+    Assert-ChartDataSourceBinding -ChartData $chartData -SourcePath $resolvedInput
     $status = if ($skipped.Count -eq 0) { "complete" } else { "partial" }
     $manifest = [pscustomobject]@{
         SchemaVersion = "1.0"
         Preset = $Preset
         Status = $status
         SourceFileName = [IO.Path]::GetFileName($resolvedInput)
-        SourceSha256 = Get-Sha256Hex -FilePath $resolvedInput
+        SourceSha256 = $chartData.SourceSha256
+        SourceBytes = [int64]$chartData.SourceBytes
         Window = [string]$chartData.Window
         AnalyzedRows = [int]$chartData.AnalyzedRows
         CreatedAt = [DateTimeOffset]::Now.ToString("o")

@@ -1,10 +1,10 @@
 # PC Hardware Workbench 2.9.3 Security and Release Acceptance
 
-Date: 2026-11-27  
-Host: Windows 11 Home 10.0.26200, x64  
-PowerShell: 7.6.9  
-Node.js: 24.22.3  
-Base commit: `30de911fa3b85ef84fe1d1c48a23dbc702986f75` plus reviewed working-tree changes  
+Date: 2026-11-27
+Host: Windows 11 Home 10.0.26200, x64
+PowerShell: 7.6.9
+Node.js: 24.22.3
+Base commit: `30de911fa3b85ef84fe1d1c48a23dbc702986f75` plus reviewed working-tree changes
 Release status: **not ready for a stable-release claim**
 
 ## Scope
