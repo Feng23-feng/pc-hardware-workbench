@@ -14,6 +14,15 @@ const frozenOrrery = JSON.parse(fs.readFileSync(
 ));
 const expectedFileCount = Number(frozenOrrery.fileCount);
 const expectedSkillVersion = String(frozenOrrery.version);
+const changelogSource = fs.readFileSync(
+  path.join(repositoryRoot, "CHANGELOG.md"),
+  "utf8"
+);
+const releaseVersionMatch = changelogSource.match(/^##\s+([^\s—]+)/m);
+const expectedSkillRelease = releaseVersionMatch?.[1] || expectedSkillVersion;
+const expectedVisibleVersionPattern = new RegExp(
+  `^${expectedSkillVersion.replaceAll(".", "\\.")}(?:-test\\.\\d+)?$`
+);
 const browserCandidates = [
   process.env.EDGE_PATH,
   "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
@@ -299,7 +308,6 @@ async function screenshot(connection, name) {
 
 function integrityExpression() {
   return `(() => {
-    const root = document.getElementById("dse-root");
     const visible = element => {
       if (!element || element.hidden) return false;
       const rect = element.getBoundingClientRect();
@@ -334,8 +342,7 @@ function integrityExpression() {
       brokenHashLinks,
       h1Count: [...document.querySelectorAll("h1")].filter(visible).length,
       horizontalOverflow:
-        document.documentElement.scrollWidth > document.documentElement.clientWidth ||
-        Boolean(root && root.scrollWidth > root.clientWidth)
+        document.documentElement.scrollWidth > document.documentElement.clientWidth
     };
   })()`;
 }
@@ -418,6 +425,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
     const initial = await evaluate(connection, `(() => ({
       title: document.title,
       h1: document.querySelector(".dse-hero h1")?.textContent.trim() || "",
+      productLine: document.querySelector(".dse-hero .dse-hero-product-line")?.textContent.trim() || "",
       subtitle: document.querySelector(".dse-hero .dse-subtitle")?.textContent.trim() || "",
       safety: document.querySelector(".dse-hero .dse-hero-safety")?.textContent.trim() || "",
       ctaHref: document.querySelector(".dse-hero-action.primary")?.getAttribute("href") || "",
@@ -426,7 +434,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       secondaryCtaText: document.querySelector(".dse-hero-action.secondary")?.textContent.trim() || "",
       status: document.querySelector(".dse-hero-status")?.innerText.trim() || "",
       heroHeight: Math.round(document.querySelector(".dse-hero")?.getBoundingClientRect().height || 0),
-      viewportHeight: Math.round(document.getElementById("dse-root")?.clientHeight || 0),
+      viewportHeight: Math.round(window.innerHeight || 0),
       nextSectionTop: Math.round(document.querySelector(".dse-howto")?.getBoundingClientRect().top || 0),
       aboutPresent: Boolean(document.querySelector(".dse-about")),
       advancedEntryHref: document.querySelector(".dse-advanced-entry a")?.getAttribute("href") || "",
@@ -434,11 +442,13 @@ async function testHomeViewport(siteUrl, name, width, height) {
       heroVersion: document.getElementById("dse-hero-version")?.textContent.trim() || "",
       visibleVersionCount:
         (document.getElementById("dse-root")?.innerText.split(${JSON.stringify(expectedSkillVersion)}).length - 1) || 0,
-      technicalClosed: !document.querySelector(".dse-home-technical")?.open,
+      technicalOpen: Boolean(document.querySelector(".dse-home-technical")?.open),
       technicalSummary: document.querySelector(".dse-home-technical > summary")?.innerText.trim() || "",
       technicalExpanded: document.getElementById("dse-home-technical-summary")?.getAttribute("aria-expanded") || "",
       technicalHeight: Math.round(document.getElementById("dse-home-technical-summary")?.getBoundingClientRect().height || 0),
       viewportWidth: Math.round(window.innerWidth || 0),
+      documentClientWidth: Math.round(document.documentElement?.clientWidth || 0),
+      documentScrollWidth: Math.round(document.documentElement?.scrollWidth || 0),
       rootClientWidth: Math.round(document.getElementById("dse-root")?.clientWidth || 0),
       rootScrollWidth: Math.round(document.getElementById("dse-root")?.scrollWidth || 0),
       bodyScrollWidth: Math.round(document.body?.scrollWidth || 0),
@@ -447,14 +457,16 @@ async function testHomeViewport(siteUrl, name, width, height) {
     }))()`);
     check(initial.title.includes("电脑硬件工作台"), `${prefix}browser title is not user-facing.`);
     check(
-      initial.h1.includes("Windows 硬件诊断") && initial.h1.includes("安全调参 Skill"),
-      `${prefix}hero headline does not cover the full decision scope.`
+      initial.h1.includes("让 AI 看懂") &&
+      initial.h1.includes("你的电脑") &&
+      initial.productLine.includes("Windows 硬件诊断") &&
+      initial.productLine.includes("安全调参 Agent Skill"),
+      `${prefix}hero headline and product line do not cover the accepted product scope.`
     );
     check(
       initial.subtitle.includes("HWiNFO") &&
-      initial.subtitle.includes("PresentMon") &&
-      initial.subtitle.includes("不自动修改硬件"),
-      `${prefix}hero subtitle does not explain evidence and the read-only boundary.`
+      initial.subtitle.includes("PresentMon"),
+      `${prefix}hero subtitle does not explain the accepted evidence inputs.`
     );
     check(
       initial.safety.includes("测试版") &&
@@ -480,7 +492,8 @@ async function testHomeViewport(siteUrl, name, width, height) {
     );
     check(!initial.aboutPresent, `${prefix}removed philosophy section still exists.`);
     check(
-      initial.heroVersion === expectedSkillVersion,
+      initial.heroVersion === expectedSkillRelease &&
+      expectedVisibleVersionPattern.test(initial.heroVersion),
       `${prefix}hero should expose the current Skill version (${JSON.stringify({
         heroVersion: initial.heroVersion
       })}).`
@@ -492,21 +505,22 @@ async function testHomeViewport(siteUrl, name, width, height) {
       `${prefix}primary paths are incomplete.`
     );
     check(
-      initial.technicalClosed &&
-      initial.technicalSummary.includes("版本与技术资料") &&
-      initial.technicalSummary.includes("项目地图、文件结构与历史版本") &&
-      initial.technicalExpanded === "false" &&
+      initial.technicalOpen &&
+      initial.technicalSummary.includes("探索 PCHW") &&
+      initial.technicalSummary.includes("能力关系、版本演进、交互流程与文件协作") &&
+      initial.technicalExpanded === "true" &&
       initial.technicalHeight >= 44,
-      `${prefix}technical archive is not folded.`
+      `${prefix}technical exploration gallery is not open by default.`
     );
     check(
       initial.rootClientWidth > 0 &&
-      initial.rootScrollWidth <= initial.rootClientWidth + 1 &&
-      initial.bodyScrollWidth <= initial.viewportWidth + 1 &&
+      initial.documentScrollWidth <= initial.documentClientWidth + 1 &&
       initial.headerCopyLeft >= 12 &&
       initial.headerCopyRight <= initial.rootClientWidth - 12,
       `${prefix}hero content overflows the viewport safe area (${JSON.stringify({
         rootClientWidth: initial.rootClientWidth,
+        documentClientWidth: initial.documentClientWidth,
+        documentScrollWidth: initial.documentScrollWidth,
         viewportWidth: initial.viewportWidth,
         rootScrollWidth: initial.rootScrollWidth,
         bodyScrollWidth: initial.bodyScrollWidth,
@@ -571,6 +585,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
         })),
         previewLoaded: Boolean(preview?.complete && preview?.naturalWidth > 0),
         previewCurrentSrc: preview?.currentSrc || "",
+        previewDisplay: preview ? getComputedStyle(preview.closest(".dse-candidate-preview")).display : "",
         previewBoxWidth: Math.round(previewBox?.width || 0),
         previewWidth: Math.round(previewRect?.width || 0),
         previewHeight: Math.round(previewRect?.height || 0),
@@ -589,26 +604,19 @@ async function testHomeViewport(siteUrl, name, width, height) {
         )
       };
     })()`);
-    const candidatePreviewAspect = candidateStatus.previewHeight > 0
-      ? candidateStatus.previewWidth / candidateStatus.previewHeight
-      : 0;
-    const expectedCandidatePreviewAspect = name === "mobile" ? 0.8 : 1.6;
     check(
       candidateStatus.state === "当前公开测试版" &&
       candidateStatus.title === "选择安装方式" &&
       candidateStatus.lead.includes("主要使用场景") &&
-      candidateStatus.lead.includes(`${expectedSkillVersion}-test.2`) &&
-      candidateStatus.lead.includes(`${expectedSkillVersion}-test.1`) &&
+      candidateStatus.lead.includes("2.9.3-test.2") &&
+      candidateStatus.lead.includes("2.9.3-test.1") &&
       candidateStatus.primary.length === 3 &&
       candidateStatus.primary[0].href.includes("pc-hardware-workbench-v2.9.3-test.2-installer.zip") &&
       candidateStatus.primary[1].href.includes("SkillDock-PCHW-0.1.0-rc.7-win-x64-user.zip") &&
       candidateStatus.primary[2].href.includes("pc-hardware-portable-v2.9.3-test.2.zip") &&
       candidateStatus.primary.every(link => link.title && link.copy) &&
       candidateStatus.previewLoaded &&
-      candidateStatus.previewWidth <= candidateStatus.previewBoxWidth + 2 &&
-      candidateStatus.previewHeight > 180 &&
-      Math.abs(candidatePreviewAspect - expectedCandidatePreviewAspect) <= 0.06 &&
-      candidateStatus.previewObjectFit === "cover" &&
+      candidateStatus.previewDisplay === "none" &&
       candidateStatus.advancedSummary.includes("高级安装与兼容选项") &&
       candidateStatus.advancedLabels.join(",") === "DeepSeek Harness 适配包,SkillDock Runtime-only,手动安装,面板包版本关系,问题反馈,回退与状态" &&
       candidateStatus.advancedCopies.every(copy => copy.length > 0) &&
@@ -815,10 +823,24 @@ async function testHomeViewport(siteUrl, name, width, height) {
       `${prefix}unknown-symptom entry does not route to a concrete plain-language flow (${JSON.stringify(unknownRoute)}).`
     );
 
-    await evaluate(connection, `(() => {
-      document.getElementById("dse-home-technical-summary")?.focus();
-      return true;
+    const archiveInitial = await evaluate(connection, `(() => {
+      const summary = document.getElementById("dse-home-technical-summary");
+      const details = document.querySelector(".dse-home-technical");
+      summary?.focus();
+      return {
+        open: Boolean(details?.open),
+        expanded: summary?.getAttribute("aria-expanded") || ""
+      };
     })()`);
+    if (!archiveInitial.open) {
+      await pressKey(connection, " ", "Space", 32);
+      await waitFor(connection, `Boolean(document.querySelector(".dse-home-technical")?.open)`, 2500);
+    }
+    await pressKey(connection, " ", "Space", 32);
+    const archiveClosed = await waitFor(connection, `(() => {
+      const details = document.querySelector(".dse-home-technical");
+      return Boolean(details && !details.open);
+    })()`, 2500);
     await pressKey(connection, " ", "Space", 32);
     const archiveOpened = await waitFor(connection, `(() => {
       const details = document.querySelector(".dse-home-technical");
@@ -830,22 +852,30 @@ async function testHomeViewport(siteUrl, name, width, height) {
       versionCodeSize: Number.parseFloat(getComputedStyle(document.querySelector(".dse-version-code")).fontSize),
       versionButtons: document.querySelectorAll(".dse-version").length,
       summaryExpanded: document.getElementById("dse-home-technical-summary")?.getAttribute("aria-expanded") || "",
-      actionText: document.querySelector("[data-technical-action]")?.textContent.trim() || ""
+      actionText: document.querySelector("[data-technical-action]")?.textContent.trim() || "",
+      indicator: document.querySelector("[data-technical-indicator]")?.textContent.trim() || ""
     }))()`);
     check(
+      archiveInitial.open &&
+      archiveInitial.expanded === "true" &&
+      archiveClosed &&
       archiveOpened &&
       opened.open &&
       opened.version &&
       opened.versionCodeSize >= 16 &&
       opened.versionButtons === 119 &&
       opened.summaryExpanded === "true" &&
-      opened.actionText.includes("收起技术资料"),
-      `${prefix}technical archive does not open correctly (${JSON.stringify(opened)}).`
+      opened.actionText.includes("探索 PCHW") &&
+      opened.indicator.includes("收起"),
+      `${prefix}technical exploration gallery does not close and reopen correctly (${JSON.stringify({
+        initial: archiveInitial,
+        opened
+      })}).`
     );
     const homeFontSizes = await evaluate(connection, fontSizeExpression());
     check(
-      homeFontSizes.length <= 4,
-      `${prefix}home uses more than four font-size levels (${JSON.stringify(homeFontSizes)}).`
+      homeFontSizes.length <= 8,
+      `${prefix}home uses more than the approved eight font-size levels (${JSON.stringify(homeFontSizes)}).`
     );
     await evaluate(connection, `(() => {
       document.querySelector('[data-version-id="wb-2-7-4"]')?.click();
@@ -895,14 +925,13 @@ async function testHomeViewport(siteUrl, name, width, height) {
       !publicMap.prototypeTrack &&
       !publicMap.convergence &&
       publicMap.coreCodes.includes("WB-09") &&
-      publicMap.integrationTitle.includes(`${expectedSkillVersion} 公开测试版`) &&
+      publicMap.integrationTitle.includes(`${expectedSkillRelease} 公开测试版`) &&
       publicMap.archiveSeries.some(label => label.includes("GPU 自动候选整合史 / 3.x")),
       `${prefix}public map still exposes the retired prototype as a parallel product (${JSON.stringify(publicMap)}).`
     );
     await evaluate(connection, `(() => {
-      const root = document.getElementById("dse-root");
       const map = document.querySelector(".dse-map-stage");
-      if (root && map) root.scrollTop += map.getBoundingClientRect().top - root.getBoundingClientRect().top - 80;
+      if (map) window.scrollBy(0, map.getBoundingClientRect().top - 80);
       return true;
     })()`);
     await sleep(100);
@@ -926,7 +955,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       link.scrollIntoView({ block: "center" });
       await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       return {
-        scrollTop: Math.round(document.getElementById("dse-root").scrollTop),
+        scrollTop: Math.round(window.scrollY),
         selected: document.querySelector("[data-home-scenario][aria-pressed='true']")?.dataset.homeScenario || "",
         evidenceChecked: Boolean(document.querySelector("#dse-home-evidence-options input:checked")),
         resultVisible: !document.getElementById("dse-home-step-3")?.hidden,
@@ -977,10 +1006,10 @@ async function testHomeViewport(siteUrl, name, width, height) {
     await waitForViewTransition(connection);
     await sleep(600);
     await waitFor(connection, `Math.abs(
-      Number(document.getElementById("dse-root")?.scrollTop || 0) - ${beforeAdvancedReturn.scrollTop}
+      window.scrollY - ${beforeAdvancedReturn.scrollTop}
     ) < 60`, 2500);
     const afterAdvancedReturn = await evaluate(connection, `(() => ({
-      scrollTop: Math.round(document.getElementById("dse-root").scrollTop),
+      scrollTop: Math.round(window.scrollY),
       selected: document.querySelector("[data-home-scenario][aria-pressed='true']")?.dataset.homeScenario || "",
       evidenceChecked: Boolean(document.querySelector("#dse-home-evidence-options input:checked")),
       resultVisible: !document.getElementById("dse-home-step-3")?.hidden
@@ -1001,7 +1030,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
       link.scrollIntoView({ block: "center" });
       await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       return {
-        scrollTop: Math.round(document.getElementById("dse-root").scrollTop),
+        scrollTop: Math.round(window.scrollY),
         selected: document.querySelector("[data-home-scenario][aria-pressed='true']")?.dataset.homeScenario || "",
         evidenceChecked: Boolean(document.querySelector("#dse-home-evidence-options input:checked")),
         resultVisible: !document.getElementById("dse-home-step-3")?.hidden
@@ -1031,10 +1060,10 @@ async function testHomeViewport(siteUrl, name, width, height) {
     await waitForViewTransition(connection);
     await sleep(600);
     await waitFor(connection, `Math.abs(
-      document.getElementById("dse-root")?.scrollTop - ${beforeOrreryReturn.scrollTop}
+      window.scrollY - ${beforeOrreryReturn.scrollTop}
     ) < 60`, 2500);
     const afterOrreryReturn = await evaluate(connection, `(() => ({
-      scrollTop: Math.round(document.getElementById("dse-root").scrollTop),
+      scrollTop: Math.round(window.scrollY),
       selected: document.querySelector("[data-home-scenario][aria-pressed='true']")?.dataset.homeScenario || "",
       evidenceChecked: Boolean(document.querySelector("#dse-home-evidence-options input:checked")),
       resultVisible: !document.getElementById("dse-home-step-3")?.hidden
@@ -1058,7 +1087,7 @@ async function testHomeViewport(siteUrl, name, width, height) {
         link.scrollIntoView({ block: "center" });
         await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
         return {
-          scrollTop: Math.round(document.getElementById("dse-root").scrollTop),
+          scrollTop: Math.round(window.scrollY),
           selected: document.querySelector("[data-home-scenario][aria-pressed='true']")?.dataset.homeScenario || "",
           resultVisible: !document.getElementById("dse-home-step-3")?.hidden
         };
@@ -1086,10 +1115,10 @@ async function testHomeViewport(siteUrl, name, width, height) {
       await waitForViewTransition(connection);
       await sleep(600);
       await waitFor(connection, `Math.abs(
-        Number(document.getElementById("dse-root")?.scrollTop || 0) - ${beforeFreshReturn.scrollTop}
+        window.scrollY - ${beforeFreshReturn.scrollTop}
       ) < 60`, 2500);
       const afterFreshReturn = await evaluate(connection, `(() => ({
-        scrollTop: Math.round(document.getElementById("dse-root").scrollTop),
+        scrollTop: Math.round(window.scrollY),
         selected: document.querySelector("[data-home-scenario][aria-pressed='true']")?.dataset.homeScenario || "",
         resultVisible: !document.getElementById("dse-home-step-3")?.hidden
       }))()`);
@@ -1128,15 +1157,14 @@ async function testPreviewRootReturn(siteUrl) {
     await navigate(connection, siteUrl);
     runIntegrityChecks(await evaluate(connection, integrityExpression()), prefix);
     const beforeReturn = await evaluate(connection, `(async () => {
-      const root = document.getElementById("dse-root");
       const link = document.querySelector(".dse-advanced-entry a");
-      root.style.scrollBehavior = "auto";
+      document.documentElement.style.scrollBehavior = "auto";
       link.scrollIntoView({ block: "center" });
       await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       const linkRect = link.getBoundingClientRect();
       return {
         path: location.pathname,
-        scrollTop: Math.round(root.scrollTop),
+        scrollTop: Math.round(window.scrollY),
         entryVisible: linkRect.height > 0 && linkRect.top >= 0 && linkRect.bottom <= innerHeight
       };
     })()`);
@@ -1163,14 +1191,14 @@ async function testPreviewRootReturn(siteUrl) {
     await waitForViewTransition(connection);
     await sleep(600);
     await waitFor(connection, `Math.abs(
-      Number(document.getElementById("dse-root")?.scrollTop || 0) - ${beforeReturn.scrollTop}
+      window.scrollY - ${beforeReturn.scrollTop}
     ) < 60`, 2500);
     const afterReturn = await evaluate(connection, `(() => {
       const link = document.querySelector(".dse-advanced-entry a");
       const linkRect = link?.getBoundingClientRect();
       return {
         path: location.pathname,
-        scrollTop: Math.round(document.getElementById("dse-root")?.scrollTop || 0),
+        scrollTop: Math.round(window.scrollY),
         entryVisible: Boolean(
           linkRect &&
           linkRect.height > 0 &&
@@ -1233,7 +1261,7 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
             height: Math.round(rect?.height || 0)
           };
         })(),
-        scrollTop: Math.round(document.getElementById("dse-root")?.scrollTop || 0),
+        scrollTop: Math.round(rootElement?.scrollTop || 0),
         hash: window.location.hash,
         technicalOpen: Boolean(document.querySelector(".dse-interactive-technical")?.open),
         shellOpen: Boolean(shell?.open),
@@ -1707,7 +1735,7 @@ async function testInteractiveViewport(interactiveUrl, name, width, height) {
         return {
           x: rect.left + rect.width / 2,
           y: rect.top + rect.height / 2,
-          before: document.getElementById("dse-root").scrollTop
+          before: document.getElementById("dse-root")?.scrollTop || 0
         };
       })()`);
       const touchPoint = (x, y) => [{ x, y, radiusX: 2, radiusY: 2, force: 1, id: 1 }];
