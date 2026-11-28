@@ -8891,6 +8891,11 @@
       border-radius: 8px;
     }
 
+    #dse-root .dse-hero-preview-screen picture {
+      display: block;
+      width: 100%;
+    }
+
     #dse-root .dse-hero-preview-screen img {
       display: block;
       width: 100%;
@@ -9150,7 +9155,7 @@
 
       #dse-root .dse-preview-caption::before {
         color: #c7cdd2;
-        content: "SkillDock 结果页";
+        content: "SkillDock 结果页 · 脱敏示例";
       }
 
       #dse-root .dse-preview-evidence {
@@ -10093,12 +10098,15 @@
         <span class="dse-hero-orbit inner" aria-hidden="true"></span>
         <figcaption class="dse-preview-caption">
           <span id="dse-preview-title">SkillDock · 当前对话中的本地交互面板</span>
-          <span>真实结果页</span>
+          <span>实际界面 · 脱敏示例</span>
         </figcaption>
         <div class="dse-hero-preview-screen">
-          <img src="assets/pchw-result-desktop.png"
-            width="1440" height="900" loading="eager" decoding="async"
-            alt="SkillDock 对脱敏 GPU 掉帧记录给出暂时无法确定原因和下一步建议">
+          <picture>
+            <source media="(max-width: 760px)" srcset="assets/pchw-result-mobile.png">
+            <img src="assets/pchw-result-desktop.png"
+              width="1440" height="900" loading="eager" decoding="async"
+              alt="SkillDock 脱敏示例：已定位掉帧场景、建议固定场景复测并暂不直接修改硬件">
+          </picture>
         </div>
         <div class="dse-preview-evidence">
           <span><strong>结论 · 行动 · 指标 · 证据</strong> 四层信息保留在同一任务上下文中</span>
@@ -10276,7 +10284,7 @@
             <source media="(max-width: 760px)" srcset="assets/pchw-result-mobile.png">
             <img src="assets/pchw-result-desktop.png"
               width="1440" height="900" loading="eager" decoding="async"
-              alt="SkillDock 结果页：GPU 掉帧判断、下一步、关键指标和数据记录概况">
+              alt="SkillDock 脱敏示例结果：已定位掉帧场景、下一步复测和关键指标">
           </picture>
         </figure>
         <div class="dse-candidate-primary">
