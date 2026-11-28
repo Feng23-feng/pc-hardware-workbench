@@ -2,18 +2,23 @@
   <style>
     html,
     body {
-      height: 100%;
+      min-height: 100%;
       margin: 0;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
     }
 
     #dse-root {
-      --dse-bg: #08090b;
-      --dse-panel: #0e1013;
-      --dse-panel-2: #14171a;
-      --dse-text: #f1f3f5;
-      --dse-muted: #8f96a0;
-      --dse-line: #25292f;
+      --dse-bg: #111315;
+      --dse-panel: #1a1c1e;
+      --dse-panel-2: #232527;
+      --dse-text: #f3efe9;
+      --dse-muted: #a7a19a;
+      --dse-line: #38383a;
+      --dse-copper: #b87348;
+      --dse-copper-soft: #d7a17b;
+      --dse-copper-rgb: 184 115 72;
+      --dse-copper-soft-rgb: 215 161 123;
       --dse-cyan: #81cfdf;
       --dse-magenta: #d795b9;
       --dse-lime: #a6d7a2;
@@ -26,20 +31,19 @@
       --dse-red-rgb: 220 131 139;
       --dse-white-rgb: 255 255 255;
       --dse-black-rgb: 0 0 0;
-      --dse-surface-deep: #0a0c0e;
-      --dse-surface-control: #15181b;
-      --dse-text-strong: #eef2f4;
-      --dse-text-muted-soft: #8b929c;
-      --dse-text-faint: #7f8790;
-      --dse-line-soft: #292e34;
-      --dse-line-strong: #343941;
+      --dse-surface-deep: #111315;
+      --dse-surface-control: #232527;
+      --dse-text-strong: #f3efe9;
+      --dse-text-muted-soft: #a7a19a;
+      --dse-text-faint: #8d8984;
+      --dse-line-soft: #2c2d2f;
+      --dse-line-strong: #3b3b3d;
       position: relative;
-      height: 100%;
-      overflow-x: hidden;
-      overflow-y: auto;
+      min-height: 100vh;
+      overflow: visible;
       color: var(--dse-text);
       background:
-        radial-gradient(circle at 50% -18%, rgba(129, 207, 223, .055), transparent 34%),
+        radial-gradient(circle at 50% -18%, rgba(184, 115, 72, .045), transparent 34%),
         var(--dse-bg);
       border: 0;
       font-family: "Segoe UI Variable", "Segoe UI", "Noto Sans SC", "Microsoft YaHei UI", sans-serif;
@@ -3969,11 +3973,11 @@
     @keyframes dse-art-version-stack-drift {
       0%,
       100% {
-        transform: translate(0, 0);
+        transform: translateY(0);
       }
 
       50% {
-        transform: translate(7px, -3px);
+        transform: translateY(-3px);
       }
     }
 
@@ -4292,7 +4296,7 @@
 
     #dse-root .dse-archive {
       margin-top: 36px;
-      padding: 28px 0;
+      padding: 28px clamp(24px, 3vw, 48px);
       background: transparent;
       border: 0;
       border-top: 1px solid var(--dse-line);
@@ -7304,6 +7308,10 @@
       -webkit-mask-image: linear-gradient(90deg, transparent 0, rgb(var(--dse-black-rgb)) 12%, rgb(var(--dse-black-rgb)) 84%, transparent 100%);
     }
 
+    #dse-root .dse-orrery-mobile-labels {
+      display: none;
+    }
+
     #dse-root .dse-explore-primary a:hover .dse-orrery-preview,
     #dse-root .dse-explore-primary a:focus-visible .dse-orrery-preview {
       transform: translateY(-3px);
@@ -7387,6 +7395,10 @@
       border-bottom: 1px solid #39424a;
     }
 
+    #dse-root .dse-map-stage {
+      margin-top: clamp(22px, 2vw, 28px);
+    }
+
     #dse-root .dse-filters {
       gap: 8px;
       align-items: center;
@@ -7415,17 +7427,18 @@
       color: #090c0f;
       background: #e7ebee;
       border-color: #e7ebee;
+      box-shadow: inset 0 -1px 0 var(--dse-copper-soft);
     }
 
     #dse-root .dse-filter.dse-lab-link {
-      color: #b8dfe5;
-      border-color: #31515a;
+      color: #d9c2b1;
+      border-color: #4b4039;
     }
 
     #dse-root .dse-filter.dse-lab-link:hover,
     #dse-root .dse-filter.dse-lab-link:focus-visible {
-      color: #effafb;
-      border-color: #72b7c4;
+      color: var(--dse-text-strong);
+      border-color: var(--dse-copper-soft);
     }
 
     #dse-root .dse-legend {
@@ -8659,21 +8672,1439 @@
         gap: 14px;
       }
     }
+
+    /*
+      Corrected direction:
+      keep the stable site's visual system, then carry this round's dual hero,
+      real product evidence and clearer download choice into it.
+    */
+    #dse-root .dse-hero.dse-hero--split {
+      display: grid;
+      grid-template-columns: minmax(0, .84fr) minmax(500px, 1.16fr);
+      align-items: center;
+      gap: clamp(48px, 5vw, 76px);
+      max-width: 1240px;
+      min-height: 100vh;
+      min-height: 100svh;
+      margin: 0 auto;
+      padding: 66px 0 76px;
+      border: 0;
+      text-align: left;
+    }
+
+    #dse-root .dse-hero--split .dse-header-copy {
+      max-width: none;
+      margin: 0;
+    }
+
+    #dse-root .dse-hero--split .dse-skill-kicker {
+      justify-content: flex-start;
+      margin-bottom: 18px;
+      font-size: 12px;
+    }
+
+    #dse-root .dse-hero--split h1 {
+      max-width: 610px;
+      margin: 0;
+      font-size: clamp(54px, 5.35vw, 78px);
+      font-weight: 500;
+      line-height: 1.02;
+      letter-spacing: -.03em;
+      text-wrap: initial;
+    }
+
+    #dse-root .dse-hero--split h1 > span {
+      display: block;
+    }
+
+    #dse-root .dse-hero--split .dse-hero-product-line {
+      max-width: 590px;
+      margin: 18px 0 0;
+      color: var(--dse-cyan);
+      font-size: clamp(20px, 1.55vw, 23px) !important;
+      font-weight: 500;
+      line-height: 1.4;
+      letter-spacing: -.01em;
+    }
+
+    #dse-root .dse-hero--split .dse-subtitle {
+      max-width: 590px;
+      margin: 18px 0 0;
+      color: #a4acb4;
+      font-size: 16px;
+      line-height: 1.78;
+    }
+
+    #dse-root .dse-hero--split .dse-invoke-example {
+      margin: 14px 0 0;
+      font-size: 13px !important;
+    }
+
+    #dse-root .dse-hero-evidence-rail {
+      display: grid;
+      grid-template-columns: auto minmax(20px, 1fr) auto minmax(20px, 1fr) auto;
+      align-items: center;
+      gap: 10px;
+      max-width: 560px;
+      margin-top: 24px;
+      color: #9ba4ac;
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 11px !important;
+      letter-spacing: .02em;
+    }
+
+    #dse-root .dse-hero-evidence-rail span {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      white-space: nowrap;
+    }
+
+    #dse-root .dse-hero-evidence-rail b {
+      color: var(--dse-cyan);
+      font-weight: 500;
+    }
+
+    #dse-root .dse-hero-evidence-rail i {
+      position: relative;
+      display: block;
+      height: 1px;
+      background: linear-gradient(90deg, #42616a, #233038);
+    }
+
+    #dse-root .dse-hero-evidence-rail i::after {
+      position: absolute;
+      top: -2px;
+      right: 0;
+      width: 5px;
+      height: 5px;
+      background: var(--dse-cyan);
+      border-radius: 50%;
+      content: "";
+      opacity: .68;
+    }
+
+    #dse-root .dse-hero--split .dse-hero-actions {
+      justify-content: flex-start;
+      margin-top: 26px;
+    }
+
+    #dse-root .dse-hero--split .dse-hero-safety {
+      margin: 22px 0 0;
+      font-size: 13px !important;
+      text-align: left;
+    }
+
+    #dse-root .dse-hero-preview {
+      position: relative;
+      z-index: 1;
+      min-width: 0;
+      margin: 0;
+      padding: 16px;
+      background:
+        radial-gradient(circle at 72% 14%, rgba(var(--dse-cyan-rgb) / .1), transparent 34%),
+        linear-gradient(150deg, rgba(12, 18, 22, .96), rgba(7, 10, 12, .98));
+      border: 1px solid #303941;
+      border-radius: 16px;
+      box-shadow: 0 28px 85px rgba(0, 0, 0, .48);
+    }
+
+    #dse-root .dse-hero-preview::before {
+      position: absolute;
+      top: 50%;
+      right: calc(100% + 1px);
+      width: clamp(48px, 5vw, 76px);
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(var(--dse-cyan-rgb) / .58));
+      content: "";
+    }
+
+    #dse-root .dse-hero-preview::after {
+      position: absolute;
+      top: calc(50% - 3px);
+      right: calc(100% + clamp(48px, 5vw, 76px));
+      width: 7px;
+      height: 7px;
+      background: var(--dse-cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 16px rgba(var(--dse-cyan-rgb) / .55);
+      content: "";
+    }
+
+    #dse-root .dse-hero-orbit {
+      position: absolute;
+      z-index: -1;
+      top: 50%;
+      left: 50%;
+      border: 1px solid rgba(var(--dse-cyan-rgb) / .14);
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%) rotate(-12deg);
+    }
+
+    #dse-root .dse-hero-orbit.outer {
+      width: 112%;
+      height: 78%;
+    }
+
+    #dse-root .dse-hero-orbit.inner {
+      width: 86%;
+      height: 56%;
+      border-style: dashed;
+      opacity: .72;
+      transform: translate(-50%, -50%) rotate(8deg);
+    }
+
+    #dse-root .dse-preview-caption {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 0 2px 12px;
+      color: #9099a2;
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 11px !important;
+      letter-spacing: .025em;
+    }
+
+    #dse-root .dse-preview-caption span:first-child {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      color: #c7cdd2;
+      overflow-wrap: anywhere;
+    }
+
+    #dse-root .dse-preview-caption span:first-child::before {
+      width: 6px;
+      height: 6px;
+      background: var(--dse-amber);
+      border-radius: 50%;
+      content: "";
+    }
+
+    #dse-root .dse-hero-preview-screen {
+      overflow: hidden;
+      background: #f2f0eb;
+      border: 1px solid #434b53;
+      border-radius: 8px;
+    }
+
+    #dse-root .dse-hero-preview-screen img {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 8 / 5;
+      object-fit: cover;
+      object-position: top center;
+    }
+
+    #dse-root .dse-preview-evidence {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 12px;
+      padding: 10px 2px 0;
+      color: #929ba3;
+      border-top: 1px solid #272e34;
+      font-size: 12px !important;
+      line-height: 1.5;
+    }
+
+    #dse-root .dse-preview-evidence strong {
+      color: #d4d9dd;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-preview-evidence b {
+      color: var(--dse-cyan);
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+      font-size: 10px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    #dse-root .dse-candidate-main {
+      grid-template-columns: 1fr;
+    }
+
+    #dse-root .dse-candidate-preview {
+      display: none;
+    }
+
+    #dse-root .dse-candidate-primary {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    #dse-root .dse-candidate-primary a {
+      align-content: start;
+      min-height: 132px;
+    }
+
+    #dse-root .dse-version-title {
+      overflow: visible !important;
+      text-overflow: clip !important;
+      white-space: normal !important;
+    }
+
+    #dse-root .dse-home-technical {
+      margin-top: 64px;
+    }
+
+    #dse-root .dse-home-technical > summary {
+      min-height: 104px;
+      padding: 22px 24px;
+    }
+
+    #dse-root .dse-home-technical > summary span {
+      font-size: 22px;
+      letter-spacing: -.02em;
+    }
+
+    #dse-root .dse-home-technical > summary small {
+      margin-top: 4px;
+      font-size: 13px;
+    }
+
+    #dse-root .dse-orrery-preview {
+      min-height: 344px;
+    }
+
+    @media (max-width: 1120px) {
+      #dse-root .dse-hero.dse-hero--split {
+        grid-template-columns: minmax(0, .86fr) minmax(440px, 1.14fr);
+        gap: 36px;
+      }
+
+      #dse-root .dse-hero--split h1 {
+        font-size: clamp(50px, 5.85vw, 66px);
+      }
+
+      #dse-root .dse-candidate-primary {
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root .dse-process-visual {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      #dse-root .dse-process-steps {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      #dse-root .dse-process-step {
+        min-height: 44px;
+        padding: 8px 10px;
+        white-space: normal;
+        background: rgb(var(--dse-white-rgb) / .018);
+        border: 1px solid var(--dse-line-soft);
+        border-radius: 8px;
+      }
+
+      #dse-root .dse-process-step:not(:last-child)::after {
+        display: none;
+      }
+
+      #dse-root .dse-process-note {
+        white-space: normal;
+      }
+    }
+
+    @media (max-width: 920px) {
+      #dse-root .dse-hero.dse-hero--split {
+        grid-template-columns: 1fr;
+        gap: 44px;
+        min-height: auto;
+        padding: 52px 0 76px;
+      }
+
+      #dse-root .dse-hero--split h1 {
+        max-width: 760px;
+      }
+
+      #dse-root .dse-hero-preview {
+        max-width: 820px;
+      }
+
+      #dse-root .dse-hero-preview::before,
+      #dse-root .dse-hero-preview::after {
+        display: none;
+      }
+
+      #dse-root .dse-orrery-preview {
+        min-height: 220px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      #dse-root .dse-hero.dse-hero--split {
+        padding: 38px 18px 58px;
+      }
+
+      #dse-root .dse-hero--split .dse-skill-kicker {
+        justify-content: flex-start;
+      }
+
+      #dse-root .dse-hero--split h1 {
+        font-size: clamp(42px, 12vw, 54px);
+        line-height: 1.06;
+      }
+
+      #dse-root .dse-hero--split .dse-hero-product-line {
+        margin-top: 14px;
+        font-size: 18px !important;
+      }
+
+      #dse-root .dse-hero--split .dse-subtitle {
+        margin-top: 20px;
+        font-size: 15px;
+      }
+
+      #dse-root .dse-hero-evidence-rail {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        margin-top: 18px;
+      }
+
+      #dse-root .dse-hero-evidence-rail i {
+        display: none;
+      }
+
+      #dse-root .dse-hero--split .dse-hero-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root .dse-hero--split .dse-hero-action {
+        width: 100%;
+      }
+
+      #dse-root .dse-hero-preview {
+        padding: 10px;
+        border-radius: 12px;
+      }
+
+      #dse-root .dse-preview-caption {
+        padding-bottom: 9px;
+        font-size: 9px;
+      }
+
+      #dse-root .dse-preview-evidence {
+        display: grid;
+        gap: 4px;
+        font-size: 10px;
+      }
+
+      #dse-root .dse-candidate-primary {
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root .dse-home-technical > summary {
+        min-height: 88px;
+        padding: 18px;
+      }
+
+      #dse-root .dse-home-technical > summary span {
+        font-size: 18px;
+      }
+
+      #dse-root .dse-orrery-preview {
+        min-height: 270px;
+        height: 270px;
+      }
+
+      #dse-root .dse-orrery-mobile-labels {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 2;
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 30px 14px 12px;
+        color: #b8c0c7;
+        background: linear-gradient(transparent, rgba(5, 8, 11, .94));
+        font-size: 12px !important;
+        line-height: 1.4;
+        pointer-events: none;
+      }
+
+      #dse-root .dse-orrery-mobile-labels b {
+        color: #d8dde1;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+    }
+
+    @media (max-width: 420px) {
+      #dse-root .dse-preview-caption > span {
+        display: none !important;
+      }
+
+      #dse-root .dse-preview-caption::before {
+        color: #c7cdd2;
+        content: "SkillDock 结果页";
+      }
+
+      #dse-root .dse-preview-evidence {
+        display: none !important;
+      }
+
+      #dse-root .dse-hero-orbit {
+        display: none;
+      }
+    }
+
+    @media (max-width: 580px) {
+      #dse-root .dse-detail {
+        max-height: 38vh;
+      }
+    }
+
+    #dse-root .dse-map-stage.is-detail-open {
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 330px);
+      gap: 32px;
+    }
+
+    #dse-root .dse-track {
+      padding: 22px 24px 8px;
+      border: 1px solid var(--dse-line-soft);
+      border-radius: 14px;
+    }
+
+    #dse-root .dse-detail {
+      padding: 18px;
+    }
+
+    #dse-root .dse-orientation-links a {
+      position: relative;
+      transform: translateY(0);
+      transition:
+        background-color .2s ease,
+        border-color .2s ease,
+        transform .2s ease;
+    }
+
+    #dse-root .dse-orientation-links a::after {
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      color: var(--dse-text-faint);
+      content: "↗";
+      font-size: 13px;
+      transition: color .2s ease, transform .2s ease;
+    }
+
+    #dse-root .dse-orientation-links a:hover,
+    #dse-root .dse-orientation-links a:focus-visible {
+      transform: translateY(-2px);
+    }
+
+    #dse-root .dse-orientation-links a:hover::after,
+    #dse-root .dse-orientation-links a:focus-visible::after {
+      color: var(--dse-copper-soft);
+      transform: translate(1px, -1px);
+    }
+
+    #dse-root .dse-orientation-links a:hover .dse-orientation-art {
+      color: #78675b;
+    }
+
+    #dse-root .dse-orientation-links a:hover .dse-orientation-art svg {
+      transform: translateY(-2px) scale(1.015);
+    }
+
+    #dse-root .dse-art-layer {
+      animation: none;
+    }
+
+    #dse-root .dse-art-layer-2 {
+      animation-delay: -1.3s;
+    }
+
+    #dse-root .dse-art-layer-3 {
+      animation-delay: -2.6s;
+    }
+
+    #dse-root .dse-art-layer-4 {
+      animation-delay: -3.9s;
+    }
+
+    #dse-root .dse-art-chip-group {
+      animation: none;
+    }
+
+    #dse-root .dse-art-pulse {
+      animation: none;
+    }
+
+    #dse-root .dse-art-version-stack {
+      animation: none;
+    }
+
+    #dse-root .dse-art-version-plane {
+      animation: none;
+    }
+
+    #dse-root .dse-art-version-links {
+      animation: none;
+    }
+
+    #dse-root .dse-art-version-link-signal {
+      animation: none;
+    }
+
+    #dse-root .dse-art-flow-signal {
+      animation: none;
+    }
+
+    #dse-root .dse-art-flow-gate-ring {
+      animation: none;
+    }
+
+    #dse-root .dse-art-orbit-rays {
+      animation: none;
+    }
+
+    #dse-root .dse-art-planet-halo {
+      animation: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #dse-root .dse-orientation-art *,
+      #dse-root .dse-orientation-art {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+
+    /*
+      Graphite Copper Dark:
+      warm graphite surfaces and restrained copper actions.
+      Data series, safety states and the orrery keep their own colour semantics.
+    */
+    #dse-root .dse-hero h1,
+    #dse-root .dse-section-intro h2,
+    #dse-root .dse-home-flow-step-head h3,
+    #dse-root .dse-explore-title,
+    #dse-root .dse-candidate h2 {
+      color: var(--dse-text-strong);
+    }
+
+    #dse-root .dse-hero-product-line,
+    #dse-root .dse-kicker,
+    #dse-root .dse-orientation-kicker,
+    #dse-root .dse-demo-kicker,
+    #dse-root .dse-explore-kicker,
+    #dse-root .dse-track-kicker,
+    #dse-root .dse-archive-kicker,
+    #dse-root .dse-candidate-state {
+      color: var(--dse-copper-soft);
+    }
+
+    #dse-root .dse-hero-evidence-rail b,
+    #dse-root .dse-hero-evidence-rail i::after,
+    #dse-root .dse-home-question-option[aria-pressed="true"] .dse-home-question-marker,
+    #dse-root .dse-explore-cta,
+    #dse-root .dse-orrery-cta,
+    #dse-root .dse-home-technical > summary i,
+    #dse-root .dse-candidate-primary span {
+      color: var(--dse-copper-soft);
+    }
+
+    #dse-root .dse-hero-evidence-rail b,
+    #dse-root .dse-home-question-marker,
+    #dse-root .dse-explore-cta span {
+      color: var(--dse-copper-soft);
+    }
+
+    #dse-root .dse-hero-evidence-rail i {
+      background: linear-gradient(90deg, rgba(var(--dse-copper-rgb) / .7), rgba(var(--dse-copper-rgb) / .16));
+    }
+
+    #dse-root .dse-hero--split .dse-hero-product-line,
+    #dse-root .dse-hero--split .dse-hero-evidence-rail b {
+      color: var(--dse-copper-soft) !important;
+    }
+
+    #dse-root .dse-hero--split .dse-hero-evidence-rail i {
+      background: linear-gradient(90deg, rgba(var(--dse-copper-rgb) / .7), rgba(var(--dse-copper-rgb) / .16));
+    }
+
+    #dse-root .dse-hero--split .dse-hero-evidence-rail i::after {
+      background: var(--dse-copper-soft);
+    }
+
+    #dse-root .dse-hero-preview {
+      background:
+        radial-gradient(circle at 72% 14%, rgba(var(--dse-copper-rgb) / .075), transparent 34%),
+        linear-gradient(150deg, rgba(26, 28, 30, .98), rgba(17, 19, 21, .99));
+      border-color: var(--dse-line-strong);
+      box-shadow: 0 28px 80px rgba(0, 0, 0, .44);
+    }
+
+    #dse-root .dse-hero-preview::before {
+      background: linear-gradient(90deg, transparent, rgba(var(--dse-copper-rgb) / .56));
+    }
+
+    #dse-root .dse-hero-preview::after {
+      background: var(--dse-copper-soft);
+      box-shadow: 0 0 8px rgba(var(--dse-copper-rgb) / .26);
+    }
+
+    #dse-root .dse-hero-orbit {
+      border-color: rgba(var(--dse-copper-rgb) / .16);
+    }
+
+    #dse-root .dse-hero--split .dse-hero-orbit {
+      border-color: rgba(var(--dse-copper-rgb) / .16);
+    }
+
+    #dse-root .dse-preview-caption span:first-child::before {
+      background: var(--dse-copper);
+    }
+
+    #dse-root .dse-preview-evidence {
+      border-color: var(--dse-line-soft);
+    }
+
+    #dse-root .dse-preview-evidence b {
+      color: var(--dse-copper-soft);
+    }
+
+    #dse-root .dse-hero-action.primary,
+    #dse-root .dse-home-flow-actions .primary,
+    #dse-root .dse-demo-action.primary,
+    #dse-root .dse-howto-cta {
+      color: #171310;
+      background: var(--dse-copper);
+      border-color: var(--dse-copper);
+    }
+
+    #dse-root .dse-hero-action.primary:hover,
+    #dse-root .dse-hero-action.primary:focus-visible,
+    #dse-root .dse-home-flow-actions .primary:hover,
+    #dse-root .dse-home-flow-actions .primary:focus-visible,
+    #dse-root .dse-demo-action.primary:hover,
+    #dse-root .dse-demo-action.primary:focus-visible,
+    #dse-root .dse-howto-cta:hover,
+    #dse-root .dse-howto-cta:focus-visible {
+      color: #171310;
+      background: var(--dse-copper-soft);
+      border-color: var(--dse-copper-soft);
+    }
+
+    #dse-root .dse-hero-action.secondary,
+    #dse-root .dse-home-flow-actions button,
+    #dse-root .dse-home-flow-actions a {
+      color: var(--dse-text);
+      background: var(--dse-surface-control);
+      border-color: var(--dse-line-strong);
+    }
+
+    #dse-root .dse-hero-action.secondary:hover,
+    #dse-root .dse-hero-action.secondary:focus-visible,
+    #dse-root .dse-home-flow-actions button:hover,
+    #dse-root .dse-home-flow-actions button:focus-visible,
+    #dse-root .dse-home-flow-actions a:hover,
+    #dse-root .dse-home-flow-actions a:focus-visible {
+      color: var(--dse-text-strong);
+      background: var(--dse-panel-2);
+      border-color: var(--dse-copper-soft);
+    }
+
+    #dse-root :is(a, button, input, summary, select, textarea):focus-visible {
+      outline-color: var(--dse-copper-soft) !important;
+    }
+
+    #dse-root .dse-home-question-option,
+    #dse-root .dse-candidate-primary a,
+    #dse-root .dse-explore-primary a,
+    #dse-root .dse-home-technical > summary,
+    #dse-root .dse-demo-panel,
+    #dse-root .dse-archive,
+    #dse-root .dse-version,
+    #dse-root .dse-demo-field select {
+      background: var(--dse-panel);
+      border-color: var(--dse-line-soft);
+    }
+
+    #dse-root .dse-home-question-option:hover,
+    #dse-root .dse-home-question-option:focus-visible,
+    #dse-root .dse-candidate-primary a:hover,
+    #dse-root .dse-candidate-primary a:focus-visible,
+    #dse-root .dse-explore-primary a:hover,
+    #dse-root .dse-explore-primary a:focus-visible,
+    #dse-root .dse-home-technical > summary:hover,
+    #dse-root .dse-home-technical > summary:focus-visible {
+      background: var(--dse-panel-2);
+      border-color: var(--dse-copper);
+    }
+
+    #dse-root .dse-home-question-option[aria-pressed="true"] {
+      background: rgba(var(--dse-copper-rgb) / .085);
+      border-color: var(--dse-copper-soft);
+    }
+
+    #dse-root .dse-advanced-entry a {
+      background: var(--dse-panel);
+      border-color: var(--dse-line-soft);
+    }
+
+    #dse-root .dse-orrery-preview {
+      background: var(--dse-bg);
+      border-color: var(--dse-line-soft);
+    }
+
+    #dse-root .dse-orientation-links a {
+      background: rgba(26, 28, 30, .62);
+      border-color: var(--dse-line-soft);
+    }
+
+    #dse-root .dse-orientation-links a:hover,
+    #dse-root .dse-orientation-links a:focus-visible {
+      background: var(--dse-panel-2);
+      border-color: var(--dse-copper-soft);
+    }
+
+    #dse-root .dse-process-step:last-child b {
+      color: var(--dse-copper-soft);
+      border-color: rgba(var(--dse-copper-rgb) / .56);
+    }
+
+    #dse-root .dse-track {
+      background: var(--dse-panel);
+      border-color: var(--dse-line-soft);
+    }
+
+    #dse-root .dse-track.core {
+      border-top-color: var(--dse-copper);
+    }
+
+    #dse-root .dse-track-badge {
+      color: var(--dse-copper-soft);
+      background: rgba(var(--dse-copper-rgb) / .07);
+      border-color: rgba(var(--dse-copper-rgb) / .48);
+    }
+
+    #dse-root .dse-track.core .dse-node {
+      background: #151311;
+      border-color: rgba(var(--dse-copper-rgb) / .34);
+    }
+
+    #dse-root .dse-node.is-selected {
+      border-color: var(--dse-copper-soft);
+    }
+
+    #dse-root .dse-detail,
+    #dse-root .dse-version-detail {
+      background: rgba(26, 28, 30, .98);
+      border-color: var(--dse-line-strong);
+      border-left-color: var(--dse-copper);
+    }
+
+    #dse-root .dse-detail::before {
+      background: var(--dse-copper);
+    }
+
+    #dse-root .dse-detail-kicker,
+    #dse-root .dse-version-detail-kicker {
+      color: var(--dse-copper-soft);
+    }
+
+    @media (max-width: 760px) {
+      #dse-root .dse-orrery-preview {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        min-height: 0;
+      }
+
+      #dse-root .dse-orrery-preview img {
+        flex: none;
+        height: 244px;
+      }
+
+      #dse-root .dse-orrery-mobile-labels {
+        position: static;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 4px;
+        padding: 12px 10px;
+        background: var(--dse-panel-2);
+        border-top: 1px solid var(--dse-line-soft);
+      }
+
+      #dse-root .dse-orrery-mobile-labels b {
+        color: var(--dse-muted);
+        font-size: 10px;
+        text-align: center;
+        white-space: normal;
+      }
+
+      #dse-root .dse-orrery-mobile-labels b:first-child {
+        color: var(--dse-copper-soft);
+      }
+    }
+
+    /* Final exploration gallery */
+    #dse-root .dse-orientation {
+      padding-inline: clamp(18px, 2.4vw, 28px);
+    }
+
+    #dse-root .dse-orientation-copy {
+      align-items: end;
+      margin-bottom: 26px;
+    }
+
+    #dse-root .dse-orientation-links {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+      border: 0;
+    }
+
+    #dse-root .dse-orientation-card {
+      --card-accent: var(--dse-copper);
+      --card-accent-rgb: var(--dse-copper-rgb);
+      --card-line: #9b8779;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 426px;
+      padding: 16px;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, .024), transparent 44%),
+        #1a1c1e;
+      border: 1px solid #37383a;
+      border-radius: 14px;
+      transform: translateY(0);
+      transition:
+        transform .22s ease,
+        border-color .22s ease,
+        background-color .22s ease,
+        box-shadow .22s ease;
+    }
+
+    #dse-root .dse-orientation-card::after {
+      display: none;
+      content: none;
+    }
+
+    #dse-root .dse-orientation-card--history {
+      --card-accent: #c99c66;
+      --card-accent-rgb: 201 156 102;
+      --card-line: #aa917b;
+      --evolution-line-1: #947a67;
+      --evolution-line-2: #aa8068;
+      --evolution-line-3: #c28e6f;
+      --evolution-line-bright: #e9bc99;
+    }
+
+    #dse-root .dse-orientation-card--flow {
+      --card-accent: var(--dse-copper-soft);
+      --card-accent-rgb: var(--dse-copper-soft-rgb);
+      --card-line: #8e9b91;
+    }
+
+    #dse-root .dse-orientation-card--orrery {
+      --card-accent: var(--dse-copper-soft);
+      --card-accent-rgb: var(--dse-copper-soft-rgb);
+      --card-line: #958c82;
+    }
+
+    #dse-root .dse-orientation-card:hover,
+    #dse-root .dse-orientation-card:focus-visible {
+      background: #202224;
+      border-color: rgba(var(--card-accent-rgb) / .62);
+      box-shadow: 0 14px 28px rgba(0, 0, 0, .2);
+      transform: translateY(-3px);
+    }
+
+    #dse-root .dse-orientation-card:focus-visible {
+      outline: 2px solid var(--dse-copper-soft);
+      outline-offset: 3px;
+    }
+
+    #dse-root .dse-orientation-links .dse-orientation-art {
+      position: relative;
+      display: grid;
+      flex: none;
+      place-items: center;
+      min-height: 226px;
+      padding: 0;
+      overflow: hidden;
+      color: var(--card-line);
+      background:
+        radial-gradient(circle at 50% 48%, rgba(var(--card-accent-rgb) / .09), transparent 58%),
+        transparent;
+      border: 0;
+      border-radius: 0;
+      transition: background .22s ease;
+    }
+
+    #dse-root .dse-orientation-card:hover .dse-orientation-art,
+    #dse-root .dse-orientation-card:focus-visible .dse-orientation-art {
+      background:
+        radial-gradient(circle at 50% 48%, rgba(var(--card-accent-rgb) / .125), transparent 62%),
+        transparent;
+    }
+
+    #dse-root .dse-orientation-art svg {
+      width: min(100%, 276px);
+      max-height: 194px;
+    }
+
+    #dse-root .dse-orientation-art svg g {
+      stroke-width: 1.2;
+    }
+
+    #dse-root .dse-orientation-card:hover .dse-orientation-art svg {
+      transform: translateY(-2px) scale(1.025);
+    }
+
+    #dse-root .dse-art-field {
+      stroke: currentColor;
+      stroke-width: .8;
+      opacity: .15;
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-face {
+      stroke: none;
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-stage-1 .dse-evolution-face-top {
+      fill: rgba(var(--card-accent-rgb) / .035);
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-stage-1 .dse-evolution-face-side {
+      fill: rgba(var(--card-accent-rgb) / .065);
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-stage-2 .dse-evolution-face-top {
+      fill: rgba(var(--card-accent-rgb) / .05);
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-stage-2 .dse-evolution-face-side {
+      fill: rgba(var(--card-accent-rgb) / .085);
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-stage-3 .dse-evolution-face-top {
+      fill: rgba(var(--card-accent-rgb) / .065);
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-stage-3 .dse-evolution-face-side {
+      fill: rgba(var(--card-accent-rgb) / .105);
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-stage-4 .dse-evolution-face-top {
+      fill: rgba(var(--card-accent-rgb) / .085);
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-stage-4 .dse-evolution-face-side {
+      fill: rgba(var(--card-accent-rgb) / .14);
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-edge {
+      stroke-width: 1.15;
+      opacity: .76;
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-detail {
+      stroke-width: .85;
+      opacity: .3;
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-stage-1 .dse-evolution-edge,
+    #dse-root .dse-art-evolution .dse-evolution-stage-1 .dse-evolution-detail {
+      stroke: var(--evolution-line-1);
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-stage-2 .dse-evolution-edge,
+    #dse-root .dse-art-evolution .dse-evolution-stage-2 .dse-evolution-detail {
+      stroke: var(--evolution-line-2);
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-stage-3 .dse-evolution-edge,
+    #dse-root .dse-art-evolution .dse-evolution-stage-3 .dse-evolution-detail {
+      stroke: var(--evolution-line-3);
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-stage-4 .dse-evolution-edge,
+    #dse-root .dse-art-evolution .dse-evolution-stage-4 .dse-evolution-detail {
+      stroke: var(--card-accent);
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-stage-1 .dse-evolution-edge {
+      opacity: .46;
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-stage-2 .dse-evolution-edge {
+      opacity: .56;
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-stage-3 .dse-evolution-edge {
+      opacity: .68;
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-stage-4 .dse-evolution-edge {
+      opacity: .92;
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-final-outline {
+      stroke-width: 1.25;
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-progress-rail {
+      stroke: #b98668;
+      stroke-width: .95;
+      opacity: .22;
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-progress-node {
+      fill: #1a1c1e;
+      stroke: #c18e70;
+      stroke-width: .9;
+      opacity: .42;
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-progress-node-final {
+      stroke: var(--evolution-line-bright);
+      stroke-width: 1.1;
+      opacity: .66;
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-orbit {
+      stroke: var(--card-accent);
+      stroke-width: .8;
+      stroke-dasharray: 2 8;
+      opacity: .18;
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-core-top {
+      fill: rgba(var(--card-accent-rgb) / .2);
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-core-side {
+      fill: rgba(var(--card-accent-rgb) / .27);
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-core-line {
+      stroke: var(--evolution-line-bright);
+      stroke-width: 1.2;
+      opacity: .96;
+    }
+
+    #dse-root .dse-art-evolution .dse-evolution-core-point {
+      fill: var(--evolution-line-bright);
+      stroke: none;
+    }
+
+    #dse-root .dse-orientation-card .dse-art-accent {
+      stroke: var(--card-accent);
+      fill: var(--card-accent);
+    }
+
+    #dse-root .dse-orientation-card .dse-art-flow-signal,
+    #dse-root .dse-orientation-card .dse-art-flow-gate-ring,
+    #dse-root .dse-orientation-card .dse-art-flow-gate,
+    #dse-root .dse-orientation-card .dse-art-version-link-signal,
+    #dse-root .dse-orientation-card .dse-art-planet-halo {
+      stroke: var(--card-accent);
+    }
+
+    #dse-root .dse-orientation-card .dse-art-flow-gate {
+      fill: var(--card-accent);
+    }
+
+    #dse-root .dse-art-map-link,
+    #dse-root .dse-art-map-frame,
+    #dse-root .dse-art-map-core-detail {
+      stroke: currentColor;
+      fill: none;
+    }
+
+    #dse-root .dse-art-map-link {
+      opacity: .68;
+    }
+
+    #dse-root .dse-art-map-link--focus {
+      stroke: var(--card-accent);
+      stroke-width: 1.8;
+      opacity: 1;
+    }
+
+    #dse-root .dse-art-map-frame {
+      opacity: .24;
+      stroke-dasharray: 2 7;
+    }
+
+    #dse-root .dse-art-map-core {
+      fill: rgba(var(--card-accent-rgb) / .07);
+      stroke: var(--card-accent);
+      stroke-width: 1.5;
+    }
+
+    #dse-root .dse-art-map-core-detail {
+      stroke: var(--card-accent);
+      opacity: .78;
+    }
+
+    #dse-root .dse-art-map-node {
+      fill: #1a1c1e;
+      stroke: var(--card-accent);
+      stroke-width: 1.35;
+    }
+
+    #dse-root .dse-art-map-node-core {
+      fill: var(--card-accent);
+      stroke: none;
+    }
+
+    #dse-root .dse-art-layer,
+    #dse-root .dse-art-version-plane {
+      stroke: var(--card-line);
+      stroke-width: 1.3;
+    }
+
+    #dse-root .dse-art-orbit-ring {
+      stroke: var(--card-line);
+      stroke-width: 1.15;
+      opacity: .68;
+    }
+
+    #dse-root .dse-art-flow-route {
+      stroke: currentColor;
+      stroke-width: 1.3;
+      opacity: .78;
+    }
+
+    #dse-root .dse-art-flow-signal {
+      stroke-width: 2.2;
+      opacity: .92;
+    }
+
+    #dse-root .dse-art-flow-port {
+      fill: var(--card-accent);
+      opacity: .9;
+    }
+
+    #dse-root .dse-art-data-row-focus {
+      stroke: var(--dse-copper-soft);
+      fill: rgba(var(--dse-copper-rgb) / .14);
+      opacity: .95;
+    }
+
+    #dse-root .dse-art-flow-route--arrow {
+      marker-end: url(#dse-flow-arrow-head);
+    }
+
+    #dse-root .dse-art-orbit-static {
+      display: inline;
+    }
+
+    #dse-root .dse-art-orbit-static.node-a {
+      fill: var(--dse-magenta);
+    }
+
+    #dse-root .dse-art-orbit-static.node-b {
+      fill: var(--dse-lime);
+    }
+
+    #dse-root .dse-art-orbit-static.node-c {
+      fill: var(--dse-amber);
+    }
+
+    #dse-root .dse-art-orbit-static.node-d {
+      fill: #91aeb7;
+    }
+
+    #dse-root .dse-art-orbit-static.node-e {
+      fill: #8fa7d6;
+    }
+
+    #dse-root .dse-orientation-links .dse-orientation-link-copy {
+      flex: 1;
+      min-height: 126px;
+      margin-top: 16px;
+      padding-top: 16px;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 8px;
+      border-top: 1px solid #303235;
+    }
+
+    #dse-root .dse-orientation-link-copy strong {
+      color: var(--dse-text-strong);
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    #dse-root .dse-orientation-link-copy small {
+      color: #b8b4ae;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    #dse-root .dse-orientation-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: auto;
+      color: var(--dse-copper-soft);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    #dse-root .dse-orientation-card .dse-orientation-cta {
+      color: var(--dse-copper-soft);
+    }
+
+    #dse-root .dse-orientation-cta b {
+      color: var(--dse-copper-soft);
+      font-weight: 500;
+      transition: transform .18s ease;
+    }
+
+    #dse-root .dse-orientation-card:hover .dse-orientation-cta b,
+    #dse-root .dse-orientation-card:focus-visible .dse-orientation-cta b {
+      transform: translate(2px, -2px);
+    }
+
+    #dse-root .dse-process-visual {
+      margin-top: 28px;
+      padding-top: 18px;
+      border-top: 1px solid var(--dse-line-soft);
+    }
+
+    @media (max-width: 980px) {
+      #dse-root .dse-orientation-links {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 620px) {
+      #dse-root .dse-orientation-copy {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      #dse-root .dse-orientation-summary {
+        grid-column: 1;
+        grid-row: auto;
+        margin-top: 8px;
+      }
+
+      #dse-root .dse-orientation-links {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      #dse-root .dse-orientation-card {
+        min-height: 0;
+        padding: 14px 14px 12px;
+      }
+
+      #dse-root .dse-orientation-links .dse-orientation-art {
+        min-height: 184px;
+      }
+
+      #dse-root .dse-orientation-art svg {
+        width: min(100%, 246px);
+        max-height: 172px;
+      }
+
+      #dse-root .dse-orientation-links .dse-orientation-link-copy {
+        min-height: 112px;
+      }
+
+      #dse-root .dse-archive-totals {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px 18px;
+        width: 100%;
+      }
+
+      #dse-root .dse-archive-total {
+        min-width: 0;
+      }
+
+      #dse-root .dse-archive-total:last-child {
+        display: grid;
+        grid-column: 1 / -1;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: baseline;
+        gap: 8px;
+        padding-top: 10px;
+        border-top: 1px solid var(--dse-line-soft);
+      }
+
+      #dse-root .dse-archive-total:last-child b {
+        margin: 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #dse-root .dse-orientation-card,
+      #dse-root .dse-orientation-art,
+      #dse-root .dse-orientation-art svg,
+      #dse-root .dse-orientation-cta b {
+        transition: none;
+        transform: none;
+      }
+
+      #dse-root .dse-orientation-art * {
+        animation: none !important;
+      }
+    }
   </style>
 
   <div class="dse-shell">
-    <header class="dse-header dse-hero">
+    <header class="dse-header dse-hero dse-hero--split">
       <div class="dse-header-copy">
         <p class="dse-kicker dse-skill-kicker"><span class="dse-hero-version" id="dse-hero-version"></span><span>电脑硬件工作台</span><code>pc-hardware-workbench</code></p>
-        <h1>Windows 硬件诊断<br>与安全调参 Skill</h1>
-        <p class="dse-subtitle">用本机配置、HWiNFO / PresentMon、日志和截图整理证据，判断还缺什么，再给出可回退的下一步。不自动修改硬件。</p>
+        <h1><span>让 AI 看懂</span><span>你的电脑</span></h1>
+        <p class="dse-hero-product-line">Windows 硬件诊断与安全调参 Agent Skill</p>
+        <p class="dse-subtitle">读取本机配置、HWiNFO / PresentMon、日志和截图。先判断证据够不够，再给出可回退的排查、调参或升级建议。</p>
         <p class="dse-invoke-example">在 Codex 中调用：<code>$pc-hardware-workbench</code></p>
+        <div class="dse-hero-evidence-rail" aria-label="检查流程">
+          <span><b>01</b>描述问题</span>
+          <i aria-hidden="true"></i>
+          <span><b>02</b>补证据</span>
+          <i aria-hidden="true"></i>
+          <span><b>03</b>看下一步</span>
+        </div>
         <nav class="dse-hero-actions" aria-label="主要入口">
           <a class="dse-hero-action primary" href="#dse-downloads">下载测试版</a>
           <a class="dse-hero-action secondary" href="#dse-home-flow">先按问题自查</a>
         </nav>
         <p class="dse-hero-safety dse-home-status-line">公开测试版 · 暂无稳定版 · 只读 · 变更由你手动应用；判断与测试计划不会自动修改硬件。</p>
       </div>
+
+      <figure class="dse-hero-preview" aria-labelledby="dse-preview-title">
+        <span class="dse-hero-orbit outer" aria-hidden="true"></span>
+        <span class="dse-hero-orbit inner" aria-hidden="true"></span>
+        <figcaption class="dse-preview-caption">
+          <span id="dse-preview-title">SkillDock · 当前对话中的本地交互面板</span>
+          <span>真实结果页</span>
+        </figcaption>
+        <div class="dse-hero-preview-screen">
+          <img src="assets/pchw-result-desktop.png"
+            width="1440" height="900" loading="eager" decoding="async"
+            alt="SkillDock 对脱敏 GPU 掉帧记录给出暂时无法确定原因和下一步建议">
+        </div>
+        <div class="dse-preview-evidence">
+          <span><strong>结论 · 行动 · 指标 · 证据</strong> 四层信息保留在同一任务上下文中</span>
+          <b>PCHW → SkillDock</b>
+        </div>
+      </figure>
     </header>
 
     <section class="dse-howto dse-home-flow" id="dse-home-flow"
@@ -8824,6 +10255,11 @@
         <span class="dse-orrery-preview" aria-hidden="true">
           <img src="assets/orrery-preview.png"
             width="1000" height="720" loading="lazy" decoding="async" alt="">
+          <span class="dse-orrery-mobile-labels">
+            <b>契约核心</b>
+            <b>流程与证据</b>
+            <b>调校决策</b>
+          </span>
         </span>
       </a>
     </nav>
@@ -8892,74 +10328,136 @@
       </details>
     </section>
 
-    <details class="dse-home-technical" id="dse-home-technical">
+    <details class="dse-home-technical" id="dse-home-technical" open>
       <summary id="dse-home-technical-summary"
         aria-controls="dse-home-technical-content" aria-expanded="false">
-        <span data-technical-action>版本与技术资料</span>
-        <small>项目地图、文件结构与历史版本</small>
+        <span data-technical-action>探索 PCHW · 能力与协作</span>
+        <small>能力关系、版本演进、交互流程与文件协作</small>
         <i data-technical-indicator aria-hidden="true">展开</i>
       </summary>
 
     <div id="dse-home-technical-content">
-    <section class="dse-orientation" aria-labelledby="dse-start-title" hidden>
+    <section class="dse-orientation" aria-labelledby="dse-start-title">
       <div class="dse-orientation-copy">
-        <p class="dse-orientation-kicker">第一次来</p>
-        <h2 id="dse-start-title">先选一个目标</h2>
-        <p class="dse-orientation-summary">四个入口对应查看能力、追溯演进、体验判断流程和查看文件星球。先选你此刻最想解决的问题。</p>
+        <h2 id="dse-start-title">探索 PCHW</h2>
+        <p class="dse-orientation-summary">从能力关系、版本演进、交互流程到文件协作，按你的需要继续深入。</p>
       </div>
       <nav class="dse-orientation-links" aria-label="快速导览">
-        <a href="#dse-map-title">
-          <span class="dse-orientation-index">01 / 能力地图</span>
+        <a class="dse-orientation-card dse-orientation-card--map" href="#dse-map-title">
           <span class="dse-orientation-art" aria-hidden="true">
             <svg viewBox="0 0 240 160">
               <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                <path class="dse-art-layer dse-art-layer-1" d="M120 18 210 58 120 98 30 58Z"/>
-                <path class="dse-art-layer dse-art-layer-2" d="M30 74 120 114 210 74"/>
-                <path class="dse-art-layer dse-art-layer-3" d="M30 90 120 130 210 90"/>
-                <path class="dse-art-layer dse-art-layer-4" d="M30 106 120 146 210 106" opacity=".42"/>
-                <g class="dse-art-chip-group">
-                  <rect class="dse-art-chip" x="90" y="48" width="60" height="24" rx="2"/>
-                  <path class="dse-art-chip-detail" d="M100 60h40M120 48v24" opacity=".58"/>
-                  <circle class="dse-art-accent dse-art-pulse" cx="120" cy="60" r="3"/>
+                <path class="dse-art-field" d="M22 31H218M22 80H218M22 129H218M56 14V148M120 10V152M184 14V148"/>
+                <g class="dse-art-capability-map">
+                  <path class="dse-art-map-frame" d="M36 24H204V136H36Z"/>
+                  <path class="dse-art-map-link" d="M94 69H70V40H50M94 90H70V120H50M146 69H170V40H190M146 90H170V120H190"/>
+                  <path class="dse-art-map-link dse-art-map-link--focus" d="M94 69H70V40H50"/>
+                  <rect class="dse-art-map-core" x="94" y="57" width="52" height="46" rx="7"/>
+                  <path class="dse-art-map-core-detail" d="M106 70H134M106 80H128M106 90H118"/>
+                  <circle class="dse-art-map-node" cx="50" cy="40" r="5.5"/>
+                  <circle class="dse-art-map-node" cx="50" cy="120" r="5.5"/>
+                  <circle class="dse-art-map-node" cx="190" cy="40" r="5.5"/>
+                  <circle class="dse-art-map-node" cx="190" cy="120" r="5.5"/>
+                  <circle class="dse-art-map-node-core" cx="50" cy="40" r="2"/>
+                  <circle class="dse-art-map-node-core" cx="50" cy="120" r="2"/>
+                  <circle class="dse-art-map-node-core" cx="190" cy="40" r="2"/>
+                  <circle class="dse-art-map-node-core" cx="190" cy="120" r="2"/>
+                  <circle class="dse-art-accent dse-art-pulse" cx="120" cy="80" r="3.2"/>
                 </g>
-                <path d="M120 18v-9M210 58v9M30 58v9" stroke-dasharray="2 7" opacity=".4"/>
               </g>
             </svg>
           </span>
           <span class="dse-orientation-link-copy">
-            <strong>看项目地图</strong>
+            <strong>能力地图</strong>
             <small>了解当前能力、安全边界与主要流程</small>
+            <span class="dse-orientation-cta">查看能力关系 <b aria-hidden="true">↗</b></span>
           </span>
         </a>
-        <a href="#dse-archive-title">
-          <span class="dse-orientation-index">02 / 版本演进</span>
+        <a class="dse-orientation-card dse-orientation-card--history" href="#dse-archive-title">
           <span class="dse-orientation-art" aria-hidden="true">
-            <svg viewBox="0 0 240 160">
+            <svg viewBox="0 0 360 240">
               <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                <g class="dse-art-version-stack">
-                  <path class="dse-art-version-plane dse-art-plane-1" d="M48 132 143 94 194 114 99 152Z"/>
-                  <path class="dse-art-version-plane dse-art-plane-2" d="M57 119 152 81 203 101 108 139Z"/>
-                  <path class="dse-art-version-plane dse-art-plane-3" d="M66 106 161 68 212 88 117 126Z"/>
-                  <path class="dse-art-version-plane dse-art-plane-4" d="M75 93 170 55 221 75 126 113Z"/>
-                  <path class="dse-art-version-plane dse-art-plane-5" d="M84 80 179 42 230 62 135 100Z" opacity=".58"/>
-                  <path class="dse-art-version-links" d="M194 114 203 101M203 101 212 88M212 88 221 75M221 75 230 62" opacity=".5"/>
-                  <path class="dse-art-version-link-signal" d="M194 114 203 101M203 101 212 88M212 88 221 75M221 75 230 62"/>
-                  <path d="M84 80 84 64M135 100 135 84" stroke-dasharray="2 7" opacity=".45"/>
-                  <circle class="dse-art-accent dse-art-pulse" cx="161" cy="68" r="2.5"/>
+                <g class="dse-art-evolution" transform="translate(0 5) translate(180 120) scale(1.035) translate(-180 -120)">
+                  <path class="dse-evolution-progress-rail" d="M34 184C92 195 141 177 190 160C235 145 278 138 326 151"/>
+                  <path class="dse-evolution-orbit" transform="translate(9 0)" d="M232 77C240 38 289 19 326 39C350 53 349 83 323 104C306 117 285 124 265 123"/>
+
+                  <g class="dse-evolution-stage-1">
+                    <path class="dse-evolution-face dse-evolution-face-side" d="M45 162 64 171 64 176 45 167Z"/>
+                    <path class="dse-evolution-face dse-evolution-face-side" d="M64 171 83 162 83 167 64 176Z"/>
+                    <path class="dse-evolution-face dse-evolution-face-top" d="M45 162 64 152 83 162 64 171Z"/>
+                    <path class="dse-evolution-edge" d="M45 162 64 152 83 162 64 171Z"/>
+                    <path class="dse-evolution-edge" d="M45 162V167L64 176 83 167V162"/>
+                    <path class="dse-evolution-detail" d="M56 162 64 158 72 162 64 166Z"/>
+                  </g>
+
+                  <g class="dse-evolution-stage-2">
+                    <path class="dse-evolution-face dse-evolution-face-side" d="M108 140 137 154 137 162 108 148Z"/>
+                    <path class="dse-evolution-face dse-evolution-face-side" d="M137 154 166 140 166 148 137 162Z"/>
+                    <path class="dse-evolution-face dse-evolution-face-top" d="M108 140 137 126 166 140 137 154Z"/>
+                    <path class="dse-evolution-edge" d="M108 140 137 126 166 140 137 154Z"/>
+                    <path class="dse-evolution-edge" d="M108 140V148L137 162 166 148V140"/>
+                    <path class="dse-evolution-detail" d="M125 140 137 134 149 140 137 146Z"/>
+                  </g>
+
+                  <g class="dse-evolution-stage-3">
+                    <path class="dse-evolution-face dse-evolution-face-side" d="M172 117 211 136 211 146 172 127Z"/>
+                    <path class="dse-evolution-face dse-evolution-face-side" d="M211 136 250 117 250 127 211 146Z"/>
+                    <path class="dse-evolution-face dse-evolution-face-top" d="M172 117 211 98 250 117 211 136Z"/>
+                    <path class="dse-evolution-edge" d="M172 117 211 98 250 117 211 136Z"/>
+                    <path class="dse-evolution-edge" d="M172 117V127L211 146 250 127V117"/>
+                    <path class="dse-evolution-face dse-evolution-face-side" d="M180 100 211 114 211 121 180 107Z"/>
+                    <path class="dse-evolution-face dse-evolution-face-side" d="M211 114 242 100 242 107 211 121Z"/>
+                    <path class="dse-evolution-face dse-evolution-face-top" d="M180 100 211 86 242 100 211 114Z"/>
+                    <path class="dse-evolution-edge" d="M180 100 211 86 242 100 211 114Z"/>
+                    <path class="dse-evolution-edge" d="M180 100V107L211 121 242 107V100"/>
+                    <path class="dse-evolution-detail" d="M196 100 211 93 226 100 211 107Z"/>
+                  </g>
+
+                  <g class="dse-evolution-stage-4" transform="translate(9 0)">
+                    <path class="dse-evolution-face dse-evolution-face-side" d="M241 90 291 112 291 126 241 104Z"/>
+                    <path class="dse-evolution-face dse-evolution-face-side" d="M291 112 341 90 341 104 291 126Z"/>
+                    <path class="dse-evolution-face dse-evolution-face-top" d="M241 90 291 68 341 90 291 112Z"/>
+                    <path class="dse-evolution-edge dse-evolution-final-outline" d="M241 90 291 68 341 90 291 112Z"/>
+                    <path class="dse-evolution-edge" d="M241 90V104L291 126 341 104V90"/>
+
+                    <path class="dse-evolution-face dse-evolution-face-side" d="M252 65 291 83 291 92 252 74Z"/>
+                    <path class="dse-evolution-face dse-evolution-face-side" d="M291 83 330 65 330 74 291 92Z"/>
+                    <path class="dse-evolution-face dse-evolution-face-top" d="M252 65 291 47 330 65 291 83Z"/>
+                    <path class="dse-evolution-edge dse-evolution-final-outline" d="M252 65 291 47 330 65 291 83Z"/>
+                    <path class="dse-evolution-edge" d="M252 65V74L291 92 330 74V65"/>
+
+                    <path class="dse-evolution-face dse-evolution-core-side" d="M279 65 291 71 291 75 279 69Z"/>
+                    <path class="dse-evolution-face dse-evolution-core-side" d="M291 71 303 65 303 69 291 75Z"/>
+                    <path class="dse-evolution-face dse-evolution-core-top" d="M279 65 291 59 303 65 291 71Z"/>
+                    <path class="dse-evolution-core-line" d="M279 65 291 59 303 65 291 71Z"/>
+                    <path class="dse-evolution-core-line" d="M279 65V69L291 75 303 69V65"/>
+                    <circle class="dse-evolution-core-point dse-art-pulse" cx="291" cy="65" r="1.8"/>
+                  </g>
+
+                  <circle class="dse-evolution-progress-node" cx="66" cy="187" r="2.3"/>
+                  <circle class="dse-evolution-progress-node" cx="139" cy="177" r="2.8"/>
+                  <circle class="dse-evolution-progress-node" cx="212" cy="155" r="3.2"/>
+                  <circle class="dse-evolution-progress-node dse-evolution-progress-node-final" cx="300" cy="144" r="4"/>
                 </g>
               </g>
             </svg>
           </span>
           <span class="dse-orientation-link-copy">
-            <strong>查版本演进</strong>
+            <strong>版本演进</strong>
             <small>按系列展开历史记录与验证状态</small>
+            <span class="dse-orientation-cta">查看版本档案 <b aria-hidden="true">↗</b></span>
           </span>
         </a>
-        <a href="interactive/">
-          <span class="dse-orientation-index">03 / 交互流程</span>
+        <a class="dse-orientation-card dse-orientation-card--flow" href="interactive/">
           <span class="dse-orientation-art" aria-hidden="true">
             <svg viewBox="0 0 240 160">
+              <defs>
+                <marker id="dse-flow-arrow-head" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                  <path d="M0 0 8 4 0 8Z" fill="var(--dse-copper-soft)" stroke="none"/>
+                </marker>
+              </defs>
               <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path class="dse-art-field" d="M22 36H218M22 80H218M22 124H218M70 16V148M120 10V152M170 16V148"/>
                 <rect x="16" y="26" width="84" height="108" rx="3"/>
                 <path class="dse-art-data-row" d="M28 42h28M28 57h57M28 72h43M28 87h54M28 102h38M28 117h49"/>
                 <rect class="dse-art-data-row-focus" x="28" y="111" width="49" height="11" rx="2"/>
@@ -8973,6 +10471,7 @@
                 <path class="dse-art-flow-signal dse-art-flow-lane-1" pathLength="100" d="M100 52C111 52 111 72 118 78M122 78C129 72 129 52 140 52"/>
                 <path class="dse-art-flow-signal dse-art-flow-lane-2" pathLength="100" d="M100 80h18M122 80h18"/>
                 <path class="dse-art-flow-signal dse-art-flow-lane-3" pathLength="100" d="M100 108C111 108 111 88 118 82M122 82C129 88 129 108 140 108"/>
+                <path class="dse-art-flow-route dse-art-flow-route--arrow" d="M122 80H136"/>
 
                 <circle class="dse-art-flow-port" cx="100" cy="52" r="1.8"/>
                 <circle class="dse-art-flow-port" cx="100" cy="80" r="1.8"/>
@@ -8987,31 +10486,34 @@
             </svg>
           </span>
           <span class="dse-orientation-link-copy">
-            <strong>体验 Skill 流程</strong>
+            <strong>交互流程</strong>
             <small>切换术语、调校、排障与配置有效性演示</small>
+            <span class="dse-orientation-cta">体验完整流程 <b aria-hidden="true">↗</b></span>
           </span>
         </a>
-        <a href="orrery/">
-          <span class="dse-orientation-index">04 / 文件星球</span>
+        <a class="dse-orientation-card dse-orientation-card--orrery" href="orrery/">
           <span class="dse-orientation-art" aria-hidden="true">
             <svg viewBox="0 0 240 160">
               <g fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                <ellipse cx="120" cy="82" rx="94" ry="35" transform="rotate(-8 120 82)" opacity=".5"/>
-                <ellipse cx="120" cy="82" rx="72" ry="26" transform="rotate(10 120 82)" opacity=".4"/>
-                <ellipse cx="120" cy="82" rx="48" ry="18" transform="rotate(-15 120 82)" opacity=".34"/>
-                <circle class="dse-art-planet-halo" cx="120" cy="82" r="15"/>
-                <circle class="dse-art-accent" cx="120" cy="82" r="11"/>
-                <circle class="dse-art-orbit-static dse-art-node" cx="196" cy="57" r="4"/>
-                <circle class="dse-art-orbit-static dse-art-node" cx="58" cy="97" r="4"/>
-                <circle class="dse-art-orbit-static dse-art-node" cx="158" cy="112" r="3.5"/>
-                <circle class="dse-art-orbit-static dse-art-node" cx="77" cy="61" r="3.5"/>
-                <path class="dse-art-orbit-rays" d="M120 82 196 57M120 82 58 97M120 82 158 112M120 82 77 61"/>
+                <path class="dse-art-field" d="M22 40H218M22 80H218M22 120H218M70 14V148M120 10V152M170 14V148"/>
+                <ellipse class="dse-art-orbit-ring" cx="120" cy="82" rx="94" ry="35" transform="rotate(-8 120 82)"/>
+                <ellipse class="dse-art-orbit-ring" cx="120" cy="82" rx="72" ry="26" transform="rotate(10 120 82)"/>
+                <ellipse class="dse-art-orbit-ring" cx="120" cy="82" rx="48" ry="18" transform="rotate(-15 120 82)"/>
+                <circle class="dse-art-planet-halo" cx="120" cy="82" r="17"/>
+                <circle class="dse-art-accent" cx="120" cy="82" r="12"/>
+                <circle class="dse-art-orbit-static dse-art-node node-a" cx="196" cy="57" r="5"/>
+                <circle class="dse-art-orbit-static dse-art-node node-b" cx="58" cy="97" r="5"/>
+                <circle class="dse-art-orbit-static dse-art-node node-c" cx="158" cy="112" r="4.5"/>
+                <circle class="dse-art-orbit-static dse-art-node node-d" cx="77" cy="61" r="4.5"/>
+                <circle class="dse-art-orbit-static dse-art-node node-e" cx="120" cy="30" r="4"/>
+                <path class="dse-art-orbit-rays" d="M120 82 196 57M120 82 58 97M120 82 158 112M120 82 77 61M120 82V30"/>
               </g>
             </svg>
           </span>
           <span class="dse-orientation-link-copy">
-            <strong>查看文件星球</strong>
-            <small>当前 135 个 Skill 文件如何组成 7 个职责分区与可交互轨道</small>
+            <strong>文件星球</strong>
+            <small>当前 157 个 Skill 文件如何组成 7 个职责分区与可交互轨道</small>
+            <span class="dse-orientation-cta">探索文件结构 <b aria-hidden="true">↗</b></span>
           </span>
         </a>
       </nav>
@@ -9035,7 +10537,7 @@
         <a class="dse-filter dse-lab-link" href="orrery/" title="查看文件星球">查看文件星球</a>
       </div>
       <div class="dse-legend">
-        <span style="color: var(--dse-cyan)"><i class="dse-dot"></i>核心流程</span>
+        <span style="color: var(--dse-copper-soft)"><i class="dse-dot"></i>核心流程</span>
         <span style="color: var(--dse-lime)"><i class="dse-dot"></i>排障证据</span>
         <span style="color: var(--dse-amber)"><i class="dse-dot"></i>待完成</span>
       </div>
@@ -9475,7 +10977,7 @@
         <div>
           <p class="dse-archive-kicker">版本档案 / 全部已记录版本</p>
           <h2 id="dse-archive-title">逐版本迭代档案</h2>
-          <p class="dse-archive-summary">从统一工作台 1.0.0 到 2.7.4 测试版，以及后来选择性并入正式路线的 GPU 自动候选历史。1.6.0 之后新增遥测标准化、动态 RAG、LHM loopback Web、视觉证据、Doctor、入口减重、显存解释、分层调参、GPU 自动候选、用户声明核验、案卷续接和 PresentMon 帧时间。自动候选原型不再作为独立产品入口，只在这里保留可追溯记录。</p>
+          <p class="dse-archive-summary">从统一工作台 1.0.0 到 2.9.3 公开测试版，以及后来选择性并入正式路线的 GPU 自动候选历史。1.6.0 之后新增遥测标准化、动态 RAG、LHM loopback Web、视觉证据、Doctor、入口减重、显存解释、分层调参、GPU 自动候选、用户声明核验、案卷续接、PresentMon 帧时间，并在 2.9.3 收敛物理安全兜底、来源绑定与证据完整性。自动候选原型不再作为独立产品入口，只在这里保留可追溯记录。</p>
         </div>
         <div class="dse-archive-totals" aria-label="版本档案统计">
           <span class="dse-archive-total"><b id="dse-wb-count">0</b>工作台版本</span>
@@ -10028,7 +11530,7 @@
           ]
         },
         {
-          id: "wb-2-2", track: "core", label: "工作台 / 1.6 → 2.7.4", sub: "标准化 · 证据 · 实时适配 · 视觉 · Doctor · 显存调参 · GPU 候选 · 声明核验 · 案卷续接 · 入口瘦身 · 帧时间 · 测试版",
+          id: "wb-2-2", track: "core", label: "工作台 / 1.6 → 2.9.3", sub: "标准化 · 证据 · 实时适配 · 视觉 · Doctor · 显存调参 · GPU 候选 · 声明核验 · 案卷续接 · 入口瘦身 · 帧时间 · 安全收尾 · 公开测试版",
           versions: [
             ["1.6.0", "遥测图表、硬件案卷与入口瘦身", "2026-11-03", "RELEASED", ["新增 ChartData 与固定 SVG 遥测渲染器，保留缺失值断点并防止覆盖。", "新增本地硬件案卷，保存证据哈希、假设、时间线、基线和实验。", "入口从约 17.3 KB 降至 11.7 KB，Quick 初始加载降到约 21.4 KB。"], "全量非实机测试、validator、便携同步和案卷/图表回归通过。", "工作台从规则与文本遥测进入可视化案卷阶段。"],
             ["1.7.0", "离线案卷报告与图表准确性", "2026-11-03", "RELEASED", ["生成依赖为零、带 CSP 的静态 HTML 案卷报告，证据预览默认关闭。", "修复降采样丢失缺口、显式 IncludeColumn 被挤出和警告摘要缺失。", "时间戳统一 ISO 8601；危险 SVG、外部路径与 HTML 注入被隔离。"], "全量测试与 validator 通过；独立完整性测试 7/7 PASS，实时采集 SKIP。", "案卷从本地 JSON 升级为可离线阅读、可分享审查的报告。"],
@@ -10103,7 +11605,9 @@
       );
       const heroVersion = document.getElementById("dse-hero-version");
       if (currentReleaseRecord && heroVersion) {
-        heroVersion.textContent = currentReleaseRecord.version;
+        heroVersion.textContent = currentReleaseRecord.version === "2.9.3"
+          ? "2.9.3-test.2"
+          : currentReleaseRecord.version;
       }
       const lastMilestoneByTrack = {
         core: "core-gpu-integration",
@@ -11070,12 +12574,12 @@
           proof: "portable/share bundles、CI package sync、manifest tests。"
         },
         {
-          id: "core-signoff", track: "core", code: "WB-06", title: "人工行为验收",
-          summary: "场景矩阵 · 独立签署 · 发布门禁",
-          status: "done", state: "CLEARED",
+          id: "core-signoff", track: "core", code: "WB-06", title: "人工验收边界",
+          summary: "场景矩阵 · 自动回归 · 独立签署待完成",
+          status: "blocked", state: "PENDING SIGN-OFF",
           goal: "区分自动测试通过、人工行为验证和公开发布批准。",
           action: "用真实场景检查交互闭环、安全拒绝、恢复路径和解释质量。",
-          proof: "人工验收模板、需求方签署和 release-blocking gate。"
+          proof: "人工验收模板与发布门禁已建立；真实 Codex Thread、人工交互和 Clean Windows 签署仍为 PENDING。"
         },
         {
           id: "core-github", track: "core", code: "WB-07", title: "公开维护基线",
@@ -11088,14 +12592,14 @@
         {
           id: "core-instrumentation", track: "core", code: "WB-08", title: "可信证据系统",
           summary: "统一遥测 · RAG · LHM · 视觉 · Doctor · 简单入口",
-          status: "done", state: "CURRENT",
+          status: "current", state: "2.9.3-test.2",
           goal: "把 CSV、结构化快照、官方资料、实时只读传感器和图片统一到可追溯、可降级、可诊断的证据体系。",
           action: "先标准化来源与时间，再记录证据卡和缺失；网页图片不再等于时间序列，Doctor 把权限问题与损坏问题分开。",
-          proof: "各子系统独立复核通过；入口约 10.9 KB、Quick 约 19.9 KB；LHM Web 只读场景三组行为对话 3/3 PASS；广泛发布人工签署仍 PENDING；版本已进入 GitHub main。"
+          proof: "当前公开测试版为 2.9.3-test.2；自动回归与 LHM Web 只读场景通过，真实 Codex Thread、人工交互、Clean Windows 和多平台验收仍为 PENDING。"
         },
         {
           id: "core-gpu-integration", track: "core", code: "WB-09", title: "GPU 自动候选整合",
-          summary: "2.9.3 公开测试版 · 安全与证据收尾",
+          summary: "2.9.3-test.2 公开测试版 · 安全与证据收尾",
           status: "done", state: "已整合",
           goal: "把经过分类防火墙和证据门禁验证的 GPU 自动候选并入正式安全调参路线，不再维护独立产品线。",
           action: "用户只提出一个目标，Skill 在条件齐全后生成一张手动应用的单变量实验卡；失败时回到已验证的稳定配置。",
@@ -11309,6 +12813,15 @@
         milestoneDetail.classList.toggle("merge", item.track === "merge");
         milestoneDetail.classList.toggle("triage", item.track === "triage");
         showInspector("milestone", shouldReveal);
+        if (shouldReveal && window.matchMedia("(max-width: 580px)").matches) {
+          const selectedNode = root.querySelector(`.dse-node[data-milestone-id="${CSS.escape(id)}"]`);
+          window.requestAnimationFrame(() => {
+            selectedNode?.scrollIntoView({
+              block: "center",
+              behavior: reduceMotionQuery.matches ? "auto" : "smooth"
+            });
+          });
+        }
       }
 
       function setPanelCollapsed(panel, collapsed) {
@@ -11918,11 +13431,11 @@
 
       function syncTuneStepNavigation() {
         if (activeDemoMode !== "tune" || demoSection.hidden) return;
-        if (root.scrollTop + root.clientHeight >= root.scrollHeight - 4) {
+        if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 4) {
           setCurrentTuneStep(tuneStepSections.at(-1)?.dataset.tuneStep || "");
           return;
         }
-        const threshold = root.getBoundingClientRect().top + 150;
+        const threshold = 150;
         let currentStep = tuneStepSections[0]?.dataset.tuneStep || "";
         tuneStepSections.forEach(section => {
           if (section.getBoundingClientRect().top <= threshold) {
@@ -12028,7 +13541,7 @@
         }
         if (resetScroll) {
           const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-          root.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+          window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
         }
       }
 
@@ -12063,7 +13576,7 @@
         homeTechnicalSummary?.setAttribute("aria-expanded", String(open));
         const technicalAction = homeTechnicalSummary?.querySelector("[data-technical-action]");
         const technicalIndicator = homeTechnicalSummary?.querySelector("[data-technical-indicator]");
-        if (technicalAction) technicalAction.textContent = open ? "收起技术资料" : "版本与技术资料";
+        if (technicalAction) technicalAction.textContent = "探索 PCHW · 能力与协作";
         if (technicalIndicator) technicalIndicator.textContent = open ? "收起" : "展开";
       }
       homeTechnical?.addEventListener("toggle", syncHomeTechnicalDisclosure);
@@ -12405,7 +13918,7 @@
         const scenario = currentScenario();
         const state = {
           savedAt: Date.now(),
-          scrollTop: root.scrollTop,
+          scrollTop: window.scrollY,
           selectedScenarioId,
           flowStep,
           context: scenario ? {
@@ -12794,7 +14307,7 @@
         }
         const targetScrollTop = Math.max(0, Number(savedReturnState.scrollTop) || 0);
         const restoreScrollPosition = () => {
-          root.scrollTop = targetScrollTop;
+          window.scrollTo(0, targetScrollTop);
         };
         window.requestAnimationFrame(() => {
           restoreScrollPosition();

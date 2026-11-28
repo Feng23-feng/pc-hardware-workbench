@@ -21,31 +21,35 @@
     }
 
     #dse-root {
-      --dse-bg: #08090b;
-      --dse-panel: #0e1013;
-      --dse-panel-2: #14171a;
-      --dse-text: #f1f3f5;
-      --dse-muted: #8f96a0;
-      --dse-line: #25292f;
-      --dse-cyan: #81cfdf;
+      --dse-bg: #111315;
+      --dse-panel: #1a1c1e;
+      --dse-panel-2: #232527;
+      --dse-text: #f3efe9;
+      --dse-muted: #aaa6a0;
+      --dse-line: #38383a;
+      --dse-copper: #b87348;
+      --dse-copper-soft: #d7a17b;
+      --dse-copper-rgb: 184 115 72;
+      --dse-copper-soft-rgb: 215 161 123;
+      --dse-cyan: #d7a17b;
       --dse-magenta: #d795b9;
       --dse-lime: #a6d7a2;
       --dse-amber: #d8b47a;
       --dse-red: #dc838b;
-      --dse-cyan-rgb: 129 207 223;
+      --dse-cyan-rgb: 215 161 123;
       --dse-magenta-rgb: 215 149 185;
       --dse-lime-rgb: 166 215 162;
       --dse-amber-rgb: 216 180 122;
       --dse-red-rgb: 220 131 139;
       --dse-white-rgb: 255 255 255;
       --dse-black-rgb: 0 0 0;
-      --dse-surface-deep: #0a0c0e;
-      --dse-surface-control: #15181b;
-      --dse-text-strong: #eef2f4;
-      --dse-text-muted-soft: #8b929c;
-      --dse-text-faint: #7f8790;
-      --dse-line-soft: #292e34;
-      --dse-line-strong: #343941;
+      --dse-surface-deep: #111315;
+      --dse-surface-control: #232527;
+      --dse-text-strong: #f3efe9;
+      --dse-text-muted-soft: #aaa6a0;
+      --dse-text-faint: #89847e;
+      --dse-line-soft: #2b2d2f;
+      --dse-line-strong: #3c3b3d;
       --dse-action-height: 44px;
       --dse-action-font: 15px;
       --dse-control-font: 14px;
@@ -56,7 +60,7 @@
       overflow-y: auto;
       color: var(--dse-text);
       background:
-        radial-gradient(circle at 50% -18%, rgba(129, 207, 223, .055), transparent 34%),
+        radial-gradient(circle at 50% -18%, rgba(var(--dse-copper-rgb) / .055), transparent 34%),
         var(--dse-bg);
       border: 0;
       font-family: "Segoe UI Variable", "Segoe UI", "Noto Sans SC", "Microsoft YaHei UI", sans-serif;
@@ -9779,6 +9783,175 @@
         font-size: 20px !important;
       }
     }
+
+    /*
+      Graphite Copper Dark brand synchronization.
+      Cyan remains available only where an older mode uses it as a semantic
+      state; navigation and shared interaction emphasis now use copper.
+    */
+    html[data-site-view="interactive"] #dse-root {
+      --dse-workbench: #111315;
+      --dse-workbench-raised: #1a1c1e;
+      --dse-hairline: #37383a;
+      --dse-hairline-soft: #2b2d2f;
+      background:
+        radial-gradient(ellipse at 50% 9%, rgb(var(--dse-copper-rgb) / .05), transparent 38%),
+        linear-gradient(180deg, #101214 0%, #0f1113 100%);
+    }
+
+    #dse-root .dse-demo-panel > .dse-process {
+      display: grid;
+      grid-template-columns: max-content minmax(0, 1fr);
+      align-items: start;
+      gap: 10px 18px;
+      margin-top: 8px;
+      padding-top: 16px;
+      border-top: 1px solid var(--dse-line-soft);
+    }
+
+    #dse-root .dse-demo-panel > .dse-process .dse-process-steps {
+      flex-wrap: wrap;
+      gap: 8px 0;
+    }
+
+    #dse-root .dse-demo-panel > .dse-process .dse-process-note {
+      display: block;
+      grid-column: 1 / -1;
+      max-width: 100%;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      line-height: 1.7;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-global-nav {
+      color: #aaa6a0;
+      background: rgba(15, 16, 18, .94);
+      border-bottom-color: #353537;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-global-nav a:hover,
+    html[data-site-view="interactive"] #dse-root .dse-global-nav a:focus-visible,
+    html[data-site-view="interactive"] #dse-root .dse-global-nav span {
+      color: var(--dse-copper-soft);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-advanced-page-head {
+      border-bottom-color: var(--dse-hairline);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-advanced-page-head > span {
+      color: #b6b1ab;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-advanced-page-head > small {
+      color: var(--dse-copper-soft);
+      background: rgba(var(--dse-copper-rgb) / .055);
+      border-color: rgba(var(--dse-copper-rgb) / .42);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-context-bridge,
+    html[data-site-view="interactive"] #dse-root .dse-demo-modes,
+    html[data-site-view="interactive"] #dse-root .dse-tune-steps {
+      background: #181a1c;
+      border-color: #37383a;
+    }
+
+    #dse-root .dse-demo-mode-group.utility {
+      border-left-color: #343436;
+    }
+
+    #dse-root .dse-demo-mode-label {
+      color: #8e8983;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-mode-group .dse-filter {
+      color: #c8c3bd;
+      background: #1b1d1f;
+      border-color: #393a3d;
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-mode-group .dse-filter:hover,
+    html[data-site-view="interactive"] #dse-root .dse-demo-mode-group .dse-filter:focus-visible {
+      color: var(--dse-text-strong);
+      background: #232527;
+      border-color: rgba(var(--dse-copper-rgb) / .6);
+    }
+
+    html[data-site-view="interactive"] #dse-root .dse-demo-mode-group .dse-filter[aria-pressed="true"],
+    html[data-site-view="interactive"] #dse-root .dse-demo-mode-group.utility .dse-filter[aria-pressed="true"] {
+      color: var(--dse-text-strong);
+      background: rgba(var(--dse-copper-rgb) / .15);
+      border-color: rgba(var(--dse-copper-rgb) / .58);
+      box-shadow: inset 0 -2px 0 var(--dse-copper-soft);
+    }
+
+    html[data-site-view="interactive"] #dse-root #dse-tune-steps a[aria-current="step"] {
+      color: var(--dse-text-strong);
+      background: #202224;
+      box-shadow: inset 0 -2px 0 var(--dse-copper-soft);
+    }
+
+    #dse-root .dse-tune-steps a {
+      color: #b8b2ab;
+    }
+
+    #dse-root .dse-tune-steps a small {
+      color: #99928c;
+    }
+
+    #dse-root .dse-tune-steps a[aria-current="step"] small {
+      color: #cbb19f;
+    }
+
+    html[data-site-view="interactive"] #dse-root #dse-tune-steps a b {
+      color: var(--dse-copper-soft);
+      background: rgba(var(--dse-copper-rgb) / .08);
+      border-color: rgba(var(--dse-copper-rgb) / .36);
+    }
+
+    #dse-root .dse-guided-actions button:hover:not(:disabled),
+    #dse-root .dse-guided-actions button:focus-visible:not(:disabled),
+    #dse-root .dse-guided-result-actions button:hover,
+    #dse-root .dse-guided-result-actions button:focus-visible {
+      color: var(--dse-text-strong);
+      text-decoration-color: var(--dse-copper-soft);
+    }
+
+    #dse-root .dse-guided-outcome {
+      background: rgba(var(--dse-copper-rgb) / .04);
+      border-color: rgba(var(--dse-copper-rgb) / .2);
+    }
+
+    #dse-root .dse-guided-outcome small,
+    #dse-root .dse-guided-path > span.is-current .dse-guided-path-state,
+    #dse-root .dse-guided-progress {
+      color: var(--dse-copper-soft);
+    }
+
+    #dse-root .dse-guided-outcome header strong {
+      color: #f0e8e2;
+    }
+
+    #dse-root .dse-guided-result-actions {
+      border-top-color: rgba(var(--dse-copper-rgb) / .18);
+    }
+
+    #dse-root .dse-inspector-restore,
+    #dse-root .dse-sim-outcome {
+      background: #1a1c1e;
+      border-color: rgba(var(--dse-copper-rgb) / .42);
+      box-shadow: none;
+    }
+
+    @media (max-width: 760px) {
+      #dse-root .dse-demo-panel > .dse-process {
+        grid-template-columns: 1fr;
+      }
+
+      #dse-root .dse-demo-panel > .dse-process .dse-process-note {
+        grid-column: 1;
+      }
+    }
   </style>
 
   <nav class="dse-global-nav" aria-label="全局导航">
@@ -15243,7 +15416,6 @@
     })();
   </script>
 </main>
-
 <script src="../crt-backdrop.js" defer></script>
 <noscript>This page requires JavaScript to show the interactive content.</noscript>
 </body>
